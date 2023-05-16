@@ -1,8 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 from base_model import BaseModel
-from db import engine,connectDB
-from sqlalchemy.orm import sessionmaker
 
 class User(BaseModel):
     __tablename__ = 'users'
@@ -13,20 +10,5 @@ class User(BaseModel):
     password = Column(String)
 
 
-# __________________DB execution
-
-engine = connectDB()
-print("Engine")
-print()
-Session = sessionmaker(bind=engine)
-session = Session()
-new_user = User(id=1,name="John Doe",email="test@gmail.com",password="password")
-BaseModel.metadata.create_all(engine)
-# Add the user to the session
-session.add(new_user)
-
-# Commit the transaction
-session.commit()
-
-# Close the session
-session.close()
+    def __repr__(self):
+        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}')"

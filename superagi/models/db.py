@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 
 # Replace 'username' and 'password' with your PostgreSQL credentials
-db_username = ''
-db_password = ''
-db_name = ''
+db_username = 'abhijeet'
+db_password = 'password'
+db_name = 'test123'
 
 engine = None
 
