@@ -1,4 +1,4 @@
-from agent.agent_prompt import AgentPrompt
+from superagi.agent.agent_prompt import AgentPrompt
 
 
 class AgentPromptBuilder:

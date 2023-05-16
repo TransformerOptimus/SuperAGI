@@ -1,5 +1,5 @@
 # build a pinecone wrapper
-from memory.embedding.openai import OpenAiEmbedding
+from superagi.memory.embedding.openai import OpenAiEmbedding
 import pinecone
 
 
