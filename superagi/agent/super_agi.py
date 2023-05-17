@@ -7,9 +7,11 @@ import time
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
 from superagi.agent.super_agi import SuperAgi
-from superagi.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
+from superagi.vector_store.base import VectorStore
+from superagi.vector_store.document import Document
 
 FINISH = "finish"
 class SuperAgi:
@@ -17,6 +19,7 @@ class SuperAgi:
               ai_name: str,
               ai_role: str,
               llm: BaseLlm,
+              memory: VectorStore,
               output_parser: BaseOutputParser,
               tools: List[BaseTool],
               ):
@@ -27,17 +30,21 @@ class SuperAgi:
     self.tools = tools
     self.state = None
 
+  @classmethod
   def from_llm_and_tools(
           cls,
           ai_name: str,
           ai_role: str,
+          memory: VectorStore,
           tools: List[BaseTool],
           llm: BaseLlm
   ) -> SuperAgi:
+
     autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(ai_name, ai_role, tools)
     return cls(
       llm,
       tools,
+      memory,
       AgentOutputParser()
     )
 
@@ -91,6 +98,7 @@ class SuperAgi:
           f"commands and only respond in the specified JSON format."
         )
 
+      self.memory.add_documents([Document(text_content=assistant_reply)])
       self.full_message_history.append(SystemMessage(content=result))
     pass
 

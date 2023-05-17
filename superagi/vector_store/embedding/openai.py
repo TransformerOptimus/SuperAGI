@@ -1,7 +1,13 @@
 import os
+from abc import ABC, abstractmethod
 
 import openai
 
+class BaseEmbedding(ABC):
+
+  @abstractmethod
+  def get_embedding(self, text):
+    pass
 
 class OpenAiEmbedding:
   def __init__(self, model="text-embedding-ada-002"):
