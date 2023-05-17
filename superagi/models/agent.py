@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
 from base_model import DBBaseModel
 from project import Project
+from sqlalchemy.orm import relationship
 
 class Agent(DBBaseModel):
     __tablename__ = 'agents'
@@ -8,6 +9,7 @@ class Agent(DBBaseModel):
     id = Column(Integer, primary_key=True,autoincrement=True)
     name = Column(String)
     project_id = Column(Integer,ForeignKey(Project.id))
+    project = relationship(Project)
     description = Column(String)
 
     def __repr__(self):

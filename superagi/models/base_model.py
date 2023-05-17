@@ -4,6 +4,8 @@ from datetime import datetime
 
 Base = declarative_base()
 
+# class WrapperBaseMode(Base):
+
 class DBBaseModel(Base):
     __abstract__ = True
     # id  = Column(INTEGER,primary_key=True,autoincrement=True)
