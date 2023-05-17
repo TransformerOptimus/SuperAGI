@@ -1,6 +1,6 @@
 import uuid
 
-from superagi.vector_store.Document import Document
+from superagi.vector_store.document import Document
 from superagi.vector_store.base import VectorStore
 from typing import Any, Callable, Optional, Iterable, List
 

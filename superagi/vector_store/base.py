@@ -1,7 +1,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Iterable, List, Optional, Tuple
-from Document import Document
+from document import Document
 
 
 class VectorStore(ABC):
