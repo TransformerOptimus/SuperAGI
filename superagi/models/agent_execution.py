@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from base_model import BaseModel
+from base_model import DBBaseModel
 from agent import Agent
 
-class AgentExecution(BaseModel):
+class AgentExecution(DBBaseModel):
     __tablename__ = 'agent_executions'
 
     id = Column(Integer, primary_key=True)

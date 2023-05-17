@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
-from base_model import BaseModel
+from base_model import DBBaseModel
 from project import Project
 
-class Agent(BaseModel):
+class Agent(DBBaseModel):
     __tablename__ = 'agents'
 
     id = Column(Integer, primary_key=True,autoincrement=True)

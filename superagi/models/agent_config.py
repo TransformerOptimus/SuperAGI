@@ -1,13 +1,14 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from base_model import BaseModel
+from base_model import DBBaseModel
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 from agent import Agent
 from llm import LLM
 from tool import Tool
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
-class AgentConfiguration(BaseModel):
+class AgentConfiguration(DBBaseModel):
     __tablename__ = 'agent_configurations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -17,16 +18,13 @@ class AgentConfiguration(BaseModel):
     constraints = Column(String)
     base_prompt = Column(String)
     response = Column(JSON)
-    tool_id = Column(Integer,ForeignKey(Tool.id))
-    tools = relationship(Tool)
+    # tool_id = Column(Integer,ForeignKey(Tool.id))
+    # tools = relationship(Tool)
+    tools = Column(ARRAY(String))
     exit_condition = Column(String)
-    llm_id = Column(Integer, ForeignKey())
-    llm = relationship(LLM)
+    # llm_id = Column(Integer, ForeignKey())
+    # llm = relationship(LLM)
+    llms = Column(ARRAY(String))
 
     def __repr__(self):
-        return f"LLM(id={self.id}, company='{self.company}', model_name='{self.model_name}', " \
-               f"max_tokens={self.max_tokens}, temperature={self.temperature}, " \
-               f"top_p={self.top_p}, prompt='{self.prompt}', " \
-               f"number_of_results={self.number_of_results}, " \
-               f"frequency_penalty={self.frequency_penalty}, " \
-               f"presence_penalty={self.presence_penalty})"
+        return f"AgentConfiguration(id={self.id}, goal={self.goal}, agent_id={self.agent_id}, constraints={self.constraints}, base_prompt={self.base_prompt}, response={self.response}, tools={self.tools}, exit_condition={self.exit_condition}, llms={self.llms})"
