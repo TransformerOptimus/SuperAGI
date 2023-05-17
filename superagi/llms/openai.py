@@ -1,10 +1,6 @@
 import os
-<<<<<<< HEAD
 import json
-=======
 from abc import ABC, abstractmethod
-
->>>>>>> 88ae2e3 (adding first cut agent changes)
 
 import openai
 from superagi.llms.base_llm import BaseLlm
