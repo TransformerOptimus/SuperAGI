@@ -9,12 +9,12 @@ memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", Open
 memory.add_documents([Document("Hello world")])
 memory.get_matching_text("Hello world")
 
-def test_function():
-    print("hello ramram")
+def test_function(name: str):
+    print("hello ramram", name)
     return
 
-def create_campaign():
-    print("create campaigns")
+def create_campaign(campaign_name: str):
+    print("create campaigns", campaign_name)
     return
 
 
@@ -24,4 +24,4 @@ tools = [
 ]
 
 superagi = SuperAgi.from_llm_and_tools("Super AGI", "Super AGI", memory, tools, OpenAi())
-superagi.execute()
+superagi.execute(["I want to send campaign"])
