@@ -1,9 +1,16 @@
 import os
+<<<<<<< HEAD
 import json
+=======
+from abc import ABC, abstractmethod
+
+>>>>>>> 88ae2e3 (adding first cut agent changes)
 
 import openai
+from superagi.llms.base_llm import BaseLlm
 
-class OpenAi:
+
+class OpenAi(BaseLlm):
   def __init__(self, model="gpt-4", temperature=0.3, max_tokens=3600, top_p=1, frequency_penalty=0,
                presence_penalty=0, number_of_results=1):
     self.model = model
@@ -30,8 +37,8 @@ class OpenAi:
         presence_penalty=self.presence_penalty
       )
 
-      return json.dumps(response)
-
+      content = response.choices[0].message["content"]
+      return {response: response, content: content}
     except Exception as exception:
       return {"error": exception}
   
@@ -57,6 +64,7 @@ class OpenAi:
               presence_penalty=self.presence_penalty,
               api_key=os.getenv("OPENAI_API_KEY")
           )
-          return json.dumps(response)
+          content = response.choices[0].message["content"]
+          return {response: response, content: content}
       except Exception as exception:
           return {"error":exception}
