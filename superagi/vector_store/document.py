@@ -7,3 +7,5 @@ class Document(BaseModel):
     text_content: str
     metadata: dict = Field(default_factory=dict)
 
+    def __init__(self, text_content, *args, **kwargs):
+        super().__init__(text_content=text_content, *args, **kwargs)

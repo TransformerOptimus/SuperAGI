@@ -55,7 +55,7 @@ class Pinecone(VectorStore):
         self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
         return ids
 
-    def get_matching_text(self, query: str, top_k: int, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int = 5, **kwargs: Any) -> List[Document]:
         """Return docs most similar to query using specified search type."""
         namespace = kwargs.get("namespace", self.namespace)
 
