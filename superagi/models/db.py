@@ -23,3 +23,5 @@ def connectDB():
     except Exception as e:
         print("Unable to connect to the database:", e)
     return engine
+
+# def getSession():

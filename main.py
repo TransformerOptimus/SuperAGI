@@ -4,12 +4,23 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 from superagi.models.user import User
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
+
 
 app = FastAPI()
 
-class User(BaseModel):
-    username: str
-    password: str
+
+from superagi.models.db import engine,connectDB
+# from base_model import BaseModel
+from sqlalchemy.orm import sessionmaker
+
+
+engine = connectDB()
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
 # in production you can use Settings management
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
@@ -32,27 +43,28 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 # provide a method to create access tokens. The create_access_token()
 # function is used to actually generate the token to use authorization
 # later in endpoint protected
+class LoginRequest(BaseModel):
+    email:str
+    password:str
+
 @app.post('/login')
-def login(user: User, Authorize: AuthJWT = Depends()):
-    print("User Details!")
-    print(user.username)
-    print(user.password)
+def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
+    email_to_find = request.email
+    user:User = session.query(User).filter(User.email == email_to_find).first()
 
-
-
-    if user.username != "test" or user.password != "test":
+    if user ==None or request.email != user.email or request.password != user.password:
         raise HTTPException(status_code=401,detail="Bad username or password")
 
     # subject identifier for who this token is for example id or username from database
-    access_token = Authorize.create_access_token(subject=user.username)
+    access_token = Authorize.create_access_token(subject=user.email)
     return {"access_token": access_token}
+
 
 # protect endpoint with function jwt_required(), which requires
 # a valid access token in the request headers to access.
 @app.get('/user')
 def user(Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
-
     current_user = Authorize.get_jwt_subject()
     return {"user": current_user}
 
@@ -65,6 +77,15 @@ async def root(Authorize: AuthJWT = Depends()):
     return {"message": "Hello World"}
 
 
+#Unprotected route
 @app.get("/hello/{name}")
-async def say_hello(name: str):
+async def say_hello(name: str,):
     return {"message": f"Hello {name}"}
+
+
+
+session.commit()
+session.close()
+
+# __________________TO RUN____________________________
+# uvicorn main:app --host 0.0.0.0 --port 8001 --reload
