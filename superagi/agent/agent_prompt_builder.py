@@ -1,11 +1,11 @@
 from pydantic.types import List
 
 from superagi.agent.agent_prompt import AgentPrompt
-from superagi.tools.base_tool import BaseTool
+from superagi.tools.base_tool import Tool
 
 
 class AgentPromptBuilder:
-  def __init__(self, agent):
+  def __init__(self):
     self.agent_prompt = AgentPrompt()
 
   def set_ai_name(self, ai_name):
@@ -15,7 +15,7 @@ class AgentPromptBuilder:
     self.agent_prompt.ai_role = ai_role
 
   def set_base_prompt(self, base_prompt):
-    self.agent_prompt.set_base_system_prompt(base_prompt)
+    self.agent_prompt.base_prompt = base_prompt
 
   def add_goal(self, goal):
     self.agent_prompt.tools.append(goal)
@@ -33,12 +33,12 @@ class AgentPromptBuilder:
     self.agent_prompt.evaluations.append(evaluation)
 
   def set_response_format(self, response_format: str) -> None:
-    self.agent_prompt.set_response_format(response_format)
+    self.agent_prompt.response_format = response_format
 
   def generate_prompt_string(self):
     final_string = ""
     final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
-    final_string += self.agent_prompt.base_system_prompt
+    final_string += self.agent_prompt.base_prompt
     final_string += "\n\n"
     final_string += "Goals:\n"
     for goal in self.agent_prompt.goals:
@@ -67,7 +67,7 @@ class AgentPromptBuilder:
     return final_string
 
   @classmethod
-  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, tools: List[BaseTool]) -> str:
+  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, tools: List[Tool]) -> str:
     # Initialize the PromptGenerator object
     prompt_builder = AgentPromptBuilder()
     prompt_builder.set_ai_name(ai_name)

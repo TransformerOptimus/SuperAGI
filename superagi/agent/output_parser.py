@@ -1,6 +1,6 @@
 import json
 from abc import ABC, abstractmethod
-from typing import Dict, NamedTuple
+from typing import Dict, NamedTuple, re
 
 
 class AgentGPTAction(NamedTuple):
@@ -10,7 +10,7 @@ class AgentGPTAction(NamedTuple):
 
 class BaseOutputParser(ABC):
   @abstractmethod
-  def parse(self, text: str) -> AutoGPTAction:
+  def parse(self, text: str) -> AgentGPTAction:
     """Return AgentGPTAction"""
 
 

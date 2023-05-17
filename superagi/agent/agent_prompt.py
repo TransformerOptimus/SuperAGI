@@ -1,17 +1,15 @@
 from typing import List
 
-
-class AgentPrompt:
-  def __int__(self) -> None:
-    self.ai_name: str = ""
-    self.ai_role: str = ""
-    self.base_prompt: str = ""
-    self.goals: List[str] = []
-    self.constraints: List[str] = []
-    self.tools: List[str] = []
-    self.resources: List[str] = []
-    self.evaluations: List[str] = []
-    self.response_format: str = ""
+from pydantic import BaseModel
 
 
-
+class AgentPrompt(BaseModel):
+    ai_name: str = ""
+    ai_role: str = ""
+    base_prompt: str = ""
+    goals: List[str] = []
+    constraints: List[str] = []
+    tools: List[str] = []
+    resources: List[str] = []
+    evaluations: List[str] = []
+    response_format: str = ""
