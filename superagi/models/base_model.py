@@ -4,7 +4,7 @@ from datetime import datetime
 
 Base = declarative_base()
 
-class BaseModel(Base):
+class DBBaseModel(Base):
     __abstract__ = True
     # id  = Column(INTEGER,primary_key=True,autoincrement=True)
     created_at = Column(DateTime, default=datetime.utcnow)

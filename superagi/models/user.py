@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
-from base_model import BaseModel
+from superagi.models.base_model import DBBaseModel
 
-class User(BaseModel):
+class User(DBBaseModel):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
