@@ -54,16 +54,22 @@ class Pinecone(VectorStore):
         self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
         return ids
 
-    def similarity_search(self, query: str, top_k: int, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int, **kwargs: Any) -> List[Document]:
         """Return docs most similar to query using specified search type."""
         namespace = kwargs.get("namespace", self.namespace)
 
         embed_text = self.embedding_function(query)
+        print(embed_text)
         res = self.index.query(embed_text, top_k=top_k, namespace=namespace, include_metadata=True)
-
+        print(res)
         documents = []
-        for item in res["matches"]:
-            metadata = item["metadata"]
-            documents.append(Document(**metadata))
+
+        for doc in res['matches']:
+            documents.append(
+                Document(
+                    text_content=doc.metadata[self.text_field],
+                    metadata=doc.metadata,
+                )
+            )
 
         return documents
