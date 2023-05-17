@@ -6,3 +6,4 @@ class Document(BaseModel):
 
     text_content: str
     metadata: dict = Field(default_factory=dict)
+

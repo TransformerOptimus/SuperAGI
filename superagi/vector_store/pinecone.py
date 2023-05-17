@@ -4,13 +4,14 @@ from superagi.vector_store.document import Document
 from superagi.vector_store.base import VectorStore
 from typing import Any, Callable, Optional, Iterable, List
 
+from superagi.vector_store.embedding.openai import BaseEmbedding
+
 
 class Pinecone(VectorStore):
-
     def __init__(
             self,
             index: Any,
-            embedding_function: Callable,
+            embedding_model: BaseEmbedding,
             text_field: str,
             namespace: Optional[str] = '',
     ):
@@ -24,7 +25,7 @@ class Pinecone(VectorStore):
             raise ValueError("Please provide a valid pinecone index.")
 
         self.index = index
-        self.embedding_function = embedding_function
+        self.embedding_model = embedding_model
         self.text_field = text_field
         self.namespace = namespace
 
@@ -49,7 +50,7 @@ class Pinecone(VectorStore):
         for text, id in zip(texts, ids):
             metadata = metadatas.pop(0) if metadatas else {}
             metadata[self.text_field] = text
-            vectors.append((id, self.embedding_function(text), metadata))
+            vectors.append((id, self.embedding_model.get_embedding(text), metadata))
 
         self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
         return ids
@@ -58,10 +59,9 @@ class Pinecone(VectorStore):
         """Return docs most similar to query using specified search type."""
         namespace = kwargs.get("namespace", self.namespace)
 
-        embed_text = self.embedding_function(query)
-        print(embed_text)
+        embed_text = self.embedding_model.get_embedding(query)
         res = self.index.query(embed_text, top_k=top_k, namespace=namespace, include_metadata=True)
-        print(res)
+
         documents = []
 
         for doc in res['matches']:
