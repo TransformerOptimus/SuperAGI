@@ -29,9 +29,10 @@ class SuperAgi:
         self.ai_name = ai_name
         self.ai_role = ai_role
         self.full_message_history: List[BaseMessage] = []
-        self.next_action_count = 0
+        self.llm = llm
+        self.memory = memory
+        self.output_parser = output_parser
         self.tools = tools
-        self.state = None
 
     @classmethod
     def from_llm_and_tools(
@@ -51,26 +52,33 @@ class SuperAgi:
             tools=tools
         )
 
-    def execute(self):
+    def execute(self, goals: List[str]):
         user_input = (
             "Determine which next command to use, "
             "and respond using the format specified above:"
         )
+        iteration = 2
+        i = 0
         while True:
+            i += 1
+            if i > iteration:
+                return
             print(self.tools)
-            autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, self.tools)
+            autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
             # generated_prompt = self.get_analytics_insight_prompt(analytics_string)
-            message = [{"role": "system", "content": autogpt_prompt},
-                       "system", f"The current time and date is {time.strftime('%c')}"]
+            messages = [{"role": "system", "content": autogpt_prompt},
+                       {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
+
             for history in self.full_message_history[-20:]:
-                message.push({"role": history.type, "content": history.content})
+                messages.append({"role": history.type, "content": history.content})
 
             print(autogpt_prompt)
             # Discontinue if continuous limit is reached
-            response = self.llm.chat_completion(autogpt_prompt)
-            if response.content is None:
+            response = self.llm.chat_completion(messages)
+            print(response)
+            if response['content'] is None:
                 raise RuntimeError(f"Failed to get response from llm")
-            assistant_reply = response.content
+            assistant_reply = response['content']
 
             # Print Assistant thoughts
             self.full_message_history.append(HumanMessage(content=user_input))
@@ -84,7 +92,7 @@ class SuperAgi:
             if action.name in tools:
                 tool = tools[action.name]
                 try:
-                    observation = tool.run(action.args)
+                    observation = tool.execute(action.args)
                 except ValidationError as e:
                     observation = (
                         f"Validation Error in args: {str(e)}, args: {action.args}"
