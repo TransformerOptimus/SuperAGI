@@ -23,7 +23,7 @@ class HumanMessage(BaseMessage):
   @property
   def type(self) -> str:
     """Type of the message, used for serialization."""
-    return "human"
+    return "user"
 
 
 class AIMessage(BaseMessage):
@@ -34,7 +34,7 @@ class AIMessage(BaseMessage):
   @property
   def type(self) -> str:
     """Type of the message, used for serialization."""
-    return "ai"
+    return "assistant"
 
 
 class SystemMessage(BaseMessage):

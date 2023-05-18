@@ -1,11 +1,14 @@
+import json
+
 from pydantic.types import List
 
 from superagi.agent.agent_prompt import AgentPrompt
 from superagi.tools.base_tool import BaseTool
 
+FINISH_NAME = "finish"
 
 class AgentPromptBuilder:
-  def __init__(self, agent):
+  def __init__(self):
     self.agent_prompt = AgentPrompt()
 
   def set_ai_name(self, ai_name):
@@ -15,13 +18,13 @@ class AgentPromptBuilder:
     self.agent_prompt.ai_role = ai_role
 
   def set_base_prompt(self, base_prompt):
-    self.agent_prompt.set_base_system_prompt(base_prompt)
+    self.agent_prompt.base_prompt = base_prompt
 
   def add_goal(self, goal):
-    self.agent_prompt.tools.append(goal)
+    self.agent_prompt.goals.append(goal)
 
   def add_tool(self, tool):
-    self.agent_prompt.goals.append(tool)
+    self.agent_prompt.tools.append(tool)
 
   def add_resource(self, resource: str) -> None:
     self.agent_prompt.resources.append(resource)
@@ -33,41 +36,56 @@ class AgentPromptBuilder:
     self.agent_prompt.evaluations.append(evaluation)
 
   def set_response_format(self, response_format: str) -> None:
-    self.agent_prompt.set_response_format(response_format)
+    self.agent_prompt.response_format = response_format
+
+  def add_list_items_to_string(self, title: str, items: List[str]) -> str:
+    list_string = ""
+    for i, item in enumerate(items):
+      list_string += f"{i+1}. {item}\n"
+    return title + ":\n" + list_string + "\n\n"
 
   def generate_prompt_string(self):
     final_string = ""
     final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
-    final_string += self.agent_prompt.base_system_prompt
+    final_string += self.agent_prompt.base_prompt
     final_string += "\n\n"
-    final_string += "Goals:\n"
-    for goal in self.agent_prompt.goals:
-      final_string += f"- {goal}\n"
-    final_string += "\n"
-    final_string += "Constraints:\n"
-    for constraint in self.agent_prompt.constraints:
-      final_string += f"- {constraint}\n"
-    final_string += "\n"
-    final_string += "Tools:\n"
-    for tool in self.agent_prompt.tools:
-      final_string += f"- {tool.name}\n"
-    final_string += "\n"
-    final_string += "Resources:\n"
-    for resource in self.agent_prompt.resources:
-      final_string += f"- {resource}\n"
-    final_string += "\n"
-    final_string += "Evaluations:\n"
-    for evaluation in self.agent_prompt.evaluations:
-      final_string += f"- {evaluation}\n"
-    final_string += "\n"
-    final_string += "Response Format:\n"
-    final_string += f"- {self.agent_prompt.response_format}\n"
+    self.add_list_items_to_string("Goals", self.agent_prompt.goals)
+    self.add_list_items_to_string("Constraints", self.agent_prompt.constraints)
+    # commands string
+    final_string = self.add_tools_to_prompt(final_string)
+    self.add_list_items_to_string("Resources", self.agent_prompt.resources)
+    self.add_list_items_to_string("Evaluations", self.agent_prompt.evaluations)
+    final_string += f"\nResponse Format:\n{self.agent_prompt.response_format}"
 
-    final_string += "Ensure the response can be parsed by Python json.loads\n"
+    final_string += "\nEnsure the response can be parsed by Python json.loads\n"
     return final_string
 
+  def add_tools_to_prompt(self, final_string):
+    final_string += "Commands:\n"
+    for i, item in enumerate(self.agent_prompt.tools):
+      final_string += f"{i + 1}. {self._generate_command_string(item)}\n"
+    finish_description = (
+      "use this to signal that you have finished all your objectives"
+    )
+    finish_args = (
+      '"response": "final response to let '
+      'people know you have finished your objectives"'
+    )
+    finish_string = (
+      f"{len(self.agent_prompt.tools) + 1}. {FINISH_NAME}: "
+      f"{finish_description}, args: {finish_args}"
+    )
+    final_string = final_string + finish_string + "\n\n"
+    return final_string
+
+  def _generate_command_string(self, tool: BaseTool) -> str:
+    output = f"{tool.name}: {tool.description}"
+    print(tool.args)
+    output += f", args json schema: {json.dumps(tool.args)}"
+    return output
+
   @classmethod
-  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, tools: List[BaseTool]) -> str:
+  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool]) -> str:
     # Initialize the PromptGenerator object
     prompt_builder = AgentPromptBuilder()
     prompt_builder.set_ai_name(ai_name)
@@ -102,6 +120,9 @@ class AgentPromptBuilder:
     for tool in tools:
       prompt_builder.add_tool(tool)
 
+    for goal in goals:
+      prompt_builder.add_goal(goal)
+
     resources = ["Internet access for searches and information gathering.",
                  "Long Term memory management.",
                  "GPT-3.5 powered Agents for delegation of simple tasks.",
@@ -121,6 +142,18 @@ class AgentPromptBuilder:
     for evaluation in evaluations:
       prompt_builder.add_evaluation(evaluation)
 
+    response_format = {
+            "thoughts": {
+                "text": "thought",
+                "reasoning": "reasoning",
+                "plan": "- short bulleted\n- list that conveys\n- long-term plan",
+                "criticism": "constructive self-criticism",
+                "speak": "thoughts summary to say to user",
+            },
+            "command": {"name": "command name", "args": {"arg name": "value"}},
+        }
+    formatted_response_format = json.dumps(response_format, indent=4)
+    prompt_builder.set_response_format(formatted_response_format)
     # Generate the prompt string
     prompt_string = prompt_builder.generate_prompt_string()
 
