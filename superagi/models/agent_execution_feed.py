@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from base_model import DBBaseModel
-from agent_execution import AgentExecution
+from superagi.models.base_model import DBBaseModel
+from superagi.models.agent_execution import AgentExecution
 
 class AgentExecutionFeed(DBBaseModel):
     __tablename__ = 'agent_execution_feeds'

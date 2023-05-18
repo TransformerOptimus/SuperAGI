@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
-from base_model import DBBaseModel
-from project import Project
+from superagi.models.base_model import DBBaseModel
+from superagi.models.project import Project
 from sqlalchemy.orm import relationship
 
 class Agent(DBBaseModel):

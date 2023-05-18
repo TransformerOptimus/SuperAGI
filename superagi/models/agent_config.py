@@ -3,8 +3,8 @@ from base_model import DBBaseModel
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 from agent import Agent
-from llm import LLM
-from tool import Tool
+# from llm import LLM
+# from tool import Tool
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
