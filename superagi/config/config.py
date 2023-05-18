@@ -14,8 +14,11 @@ class Config(BaseSettings):
         env_vars = dict(os.environ)
 
         # Read config file
-        with open(config_file, 'r') as file:
-            config_data = yaml.safe_load(file)
+        try:
+            with open(config_file, 'r') as file:
+                config_data = yaml.safe_load(file)
+        except FileNotFoundError:
+            config_data = {}
 
         # Merge environment variables and config data
         config_data = {**config_data, **env_vars}
