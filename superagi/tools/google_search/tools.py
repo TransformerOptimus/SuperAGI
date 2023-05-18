@@ -1,47 +1,61 @@
-#-------------------------------------Calling AbstractTools Function-------------------------------------#
-"""Utility for the Google search API."""
+from typing import Type, List
+from pydantic import BaseModel, Field
+from superagi.tools.base_tool import BaseTool
+from helper.google_search import GoogleSearchWrap
+import os
+import json
 
-from typing import Optional
-from superagi.tools.abstract_tool import AbstractTool
-from superagi.helper.google_search import GoogleSearchAPIWrap
 
-
-class SearchGoogleAPI(AbstractTool):
-    """A tool to query the Google search API."""
-
-    name = "Google Search"
-    description = (
-        "An interface for Google Search. "
-        "Helpful for answering questions about current events. "
-        "The input should be a search query."
-        "The output is a string of the query results"
+class GoogleSearchSchema(BaseModel):
+    query: str = Field(
+        ...,
+        description="The search query for Google search.",
     )
-    api_wrapper: GoogleSearchAPIWrap
-
-    def _exec(
-        self,
-        query: str,
-    ) -> str:
-        """Execute the tool."""
-        return self.api_wrapper.exec(query)
 
 
-class RetrieveGoogleSearchResults(AbstractTool):
-    """A tool to query the Google Search API and obtain JSON results."""
-
-    name = "Google Search Results JSON"
+class GoogleSearchTool(BaseTool):
+    name = "GoogleSearch"
     description = (
-        "An interface for Google Search. "
-        "Helpful for answering questions about current events. "
-        "The input should be a search query. The output is a JSON array of the query results"
-        "The number of results to return can be specified."
+        "A tool for performing a Google search and extracting snippets and webpages."
+        "Input should be a search query."
     )
-    num_results: int = 3
-    api_wrapper: GoogleSearchAPIWrap
+    args_schema: Type[GoogleSearchSchema] = GoogleSearchSchema
 
-    def _exec(
-        self,
-        query: str,
-    ) -> str:
-        """Execute the tool."""
-        return str(self.api_wrapper.retrieve_result(query, self.num_results))
+    def execute(self, query: str) -> tuple:
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        search_engine_id = os.environ.get("SEARCH_ENGINE_ID")
+        num_results = 10
+        num_pages = 1
+        num_extracts = 3
+
+        google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
+        snippets, webpages, links = google_search.get_result(query)
+
+        result = {
+            "snippets": snippets,
+            "webpages": webpages,
+            "links": links
+        }
+
+        return json.dumps(result)
+    
+
+# Import necessary modules
+import os
+import json
+
+# Define the environment variables
+os.environ["GOOGLE_API_KEY"] = "AIzaSyCinJK2sB7Ky-3DmmsSNWFn5leAwev-9Hs"
+os.environ["SEARCH_ENGINE_ID"] = "e6fbba732ab9e49fd"
+
+# Create an instance of GoogleSearchTool
+google_search_tool = GoogleSearchTool()
+
+# Define the search query
+query = "Python programming"
+
+# Execute the Google search tool
+result = google_search_tool.execute(query)
+
+# Print the result
+print(result)
