@@ -40,22 +40,22 @@ class GoogleSearchTool(BaseTool):
         return json.dumps(result)
     
 
-# Import necessary modules
-import os
-import json
+# # Import necessary modules
+# import os
+# import json
 
-# Define the environment variables
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCinJK2sB7Ky-3DmmsSNWFn5leAwev-9Hs"
-os.environ["SEARCH_ENGINE_ID"] = "e6fbba732ab9e49fd"
+# # Define the environment variables
+# os.environ["GOOGLE_API_KEY"] = ""
+# os.environ["SEARCH_ENGINE_ID"] = ""
 
-# Create an instance of GoogleSearchTool
-google_search_tool = GoogleSearchTool()
+# # Create an instance of GoogleSearchTool
+# google_search_tool = GoogleSearchTool()
 
-# Define the search query
-query = "Python programming"
+# # Define the search query
+# query = "Python programming"
 
-# Execute the Google search tool
-result = google_search_tool.execute(query)
+# # Execute the Google search tool
+# result = google_search_tool.execute(query)
 
-# Print the result
-print(result)
+# # Print the result
+# print(result)

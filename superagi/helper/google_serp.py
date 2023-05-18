@@ -71,33 +71,33 @@ class GoogleSerpApiWrap:
 
         return snippets, webpages, links
 
-# Replace with your actual SerpApi API key
-api_key = '75ca64b9b25cd49faec4976fa63a93180425750a074824470518252d6c87fd02'
+# # Replace with your actual SerpApi API key
+# api_key = ''
 
-# Create an instance of GoogleSerpApiWrap
-serp_api = GoogleSerpApiWrap(api_key)
+# # Create an instance of GoogleSerpApiWrap
+# serp_api = GoogleSerpApiWrap(api_key)
 
-# Define the search query
-query = 'Python programming'
+# # Define the search query
+# query = 'Python programming'
 
-# Perform the search and retrieve the results
-snippets, webpages, links = serp_api.get_result(query)
+# # Perform the search and retrieve the results
+# snippets, webpages, links = serp_api.get_result(query)
 
-# Print the snippets
-print("Snippets:")
-for snippet in snippets:
-    print(snippet)
-    print()
+# # Print the snippets
+# print("Snippets:")
+# for snippet in snippets:
+#     print(snippet)
+#     print()
 
-# Print the extracted webpages
-print("Webpages:")
-for webpage in webpages:
-    print(webpage)
-    print()
+# # Print the extracted webpages
+# print("Webpages:")
+# for webpage in webpages:
+#     print(webpage)
+#     print()
 
-# Print the links
-print("Links:")
-for link in links:
-    print(link)
-    print()
+# # Print the links
+# print("Links:")
+# for link in links:
+#     print(link)
+#     print()
 
