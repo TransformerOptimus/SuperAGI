@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
 from sqlalchemy.orm import relationship
-from base_model import DBBaseModel
-from organisation import Organisation
+from superagi.models.base_model import DBBaseModel
+from superagi.models.organisation import Organisation
 
 
 class Project(DBBaseModel):
@@ -12,7 +12,7 @@ class Project(DBBaseModel):
     # organisation_id = Column(Integer,ForeignKey('organisations.id'))
     organisation_id = Column(Integer,ForeignKey(Organisation.id))
     description = Column(String)
-    organisations = relationship(Organisation)
+    organisation = relationship(Organisation)
 
     def __repr__(self):
         return f"Project(id={self.id}, name='{self.name}')"

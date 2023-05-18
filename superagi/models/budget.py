@@ -1,14 +1,13 @@
 from sqlalchemy import Column, Integer, Enum, Float
-from base_model import DBBaseModel
-from db import engine,connectDB
+from superagi.models.base_model import DBBaseModel
 from sqlalchemy.orm import sessionmaker
 
-class User(DBBaseModel):
+class Budget(DBBaseModel):
     __tablename__ = 'budgets'
 
     id = Column(Integer, primary_key=True)
     budget = Column(Float)
-    cycle = Column(Enum('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'))
+    cycle = Column(Enum('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY',name='budget_cycle_enum'))
 
     def __repr__(self):
         return f"OrganisationUser(id={self.id}, name='{self.name}', " \
