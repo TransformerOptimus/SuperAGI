@@ -3,7 +3,7 @@ import json
 from pydantic.types import List
 
 from superagi.agent.agent_prompt import AgentPrompt
-from superagi.tools.base_tool import Tool
+from superagi.tools.base_tool import BaseTool
 
 FINISH_NAME = "finish"
 
@@ -78,14 +78,14 @@ class AgentPromptBuilder:
     final_string = final_string + finish_string + "\n\n"
     return final_string
 
-  def _generate_command_string(self, tool: Tool) -> str:
+  def _generate_command_string(self, tool: BaseTool) -> str:
     output = f"{tool.name}: {tool.description}"
     print(tool.args)
     output += f", args json schema: {json.dumps(tool.args)}"
     return output
 
   @classmethod
-  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[Tool]) -> str:
+  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool]) -> str:
     # Initialize the PromptGenerator object
     prompt_builder = AgentPromptBuilder()
     prompt_builder.set_ai_name(ai_name)

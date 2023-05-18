@@ -10,7 +10,7 @@ from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.llms.base_llm import BaseLlm
-from superagi.tools.base_tool import Tool
+from superagi.tools.base_tool import BaseTool
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 
@@ -24,7 +24,7 @@ class SuperAgi:
                  llm: BaseLlm,
                  memory: VectorStore,
                  output_parser: BaseOutputParser,
-                 tools: List[Tool],
+                 tools: List[BaseTool],
                  ):
         self.ai_name = ai_name
         self.ai_role = ai_role
@@ -40,7 +40,7 @@ class SuperAgi:
             ai_name: str,
             ai_role: str,
             memory: VectorStore,
-            tools: List[Tool],
+            tools: List[BaseTool],
             llm: BaseLlm
     ) -> SuperAgi:
         return cls(
