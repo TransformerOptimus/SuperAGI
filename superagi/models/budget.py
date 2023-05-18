@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, Enum, Float
-from base_model import BaseModel
+from base_model import DBBaseModel
 from db import engine,connectDB
 from sqlalchemy.orm import sessionmaker
 
-class User(BaseModel):
+class User(DBBaseModel):
     __tablename__ = 'budgets'
 
     id = Column(Integer, primary_key=True)

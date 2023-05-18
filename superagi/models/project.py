@@ -1,12 +1,10 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
-# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from base_model import BaseModel
+from base_model import DBBaseModel
 from organisation import Organisation
 
-# Base = declarative_base()
 
-class Project(BaseModel):
+class Project(DBBaseModel):
     __tablename__ = 'projects'
 
     id = Column(Integer, primary_key=True)
