@@ -4,6 +4,7 @@ from typing import Type
 from pydantic import BaseModel, Field
 
 from superagi.tools.base_tool import BaseTool
+from superagi.config.config import get_config
 
 import tweepy
 
@@ -19,7 +20,7 @@ class ReadFileTool(BaseTool):
     description: str = "Reads the file content in a specified location"
 
     def execute(self, file_name: str):
-        root_dir = os.getenv('RESOURCES_ROOT_DIR')
+        root_dir = get_config('RESOURCES_ROOT_DIR')
         final_path = file_name
         if root_dir is not None:
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"

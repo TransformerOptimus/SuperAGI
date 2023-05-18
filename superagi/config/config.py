@@ -17,6 +17,8 @@ class Config(BaseSettings):
         try:
             with open(config_file, 'r') as file:
                 config_data = yaml.safe_load(file)
+            if config_data is None:
+                config_data = {}
         except FileNotFoundError:
             config_data = {}
 

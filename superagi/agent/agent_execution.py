@@ -1,6 +1,8 @@
 # agent has a master prompt
 # agent executes the master prompt along with long term memory
 # agent can run the task queue as well with long term memory
+from superagi.config.config import get_config
+
 class AgentExecution:
   def __int__(self, agent_prompt, document):
     self.state = None
@@ -8,7 +10,7 @@ class AgentExecution:
 
   async def send_request_to_openai(self, prompt):
     try:
-      openai.api_key = os.getenv("OPENAI_API_KEY")
+      openai.api_key = get_config("OPENAI_API_KEY")
       response = await openai.ChatCompletion.acreate(
         n=self.number_of_results,
         model=self.model,

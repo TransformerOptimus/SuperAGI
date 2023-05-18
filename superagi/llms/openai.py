@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 import openai
 from superagi.llms.base_llm import BaseLlm
+from superagi.config.config import get_config
 
 
 class OpenAi(BaseLlm):
@@ -20,7 +21,7 @@ class OpenAi(BaseLlm):
     def chat_completion(self, messages):
         try:
             print("Messages:", messages)
-            openai.api_key = os.getenv("OPENAI_API_KEY")
+            openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.ChatCompletion.create(
                 n=self.number_of_results,
                 model=self.model,

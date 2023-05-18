@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-
+from superagi.config.config import get_config
 import openai
 
 class BaseEmbedding(ABC):
@@ -15,7 +15,7 @@ class OpenAiEmbedding:
 
     async def get_embedding_async(self, text):
         try:
-            openai.api_key = os.getenv("OPENAI_API_KEY")
+            openai.api_key = get_config("OPENAI_API_KEY")
             response = await openai.Embedding.create(
                 input=[text],
                 engine=self.model
@@ -26,7 +26,7 @@ class OpenAiEmbedding:
 
     def get_embedding(self, text):
         try:
-            openai.api_key = os.getenv("OPENAI_API_KEY")
+            openai.api_key = get_config("OPENAI_API_KEY")
             print(openai.api_key)
             response = openai.Embedding.create(
                 input=[text],
