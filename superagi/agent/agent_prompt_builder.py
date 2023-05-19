@@ -42,26 +42,26 @@ class AgentPromptBuilder:
     list_string = ""
     for i, item in enumerate(items):
       list_string += f"{i+1}. {item}\n"
-    return title + ":\n" + list_string + "\n\n"
+    return title + ":\n" + list_string + "\n"
 
   def generate_prompt_string(self):
     final_string = ""
     final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
     final_string += self.agent_prompt.base_prompt
-    final_string += "\n\n"
-    self.add_list_items_to_string("Goals", self.agent_prompt.goals)
-    self.add_list_items_to_string("Constraints", self.agent_prompt.constraints)
+    final_string += "\n"
+    final_string += self.add_list_items_to_string("\033[94m\033[1m\nGOALS\033[0m\033[0m", self.agent_prompt.goals)
+    final_string += self.add_list_items_to_string("\033[96m\033[1m\nCONSTRAINTS\033[0m\033[0m", self.agent_prompt.constraints)
     # commands string
     final_string = self.add_tools_to_prompt(final_string)
-    self.add_list_items_to_string("Resources", self.agent_prompt.resources)
-    self.add_list_items_to_string("Evaluations", self.agent_prompt.evaluations)
-    final_string += f"\nResponse Format:\n{self.agent_prompt.response_format}"
+    final_string += self.add_list_items_to_string("\033[96m\033[1m\nRESOURCES\033[0m\033[0m", self.agent_prompt.resources)
+    final_string += self.add_list_items_to_string("\033[94m\033[1m\nPERFORMANCE EVALUATION\033[0m\033[0m", self.agent_prompt.evaluations)
+    final_string += f"\I should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
 
     final_string += "\nEnsure the response can be parsed by Python json.loads\n"
     return final_string
 
   def add_tools_to_prompt(self, final_string):
-    final_string += "Commands:\n"
+    final_string += "\033[91m\033[1m\nTOOLS\033[0m\033[0m:\n"
     for i, item in enumerate(self.agent_prompt.tools):
       final_string += f"{i + 1}. {self._generate_command_string(item)}\n"
     finish_description = (
@@ -80,7 +80,7 @@ class AgentPromptBuilder:
 
   def _generate_command_string(self, tool: BaseTool) -> str:
     output = f"{tool.name}: {tool.description}"
-    print(tool.args)
+    # print(tool.args)
     output += f", args json schema: {json.dumps(tool.args)}"
     return output
 
@@ -96,7 +96,7 @@ class AgentPromptBuilder:
       "Play to your strengths as an LLM and pursue simple "
       "strategies with no legal complications.\n"
       "If you have completed all your tasks, make sure to "
-      'use the "finish" command.'
+      'use the "finish" command.\n'
     )
     prompt_builder.set_base_prompt(base_prompt)
 
@@ -116,7 +116,7 @@ class AgentPromptBuilder:
       'Exclusively use the commands listed in double quotes e.g. "command name"'
     )
 
-    # Add commands to the PromptGenerator object
+    # Add tools to the PromptGenerator object
     for tool in tools:
       prompt_builder.add_tool(tool)
 

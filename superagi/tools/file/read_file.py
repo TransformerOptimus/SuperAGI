@@ -19,7 +19,7 @@ class ReadFileTool(BaseTool):
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"
 
-    def execute(self, file_name: str):
+    def _execute(self, file_name: str):
         root_dir = get_config('RESOURCES_ROOT_DIR')
         final_path = file_name
         if root_dir is not None:

@@ -1,5 +1,6 @@
 import os
 from pydantic import BaseSettings
+from pathlib import Path
 import yaml
 
 
@@ -35,7 +36,9 @@ class Config(BaseSettings):
         return self.dict().get(key, default)
 
 
-_config_instance = Config("../config.yaml")
+ROOT_DIR = os.path.dirname(Path(__file__).parent.parent)
+# print("root dir:", ROOT_DIR + "/config.yaml")
+_config_instance = Config(ROOT_DIR + "/config.yaml")
 
 
 def get_config(key: str, default: str = None) -> str:

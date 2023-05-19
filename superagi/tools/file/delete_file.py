@@ -18,7 +18,7 @@ class DeleteFileTool(BaseTool):
     args_schema: Type[BaseModel] = DeleteFileInput
     description: str = "Delete a file"
 
-    def execute(self, file_name: str, content: str):
+    def _execute(self, file_name: str, content: str):
         final_path = file_name
         root_dir = get_config('RESOURCES_ROOT_DIR')
         if root_dir is not None:

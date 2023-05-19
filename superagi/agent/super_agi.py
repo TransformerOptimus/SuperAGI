@@ -8,6 +8,7 @@ from pydantic.types import List
 import time
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
+from superagi.helper.token_counter import TokenCounter
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
@@ -15,7 +16,10 @@ from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 
 FINISH = "finish"
-
+print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
+print("\033[91m\033[1m"
+        + "\nA bit about me...."
+        + "\033[0m\033[0m")
 
 class SuperAgi:
     def __init__(self,
@@ -57,24 +61,30 @@ class SuperAgi:
             "Determine which next command to use, "
             "and respond using the format specified above:"
         )
-        iteration = 2
+        iteration = 10
         i = 0
         while True:
             i += 1
             if i > iteration:
                 return
-            print(self.tools)
+            # print(self.tools)
             autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
             # generated_prompt = self.get_analytics_insight_prompt(analytics_string)
             messages = [{"role": "system", "content": autogpt_prompt},
                        {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
-            for history in self.full_message_history[-20:]:
+            for history in self.full_message_history[-10:]:
+                # print(history.type + " : ", history.content)
                 messages.append({"role": history.type, "content": history.content})
 
             print(autogpt_prompt)
             # Discontinue if continuous limit is reached
-            response = self.llm.chat_completion(messages)
+            current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            token_limit = TokenCounter.token_limit(self.llm.get_model())
+
+            print("Token remaining:", token_limit - current_tokens)
+            response = self.llm.chat_completion(messages, token_limit - current_tokens)
+
             print(response)
             if response['content'] is None:
                 raise RuntimeError(f"Failed to get response from llm")
@@ -84,6 +94,7 @@ class SuperAgi:
             self.full_message_history.append(HumanMessage(content=user_input))
             self.full_message_history.append(AIMessage(content=assistant_reply))
 
+            # print(assistant_reply)
             action = self.output_parser.parse(assistant_reply)
             tools = {t.name: t for t in self.tools}
 
@@ -99,21 +110,22 @@ class SuperAgi:
                     )
                 except Exception as e:
                     observation = (
-                        f"Error: {str(e)}, {type(e).__name__}, args: {action.args}"
+                        f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
                     )
-                result = f"Command {tool.name} returned: {observation}"
+                result = f"Tool {tool.name} returned: {observation}"
             elif action.name == "ERROR":
-                result = f"Error: {action.args}. "
+                result = f"Error2: {action.args}. "
             else:
                 result = (
-                    f"Unknown command '{action.name}'. "
-                    f"Please refer to the 'COMMANDS' list for available "
-                    f"commands and only respond in the specified JSON format."
+                    f"Unknown tool '{action.name}'. "
+                    f"Please refer to the 'TOOLS' list for available "
+                    f"tools and only respond in the specified JSON format."
                 )
 
             print(result)
-            self.memory.add_documents([Document(text_content=assistant_reply)])
+            #self.memory.add_documents([Document(text_content=assistant_reply)])
             self.full_message_history.append(SystemMessage(content=result))
+            # print(self.full_message_history)
         pass
 
     def call_llm(self):
