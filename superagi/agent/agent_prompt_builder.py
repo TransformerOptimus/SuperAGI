@@ -49,19 +49,19 @@ class AgentPromptBuilder:
     final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
     final_string += self.agent_prompt.base_prompt
     final_string += "\n"
-    final_string += self.add_list_items_to_string("GOALS", self.agent_prompt.goals)
-    final_string += self.add_list_items_to_string("Constraints", self.agent_prompt.constraints)
+    final_string += self.add_list_items_to_string("\033[94m\033[1m\nGOALS\033[0m\033[0m", self.agent_prompt.goals)
+    final_string += self.add_list_items_to_string("\033[96m\033[1m\nCONSTRAINTS\033[0m\033[0m", self.agent_prompt.constraints)
     # commands string
     final_string = self.add_tools_to_prompt(final_string)
-    final_string += self.add_list_items_to_string("Resources", self.agent_prompt.resources)
-    final_string += self.add_list_items_to_string("Performance Evaluation", self.agent_prompt.evaluations)
-    final_string += f"\nYou should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
+    final_string += self.add_list_items_to_string("\033[96m\033[1m\nRESOURCES\033[0m\033[0m", self.agent_prompt.resources)
+    final_string += self.add_list_items_to_string("\033[94m\033[1m\nPERFORMANCE EVALUATION\033[0m\033[0m", self.agent_prompt.evaluations)
+    final_string += f"\I should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
 
     final_string += "\nEnsure the response can be parsed by Python json.loads\n"
     return final_string
 
   def add_tools_to_prompt(self, final_string):
-    final_string += "Commands:\n"
+    final_string += "\033[91m\033[1m\nTOOLS\033[0m\033[0m:\n"
     for i, item in enumerate(self.agent_prompt.tools):
       final_string += f"{i + 1}. {self._generate_command_string(item)}\n"
     finish_description = (

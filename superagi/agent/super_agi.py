@@ -16,7 +16,10 @@ from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 
 FINISH = "finish"
-
+print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
+print("\033[91m\033[1m"
+        + "\nA bit about me...."
+        + "\033[0m\033[0m")
 
 class SuperAgi:
     def __init__(self,
@@ -70,8 +73,8 @@ class SuperAgi:
             messages = [{"role": "system", "content": autogpt_prompt},
                        {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
-            for history in self.full_message_history[-20:]:
-                print(history.type + " : ", history.content)
+            for history in self.full_message_history[-10:]:
+                # print(history.type + " : ", history.content)
                 messages.append({"role": history.type, "content": history.content})
 
             print(autogpt_prompt)
@@ -79,7 +82,7 @@ class SuperAgi:
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             token_limit = TokenCounter.token_limit(self.llm.get_model())
 
-            print(token_limit - current_tokens)
+            print("Token remaining:", token_limit - current_tokens)
             response = self.llm.chat_completion(messages, token_limit - current_tokens)
 
             print(response)
@@ -91,7 +94,7 @@ class SuperAgi:
             self.full_message_history.append(HumanMessage(content=user_input))
             self.full_message_history.append(AIMessage(content=assistant_reply))
 
-            print(assistant_reply)
+            # print(assistant_reply)
             action = self.output_parser.parse(assistant_reply)
             tools = {t.name: t for t in self.tools}
 
@@ -122,6 +125,7 @@ class SuperAgi:
             print(result)
             #self.memory.add_documents([Document(text_content=assistant_reply)])
             self.full_message_history.append(SystemMessage(content=result))
+            # print(self.full_message_history)
         pass
 
     def call_llm(self):
