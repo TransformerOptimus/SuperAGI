@@ -9,13 +9,10 @@ class Project(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    # organisation_id = Column(Integer,ForeignKey('organisations.id'))
-    organisation_id = Column(Integer,ForeignKey(Organisation.id))
+    organisation_id = Column(Integer)
     description = Column(String)
-    organisation = relationship(Organisation)
 
     def __repr__(self):
         return f"Project(id={self.id}, name='{self.name}')"
 
 
-    # organisation = relationship("Organisation", uselist=False, back_populates="projects")

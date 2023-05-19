@@ -9,7 +9,6 @@ class Organisation(DBBaseModel):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
-    # projects = relationship('Project',backref='organistaions')
 
     def __repr__(self):
         return f"Organisation(id={self.id}, name='{self.name}')"

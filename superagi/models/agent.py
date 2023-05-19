@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String,ForeignKey
+from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
 from superagi.models.project import Project
 from sqlalchemy.orm import relationship
@@ -8,8 +8,7 @@ class Agent(DBBaseModel):
 
     id = Column(Integer, primary_key=True,autoincrement=True)
     name = Column(String)
-    project_id = Column(Integer,ForeignKey(Project.id))
-    project = relationship(Project)
+    project_id = Column(Integer)
     description = Column(String)
 
     def __repr__(self):

@@ -22,7 +22,7 @@ def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]), Aut
     
     project = Project(
         name=project.name,
-        organisation=organisation,
+        organisation_id=organisation.id,
         description=project.description
     )
     
@@ -54,7 +54,7 @@ def update_project(project_id: int, project: sqlalchemy_to_pydantic(Project,excl
         organisation = db.session.query(Organisation).get(project.organisation_id)
         if not organisation:
             raise HTTPException(status_code=404, detail="Organisation not found")
-        db_project.organisation = organisation
+        db_project.organisation_id = organisation.id
     db_project.name = project.name
     db_project.description = project.description
     db.session.add(db_project)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Enum, Float
+from sqlalchemy import Column, Integer, String,Float
 from superagi.models.base_model import DBBaseModel
 from sqlalchemy.orm import sessionmaker
 
@@ -7,8 +7,8 @@ class Budget(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     budget = Column(Float)
-    cycle = Column(Enum('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY',name='budget_cycle_enum'))
+    cycle = Column(String)
 
     def __repr__(self):
-        return f"OrganisationUser(id={self.id}, name='{self.name}', " \
-            f"project_id={self.project_id}, description='{self.description}')"
+        return (f"Budget(id={self.id}, budget={self.budget}, "
+                f"cycle='{self.cycle}')")
