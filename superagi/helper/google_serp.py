@@ -1,7 +1,12 @@
+import os
+import sys
 import time
+from typing import Any
+
 from pydantic import BaseModel
-from webpage_extractor import WebpageExtractor
 from serpapi import GoogleSearch
+
+from superagi.helper.webpage_extractor import WebpageExtractor
 
 class GoogleSerpApiWrap:
     def __init__(self, api_key, num_results=10, num_pages=1, num_extracts=3):
@@ -12,62 +17,42 @@ class GoogleSerpApiWrap:
         self.extractor = WebpageExtractor()
 
     def search_run(self, query):
-        all_snippets = []
-        links = []
-
         params = {
             "api_key": self.api_key,
             "engine": 'google',
-            "num": self.num_results,
-            "start": 0,
+            "google_domain": "google.com",
+            "gl": "us",
+            "hl": "en",
             "q": query
         }
 
-        for page in range(self.num_pages):
-            params["start"] = page * self.num_results
-            search = GoogleSearch(params)
-            results = search.get_dict()
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        response = self.process_response(results)
+        return response
 
-            if "organic_results" in results:
-                for result in results["organic_results"]:
-                    all_snippets.append(result["snippet"])
-                    links.append(result["link"])
-            else:
-                print("No organic results found in the response.")
-
-        return all_snippets, links
-
-    def get_result(self, query):
-        snippets, links = self.search_run(query)
-
-        webpages = []
-        attempts = 0
-        while snippets == [] and attempts < 2:
-            attempts += 1
-            print("Google blocked the request. Trying again...")
-            time.sleep(3)
-            snippets, links = self.search_run(query)
-
-        if links:
-            for i in range(0, self.num_extracts):
-                time.sleep(3)
-                content = self.extractor.extract_with_3k(links[i])
-                attempts = 0
-                while content == "" and attempts < 2:
-                    attempts += 1
-                    content = self.extractor.extract_with_3k(links[i])
-                if content == "":
-                    time.sleep(3)
-                    content = self.extractor.extract_with_bs4(links[i])
-                    attempts = 0
-                    while content == "" and attempts < 2:
-                        attempts += 1
-                        content = self.extractor.extract_with_bs4(links[i])
-                webpages.append(content)
+    @staticmethod
+    def process_response(api_response: dict) -> str:
+        result = ""
+        if "error" in api_response.keys():
+            raise ValueError(f"Got error from SerpAPI: {api_response['error']}")
+        if "answer_box" in api_response.keys():
+            if "answer" in api_response["answer_box"].keys():
+                result = api_response["answer_box"]["answer"]
+            elif "snippet" in api_response["answer_box"].keys():
+                result = api_response["answer_box"]["snippet"]
+            elif "snippet_highlighted_words" in api_response["answer_box"].keys():
+                result = api_response["answer_box"]["snippet_highlighted_words"][0]
+        elif "sports_results" in api_response.keys() and "game_spotlight" in api_response["sports_results"].keys():
+            result = api_response["sports_results"]["game_spotlight"]
+        elif "knowledge_graph" in api_response.keys() and "description" in api_response["knowledge_graph"].keys():
+            result = api_response["knowledge_graph"]["description"]
+        elif "snippet" in api_response["organic_results"][0].keys():
+            result = api_response["organic_results"][0]["snippet"]
+        elif "answer_box" in api_response.keys() and "answer" in api_response["answer_box"].keys():
+            result = api_response["answer_box"]["answer"]
+        elif "snippet" in api_response["organic_results"][0].keys():
+            result = api_response["organic_results"][0]["snippet"]
         else:
-            snippets = ["", "", ""]
-            links = ["", "", ""]
-            webpages = ["", "", ""]
-
-        return snippets, webpages, links
-
+            result = "No good search result found"
+        return result

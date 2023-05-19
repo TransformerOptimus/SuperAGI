@@ -18,7 +18,7 @@ class ListFileTool(BaseTool):
     args_schema: Type[BaseModel] = ListFileInput
     description: str = "lists files in a directory recursively"
 
-    def execute(self, directory: str):
+    def _execute(self, directory: str):
         found_files = []
         for root, dirs, files in os.walk(directory):
             for file in files:

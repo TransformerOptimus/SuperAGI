@@ -1,12 +1,13 @@
 import requests
 import time
 from pydantic import BaseModel
-from webpage_extractor import WebpageExtractor
+
+from superagi.helper.webpage_extractor import WebpageExtractor
 
 
 class GoogleSearchWrap:
 
-    def __init__(self, api_key, search_engine_id, num_results=10, num_pages=1, num_extracts=3):
+    def __init__(self, api_key, search_engine_id, num_results=3, num_pages=1, num_extracts=3):
         self.api_key = api_key
         self.search_engine_id = search_engine_id
         self.num_results = num_results

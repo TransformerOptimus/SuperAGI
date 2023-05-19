@@ -1,7 +1,8 @@
 from typing import Type, List
 from pydantic import BaseModel, Field
+
+from superagi.helper.google_search import GoogleSearchWrap
 from superagi.tools.base_tool import BaseTool
-from helper.google_search import GoogleSearchWrap
 import os
 import json
 
@@ -21,20 +22,21 @@ class GoogleSearchTool(BaseTool):
     )
     args_schema: Type[GoogleSearchSchema] = GoogleSearchSchema
 
-    def execute(self, query: str) -> tuple:
+    def _execute(self, query: str) -> tuple:
         api_key = os.environ.get("GOOGLE_API_KEY")
         search_engine_id = os.environ.get("SEARCH_ENGINE_ID")
         num_results = 10
         num_pages = 1
         num_extracts = 3
 
+        print("query: ", query)
         google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
         snippets, webpages, links = google_search.get_result(query)
 
-        result = {
-            "snippets": snippets,
-            "webpages": webpages,
-            "links": links
-        }
+        results = []
+        i = 0
+        for webpage in webpages:
+            results.append({"title": snippets[i], "body": webpage, "link": links[i]})
+            i += 1
 
-        return json.dumps(result)
+        return results

@@ -57,19 +57,20 @@ class SuperAgi:
             "Determine which next command to use, "
             "and respond using the format specified above:"
         )
-        iteration = 2
+        iteration = 10
         i = 0
         while True:
             i += 1
             if i > iteration:
                 return
-            print(self.tools)
+            # print(self.tools)
             autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
             # generated_prompt = self.get_analytics_insight_prompt(analytics_string)
             messages = [{"role": "system", "content": autogpt_prompt},
                        {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
             for history in self.full_message_history[-20:]:
+                print(history.type + " : ", history.content)
                 messages.append({"role": history.type, "content": history.content})
 
             print(autogpt_prompt)
@@ -84,6 +85,7 @@ class SuperAgi:
             self.full_message_history.append(HumanMessage(content=user_input))
             self.full_message_history.append(AIMessage(content=assistant_reply))
 
+            print(assistant_reply)
             action = self.output_parser.parse(assistant_reply)
             tools = {t.name: t for t in self.tools}
 
@@ -99,20 +101,20 @@ class SuperAgi:
                     )
                 except Exception as e:
                     observation = (
-                        f"Error: {str(e)}, {type(e).__name__}, args: {action.args}"
+                        f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
                     )
-                result = f"Command {tool.name} returned: {observation}"
+                result = f"Tool {tool.name} returned: {observation}"
             elif action.name == "ERROR":
-                result = f"Error: {action.args}. "
+                result = f"Error2: {action.args}. "
             else:
                 result = (
-                    f"Unknown command '{action.name}'. "
-                    f"Please refer to the 'COMMANDS' list for available "
-                    f"commands and only respond in the specified JSON format."
+                    f"Unknown tool '{action.name}'. "
+                    f"Please refer to the 'TOOLS' list for available "
+                    f"tools and only respond in the specified JSON format."
                 )
 
             print(result)
-            self.memory.add_documents([Document(text_content=assistant_reply)])
+            #self.memory.add_documents([Document(text_content=assistant_reply)])
             self.full_message_history.append(SystemMessage(content=result))
         pass
 
