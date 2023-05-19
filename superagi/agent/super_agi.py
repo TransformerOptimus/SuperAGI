@@ -8,6 +8,7 @@ from pydantic.types import List
 import time
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
+from superagi.helper.token_counter import TokenCounter
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
@@ -75,7 +76,12 @@ class SuperAgi:
 
             print(autogpt_prompt)
             # Discontinue if continuous limit is reached
-            response = self.llm.chat_completion(messages)
+            current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            token_limit = TokenCounter.token_limit(self.llm.get_model())
+
+            print(token_limit - current_tokens)
+            response = self.llm.chat_completion(messages, token_limit - current_tokens)
+
             print(response)
             if response['content'] is None:
                 raise RuntimeError(f"Failed to get response from llm")

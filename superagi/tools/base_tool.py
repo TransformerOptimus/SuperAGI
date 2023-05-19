@@ -100,7 +100,7 @@ class BaseTool(BaseModel):
     def execute(
             self,
             tool_input: Union[str, Dict],
-            **kwargs: Any,
+            **kwargs: Any
     ) -> Any:
         """Run the tool."""
         parsed_input = self._parse_input(tool_input)
