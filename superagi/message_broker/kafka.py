@@ -3,12 +3,12 @@ from confluent_kafka import Producer, Consumer, KafkaError
 
 import redis
 
-
+from superagi.config.config import get_config
 # Message broker connection parameters
 class KafkaBroker:
 
   def __int__(self):
-    self.broker_bootstrap_servers = os.getenv("BROKER_BOOTSTRAP_SERVERS", "localhost:9092")
+    self.broker_bootstrap_servers = get_config("BROKER_BOOTSTRAP_SERVERS", "localhost:9092")
     self.group_id = 'agent-group'
 
   def push_message(self, topic, message):

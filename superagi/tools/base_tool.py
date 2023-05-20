@@ -1,85 +1,160 @@
+from abc import abstractmethod
 from functools import wraps
-from typing import Optional, Type, Callable, Any, Union
+from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 
 from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
 from inspect import signature
 
-class _SchemaConfig:
+
+class SchemaSettings:
     """Configuration for the pydantic model."""
     extra = Extra.forbid
     arbitrary_types_allowed = True
 
-def get_filtered_args(
-    inferred_model: Type[BaseModel],
-    func: Callable,
+
+def extract_valid_parameters(
+        inferred_type: Type[BaseModel],
+        function: Callable,
 ) -> dict:
     """Get the arguments from a function's signature."""
-    schema = inferred_model.schema()["properties"]
-    valid_keys = signature(func).parameters
-    return {k: schema[k] for k in valid_keys if k != "run_manager"}
+    schema = inferred_type.schema()["properties"]
+    valid_params = signature(function).parameters
+    return {param: schema[param] for param in valid_params if param != "run_manager"}
 
-def _create_subset_model(
-    name: str, model: BaseModel, field_names: list
+
+def _construct_model_subset(
+        model_name: str, original_model: BaseModel, required_fields: list
 ) -> Type[BaseModel]:
     """Create a pydantic model with only a subset of model's fields."""
     fields = {
-        field_name: (
-            model.__fields__[field_name].type_,
-            model.__fields__[field_name].default,
+        field: (
+            original_model.__fields__[field].type_,
+            original_model.__fields__[field].default,
         )
-        for field_name in field_names
-        if field_name in model.__fields__
+        for field in required_fields
+        if field in original_model.__fields__
     }
-    return create_model(name, **fields)  # type: ignore
+    return create_model(model_name, **fields)  # type: ignore
 
-def create_schema_from_function(
-    model_name: str,
-    func: Callable,
+
+def create_function_schema(
+        schema_name: str,
+        function: Callable,
 ) -> Type[BaseModel]:
     """Create a pydantic schema from a function's signature."""
-    validated = validate_arguments(func, config=_SchemaConfig)  # type: ignore
-    inferred_model = validated.model  # type: ignore
-    if "run_manager" in inferred_model.__fields__:
-        del inferred_model.__fields__["run_manager"]
-    # Pydantic adds placeholder virtual fields we need to strip
-    filtered_args = get_filtered_args(inferred_model, func)
-    return _create_subset_model(
-        f"{model_name}Schema", inferred_model, list(filtered_args)
+    validated = validate_arguments(function, config=SchemaSettings)  # type: ignore
+    inferred_type = validated.model  # type: ignore
+    if "run_manager" in inferred_type.__fields__:
+        del inferred_type.__fields__["run_manager"]
+    valid_parameters = extract_valid_parameters(inferred_type, function)
+    return _construct_model_subset(
+        f"{schema_name}Schema", inferred_type, list(valid_parameters)
     )
 
-class Tool(BaseModel):
+
+class BaseTool(BaseModel):
     name: str = None
     description: str
-    func: Callable
     args_schema: Type[BaseModel] = None
-    coroutine: Optional[Callable] = None
 
     @property
     def args(self):
         # print("args_schema", self.args_schema)
         if self.args_schema is not None:
-            return self.args_schema.__fields__ or self.args_schema.schema()["properties"]
+            return self.args_schema.schema()["properties"]
         else:
-            name = self.name or self.func.__name__
-            args_schema = create_schema_from_function(f"{name}Schema", self.func)
+            name = self.name
+            args_schema = create_function_schema(f"{name}Schema", self.execute)
             # print("args:", args_schema.schema()["properties"])
             return args_schema.schema()["properties"]
 
-    def execute(self, *tool_input):
-        return self.func(*tool_input)
+    @abstractmethod
+    def _execute(self, *args: Any, **kwargs: Any):
+        pass
+
+    def _parse_input(
+            self,
+            tool_input: Union[str, Dict],
+    ) -> Union[str, Dict[str, Any]]:
+        """Convert tool input to pydantic model."""
+        input_args = self.args_schema
+        if isinstance(tool_input, str):
+            if input_args is not None:
+                key_ = next(iter(input_args.__fields__.keys()))
+                input_args.validate({key_: tool_input})
+            return tool_input
+        else:
+            if input_args is not None:
+                result = input_args.parse_obj(tool_input)
+                return {k: v for k, v in result.dict().items() if k in tool_input}
+        return tool_input
+
+    def _to_args_and_kwargs(self, tool_input: Union[str, Dict]) -> Tuple[Tuple, Dict]:
+        # For backwards compatibility, if run_input is a string,
+        # pass as a positional argument.
+        if isinstance(tool_input, str):
+            return (tool_input,), {}
+        else:
+            return (), tool_input
+
+    def execute(
+            self,
+            tool_input: Union[str, Dict],
+            **kwargs: Any
+    ) -> Any:
+        """Run the tool."""
+        parsed_input = self._parse_input(tool_input)
+
+        try:
+            tool_args, tool_kwargs = self._to_args_and_kwargs(parsed_input)
+            observation = (
+                self._execute(*tool_args, **tool_kwargs)
+            )
+        except (Exception, KeyboardInterrupt) as e:
+            raise e
+        return observation
 
     @classmethod
     def from_function(cls, func: Callable, args_schema: Type[BaseModel] = None):
         if args_schema:
-            return cls(description=func.__doc__, args_schema=args_schema, func=func)
+            return cls(description=func.__doc__, args_schema=args_schema)
         else:
-            return cls(description=func.__doc__, func=func)
+            return cls(description=func.__doc__)
 
-def tool(*args: Union[str, Callable], return_direct: bool = False, args_schema: Optional[Type[BaseModel]] = None) -> Callable:
+
+class FunctionalTool(BaseTool):
+    name: str = None
+    description: str
+    func: Callable
+    args_schema: Type[BaseModel] = None
+
+    @property
+    def args(self):
+        if self.args_schema is not None:
+            return self.args_schema.schema()["properties"]
+        else:
+            name = self.name
+            args_schema = create_function_schema(f"{name}Schema", self.execute)
+            # print("args:", args_schema.schema()["properties"])
+            return args_schema.schema()["properties"]
+
+    def _execute(self, *args: Any, **kwargs: Any):
+        return self.func(*args, kwargs)
+
+    @classmethod
+    def from_function(cls, func: Callable, args_schema: Type[BaseModel] = None):
+        if args_schema:
+            return cls(description=func.__doc__, args_schema=args_schema)
+        else:
+            return cls(description=func.__doc__)
+
+
+def tool(*args: Union[str, Callable], return_direct: bool = False,
+         args_schema: Optional[Type[BaseModel]] = None) -> Callable:
     def decorator(func: Callable) -> Callable:
         nonlocal args_schema
 
-        tool_instance = Tool.from_function(func, args_schema)
+        tool_instance = FunctionalTool.from_function(func, args_schema)
 
         @wraps(func)
         def wrapper(*tool_args, **tool_kwargs):

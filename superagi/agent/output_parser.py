@@ -1,7 +1,7 @@
 import json
 from abc import ABC, abstractmethod
-from typing import Dict, NamedTuple, re
-
+from typing import Dict, NamedTuple
+import re
 
 class AgentGPTAction(NamedTuple):
   name: str
@@ -37,6 +37,12 @@ class AgentOutputParser(BaseOutputParser):
           args={"error": f"Could not parse invalid json: {text}"},
         )
     try:
+      print("Thoughts: ", parsed["thoughts"]["reasoning"])
+      print("Reasoning: ", parsed["thoughts"]["reasoning"])
+      print("Plan: ", parsed["thoughts"]["plan"])
+      print("Criticism: ", parsed["thoughts"]["criticism"])
+      print("Tool: ", parsed["command"]["name"])
+      print("Args: ", parsed["command"]["args"])
       return AgentGPTAction(
         name=parsed["command"]["name"],
         args=parsed["command"]["args"],

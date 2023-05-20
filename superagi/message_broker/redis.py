@@ -1,13 +1,14 @@
 import os
 
 import redis
+from superagi.config.config import get_config
 
 
 # Message broker connection parameters
 class RedisBroker:
   def __int__(self):
-    redis_host = os.getenv("REDIS_HOST", "localhost")
-    redis_port = os.getenv("REDIS_PORT", "6379")
+    redis_host = get_config("REDIS_HOST", "localhost")
+    redis_port = get_config("REDIS_PORT", "6379")
     self.redis_client = redis.Redis(host=redis_host, port=redis_port)
 
   def push_message(self, topic: str, message: str):

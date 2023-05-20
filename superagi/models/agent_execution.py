@@ -1,16 +1,15 @@
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String,Text
 from sqlalchemy.orm import relationship
-from base_model import DBBaseModel
-from agent import Agent
+from superagi.models.base_model import DBBaseModel
+from superagi.models.agent import Agent
 
 class AgentExecution(DBBaseModel):
     __tablename__ = 'agent_executions'
 
     id = Column(Integer, primary_key=True)
-    status = Column(Enum('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED'))
-    logs = Column(String)
-    agent_id = Column(Integer, ForeignKey(Agent.id))
-    agent = relationship(Agent)
+    status = Column(String) #like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED')
+    logs = Column(Text)
+    agent_id = Column(Integer)
 
     def __repr__(self):
         return f"AgentExecution(id={self.id}, status='{self.status}', " \

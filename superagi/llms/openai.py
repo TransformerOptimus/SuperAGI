@@ -4,10 +4,11 @@ from abc import ABC, abstractmethod
 
 import openai
 from superagi.llms.base_llm import BaseLlm
+from superagi.config.config import get_config
 
 
 class OpenAi(BaseLlm):
-    def __init__(self, model="gpt-4", temperature=0.3, max_tokens=3600, top_p=1, frequency_penalty=0,
+    def __init__(self, model="gpt-4", temperature=0.3, max_tokens=4032, top_p=1, frequency_penalty=0,
                  presence_penalty=0, number_of_results=1):
         self.model = model
         self.temperature = temperature
@@ -17,10 +18,13 @@ class OpenAi(BaseLlm):
         self.presence_penalty = presence_penalty
         self.number_of_results = number_of_results
 
-    def chat_completion(self, messages):
+    def get_model(self):
+        return self.model
+
+    def chat_completion(self, messages, max_tokens=4032):
         try:
-            print("Messages:", messages)
-            openai.api_key = os.getenv("OPENAI_API_KEY")
+            # print("Messages:", messages)
+            openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.ChatCompletion.create(
                 n=self.number_of_results,
                 model=self.model,
