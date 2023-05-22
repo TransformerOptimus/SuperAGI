@@ -3,11 +3,13 @@ from abc import ABC, abstractmethod
 from superagi.config.config import get_config
 import openai
 
+
 class BaseEmbedding(ABC):
 
-  @abstractmethod
-  def get_embedding(self, text):
-    pass
+    @abstractmethod
+    def get_embedding(self, text):
+        pass
+
 
 class OpenAiEmbedding:
     def __init__(self, model="text-embedding-ada-002"):
@@ -27,7 +29,7 @@ class OpenAiEmbedding:
     def get_embedding(self, text):
         try:
             openai.api_key = get_config("OPENAI_API_KEY")
-            print(openai.api_key)
+            # print(openai.api_key)
             response = openai.Embedding.create(
                 input=[text],
                 engine=self.model
@@ -35,3 +37,6 @@ class OpenAiEmbedding:
             return response['data'][0]['embedding']
         except Exception as exception:
             return {"error": exception}
+
+    def embed_documents(self, documents):
+        return [self.get_embedding(document) for document in documents]
