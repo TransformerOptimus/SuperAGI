@@ -34,7 +34,7 @@ tools = [
 superagi = SuperAgi.from_llm_and_tools("Super AGI", "Super AGI", memory, tools, OpenAi(model="gpt-4"))
 
 user_input=[]
-user_input=str(input("Enter your objective:\n"))
+user_input=str(input("Enter your Goal:\n"))
 
 superagi.execute([user_input])
 
