@@ -4,7 +4,7 @@
 ° [![Join our Discord Server](https://img.shields.io/badge/Discord-SuperAGI-blueviolet?logo=discord&logoColor=white)](https://discord.gg/dXbRe5BHJC) °  [![Follow us on Twitter](https://img.shields.io/twitter/follow/_superAGI?label=_superAGI&style=social)](https://twitter.com/_superAGI) ° [![Join the discussion on Reddit](https://img.shields.io/reddit/subreddit-subscribers/Super_AGI?label=%2Fr/Super_AGI&style=social)](https://www.reddit.com/r/Super_AGI) 
 </p>
 
-### *Infrastructure for building useful Autonomous Agents *
+### *Infrastructure for building useful Autonomous Agents*
 
 # 💻 Screenshots
 
