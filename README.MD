@@ -1,4 +1,3 @@
-
 <p align=center>
 <a href="https://superagi.co"><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
 
