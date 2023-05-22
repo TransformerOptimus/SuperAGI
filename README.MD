@@ -4,7 +4,12 @@
 ° [![Join our Discord Server](https://img.shields.io/badge/Discord-SuperAGI-blueviolet?logo=discord&logoColor=white)](https://discord.gg/dXbRe5BHJC) °  [![Follow us on Twitter](https://img.shields.io/twitter/follow/_superAGI?label=_superAGI&style=social)](https://twitter.com/_superAGI) ° [![Join the discussion on Reddit](https://img.shields.io/reddit/subreddit-subscribers/Super_AGI?label=%2Fr/Super_AGI&style=social)](https://www.reddit.com/r/Super_AGI) 
 </p>
 
-### *Infrastructure for building useful Autonomous Agents *
+### *Infrastructure for building useful Autonomous Agents*
+
+# 💻 Screenshots
+
+![Screenshot1](https://superagi.co/wp-content/uploads/2023/05/SuperAGI_light.png)
+![Screenshot1](https://superagi.co/wp-content/uploads/2023/05/SuperAGI_dark-2.png)
 
 # 💡 Features
 
@@ -85,7 +90,7 @@ This project is under active development and may still have issues. We appreciat
 
 
 # 👩‍💻Contributors
-[![TransformerOptimus](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133493246?v=4&w=50&h=50&mask=circle)](https://github.com/TransformerOptimus) [![Cptsnowcrasher](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133322218?v=4&w=50&h=50&mask=circle)](https://github.com/Cptsnowcrasher) [![vectorcrow](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133646556?v=4&w=50&h=50&mask=circle)](https://github.com/vectorcrow) [![Akki-jain](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/92881074?v=4&w=50&h=50&mask=circle)](https://github.com/Akki-jain) [![Autocop-Agent](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/129729746?v=4&w=50&h=50&mask=circle)](https://github.com/Autocop-Agent)
+[![TransformerOptimus](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133493246?v=4&w=50&h=50&mask=circle)](https://github.com/TransformerOptimus) [![Cptsnowcrasher](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133322218?v=4&w=50&h=50&mask=circle)](https://github.com/Cptsnowcrasher) [![vectorcrow](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133646556?v=4&w=50&h=50&mask=circle)](https://github.com/vectorcrow) [![Akki-jain](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/92881074?v=4&w=50&h=50&mask=circle)](https://github.com/Akki-jain) [![Autocop-Agent](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/129729746?v=4&w=50&h=50&mask=circle)](https://github.com/Autocop-Agent)[![COLONAYUSH](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/60507126?v=4&w=50&h=50&mask=circle)](https://github.com/COLONAYUSH)[![luciferlinx101](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/129729795?v=4&w=50&h=50&mask=circle)](https://github.com/luciferlinx101)[![mukundans89](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/101278493?v=4&w=50&h=50&mask=circle)](https://github.com/mukundans89)[![Fluder-Paradyne](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/121793617?v=4&w=50&h=50&mask=circle)](https://github.com/Fluder-Paradyne)
 
 # ⭐Star History
 
