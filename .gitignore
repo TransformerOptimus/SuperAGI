@@ -1,3 +1,6 @@
 .idea
 **/.env
 config.yaml
+__pycache__
+superagi/models/__pycache__
+superagi/controllers/__pycache__

@@ -34,12 +34,12 @@ def get_budget(budget_id: int,Authorize: AuthJWT = Depends()):
 
 @router.put("/update/{budget_id}", response_model=sqlalchemy_to_pydantic(Budget))
 def update_budget(budget_id: int, budget: sqlalchemy_to_pydantic(Budget,exclude=["id"]),Authorize: AuthJWT = Depends()):
-    db_budget = db.session.query(budget).filter(budget.id == budget_id).first()
+    db_budget = db.session.query(Budget).filter(Budget.id == budget_id).first()
     if not db_budget:
         raise HTTPException(status_code=404, detail="budget not found")
     
-    db_budget.name = budget.name
-    db_budget.description = budget.description
+    db_budget.budget = budget.budget
+    db_budget.cycle = budget.cycle
     db.session.commit()
 
     return db_budget

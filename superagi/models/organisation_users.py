@@ -1,8 +1,8 @@
 # from sqlalchemy import Column, Integer, String, ForeignKey
-# from base_model import DBBaseModel
+# from superagi.models.base_model import DBBaseModel
 # from sqlalchemy.orm import relationship
-# from user import User
-# from organisation import Organisation
+# from superagi.models.user import User
+# from superagi.models.organisation import Organisation
 
 # class OrganisationUser(DBBaseModel):
 #     __tablename__ = 'organisations_users'

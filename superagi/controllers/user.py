@@ -39,14 +39,3 @@ def update_user(user_id: int, user: sqlalchemy_to_pydantic(User,exclude=["id"]))
 
     db.session.commit()
     return db_user
-
-
-@router.delete("/delete/{user_id}")
-def delete_user(user_id: int):
-    db_user = db.session.query(User).filter(User.id == user_id).first()
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    db.session.delete(db_user)
-    db.session.commit()
-    return {"message": "User deleted"}
