@@ -14,7 +14,7 @@ class DeleteFileInput(BaseModel):
     file_name: str = Field(..., description="Name of the file to delete")
 
 class DeleteFileTool(BaseTool):
-    name: str = "delete_file"
+    name: str = "Delete File"
     args_schema: Type[BaseModel] = DeleteFileInput
     description: str = "Delete a file"
 

@@ -14,7 +14,7 @@ class ListFileInput(BaseModel):
 
 
 class ListFileTool(BaseTool):
-    name: str = "list_file"
+    name: str = "List File"
     args_schema: Type[BaseModel] = ListFileInput
     description: str = "lists files in a directory recursively"
 

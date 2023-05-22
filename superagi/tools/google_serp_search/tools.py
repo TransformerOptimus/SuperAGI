@@ -19,7 +19,7 @@ class GoogleSerpSchema(BaseModel):
 
 
 class GoogleSerpTool(BaseTool):
-    name = "GoogleSerp"
+    name = "Google Serp"
     description = (
         "A tool for performing a Google SERP search and extracting snippets and webpages."
         "Input should be a search query."

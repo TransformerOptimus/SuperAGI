@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from pydantic.types import List
 import time
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.agent.agent_prompt_to_print_builder import AgentPromptToPrintBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
 from superagi.helper.token_counter import TokenCounter
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
@@ -14,6 +15,7 @@ from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
+import json
 
 FINISH = "finish"
 print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
@@ -64,11 +66,17 @@ class SuperAgi:
         iteration = 10
         i = 0
         while True:
+            format_prefix_yellow = "\033[93m\033[1m"
+            format_suffix_yellow = "\033[0m\033[0m"
+            format_prefix_green = "\033[92m\033[1m"
+            format_suffix_green = "\033[0m\033[0m"
+            
             i += 1
             if i > iteration:
                 return
             # print(self.tools)
             autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
+            autogpt_prompt_to_print = AgentPromptToPrintBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
             # generated_prompt = self.get_analytics_insight_prompt(analytics_string)
             messages = [{"role": "system", "content": autogpt_prompt},
                        {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
@@ -77,15 +85,26 @@ class SuperAgi:
                 # print(history.type + " : ", history.content)
                 messages.append({"role": history.type, "content": history.content})
 
-            print(autogpt_prompt)
+            # print(autogpt_prompt)
+            print(autogpt_prompt_to_print)
             # Discontinue if continuous limit is reached
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             token_limit = TokenCounter.token_limit(self.llm.get_model())
 
-            print("Token remaining:", token_limit - current_tokens)
+            # print("Token remaining:", token_limit - current_tokens)
             response = self.llm.chat_completion(messages, token_limit - current_tokens)
 
-            print(response)
+            # parsed_response = json.loads(response['choices'][0]['message']['content'])
+            # parsed_response = json.loads(response)
+            
+            # Print the formatted response
+            # formatted_response = json.dumps(response, indent=4)
+            # formatted_response = json.dumps(response['choices'],indent=4)
+
+            # print(response['choices'])
+            # print(response['content'])
+            print("\n")
+
             if response['content'] is None:
                 raise RuntimeError(f"Failed to get response from llm")
             assistant_reply = response['content']
@@ -99,6 +118,7 @@ class SuperAgi:
             tools = {t.name: t for t in self.tools}
 
             if action.name == FINISH:
+                print(format_prefix_green + "Sub-task completed moving to next task!" + format_suffix_green)
                 return action.args["response"]
             if action.name in tools:
                 tool = tools[action.name]
@@ -122,10 +142,12 @@ class SuperAgi:
                     f"tools and only respond in the specified JSON format."
                 )
 
-            print(result)
+            print(format_prefix_yellow + "Tool Response : " + format_suffix_yellow + result + "\n")
             #self.memory.add_documents([Document(text_content=assistant_reply)])
             self.full_message_history.append(SystemMessage(content=result))
             # print(self.full_message_history)
+            
+            print(format_prefix_green + "Sub-task completed moving to next task!" + format_suffix_green)
         pass
 
     def call_llm(self):

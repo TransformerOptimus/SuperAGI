@@ -22,7 +22,7 @@ def create_campaign(campaign_name: str):
 
 
 tools = [
-    GoogleSearchTool(),
+    # GoogleSearchTool(),
     WriteFileTool(),
     GoogleSerpTool()
 ]
