@@ -22,8 +22,9 @@ def create_campaign(campaign_name: str):
 
 
 tools = [
-    GoogleSearchTool(),
-    WriteFileTool()
+    # GoogleSearchTool(),
+    WriteFileTool(),
+    GoogleSerpTool()
 ]
 
 # result = GoogleSearchTool().execute({"query": "List down top 10 marketing strategies for a new product"})
@@ -31,5 +32,10 @@ tools = [
 # print(result.split("."))
 # send_tool = SendTweetTool()
 # send_tool.execute("Innovation isn't a one-time event; it's a culture. It's about daring to question the status quo, nurturing a curiosity that stretches horizons, and constantly seeking new ways to add value #Innovation #ChangeTheWorld")
-superagi = SuperAgi.from_llm_and_tools("Super AGI", "Super AGI", memory, tools, OpenAi(model="gpt-4"))
-superagi.execute(["Write best marketing strategies for ecommerce brand in a file"])
+
+
+
+superagi = SuperAgi.from_llm_and_tools("Super AGI", "To solve any complex problems for you", memory, tools, OpenAi(model="gpt-4"))
+user_goal=[]
+user_goal=str(input("Enter your Goal:\n"))
+superagi.execute([user_goal])

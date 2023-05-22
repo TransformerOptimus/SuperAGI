@@ -3,6 +3,8 @@ from pydantic import BaseSettings
 from pathlib import Path
 import yaml
 
+CONFIG_FILE = "config.yaml"
+
 
 class Config(BaseSettings):
     class Config:
@@ -11,19 +13,33 @@ class Config(BaseSettings):
 
     @classmethod
     def load_config(cls, config_file: str) -> dict:
-        # Fetch environment variables
-        env_vars = dict(os.environ)
-
-        # Read config file
-        try:
-            with open(config_file, 'r') as file:
+        # If config file exists, read it
+        if os.path.exists(config_file):
+            with open(config_file, "r") as file:
                 config_data = yaml.safe_load(file)
             if config_data is None:
                 config_data = {}
-        except FileNotFoundError:
-            config_data = {}
+        else:
+            # If config file doesn't exist, prompt for credentials and create new file
+            print("\033[91m\033[1m"
+        + "\nConfig file not found. Enter required keys and values."
+        + "\033[0m\033[0m")
+            config_data = {
+                "PINECONE_API_KEY": input("Pinecone API Key: "),
+                "PINECONE_ENVIRONMENT": input("Pinecone Environment: "),
+                "OPENAI_API_KEY": input("OpenAI API Key: "),
+                "GOOGLE_API_KEY": input("Google API Key: "),
+                "SEARCH_ENGINE_ID": input("Search Engine ID: "),
+                "RESOURCES_ROOT_DIR": input(
+                    "Resources Root Directory (default: /tmp/): "
+                )
+                or "/tmp/",
+            }
+            with open(config_file, "w") as file:
+                yaml.dump(config_data, file, default_flow_style=False)
 
         # Merge environment variables and config data
+        env_vars = dict(os.environ)
         config_data = {**config_data, **env_vars}
 
         return config_data
@@ -37,16 +53,8 @@ class Config(BaseSettings):
 
 
 ROOT_DIR = os.path.dirname(Path(__file__).parent.parent)
-# print("root dir:", ROOT_DIR + "/config.yaml")
-_config_instance = Config(ROOT_DIR + "/config.yaml")
+_config_instance = Config(ROOT_DIR + "/" + CONFIG_FILE)
 
 
 def get_config(key: str, default: str = None) -> str:
-    """
-    Function to get the configuration value from the instance.
-
-    :param key: str, the key to retrieve the configuration value.
-    :param default: str, the default value to return if the key is not present.
-    :return: str, the configuration value.
-    """
     return _config_instance.get_config(key, default)

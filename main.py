@@ -26,9 +26,9 @@ from sqlalchemy import create_engine
 
 app = FastAPI()
 
-db_username = 'abhijeet'
-db_password = 'password'
-db_name = 'test123'
+db_username = ''
+db_password = ''
+db_name = ''
 
 
 db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'

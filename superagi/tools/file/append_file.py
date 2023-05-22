@@ -16,7 +16,7 @@ class AppendFileInput(BaseModel):
 
 
 class AppendFileTool(BaseTool):
-    name: str = "append_file"
+    name: str = "Append File"
     args_schema: Type[BaseModel] = AppendFileInput
     description: str = "Append text to a file"
 
