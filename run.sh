@@ -2,7 +2,7 @@
 
 # Check if config.yaml file exists
 if [ ! -f "config.yaml" ]; then
-    echo "ERROR: config.yaml file not found. Please create the config.yaml file using the command 'cp config.yaml.example config.yaml' and edit it'."
+    echo "ERROR: config.yaml file not found. Please create the config.yaml file using the command 'cp config_template.yaml config.yaml' and edit it'."
     exit 1
 fi
 
