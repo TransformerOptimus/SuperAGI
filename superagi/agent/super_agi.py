@@ -17,9 +17,9 @@ from superagi.vector_store.document import Document
 
 FINISH = "finish"
 print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
-print("\033[91m\033[1m"
-        + "\nA bit about me...."
-        + "\033[0m\033[0m")
+# print("\033[91m\033[1m"
+#         + "\nA bit about me...."
+#         + "\033[0m\033[0m")
 
 class SuperAgi:
     def __init__(self,

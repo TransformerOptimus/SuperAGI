@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Check if config.yaml file exists
-if [ ! -f "config.yaml" ]; then
-    echo "ERROR: config.yaml file not found. Please create the config.yaml file."
-    exit 1
-fi
+# if [ ! -f "config.yaml" ]; then
+#     echo "ERROR: config.yaml file not found. Please create the config.yaml file."
+#     exit 1
+# fi
 
 # Check if requirements are already installed
 echo "Checking requirements..."
