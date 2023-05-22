@@ -32,5 +32,10 @@ tools = [
 # print(result.split("."))
 # send_tool = SendTweetTool()
 # send_tool.execute("Innovation isn't a one-time event; it's a culture. It's about daring to question the status quo, nurturing a curiosity that stretches horizons, and constantly seeking new ways to add value #Innovation #ChangeTheWorld")
+
+
+
 superagi = SuperAgi.from_llm_and_tools("Super AGI", "Super AGI", memory, tools, OpenAi(model="gpt-4"))
-superagi.execute(["Write best marketing strategies for ecommerce brand in a file"])
+user_goal=[]
+user_goal=str(input("Enter your Goal:\n"))
+superagi.execute([user_goal])
