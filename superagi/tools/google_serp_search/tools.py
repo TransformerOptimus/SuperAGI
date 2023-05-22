@@ -27,7 +27,7 @@ class GoogleSerpTool(BaseTool):
     args_schema: Type[GoogleSerpSchema] = GoogleSerpSchema
 
     def _execute(self, query: str) -> tuple:
-        api_key = get_config.get("SERP_API_KEY")
+        api_key = get_config("SERP_API_KEY")
         num_results = 10
         num_pages = 1
         num_extracts = 3
