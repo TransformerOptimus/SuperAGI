@@ -17,6 +17,9 @@ from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 import json
 # from spinners.spinners import Spinner
+# from spinners import Spinners #Enum
+from halo import Halo
+
 
 
 
@@ -101,9 +104,11 @@ class SuperAgi:
 
 
             # print("Token remaining:", token_limit - current_tokens)
+            # print(Spinners.line)
+            spinner = Halo(text='Thinking...', spinner='dots')
+            spinner.start()
             response = self.llm.chat_completion(messages, token_limit - current_tokens)
-
-            # spinner.stop()
+            spinner.stop()
             # parsed_response = json.loads(response['choices'][0]['message']['content'])
             # parsed_response = json.loads(response)
             
