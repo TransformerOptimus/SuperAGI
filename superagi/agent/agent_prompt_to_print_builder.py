@@ -45,11 +45,11 @@ class AgentPromptToPrintBuilder:
     return title + ":\n" + list_string + "\n"
 
   def generate_prompt_string(self):
-    final_string = "\n\n"
+    final_string = "\n"
     final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
     final_string += self.agent_prompt.base_prompt
     final_string += "\n"
-    final_string += self.add_list_items_to_string("\033[94m\033[1m\nGOALS\033[0m\033[0m", self.agent_prompt.goals)
+    final_string += self.add_list_items_to_string("\033[94m\033[1m\nGoals\033[0m\033[0m", self.agent_prompt.goals)
     # final_string += self.add_list_items_to_string("\033[96m\033[1m\nCONSTRAINTS\033[0m\033[0m", self.agent_prompt.constraints)
     # commands string
     final_string = self.add_tools_to_prompt(final_string)
@@ -61,7 +61,7 @@ class AgentPromptToPrintBuilder:
     return final_string
 
   def add_tools_to_prompt(self, final_string):
-    final_string += "\033[91m\033[1m\nTOOLS\033[0m\033[0m:\n"
+    final_string += "\033[91m\033[1m\nTools\033[0m\033[0m:\n"
     for i, item in enumerate(self.agent_prompt.tools):
       final_string += f"{i + 1}. {self._generate_command_string(item)}\n"
     # finish_description = (

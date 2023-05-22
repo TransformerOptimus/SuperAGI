@@ -16,6 +16,9 @@ from superagi.tools.base_tool import BaseTool
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 import json
+# from spinners.spinners import Spinner
+
+
 
 FINISH = "finish"
 print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
@@ -70,8 +73,8 @@ class SuperAgi:
             format_suffix_yellow = "\033[0m\033[0m"
             format_prefix_green = "\033[92m\033[1m"
             format_suffix_green = "\033[0m\033[0m"
-            
             i += 1
+            print("\n"+format_prefix_green + "____________________Iteration : "+str(i)+"________________________" + format_suffix_green+"\n")            
             if i > iteration:
                 return
             # print(self.tools)
@@ -91,9 +94,16 @@ class SuperAgi:
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             token_limit = TokenCounter.token_limit(self.llm.get_model())
 
+            # spinner = Spinners.dots12
+            # spinner.start()
+            # spinner = Spinner('dots12')
+            # spinner.start()
+
+
             # print("Token remaining:", token_limit - current_tokens)
             response = self.llm.chat_completion(messages, token_limit - current_tokens)
 
+            # spinner.stop()
             # parsed_response = json.loads(response['choices'][0]['message']['content'])
             # parsed_response = json.loads(response)
             
@@ -118,7 +128,7 @@ class SuperAgi:
             tools = {t.name: t for t in self.tools}
 
             if action.name == FINISH:
-                print(format_prefix_green + "Sub-task completed moving to next task!" + format_suffix_green)
+                print(format_prefix_green + "\nTask Finished :) \n" + format_suffix_green)
                 return action.args["response"]
             if action.name in tools:
                 tool = tools[action.name]
@@ -147,7 +157,7 @@ class SuperAgi:
             self.full_message_history.append(SystemMessage(content=result))
             # print(self.full_message_history)
             
-            print(format_prefix_green + "Sub-task completed moving to next task!" + format_suffix_green)
+            print(format_prefix_green + "Interation completed moving to next iteration!" + format_suffix_green)
         pass
 
     def call_llm(self):
