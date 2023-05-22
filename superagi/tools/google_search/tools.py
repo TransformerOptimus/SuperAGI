@@ -5,6 +5,8 @@ from superagi.helper.google_search import GoogleSearchWrap
 from superagi.tools.base_tool import BaseTool
 import os
 import json
+from superagi.config.config import get_config
+
 
 
 class GoogleSearchSchema(BaseModel):
@@ -23,8 +25,8 @@ class GoogleSearchTool(BaseTool):
     args_schema: Type[GoogleSearchSchema] = GoogleSearchSchema
 
     def _execute(self, query: str) -> tuple:
-        api_key = os.environ.get("GOOGLE_API_KEY")
-        search_engine_id = os.environ.get("SEARCH_ENGINE_ID")
+        api_key = get_config("GOOGLE_API_KEY")
+        search_engine_id = get_config("SEARCH_ENGINE_ID")
         num_results = 10
         num_pages = 1
         num_extracts = 3
