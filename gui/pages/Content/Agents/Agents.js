@@ -18,6 +18,7 @@ export default function Agents({sendAgentData}) {
     model: 'Open AI - 3.5',
     mode: 'God Mode',
     state: "RUNNING",
+    contentType: 'Agents'
   }, {
     id: 1,
     name: "agent name 2",
@@ -31,6 +32,7 @@ export default function Agents({sendAgentData}) {
     model: 'Open AI - 3.5',
     mode: 'God Mode',
     state: "PENDING",
+    contentType: 'Agents'
   }, {
     id: 2,
     name: "agent name 3",
@@ -44,6 +46,7 @@ export default function Agents({sendAgentData}) {
     model: 'Open AI - 3.5',
     mode: 'God Mode',
     state: "PENDING",
+    contentType: 'Agents'
   }];
 
   const [agents, setAgents] = useState(agentArray);
@@ -74,7 +77,7 @@ export default function Agents({sendAgentData}) {
         <div className={styles.title_box}>
           <p className={styles.title_text}>Agents</p>
         </div>
-        <div className={styles.wrapper} style={{marginBottom:'10px',marginTop:'3px'}}>
+        <div className={styles.wrapper} style={{marginBottom:'10px',marginTop:'4px'}}>
           <button style={{width:'100%'}} className={styles.agent_button} onClick={handleNewAgent}>
             + Create Agent
           </button>

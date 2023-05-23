@@ -170,7 +170,7 @@ export default function ToolList({onSelectEvent}) {
     const updatedAgents = tools.filter((tool) => tool.id !== toolId);
     setTools(updatedAgents);
     closeDeleteModal();
-    toast.success('Tool uninstalled', {autoClose: 1800});
+    toast.dark('Tool uninstalled', {autoClose: 1800});
   };
 
   const preventDefault = (e) => {

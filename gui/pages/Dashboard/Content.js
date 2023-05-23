@@ -15,21 +15,21 @@ export default function Content({selectedView}) {
     setTabs((prevArray) => {
       const newArray = [...prevArray];
       newArray.splice(indexToDelete, 1);
+      if(tabs.length > 0) {
+        handleTabSelection(tabs[indexToDelete - 1] ? tabs[indexToDelete - 1] : tabs[indexToDelete + 1])
+      } else {
+        handleTabSelection(null)
+      }
       return newArray;
     });
   };
 
   const addTab = (element) => {
-    const updatedElement = {
-      ...element,
-      contentType: "Agents"
-    };
-
-    if (!tabs.includes(updatedElement)) {
-      const updatedTabs = [...tabs, updatedElement];
+    if (!tabs.includes(element)) {
+      const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
     }
-    handleTabSelection(updatedElement);
+    handleTabSelection(element);
   };
 
   const handleTabSelection = (tab) => {
@@ -49,7 +49,8 @@ export default function Content({selectedView}) {
               <div key={tab.id}>
                 <div className={`${styles.tab_box} ${selectedTab.id === tab.id ? styles.tab_box_selected : ''}`} onClick={() => handleTabSelection(tab)}>
                   <div style={{display:'flex', order:'0'}}>
-                    <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="active-icon"/></div>
+                    {tab.contentType === 'Agents' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
+                    {tab.contentType === 'Tools' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
                     <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                   </div>
                   <div onClick={() => closeTab(index)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
@@ -71,7 +72,7 @@ export default function Content({selectedView}) {
                     <div className={styles.create_agent}>
                       <div className="row">
                         <div className="col-3"></div>
-                        <div className="col-6">
+                        <div className="col-6" style={{overflowY:'scroll'}}>
                           <AgentCreate agent={tab}/>
                         </div>
                         <div className="col-3"></div>

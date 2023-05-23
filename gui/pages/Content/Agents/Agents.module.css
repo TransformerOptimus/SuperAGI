@@ -45,14 +45,15 @@
 }
 
 .agent_button {
-    border: none;
     width: auto;
     border-radius: 8px;
     font-size: 14px;
     color: white;
     height: 32px;
     background: #494856;
+    border: 1px solid #494856;
     text-align: center;
+    padding: 5px 15px;
 }
 
 .agent_button:hover {
@@ -85,8 +86,28 @@
 }
 
 .form_label {
-    font-size: 14px;
+    font-size: 13px;
     margin-bottom: 4px;
     font-weight: 500;
     color: white;
+    line-height: 17px;
+}
+
+.page_title {
+    text-align: left;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 17px;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.tool_text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
