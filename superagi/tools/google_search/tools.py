@@ -17,7 +17,7 @@ class GoogleSearchSchema(BaseModel):
 
 
 class GoogleSearchTool(BaseTool):
-    name = "GoogleSearch"
+    name = "Google Search"
     description = (
         "A tool for performing a Google search and extracting snippets and webpages."
         "Input should be a search query."

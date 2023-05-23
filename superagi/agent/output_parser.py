@@ -37,12 +37,18 @@ class AgentOutputParser(BaseOutputParser):
           args={"error": f"Could not parse invalid json: {text}"},
         )
     try:
-      print("Thoughts: ", parsed["thoughts"]["reasoning"])
-      print("Reasoning: ", parsed["thoughts"]["reasoning"])
-      print("Plan: ", parsed["thoughts"]["plan"])
-      print("Criticism: ", parsed["thoughts"]["criticism"])
-      print("Tool: ", parsed["command"]["name"])
-      print("Args: ", parsed["command"]["args"])
+      format_prefix_yellow = "\033[93m\033[1m"
+      format_suffix_yellow = "\033[0m\033[0m"
+      format_prefix_green = "\033[92m\033[1m"
+      format_suffix_green = "\033[0m\033[0m"
+      print(format_prefix_green  + "Intelligence : " + format_suffix_green)
+      print(format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"]["reasoning"]+"\n")
+      print(format_prefix_yellow + "Reasoning: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
+      print(format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "\n")
+      print(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
+      print(format_prefix_green  + "Action : "+ format_suffix_green)
+      print(format_prefix_yellow + "Tool: "+ format_suffix_yellow +  parsed["command"]["name"] + "\n")
+      # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["command"]["args"] + "\n")
       return AgentGPTAction(
         name=parsed["command"]["name"],
         args=parsed["command"]["args"],
