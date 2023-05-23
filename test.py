@@ -24,7 +24,8 @@ def create_campaign(campaign_name: str):
 tools = [
     # GoogleSearchTool(),
     WriteFileTool(),
-    GoogleSerpTool()
+    # GoogleSerpTool(),
+    GoogleSearchTool()
 ]
 
 # result = GoogleSearchTool().execute({"query": "List down top 10 marketing strategies for a new product"})

@@ -6,9 +6,12 @@ import openai
 from superagi.llms.base_llm import BaseLlm
 from superagi.config.config import get_config
 
+MODEL_NAME = get_config("OPENAI_MODEL_NAME")
+print(f"\033[94m\033[1m\-----------------------Using {MODEL_NAME}-----------------------\033[0m\033[0m")
+
 
 class OpenAi(BaseLlm):
-    def __init__(self, model="gpt-4", temperature=0.3, max_tokens=4032, top_p=1, frequency_penalty=0,
+    def __init__(self, model= MODEL_NAME, temperature=0.3, max_tokens=4032, top_p=1, frequency_penalty=0,
                  presence_penalty=0, number_of_results=1):
         self.model = model
         self.temperature = temperature
