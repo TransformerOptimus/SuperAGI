@@ -1,10 +1,38 @@
 #!/bin/bash
 
 # Check if config.yaml file exists
-# if [ ! -f "config.yaml" ]; then
-#     echo "ERROR: config.yaml file not found. Please create the config.yaml file."
-#     exit 1
-# fi
+if [ ! -f "config.yaml" ]; then
+    echo "ERROR: config.yaml file not found. Please create the config.yaml file."
+    exit 1
+fi
+
+# Function to check if virtual environment is activated
+is_venv_activated() {
+    [[ -n "$VIRTUAL_ENV" ]]
+}
+
+# Check if virtual environment is activated
+if ! is_venv_activated; then
+    echo "Virtual environment not activated. Creating and activating virtual environment..."
+
+    # Create virtual environment
+    python3 -m venv venv
+
+    # Activate virtual environment based on the operating system
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        source venv/bin/activate
+    else
+        source venv/bin/activate
+    fi
+else
+    echo "Virtual environment is already activated."
+fi
+
+# Activate virtual environment
+if ! is_venv_activated; then
+    echo "Activating virtual environment..."
+    source venv/bin/activate
+fi
 
 # Check if requirements are already installed
 echo "Checking requirements..."
