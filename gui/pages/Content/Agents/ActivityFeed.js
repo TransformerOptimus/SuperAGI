@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import Head from 'next/head';
 
-export default function ActivityFeed({feeds, history}) {
+export default function ActivityFeed({feeds}) {
   function checkEmptyText(text) {
     return text.replace(/\s/g, '') !== ''
   }
@@ -12,7 +12,7 @@ export default function ActivityFeed({feeds, history}) {
     <Head>
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
-    <div style={history ? {paddingLeft:'7px'} : {}}>
+    <div>
       {feeds.map((feed, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex',marginBottom: checkEmptyText(feed.description) ? '10px' : ''}}>
           {feed.status === 'new' && <div className={styles.feed_icon}>🌟</div>}

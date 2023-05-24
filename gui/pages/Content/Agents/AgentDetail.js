@@ -6,16 +6,21 @@ import styles from './Agents.module.css';
 import ActivityFeed from './ActivityFeed';
 import TaskQueue from './TaskQueue';
 import RunHistory from "./RunHistory";
+import ActionConsole from "./ActionConsole";
+import Feedback from "./Feedback";
+import Details from "./Details";
+import ResourceManager from "./ResourceManager";
+import Logs from "./Logs";
 
 export default function AgentDetail({agent}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('action_console')
+  const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(false)
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       {history && <RunHistory runs={agent.runs} setHistory={setHistory}/>}
-      <div style={{width: history ? '40%' : '60%',height:'100%'}}>
+      <div style={{width: history ? '40%' : '55%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer'}} onClick={() => setHistory(true)}>
@@ -40,12 +45,47 @@ export default function AgentDetail({agent}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <ActivityFeed feeds={agent.feeds} history={history}/>}
-          {leftPanel === 'task_queue' && <TaskQueue tasks={agent.tasks} history={history}/>}
+          {leftPanel === 'activity_feed' && <ActivityFeed feeds={agent.feeds}/>}
+          {leftPanel === 'task_queue' && <TaskQueue tasks={agent.tasks}/>}
         </div>
       </div>
-      <div style={{width:'40%',height:'100%'}}>
-
+      <div style={{width:'45%',height:'100%'}}>
+        <div className={styles.detail_top}>
+          <div style={{display:'flex',overflowX:'scroll'}}>
+            <div>
+              <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
+                Action Console
+              </button>
+            </div>
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>
+                Feedback
+              </button>
+            </div>
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254'} : {background:'transparent'}}>
+                Details
+              </button>
+            </div>
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>
+                Resource Manager
+              </button>
+            </div>
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>
+                Logs
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className={styles.detail_body} style={{paddingRight:'0',height:'100%'}}>
+          {rightPanel === 'action_console' && <ActionConsole/>}
+          {rightPanel === 'feedback' && <Feedback/>}
+          {rightPanel === 'details' && <Details agent={agent}/>}
+          {rightPanel === 'resource_manager' && <ResourceManager/>}
+          {rightPanel === 'logs' && <Logs/>}
+        </div>
       </div>
     </div>
     <ToastContainer/>

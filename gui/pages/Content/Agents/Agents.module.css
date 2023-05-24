@@ -118,6 +118,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-right: 10px;
 }
 
 .tab_button {
@@ -164,6 +165,7 @@
     width: 100%;
     height: calc(100% - 44px);
     overflow-y: scroll;
+    padding-right: 10px;
 }
 
 .history_box {
@@ -235,4 +237,30 @@
     border-radius: 8px;
     margin-bottom: 7px;
     padding: 15px 20px;
+}
+
+.console_icons {
+    margin: -3px 3px 0 0;
+}
+
+.detail_name {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+}
+
+.separator {
+    height: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.agent_info_box {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 10px;
 }

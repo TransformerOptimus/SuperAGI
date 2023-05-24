@@ -3,14 +3,14 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import Head from 'next/head';
 
-export default function TaskQueue({tasks, history}) {
+export default function TaskQueue({tasks}) {
   const [task_title, setTaskTitle] = useState("")
 
   return (<>
     <Head>
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
-    <div style={history ? {paddingLeft:'7px'} : {}}>
+    <div>
       <div className={styles.custom_task_box} style={{background:'#272335'}}>
         <div>Add Custom Task</div>
         <div style={{margin:'10px 0',display:'flex',alignItems:'center',justifyContent:'space-between'}}>

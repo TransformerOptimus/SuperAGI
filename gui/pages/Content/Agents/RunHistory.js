@@ -11,7 +11,7 @@ export default function RunHistory({runs, setHistory}) {
   }
 
   return (<>
-    <div style={{width:'20%',height:'100%'}}>
+    <div style={{width:'15%',height:'100%'}}>
       <div className={styles.detail_top}>
         <div style={{display:'flex'}}>
           <div style={{display:'flex',alignItems:'center',paddingLeft:'0'}} className={styles.tab_text}>
