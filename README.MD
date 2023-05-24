@@ -108,6 +108,7 @@ Before starting with the project, it is highly recommended to create a virtual e
 - Google key: Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: Google Custom Search JSON API). Then, create an API key in the "Credentials" section.
 - Custom search engine ID: Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.
 - Pinecone API key: Sign up at [Pinecone](https://www.pinecone.io/) and create an API key in your account dashboard.
+  * If you're on the Pinecone free plan, you only have 1 pod and 1 index available.  As a workaround, change the index name used in test.py where `memory` is defined: `memory = VectorFactory.get_vector_storage("PineCone", "my-current-indexname", OpenAiEmbedding())`
 7. Save and close the config.yaml file
 
 # 🏃‍♂️ Running SuperAGI
