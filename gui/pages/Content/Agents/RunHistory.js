@@ -28,7 +28,7 @@ export default function RunHistory({runs, setHistory}) {
         </div>
       </div>
       <div className={styles.detail_body}>
-        {runs.map((run, index) => (<div key={index} onClick={() => setSelectedRun(run.id)} className={styles.history_box} style={selectedRun === run.id ? {background:'#474255'} : {background:'#272335'}}>
+        {runs.reverse().map((run, index) => (<div key={index} onClick={() => setSelectedRun(run.id)} className={styles.history_box} style={selectedRun === run.id ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div>{run.name}</div>
             {run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}

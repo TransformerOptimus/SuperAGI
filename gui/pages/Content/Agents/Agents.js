@@ -45,15 +45,15 @@ export default function Agents({sendAgentData}) {
       }
     ],
     runs: [
-      { id: 0, name: 'run name', is_running: true, calls: 783, last_active: 120, notification_count: 4 },
-      { id: 1, name: 'run name', is_running: false, calls: 783, last_active: 180, notification_count: 0 },
-      { id: 2, name: 'run name', is_running: true, calls: 783, last_active: 150, notification_count: 2 },
-      { id: 3, name: 'run name', is_running: false, calls: 783, last_active: 300, notification_count: 0 },
-      { id: 4, name: 'run name', is_running: false, calls: 783, last_active: 270, notification_count: 0 },
-      { id: 5, name: 'run name', is_running: false, calls: 783, last_active: 360, notification_count: 0 },
-      { id: 6, name: 'run name', is_running: true, calls: 783, last_active: 450, notification_count: 1 },
-      { id: 7, name: 'run name', is_running: false, calls: 783, last_active: 150, notification_count: 0 },
-      { id: 8, name: 'run name', is_running: false, calls: 783, last_active: 270, notification_count: 0 },
+      { id: 0, name: 'run name', is_running: false, calls: 400, last_active: 900, notification_count: 0 },
+      { id: 1, name: 'run name', is_running: false, calls: 200, last_active: 800, notification_count: 0 },
+      { id: 2, name: 'run name', is_running: false, calls: 500, last_active: 700, notification_count: 0 },
+      { id: 3, name: 'run name', is_running: false, calls: 100, last_active: 600, notification_count: 1 },
+      { id: 4, name: 'run name', is_running: false, calls: 300, last_active: 500, notification_count: 0 },
+      { id: 5, name: 'run name', is_running: false, calls: 450, last_active: 400, notification_count: 0 },
+      { id: 6, name: 'run name', is_running: false, calls: 350, last_active: 300, notification_count: 2 },
+      { id: 7, name: 'run name', is_running: false, calls: 250, last_active: 200, notification_count: 0 },
+      { id: 8, name: 'run name', is_running: true, calls: 150, last_active: 100, notification_count: 4 },
     ]
   }, {
     id: 1,
@@ -70,13 +70,7 @@ export default function Agents({sendAgentData}) {
     window: 2,
     window_unit: 'minutes',
     exit_criterion: 'System defined',
-    tasks: [
-      { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 4: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 5: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-    ],
+    tasks: [],
     feeds: [
       {
         status: "new",
@@ -95,15 +89,9 @@ export default function Agents({sendAgentData}) {
       }
     ],
     runs: [
-      { id: 0, name: 'run name', is_running: true, calls: 783, last_active: 120, notification_count: 4 },
-      { id: 1, name: 'run name', is_running: false, calls: 783, last_active: 180, notification_count: 0 },
-      { id: 2, name: 'run name', is_running: true, calls: 783, last_active: 150, notification_count: 2 },
-      { id: 3, name: 'run name', is_running: false, calls: 783, last_active: 300, notification_count: 0 },
-      { id: 4, name: 'run name', is_running: false, calls: 783, last_active: 270, notification_count: 0 },
-      { id: 5, name: 'run name', is_running: false, calls: 783, last_active: 360, notification_count: 0 },
-      { id: 6, name: 'run name', is_running: true, calls: 783, last_active: 450, notification_count: 1 },
-      { id: 7, name: 'run name', is_running: false, calls: 783, last_active: 150, notification_count: 0 },
-      { id: 8, name: 'run name', is_running: false, calls: 783, last_active: 270, notification_count: 0 },
+      { id: 0, name: 'run name', is_running: false, calls: 350, last_active: 300, notification_count: 2 },
+      { id: 1, name: 'run name', is_running: false, calls: 250, last_active: 200, notification_count: 0 },
+      { id: 2, name: 'run name', is_running: true, calls: 150, last_active: 100, notification_count: 4 },
     ]
   }, {
     id: 2,
@@ -145,15 +133,12 @@ export default function Agents({sendAgentData}) {
       }
     ],
     runs: [
-      { id: 0, name: 'run name', is_running: true, calls: 783, last_active: 120, notification_count: 4 },
-      { id: 1, name: 'run name', is_running: false, calls: 783, last_active: 180, notification_count: 0 },
-      { id: 2, name: 'run name', is_running: true, calls: 783, last_active: 150, notification_count: 2 },
-      { id: 3, name: 'run name', is_running: false, calls: 783, last_active: 300, notification_count: 0 },
-      { id: 4, name: 'run name', is_running: false, calls: 783, last_active: 270, notification_count: 0 },
-      { id: 5, name: 'run name', is_running: false, calls: 783, last_active: 360, notification_count: 0 },
-      { id: 6, name: 'run name', is_running: true, calls: 783, last_active: 450, notification_count: 1 },
-      { id: 7, name: 'run name', is_running: false, calls: 783, last_active: 150, notification_count: 0 },
-      { id: 8, name: 'run name', is_running: false, calls: 783, last_active: 270, notification_count: 0 },
+      { id: 0, name: 'run name', is_running: false, calls: 100, last_active: 600, notification_count: 1 },
+      { id: 1, name: 'run name', is_running: false, calls: 300, last_active: 500, notification_count: 0 },
+      { id: 2, name: 'run name', is_running: false, calls: 450, last_active: 400, notification_count: 0 },
+      { id: 3, name: 'run name', is_running: false, calls: 350, last_active: 300, notification_count: 2 },
+      { id: 4, name: 'run name', is_running: false, calls: 250, last_active: 200, notification_count: 0 },
+      { id: 5, name: 'run name', is_running: true, calls: 150, last_active: 100, notification_count: 4 },
     ]
   }];
 

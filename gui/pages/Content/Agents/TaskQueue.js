@@ -8,6 +8,7 @@ export default function TaskQueue({tasks}) {
 
   return (<>
     <Head>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
     <div>

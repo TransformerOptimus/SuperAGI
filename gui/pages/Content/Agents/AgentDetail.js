@@ -52,16 +52,16 @@ export default function AgentDetail({agent}) {
       <div style={{width:'45%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
-            {/*<div>*/}
-            {/*  <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>*/}
-            {/*    Action Console*/}
-            {/*  </button>*/}
-            {/*</div>*/}
-            {/*<div style={{marginLeft:'5px'}}>*/}
-            {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
-            {/*    Feedback*/}
-            {/*  </button>*/}
-            {/*</div>*/}
+            <div>
+              <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
+                Action Console
+              </button>
+            </div>
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>
+                Feedback
+              </button>
+            </div>
             <div style={{marginLeft:'5px'}}>
               <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254'} : {background:'transparent'}}>
                 Details

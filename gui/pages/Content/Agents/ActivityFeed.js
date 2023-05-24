@@ -10,6 +10,7 @@ export default function ActivityFeed({feeds}) {
 
   return (<>
     <Head>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
     <div>
@@ -24,6 +25,12 @@ export default function ActivityFeed({feeds}) {
           <div className={styles.feed_description}>{feed.description}</div>
         </div>}
       </div>))}
+      <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
+        <div style={{display:'flex'}}>
+          <div style={{fontSize:'20px'}}>🧠</div>
+          <div className={styles.feed_title}><i>Thinking...</i></div>
+        </div>
+      </div>
     </div>
   </>)
 }
