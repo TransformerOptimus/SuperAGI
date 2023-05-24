@@ -4,10 +4,10 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 
-export default function AgentCreate({agent}) {
+export default function AgentCreate({agent, createAgent}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState(agent.name);
-  const [agentDescription, setAgentDescription] = useState('');
+  const [agentDescription, setAgentDescription] = useState(agent.description);
   const [selfEvaluation, setSelfEvaluation] = useState('');
   const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
@@ -19,7 +19,7 @@ export default function AgentCreate({agent}) {
   const [constraints, setConstraints] = useState(constraintsArray);
 
   const models = ['Open AI - 3.5', 'Open AI - 4.0', 'Open AI - 3.0']
-  const [model, setModel] = useState(models[0]);
+  const [model, setModel] = useState(agent.model);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -54,7 +54,7 @@ export default function AgentCreate({agent}) {
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const allTools = ['gmailer', 'jira-v2', 'openai', 'superagi']
-  const [myTools, setMyTools] = useState(['gmailer']);
+  const [myTools, setMyTools] = useState(agent.tools);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
@@ -197,6 +197,8 @@ export default function AgentCreate({agent}) {
       return
     }
 
+    const data = {agentName: agentName}
+    createAgent(agent, data)
     toast.dark('Agent created successfully', {autoClose: 1800});
   };
 
@@ -238,7 +240,7 @@ export default function AgentCreate({agent}) {
               <label className={styles.form_label}>Model</label><br/>
               <div className="dropdown_container_search" style={{width:'100%'}}>
                   <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
-                    {model}<Image width={20} height={21} src={!modelDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                    {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                   </div>
                   <transition name="fade-scale">
                     {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
@@ -259,7 +261,7 @@ export default function AgentCreate({agent}) {
                       <div><Image width={12} height={12} src='/images/close_light.png' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                     </div>))}
                   </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                  <Image width={20} height={21} src={!toolDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                  <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                 </div>
                 <transition name="fade-scale">
                   {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
@@ -272,7 +274,7 @@ export default function AgentCreate({agent}) {
             </div>
             <div style={{marginTop: '15px'}}>
               <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
-                {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/expand_less.png" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/expand_more.png" alt="expand-icon"/>}
+                {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.png" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.png" alt="expand-icon"/>}
               </button>
             </div>
             {advancedOptions &&
@@ -281,7 +283,7 @@ export default function AgentCreate({agent}) {
                   <label className={styles.form_label}>Agent Type</label><br/>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>
-                      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>
@@ -320,7 +322,7 @@ export default function AgentCreate({agent}) {
                   <label className={styles.form_label}>Exit criterion</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>
-                      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>
@@ -335,7 +337,7 @@ export default function AgentCreate({agent}) {
                   <label className={styles.form_label}>Time between steps</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setStepDropdown(!stepDropdown)} style={{width:'100%'}}>
-                      {stepTime}<Image width={20} height={21} src={!stepDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                      {stepTime}<Image width={20} height={21} src={!stepDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {stepDropdown && <div className="custom_select_options" ref={stepRef} style={{width:'100%'}}>
@@ -350,7 +352,7 @@ export default function AgentCreate({agent}) {
                   <label className={styles.form_label}>Short term memory - Rolling window</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setRollingDropdown(!rollingDropdown)} style={{width:'100%'}}>
-                      {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                      {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {rollingDropdown && <div className="custom_select_options" ref={rollingRef} style={{width:'100%'}}>
@@ -373,7 +375,7 @@ export default function AgentCreate({agent}) {
                   <label className={styles.form_label}>Choose an LTM database</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
-                      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
@@ -388,7 +390,7 @@ export default function AgentCreate({agent}) {
                   <label className={styles.form_label}>Permission Type</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
-                      {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/expand_more.png' : '/images/expand_less.png'} alt="expand-icon"/>
+                      {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>

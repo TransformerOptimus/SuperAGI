@@ -89,7 +89,7 @@
     font-size: 13px;
     margin-bottom: 4px;
     font-weight: 500;
-    color: white;
+    color: #888888;
     line-height: 17px;
 }
 
@@ -110,4 +110,38 @@
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.detail_top {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tab_button {
+    border: none;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.tab_button:hover {
+    background: #454254;
+}
+
+.run_button {
+    background: #62A168;
+    border: none;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px 8px 4px;
 }

@@ -36,6 +36,10 @@ export default function Content({selectedView}) {
     setSelectedTab(tab);
   };
 
+  const createAgent = (agent, data) => {
+
+  }
+
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
@@ -73,7 +77,7 @@ export default function Content({selectedView}) {
                       <div className="row">
                         <div className="col-3"></div>
                         <div className="col-6" style={{overflowY:'scroll'}}>
-                          <AgentCreate agent={tab}/>
+                          <AgentCreate agent={tab} createAgent={createAgent}/>
                         </div>
                         <div className="col-3"></div>
                       </div>

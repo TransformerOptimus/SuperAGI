@@ -13,7 +13,7 @@ export default function Agents({sendAgentData}) {
     last_active: 180,
     isEditing: false,
     ongoing_runs: 4,
-    goals: 8,
+    goals: ['goal 1', 'goal 2'],
     task_queue: 'Main',
     model: 'Open AI - 3.5',
     mode: 'God Mode',
@@ -27,7 +27,7 @@ export default function Agents({sendAgentData}) {
     last_active: 120,
     isEditing: false,
     ongoing_runs: 4,
-    goals: 8,
+    goals: ['goal 1', 'goal 2'],
     task_queue: 'Main',
     model: 'Open AI - 3.5',
     mode: 'God Mode',
@@ -41,7 +41,7 @@ export default function Agents({sendAgentData}) {
     last_active: 150,
     isEditing: false,
     ongoing_runs: 4,
-    goals: 8,
+    goals: ['goal 1', 'goal 2'],
     task_queue: 'Main',
     model: 'Open AI - 3.5',
     mode: 'God Mode',
@@ -55,16 +55,17 @@ export default function Agents({sendAgentData}) {
     const newAgent = {
       id: agentArray.length,
       name: "new agent",
-      description: "",
-      tools: [],
+      description: "shifting timeline across multiple time strings. Regardless shifting timeline across multiple time strings",
+      tools: ['gmailer'],
       last_active: 0,
       isEditing: false,
       ongoing_runs: 0,
-      goals: 0,
+      goals: ['goal 1', 'goal 2'],
       task_queue: "",
-      model: "",
+      model: "Open AI - 3.5",
       mode: "",
       state: "DRAFT",
+      contentType: 'Agents'
     };
 
     setAgents([...agents, newAgent]);
