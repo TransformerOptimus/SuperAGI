@@ -4,7 +4,7 @@ import Image from "next/image";
 import Head from 'next/head';
 
 export default function ActivityFeed({feeds}) {
-  const [loadingText, setLoadingText] = useState("");
+  const [loadingText, setLoadingText] = useState("Thinking");
 
   useEffect(() => {
     const text = 'Thinking';
