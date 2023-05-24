@@ -99,8 +99,10 @@ export default function AgentCreate({agent, createAgent}) {
     };
   }, []);
 
-  const addTool = (index) => {
-    setMyTools((prevArray) => [...prevArray, allTools[index]]);
+  const addTool = (tool) => {
+    if (!myTools.includes(tool)) {
+      setMyTools((prevArray) => [...prevArray, tool]);
+    }
   };
   
   const removeTool = (indexToDelete) => {
@@ -265,7 +267,7 @@ export default function AgentCreate({agent, createAgent}) {
                 </div>
                 <transition name="fade-scale">
                   {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
-                    {allTools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                    {allTools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                       {tool}
                     </div>))}
                   </div>}

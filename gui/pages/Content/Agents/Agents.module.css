@@ -113,6 +113,7 @@
 }
 
 .detail_top {
+    width: 100%;
     height: 44px;
     display: flex;
     align-items: center;
@@ -130,6 +131,15 @@
     padding: 8px 10px;
 }
 
+.tab_text {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #FFFFFF;
+    padding: 8px;
+}
+
 .tab_button:hover {
     background: #454254;
 }
@@ -143,5 +153,86 @@
     line-height: 15px;
     color: #FFFFFF;
     border-radius: 8px;
-    padding: 8px 10px 8px 4px;
+    padding: 8px 10px 8px 5px;
+}
+
+.run_button:hover {
+    background: #57825b;
+}
+
+.detail_body {
+    width: 100%;
+    height: calc(100% - 44px);
+    overflow-y: scroll;
+}
+
+.history_box {
+    width: 100%;
+    padding: 10px;
+    color: white;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 7px;
+}
+
+.notification_bubble {
+    width: 14px;
+    height: 14px;
+    background: #DC6261;
+    border-radius: 200px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    padding: 4px;
+    font-size: 9px;
+}
+
+.history_info {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 12px;
+    color: #888888;
+    margin-left: 4px;
+    margin-top: 3px;
+}
+
+.feed_title {
+    font-family: 'Source Code Pro';
+    margin-left: 10px;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    color: white;
+}
+
+.feed_description {
+    font-family: 'Source Code Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #888888;
+}
+
+.feed_icon {
+    font-size: 20px;
+    margin-top: 5px;
+}
+
+.custom_task_box {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 14px;
+    color: white;
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 7px;
+    padding: 15px 20px;
 }
