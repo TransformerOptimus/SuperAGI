@@ -11,8 +11,8 @@ export default function Tools() {
 
   return (
     <>
-      {sectionSelected === 'list_tool' && <ToolList onSelectEvent={handleSelectionEvent}/>}
-      {sectionSelected === 'create_tool' && <ToolCreate onSelectEvent={handleSelectionEvent}/>}
+      {/*{sectionSelected === 'list_tool' && <ToolList onSelectEvent={handleSelectionEvent} />}*/}
+      {/*{sectionSelected === 'create_tool' && <ToolCreate onSelectEvent={handleSelectionEvent}/>}*/}
     </>
   );
 }

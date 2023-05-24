@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentDetail from '../Content/Agents/AgentDetail';
 import AgentCreate from '../Content/Agents/AgentCreate';
-import Tools from '../Content/Tools/Tools';
+import ToolList from '../Content/Tools/ToolList';
+import ToolCreate from '../Content/Tools/ToolCreate';
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 
@@ -39,12 +40,11 @@ export default function Content({selectedView}) {
   const createAgent = (agent, data) => {
 
   }
-
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <Agents sendAgentData={addTab}/>}
-        {selectedView === 'tools' && <Tools sendToolData={addTab}/>}
+        {selectedView === 'tools' && <ToolList sendToolData={addTab}/>}
       </div>
       <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div>
@@ -67,17 +67,17 @@ export default function Content({selectedView}) {
           <div style={{padding:'5px'}}>
             {tabs.map((tab, index) => (
               <div key={tab.id}>
-                {tab.id === selectedTab.id && tab.contentType === 'Agents' && <div>
+                {tab.id === selectedTab.id && (tab.contentType === 'Agents' || tab.contentType === 'Tools') && <div>
                   {tab.state !== 'DRAFT' ? (
                     <div>
-                      <AgentDetail agent={tab}/>
+                      {tab.contentType === 'Agents' ? <AgentDetail agent={tab} /> : null}
                     </div>
                   ) : (
                     <div className={styles.create_agent}>
                       <div className="row">
                         <div className="col-3"></div>
                         <div className="col-6" style={{overflowY:'scroll'}}>
-                          <AgentCreate agent={tab} createAgent={createAgent}/>
+                          {tab.contentType === 'Agents' ?  <AgentCreate agent={tab} createAgent={createAgent}/> : <ToolCreate agent={tab} />}
                         </div>
                         <div className="col-3"></div>
                       </div>
