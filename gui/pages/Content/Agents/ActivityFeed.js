@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import Head from 'next/head';
 
-export default function ActivityFeed({feeds}) {
+export default function ActivityFeed({feeds, is_running}) {
   const [loadingText, setLoadingText] = useState("Thinking");
 
   useEffect(() => {
@@ -39,12 +39,12 @@ export default function ActivityFeed({feeds}) {
           <div className={styles.feed_description}>{feed.description}</div>
         </div>}
       </div>))}
-      <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
+      {is_running && <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           <div style={{fontSize:'20px'}}>🧠</div>
           <div className={styles.feed_title}><i>{loadingText}</i></div>
         </div>
-      </div>
+      </div>}
     </div>
   </>)
 }

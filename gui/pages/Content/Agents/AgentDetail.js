@@ -16,18 +16,20 @@ export default function AgentDetail({agent}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(false)
+  const [selectedRun, setSelectedRun] = useState(agent.runs[0])
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
-      {history && <RunHistory runs={agent.runs} setHistory={setHistory}/>}
+      {history && <RunHistory runs={agent.runs} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
       <div style={{width: history ? '40%' : '60%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
-            {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer'}} onClick={() => setHistory(true)}>
+            {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
               <Image width={16} height={16} src="/images/history.png" alt="history-icon"/>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
-              <div style={{marginLeft:'7px'}}>run name</div>
+              {selectedRun.is_running && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
+              <div style={selectedRun.is_running ? {marginLeft:'7px'} : {marginLeft:'-8px'}}>{selectedRun.name}</div>
             </div>
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>
@@ -45,8 +47,8 @@ export default function AgentDetail({agent}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <ActivityFeed feeds={agent.feeds}/>}
-          {leftPanel === 'agent_type' && <TaskQueue tasks={agent.tasks}/>}
+          {leftPanel === 'activity_feed' && <ActivityFeed feeds={selectedRun.feeds} is_running={selectedRun.is_running}/>}
+          {leftPanel === 'agent_type' && <TaskQueue tasks={selectedRun.tasks}/>}
         </div>
       </div>
       <div style={{width:'40%',height:'100%'}}>

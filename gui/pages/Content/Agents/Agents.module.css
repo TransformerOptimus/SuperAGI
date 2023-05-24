@@ -191,6 +191,7 @@
     text-align: center;
     padding: 4px;
     font-size: 9px;
+    order: 1;
 }
 
 .history_info {

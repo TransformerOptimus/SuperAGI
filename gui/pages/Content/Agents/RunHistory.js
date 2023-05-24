@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
+import React from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 
-export default function RunHistory({runs, setHistory}) {
-  const [selectedRun, setSelectedRun] = useState(runs[runs.length - 1].id)
+export default function RunHistory({runs, setHistory, selectedRun, setSelectedRun}) {
 
   function convertToMinutes(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -28,9 +27,12 @@ export default function RunHistory({runs, setHistory}) {
         </div>
       </div>
       <div className={styles.detail_body}>
-        {runs.reverse().map((run) => (<div key={run.id} onClick={() => setSelectedRun(run.id)} className={styles.history_box} style={selectedRun === run.id ? {background:'#474255'} : {background:'#272335'}}>
+        {runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRun === run ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
-            <div>{run.name}</div>
+            <div style={{display:'flex',order:'0'}}>
+              {run.is_running && <div><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
+              <div style={run.is_running ? {marginLeft:'7px'} : {}}>{run.name}</div>
+            </div>
             {run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}
           </div>
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
@@ -42,7 +44,7 @@ export default function RunHistory({runs, setHistory}) {
                 {run.calls} Calls
               </div>
             </div>
-            <div style={{display:'flex',alignItems:'center',marginLeft:'7px'}}>
+            <div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>
               <div>
                 <Image width={12} height={12} src="/images/schedule.png" alt="schedule-icon"/>
               </div>

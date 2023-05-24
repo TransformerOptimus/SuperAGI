@@ -20,40 +20,84 @@ export default function Agents({sendAgentData}) {
     window: 10,
     window_unit: 'seconds',
     exit_criterion: 'No exit criterion',
-    tasks: [
-      { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 4: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 5: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-    ],
-    feeds: [
-      {
-        status: "new",
-        title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : ""
-      },
-      {
-        status: "working",
-        title: "Working on task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
-      },
-      {
-        status: "completed",
-        title: "Completed task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
-      }
-    ],
     runs: [
-      { id: 0, name: 'run name', is_running: false, calls: 400, last_active: 900, notification_count: 0 },
-      { id: 1, name: 'run name', is_running: false, calls: 200, last_active: 800, notification_count: 0 },
-      { id: 2, name: 'run name', is_running: false, calls: 500, last_active: 700, notification_count: 0 },
-      { id: 3, name: 'run name', is_running: false, calls: 100, last_active: 600, notification_count: 1 },
-      { id: 4, name: 'run name', is_running: false, calls: 300, last_active: 500, notification_count: 0 },
-      { id: 5, name: 'run name', is_running: false, calls: 450, last_active: 400, notification_count: 0 },
-      { id: 6, name: 'run name', is_running: false, calls: 350, last_active: 300, notification_count: 2 },
-      { id: 7, name: 'run name', is_running: false, calls: 250, last_active: 200, notification_count: 0 },
-      { id: 8, name: 'run name', is_running: true, calls: 150, last_active: 100, notification_count: 4 },
+      { id: 0, name: 'Third Run', is_running: true, calls: 150, last_active: 100, notification_count: 4,
+        tasks: [
+          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+        ],
+        feeds: [
+          {
+            status: "new",
+            title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          },
+          {
+            status: "new",
+            title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+        ],
+      },
+      { id: 1, name: 'Second Run', is_running: false, calls: 200, last_active: 200, notification_count: 0,
+        tasks: [
+          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+        ],
+        feeds: [
+          {
+            status: "new",
+            title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          }
+        ],
+      },
+      { id: 2, name: 'First Run', is_running: false, calls: 250, last_active: 300, notification_count: 0,
+        tasks: [
+          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+        ],
+        feeds: [
+          {
+            status: "new",
+            title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          }
+        ],
+      },
     ]
   }, {
     id: 1,
@@ -65,33 +109,61 @@ export default function Agents({sendAgentData}) {
     agent_type: "Don't Maintain Task Queue",
     model: 'Open AI - 4.0',
     permission: 'Semi-autonomous',
-    state: "PENDING",
+    state: "RUNNING",
     contentType: 'Agents',
     window: 2,
     window_unit: 'minutes',
     exit_criterion: 'System defined',
-    tasks: [],
-    feeds: [
-      {
-        status: "new",
-        title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : ""
-      },
-      {
-        status: "working",
-        title: "Working on task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
-      },
-      {
-        status: "completed",
-        title: "Completed task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
-      }
-    ],
     runs: [
-      { id: 0, name: 'run name', is_running: false, calls: 350, last_active: 300, notification_count: 2 },
-      { id: 1, name: 'run name', is_running: false, calls: 250, last_active: 200, notification_count: 0 },
-      { id: 2, name: 'run name', is_running: true, calls: 150, last_active: 100, notification_count: 4 },
+      { id: 0, name: 'First Run', is_running: true, calls: 150, last_active: 100, notification_count: 3,
+        tasks: [
+          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+        ],
+        feeds: [
+          {
+            status: "new",
+            title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          },
+          {
+            status: "new",
+            title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          },
+          {
+            status: "new",
+            title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+        ],
+      },
     ]
   }, {
     id: 2,
@@ -108,37 +180,67 @@ export default function Agents({sendAgentData}) {
     window: 50,
     window_unit: 'seconds',
     exit_criterion: 'Number of steps/tasks',
-    tasks: [
-      { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 4: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-      { title: "Added task 5: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-    ],
-    feeds: [
-      {
-        status: "new",
-        title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : ""
-      },
-      {
-        status: "working",
-        title: "Working on task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
-      },
-      {
-        status: "completed",
-        title: "Completed task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
-        description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
-      }
-    ],
     runs: [
-      { id: 0, name: 'run name', is_running: false, calls: 100, last_active: 600, notification_count: 1 },
-      { id: 1, name: 'run name', is_running: false, calls: 300, last_active: 500, notification_count: 0 },
-      { id: 2, name: 'run name', is_running: false, calls: 450, last_active: 400, notification_count: 0 },
-      { id: 3, name: 'run name', is_running: false, calls: 350, last_active: 300, notification_count: 2 },
-      { id: 4, name: 'run name', is_running: false, calls: 250, last_active: 200, notification_count: 0 },
-      { id: 5, name: 'run name', is_running: true, calls: 150, last_active: 100, notification_count: 4 },
+      { id: 0, name: 'Second Run', is_running: false, calls: 150, last_active: 100, notification_count: 0,
+        tasks: [
+          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+        ],
+        feeds: [
+          {
+            status: "new",
+            title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          },
+          {
+            status: "new",
+            title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          }
+        ],
+      },
+      { id: 1, name: 'First Run', is_running: false, calls: 200, last_active: 200, notification_count: 0,
+        tasks: [
+          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+        ],
+        feeds: [
+          {
+            status: "new",
+            title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : ""
+          },
+          {
+            status: "working",
+            title: "Working on task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "As an AI language model, I am not capable of creating a platformer game or designing a level and enemy behavior. However, I can suggest that in order to create a platformer game, you would need to have knowledge of programming languages such as Python, C++, and Java, as well as game engines like Unity or Unreal Engine. Additionally, level design and enemy behavior can be achieved through various tools and techniques, such as using a tile editor, creating scripts for enemy behavior, and playtesting the level to ensure it is challenging but not frustrating for the player."
+          },
+          {
+            status: "completed",
+            title: "Completed task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game.",
+            description : "I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression. I will write code to create a platformer game. This will include implementing game mechanics such as power-ups, score tracking, and level progression."
+          },
+        ],
+      },
     ]
   }];
 
