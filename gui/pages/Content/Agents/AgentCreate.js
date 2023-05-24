@@ -53,7 +53,7 @@ export default function AgentCreate({agent, createAgent}) {
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
-  const allTools = ['gmailer', 'jira-v2', 'openai', 'superagi']
+  const allTools = ['gmail', 'powerpoint', 'photoshop', 'maya', 'rhino', 'blender', 'autocad', 'jira', 'vs-code', 'confluence', 'openai', 'canva']
   const [myTools, setMyTools] = useState(agent.tools);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);

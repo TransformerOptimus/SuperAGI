@@ -264,3 +264,10 @@
     justify-content: flex-start;
     margin-bottom: 10px;
 }
+
+.agent_info_tools {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
