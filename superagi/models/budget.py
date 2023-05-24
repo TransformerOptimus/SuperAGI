@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String,Float
+from sqlalchemy import Column, Integer, Enum, Float, String
 from superagi.models.base_model import DBBaseModel
 from sqlalchemy.orm import sessionmaker
 
