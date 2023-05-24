@@ -46,7 +46,7 @@
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
 }
 
 .top_bar_section {
@@ -79,6 +79,7 @@
     height: calc(100% - 36px);
     width: 100%;
     border-radius: 8px;
+    overflow-y: scroll;
 }
 
 .tabs {
@@ -132,7 +133,22 @@
 }
 
 .create_agent {
-    overflow: scroll;
     height: 100%;
     width: 100%;
+}
+
+.top_right {
+    display: flex;
+    order: 1;
+}
+
+.top_left {
+    display: flex;
+    order: 0;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.top_right_icon {
+    margin-right: 15px;
 }

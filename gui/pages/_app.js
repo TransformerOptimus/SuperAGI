@@ -20,7 +20,6 @@ export default function App() {
   const contentStyle = {
     height: '93.5vh',
     width: '100%',
-    overflowY: 'scroll'
   }
 
   const projectStyle = {
