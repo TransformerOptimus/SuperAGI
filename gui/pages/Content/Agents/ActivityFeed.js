@@ -1,9 +1,23 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import Head from 'next/head';
 
 export default function ActivityFeed({feeds}) {
+  const [loadingText, setLoadingText] = useState("");
+
+  useEffect(() => {
+    const text = 'Thinking';
+    let dots = '';
+
+    const interval = setInterval(() => {
+      dots = dots.length < 3 ? dots + '.' : '';
+      setLoadingText(`${text}${dots}`);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   function checkEmptyText(text) {
     return text.replace(/\s/g, '') !== ''
   }
@@ -28,7 +42,7 @@ export default function ActivityFeed({feeds}) {
       <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           <div style={{fontSize:'20px'}}>🧠</div>
-          <div className={styles.feed_title}><i>Thinking...</i></div>
+          <div className={styles.feed_title}><i>{loadingText}</i></div>
         </div>
       </div>
     </div>
