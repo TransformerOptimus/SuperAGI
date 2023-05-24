@@ -116,11 +116,7 @@ export default function Agents({sendAgentData}) {
     exit_criterion: 'System defined',
     runs: [
       { id: 0, name: 'First Run', is_running: true, calls: 150, last_active: 100, notification_count: 3,
-        tasks: [
-          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-          { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-          { title: "Added task 3: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-        ],
+        tasks: [],
         feeds: [
           {
             status: "new",
