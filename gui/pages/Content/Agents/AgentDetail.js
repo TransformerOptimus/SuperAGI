@@ -32,9 +32,9 @@ export default function AgentDetail({agent}) {
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>
             </div>
-            <div style={{marginLeft:'7px'}}>
-              <button onClick={() => setLeftPanel('task_queue')} className={styles.tab_button} style={leftPanel === 'task_queue' ? {background:'#454254'} : {background:'transparent'}}>Task Queue</button>
-            </div>
+            {agent.agent_type === 'Maintain Task Queue' && <div style={{marginLeft:'7px'}}>
+              <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button} style={leftPanel === 'agent_type' ? {background:'#454254'} : {background:'transparent'}}>Task Queue</button>
+            </div>}
           </div>
           <div style={{display:'flex'}}>
             <div>
@@ -46,7 +46,7 @@ export default function AgentDetail({agent}) {
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <ActivityFeed feeds={agent.feeds}/>}
-          {leftPanel === 'task_queue' && <TaskQueue tasks={agent.tasks}/>}
+          {leftPanel === 'agent_type' && <TaskQueue tasks={agent.tasks}/>}
         </div>
       </div>
       <div style={{width:'45%',height:'100%'}}>
@@ -79,7 +79,7 @@ export default function AgentDetail({agent}) {
             </div>
           </div>
         </div>
-        <div className={styles.detail_body} style={{paddingRight:'0',height:'100%'}}>
+        <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
           {rightPanel === 'feedback' && <Feedback/>}
           {rightPanel === 'details' && <Details agent={agent}/>}

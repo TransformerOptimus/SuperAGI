@@ -60,11 +60,11 @@ export default function Details({agent}) {
       </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/fact_check.png" alt="queue-icon"/></div>
-        <div style={info_text}>{agent.task_queue}</div>
+        <div style={info_text}>{agent.agent_type}</div>
       </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/deployed_code.png" alt="model-icon"/></div>
-        <div style={info_text}>{agent.ai_model}</div>
+        <div style={info_text}>{agent.model}</div>
       </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/cancel_presentation.png" alt="exit-icon"/></div>
@@ -80,7 +80,7 @@ export default function Details({agent}) {
       </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/key.png" alt="permission-icon"/></div>
-        <div style={info_text}>{agent.mode}</div>
+        <div style={info_text}>{agent.permission.replace(/\s*\([^)]*\)/g, '')}</div>
       </div>
     </div>
   </>)
