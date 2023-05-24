@@ -20,7 +20,7 @@ export default function AgentDetail({agent}) {
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       {history && <RunHistory runs={agent.runs} setHistory={setHistory}/>}
-      <div style={{width: history ? '40%' : '55%',height:'100%'}}>
+      <div style={{width: history ? '40%' : '60%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer'}} onClick={() => setHistory(true)}>
@@ -49,7 +49,7 @@ export default function AgentDetail({agent}) {
           {leftPanel === 'agent_type' && <TaskQueue tasks={agent.tasks}/>}
         </div>
       </div>
-      <div style={{width:'45%',height:'100%'}}>
+      <div style={{width:'40%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
             <div>

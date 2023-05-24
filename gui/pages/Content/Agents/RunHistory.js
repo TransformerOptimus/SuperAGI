@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 
 export default function RunHistory({runs, setHistory}) {
-  const [selectedRun, setSelectedRun] = useState(runs[0].id)
+  const [selectedRun, setSelectedRun] = useState(runs[runs.length - 1].id)
 
   function convertToMinutes(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -11,7 +11,7 @@ export default function RunHistory({runs, setHistory}) {
   }
 
   return (<>
-    <div style={{width:'15%',height:'100%'}}>
+    <div style={{width:'20%',height:'100%'}}>
       <div className={styles.detail_top}>
         <div style={{display:'flex'}}>
           <div style={{display:'flex',alignItems:'center',paddingLeft:'0'}} className={styles.tab_text}>
@@ -28,7 +28,7 @@ export default function RunHistory({runs, setHistory}) {
         </div>
       </div>
       <div className={styles.detail_body}>
-        {runs.reverse().map((run, index) => (<div key={index} onClick={() => setSelectedRun(run.id)} className={styles.history_box} style={selectedRun === run.id ? {background:'#474255'} : {background:'#272335'}}>
+        {runs.reverse().map((run) => (<div key={run.id} onClick={() => setSelectedRun(run.id)} className={styles.history_box} style={selectedRun === run.id ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div>{run.name}</div>
             {run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}

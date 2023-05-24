@@ -64,7 +64,7 @@ export default function Content({selectedView}) {
           </div>
         </div>
         <div className={styles.tab_detail} style={tabs.length > 0 ? {backgroundColor:'#2F2C40'} : {}}>
-          <div style={{padding:'5px'}}>
+          <div style={{padding:'0 5px 5px 5px'}}>
             {tabs.map((tab, index) => (
               <div key={tab.id}>
                 {tab.id === selectedTab.id && tab.contentType === 'Agents' && <div>
