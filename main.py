@@ -26,9 +26,9 @@ from sqlalchemy import create_engine
 
 app = FastAPI()
 
-db_username = ''
-db_password = ''
-db_name = ''
+db_username = 'abhijeet'
+db_password = 'password'
+db_name = 'test123'
 
 
 db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'
@@ -111,3 +111,13 @@ async def say_hello(name: str,):
 
 # __________________TO RUN____________________________
 # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+# from superagi.task_queue.celery_app import test_fucntion
+
+# @app.get("/test")
+# async def test():
+#     print("Inside Test!")
+#     test_fucntion.delay()
+#     print("Test Done!")
+#     return "Returned!"
+
