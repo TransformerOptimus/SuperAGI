@@ -13,7 +13,6 @@ def run_npm_commands():
     os.chdir("gui")
     try:
         subprocess.run(["npm", "install"], check=True)
-        subprocess.run(["npm", "run", "build"], check=True)
     except subprocess.CalledProcessError:
         print(f"Error during '{' '.join(sys.exc_info()[1].cmd)}'. Exiting.")
         sys.exit(1)
