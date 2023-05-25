@@ -114,7 +114,7 @@ Before starting with the project, it is highly recommended to create a virtual e
 Simply run the start script in your terminal. This will install any necessary Python packages and launch SuperAGI
 
 * On Linux/MacOS:
-`. run.sh`
+`source run.sh`
 * On Windows:
 `.\run.bat`
 > If this gives errors, make sure you have a compatible Python version installed (preferrably python 3.10).
