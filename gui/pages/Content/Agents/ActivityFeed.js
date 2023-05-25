@@ -41,7 +41,7 @@ export default function ActivityFeed({feeds, is_running}) {
       </div>))}
       {is_running && <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
-          <div className={styles.feed_icon}>🧠</div>
+          <div style={{fontSize:'20px'}}>🧠</div>
           <div className={styles.feed_title}><i>{loadingText}</i></div>
         </div>
       </div>}
