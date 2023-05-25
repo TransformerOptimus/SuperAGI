@@ -40,7 +40,7 @@ export default function Content({selectedView}) {
   const createAgent = (agent, data) => {
 
   }
-  const createTool = () => {
+  const createTool = (tool) => {
 
   }
   return (<>
@@ -80,7 +80,7 @@ export default function Content({selectedView}) {
                       <div className="row">
                         <div className="col-3"></div>
                         <div className="col-6" style={{overflowY:'scroll'}}>
-                          {tab.contentType === 'Agents' ?  <AgentCreate agent={tab} createAgent={createAgent}/> : <ToolCreate tool={tab} addNewTool={createTool} />}
+                          {tab.contentType === 'Agents' ?  <ToolCreate tool={tab} createAgent={createAgent}/> : <AgentCreate agent={tab} createAgent={createAgent}/>}
                         </div>
                         <div className="col-3"></div>
                       </div>
