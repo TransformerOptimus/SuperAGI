@@ -116,17 +116,18 @@ Before starting with the project, it is highly recommended to create a virtual e
 
 
 - Install Python dependencies:
-    1. Navigate to the main SuperAGI directory using `cd ..`.
-    2. Install the dependencies by running: `pip install -r requirements.txt` or `pip3 install -r requirements.txt`.
-    3. Start the Fastapi server by running: `uvicorn main:app --host 0.0.0.0 --port 8001`
+    1. Install the dependencies by running: `pip install -r requirements.txt` or `pip3 install -r requirements.txt`.
+    2. Start the Fastapi server by running: `uvicorn main:app --host 0.0.0.0 --port 8001`
 
 
 - Install Node.js dependencies:
-    1. Navigate to the gui directory using `cd web`.
-    2. Install the dependencies by running: `npm install`.
-    3. Build the web UI by running: `npm run build`.
-    4. Start the web server by running: `npm run dev`.
-    5. Open a browser and navigate to http://localhost:3000 to access the web UI.
+    1. Open a new terminal window.
+    2. Navigate to the gui directory using `cd gui`.
+    3. Install the dependencies by running: `npm install`.
+    4. Build the web UI by running: `npm run build`.
+    5. Start the web server by running: `npm run dev`.
+        * if windows ask for firewall permission, allow it.
+    6. Open a browser and navigate to http://localhost:3000 to access the web UI.
 
 
 # 🛠 Configuration
