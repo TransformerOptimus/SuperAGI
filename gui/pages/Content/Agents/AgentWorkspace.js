@@ -13,7 +13,7 @@ import { EventBus } from "../../eventBus";
 
 export default function AgentWorkspace({agent}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('details')
+  const [rightPanel, setRightPanel] = useState('action_console')
   const [history, setHistory] = useState(false)
   const [selectedRun, setSelectedRun] = useState(agent.runs[0])
   const [runModal, setRunModal] = useState(false)

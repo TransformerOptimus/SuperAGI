@@ -7,23 +7,24 @@ import styles from './Dashboard.module.css';
 import Image from "next/image";
 
 export default function Content({selectedView}) {
-  const tabsArray = []
-  const [tabs, setTabs] = useState(tabsArray)
+  const [tabs, setTabs] = useState([])
   const [selectedTab, setSelectedTab] = useState(null)
 
-  const closeTab = (indexToDelete) => {
-    setTabs((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      if(selectedTab === tabs[indexToDelete]) {
-        if(tabs.length > 0) {
-          setSelectedTab(tabs[indexToDelete - 1] ? tabs[indexToDelete - 1] : tabs[indexToDelete + 1])
-        } else {
-          setSelectedTab(null)
-        }
-      }
-      return newArray;
-    });
+  const closeTab = (tabId) => {
+    const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
+    const indexToRemove = tabs.findIndex((tab) => tab.id === tabId);
+
+    let nextSelectedTabIndex;
+    if (indexToRemove === 0) {
+      nextSelectedTabIndex = 0;
+    } else if (indexToRemove === tabs.length - 1) {
+      nextSelectedTabIndex = tabs.length - 2;
+    } else {
+      nextSelectedTabIndex = indexToRemove;
+    }
+
+    setTabs(updatedTabs);
+    setSelectedTab(tabs[nextSelectedTabIndex]?.id || null);
   };
 
   const addTab = (element) => {
@@ -31,7 +32,7 @@ export default function Content({selectedView}) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
     }
-    setSelectedTab(element);
+    setSelectedTab(element.id);
   };
 
   return (<>
@@ -49,16 +50,14 @@ export default function Content({selectedView}) {
       </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className={styles.tabs}>
-            {tabs.map((tab, index) => (
-              <div key={tab.id}>
-                <div className={`${styles.tab_box} ${selectedTab.id === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab)}>
-                  <div style={{display:'flex', order:'0'}}>
-                    {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
-                    {tab.contentType === 'Tools' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
-                    <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
-                  </div>
-                  <div onClick={() => closeTab(index)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
+            {tabs.map((tab) => (
+              <div key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
+                <div style={{display:'flex', order:'0'}}>
+                  {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
+                  {tab.contentType === 'Tools' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
+                  <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
+                <div onClick={() => closeTab(tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
               </div>
             ))}
           </div>
@@ -67,7 +66,7 @@ export default function Content({selectedView}) {
           <div style={{padding:'0 5px 5px 5px'}}>
             {tabs.map((tab) => (
               <div key={tab.id}>
-                {tab.id === selectedTab.id && <div>
+                {selectedTab === tab.id && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agent={tab}/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <div className="row">
