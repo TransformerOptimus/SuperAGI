@@ -2,6 +2,7 @@ from superagi.agent.super_agi import SuperAgi
 from superagi.llms.openai import OpenAi
 from superagi.tools.base_tool import FunctionalTool
 from superagi.tools.file.write_file import WriteFileTool
+from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.google_search.tools import GoogleSearchSchema, GoogleSearchTool
 from superagi.tools.google_serp_search.tools import GoogleSerpTool
 from superagi.tools.twitter.send_tweet import SendTweetTool
@@ -24,6 +25,7 @@ def create_campaign(campaign_name: str):
 tools = [
     GoogleSearchTool(),
     WriteFileTool(),
+    ReadFileTool()
     # GoogleSerpTool()
 ]
 
