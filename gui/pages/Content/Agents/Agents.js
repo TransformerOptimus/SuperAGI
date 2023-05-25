@@ -23,8 +23,8 @@ export default function Agents({sendAgentData}) {
     runs: [
       { id: 0, name: 'Third Run', is_running: true, calls: 150, last_active: 100, notification_count: 4,
         tasks: [
-          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-          { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
         ],
         feeds: [
           {
@@ -56,7 +56,7 @@ export default function Agents({sendAgentData}) {
       },
       { id: 1, name: 'Second Run', is_running: false, calls: 200, last_active: 200, notification_count: 0,
         tasks: [
-          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
         ],
         feeds: [
           {
@@ -78,7 +78,7 @@ export default function Agents({sendAgentData}) {
       },
       { id: 2, name: 'First Run', is_running: false, calls: 250, last_active: 300, notification_count: 0,
         tasks: [
-          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
         ],
         feeds: [
           {
@@ -179,8 +179,8 @@ export default function Agents({sendAgentData}) {
     runs: [
       { id: 0, name: 'Second Run', is_running: false, calls: 150, last_active: 100, notification_count: 0,
         tasks: [
-          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
-          { title: "Added task 2: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
         ],
         feeds: [
           {
@@ -217,7 +217,7 @@ export default function Agents({sendAgentData}) {
       },
       { id: 1, name: 'First Run', is_running: false, calls: 200, last_active: 200, notification_count: 0,
         tasks: [
-          { title: "Added task 1: Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
+          { title: "Design and implement graphics for obstacles and enemies to match the overall aesthetic of the game." },
         ],
         feeds: [
           {
