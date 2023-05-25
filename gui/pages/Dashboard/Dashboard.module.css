@@ -2,6 +2,16 @@
     cursor: default;
 }
 
+.empty_state {
+    background-color: #2F2C40;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .section {
     display: flex;
     flex-direction: column;

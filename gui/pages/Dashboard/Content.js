@@ -15,10 +15,12 @@ export default function Content({selectedView}) {
     setTabs((prevArray) => {
       const newArray = [...prevArray];
       newArray.splice(indexToDelete, 1);
-      if(tabs.length > 0) {
-        handleTabSelection(tabs[indexToDelete - 1] ? tabs[indexToDelete - 1] : tabs[indexToDelete + 1])
-      } else {
-        handleTabSelection(null)
+      if(selectedTab === tabs[indexToDelete]) {
+        if(tabs.length > 0) {
+          setSelectedTab(tabs[indexToDelete - 1] ? tabs[indexToDelete - 1] : tabs[indexToDelete + 1])
+        } else {
+          setSelectedTab(null)
+        }
       }
       return newArray;
     });
@@ -29,11 +31,7 @@ export default function Content({selectedView}) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
     }
-    handleTabSelection(element);
-  };
-
-  const handleTabSelection = (tab) => {
-    setSelectedTab(tab);
+    setSelectedTab(element);
   };
 
   return (<>
@@ -42,12 +40,18 @@ export default function Content({selectedView}) {
         {selectedView === 'agents' && <Agents sendAgentData={addTab}/>}
         {selectedView === 'tools' && <Tools sendToolData={addTab}/>}
       </div>
-      <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
+      {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
+        <div className={styles.empty_state}>
+          <div>
+            <Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/>
+          </div>
+        </div>
+      </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className={styles.tabs}>
             {tabs.map((tab, index) => (
               <div key={tab.id}>
-                <div className={`${styles.tab_box} ${selectedTab.id === tab.id ? styles.tab_box_selected : ''}`} onClick={() => handleTabSelection(tab)}>
+                <div className={`${styles.tab_box} ${selectedTab.id === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab)}>
                   <div style={{display:'flex', order:'0'}}>
                     {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
                     {tab.contentType === 'Tools' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
@@ -79,7 +83,7 @@ export default function Content({selectedView}) {
             ))}
           </div>
         </div>
-      </div>
+      </div>}
     </div>
   </>
   );
