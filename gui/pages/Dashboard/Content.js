@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Agents from '../Content/Agents/Agents';
-import AgentDetail from '../Content/Agents/AgentDetail';
+import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
 import Tools from '../Content/Tools/Tools';
 import styles from './Dashboard.module.css';
@@ -53,7 +53,7 @@ export default function Content({selectedView}) {
               <div key={tab.id}>
                 <div className={`${styles.tab_box} ${selectedTab.id === tab.id ? styles.tab_box_selected : ''}`} onClick={() => handleTabSelection(tab)}>
                   <div style={{display:'flex', order:'0'}}>
-                    {tab.contentType === 'Agents' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
+                    {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
                     {tab.contentType === 'Tools' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
                     <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                   </div>
@@ -65,24 +65,19 @@ export default function Content({selectedView}) {
         </div>
         <div className={styles.tab_detail} style={tabs.length > 0 ? {backgroundColor:'#2F2C40'} : {}}>
           <div style={{padding:'0 5px 5px 5px'}}>
-            {tabs.map((tab, index) => (
+            {tabs.map((tab) => (
               <div key={tab.id}>
-                {tab.id === selectedTab.id && tab.contentType === 'Agents' && <div>
-                  {tab.state !== 'DRAFT' ? (
-                    <div>
-                      <AgentDetail agent={tab}/>
-                    </div>
-                  ) : (
-                    <div className={styles.create_agent}>
-                      <div className="row">
-                        <div className="col-3"></div>
-                        <div className="col-6" style={{overflowY:'scroll'}}>
-                          <AgentCreate agent={tab} createAgent={createAgent}/>
-                        </div>
-                        <div className="col-3"></div>
+                {tab.id === selectedTab.id && <div>
+                  {tab.contentType === 'Agents' && <AgentWorkspace agent={tab}/>}
+                  {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
+                    <div className="row">
+                      <div className="col-3"></div>
+                      <div className="col-6" style={{overflowY:'scroll'}}>
+                        <AgentCreate agent={tab} createAgent={createAgent}/>
                       </div>
+                      <div className="col-3"></div>
                     </div>
-                  )}
+                  </div>}
                 </div>}
               </div>
             ))}

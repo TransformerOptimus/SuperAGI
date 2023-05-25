@@ -56,7 +56,7 @@ export default function Details({agent}) {
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/flag.png" alt="goals-icon"/></div>
-        <div style={info_text}>{agent.goals.length} Goals</div>
+        <div style={info_text}>{agent.goal.length} Goals</div>
       </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/fact_check.png" alt="queue-icon"/></div>
@@ -66,10 +66,10 @@ export default function Details({agent}) {
         <div><Image width={15} height={15} src="/images/deployed_code.png" alt="model-icon"/></div>
         <div style={info_text}>{agent.model}</div>
       </div>
-      <div className={styles.agent_info_box}>
-        <div><Image width={15} height={15} src="/images/cancel_presentation.png" alt="exit-icon"/></div>
-        <div style={info_text}>{agent.exit_criterion}</div>
-      </div>
+      {/*<div className={styles.agent_info_box}>*/}
+      {/*  <div><Image width={15} height={15} src="/images/cancel_presentation.png" alt="exit-icon"/></div>*/}
+      {/*  <div style={info_text}>{agent.exit}</div>*/}
+      {/*</div>*/}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/close_fullscreen.png" alt="constraint-icon"/></div>
         <div style={info_text}>{agent.constraints.length} Constraints</div>
@@ -79,8 +79,8 @@ export default function Details({agent}) {
         <div style={info_text}>{agent.window} {agent.window_unit}</div>
       </div>
       <div className={styles.agent_info_box}>
-        <div><Image width={15} height={15} src="/images/key.png" alt="permission-icon"/></div>
-        <div style={info_text}>{agent.permission.replace(/\s*\([^)]*\)/g, '')}</div>
+        <div><Image width={15} height={15} src="/images/key.png" alt="permission-type-icon"/></div>
+        <div style={info_text}>{agent.permission_type.replace(/\s*\([^)]*\)/g, '')}</div>
       </div>
     </div>
   </>)

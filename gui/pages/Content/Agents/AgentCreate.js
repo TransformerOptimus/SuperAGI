@@ -7,7 +7,7 @@ import styles from './Agents.module.css';
 export default function AgentCreate({agent, createAgent}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState(agent.name);
-  const [agentDescription, setAgentDescription] = useState(agent.description);
+  const [agentDescription, setAgentDescription] = useState("");
   const [selfEvaluation, setSelfEvaluation] = useState('');
   const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
@@ -19,7 +19,7 @@ export default function AgentCreate({agent, createAgent}) {
   const [constraints, setConstraints] = useState(constraintsArray);
 
   const models = ['Open AI - 3.5', 'Open AI - 4.0', 'Open AI - 3.0']
-  const [model, setModel] = useState(agent.model);
+  const [model, setModel] = useState(models[0]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -54,7 +54,7 @@ export default function AgentCreate({agent, createAgent}) {
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const allTools = ['gmail', 'powerpoint', 'photoshop', 'maya', 'rhino', 'blender', 'autocad', 'jira', 'vs-code', 'confluence', 'openai', 'canva']
-  const [myTools, setMyTools] = useState(agent.tools);
+  const [myTools, setMyTools] = useState([]);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
@@ -296,16 +296,16 @@ export default function AgentCreate({agent, createAgent}) {
                     </transition>
                   </div>
                 </div>
-                <div style={{marginTop: '15px'}}>
-                  <label className={styles.form_label}>Base prompt</label><br/>
-                  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>
-                  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>
-                </div>
-                <div style={{marginTop: '15px'}}>
-                  <label className={styles.form_label}>Self Evaluation</label><br/>
-                  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>
-                  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>
-                </div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
+                {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
+                {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
+                {/*</div>*/}
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
+                {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
+                {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
+                {/*</div>*/}
                 <div style={{marginTop: '15px'}}>
                   <label className={styles.form_label}>Constraints</label>
                   {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -320,21 +320,21 @@ export default function AgentCreate({agent, createAgent}) {
                     + Add
                   </button>
                 </div>
-                <div style={{marginTop: '15px'}}>
-                  <label className={styles.form_label}>Exit criterion</label>
-                  <div className="dropdown_container_search" style={{width:'100%'}}>
-                    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>
-                      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
-                    </div>
-                    <transition name="fade-scale">
-                      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>
-                        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                          {exit}
-                        </div>))}
-                      </div>}
-                    </transition>
-                  </div>
-                </div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Exit criterion</label>*/}
+                {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+                {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
+                {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>*/}
+                {/*    </div>*/}
+                {/*    <transition name="fade-scale">*/}
+                {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
+                {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+                {/*          {exit}*/}
+                {/*        </div>))}*/}
+                {/*      </div>}*/}
+                {/*    </transition>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
                 <div style={{marginTop: '15px'}}>
                   <label className={styles.form_label}>Time between steps</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>

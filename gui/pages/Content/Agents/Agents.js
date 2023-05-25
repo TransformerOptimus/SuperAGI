@@ -7,19 +7,21 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function Agents({sendAgentData}) {
   const agentArray = [{
     id: 0,
+    project_id: 1,
     name: "agent name 1",
     description: "shifting timeline across multiple time strings. Regardless shifting timeline across multiple time strings",
     tools: ['gmail', 'powerpoint', 'jira', 'confluence', 'openai', 'canva'],
-    goals: ['goal 1', 'goal 2', 'goal 3', 'goal 4', 'goal 5', 'goal 6'],
+    goal: ['goal 1', 'goal 2', 'goal 3', 'goal 4', 'goal 5', 'goal 6'],
     constraints: ['constraint 1', 'constraint 2'],
     agent_type: 'Maintain Task Queue',
     model: 'Open AI - 3.5',
-    permission: 'No autonomous (Ask permission for every action)',
+    permission_type: 'No autonomous (Ask permission_type for every action)',
     state: "RUNNING",
     contentType: 'Agents',
     window: 10,
     window_unit: 'seconds',
-    exit_criterion: 'No exit criterion',
+    exit: 'No exit criterion',
+    LTM_DB: "Pinecone",
     runs: [
       { id: 0, name: 'Third Run', is_running: true, calls: 150, last_active: 100, notification_count: 4,
         tasks: [
@@ -101,19 +103,21 @@ export default function Agents({sendAgentData}) {
     ]
   }, {
     id: 1,
+    project_id: 1,
     name: "agent name 2",
     description: "shifting timeline across multiple time strings. Regardless shifting timeline across multiple time strings",
     tools: ['gmail', 'powerpoint', 'photoshop', 'maya', 'rhino', 'blender', 'autocad', 'jira', 'vs-code', 'confluence', 'openai', 'canva'],
-    goals: ['goal 1', 'goal 2', 'goal 3', 'goal 4'],
+    goal: ['goal 1', 'goal 2', 'goal 3', 'goal 4'],
     constraints: ['constraint 1', 'constraint 2', 'constraint 3', 'constraint 4', 'constraint 5', 'constraint 6'],
     agent_type: "Don't Maintain Task Queue",
     model: 'Open AI - 4.0',
-    permission: 'Semi-autonomous',
+    permission_type: 'Semi-autonomous',
     state: "RUNNING",
     contentType: 'Agents',
     window: 2,
     window_unit: 'minutes',
-    exit_criterion: 'System defined',
+    exit: 'System defined',
+    LTM_DB: "Pinecone",
     runs: [
       { id: 0, name: 'First Run', is_running: true, calls: 150, last_active: 100, notification_count: 3,
         tasks: [],
@@ -163,19 +167,21 @@ export default function Agents({sendAgentData}) {
     ]
   }, {
     id: 2,
+    project_id: 1,
     name: "agent name 3",
     description: "shifting timeline across multiple time strings. Regardless shifting timeline across multiple time strings",
     tools: ['photoshop', 'maya', 'rhino', 'blender', 'autocad', 'jira'],
-    goals: ['goal 1', 'goal 2', 'goal 3'],
+    goal: ['goal 1', 'goal 2', 'goal 3'],
     constraints: ['constraint 1', 'constraint 2', 'constraint 3', 'constraint 4'],
     agent_type: 'Maintain Task Queue',
     model: 'Open AI - 3.0',
-    permission: 'God Mode (fully autonomous)',
+    permission_type: 'God Mode (fully autonomous)',
     state: "PENDING",
     contentType: 'Agents',
     window: 50,
     window_unit: 'seconds',
-    exit_criterion: 'Number of steps/tasks',
+    exit: 'Number of steps/tasks',
+    LTM_DB: "Pinecone",
     runs: [
       { id: 0, name: 'Second Run', is_running: false, calls: 150, last_active: 100, notification_count: 0,
         tasks: [
@@ -242,25 +248,6 @@ export default function Agents({sendAgentData}) {
 
   const [agents, setAgents] = useState(agentArray);
 
-  const handleNewAgent = () => {
-    const newAgent = {
-      id: agentArray.length,
-      name: "new agent",
-      description: "shifting timeline across multiple time strings. Regardless shifting timeline across multiple time strings",
-      tools: ['gmailer'],
-      last_active: 0,
-      goals: ['goal 1', 'goal 2'],
-      agent_type: "",
-      model: "Open AI - 3.5",
-      mode: "",
-      state: "DRAFT",
-      contentType: 'Agents'
-    };
-
-    setAgents([...agents, newAgent]);
-    sendAgentData(newAgent);
-  }
-
   return (
     <>
       <div className={styles.container}>
@@ -268,17 +255,17 @@ export default function Agents({sendAgentData}) {
           <p className={styles.title_text}>Agents</p>
         </div>
         <div className={styles.wrapper} style={{marginBottom:'10px',marginTop:'4px'}}>
-          <button style={{width:'100%'}} className={styles.agent_button} onClick={handleNewAgent}>
+          <button style={{width:'100%'}} className={styles.agent_button} onClick={() => sendAgentData({ id: -1, name: "new agent", contentType: "Create_Agent" })}>
             + Create Agent
           </button>
         </div>
         <div className={styles.wrapper}>
           {agents.map((agent, index) => (
             <div key={index}>
-              {agent.state !== 'DRAFT' && <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
+              <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
                 {agent.state === 'RUNNING' && <div className={styles.agent_active}><Image width={8} height={8} src="/images/active_icon.png" alt="active-icon"/></div>}
                 <div><span className={styles.agent_text}>{agent.name}</span></div>
-              </div>}
+              </div>
             </div>
           ))}
         </div>
