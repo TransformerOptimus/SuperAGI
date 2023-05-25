@@ -91,7 +91,7 @@ def get_agent_configurations(agent_id: int):
         elif key == "agent_type":
             parsed_response["agent_type"] = value
         elif key == "constraints":
-            parsed_response["constraints"] = value
+            parsed_response["constraints"] = eval(value) # Using eval to parse the list of strings
         elif key == "tools":
             parsed_response["tools"] = eval(value)  # Using eval to parse the list of strings
         elif key == "exit":

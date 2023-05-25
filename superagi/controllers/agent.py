@@ -7,6 +7,9 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_execution import AgentExecution
+from datetime import datetime
+
 
 
 router = APIRouter()
@@ -87,6 +90,16 @@ def create_agent_with_config(agent_with_config:AgentWithConfig):
             AgentConfiguration(agent_id=db_agent.id, key=key, value=str(value))
             for key, value in agent_config_values.items()
         ]
-        # Save to Database
         db.session.add_all(agent_configurations)
+
+        #Creating an execution with CREATED status
+        execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(),agent_id=db_agent.id)
+        db.session.add(execution)
+
+
         db.session.commit()
+        return {
+            "agent_id":db_agent.id,
+            "agent_execution_id" :execution.id
+        }
+
