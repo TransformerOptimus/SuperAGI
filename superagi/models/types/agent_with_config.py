@@ -7,7 +7,7 @@ class AgentWithConfig(BaseModel):
     description: str
     goal: List[str]
     agent_type: str
-    constraints: str
+    constraints: List[str]
     tools: List[str]
     exit: str
     iteration_interval: int

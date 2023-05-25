@@ -16,15 +16,12 @@ from superagi.tools.base_tool import BaseTool
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 import json
-# from spinners.spinners import Spinner
-# from spinners import Spinners #Enum
 from halo import Halo
 
 
 
 
 FINISH = "finish"
-print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 # print("\033[91m\033[1m"
 #         + "\nA bit about me...."
 #         + "\033[0m\033[0m")
@@ -35,8 +32,8 @@ class SuperAgi:
                  ai_role: str,
                  llm: BaseLlm,
                  memory: VectorStore,
-                 output_parser: BaseOutputParser,
                  tools: List[BaseTool],
+                 output_parser: BaseOutputParser = AgentOutputParser(),
                  ):
         self.ai_name = ai_name
         self.ai_role = ai_role
@@ -45,6 +42,8 @@ class SuperAgi:
         self.memory = memory
         self.output_parser = output_parser
         self.tools = tools
+        print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
+
 
     @classmethod
     def from_llm_and_tools(
@@ -96,28 +95,10 @@ class SuperAgi:
             # Discontinue if continuous limit is reached
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             token_limit = TokenCounter.token_limit(self.llm.get_model())
-
-            # spinner = Spinners.dots12
-            # spinner.start()
-            # spinner = Spinner('dots12')
-            # spinner.start()
-
-
-            # print("Token remaining:", token_limit - current_tokens)
-            # print(Spinners.line)
             spinner = Halo(text='Thinking...', spinner='dots')
             spinner.start()
             response = self.llm.chat_completion(messages, token_limit - current_tokens)
             spinner.stop()
-            # parsed_response = json.loads(response['choices'][0]['message']['content'])
-            # parsed_response = json.loads(response)
-            
-            # Print the formatted response
-            # formatted_response = json.dumps(response, indent=4)
-            # formatted_response = json.dumps(response['choices'],indent=4)
-
-            # print(response['choices'])
-            # print(response['content'])
             print("\n")
 
             if response['content'] is None:
@@ -162,7 +143,7 @@ class SuperAgi:
             self.full_message_history.append(SystemMessage(content=result))
             # print(self.full_message_history)
             
-            print(format_prefix_green + "Interation completed moving to next iteration!" + format_suffix_green)
+            print(format_prefix_green + "Iteration completed moving to next iteration!" + format_suffix_green)
         pass
 
     def call_llm(self):
