@@ -3,7 +3,12 @@ from pydantic import BaseModel, Field
 
 from superagi.helper.google_serp import GoogleSerpApiWrap
 from superagi.tools.base_tool import BaseTool
+from superagi.config.config import get_config
+
+
 import os
+
+
 import json
 
 class GoogleSerpSchema(BaseModel):
@@ -14,7 +19,7 @@ class GoogleSerpSchema(BaseModel):
 
 
 class GoogleSerpTool(BaseTool):
-    name = "GoogleSerp"
+    name = "Google Serp"
     description = (
         "A tool for performing a Google SERP search and extracting snippets and webpages."
         "Input should be a search query."
@@ -22,7 +27,7 @@ class GoogleSerpTool(BaseTool):
     args_schema: Type[GoogleSerpSchema] = GoogleSerpSchema
 
     def _execute(self, query: str) -> tuple:
-        api_key = os.environ.get("SERP_API_KEY")
+        api_key = get_config("SERP_API_KEY")
         num_results = 10
         num_pages = 1
         num_extracts = 3

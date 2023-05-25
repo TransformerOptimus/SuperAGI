@@ -15,7 +15,7 @@ class ReadFileSchema(BaseModel):
 
 
 class ReadFileTool(BaseTool):
-    name: str = "read_file"
+    name: str = "Read File"
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"
 
