@@ -225,7 +225,7 @@ export default function AgentCreate({agent, createAgent}) {
               <textarea className="textarea_medium" rows={3} value={agentDescription} onChange={handleDescriptionChange}/>
             </div>
             <div style={{marginTop: '15px'}}>
-              <label className={styles.form_label}>Goals</label>
+              <div><label className={styles.form_label}>Goals</label></div>
               {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={handleNameChange}/></div>
                 <div>
@@ -234,9 +234,7 @@ export default function AgentCreate({agent, createAgent}) {
                   </button>
                 </div>
               </div>))}
-              <button className={styles.agent_button} onClick={addGoal}>
-                + Add
-              </button>
+              <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
             </div>
             <div style={{marginTop: '15px'}}>
               <label className={styles.form_label}>Model</label><br/>
@@ -307,7 +305,7 @@ export default function AgentCreate({agent, createAgent}) {
                 {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
                 {/*</div>*/}
                 <div style={{marginTop: '15px'}}>
-                  <label className={styles.form_label}>Constraints</label>
+                  <div><label className={styles.form_label}>Constraints</label></div>
                   {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                     <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={handleNameChange}/></div>
                     <div>
@@ -316,9 +314,7 @@ export default function AgentCreate({agent, createAgent}) {
                       </button>
                     </div>
                   </div>))}
-                  <button className={styles.agent_button} onClick={addConstraint}>
-                    + Add
-                  </button>
+                  <div><button className={styles.agent_button} onClick={addConstraint}>+ Add</button></div>
                 </div>
                 {/*<div style={{marginTop: '15px'}}>*/}
                 {/*  <label className={styles.form_label}>Exit criterion</label>*/}

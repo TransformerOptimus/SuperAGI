@@ -157,7 +157,7 @@ export default function AgentWorkspace({agent}) {
             <input className="input_medium" type="text" value={runName} onChange={handleRunNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
-            <label className={styles.form_label}>Goals</label>
+            <div><label className={styles.form_label}>Goals</label></div>
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
               <div>
@@ -166,7 +166,7 @@ export default function AgentWorkspace({agent}) {
                 </button>
               </div>
             </div>))}
-            <button className={styles.agent_button} onClick={addGoal}>+ Add</button>
+            <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
           </div>
           <div style={{display: 'flex', justifyContent: 'flex-end'}}>
             <button className={styles.agent_button} style={{marginRight: '10px'}} onClick={closeRunModal}>
