@@ -36,10 +36,6 @@ export default function Content({selectedView}) {
     setSelectedTab(tab);
   };
 
-  const createAgent = (agent, data) => {
-
-  }
-
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
@@ -47,7 +43,7 @@ export default function Content({selectedView}) {
         {selectedView === 'tools' && <Tools sendToolData={addTab}/>}
       </div>
       <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
-        <div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className={styles.tabs}>
             {tabs.map((tab, index) => (
               <div key={tab.id}>
@@ -73,7 +69,7 @@ export default function Content({selectedView}) {
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate agent={tab} createAgent={createAgent}/>
+                        <AgentCreate agent={tab}/>
                       </div>
                       <div className="col-3"></div>
                     </div>

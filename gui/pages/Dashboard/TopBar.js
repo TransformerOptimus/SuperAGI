@@ -14,8 +14,8 @@ export default function TopBar() {
 
         <div className={styles.top_bar_section} style={{marginLeft:'10px'}}>
           <div style={{marginTop:'-2px'}}><Image width={14} height={14} src="/images/widgets.png" alt="widgets-icon"/></div>
-          <div className={styles.top_bar_font}><p>Marketplace</p></div>
-          <div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.png" alt="dropdown-icon"/></div>
+          <div className={styles.top_bar_font}><p>Marketplace (coming soon)</p></div>
+          {/*<div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.png" alt="dropdown-icon"/></div>*/}
         </div>
       </div>
 

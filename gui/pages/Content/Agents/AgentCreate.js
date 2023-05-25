@@ -4,7 +4,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 
-export default function AgentCreate({agent, createAgent}) {
+export default function AgentCreate({agent}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState(agent.name);
   const [agentDescription, setAgentDescription] = useState("");
@@ -199,8 +199,6 @@ export default function AgentCreate({agent, createAgent}) {
       return
     }
 
-    const data = {agentName: agentName}
-    createAgent(agent, data)
     toast.dark('Agent created successfully', {autoClose: 1800});
   };
 
@@ -242,13 +240,13 @@ export default function AgentCreate({agent, createAgent}) {
                   <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
                     {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                   </div>
-                  <transition name="fade-scale">
+                  <div>
                     {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
                     {models.map((model, index) => (<div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                       {model}
                     </div>))}
                   </div>}
-                </transition>
+                </div>
               </div>
             </div>
             <div style={{marginTop: '15px'}}>
@@ -263,13 +261,13 @@ export default function AgentCreate({agent, createAgent}) {
                   </div> : <div style={{color:'#666666'}}>Select Tools</div>}
                   <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                 </div>
-                <transition name="fade-scale">
+                <div>
                   {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                     {allTools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                       {tool}
                     </div>))}
                   </div>}
-                </transition>
+                </div>
               </div>
             </div>
             <div style={{marginTop: '15px'}}>
@@ -285,13 +283,13 @@ export default function AgentCreate({agent, createAgent}) {
                 {/*    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>*/}
                 {/*      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>*/}
                 {/*    </div>*/}
-                {/*    <transition name="fade-scale">*/}
+                {/*    <div>*/}
                 {/*      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>*/}
                 {/*        {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
                 {/*          {agent}*/}
                 {/*        </div>))}*/}
                 {/*      </div>}*/}
-                {/*    </transition>*/}
+                {/*    </div>*/}
                 {/*  </div>*/}
                 {/*</div>*/}
                 {/*<div style={{marginTop: '15px'}}>*/}
@@ -322,13 +320,13 @@ export default function AgentCreate({agent, createAgent}) {
                 {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
                 {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>*/}
                 {/*    </div>*/}
-                {/*    <transition name="fade-scale">*/}
+                {/*    <div>*/}
                 {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
                 {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
                 {/*          {exit}*/}
                 {/*        </div>))}*/}
                 {/*      </div>}*/}
-                {/*    </transition>*/}
+                {/*    </div>*/}
                 {/*  </div>*/}
                 {/*</div>*/}
                 <div style={{marginTop: '15px'}}>
@@ -337,13 +335,13 @@ export default function AgentCreate({agent, createAgent}) {
                     <div className="custom_select_container" onClick={() => setStepDropdown(!stepDropdown)} style={{width:'100%'}}>
                       {stepTime}<Image width={20} height={21} src={!stepDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
-                    <transition name="fade-scale">
+                    <div>
                       {stepDropdown && <div className="custom_select_options" ref={stepRef} style={{width:'100%'}}>
                         {stepTimes.map((step, index) => (<div key={index} className="custom_select_option" onClick={() => handleStepSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                           {step}
                         </div>))}
                       </div>}
-                    </transition>
+                    </div>
                   </div>
                 </div>
                 <div style={{marginTop: '15px'}}>
@@ -352,13 +350,13 @@ export default function AgentCreate({agent, createAgent}) {
                     <div className="custom_select_container" onClick={() => setRollingDropdown(!rollingDropdown)} style={{width:'100%'}}>
                       {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
-                    <transition name="fade-scale">
+                    <div>
                       {rollingDropdown && <div className="custom_select_options" ref={rollingRef} style={{width:'100%'}}>
                         {rollingWindows.map((window, index) => (<div key={index} className="custom_select_option" onClick={() => handleWindowSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                           {window}
                         </div>))}
                       </div>}
-                    </transition>
+                    </div>
                   </div>
                 </div>
                 <div style={{marginTop: '15px'}}>
@@ -375,13 +373,13 @@ export default function AgentCreate({agent, createAgent}) {
                     <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
                       {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
-                    <transition name="fade-scale">
+                    <div>
                       {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
                         {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                           {data}
                         </div>))}
                       </div>}
-                    </transition>
+                    </div>
                   </div>
                 </div>
                 <div style={{marginTop: '15px'}}>
@@ -390,13 +388,13 @@ export default function AgentCreate({agent, createAgent}) {
                     <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
                       {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
                     </div>
-                    <transition name="fade-scale">
+                    <div>
                       {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>
                         {permissions.map((permit, index) => (<div key={index} className="custom_select_option" onClick={() => handlePermissionSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                           {permit}
                         </div>))}
                       </div>}
-                    </transition>
+                    </div>
                   </div>
                 </div>
               </div>
