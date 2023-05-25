@@ -95,6 +95,40 @@ Before starting with the project, it is highly recommended to create a virtual e
     4. Create a virtual environment by running: `virtualenv venv` (you can replace "venv" with your desired virtual environment name).
     5. Activate the virtual environment by running: `venv\Scripts\activate`.
 
+# Setting up Web UI:
+- Install Node.js and npm
+
+    - For Linux:
+        1. Open a terminal window.
+        2. Install Node.js and npm by running: `sudo apt install nodejs npm`.
+        3. Check the version of Node.js and npm by running: `node -v` and `npm -v`.
+    
+    - For Mac:
+        1. Open a terminal window.
+        2. Install Homebrew by running: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`.
+        3. Install Node.js and npm by running: `brew install node`.
+        4. Check the version of Node.js and npm by running: `node -v` and `npm -v`.
+    
+    - For Windows:
+        1. Download the Node.js installer from the [official website](https://nodejs.org/en/download/).
+        2. Run the installer and follow the instructions.
+        3. Check the version of Node.js and npm by running: `node -v` and `npm -v`.
+
+
+- Install Python dependencies:
+    1. Navigate to the main SuperAGI directory using `cd ..`.
+    2. Install the dependencies by running: `pip install -r requirements.txt` or `pip3 install -r requirements.txt`.
+    3. Start the Fastapi server by running: `uvicorn main:app --host 0.0.0.0 --port 8001`
+
+
+- Install Node.js dependencies:
+    1. Navigate to the gui directory using `cd web`.
+    2. Install the dependencies by running: `npm install`.
+    3. Build the web UI by running: `npm run build`.
+    4. Start the web server by running: `npm run dev`.
+    5. Open a browser and navigate to http://localhost:3000 to access the web UI.
+
+
 # 🛠 Configuration
 
 1. Create a virtualenv in the project directory as mentioned above.
