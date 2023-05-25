@@ -112,7 +112,7 @@ export default function Agents({sendAgentData}) {
     constraints: ['constraint 1', 'constraint 2', 'constraint 3', 'constraint 4', 'constraint 5', 'constraint 6'],
     agent_type: "Don't Maintain Task Queue",
     model: 'Open AI - 4.0',
-    permission_type: 'Semi-autonomous',
+    permission_type: 'God Mode (fully autonomous)',
     state: "RUNNING",
     contentType: 'Agents',
     window: 2,

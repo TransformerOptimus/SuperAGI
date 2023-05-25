@@ -48,7 +48,7 @@ export default function AgentCreate({agent}) {
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
-  const permissions = ["No autonomous (Ask permission for every action)", "Semi-autonomous", "God Mode (fully autonomous)"]
+  const permissions = ["No autonomous (Ask permission for every action)", "God Mode (fully autonomous)"]
   const [permission, setPermission] = useState(permissions[0]);
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
