@@ -63,3 +63,9 @@ def update_agent_execution(agent_execution_id: int, agent_execution: sqlalchemy_
 
     return db_agent_execution
 
+
+@router.get("/get/agents/{status}")
+def list_running_agents(status:str):
+    running_agent_ids = db.session.query(AgentExecution.agent_id).filter(AgentExecution.status == status.upper()).distinct().all()
+    agent_ids = [agent_id for (agent_id) in running_agent_ids]
+    return agent_ids

@@ -1,18 +1,16 @@
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent import Agent
-# from fastapi_sqlalchemy import DBSessionMiddleware, db
 from superagi.agent.super_agi import SuperAgi
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
+from superagi.models.tool import Tool
 
 from superagi.models.db import connectDB
-# from fastapi_sqlalchemy import db
 from sqlalchemy.orm import sessionmaker, query
 
 
 
-# from superagi.agent.super_agi import SuperAgi
 from superagi.llms.openai import OpenAi
 # from superagi.tools.base_tool import FunctionalTool
 from superagi.tools.file.write_file import WriteFileTool
@@ -22,10 +20,32 @@ from superagi.tools.google_serp_search.tools import GoogleSerpTool
 # from superagi.vector_store.embedding.openai import OpenAiEmbedding
 # from superagi.vector_store.vector_factory import VectorFactory
 
+from superagi.models.types.agent_with_config import AgentWithConfig
+import importlib
+import os
+
 
 engine = connectDB()
 Session = sessionmaker(bind=engine)
 session = Session()
+
+def create_object(class_name,folder_name):
+    current_path = os.getcwd()
+    # Load the module dynamically
+    
+    file_directory=f"superagi/tools/{folder_name}/{class_name}.py"
+
+    module = importlib.import_module(current_path + file_directory)
+
+    # Get the class from the loaded module
+    obj_class = getattr(module, class_name)
+    
+    # Create an instance of the class
+    new_object = obj_class()
+    
+    return new_object
+
+
 
 
 def run_superagi_job(agent_execution : AgentExecution):
@@ -42,12 +62,13 @@ def run_superagi_job(agent_execution : AgentExecution):
 
     parsed_config = {
         "agent_id":agent.id,
+        "agent_execution_id":agent_execution.id,
         "name": agent.name,
         "project_id": agent.project_id,
         "description": agent.description,
         "goal": [],
         "agent_type": None,
-        "constraints": None,
+        "constraints": [],
         "tools": [],
         "exit": None,
         "iteration_interval": None,
@@ -57,9 +78,11 @@ def run_superagi_job(agent_execution : AgentExecution):
     }
 
     tools = [
-    # GoogleSearchTool(),
+    GoogleSearchTool(),
     WriteFileTool(),
     GoogleSerpTool()
+        # create_object("")
+        # create_object("")
     ]
 
 
@@ -74,13 +97,15 @@ def run_superagi_job(agent_execution : AgentExecution):
         elif key == "description":
             parsed_config["description"] = value
         elif key == "goal":
-            parsed_config["goal"] = eval(value)  # Using eval to parse the list of strings
+            parsed_config["goal"] = eval(value)  
         elif key == "agent_type":
             parsed_config["agent_type"] = value
         elif key == "constraints":
-            parsed_config["constraints"] = value
+            parsed_config["constraints"] = eval(value)
+        # elif key == "tools":
+            # parsed_config["tools"] = eval(int(value))
         elif key == "tools":
-            parsed_config["tools"] = eval(value)  # Using eval to parse the list of strings
+            parsed_config["tools"] = eval(value)  
         elif key == "exit":
             parsed_config["exit"] = value
         elif key == "iteration_interval":
@@ -96,9 +121,21 @@ def run_superagi_job(agent_execution : AgentExecution):
         memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
     else:
         memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
-    spawned_agent = SuperAgi(ai_name=parsed_config["name"],ai_role=parsed_config["description"],llm=OpenAi(model=parsed_config["model"]),tools=tools,memory=memory)
+    
+    # tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
+
+    # tools_used = []
+
+    # for tool in tools:
+    #     tools_used.append(create_object(tool.class_name,tool.folder_name))
+
+    #TODO: Generate tools array on fly
+    spawned_agent = SuperAgi(ai_name=parsed_config["name"],ai_role=parsed_config["description"],llm=OpenAi(model=parsed_config["model"]),tools=tools,memory=memory,agent_config=parsed_config)
     spawned_agent.execute(parsed_config["goal"])
+
+    
     
     
 session.commit()
+session.close()
 
