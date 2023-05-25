@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 
-export default function ToolCreate({tool}) {
+export default function ToolCreate({tool,addNewTool}) {
   const goalsArray = ['agent goal 1', 'agent goal 2', 'agent goal 3']
   const [goals, setGoals] = useState(goalsArray);
   const [toolName, setToolName] = useState(tool.name);
@@ -39,7 +39,7 @@ export default function ToolCreate({tool}) {
                   </button>
                 </div>
               </div>))}
-              <button className={styles1.agent_button} onClick={handleNameChange}>
+              <button className={styles1.agent_button} onClick={addNewTool}>
                 Add
               </button>
             </div>

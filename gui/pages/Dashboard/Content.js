@@ -40,6 +40,9 @@ export default function Content({selectedView}) {
   const createAgent = (agent, data) => {
 
   }
+  const createTool = () => {
+
+  }
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
@@ -77,7 +80,7 @@ export default function Content({selectedView}) {
                       <div className="row">
                         <div className="col-3"></div>
                         <div className="col-6" style={{overflowY:'scroll'}}>
-                          {tab.contentType === 'Agents' ?  <AgentCreate agent={tab} createAgent={createAgent}/> : <ToolCreate agent={tab} />}
+                          {tab.contentType === 'Agents' ?  <AgentCreate agent={tab} createAgent={createAgent}/> : <ToolCreate tool={tab} addNewTool={createTool} />}
                         </div>
                         <div className="col-3"></div>
                       </div>
