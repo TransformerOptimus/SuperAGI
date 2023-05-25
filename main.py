@@ -18,7 +18,7 @@ from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
-
+from superagi.config.config import get_config
 
 from sqlalchemy import create_engine
 # from sqlalchemy.orm import sessionmaker
@@ -26,20 +26,27 @@ from sqlalchemy import create_engine
 
 app = FastAPI()
 
-db_username = ''
-db_password = ''
-db_name = ''
+db_username = get_config('db_username')
+db_password = get_config('db_password')
+db_name = get_config('db_name')
 
-
+# db_url = f'sqlite:///{db_name}'
 db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'
-engine = create_engine(db_url)
+try:
+    engine = create_engine(db_url)
+    app.add_middleware(DBSessionMiddleware, db_url=db_url)
+    DBBaseModel.metadata.create_all(bind=engine,checkfirst=True)
+except Exception:
+    print('Unable to connect postgresql database falling back to sqlite')
+    db_url = f'sqlite:///{db_name}'
+    engine = create_engine(db_url)
+    app.add_middleware(DBSessionMiddleware, db_url=db_url)
+    DBBaseModel.metadata.create_all(bind=engine,checkfirst=True)
+
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # app.add_middleware(DBSessionMiddleware, db_url=f'postgresql://{db_username}:{db_password}@localhost/{db_name}')
-app.add_middleware(DBSessionMiddleware, db_url=db_url)
-
-
-DBBaseModel.metadata.create_all(bind=engine,checkfirst=True)
+print(db_url)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
