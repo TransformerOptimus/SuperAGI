@@ -3,6 +3,7 @@ import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
 import Tools from '../Content/Tools/Tools';
+import ToolCreate from '../Content/Tools/ToolCreate';
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 
@@ -54,7 +55,7 @@ export default function Content({selectedView}) {
               <div key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
                 <div style={{display:'flex', order:'0'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
-                  {tab.contentType === 'Tools' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
+                  {tab.contentType === 'Tools' || tab.contentType === 'Create_Tool' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
                 <div onClick={() => closeTab(tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
@@ -73,6 +74,15 @@ export default function Content({selectedView}) {
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
                         <AgentCreate agent={tab}/>
+                      </div>
+                      <div className="col-3"></div>
+                    </div>
+                  </div>}
+                  {tab.contentType === 'Create_Tool' && <div className={styles.create_agent}>
+                    <div className="row">
+                      <div className="col-3"></div>
+                      <div className="col-6" style={{overflowY:'scroll'}}>
+                        <ToolCreate tool={tab}/>
                       </div>
                       <div className="col-3"></div>
                     </div>

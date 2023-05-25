@@ -30,7 +30,7 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 21px;
-    color: #111111;
+    color: #FEFEFE;
     margin-top: -2px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -42,7 +42,7 @@
 .tool_publisher {
     font-style: normal;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 10px;
     line-height: 17px;
     display: flex;
     align-items: center;
@@ -71,11 +71,61 @@
 
 .tool_box {
     cursor: pointer;
-    width: calc(33.33% - 10px);
+    width: 100%;
+    padding:2px;
+    border-radius: 6px;
 }
 
 .tag_box {
     display: flex;
     margin: 15px 0 0 0;
     flex-wrap: wrap;
+}
+.more_button{
+    margin-left: 4px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 10px;
+    gap: 6px;
+    width: 36px;
+    height: 32px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.tool_box:hover{
+    background-color: #494856;
+    transition: 0.4s;
+}
+.image_class{
+    background: #FFFFFF80;
+    border-radius: 20px;
+}
+
+.CodeMirror{
+    background-color: #291A66 !important;
+    border: 1px solid #4A4A55 !important;
+}
+.code_head{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 26px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    /* identical to box height */
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.2);
+}
+.button_class{
+    margin-top:15px;
+    float: right;
+    display: flex;
+    gap: 5px;
 }
