@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Image from "next/image";
 import styles from './Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { EventBus } from "../../eventBus";
 
 export default function Agents({sendAgentData}) {
   const agentArray = [{
@@ -13,7 +14,7 @@ export default function Agents({sendAgentData}) {
     tools: ['gmail', 'powerpoint', 'jira', 'confluence', 'openai', 'canva'],
     goal: ['goal 1', 'goal 2', 'goal 3', 'goal 4', 'goal 5', 'goal 6'],
     constraints: ['constraint 1', 'constraint 2'],
-    agent_type: 'Maintain Task Queue',
+    agent_type: "Don't Maintain Task Queue",
     model: 'Open AI - 3.5',
     permission_type: 'No autonomous (Ask permission_type for every action)',
     state: "RUNNING",
@@ -173,7 +174,7 @@ export default function Agents({sendAgentData}) {
     tools: ['photoshop', 'maya', 'rhino', 'blender', 'autocad', 'jira'],
     goal: ['goal 1', 'goal 2', 'goal 3'],
     constraints: ['constraint 1', 'constraint 2', 'constraint 3', 'constraint 4'],
-    agent_type: 'Maintain Task Queue',
+    agent_type: "Don't Maintain Task Queue",
     model: 'Open AI - 3.0',
     permission_type: 'God Mode (fully autonomous)',
     state: "PENDING",
@@ -247,6 +248,35 @@ export default function Agents({sendAgentData}) {
   }];
 
   const [agents, setAgents] = useState(agentArray);
+
+  useEffect(() => {
+    const createRun = (eventData) => {
+      const updatedAgentId = eventData.agentId;
+      const newRun = eventData.newRun;
+      const updatedGoals = eventData.updatedGoals;
+
+      const updatedAgents = agents.map((agent) => {
+        if (agent.id === updatedAgentId) {
+          const updatedAgent = {
+            ...agent,
+            goal: updatedGoals,
+            runs: [...agent.runs, newRun],
+          };
+          sendAgentData(updatedAgent);
+          return updatedAgent;
+        }
+        return agent;
+      });
+
+      setAgents(updatedAgents);
+    };
+
+    EventBus.on('runCreate', createRun);
+
+    return () => {
+      EventBus.off('runCreate', createRun);
+    };
+  }, [agents]);
 
   return (
     <>

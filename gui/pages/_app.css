@@ -69,8 +69,10 @@ input[type=checkbox i] {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: #1F1B32;
     border-radius: 8px;
+    padding: 20px;
+    box-shadow: -10px 10px 100px rgba(0, 0, 0, 0.4);
 }
 
 .mx-time-item.active

@@ -9,12 +9,75 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
+import { EventBus } from "../../eventBus";
 
 export default function AgentWorkspace({agent}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(false)
   const [selectedRun, setSelectedRun] = useState(agent.runs[0])
+  const [runModal, setRunModal] = useState(false)
+  const agent_goals = agent.goal
+  const [goals, setGoals] = useState(agent_goals);
+  const [runName, setRunName] = useState("new run");
+
+  const addGoal = () => {
+    setGoals((prevArray) => [...prevArray, 'new goal']);
+  };
+
+  const handleGoalChange = (index, newValue) => {
+    const updatedGoals = [...goals];
+    updatedGoals[index] = newValue;
+    setGoals(updatedGoals);
+  };
+
+  const handleGoalDelete = (index) => {
+    const updatedGoals = [...goals];
+    updatedGoals.splice(index, 1);
+    setGoals(updatedGoals);
+  };
+
+  const handleRunNameChange = (event) => {
+    setRunName(event.target.value);
+  }
+
+  const handleCreateRun = () => {
+    if (runName.replace(/\s/g, '') === '') {
+      toast.dark("Run name can't be blank", {autoClose: 1800});
+      return
+    }
+
+    if (goals.length <= 0) {
+      toast.dark("Agent needs to have goals", {autoClose: 1800});
+      return
+    }
+
+    EventBus.emit('runCreate', {
+      agentId: agent.id,
+      newRun: {
+        id: agent.runs.length,
+        name: runName,
+        is_running: false,
+        calls: 0,
+        last_active: 0,
+        notification_count: 0,
+        tasks: [],
+        feeds: []
+      },
+      updatedGoals: goals
+    });
+    setRunModal(false);
+  };
+
+  const closeRunModal = () => {
+    setGoals(agent_goals);
+    setRunName("new run");
+    setRunModal(false);
+  };
+
+  const preventDefault = (e) => {
+    e.stopPropagation();
+  };
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
@@ -38,7 +101,7 @@ export default function AgentWorkspace({agent}) {
           </div>
           <div style={{display:'flex'}}>
             <div>
-              <button className={styles.run_button}>
+              <button className={styles.run_button} onClick={() => setRunModal(true)}>
                 <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
@@ -85,6 +148,36 @@ export default function AgentWorkspace({agent}) {
           {rightPanel === 'resource_manager' && <ResourceManager/>}
         </div>
       </div>
+
+      {runModal && (<div className="modal" onClick={closeRunModal}>
+        <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+          <div className={styles.detail_name}>Run agent name</div>
+          <div>
+            <label className={styles.form_label}>Name</label>
+            <input className="input_medium" type="text" value={runName} onChange={handleRunNameChange}/>
+          </div>
+          <div style={{marginTop: '15px'}}>
+            <label className={styles.form_label}>Goals</label>
+            {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
+              <div>
+                <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleGoalDelete(index)}>
+                  <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
+                </button>
+              </div>
+            </div>))}
+            <button className={styles.agent_button} onClick={addGoal}>+ Add</button>
+          </div>
+          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+            <button className={styles.agent_button} style={{marginRight: '10px'}} onClick={closeRunModal}>
+              Cancel
+            </button>
+            <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={() => handleCreateRun()}>
+              <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;Run
+            </button>
+          </div>
+        </div>
+      </div>)}
     </div>
     <ToastContainer/>
   </>);

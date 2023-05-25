@@ -23,7 +23,7 @@ export default function AgentCreate({agent, createAgent}) {
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const agentTypes = ["Maintain Task Queue", "Don't Maintain Task Queue"]
+  const agentTypes = ["Don't Maintain Task Queue"]
   const [agentType, setAgentType] = useState(agentTypes[0]);
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
@@ -205,8 +205,8 @@ export default function AgentCreate({agent, createAgent}) {
   };
 
   const preventDefault = (e) => {
-    e.stopPropagation()
-  }
+    e.stopPropagation();
+  };
 
   return (<>
     <div>
@@ -281,21 +281,21 @@ export default function AgentCreate({agent, createAgent}) {
             </div>
             {advancedOptions &&
               <div>
-                <div style={{marginTop: '15px'}}>
-                  <label className={styles.form_label}>Agent Type</label><br/>
-                  <div className="dropdown_container_search" style={{width:'100%'}}>
-                    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>
-                      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
-                    </div>
-                    <transition name="fade-scale">
-                      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>
-                        {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                          {agent}
-                        </div>))}
-                      </div>}
-                    </transition>
-                  </div>
-                </div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Agent Type</label><br/>*/}
+                {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+                {/*    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>*/}
+                {/*      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>*/}
+                {/*    </div>*/}
+                {/*    <transition name="fade-scale">*/}
+                {/*      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>*/}
+                {/*        {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+                {/*          {agent}*/}
+                {/*        </div>))}*/}
+                {/*      </div>}*/}
+                {/*    </transition>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
                 {/*<div style={{marginTop: '15px'}}>*/}
                 {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
                 {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}

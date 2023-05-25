@@ -22,8 +22,8 @@ export default function TopBar() {
 
       <div className={styles.top_right}>
         <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.png" alt="dropdown-icon"/></div>
-        <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.png" alt="dropdown-icon"/></div>
-        <div className={styles.top_right_icon}><Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/></div>
+        {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.png" alt="dropdown-icon"/></div>*/}
+        {/*<div className={styles.top_right_icon}><Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/></div>*/}
       </div>
     </div>
   )
