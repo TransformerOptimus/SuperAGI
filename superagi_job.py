@@ -10,7 +10,6 @@ from superagi.models.db import connectDB
 from sqlalchemy.orm import sessionmaker, query
 
 
-
 from superagi.llms.openai import OpenAi
 # from superagi.tools.base_tool import FunctionalTool
 from superagi.tools.file.write_file import WriteFileTool
@@ -20,35 +19,38 @@ from superagi.tools.google_serp_search.tools import GoogleSerpTool
 # from superagi.vector_store.embedding.openai import OpenAiEmbedding
 # from superagi.vector_store.vector_factory import VectorFactory
 
-from superagi.models.types.agent_with_config import AgentWithConfig
+# from superagi.models.types.agent_with_config import AgentWithConfig
 import importlib
 import os
+import json
 
 
 engine = connectDB()
 Session = sessionmaker(bind=engine)
 session = Session()
 
-def create_object(class_name,folder_name):
-    current_path = os.getcwd()
-    # Load the module dynamically
-    
-    file_directory=f"superagi/tools/{folder_name}/{class_name}.py"
+def validate_filename(filename):
+    if filename.endswith(".py"):
+        return filename[:-3]  # Remove the last three characters (i.e., ".py")
+    return filename
 
-    module = importlib.import_module(current_path + file_directory)
+
+def create_object(class_name,folder_name,file_name):
+    file_name = validate_filename(filename=file_name)
+    module_name = f"superagi.tools.{folder_name}.{file_name}"
+    
+    # Load the module dynamically
+    module = importlib.import_module(module_name)
 
     # Get the class from the loaded module
     obj_class = getattr(module, class_name)
-    
+
     # Create an instance of the class
     new_object = obj_class()
-    
     return new_object
 
 
-
-
-def run_superagi_job(agent_execution : AgentExecution):
+def run_superagi_job(agent_execution):
     print("New Agent Exec : ",agent_execution)
     agent_execution = AgentExecution.from_json(agent_execution)
     print("New Agent Exec : ",agent_execution)
@@ -75,12 +77,13 @@ def run_superagi_job(agent_execution : AgentExecution):
         "model": None,
         "permission_type": None,
         "LTM_DB": None,
+        "memory_window":None
     }
 
     tools = [
-    GoogleSearchTool(),
+    # GoogleSearchTool(),
     WriteFileTool(),
-    GoogleSerpTool()
+    # GoogleSerpTool()
         # create_object("")
         # create_object("")
     ]
@@ -102,10 +105,10 @@ def run_superagi_job(agent_execution : AgentExecution):
             parsed_config["agent_type"] = value
         elif key == "constraints":
             parsed_config["constraints"] = eval(value)
-        # elif key == "tools":
-            # parsed_config["tools"] = eval(int(value))
         elif key == "tools":
-            parsed_config["tools"] = eval(value)  
+            parsed_config["tools"] = [int(x) for x in json.loads(value)]
+        # elif key == "tools":
+            # parsed_config["tools"] = eval(value)  
         elif key == "exit":
             parsed_config["exit"] = value
         elif key == "iteration_interval":
@@ -116,18 +119,23 @@ def run_superagi_job(agent_execution : AgentExecution):
             parsed_config["permission_type"] = value
         elif key == "LTM_DB":
             parsed_config["LTM_DB"] = value
+        elif key == "memory_window":
+            parsed_config["memory_window"] = int(value)
 
     if parsed_config["LTM_DB"] == "Pinecone":
         memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
     else:
         memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
     
-    # tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
+    user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
 
-    # tools_used = []
+    # tools = []
 
-    # for tool in tools:
-    #     tools_used.append(create_object(tool.class_name,tool.folder_name))
+    for tool in user_tools:
+        tools.append(create_object(tool.class_name,tool.folder_name,tool.file_name))
+
+    # print("Tools: ",tools)
+    # print("Agent Config",parsed_config)
 
     #TODO: Generate tools array on fly
     spawned_agent = SuperAgi(ai_name=parsed_config["name"],ai_role=parsed_config["description"],llm=OpenAi(model=parsed_config["model"]),tools=tools,memory=memory,agent_config=parsed_config)

@@ -17,7 +17,7 @@ from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 import json
 from halo import Halo
-from superagi.models.types.agent_with_config import AgentWithConfig
+# from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution import AgentExecution
 from sqlalchemy.exc import SQLAlchemyError
@@ -133,8 +133,8 @@ class SuperAgi:
                 # print(history.type + " : ", history.content)
                 messages.append({"role": history.type, "content": history.content})
 
-            print(autogpt_prompt)
-            # print(autogpt_prompt_to_print)
+            # print(autogpt_prompt)
+            print(autogpt_prompt_to_print)
 
             # Discontinue if continuous limit is reached
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
