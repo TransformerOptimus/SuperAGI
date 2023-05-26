@@ -10,23 +10,27 @@ import os
 import mimetypes
 from email.header import decode_header
 from email.message import EmailMessage
-class SendEmailAttachementInput(BaseModel):
+
+class SendEmailAttachmentInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
     body: str = Field(..., description="Email Body to be sent")
     filename: str = Field(..., description="Name of the file to be sent as an Attachement with Email")
-class SendEmailAttachementTool(BaseTool):
+
+class SendEmailAttachmentTool(BaseTool):
     name: str = "Send Email with Attachement"
-    args_schema: Type[BaseModel] = SendEmailAttachementInput
+    args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
+    
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
-        base_path = get_config('EMAIL_ATTACHEMENT_BASE_PATH')
+        base_path = get_config('EMAIL_ATTACHMENT_BASE_PATH')
         if not base_path:
             base_path = ""
         base_path = base_path + filename
         attachement_path = base_path
         attachement = os.path.basename(attachement_path)
         return self.send_email_with_attachement(to,subject,body,attachement_path,attachement)
+    
     def send_email_with_attachement(self, to, subject, body, attachement_path, attachement) -> str:
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')

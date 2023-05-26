@@ -8,14 +8,17 @@ import smtplib
 import time
 from email.header import decode_header
 from email.message import EmailMessage
+
 class SendEmailInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
     body: str = Field(..., description="Email Body to be sent")
+
 class SendEmailTool(BaseTool):
     name: str = "Send Email"
     args_schema: Type[BaseModel] = SendEmailInput
     description: str = "Send an Email"
+
     def _execute(self, to: str, subject: str, body: str) -> str:
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
