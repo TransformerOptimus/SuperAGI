@@ -148,24 +148,32 @@ export default function AgentCreate() {
     setModelDropdown(false);
   };
 
-  const removeGoal = (indexToDelete) => {
-    setGoals((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+  const handleGoalChange = (index, newValue) => {
+    const updatedGoals = [...goals];
+    updatedGoals[index] = newValue;
+    setGoals(updatedGoals);
+  };
+
+  const handleConstraintChange = (index, newValue) => {
+    const updatedConstraints = [...constraints];
+    updatedConstraints[index] = newValue;
+    setConstraints(updatedConstraints);
+  };
+
+  const handleGoalDelete = (index) => {
+    const updatedGoals = [...goals];
+    updatedGoals.splice(index, 1);
+    setGoals(updatedGoals);
+  };
+
+  const handleConstraintDelete = (index) => {
+    const updatedConstraints = [...constraints];
+    updatedConstraints.splice(index, 1);
+    setConstraints(updatedConstraints);
   };
 
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
-  };
-
-  const removeConstraint = (indexToDelete) => {
-    setConstraints((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
   };
 
   const addConstraint = () => {
@@ -199,6 +207,16 @@ export default function AgentCreate() {
       return
     }
 
+    if (goals.length <= 0) {
+      toast.dark("Add atleast one goal", {autoClose: 1800});
+      return
+    }
+
+    if (myTools.length <= 0) {
+      toast.dark("Add atleast one tool", {autoClose: 1800});
+      return
+    }
+
     toast.dark('Agent created successfully', {autoClose: 1800});
   };
 
@@ -225,9 +243,9 @@ export default function AgentCreate() {
             <div style={{marginTop: '15px'}}>
               <div><label className={styles.form_label}>Goals</label></div>
               {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={handleNameChange}/></div>
+                <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
                 <div>
-                  <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => removeGoal(index)}>
+                  <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleGoalDelete(index)}>
                     <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
                   </button>
                 </div>
@@ -305,9 +323,9 @@ export default function AgentCreate() {
                 <div style={{marginTop: '15px'}}>
                   <div><label className={styles.form_label}>Constraints</label></div>
                   {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                    <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={handleNameChange}/></div>
+                    <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
                     <div>
-                      <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => removeConstraint(index)}>
+                      <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
                         <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
                       </button>
                     </div>
@@ -367,7 +385,7 @@ export default function AgentCreate() {
                     </label>
                   </div>
                 </div>
-                <div style={{marginTop: '10px'}}>
+                {longTermMemory === true && <div style={{marginTop: '10px'}}>
                   <label className={styles.form_label}>Choose an LTM database</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
@@ -381,7 +399,7 @@ export default function AgentCreate() {
                       </div>}
                     </div>
                   </div>
-                </div>
+                </div>}
                 <div style={{marginTop: '15px'}}>
                   <label className={styles.form_label}>Permission Type</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>

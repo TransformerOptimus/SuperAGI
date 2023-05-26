@@ -15,13 +15,13 @@ input[type=checkbox i] {
 
 .checkbox {
     appearance: none;
-    background-color: #494856;
+    background-color: #222222;
     border: 1px solid #4A4A55;
     border-radius: 4px;
 }
 
 .checkbox:checked {
-    background-color: #222222;
+    background-color: #494856;
 }
 
 .tool_container {
