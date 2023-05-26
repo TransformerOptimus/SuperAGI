@@ -54,7 +54,7 @@ class SendEmailAttachmentTool(BaseTool):
             with open(attachement_path, "rb") as file:
                 message.add_attachment(file.read(),maintype=maintype, subtype=subtype, filename=attachement)
         draft_folder = get_config('EMAIL_DRAFT_MODE_WITH_FOLDER')
-        if message["To"] == "example@example.com":
+        if message["To"] == "example@example.com" or if draft_folder:
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password)
             conn.append(
                 draft_folder,

@@ -35,7 +35,7 @@ class SendEmailTool(BaseTool):
             body += f"\n{signature}"
         message.set_content(body)
         draft_folder = get_config('EMAIL_DRAFT_MODE_WITH_FOLDER')
-        if message["To"] == "example@example.com":
+        if message["To"] == "example@example.com" or draft_folder:
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password)
             conn.append(
                 draft_folder,
