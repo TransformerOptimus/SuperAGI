@@ -13,3 +13,13 @@ SERP_API_KEY: YOUR_SERP_API_KEY
 
 RESOURCES_OUTPUT_ROOT_DIR: workspace/output
 RESOURCES_INPUT_ROOT_DIR: workspace/input
+
+#ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
+EMAIL_ADDRESS: YOUR_EMAIL_ADDRESS
+EMAIL_PASSWORD: YOUR_EMAIL_APP_PASSWORD #get the app password from (https://myaccount.google.com/apppasswords)
+EMAIL_SMTP_HOST: smtp.gmail.com #Change the SMTP host if not using Gmail
+EMAIL_SMTP_PORT: 587 #Change the SMTP port if not using Gmail
+EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
+EMAIL_SIGNATURE: Email sent by SuperAGI
+EMAIL_DRAFT_MODE_WITH_FOLDER: YOUR_DRAFTS_FOLDER
+EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
