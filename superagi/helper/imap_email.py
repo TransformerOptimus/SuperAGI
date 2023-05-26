@@ -1,6 +1,6 @@
-
 import imaplib
 from superagi.config.config import get_config
+
 
 class ImapEmail:
 

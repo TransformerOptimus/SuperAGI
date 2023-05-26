@@ -1,3 +1,7 @@
+from typing import Type
+
+from pydantic import BaseModel, Field
+
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from superagi.helper.imap_email import ImapEmail
@@ -6,11 +10,17 @@ import email
 import json
 from email.header import decode_header
 
+
+class ReadEmailInput(BaseModel):
+    imap_folder: str = Field(..., description="Email folder to read from. default value is \"INBOX\"")
+    page: int = Field(..., description="The index of the page result the function should resturn. Defaults to 0, the first page.")
+
 class ReadEmailTool(BaseTool):
     name: str = "Read Email"
-    description: str = "Read an Email"
-    
-    def _execute(self,imap_folder: str = "INBOX", limit: int = 10) -> str:
+    args_schema: Type[BaseModel] = ReadEmailInput
+    description: str = "Read emails from an IMAP mailbox"
+
+    def _execute(self, imap_folder: str = "INBOX", page: int = 0, limit: int = 5) -> str:
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
         if email_sender == "":
@@ -27,7 +37,8 @@ class ReadEmailTool(BaseTool):
             for response in msg:
                 if isinstance(response, tuple):
                     msg = email.message_from_bytes(response[1])
-                    email_msg["From"], email_msg["To"],email_msg["Date"],email_msg["Subject"] = ReadEmail().obtain_header(msg)
+                    email_msg["From"], email_msg["To"], email_msg["Date"], email_msg[
+                        "Subject"] = ReadEmail().obtain_header(msg)
                     if msg.is_multipart():
                         for part in msg.walk():
                             content_type = part.get_content_type()
