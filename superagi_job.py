@@ -53,7 +53,7 @@ def create_object(class_name,folder_name,file_name):
 def run_superagi_job(agent_execution):
     print("New Agent Exec : ",agent_execution)
     agent_execution = AgentExecution.from_json(agent_execution)
-    print("New Agent Exec : ",agent_execution)
+    print("New Agent Exec 123: ",agent_execution)
     agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
     if not agent:
         return "Agent Not found"
@@ -61,6 +61,8 @@ def run_superagi_job(agent_execution):
     agent_configurations = session.query(AgentConfiguration).filter_by(agent_id=agent_execution.agent_id).all()
     if not agent_configurations:
         return "Agent configurations not found"
+
+    print("Configuration ",agent_configurations)
 
     parsed_config = {
         "agent_id":agent.id,
@@ -83,9 +85,7 @@ def run_superagi_job(agent_execution):
     tools = [
     # GoogleSearchTool(),
     WriteFileTool(),
-    # GoogleSerpTool()
-        # create_object("")
-        # create_object("")
+    GoogleSerpTool()
     ]
 
 
