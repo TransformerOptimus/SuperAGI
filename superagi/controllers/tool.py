@@ -12,7 +12,7 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Tool),status_code=201)
 def create_tool(tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),Authorize: AuthJWT = Depends()):
-    db_tool = Tool(name = tool.name,folder_name = tool.folder_name,class_name = tool.class_name)
+    db_tool = Tool(name = tool.name,folder_name = tool.folder_name,class_name = tool.class_name,file_name=tool.file_name)
     db.session.add(db_tool)
     db.session.commit()
     return db_tool
@@ -35,6 +35,7 @@ def update_tool(tool_id: int, tool: sqlalchemy_to_pydantic(Tool,exclude=["id"]),
     db_tool.name = tool.name
     db_tool.folder_name = tool.folder_name
     db_tool.class_name = tool.class_name
+    db_tool.file_name = tool.file_name
 
     db.session.add(db_tool)
     db.session.commit()

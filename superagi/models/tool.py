@@ -9,6 +9,7 @@ class Tool(DBBaseModel):
     name = Column(String)
     folder_name = Column(String)
     class_name = Column(String)
+    file_name = Column(String)
 
     def __repr__(self):
         return f"User(id={self.id}, name='{self.name}', folder_name='{self.folder_name}', class_name='{self.class_name}')"

@@ -8,6 +8,8 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.tool import Tool
+
 from datetime import datetime
 
 
@@ -66,11 +68,22 @@ def create_agent_with_config(agent_with_config:AgentWithConfig):
             raise HTTPException(status_code=404, detail="Project not found")
         # print(project)        
 
+        for tool_id in agent_with_config.tools:
+            tool = db.session.query(Tool).get(tool_id)
+            if tool is None:
+                # Tool does not exist, throw 404 or handle as desired
+                raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
+
+
         db_agent = Agent(name=agent_with_config.name, description=agent_with_config.description,project_id=agent_with_config.project_id)
         db.session.add(db_agent)
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
         # print(db_agent)
+
+                
+
+
 
         # Create Agent Configuration
         agent_config_values = {
@@ -82,7 +95,8 @@ def create_agent_with_config(agent_with_config:AgentWithConfig):
             "iteration_interval": agent_with_config.iteration_interval,
             "model": agent_with_config.model,
             "permission_type": agent_with_config.permission_type,
-            "LTM_DB": agent_with_config.LTM_DB
+            "LTM_DB": agent_with_config.LTM_DB,
+            "memory_window":agent_with_config.memory_window
         }
         # print("Id is ")
         # print(db_agent.id)
