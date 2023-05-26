@@ -35,6 +35,7 @@ class OpenAi(BaseLlm):
                 frequency_penalty=self.frequency_penalty,
                 presence_penalty=self.presence_penalty
             )
+            print()
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
         except Exception as exception:
