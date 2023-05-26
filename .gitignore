@@ -6,8 +6,6 @@ __pycache__
 superagi/models/__pycache__
 superagi/controllers/__pycache__
 venv
-alembic
-alembic.ini
 **/__gitpycache__/
 gui
 gui/node_modules
