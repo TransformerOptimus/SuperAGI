@@ -1,13 +1,53 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import SideBar from './Dashboard/SideBar';
 import Content from './Dashboard/Content';
 import TopBar from './Dashboard/TopBar';
 import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
+import { addUser, getOrganization, getProject } from "@/app/DashboardService";
 
 export default function App() {
-  let [selectedView, setSelectedView] = useState('agents')
+  const [selectedView, setSelectedView] = useState('agents');
+  const [userName, setUserName] = useState("");
+  const [selectedProject, setSelectedProject] = useState(null);
+  const organizationId = 1;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      getOrganization()
+        .then((response) => {
+
+        })
+        .catch((error) => {
+          console.error('Error adding organization:', error);
+        });
+
+      const userData =  {
+        "name" : "SuperAGI User",
+        "email" : "super6@agi.com",
+        "password" : "pass@123",
+        "organisation" : organizationId
+      }
+
+      addUser(userData)
+        .then((response) => {
+          setUserName(response.data.name);
+        })
+        .catch((error) => {
+          console.error('Error adding user:', error);
+        });
+
+      getProject(organizationId)
+        .then((response) => {
+          const name = response.data.name;
+          setSelectedProject(name);
+        })
+        .catch((error) => {
+          console.error('Error fetching project:', error);
+        });
+    }
+  }, [organizationId]);
 
   const sideBarStyle = {
     height: '100vh',
@@ -40,7 +80,7 @@ export default function App() {
   }
 
   const handleSelectionEvent = (data) => {
-    setSelectedView(data)
+    setSelectedView(data);
   };
 
   return (
@@ -55,7 +95,7 @@ export default function App() {
         </div>
         <div style={workSpaceStyle}>
           <div style={topBarStyle}>
-            <TopBar/>
+            <TopBar userName={userName} selectedProject={selectedProject}/>
           </div>
           <div style={contentStyle}>
             <Content selectedView={selectedView}/>
