@@ -112,9 +112,9 @@ class AgentPromptBuilder:
       "thinking about similar events will help you remember."
     )
     prompt_builder.add_constraint("No user assistance")
-    prompt_builder.add_constraint(
-      'Exclusively use the commands listed in double quotes e.g. "command name"'
-    )
+    # prompt_builder.add_constraint(
+    #   'Exclusively use the commands listed in double quotes e.g. "command name"'
+    # )
 
     # Add tools to the PromptGenerator object
     for tool in tools:
@@ -150,7 +150,7 @@ class AgentPromptBuilder:
                 "criticism": "constructive self-criticism",
                 "speak": "thoughts summary to say to user",
             },
-            "command": {"name": "command name", "args": {"arg name": "value"}},
+            "command": {"name": "command name/task name", "description": "command or task description", "args": {"arg name": "value"}},
         }
     formatted_response_format = json.dumps(response_format, indent=4)
     prompt_builder.set_response_format(formatted_response_format)

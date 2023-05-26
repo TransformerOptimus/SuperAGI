@@ -82,7 +82,7 @@ class SuperAgi:
                 return
             # print(self.tools)
             autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
-            autogpt_prompt_to_print = AgentPromptToPrintBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
+            # autogpt_prompt_to_print = AgentPromptToPrintBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools)
             # generated_prompt = self.get_analytics_insight_prompt(analytics_string)
             messages = [{"role": "system", "content": autogpt_prompt},
                        {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
@@ -92,8 +92,11 @@ class SuperAgi:
                 messages.append({"role": history.type, "content": history.content})
 
             # print(autogpt_prompt)
-            print(autogpt_prompt_to_print)
+            # print(autogpt_prompt_to_print)
             # Discontinue if continuous limit is reached
+            print("----------------------------------")
+            print(messages)
+            print("----------------------------------")
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             token_limit = TokenCounter.token_limit(self.llm.get_model())
 
@@ -131,6 +134,7 @@ class SuperAgi:
             # print(assistant_reply)
             action = self.output_parser.parse(assistant_reply)
             tools = {t.name: t for t in self.tools}
+            print("Action: ", action)
 
             if action.name == FINISH:
                 print(format_prefix_green + "\nTask Finished :) \n" + format_suffix_green)
