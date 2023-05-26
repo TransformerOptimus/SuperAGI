@@ -20,7 +20,7 @@ class ReadFileTool(BaseTool):
     description: str = "Reads the file content in a specified location"
 
     def _execute(self, file_name: str):
-        root_dir = get_config('RESOURCES_ROOT_DIR')
+        root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
         final_path = file_name
         if root_dir is not None:
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"

@@ -1,8 +1,14 @@
 .idea
 **/.env
+**/.venv
 config.yaml
-__pycache__
 superagi/models/__pycache__
 superagi/controllers/__pycache__
+<<<<<<< HEAD
 __pycache__/
 chromadb_data/
+=======
+venv
+__pycache__/
+chromadb_data/
+>>>>>>> f2cc7d07004bc0cc7a56d5d400b08e6ac2c41b84

@@ -2,9 +2,13 @@ from superagi.agent.super_agi import SuperAgi
 from superagi.llms.openai import OpenAi
 from superagi.tools.base_tool import FunctionalTool
 from superagi.tools.file.write_file import WriteFileTool
+from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.google_search.tools import GoogleSearchSchema, GoogleSearchTool
 from superagi.tools.google_serp_search.tools import GoogleSerpTool
 from superagi.tools.twitter.send_tweet import SendTweetTool
+from superagi.tools.email.read_email import ReadEmailTool
+from superagi.tools.email.send_email import SendEmailTool
+from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 
@@ -24,6 +28,10 @@ def create_campaign(campaign_name: str):
 tools = [
     GoogleSearchTool(),
     WriteFileTool(),
+    ReadFileTool(),
+    ReadEmailTool(),
+    SendEmailTool(),
+    SendEmailAttachmentTool()
     # GoogleSerpTool()
 ]
 
