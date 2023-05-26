@@ -160,7 +160,6 @@ class SuperAgi:
             print(format_prefix_yellow + "Tool Response : " + format_suffix_yellow + result + "\n")
             #self.memory.add_documents([Document(text_content=assistant_reply)])
             self.full_message_history.append(SystemMessage(content=result))
-            # print(self.full_message_history)
             
             print(format_prefix_green + "Interation completed moving to next iteration!" + format_suffix_green)
         pass
