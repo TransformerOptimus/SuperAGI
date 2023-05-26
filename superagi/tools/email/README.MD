@@ -22,10 +22,10 @@ The robust SuperAGI Email Tool lets users send and read emails while providing a
 
 ## ⚙️ Installation
 
-- 🛠 **Setting Up of SuperAGI**
+### 🛠 **Setting Up of SuperAGI**
 Set up the SuperAGI by following the instructions given (https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
 
-- 🔧 **Add Email configuration settings in config.yaml**
+### 🔧 **Add Email configuration settings in config.yaml**
 Add the following configuration settings in the file:
 
 1. _Email address and password:_
