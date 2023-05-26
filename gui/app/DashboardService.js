@@ -10,6 +10,6 @@ export const addUser = (userData) => {
   return axios.post(`${API_BASE_URL}/users/add`, userData);
 };
 
-export const getProject = (organizationId) => {
-  return axios.get(`${API_BASE_URL}/projects/get/${organizationId}`);
+export const getProject = (organisationId) => {
+  return axios.get(`${API_BASE_URL}/projects/get/organisation/${organisationId}`);
 };

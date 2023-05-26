@@ -11,7 +11,8 @@ export default function App() {
   const [selectedView, setSelectedView] = useState('agents');
   const [userName, setUserName] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
-  const organizationId = 1;
+  const [projects, setProjects] = useState(null);
+  const organisationId = 1;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -27,7 +28,7 @@ export default function App() {
         "name" : "SuperAGI User",
         "email" : "super6@agi.com",
         "password" : "pass@123",
-        "organisation" : organizationId
+        "organisation" : organisationId
       }
 
       addUser(userData)
@@ -38,16 +39,16 @@ export default function App() {
           console.error('Error adding user:', error);
         });
 
-      getProject(organizationId)
+      getProject(organisationId)
         .then((response) => {
-          const name = response.data.name;
-          setSelectedProject(name);
+          setProjects(response.data);
+          setSelectedProject(response.data[0]);
         })
         .catch((error) => {
           console.error('Error fetching project:', error);
         });
     }
-  }, [organizationId]);
+  }, [organisationId]);
 
   const sideBarStyle = {
     height: '100vh',
@@ -95,7 +96,7 @@ export default function App() {
         </div>
         <div style={workSpaceStyle}>
           <div style={topBarStyle}>
-            <TopBar userName={userName} selectedProject={selectedProject}/>
+            <TopBar userName={userName} selectedProject={selectedProject} projects={projects}/>
           </div>
           <div style={contentStyle}>
             <Content selectedView={selectedView}/>

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
 
-export default function TopBar({userName, selectedProject}) {
+export default function TopBar({userName, selectedProject, projects}) {
   const settingsTab = () => {
     EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
   }
@@ -11,10 +11,10 @@ export default function TopBar({userName, selectedProject}) {
   return (
     <div className={styles.top_bar}>
       <div className={styles.top_left}>
-        <div className={styles.top_bar_section} style={{border: '1px solid rgba(255, 255, 255, 0.14)',cursor:'default',width:'140px'}}>
+        <div className={styles.top_bar_section} style={{border: '1px solid rgba(255, 255, 255, 0.14)',width:'140px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
             <div style={{marginTop:'-1px'}}><Image width={14} height={14} src="/images/project.png" alt="project-icon"/></div>
-            <div className={styles.top_bar_font}><p>{selectedProject}</p></div>
+            <div className={styles.top_bar_font}><p>{selectedProject?.name || ''}</p></div>
           </div>
           <div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.png" alt="dropdown-icon"/></div>
         </div>
@@ -30,7 +30,7 @@ export default function TopBar({userName, selectedProject}) {
       <div className={styles.top_right}>
         {/*<div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.png" alt="dropdown-icon"/></div>*/}
         {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.png" alt="dropdown-icon"/></div>*/}
-        <div className={styles.top_bar_font}><p>{userName}</p></div>
+        <div className={styles.top_bar_font} style={{marginRight:'5px'}}><p>{userName}</p></div>
         <div className={styles.top_right_icon}><Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/></div>
       </div>
     </div>
