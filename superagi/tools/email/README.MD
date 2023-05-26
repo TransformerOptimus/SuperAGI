@@ -20,3 +20,48 @@ The robust SuperAGI Email Tool lets users send and read emails while providing a
 
 - 🎯 **Auto-Reply and Answer Questions:** Allow SuperAGI to read, analyse, and respond to incoming emails with precise answers to streamline your email responses.
 
+## ⚙️ Installation
+
+- 🛠 **Setting Up of SuperAGI**
+Set up the SuperAGI by following the instructions given (https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
+
+- 🔧 **Add Email configuration settings in config.yaml**
+Add the following configuration settings in the file:
+
+1. _Email address and password:_
+ - Set 'EMAIL_ADDRESS' to sender's email address
+ - Set 'EMAIL_PASSWORD' to your Password. If using Gmail, use App Password (Follow the steps given below to obtain your app password.)
+ 
+2. _Provider-specific settings:_
+ - If not using Gmail, modify 'EMAIL_SMTP_HOST', 'EMAIL_SMTP_PORT', AND 'EMAIL_IMAP_HOST' according to your email service provider.
+
+3. _Optional Settings:_
+ - Change the 'EMAIL_SIGNATURE' to your personalise signature.
+ - Add the draft folder for your email service provider to prevent it from being sent and instead save it in drafts.
+ - Add the path of the directory from where you want to attach files in 'EMAIL_ATTACHMENT_BASE_PATH'.
+
+## Obtain your App Password
+
+To obtain App password for your Gmail Account follow the steps:
+
+- Navigate to the link (https://myaccount.google.com/apppasswords)
+
+- To get the App Password ensure that you have set up 2-Step Verification for your email address.
+
+- Generate the password by creating a custom app
+
+- Copy the password generated and use it for 'EMAIL_PASSWORD'
+
+## Running SuperAGI Email Tool
+
+1. **Read an email**
+
+By deafult SuperAGI's email tool reads last 10 emails from your inbox, to change the limit you can modify the default limit in read_email.py 
+
+2. **Send an email**
+
+To send an email to a particular receiver, mention the receiver id in your goal. Email will be stored in drafts if in case receiver's email address is not mentioned.
+
+3. **Send an email with attachment**
+
+To attach a file with your email from local device, add the path of the directory to config.yaml else you can also mention the full path of the file in the goal.
