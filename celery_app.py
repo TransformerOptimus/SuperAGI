@@ -16,7 +16,10 @@ def test_fucntion(agent_execution:AgentExecution):
     while c<1000:
         c = c+1
     print("Done!")
-    run_superagi_job(agent_execution=agent_execution)
+
+    res=run_superagi_job(agent_execution=agent_execution)
+    print("Result!")
+    print(res)
     print("Everything Done!")
 
 

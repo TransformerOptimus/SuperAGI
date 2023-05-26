@@ -19,8 +19,11 @@ import json
 from halo import Halo
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import desc,asc
+
 
 
 from typing import Any
@@ -101,6 +104,28 @@ class SuperAgi:
         )
         iteration = 10
         i = 0
+        memory_window = session.query(AgentConfiguration).filter(
+                            AgentConfiguration.key == "memory_window",
+                            AgentConfiguration.agent_id == self.agent_config["agent_id"]
+                        ).order_by(desc(AgentConfiguration.updated_at)).first().value
+        
+        # print("Memory Window : ",memory_window)
+
+        # print("Execution Id")
+        # print(self.agent_config["agent_execution_id"])
+        query = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed)\
+                .filter(AgentExecutionFeed.agent_execution_id == self.agent_config["agent_execution_id"])\
+                .order_by(asc(AgentExecutionFeed.created_at))\
+                .limit(memory_window)\
+                .all()
+    
+    
+        # Format the query result as a list of dictionaries
+        history = [{'role': role, 'content': feed} for role, feed in query]
+        # print("history")
+        # print(history)
+
+
         while True and checkExecution(execution_id=self.agent_config["agent_execution_id"]):
             # if checkExecution(execution_id=self.agent_config["agent_execution_id"]) == False:
             #     break
