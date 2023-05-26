@@ -1,10 +1,10 @@
-import json
 import os
 import re
-import email
 from email.header import decode_header
-from email.message import EmailMessage
+
 from bs4 import BeautifulSoup
+
+
 class ReadEmail:
     def clean_email_body(self, email_body):
         if email_body is None: email_body = ""
@@ -16,8 +16,10 @@ class ReadEmail:
         email_body = email_body.decode("utf-8", "ignore")
         email_body = re.sub(r"http\S+", "", email_body)
         return email_body
-    def clean(self,text):
+
+    def clean(self, text):
         return "".join(c if c.isalnum() else "_" for c in text)
+
     def obtain_header(self, msg):
         if msg["Subject"] is not None:
             Subject, encoding = decode_header(msg["Subject"])[0]
@@ -36,6 +38,7 @@ class ReadEmail:
         To = msg["To"]
         Date = msg["Date"]
         return From, To, Date, Subject
+
     def download_attachment(self, part, subject):
         filename = part.get_filename()
         if filename:
@@ -44,10 +47,3 @@ class ReadEmail:
                 os.mkdir(folder_name)
                 filepath = os.path.join(folder_name, filename)
                 open(filepath, "wb").write(part.get_payload(decode=True))
-
-
-
-
-
-
-
