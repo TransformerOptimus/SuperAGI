@@ -91,6 +91,7 @@ class AgentPromptBuilder:
     prompt_builder.set_ai_name(ai_name)
     prompt_builder.set_ai_role(ai_role)
     base_prompt = (
+      "Don't write any greet message instead directly jump to the respose format as your first response and write the goal as the first text thought"
       "Your decisions must always be made independently "
       "without seeking user assistance.\n"
       "Play to your strengths as an LLM and pursue simple "
@@ -114,6 +115,7 @@ class AgentPromptBuilder:
     prompt_builder.add_constraint("No user assistance")
     prompt_builder.add_constraint(
       'Exclusively use the commands listed in double quotes e.g. "command name"'
+      "If you can't find a tool, use your own knowledge"
     )
 
     # Add tools to the PromptGenerator object
@@ -138,20 +140,21 @@ class AgentPromptBuilder:
       "Reflect on past decisions and strategies to refine your approach.",
       "Every command has a cost, so be smart and efficient. "
       "Aim to complete tasks in the least number of steps.",
+      "As soon as you write the result in file, finish the task"
     ]
     for evaluation in evaluations:
       prompt_builder.add_evaluation(evaluation)
 
     response_format = {
-            "thoughts": {
-                "text": "thought",
-                "reasoning": "reasoning",
-                "plan": "- short bulleted\n- list that conveys\n- long-term plan",
-                "criticism": "constructive self-criticism",
-                "speak": "thoughts summary to say to user",
-            },
-            "command": {"name": "command name", "args": {"arg name": "value"}},
-        }
+                "thoughts": {
+                    "text": "thought",
+                    "reasoning": "reasoning",
+                    "plan": "- short bulleted\n- list that conveys\n- long-term plan",
+                    "criticism": "constructive self-criticism",
+                    "speak": "thoughts summary to say to user",
+                },
+                "command": {"name": "command name", "args": {"arg name": "value"}},
+            }
     formatted_response_format = json.dumps(response_format, indent=4)
     prompt_builder.set_response_format(formatted_response_format)
     # Generate the prompt string
