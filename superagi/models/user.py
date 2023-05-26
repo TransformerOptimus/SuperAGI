@@ -9,7 +9,8 @@ class User(DBBaseModel):
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
+    organisation = Column(Integer)
 
 
     def __repr__(self):
-        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}')"
+        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}', organisation={self.organisation})"

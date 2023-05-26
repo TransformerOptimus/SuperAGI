@@ -18,6 +18,7 @@ from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.tool import router as tool_router
 
 
 from sqlalchemy import create_engine
@@ -44,6 +45,7 @@ DBBaseModel.metadata.create_all(bind=engine,checkfirst=True)
 
 
 app.include_router(user_router, prefix="/users")
+app.include_router(tool_router,prefix="/tools")
 app.include_router(organisation_router, prefix="/organisations")
 app.include_router(project_router, prefix="/projects")
 app.include_router(budget_router, prefix="/budgets")
