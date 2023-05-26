@@ -139,7 +139,7 @@ export default function ToolList({sendToolData}) {
             <p className={styles1.title_text}>Tools</p>
           </div>
           <div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'3px'}}>
-            <button style={{width:'100%'}} className={styles1.agent_button} onClick={() => sendToolData({ id: -2, name: 'stock parser', publisher: '', description: '', type: 'custom', icon: '/images/custom_tool.svg', tags: [], isVerified: false, contentType: 'Create_Tool' })}>
+            <button style={{width:'100%'}} className={styles1.agent_button} onClick={() => sendToolData({ id: -2, name: 'new tool', contentType: 'Create_Tool' })}>
               + Add Tool
             </button>
           </div>

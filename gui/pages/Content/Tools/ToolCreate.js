@@ -9,7 +9,7 @@ export default function ToolCreate({tool}) {
   const goalsArray = [{ paramater: '', argument: '' }];
   const [goals, setGoals] = useState(goalsArray);
   const [toolName, setToolName] = useState(tool.name);
-  const [toolDescription, setToolDescription,] = useState(tool.description,);
+  const [toolDescription, setToolDescription,] = useState("");
   const [toolClass, setToolClass,] = useState('');
   const [code, setCode] = useState('');
   const argumentArray = ['Integer', 'String', 'Float']
