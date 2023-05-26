@@ -8,10 +8,30 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
+import { getAgents, deleteAgent } from "@/app/DashboardService";
 
-export default function Content({selectedView}) {
+export default function Content({selectedView, selectedProjectId}) {
   const [tabs, setTabs] = useState([])
   const [selectedTab, setSelectedTab] = useState(null)
+  const [allAgents, setAgents] = useState(null);
+
+  function fetchAgents() {
+    getAgents(selectedProjectId)
+      .then((response) => {
+        const data = response.data || [];
+        const updatedData = data.map(item => {
+          return { ...item, contentType: "Agents" };
+        });
+        setAgents(updatedData);
+      })
+      .catch((error) => {
+        console.error('Error fetching agents:', error);
+      });
+  }
+
+  useEffect(() => {
+    fetchAgents();
+  }, [selectedProjectId])
 
   const closeTab = (tabId) => {
     const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
@@ -50,10 +70,22 @@ export default function Content({selectedView}) {
     };
   });
 
+  const handleDeleteAgent = (agentId) => {
+    deleteAgent(agentId)
+      .then(() => {
+        // Remove the deleted agent from the agents list
+        const updatedAgents = allAgents.filter((agent) => agent.id !== agentId);
+        setAgents(updatedAgents);
+      })
+      .catch((error) => {
+        console.error('Error deleting agent:', error);
+      });
+  };
+
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
-        {selectedView === 'agents' && <Agents sendAgentData={addTab}/>}
+        {selectedView === 'agents' && <Agents sendAgentData={addTab} allAgents={allAgents}/>}
         {selectedView === 'tools' && <Tools sendToolData={addTab}/>}
       </div>
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -89,7 +121,7 @@ export default function Content({selectedView}) {
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate/>
+                        <AgentCreate selectedProjectId={selectedProjectId} fetchAgents={fetchAgents}/>
                       </div>
                       <div className="col-3"></div>
                     </div>

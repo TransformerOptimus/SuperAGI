@@ -13,3 +13,15 @@ export const addUser = (userData) => {
 export const getProject = (organisationId) => {
   return axios.get(`${API_BASE_URL}/projects/get/organisation/${organisationId}`);
 };
+
+export const getAgents = (projectId) => {
+  return axios.get(`${API_BASE_URL}/agents/get/project/${projectId}`);
+};
+
+export const createAgent = (agentData) => {
+  return axios.post(`${API_BASE_URL}/agents/create`, agentData);
+};
+
+export const deleteAgent = (agentId) => {
+  return axios.delete(`${API_BASE_URL}/agents/delete/${agentId}`);
+};

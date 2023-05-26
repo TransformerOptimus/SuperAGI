@@ -13,7 +13,7 @@ export default function ActivityFeed({feeds, is_running}) {
     const interval = setInterval(() => {
       dots = dots.length < 3 ? dots + '.' : '';
       setLoadingText(`${text}${dots}`);
-    }, 500);
+    }, 250);
 
     return () => clearInterval(interval);
   }, []);

@@ -85,6 +85,14 @@
     text-overflow: ellipsis;
 }
 
+.text_block {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .form_label {
     font-size: 13px;
     margin-bottom: 4px;

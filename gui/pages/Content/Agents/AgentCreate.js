@@ -3,8 +3,9 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
+import { createAgent } from "@/app/DashboardService";
 
-export default function AgentCreate() {
+export default function AgentCreate({selectedProjectId, fetchAgents}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -188,7 +189,11 @@ export default function AgentCreate() {
     setBasePrompt(event.target.value);
   };
 
-  const handleCreateClick = () => {
+  const preventDefault = (e) => {
+    e.stopPropagation();
+  };
+
+  const handleAddAgent = () => {
     if (agentName.replace(/\s/g, '') === '') {
       toast.dark("Agent name can't be blank", {autoClose: 1800});
       return
@@ -209,11 +214,30 @@ export default function AgentCreate() {
       return
     }
 
-    toast.dark('Agent created successfully', {autoClose: 1800});
-  };
+    const agentData = {
+      "name": agentName,
+      "project_id": selectedProjectId,
+      "description": agentDescription,
+      "goal": goals,
+      "agent_type": agentType,
+      "constraints": constraints,
+      "tools": [1],
+      "exit": exitCriterion,
+      "iteration_interval": stepTime,
+      "model": model,
+      "permission_type": permission,
+      "LTM_DB": database,
+      "memory_window": rollingWindow
+    };
 
-  const preventDefault = (e) => {
-    e.stopPropagation();
+    createAgent(agentData)
+      .then((response) => {
+        fetchAgents();
+        toast.dark('Agent created successfully', {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error creating agent:', error);
+      });
   };
 
   return (<>
@@ -399,7 +423,7 @@ export default function AgentCreate() {
               </div>
             }
             <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-              <button className={styles.agent_button} onClick={handleCreateClick}>Add agent</button>
+              <button className={styles.agent_button} onClick={handleAddAgent}>Add agent</button>
             </div>
           </div>
         </div>

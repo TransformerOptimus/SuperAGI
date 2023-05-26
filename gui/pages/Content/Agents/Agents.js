@@ -5,7 +5,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { EventBus } from "@/utils/eventBus";
 
-export default function Agents({sendAgentData}) {
+export default function Agents({sendAgentData, allAgents}) {
   const agentArray = [{
     id: 0,
     project_id: 1,
@@ -290,11 +290,11 @@ export default function Agents({sendAgentData}) {
           </button>
         </div>
         <div className={styles.wrapper}>
-          {agents.map((agent, index) => (
+          {allAgents && allAgents.map((agent, index) => (
             <div key={index}>
               <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
                 {agent.state === 'RUNNING' && <div className={styles.agent_active}><Image width={8} height={8} src="/images/active_icon.png" alt="active-icon"/></div>}
-                <div><span className={styles.agent_text}>{agent.name}</span></div>
+                <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>
               </div>
             </div>
           ))}
