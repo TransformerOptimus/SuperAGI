@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from './Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { EventBus } from "../../eventBus";
+import { EventBus } from "@/utils/eventBus";
 
 export default function Agents({sendAgentData}) {
   const agentArray = [{

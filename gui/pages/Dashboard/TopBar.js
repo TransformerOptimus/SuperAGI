@@ -1,8 +1,13 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
+import { EventBus } from "@/utils/eventBus";
 
 export default function TopBar() {
+  const settingsTab = () => {
+    EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
+  }
+
   return (
     <div className={styles.top_bar}>
       <div className={styles.top_left}>
@@ -15,13 +20,13 @@ export default function TopBar() {
         <div className={styles.top_bar_section} style={{marginLeft:'10px'}}>
           <div style={{marginTop:'-2px'}}><Image width={14} height={14} src="/images/widgets.png" alt="widgets-icon"/></div>
           <div className={styles.top_bar_font}><p>Marketplace (coming soon)</p></div>
-          {/*<div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.png" alt="dropdown-icon"/></div>*/}
+          <div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.png" alt="dropdown-icon"/></div>
         </div>
       </div>
 
 
       <div className={styles.top_right}>
-        <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.png" alt="dropdown-icon"/></div>
+        <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.png" alt="dropdown-icon"/></div>
         {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.png" alt="dropdown-icon"/></div>*/}
         {/*<div className={styles.top_right_icon}><Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/></div>*/}
       </div>

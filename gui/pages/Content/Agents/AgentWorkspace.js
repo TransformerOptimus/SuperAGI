@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import { EventBus } from "../../eventBus";
+import { EventBus } from "@/utils/eventBus";
 
 export default function AgentWorkspace({agent}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')

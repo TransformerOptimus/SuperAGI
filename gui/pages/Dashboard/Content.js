@@ -1,11 +1,13 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
+import Settings from "./Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
+import { EventBus } from "@/utils/eventBus";
 
 export default function Content({selectedView}) {
   const [tabs, setTabs] = useState([])
@@ -29,12 +31,24 @@ export default function Content({selectedView}) {
   };
 
   const addTab = (element) => {
-    if (!tabs.includes(element)) {
+    if (!tabs.some(item => item.id === element.id)) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
     }
     setSelectedTab(element.id);
   };
+
+  useEffect(() => {
+    const settingsTab = (eventData) => {
+      addTab(eventData);
+    };
+
+    EventBus.on('settingsTab', settingsTab);
+
+    return () => {
+      EventBus.off('settingsTab', settingsTab);
+    };
+  });
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
@@ -55,7 +69,8 @@ export default function Content({selectedView}) {
               <div key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
                 <div style={{display:'flex', order:'0'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
-                  {tab.contentType === 'Tools' || tab.contentType === 'Create_Tool' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
+                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
+                  {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.png" alt="settings-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
                 <div onClick={() => closeTab(tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
@@ -69,6 +84,7 @@ export default function Content({selectedView}) {
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agent={tab}/>}
+                  {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <div className="row">
                       <div className="col-3"></div>
