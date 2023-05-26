@@ -33,17 +33,14 @@ export default function AgentCreate() {
   const exitRef = useRef(null);
   const [exitDropdown, setExitDropdown] = useState(false);
 
-  const stepTimes = ["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"]
-  const [stepTime, setStepTime] = useState(stepTimes[0]);
-  const stepRef = useRef(null);
-  const [stepDropdown, setStepDropdown] = useState(false);
+  const [stepTime, setStepTime] = useState(500);
 
-  const rollingWindows = ["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"]
+  const rollingWindows = ["5", "10", "15", "20"]
   const [rollingWindow, setRollingWindow] = useState(rollingWindows[0]);
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
-  const databases = ["Pinecone", "Milvus", "Zilliz"]
+  const databases = ["Pinecone"]
   const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
@@ -70,10 +67,6 @@ export default function AgentCreate() {
 
       if (exitRef.current && !exitRef.current.contains(event.target)) {
         setExitDropdown(false)
-      }
-
-      if (stepRef.current && !stepRef.current.contains(event.target)) {
-        setStepDropdown(false)
       }
 
       if (rollingRef.current && !rollingRef.current.contains(event.target)) {
@@ -128,9 +121,8 @@ export default function AgentCreate() {
     setRollingDropdown(false);
   };
 
-  const handleStepSelect = (index) => {
-    setStepTime(stepTimes[index]);
-    setStepDropdown(false);
+  const handleStepChange = (event) => {
+    setStepTime(event.target.value)
   };
 
   const handleExitSelect = (index) => {
@@ -348,19 +340,8 @@ export default function AgentCreate() {
                 {/*  </div>*/}
                 {/*</div>*/}
                 <div style={{marginTop: '15px'}}>
-                  <label className={styles.form_label}>Time between steps</label>
-                  <div className="dropdown_container_search" style={{width:'100%'}}>
-                    <div className="custom_select_container" onClick={() => setStepDropdown(!stepDropdown)} style={{width:'100%'}}>
-                      {stepTime}<Image width={20} height={21} src={!stepDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
-                    </div>
-                    <div>
-                      {stepDropdown && <div className="custom_select_options" ref={stepRef} style={{width:'100%'}}>
-                        {stepTimes.map((step, index) => (<div key={index} className="custom_select_option" onClick={() => handleStepSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                          {step}
-                        </div>))}
-                      </div>}
-                    </div>
-                  </div>
+                  <label className={styles.form_label}>Time between steps (in milliseconds)</label>
+                  <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
                 </div>
                 <div style={{marginTop: '15px'}}>
                   <label className={styles.form_label}>Short term memory - Rolling window</label>

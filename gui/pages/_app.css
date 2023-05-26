@@ -3,6 +3,16 @@
     text-rendering: optimizelegibility !important;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
 input[type=checkbox] {
     height: 17px !important;
     width: 17px !important;;
