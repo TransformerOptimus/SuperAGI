@@ -56,6 +56,11 @@ To obtain App password for your Gmail Account follow the steps:
 
 - Copy the password generated and use it for 'EMAIL_PASSWORD'
 
+- Also make sure IMAP Access is enabled for your Gmail Address (Settings > See all settings > Forwarding and POP/IMAP > Enable IMAP)
+
+![imap_enable](https://github.com/TransformerOptimus/SuperAGI/assets/97586318/50ef3e0c-c2ff-4848-aba7-8a6bd4a800ab)
+
+
 ## Running SuperAGI Email Tool
 
 1. **Read an email**
