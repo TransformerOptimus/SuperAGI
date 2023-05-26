@@ -4,7 +4,7 @@ import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
-import Settings from "./Settings";
+import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
