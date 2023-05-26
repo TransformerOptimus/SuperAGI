@@ -46,9 +46,13 @@ To obtain App password for your Gmail Account follow the steps:
 
 - Navigate to the link (https://myaccount.google.com/apppasswords)
 
+![app_password](https://github.com/TransformerOptimus/SuperAGI/assets/97586318/ec1e6222-e5d4-4b88-a69c-1fd5774ae0ea)
+
 - To get the App Password ensure that you have set up 2-Step Verification for your email address.
 
 - Generate the password by creating a custom app
+ 
+![password](https://github.com/TransformerOptimus/SuperAGI/assets/97586318/32219756-8715-4f5a-bb1c-0b2cae4e73a3)
 
 - Copy the password generated and use it for 'EMAIL_PASSWORD'
 
