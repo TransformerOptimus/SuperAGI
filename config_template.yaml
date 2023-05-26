@@ -15,7 +15,7 @@ RESOURCES_ROOT_DIR: /tmp/
 
 #ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
 EMAIL_ADDRESS: YOUR_EMAIL_ADDRESS
-EMAIL_PASSWORD: YOUR_EMAIL_PASSWORD
+EMAIL_PASSWORD: YOUR_EMAIL_APP_PASSWORD #get the app password from (https://myaccount.google.com/apppasswords)
 EMAIL_SMTP_HOST: smtp.gmail.com #Change the SMTP host if not using Gmail
 EMAIL_SMTP_PORT: 587 #Change the SMTP port if not using Gmail
 EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
