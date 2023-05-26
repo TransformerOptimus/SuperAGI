@@ -5,10 +5,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 
-export default function ToolCreate({tool}) {
+export default function ToolCreate() {
   const goalsArray = [{ paramater: '', argument: '' }];
   const [goals, setGoals] = useState(goalsArray);
-  const [toolName, setToolName] = useState(tool.name);
+  const [toolName, setToolName] = useState("");
   const [toolDescription, setToolDescription,] = useState("");
   const [toolClass, setToolClass,] = useState('');
   const [code, setCode] = useState('');

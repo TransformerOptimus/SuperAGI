@@ -89,7 +89,7 @@ export default function Content({selectedView}) {
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate agent={tab}/>
+                        <AgentCreate/>
                       </div>
                       <div className="col-3"></div>
                     </div>
@@ -98,7 +98,7 @@ export default function Content({selectedView}) {
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <ToolCreate tool={tab}/>
+                        <ToolCreate/>
                       </div>
                       <div className="col-3"></div>
                     </div>

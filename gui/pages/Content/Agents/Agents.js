@@ -14,7 +14,7 @@ export default function Agents({sendAgentData}) {
     tools: ['gmail', 'powerpoint', 'jira', 'confluence', 'openai', 'canva'],
     goal: ['goal 1', 'goal 2', 'goal 3', 'goal 4', 'goal 5', 'goal 6'],
     constraints: ['constraint 1', 'constraint 2'],
-    agent_type: "Don't Maintain Task Queue",
+    agent_type: "Maintain Task Queue",
     model: 'Open AI - 3.5',
     permission_type: 'No autonomous (Ask permission_type for every action)',
     state: "RUNNING",

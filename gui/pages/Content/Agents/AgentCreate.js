@@ -4,9 +4,9 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 
-export default function AgentCreate({agent}) {
+export default function AgentCreate() {
   const [advancedOptions, setAdvancedOptions] = useState(false);
-  const [agentName, setAgentName] = useState(agent.name);
+  const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
   const [selfEvaluation, setSelfEvaluation] = useState('');
   const [basePrompt, setBasePrompt] = useState('');

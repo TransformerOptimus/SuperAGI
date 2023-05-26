@@ -43,10 +43,6 @@ export default function App() {
     setSelectedView(data)
   };
 
-  const createSettingsTab = () => {
-
-  }
-
   return (
     <div className="app">
       <Head>
