@@ -75,6 +75,8 @@ To send an email to a particular receiver, mention the receiver id in your goal.
 
 3. **Send an email with attachment**
 
+![goal](https://github.com/TransformerOptimus/SuperAGI/assets/97586318/1756453a-4441-4fda-afd7-aba5b2360219)
+
 To attach a file with your email from local device, add the path of the directory to config.yaml else you can also mention the full path of the file in the goal.
 
 ![attachment](https://github.com/TransformerOptimus/SuperAGI/assets/97586318/de112910-a623-469d-a0db-99063fb8572e)
