@@ -95,8 +95,7 @@ class AgentPromptBuilder:
       "without seeking user assistance.\n"
       "Play to your strengths as an LLM and pursue simple "
       "strategies with no legal complications.\n"
-      "If you have completed all your tasks, make sure to "
-      'use the "finish" command.\n'
+      'use the "finish" command. Validate goal is achieved before using "finish" command.\n'
     )
     prompt_builder.set_base_prompt(base_prompt)
 
@@ -116,6 +115,7 @@ class AgentPromptBuilder:
     prompt_builder.add_constraint(
       'Exclusively use the commands listed in double quotes e.g. "command name"'
     )
+
 
     # Add tools to the PromptGenerator object
     for tool in tools:

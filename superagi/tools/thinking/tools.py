@@ -19,8 +19,7 @@ class LlmThinkingTool(BaseTool):
     llm: Optional[BaseLlm] = None
     name = "LlmThinkingTool"
     description = (
-        "A tool that interacts with any given LLM "
-        "to generate text given a certain task description."
+        "Tool enhances critical thinking and reasoning for diverse tasks, facilitating logical problem-solving in a streamlined manner"
     )
     args_schema: Type[LlmTaskSchema] = LlmTaskSchema
 
