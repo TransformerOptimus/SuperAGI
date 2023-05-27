@@ -29,8 +29,6 @@ class JiraTool(BaseTool):
         jira_api_token = get_config("JIRA_API_TOKEN")
         jira = JIRA(
             server=jira_instance_url,
-            username=jira_username,
-            password=jira_api_token,
-            cloud=True,
+            basic_auth=(jira_username, jira_api_token)
         )
         return jira

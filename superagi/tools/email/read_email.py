@@ -2,6 +2,7 @@ from typing import Type
 
 from pydantic import BaseModel, Field
 
+from superagi.helper.token_counter import TokenCounter
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from superagi.helper.imap_email import ImapEmail
@@ -57,6 +58,9 @@ class ReadEmailTool(BaseTool):
                         if content_type == "text/plain":
                             email_msg["Message Body"] = ReadEmail().clean_email_body(body)
             messages.append(email_msg)
+            if TokenCounter.count_text_tokens(json.dumps(messages)) > self.max_token_limit:
+                break
+
         conn.logout()
         if not messages:
             return f"There are no Email in your folder {imap_folder}"

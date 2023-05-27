@@ -2,6 +2,7 @@ from typing import Type, List
 from pydantic import BaseModel, Field
 
 from superagi.helper.google_search import GoogleSearchWrap
+from superagi.helper.token_counter import TokenCounter
 from superagi.tools.base_tool import BaseTool
 import os
 import json
@@ -40,5 +41,7 @@ class GoogleSearchTool(BaseTool):
         for webpage in webpages:
             results.append({"title": snippets[i], "body": webpage, "link": links[i]})
             i += 1
+            if TokenCounter.count_text_tokens(json.dumps(results)) > self.max_token_limit:
+                break
 
         return results

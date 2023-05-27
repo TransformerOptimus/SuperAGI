@@ -3,6 +3,8 @@
 # agent can run the task queue as well with long term memory
 from __future__ import annotations
 
+from typing import Tuple
+
 from pydantic import ValidationError
 from pydantic.types import List
 import time
@@ -71,6 +73,7 @@ class SuperAgi:
         )
         iteration = 10
         i = 0
+        token_limit = TokenCounter.token_limit(self.llm.get_model())
         while True:
             format_prefix_yellow = "\033[93m\033[1m"
             format_suffix_yellow = "\033[0m\033[0m"
@@ -87,9 +90,12 @@ class SuperAgi:
             messages = [{"role": "system", "content": autogpt_prompt},
                        {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
-            for history in self.full_message_history[-10:]:
-                # print(history.type + " : ", history.content)
+            base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            past_messages, current_messages = self.split_history(self.full_message_history,
+                                                                 token_limit - base_token_limit - 500)
+            for history in current_messages:
                 messages.append({"role": history.type, "content": history.content})
+            messages.append({"role": "user", "content": user_input})
 
             # print(autogpt_prompt)
             # print(autogpt_prompt_to_print)
@@ -98,7 +104,6 @@ class SuperAgi:
             print(messages)
             print("----------------------------------")
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-            token_limit = TokenCounter.token_limit(self.llm.get_model())
 
             # spinner = Spinners.dots12
             # spinner.start()
@@ -168,6 +173,17 @@ class SuperAgi:
             
             print(format_prefix_green + "Interation completed moving to next iteration!" + format_suffix_green)
         pass
+
+    def split_history(self, history: List[BaseMessage], pending_token_limit: int) -> Tuple[List[BaseMessage], List[BaseMessage]]:
+        hist_token_count = 0
+        i = len(history)
+        for message in reversed(history):
+            token_count = TokenCounter.count_message_tokens([{"role": message.type, "content": message.content}], self.llm.get_model())
+            hist_token_count += token_count
+            if hist_token_count > pending_token_limit:
+                return history[:i], history[i:]
+            i -= 1
+        return [], history
 
     def call_llm(self):
         pass

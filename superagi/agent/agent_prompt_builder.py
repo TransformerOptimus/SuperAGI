@@ -112,6 +112,7 @@ class AgentPromptBuilder:
       "thinking about similar events will help you remember."
     )
     prompt_builder.add_constraint("No user assistance")
+    prompt_builder.add_constraint("Ensure the command and args are as per current plan and reasoning.")
     # prompt_builder.add_constraint(
     #   'Exclusively use the commands listed in double quotes e.g. "command name"'
     # )
@@ -123,12 +124,12 @@ class AgentPromptBuilder:
     for goal in goals:
       prompt_builder.add_goal(goal)
 
-    resources = ["Internet access for searches and information gathering.",
-                 "Long Term memory management.",
-                 "GPT-3.5 powered Agents for delegation of simple tasks.",
-                 "File output."]
-    for resource in resources:
-      prompt_builder.add_resource(resource)
+    # resources = ["Internet access for searches and information gathering.",
+    #              "Long Term memory management.",
+    #              "GPT-3.5 powered Agents for delegation of simple tasks.",
+    #              "File output."]
+    # for resource in resources:
+    #   prompt_builder.add_resource(resource)
 
     # Add performance evaluations to the PromptGenerator object
     evaluations = [
