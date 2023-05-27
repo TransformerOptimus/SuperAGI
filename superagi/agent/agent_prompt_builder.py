@@ -113,9 +113,9 @@ class AgentPromptBuilder:
     )
     prompt_builder.add_constraint("No user assistance")
     prompt_builder.add_constraint("Ensure the command and args are as per current plan and reasoning.")
-    # prompt_builder.add_constraint(
-    #   'Exclusively use the commands listed in double quotes e.g. "command name"'
-    # )
+    prompt_builder.add_constraint(
+      'Exclusively use the commands listed in double quotes e.g. "command name"'
+    )
 
     # Add tools to the PromptGenerator object
     for tool in tools:
@@ -138,7 +138,7 @@ class AgentPromptBuilder:
       "Constructively self-criticize your big-picture behavior constantly.",
       "Reflect on past decisions and strategies to refine your approach.",
       "Every command has a cost, so be smart and efficient. "
-      "Aim to complete tasks in the least number of steps.",
+      "Aim to complete tasks in the least number of steps."
     ]
     for evaluation in evaluations:
       prompt_builder.add_evaluation(evaluation)
