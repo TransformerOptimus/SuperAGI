@@ -45,7 +45,7 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
                 <Image width={12} height={12} src="/images/schedule.png" alt="schedule-icon"/>
               </div>
               <div className={styles.history_info}>
-                {formatTime(run.last_execution_time)}m ago
+                {formatTime(run.last_execution_time)}
               </div>
             </div>
           </div>

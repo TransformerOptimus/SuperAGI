@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions} from "@/app/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution} from "@/app/DashboardService";
 
 export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
@@ -63,6 +63,18 @@ export default function AgentWorkspace({agentId}) {
     setRunModal(false);
   };
 
+  const updateRunStatus = (status) => {
+    const executionData = {"status": status};
+
+    updateExecution(selectedRun.id, executionData)
+      .then((response) => {
+        setSelectedRun(response.data);
+      })
+      .catch((error) => {
+        console.error('Error updating execution:', error);
+      });
+  };
+
   const preventDefault = (e) => {
     e.stopPropagation();
   };
@@ -109,6 +121,16 @@ export default function AgentWorkspace({agentId}) {
             </div>}
           </div>
           <div style={{display:'flex'}}>
+            {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginRight:'6px'}}>
+              <button className={styles.pause_button} onClick={() => {updateRunStatus("PAUSED")}}>
+                Pause Run
+              </button>
+            </div>}
+            {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <div style={{marginRight:'6px'}}>
+              <button style={{padding:'8px 10px'}} className={styles.run_button} onClick={() => {updateRunStatus("RUNNING")}}>
+                Run
+              </button>
+            </div>}
             <div>
               <button className={styles.run_button} onClick={() => setRunModal(true)}>
                 <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;New Run
@@ -117,7 +139,7 @@ export default function AgentWorkspace({agentId}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <ActivityFeed/>}
+          {leftPanel === 'activity_feed' && <ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/>}
           {leftPanel === 'agent_type' && <TaskQueue/>}
         </div>
       </div>

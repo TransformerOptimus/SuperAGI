@@ -131,7 +131,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate closeTab={() => closeTab(-1)} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
+                        <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                       </div>
                       <div className="col-3"></div>
                     </div>

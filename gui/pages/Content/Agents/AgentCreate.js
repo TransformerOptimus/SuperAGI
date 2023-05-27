@@ -6,7 +6,7 @@ import styles from './Agents.module.css';
 import { createAgent } from "@/app/DashboardService";
 import { EventBus } from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, closeTab, tools}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -241,7 +241,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     createAgent(agentData)
       .then((response) => {
         fetchAgents();
-        closeTab();
         sendAgentData({ id: response.data.id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id })
         toast.dark('Agent created successfully', {autoClose: 1800});
       })

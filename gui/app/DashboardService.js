@@ -30,6 +30,14 @@ export const getAgentExecutions = (agentId) => {
   return axios.get(`${API_BASE_URL}/agentexecutions/get/agent/${agentId}`);
 };
 
+export const getExecutionFeeds = (executionId) => {
+  return axios.get(`${API_BASE_URL}/agentexecutionfeeds/get/execution/${executionId}`);
+};
+
 export const createAgent = (agentData) => {
   return axios.post(`${API_BASE_URL}/agents/create`, agentData);
+};
+
+export const updateExecution = (executionId, executionData) => {
+  return axios.put(`${API_BASE_URL}/agentexecutions/update/${executionId}`, executionData);
 };
