@@ -7,7 +7,6 @@ anthropic==0.2.9
 anyio==3.6.2
 apache-beam==2.46.0
 appdirs==1.4.4
-apturl==0.5.2
 asttokens==2.2.1
 async-generator==1.10
 async-timeout==4.0.2

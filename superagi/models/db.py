@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from superagi.config.config import get_config
 
-db_username = get_config('DB_USERNAME')
-db_password = get_config('DB_PASSWORD')
-db_name = get_config('DB_NAME')
+db_username = get_config('POSTGRES_USER')
+db_password = get_config('POSTGRES_PASSWORD')
+db_name = get_config('POSTGRES_DB')
 
 engine = None
 
@@ -15,7 +15,7 @@ def connectDB():
         return engine 
 
     # Create the connection URL
-    db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'
+    db_url = f'postgresql://{db_username}:{db_password}@super__postgres/{db_name}'
 
     # Create the SQLAlchemy engine
     engine = create_engine(db_url)

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8001:8001"
+    depends_on:
+      - super__redis
+      - super__postgres
+    networks:
+      - super_network
+  
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile_celery
+    depends_on:
+      - super__redis
+      - super__postgres
+    networks:
+      - super_network
+
+  gui:
+    build: ./gui
+    ports:
+      - "3000:3000"
+    environment:
+      - API_BASE_URL=http://backend:8001
+    networks:
+      - super_network
+      
+  super__redis:
+    image: "redis:latest"
+    networks:
+      - super_network
+
+  super__postgres:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_USER=superagi
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=test
+    volumes:
+      - "./postgres-data:/var/lib/postgresql/data"
+    networks:
+      - super_network
+
+networks:
+  super_network:
+    driver: bridge

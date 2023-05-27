@@ -16,3 +16,4 @@ gui/node_modules
 gui/.next
 .DS_Store
 .DS_Store?
+postgres-data/

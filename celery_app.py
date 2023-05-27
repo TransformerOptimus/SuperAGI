@@ -6,7 +6,7 @@ from superagi.models.db import connectDB
 from sqlalchemy.orm import sessionmaker, query
 
 
-celery_app = Celery('tasks', broker='redis://localhost:6379')
+celery_app = Celery('tasks', broker='redis://super__redis:6379')
 
 celery_app.conf.worker_concurrency = 10
 
