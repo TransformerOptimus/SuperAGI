@@ -16,8 +16,8 @@ export default function Agents({sendAgentData, agents}) {
             + Create Agent
           </button>
         </div>
-        <div className={styles.wrapper}>
-          {agents && agents.map((agent, index) => (
+        {agents && agents.length > 0 ? <div className={styles.wrapper}>
+          {agents.map((agent, index) => (
             <div key={index}>
               <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
                 {agent.status === 'RUNNING' && <div className={styles.agent_active}><Image width={8} height={8} src="/images/active_icon.png" alt="active-icon"/></div>}
@@ -25,7 +25,11 @@ export default function Agents({sendAgentData, agents}) {
               </div>
             </div>
           ))}
-        </div>
+        </div> : <div style={{
+          marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }} className="form_label">
+          No Agents found
+        </div>}
       </div>
     <ToastContainer/>
   </>

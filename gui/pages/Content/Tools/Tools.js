@@ -59,7 +59,7 @@ export default function ToolList({sendToolData, tools, userName}) {
             </div> : <div style={{
               marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
             }} className="form_label">
-              No tools yet!
+              No Tools found
             </div>}
           </div>
         </div>
