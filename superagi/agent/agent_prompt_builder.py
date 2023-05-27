@@ -114,7 +114,10 @@ class AgentPromptBuilder:
     prompt_builder.add_constraint("No user assistance")
     prompt_builder.add_constraint("Ensure the command and args are as per current plan and reasoning.")
     prompt_builder.add_constraint(
-      'Exclusively use the commands listed in double quotes e.g. "command name"'
+      'Exclusively use the commands listed in double quotes e.g. "command name".'
+    )
+    prompt_builder.add_constraint(
+      'You should always try to use LlmThinkingTool first instead of directly jumping to google search'
     )
 
     # Add tools to the PromptGenerator object
