@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from superagi.config.config import get_config
 
-db_username = get_config('POSTGRES_USER')
-db_password = get_config('POSTGRES_PASSWORD')
-db_name = get_config('POSTGRES_DB')
+db_username = get_config('DB_USERNAME')
+db_password = get_config('DB_PASSWORD')
+db_name = get_config('DB_NAME')
 
 engine = None
 

@@ -34,10 +34,10 @@ import inspect
 
 app = FastAPI()
 
-db_username = get_config('POSTGRES_USER')
+
+db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
-
 
 db_url = f'postgresql://{db_username}:{db_password}@super__postgres/{db_name}'
 engine = create_engine(db_url)
