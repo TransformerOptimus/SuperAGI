@@ -21,13 +21,13 @@ export default function Details({agentDetails, runCount}) {
       <div>{agentDetails?.description || ''}</div>
       <div className={styles.separator}></div>
       <div style={{display:'flex',marginBottom:'5px',alignItems:'center',justifyContent:'flex-start',gap:'7.5%'}}>
-        <div>
-          <div className={styles.agent_info_box}>
-            <div><Image width={12} height={12} src="/images/calls_made.png" alt="calls-icon"/></div>
-            <div style={info_text_secondary}>Total Calls</div>
-          </div>
-          <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>9.5k</div>
-        </div>
+        {/*<div>*/}
+        {/*  <div className={styles.agent_info_box}>*/}
+        {/*    <div><Image width={12} height={12} src="/images/calls_made.png" alt="calls-icon"/></div>*/}
+        {/*    <div style={info_text_secondary}>Total Calls</div>*/}
+        {/*  </div>*/}
+        {/*  <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>9.5k</div>*/}
+        {/*</div>*/}
         <div>
           <div className={styles.agent_info_box}>
             <div><Image width={12} height={12} src="/images/runs_made.png" alt="runs-icon"/></div>
@@ -35,13 +35,13 @@ export default function Details({agentDetails, runCount}) {
           </div>
           <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>{runCount || 0}</div>
         </div>
-        <div>
-          <div className={styles.agent_info_box}>
-            <div><Image width={12} height={12} src="/images/tokens_consumed.png" alt="tokens-icon"/></div>
-            <div style={info_text_secondary}>Tokens Consumed</div>
-          </div>
-          <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>7.6k</div>
-        </div>
+        {/*<div>*/}
+        {/*  <div className={styles.agent_info_box}>*/}
+        {/*    <div><Image width={12} height={12} src="/images/tokens_consumed.png" alt="tokens-icon"/></div>*/}
+        {/*    <div style={info_text_secondary}>Tokens Consumed</div>*/}
+        {/*  </div>*/}
+        {/*  <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>7.6k</div>*/}
+        {/*</div>*/}
       </div>
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
