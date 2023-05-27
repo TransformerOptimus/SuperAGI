@@ -13,8 +13,8 @@ from sqlalchemy.orm import sessionmaker, query
 from superagi.llms.openai import OpenAi
 # from superagi.tools.base_tool import FunctionalTool
 from superagi.tools.file.write_file import WriteFileTool
-from superagi.tools.google_search.tools import GoogleSearchSchema, GoogleSearchTool
-from superagi.tools.google_serp_search.tools import GoogleSerpTool
+from superagi.tools.google_search.google_search import GoogleSearchSchema, GoogleSearchTool
+from superagi.tools.google_serp_search.google_serp_search import GoogleSerpTool
 # from superagi.tools.twitter.send_tweet import SendTweetTool
 # from superagi.vector_store.embedding.openai import OpenAiEmbedding
 # from superagi.vector_store.vector_factory import VectorFactory
@@ -51,9 +51,7 @@ def create_object(class_name,folder_name,file_name):
 
 
 def run_superagi_job(agent_execution):
-    print("New Agent Exec : ",agent_execution)
     agent_execution = AgentExecution.from_json(agent_execution)
-    print("New Agent Exec 123: ",agent_execution)
     agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
     if not agent:
         return "Agent Not found"

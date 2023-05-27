@@ -1,5 +1,6 @@
 from io import BytesIO
 from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 import requests
 import re
 from requests.exceptions import RequestException
@@ -37,13 +38,13 @@ class WebpageExtractor:
                 response.raise_for_status()
 
                 with BytesIO(response.content) as pdf_data:
-                    reader = PdfFileReader(pdf_data)
+                    reader = PdfReader(pdf_data)
                     content = " ".join([reader.getPage(i).extract_text() for i in range(reader.getNumPages())])
 
             else:
                 config = Config()
                 config.browser_user_agent = random.choice(USER_AGENTS)
-                config.request_timeout = 5
+                config.request_timeout = 10
                 session = HTMLSession()
 
                 response = session.get(url)
@@ -104,7 +105,7 @@ class WebpageExtractor:
         try:
             config = Config()
             config.browser_user_agent = random.choice(USER_AGENTS)
-            config.request_timeout = 5
+            config.request_timeout = 10
             session = HTMLSession()
 
             response = session.get(url)

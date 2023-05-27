@@ -24,13 +24,23 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from sqlalchemy import create_engine
 # from sqlalchemy.orm import sessionmaker
+from superagi.config.config import get_config
 
 
 app = FastAPI()
 
-db_username = 'abhijeet'
-db_password = 'password'
-db_name = 'test123'
+# db_username = get_config('DB_USERNAME')
+# db_password = get_config('DB_PASSWORD')
+# db_name = get_config('DB_NAME')
+
+
+# db_username = 'abhijeet'
+# db_password = 'password'
+# db_name = 'test123'
+# print(db_username,db_password,db_name)
+db_username = get_config('DB_USERNAME')
+db_password = get_config('DB_PASSWORD')
+db_name = get_config('DB_NAME')
 
 
 db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'
@@ -95,7 +105,7 @@ from superagi.models.db import connectDB
 from sqlalchemy.orm import sessionmaker, query
 
 
-engine = connectDB()
+# engine = connectDB()
 Session = sessionmaker(bind=engine)
 session = Session()
 organisation = session.query(Organisation).filter_by(id=1)
@@ -104,6 +114,7 @@ if not organisation:
     session.add(default_organization)
     session.commit()
 session.close()
+
 
 
 
