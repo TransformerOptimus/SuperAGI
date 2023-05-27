@@ -7,7 +7,9 @@ class JsonCleaner:
     @classmethod
     def check_and_clean_json(cls, json_string: str):
         try:
-            json_string = json_string.replace("\t", "")
+            json_string = json_string.replace("\\t", "")
+            json_string = json_string.replace("\\n", "")
+            json_string = cls.remove_escape_sequences(json_string)
             json.loads(json_string)
             return json_string
         except json.JSONDecodeError as e:
