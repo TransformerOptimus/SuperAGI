@@ -7,7 +7,7 @@ if not exist config.yaml (
 echo Checking if virtual environment is activated...
 if not defined VIRTUAL_ENV (
     echo Virtual environment not activated. Creating and activating virtual environment...
-    python3 -m venv venv
+    python -m venv venv
     if errorlevel 1 (
       echo Error: Failed to create virtual environment.
       exit /b 1
@@ -30,7 +30,10 @@ if errorlevel 1 (
 @REM     echo Running test.py with python3...
 @REM     python3 test.py
 @REM )
-if %1 == "ui" (
+
+echo Running %1...
+
+if "%1" == "ui" (
     python ui.py
     if errorlevel 1 (
     python3 ui.py
@@ -38,8 +41,8 @@ if %1 == "ui" (
 )
 
 if %1 == "cli" (
-    python cli.py
+    python cli2.py
     if errorlevel 1 (
-    python3 cli.py
+    python3 cli2.py
     )
 )
