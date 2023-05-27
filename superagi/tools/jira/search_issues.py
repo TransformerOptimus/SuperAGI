@@ -7,7 +7,7 @@ from superagi.helper.token_counter import TokenCounter
 from superagi.tools.jira.tool import JiraTool, JiraIssueSchema
 
 
-class CreateIssueSchema(BaseModel):
+class SearchIssueSchema(BaseModel):
     query: str = Field(
         ...,
         description="JQL query string to search issues. For example, to find all the issues in project \"Test\" assigned to the me, you would pass in the following string: project = Test AND assignee = currentUser() or to find issues with summaries that contain the word \"test\", you would pass in the following string: summary ~ 'test'.",
@@ -17,7 +17,7 @@ class CreateIssueSchema(BaseModel):
 class SearchJiraTool(JiraTool):
     name = "SearchJiraIssues"
     description = "This tool is a wrapper around atlassian-python-api's Jira jql API, useful when you need to search for Jira issues."
-    args_schema: Type[JiraIssueSchema] = JiraIssueSchema
+    args_schema: Type[SearchIssueSchema] = SearchIssueSchema
 
     def _execute(self, query: str) -> str:
         jira = JiraTool.build_jira_instance()
