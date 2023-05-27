@@ -47,12 +47,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
-  const permissions = ["No autonomous (Ask permission for every action)", "God Mode (fully autonomous)"]
+  const permissions = ["God Mode"]
   const [permission, setPermission] = useState(permissions[0]);
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
-  const [myTools, setMyTools] = useState(tools);
+  const [myTools, setMyTools] = useState([]);
+  const [toolNames, setToolNames] = useState([]);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
@@ -94,13 +95,20 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, []);
 
   const addTool = (tool) => {
-    if (!myTools.includes(tool)) {
-      setMyTools((prevArray) => [...prevArray, tool]);
+    if (!myTools.includes(tool.id)) {
+      setMyTools((prevArray) => [...prevArray, tool.id]);
+      setToolNames((prevArray) => [...prevArray, tool.name]);
     }
   };
   
   const removeTool = (indexToDelete) => {
     setMyTools((prevArray) => {
+      const newArray = [...prevArray];
+      newArray.splice(indexToDelete, 1);
+      return newArray;
+    });
+
+    setToolNames((prevArray) => {
       const newArray = [...prevArray];
       newArray.splice(indexToDelete, 1);
       return newArray;
@@ -221,7 +229,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "goal": goals,
       "agent_type": agentType,
       "constraints": constraints,
-      "tools": [1],
+      "tools": myTools,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
@@ -289,9 +297,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <label className={styles.form_label}>Tools</label>
               <div className="dropdown_container_search" style={{width:'100%'}}>
                 <div className="custom_select_container" onClick={() => setToolDropdown(!toolDropdown)} style={{width:'100%'}}>
-                  {myTools && myTools.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
-                    {myTools.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
-                      <div className={styles.tool_text}>{tool.name}</div>
+                  {toolNames && toolNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
+                    {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
+                      <div className={styles.tool_text}>{tool}</div>
                       <div><Image width={12} height={12} src='/images/close_light.png' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                     </div>))}
                   </div> : <div style={{color:'#666666'}}>Select Tools</div>}
@@ -300,7 +308,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 <div>
                   {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                     {tools && tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                      {tool.name}
+                      {tool.name || 'custom tool'}
                     </div>))}
                   </div>}
                 </div>

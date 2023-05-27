@@ -13,13 +13,13 @@ import {getAgentDetails, getAgentExecutions} from "@/app/DashboardService";
 
 export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('action_console')
+  const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(false)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
   const [goals, setGoals] = useState(null)
+  const [tools, setTools] = useState([])
   const [runName, setRunName] = useState("new run")
-  const [isRunning, setAgentRunning] = useState(true)
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
 
@@ -71,6 +71,7 @@ export default function AgentWorkspace({agentId}) {
     getAgentDetails(agentId)
       .then((response) => {
         setAgentDetails(response.data);
+        setTools(response.data.tools);
         setGoals(response.data.goal);
       })
       .catch((error) => {
@@ -79,7 +80,6 @@ export default function AgentWorkspace({agentId}) {
 
     getAgentExecutions(agentId)
       .then((response) => {
-        console.log(response.data);
         setAgentExecutions(response.data);
         setSelectedRun(response.data[0]);
       })
@@ -98,8 +98,8 @@ export default function AgentWorkspace({agentId}) {
               <Image width={16} height={16} src="/images/history.png" alt="history-icon"/>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
-              {isRunning && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
-              <div style={isRunning ? {marginLeft:'7px'} : {marginLeft:'-8px'}}>run name</div>
+              {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
+              <div style={selectedRun && selectedRun.status === 'RUNNING' ? {marginLeft:'7px'} : {marginLeft:'-8px'}}>run name</div>
             </div>
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>
@@ -124,11 +124,11 @@ export default function AgentWorkspace({agentId}) {
       <div style={{width:'40%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
-            <div>
-              <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
-                Action Console
-              </button>
-            </div>
+            {/*<div>*/}
+            {/*  <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>*/}
+            {/*    Action Console*/}
+            {/*  </button>*/}
+            {/*</div>*/}
             {/*<div style={{marginLeft:'5px'}}>*/}
             {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Feedback*/}
@@ -153,7 +153,7 @@ export default function AgentWorkspace({agentId}) {
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
-          {rightPanel === 'details' && <Details agentDetails={agentDetails} runCount={agentExecutions.length}/>}
+          {rightPanel === 'details' && <Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/>}
           {rightPanel === 'resource_manager' && <ResourceManager/>}
         </div>
       </div>
