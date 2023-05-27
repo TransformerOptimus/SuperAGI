@@ -51,7 +51,7 @@ if __name__ == "__main__":
     run_npm_commands(shell=isWindows)
 
     try:
-        api_process, ui_process, celery_process = run_server()
+        api_process, ui_process, celery_process = run_server(isWindows)
         while True:
             try:
                 sleep(30)

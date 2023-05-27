@@ -40,7 +40,7 @@ if "%1" == "ui" (
     )
 )
 
-if %1 == "cli" (
+if "%1" == "cli" (
     python cli2.py
     if errorlevel 1 (
     python3 cli2.py
