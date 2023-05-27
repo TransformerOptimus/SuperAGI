@@ -1,14 +1,9 @@
 import React from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
+import {formatTime} from "@/utils/utils";
 
 export default function RunHistory({runs, setHistory, selectedRun, setSelectedRun}) {
-
-  function convertToMinutes(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes}`;
-  }
-
   return (<>
     <div style={{width:'20%',height:'100%'}}>
       <div className={styles.detail_top}>
@@ -27,11 +22,11 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
         </div>
       </div>
       <div className={styles.detail_body}>
-        {runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRun === run ? {background:'#474255'} : {background:'#272335'}}>
+        {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRun === run ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div style={{display:'flex',order:'0'}}>
-              {run.is_running && <div><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
-              <div style={run.is_running ? {marginLeft:'7px'} : {}}>{run.name}</div>
+              {run.status === 'RUNNING' && <div><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
+              <div style={run.status === 'RUNNING' ? {marginLeft:'7px'} : {}}>{run.name}</div>
             </div>
             {/*{run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}*/}
           </div>
@@ -50,7 +45,7 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
                 <Image width={12} height={12} src="/images/schedule.png" alt="schedule-icon"/>
               </div>
               <div className={styles.history_info}>
-                {convertToMinutes(run.last_active)}m ago
+                {formatTime(run.last_execution_time)}m ago
               </div>
             </div>
           </div>

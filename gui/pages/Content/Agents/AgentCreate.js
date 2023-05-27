@@ -6,7 +6,7 @@ import styles from './Agents.module.css';
 import { createAgent } from "@/app/DashboardService";
 import { EventBus } from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, closeTab}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, closeTab, tools}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -20,7 +20,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const constraintsArray = ['new constraint 1', 'new constraint 2', 'new constraint 3']
   const [constraints, setConstraints] = useState(constraintsArray);
 
-  const models = ['gpt-4', 'gpt-3']
+  const models = ['gpt-3.5-turbo', 'gpt-4']
   const [model, setModel] = useState(models[0]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -52,8 +52,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
-  const allTools = ['gmail', 'powerpoint', 'photoshop', 'maya', 'rhino', 'blender', 'autocad', 'jira', 'vs-code', 'confluence', 'openai', 'canva']
-  const [myTools, setMyTools] = useState([]);
+  const [myTools, setMyTools] = useState(tools);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
@@ -290,9 +289,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <label className={styles.form_label}>Tools</label>
               <div className="dropdown_container_search" style={{width:'100%'}}>
                 <div className="custom_select_container" onClick={() => setToolDropdown(!toolDropdown)} style={{width:'100%'}}>
-                  {myTools.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
+                  {myTools && myTools.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
                     {myTools.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
-                      <div className={styles.tool_text}>{tool}</div>
+                      <div className={styles.tool_text}>{tool.name}</div>
                       <div><Image width={12} height={12} src='/images/close_light.png' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                     </div>))}
                   </div> : <div style={{color:'#666666'}}>Select Tools</div>}
@@ -300,8 +299,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 </div>
                 <div>
                   {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
-                    {allTools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                      {tool}
+                    {tools && tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                      {tool.name}
                     </div>))}
                   </div>}
                 </div>

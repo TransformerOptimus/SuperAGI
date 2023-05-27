@@ -79,6 +79,7 @@ export default function AgentWorkspace({agentId}) {
 
     getAgentExecutions(agentId)
       .then((response) => {
+        console.log(response.data);
         setAgentExecutions(response.data);
         setSelectedRun(response.data[0]);
       })
@@ -89,7 +90,7 @@ export default function AgentWorkspace({agentId}) {
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
-      {/*{history && <RunHistory runs={agentExecutions} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}*/}
+      {history && <RunHistory runs={agentExecutions} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
       <div style={{width: history ? '40%' : '60%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -152,7 +153,7 @@ export default function AgentWorkspace({agentId}) {
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
-          {rightPanel === 'details' && <Details agentDetails={agentDetails}/>}
+          {rightPanel === 'details' && <Details agentDetails={agentDetails} runCount={agentExecutions.length}/>}
           {rightPanel === 'resource_manager' && <ResourceManager/>}
         </div>
       </div>

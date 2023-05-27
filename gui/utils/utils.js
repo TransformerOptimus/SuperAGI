@@ -1,6 +1,7 @@
-export const convertToHash = (data) => {
-  return Object.entries(data).reduce((acc, [key, value]) => {
-    acc[key] = value;
-    return acc;
-  }, {});
-}
+import { formatDistanceToNow } from 'date-fns';
+
+export const formatTime = (lastExecutionTime) => {
+  return formatDistanceToNow(new Date(lastExecutionTime), {
+    addSuffix: true,
+  });
+};

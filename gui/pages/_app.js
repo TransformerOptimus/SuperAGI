@@ -97,7 +97,7 @@ export default function App() {
             <TopBar userName={userName} selectedProject={selectedProject}/>
           </div>
           <div style={contentStyle}>
-            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''} userName={userName}/>
           </div>
         </div>
       </div>

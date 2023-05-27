@@ -34,6 +34,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+    overflow-y: scroll;
     gap: 10px;
 }
 
@@ -55,7 +56,7 @@
     font-style: normal;
     font-weight: 500;
     font-size: 9px;
-    line-height: 17px;
+    line-height: 12px;
     display: flex;
     align-items: center;
     color: #666666;
@@ -84,8 +85,7 @@
 .tool_box {
     cursor: pointer;
     width: 100%;
-    padding:2px;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 .tag_box {

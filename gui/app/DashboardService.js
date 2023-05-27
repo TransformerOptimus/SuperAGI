@@ -18,12 +18,16 @@ export const getAgents = (projectId) => {
   return axios.get(`${API_BASE_URL}/agents/get/project/${projectId}`);
 };
 
+export const getTools = () => {
+  return axios.get(`${API_BASE_URL}/tools/get`);
+};
+
 export const getAgentDetails = (agentId) => {
   return axios.get(`${API_BASE_URL}/agents/get/details/${agentId}`);
 };
 
 export const getAgentExecutions = (agentId) => {
-  return axios.get(`${API_BASE_URL}/agents/get/executions/${agentId}`);
+  return axios.get(`${API_BASE_URL}/agentexecutions/get/agent/${agentId}`);
 };
 
 export const createAgent = (agentData) => {

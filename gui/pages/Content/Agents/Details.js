@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 
-export default function Details({agentDetails}) {
+export default function Details({agentDetails, runCount}) {
   const info_text = {
     marginLeft:'7px',
   }
@@ -33,7 +33,7 @@ export default function Details({agentDetails}) {
             <div><Image width={12} height={12} src="/images/runs_made.png" alt="runs-icon"/></div>
             <div style={info_text_secondary}>Total Runs</div>
           </div>
-          <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>5</div>
+          <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>{runCount}</div>
         </div>
         <div>
           <div className={styles.agent_info_box}>

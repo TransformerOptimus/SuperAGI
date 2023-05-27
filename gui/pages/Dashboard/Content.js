@@ -8,12 +8,13 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import { getAgents } from "@/app/DashboardService";
+import {getAgents, getTools} from "@/app/DashboardService";
 
-export default function Content({selectedView, selectedProjectId}) {
+export default function Content({selectedView, selectedProjectId, userName}) {
   const [tabs, setTabs] = useState([])
   const [selectedTab, setSelectedTab] = useState(null)
   const [agents, setAgents] = useState(null);
+  const [tools, setTools] = useState(null);
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -29,8 +30,23 @@ export default function Content({selectedView, selectedProjectId}) {
       });
   }
 
+  function fetchTools() {
+    getTools()
+      .then((response) => {
+        const data = response.data || [];
+        const updatedData = data.map(item => {
+          return { ...item, contentType: "Tools" };
+        });
+        setTools(updatedData);
+      })
+      .catch((error) => {
+        console.error('Error fetching agents:', error);
+      });
+  }
+
   useEffect(() => {
     fetchAgents();
+    fetchTools();
   }, [selectedProjectId])
 
   const closeTab = (tabId) => {
@@ -74,7 +90,7 @@ export default function Content({selectedView, selectedProjectId}) {
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <Agents sendAgentData={addTab} agents={agents}/>}
-        {selectedView === 'tools' && <Tools sendToolData={addTab}/>}
+        {selectedView === 'tools' && <Tools sendToolData={addTab} tools={tools} userName={userName}/>}
       </div>
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div className={styles.empty_state}>
@@ -115,7 +131,7 @@ export default function Content({selectedView, selectedProjectId}) {
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate closeTab={() => closeTab(-1)} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents}/>
+                        <AgentCreate closeTab={() => closeTab(-1)} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                       </div>
                       <div className="col-3"></div>
                     </div>
