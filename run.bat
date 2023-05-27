@@ -24,9 +24,22 @@ if errorlevel 1 (
 ) else (
     echo All packages are already installed.
 )
-echo Running test.py with python...
-python test.py
-if errorlevel 1 (
-    echo Running test.py with python3...
-    python3 test.py
+@REM echo Running test.py with python...
+@REM python test.py
+@REM if errorlevel 1 (
+@REM     echo Running test.py with python3...
+@REM     python3 test.py
+@REM )
+if %1 == "ui" (
+    python ui.py
+    if errorlevel 1 (
+    python3 ui.py
+    )
+)
+
+if %1 == "cli" (
+    python cli.py
+    if errorlevel 1 (
+    python3 cli.py
+    )
 )

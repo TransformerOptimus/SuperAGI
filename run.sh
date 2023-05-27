@@ -44,11 +44,31 @@ else
 fi
 
 # Run test.py using python
-echo "Running test.py with python..."
-python test.py
+#echo "Running test.py with python..."
+#python test.py
+#
+## If the above command fails, run test.py using python3
+#if [ $? -ne 0 ]; then
+#    echo "Running test.py with python3..."
+#    python3 test.py
+#fi
 
-# If the above command fails, run test.py using python3
-if [ $? -ne 0 ]; then
-    echo "Running test.py with python3..."
-    python3 test.py
+
+if [ "$1" = "ui" ]; then
+    echo "Running UI..."
+    python ui.py
+    if [ $? -ne 0 ]; then
+        echo "Running UI with python3..."
+        python3 ui.py
+    fi
+fi
+if [ "$1" = "cli" ]; then
+    echo "Running superagi cli..."
+    python cli2.py
+
+    # If the above command fails, run test.py using python3
+    if [ $? -ne 0 ]; then
+        echo "Running superagi cli..."
+        python3 cli2.py
+    fi
 fi
