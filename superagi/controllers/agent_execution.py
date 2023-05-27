@@ -7,6 +7,8 @@ from superagi.models.agent import Agent
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from celery_app import test_fucntion
+from sqlalchemy import desc
+
 
 router = APIRouter()
 
@@ -19,7 +21,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    db_agent_execution = AgentExecution(status=agent_execution.status,last_execution_time=datetime.now(),agent_id=agent_execution.agent_id)
+    db_agent_execution = AgentExecution(status="CREATED",last_execution_time=datetime.now(),agent_id=agent_execution.agent_id,name=agent_execution.name)
     db.session.add(db_agent_execution)
     db.session.commit()
     return db_agent_execution
@@ -37,6 +39,9 @@ def get_agent_execution(agent_execution_id: int,Authorize: AuthJWT = Depends()):
 @router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def update_agent_execution(agent_execution_id: int, agent_execution: sqlalchemy_to_pydantic(AgentExecution,exclude=["id"])):
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+    if agent_execution=="COMPLETED":
+        raise HTTPException(status_code=400, detail="Invalid Request")
+
     if not db_agent_execution:
         raise HTTPException(status_code=404, detail="Agent Execution not found")
 
@@ -49,6 +54,7 @@ def update_agent_execution(agent_execution_id: int, agent_execution: sqlalchemy_
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
     db_agent_execution.last_execution_time = datetime.now()
+    db_agent_execution.name = agent_execution.name
 
     db.session.commit()
 
@@ -64,8 +70,16 @@ def update_agent_execution(agent_execution_id: int, agent_execution: sqlalchemy_
     return db_agent_execution
 
 
-@router.get("/get/agents/{status}")
+@router.get("/get/agents/status/{status}")
 def list_running_agents(status:str):
     running_agent_ids = db.session.query(AgentExecution.agent_id).filter(AgentExecution.status == status.upper()).distinct().all()
     agent_ids = [agent_id for (agent_id) in running_agent_ids]
     return agent_ids
+
+@router.get("/get/agent/{agent_id}")
+def list_running_agents(agent_id:str):
+
+    # print("")
+    # running_agent_ids = db.session.query(AgentExecution.agent_id).filter(AgentExecution.status == status.upper()).distinct().all()
+    executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
+    return executions

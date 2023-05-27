@@ -1,73 +1,8 @@
-# from superagi.agent.super_agi import SuperAgi
-# from superagi.llms.openai import OpenAi
-# from superagi.tools.base_tool import FunctionalTool
 from superagi.tools.file.write_file import WriteFileTool
 from superagi.tools.file.read_file import ReadFileTool
-from superagi.tools.google_search.tools import GoogleSearchSchema, GoogleSearchTool
-from superagi.tools.google_serp_search.tools import GoogleSerpTool
+from superagi.tools.google_search.google_search import GoogleSearchSchema, GoogleSearchTool
+from superagi.tools.google_serp_search.google_serp_search import GoogleSerpTool
 from superagi.models.agent_config import AgentConfiguration
-# from superagi.tools.twitter.send_tweet import SendTweetTool
-# from superagi.vector_store.embedding.openai import OpenAiEmbedding
-# from superagi.vector_store.vector_factory import VectorFactory
-# import importlib
-# from superagi.tools.twitter.send_tweet import SendTweetTool
-# from superagi.tools.email.read_email import ReadEmailTool
-# from superagi.tools.email.send_email import SendEmailTool
-# from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
-# from superagi.vector_store.embedding.openai import OpenAiEmbedding
-# from superagi.vector_store.vector_factory import VectorFactory
-
-# memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
-# # memory.add_documents([Document("Hello world")])
-# # memory.get_matching_text("Hello world")
-
-# def test_function(name: str):
-#     print("hello ramram", name)
-#     return
-
-# def create_campaign(campaign_name: str):
-#     print("create campaigns", campaign_name)
-#     return
-
-# def validate_filename(filename):
-#     if filename.endswith(".py"):
-#         return filename[:-3]  # Remove the last three characters (i.e., ".py")
-#     return filename
-
-
-# def create_object(class_name,folder_name,file_name):
-#     file_name = validate_filename(filename=file_name)
-#     module_name = f"superagi.tools.{folder_name}.{file_name}"
-    
-#     # Load the module dynamically
-#     module = importlib.import_module(module_name)
-
-#     # Get the class from the loaded module
-#     obj_class = getattr(module, class_name)
-
-#     # Create an instance of the class
-#     new_object = obj_class()
-#     return new_object
-
-# tools = [
-#     GoogleSearchTool(),
-#     WriteFileTool(),
-#     # GoogleSerpTool()
-# ]
-
-# # result = GoogleSearchTool().execute({"query": "List down top 10 marketing strategies for a new product"})
-# # print(result)
-# # print(result.split("."))
-# # send_tool = SendTweetTool()
-# # send_tool.execute("Innovation isn't a one-time event; it's a culture. It's about daring to question the status quo, nurturing a curiosity that stretches horizons, and constantly seeking new ways to add value #Innovation #ChangeTheWorld")
-
-
-
-# superagi = SuperAgi.from_llm_and_tools("Super AGI", "To solve any complex problems for you", memory, tools, OpenAi(model="gpt-4"))
-# user_goal=[]
-# user_goal=str(input("Enter your Goals seperated by ',':\n")).split(",")
-# superagi.execute(user_goal)
-
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from superagi.models.base_model import DBBaseModel
@@ -76,21 +11,25 @@ from superagi.models.project import Project
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from datetime import datetime
-
-
 from superagi.models.db import connectDB
 from sqlalchemy.orm import sessionmaker, query
-
 from celery_app import test_fucntion
+
+import argparse
+
+parser = argparse.ArgumentParser(description='Create a new agent.')
+parser.add_argument('--name', type=str, help='Agent name for the script.')
+parser.add_argument('--description', type=str, help='Agent description for the script.')
+parser.add_argument('--goals', type=str, nargs='+', help='Agent goals for the script.')
+args = parser.parse_args()
+
+agent_name = args.name
+agent_description = args.description
+agent_goals = args.goals
 
 engine = connectDB()
 Session = sessionmaker(bind=engine)
 session = Session()
-
-# session.query(Agent).delete()
-# session.commit()
-# session.close()
-
 
 
 def ask_user_for_goals():
@@ -104,7 +43,7 @@ def ask_user_for_goals():
 
 
 
-def run_superagi_cli():
+def run_superagi_cli(agent_name=None,agent_description=None,agent_goals=None):
     # Create default organization
     organization = Organisation(name='Default Organization', description='Default organization description')
     session.add(organization)
@@ -119,9 +58,11 @@ def run_superagi_cli():
     session.commit()
     print(project)
 
-    #Agent 
-    agent_name = input("Enter agent name: ")
-    agent_description = input("Enter agent description: ")
+    #Agent
+    if agent_name is None:
+        agent_name = input("Enter agent name: ")
+    if agent_description is None:
+        agent_description = input("Enter agent description: ")
     agent = Agent(name=agent_name, description=agent_description, project_id=project.id)
     session.add(agent)
     session.flush()
@@ -131,7 +72,7 @@ def run_superagi_cli():
     #Agent Config
     # Create Agent Configuration
     agent_config_values = {
-        "goal": ask_user_for_goals(),
+        "goal": ask_user_for_goals() if agent_goals is None else agent_goals,
         "agent_type": "Type Non-Queue",
         "constraints": [  "~4000 word limit for short term memory. ",
                 "Your short term memory is short, so immediately save important information to files.",
@@ -169,7 +110,5 @@ def run_superagi_cli():
     print(execution)
 
     test_fucntion.delay(execution.to_json())
-
-    print("_________________________________View in Celery CLI________________________________")
     
-run_superagi_cli()
+run_superagi_cli(agent_name=agent_name,agent_description=agent_description,agent_goals=agent_goals)

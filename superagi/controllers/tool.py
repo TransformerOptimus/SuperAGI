@@ -2,6 +2,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.tool import Tool
+from superagi.models.project import Project
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
@@ -40,3 +41,8 @@ def update_tool(tool_id: int, tool: sqlalchemy_to_pydantic(Tool,exclude=["id"]),
     db.session.add(db_tool)
     db.session.commit()
     return db_tool
+
+@router.get("/get")
+def get_tool(Authorize: AuthJWT = Depends()):
+    db_tools = db.session.query(Tool).all()
+    return db_tools

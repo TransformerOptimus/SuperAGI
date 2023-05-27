@@ -108,7 +108,7 @@ def create_agent_with_config(agent_with_config:AgentWithConfig):
         db.session.add_all(agent_configurations)
 
         #Creating an execution with CREATED status
-        execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(),agent_id=db_agent.id)
+        execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(),agent_id=db_agent.id,name="First Execution")
         db.session.add(execution)
 
 
@@ -145,13 +145,17 @@ def get_agents_by_project_id(project_id:int):
         agent_id = agent.id
 
         # Query the AgentExecution table using the agent ID
-        execution = db.session.query(AgentExecution).filter_by(agent_id=agent_id).first()
-
+        executions = db.session.query(AgentExecution).filter_by(agent_id=agent_id).all()
+        isRunning = False
+        for execution in executions:
+            if execution.status == "RUNNING":
+                isRunning = True
+                break
         # Add the execution status to the agent dictionary
         # agent['status'] = execution.status if execution else None
         new_agent = {
             **agent_dict,
-            'status':  execution.status
+            'status':  isRunning
         }
         new_agents.append(new_agent)
     return new_agents
@@ -179,10 +183,10 @@ def get_agent_configuration(agent_id:int):
     response["tools"]= [int(x) for x in json.loads(response["tools"])]
 
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
-    print(tools)
+    # print(tools)
     response["tools"] = tools
-    executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
-    response["executions"] = executions
+    # executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
+    # response["executions"] = executions
 
     # Close the session
     db.session.close()

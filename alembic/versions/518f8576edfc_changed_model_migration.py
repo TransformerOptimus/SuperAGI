@@ -115,6 +115,7 @@ def upgrade() -> None:
     sa.Column('created_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=True),
     sa.Column('updated_at', postgresql.TIMESTAMP(), autoincrement=False, nullable=True),
     sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),
+    sa.Column('name', sa.INTEGER(), autoincrement=True, nullable=False),
     sa.Column('status', sa.VARCHAR(), autoincrement=False, nullable=True),
     sa.Column('agent_id', sa.INTEGER(), autoincrement=False, nullable=True),
     sa.Column('last_execution_time', postgresql.TIMESTAMP(), autoincrement=False, nullable=True),

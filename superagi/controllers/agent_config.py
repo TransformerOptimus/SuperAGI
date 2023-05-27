@@ -33,17 +33,12 @@ def get_agent(agent_config_id: int,Authorize: AuthJWT = Depends()):
 
 
 
-@router.put("/update/{agent_config_id}", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def update_agent(agent_config_id: int, agent_config: sqlalchemy_to_pydantic(AgentConfiguration,exclude=["id"])):
-    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
-    if not db_agent_config:
-        raise HTTPException(status_code=404, detail="Agent Configuration not found")
+@router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
+def update_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,exclude=["id"])):
+    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == agent_config.key,AgentConfiguration.agent_id == agent_config.agent_id).first()
+    # if not db_agent_config:
+    #     raise HTTPException(status_code=404, detail="Agent Configuration not found")
 
-    if agent_config.agent_id:
-        agent = db.session.query(Agent).get(agent_config.agent_id)
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        db_agent_config.agent_id = agent.id
     db_agent_config.key = agent_config.key
     db_agent_config.value = agent_config.value
 
