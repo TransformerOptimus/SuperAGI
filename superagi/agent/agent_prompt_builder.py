@@ -1,14 +1,13 @@
 import json
-
 from pydantic.types import List
-
 from superagi.agent.agent_prompt import AgentPrompt
 from superagi.tools.base_tool import BaseTool
+from fastapi_sqlalchemy import db
 
 FINISH_NAME = "finish"
 
 class AgentPromptBuilder:
-  def __init__(self):
+  def __init__(self,):
     self.agent_prompt = AgentPrompt()
 
   def set_ai_name(self, ai_name):
@@ -55,7 +54,7 @@ class AgentPromptBuilder:
     final_string = self.add_tools_to_prompt(final_string)
     final_string += self.add_list_items_to_string("\033[96m\033[1m\nRESOURCES\033[0m\033[0m", self.agent_prompt.resources)
     final_string += self.add_list_items_to_string("\033[94m\033[1m\nPERFORMANCE EVALUATION\033[0m\033[0m", self.agent_prompt.evaluations)
-    final_string += f"\I should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
+    final_string += f"\nI should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
 
     final_string += "\nEnsure the response can be parsed by Python json.loads\n"
     return final_string
@@ -85,11 +84,13 @@ class AgentPromptBuilder:
     return output
 
   @classmethod
-  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool]) -> str:
+  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool],agent_config) -> str:
     # Initialize the PromptGenerator object
     prompt_builder = AgentPromptBuilder()
     prompt_builder.set_ai_name(ai_name)
     prompt_builder.set_ai_role(ai_role)
+
+    #Base prompt is same always not fetching from DB
     base_prompt = (
       "Your decisions must always be made independently "
       "without seeking user assistance.\n"
@@ -101,21 +102,25 @@ class AgentPromptBuilder:
     prompt_builder.set_base_prompt(base_prompt)
 
     # Add constraints to the PromptGenerator object
-    prompt_builder.add_constraint(
-      "~4000 word limit for short term memory. "
-      "Your short term memory is short, "
-      "so immediately save important information to files."
-    )
-    prompt_builder.add_constraint(
-      "If you are unsure how you previously did something "
-      "or want to recall past events, "
-      "thinking about similar events will help you remember."
-    )
-    prompt_builder.add_constraint("No user assistance")
-    prompt_builder.add_constraint("Ensure the command and args are as per current plan and reasoning.")
-    prompt_builder.add_constraint(
-      'Exclusively use the commands listed in double quotes e.g. "command name"'
-    )
+    
+
+    # prompt_builder.add_constraint(
+      # "~4000 word limit for short term memory. "
+      # "Your short term memory is short, "
+      # "so immediately save important information to files."
+    # )
+    # prompt_builder.add_constraint(
+      # "If you are unsure how you previously did something "
+      # "or want to recall past events, "
+      # "thinking about similar events will help you remember."
+    # )
+    # prompt_builder.add_constraint("No user assistance")
+    # prompt_builder.add_constraint(
+    #   'Exclusively use the commands listed in double quotes e.g. "command name"'
+    # )
+
+    for constraint in agent_config["constraints"]:
+      prompt_builder.add_constraint(constraint)
 
     # Add tools to the PromptGenerator object
     for tool in tools:

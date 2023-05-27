@@ -15,4 +15,4 @@ class AgentConfiguration(DBBaseModel):
     value = Column(Text)
 
     def __repr__(self):
-        return f"AgentConfiguration(id={self.id}, key={self.key})"
+        return f"AgentConfiguration(id={self.id}, key={self.key}, value={self.value})"
