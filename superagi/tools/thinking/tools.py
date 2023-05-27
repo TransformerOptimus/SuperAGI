@@ -17,7 +17,7 @@ class LlmTaskSchema(BaseModel):
 
 class LlmThinkingTool(BaseTool):
     llm: Optional[BaseLlm] = None
-    name = "LlmThinking"
+    name = "LlmThinkingTool"
     description = (
         "A tool that interacts with any given LLM "
         "to generate text given a certain task description."

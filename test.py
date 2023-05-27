@@ -27,7 +27,7 @@ def create_campaign(campaign_name: str):
 
 
 tools = [
-    LlmThinkingTool(),
+    LlmThinkingTool(llm=OpenAi(model="gpt-3.5-turbo")),
     GoogleSearchTool(),
     WriteFileTool(),
     ReadFileTool(),
