@@ -112,6 +112,7 @@ class AgentPromptBuilder:
       "thinking about similar events will help you remember."
     )
     prompt_builder.add_constraint("No user assistance")
+    prompt_builder.add_constraint("Ensure the command and args are as per current plan and reasoning.")
     prompt_builder.add_constraint(
       'Exclusively use the commands listed in double quotes e.g. "command name"'
       "You should always try to use LLmthinkingtool first instead of directly jumping to google search"
@@ -125,12 +126,12 @@ class AgentPromptBuilder:
     for goal in goals:
       prompt_builder.add_goal(goal)
 
-    resources = ["Internet access for searches and information gathering.",
-                 "Long Term memory management.",
-                 "GPT-3.5 powered Agents for delegation of simple tasks.",
-                 "File output."]
-    for resource in resources:
-      prompt_builder.add_resource(resource)
+    # resources = ["Internet access for searches and information gathering.",
+    #              "Long Term memory management.",
+    #              "GPT-3.5 powered Agents for delegation of simple tasks.",
+    #              "File output."]
+    # for resource in resources:
+    #   prompt_builder.add_resource(resource)
 
     # Add performance evaluations to the PromptGenerator object
     evaluations = [
@@ -139,22 +140,21 @@ class AgentPromptBuilder:
       "Constructively self-criticize your big-picture behavior constantly.",
       "Reflect on past decisions and strategies to refine your approach.",
       "Every command has a cost, so be smart and efficient. "
-      "Aim to complete tasks in the least number of steps.",
-      "As soon as you write the result in file, finish the task"
+      "Aim to complete tasks in the least number of steps."
     ]
     for evaluation in evaluations:
       prompt_builder.add_evaluation(evaluation)
 
     response_format = {
-                "thoughts": {
-                    "text": "thought",
-                    "reasoning": "reasoning",
-                    "plan": "- short bulleted\n- list that conveys\n- long-term plan",
-                    "criticism": "constructive self-criticism",
-                    "speak": "thoughts summary to say to user",
-                },
-                "command": {"name": "command name", "args": {"arg name": "value"}},
-            }
+            "thoughts": {
+                "text": "thought",
+                "reasoning": "reasoning",
+                "plan": "- short bulleted\n- list that conveys\n- long-term plan",
+                "criticism": "constructive self-criticism",
+                "speak": "thoughts summary to say to user",
+            },
+            "command": {"name": "command name/task name", "description": "command or task description", "args": {"arg name": "value"}},
+        }
     formatted_response_format = json.dumps(response_format, indent=4)
     prompt_builder.set_response_format(formatted_response_format)
     # Generate the prompt string
