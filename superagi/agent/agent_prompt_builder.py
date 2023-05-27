@@ -116,7 +116,6 @@ class AgentPromptBuilder:
     prompt_builder.add_constraint(
       'Exclusively use the commands listed in double quotes e.g. "command name"'
       "You should always try to use LlmThinkingTool first instead of directly jumping to google search"
-      "If you can't find a tool, use your own knowledge"
     )
 
     # Add tools to the PromptGenerator object
