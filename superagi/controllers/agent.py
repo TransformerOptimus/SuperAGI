@@ -10,8 +10,9 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.tool import Tool
 
-from datetime import datetime
 
+from datetime import datetime
+import json
 
 
 router = APIRouter()
@@ -111,9 +112,79 @@ def create_agent_with_config(agent_with_config:AgentWithConfig):
         db.session.add(execution)
 
 
+
+
+
+
+
         db.session.commit()
         return {
-            "agent_id":db_agent.id,
-            "agent_execution_id" :execution.id
+            "id":db_agent.id,
+            "execution_id" :execution.id,
+            "name":db_agent.name,
+            "contentType": "Agents"
         }
 
+
+@router.get("/get/project/{project_id}")
+def get_agents_by_project_id(project_id:int):
+    # Checking for project
+    project = db.session.query(Project).get(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    agents = db.session.query(Agent).filter(Agent.project_id == project_id).all()
+
+    new_agents = []
+    for agent in agents:
+        agent_dict = vars(agent)
+        new_agent = {
+            **agent_dict,
+
+        }
+        agent_id = agent.id
+
+        # Query the AgentExecution table using the agent ID
+        execution = db.session.query(AgentExecution).filter_by(agent_id=agent_id).first()
+
+        # Add the execution status to the agent dictionary
+        # agent['status'] = execution.status if execution else None
+        new_agent = {
+            **agent_dict,
+            'status':  execution.status
+        }
+        new_agents.append(new_agent)
+    return new_agents
+
+@router.get("/get/details/{agent_id}")
+def get_agent_configuration(agent_id:int):
+    # Define the keys to fetch
+    keys_to_fetch = ["goal", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
+                     "permission_type", "LTM_DB", "memory_window"]
+
+    agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
+
+    if not agent:
+        raise HTTPException(status_code=400, detail="Agent not found")
+    
+    # Query the AgentConfiguration table for the specified keys
+    results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),AgentConfiguration.agent_id == agent_id).all()
+
+    # Construct the JSON response
+    response = {result.key: result.value for result in results}
+    response["name"] = agent.name
+    response["description"] = agent.description
+    response["goal"] = eval(response["goal"])
+    response["constraints"] = eval(response["constraints"])
+    response["tools"]= [int(x) for x in json.loads(response["tools"])]
+
+    tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
+    print(tools)
+    response["tools"] = tools
+    executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
+    response["executions"] = executions
+
+    # Close the session
+    db.session.close()
+
+    return response

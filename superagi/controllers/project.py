@@ -61,4 +61,10 @@ def update_project(project_id: int, project: sqlalchemy_to_pydantic(Project,excl
     db.session.commit()
     return db_project
 
+@router.get("/get/organisation/{organisation_id}")
+def get_projects_organisation(organisation_id:int):
+    projects = db.session.query(Project).filter(Project.organisation_id == organisation_id).all()
+    return projects
+
+
 

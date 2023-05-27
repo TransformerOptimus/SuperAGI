@@ -80,6 +80,12 @@ engine = connectDB()
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# session.query(Agent).delete()
+# session.commit()
+# session.close()
+
+
+
 def ask_user_for_goals():
     goals = []
     while True:

@@ -5,6 +5,7 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 from superagi.models.user import User 
 # from superagi.models.user import User 
+from superagi.models.organisation import Organisation
 
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from fastapi_sqlalchemy import DBSessionMiddleware, db
@@ -19,7 +20,7 @@ from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
 from superagi.controllers.tool import router as tool_router
-
+from fastapi.middleware.cors import CORSMiddleware
 
 from sqlalchemy import create_engine
 # from sqlalchemy.orm import sessionmaker
@@ -39,6 +40,20 @@ engine = create_engine(db_url)
 # app.add_middleware(DBSessionMiddleware, db_url=f'postgresql://{db_username}:{db_password}@localhost/{db_name}')
 app.add_middleware(DBSessionMiddleware, db_url=db_url)
 
+# Configure CORS middleware
+origins = [
+    "http://localhost:3001",
+    "http://localhost:3000",
+    # Add more origins if needed
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 DBBaseModel.metadata.create_all(bind=engine,checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
@@ -76,6 +91,22 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
         content={"detail": exc.message}
     )
 
+from superagi.models.db import connectDB
+from sqlalchemy.orm import sessionmaker, query
+
+
+engine = connectDB()
+Session = sessionmaker(bind=engine)
+session = Session()
+organisation = session.query(Organisation).filter_by(id=1)
+if not organisation:
+    default_organization = Organisation(id=1,name='Default Organization', description='This is the default organization')
+    session.add(default_organization)
+    session.commit()
+session.close()
+
+
+
 @app.post('/login')
 def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
     email_to_find = request.email
@@ -108,6 +139,8 @@ async def root(Authorize: AuthJWT = Depends()):
 @app.get("/hello/{name}")
 async def say_hello(name: str,):
     return {"message": f"Hello {name}"}
+
+
 
 
 
