@@ -100,9 +100,9 @@ class SuperAgi:
             # print(autogpt_prompt)
             # print(autogpt_prompt_to_print)
             # Discontinue if continuous limit is reached
-            print("----------------------------------")
-            print(messages)
-            print("----------------------------------")
+            # print("----------------------------------")
+            # print(messages)
+            # print("----------------------------------")
             current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
 
             # spinner = Spinners.dots12
@@ -139,7 +139,7 @@ class SuperAgi:
             # print(assistant_reply)
             action = self.output_parser.parse(assistant_reply)
             tools = {t.name: t for t in self.tools}
-            print("Action: ", action)
+            # print("Action: ", action)
 
             if action.name == FINISH:
                 print(format_prefix_green + "\nTask Finished :) \n" + format_suffix_green)
