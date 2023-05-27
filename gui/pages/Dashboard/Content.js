@@ -80,9 +80,11 @@ export default function Content({selectedView, selectedProjectId, userName}) {
     };
 
     EventBus.on('settingsTab', settingsTab);
+    EventBus.on('reFetchAgents', fetchAgents);
 
     return () => {
       EventBus.off('settingsTab', settingsTab);
+      EventBus.off('reFetchAgents', fetchAgents);
     };
   });
 

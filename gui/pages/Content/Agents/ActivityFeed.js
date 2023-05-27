@@ -26,7 +26,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   useEffect(() => {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
-        console.log(response.data)
         setFeeds(response.data);
       })
       .catch((error) => {

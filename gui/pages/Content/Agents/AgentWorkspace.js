@@ -9,7 +9,8 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution} from "@/app/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
+import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
@@ -54,7 +55,27 @@ export default function AgentWorkspace({agentId}) {
       return
     }
 
-    setRunModal(false);
+    const executionData = { "agent_id": agentId, "name": runName }
+    const agentData = { "agent_id": agentId, "key": "goal", "value": goals}
+
+    addExecution(executionData)
+      .then((response) => {
+        setRunModal(false);
+        EventBus.emit('reFetchAgents', {});
+        toast.dark("New run created", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error creating execution:', error);
+        toast.dark("Could not create run", {autoClose: 1800});
+      });
+
+    updateAgents(agentData)
+      .then((response) => {
+        EventBus.emit('reFetchAgents', {});
+      })
+      .catch((error) => {
+        console.error('Error updating agent:', error);
+      });
   };
 
   const closeRunModal = () => {
@@ -69,6 +90,7 @@ export default function AgentWorkspace({agentId}) {
     updateExecution(selectedRun.id, executionData)
       .then((response) => {
         setSelectedRun(response.data);
+        EventBus.emit('reFetchAgents', {});
       })
       .catch((error) => {
         console.error('Error updating execution:', error);
@@ -83,6 +105,7 @@ export default function AgentWorkspace({agentId}) {
     getAgentDetails(agentId)
       .then((response) => {
         setAgentDetails(response.data);
+        console.log(response.data);
         setTools(response.data.tools);
         setGoals(response.data.goal);
       })

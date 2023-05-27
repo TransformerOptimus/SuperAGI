@@ -18,6 +18,10 @@ export const getAgents = (projectId) => {
   return axios.get(`${API_BASE_URL}/agents/get/project/${projectId}`);
 };
 
+export const getAgent = (agentId) => {
+  return axios.get(`${API_BASE_URL}/agents/get/${agentId}`);
+};
+
 export const getTools = () => {
   return axios.get(`${API_BASE_URL}/tools/get`);
 };
@@ -38,6 +42,14 @@ export const createAgent = (agentData) => {
   return axios.post(`${API_BASE_URL}/agents/create`, agentData);
 };
 
+export const updateAgents = (agentData) => {
+  return axios.put(`${API_BASE_URL}/agentconfigs/update/`, agentData);
+};
+
 export const updateExecution = (executionId, executionData) => {
   return axios.put(`${API_BASE_URL}/agentexecutions/update/${executionId}`, executionData);
+};
+
+export const addExecution = (executionData) => {
+  return axios.post(`${API_BASE_URL}/agentexecutions/add`, executionData);
 };
