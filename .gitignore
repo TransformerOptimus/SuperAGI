@@ -6,3 +6,9 @@ __pycache__
 superagi/models/__pycache__
 superagi/controllers/__pycache__
 venv
+gui/node_modules
+gui/.next
+.DS_Store
+.DS_Store?
+workspace/output
+workspace/input
