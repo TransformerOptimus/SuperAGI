@@ -8,6 +8,18 @@
     text-align: center;
 }
 
+.tab_button {
+    width: 100%;
+    border: none;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
 .selected {
     background: #EBEBEB;
     color: #111111;
@@ -28,7 +40,7 @@
 .tool_name {
     font-style: normal;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 12px;
     line-height: 21px;
     color: #FEFEFE;
     margin-top: -2px;
@@ -42,7 +54,7 @@
 .tool_publisher {
     font-style: normal;
     font-weight: 500;
-    font-size: 10px;
+    font-size: 9px;
     line-height: 17px;
     display: flex;
     align-items: center;

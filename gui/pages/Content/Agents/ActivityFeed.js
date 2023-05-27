@@ -3,8 +3,9 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import Head from 'next/head';
 
-export default function ActivityFeed({feeds, is_running}) {
+export default function ActivityFeed() {
   const [loadingText, setLoadingText] = useState("Thinking");
+  const [feeds, setFeeds] = useState([]);
 
   useEffect(() => {
     const text = 'Thinking';
@@ -28,7 +29,7 @@ export default function ActivityFeed({feeds, is_running}) {
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
     <div>
-      {feeds.map((feed, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
+      {[].map((feed, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex',marginBottom: checkEmptyText(feed.description) ? '10px' : ''}}>
           {feed.status === 'new' && <div className={styles.feed_icon}>🌟</div>}
           {feed.status === 'working' && <div className={styles.feed_icon}>⚒️</div>}
@@ -39,12 +40,12 @@ export default function ActivityFeed({feeds, is_running}) {
           <div className={styles.feed_description}>{feed.description}</div>
         </div>}
       </div>))}
-      {is_running && <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
+      <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           <div style={{fontSize:'20px'}}>🧠</div>
           <div className={styles.feed_title}><i>{loadingText}</i></div>
         </div>
-      </div>}
+      </div>
     </div>
   </>)
 }

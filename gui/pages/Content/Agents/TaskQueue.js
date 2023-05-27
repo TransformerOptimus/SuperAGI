@@ -5,9 +5,9 @@ import Head from 'next/head';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function TaskQueue({tasks}) {
+export default function TaskQueue() {
   const [task_title, setTaskTitle] = useState("")
-  const [taskList, setTask] = useState(tasks)
+  const [taskList, setTask] = useState([])
 
   const handleTaskTitleChange = (event) => {
     setTaskTitle(event.target.value);

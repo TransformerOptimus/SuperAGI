@@ -105,32 +105,6 @@ export default function ToolList({sendToolData}) {
     setTools(filteredTools);
   };
 
-  const handleEditDropdown = (toolId, mouseOver) => {
-    const updatedAgents = tools.map((tool) => tool.id === toolId ? {...tool, isEditing: mouseOver} : tool);
-
-    setTools(updatedAgents);
-  };
-  const openDeleteModal = (value) => {
-    setDeleteModal(true);
-    setSelectedTool(value)
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModal(false);
-    setSelectedTool(-1)
-  };
-
-  const handleToolDelete = (toolId) => {
-    const updatedAgents = tools.filter((tool) => tool.id !== toolId);
-    setTools(updatedAgents);
-    closeDeleteModal();
-    toast.success('Tool uninstalled', {autoClose: 1800});
-  };
-
-  const preventDefault = (e) => {
-    e.stopPropagation()
-  }
-
   return (
     <>
       <div>
@@ -138,77 +112,35 @@ export default function ToolList({sendToolData}) {
           <div className={styles1.title_box}>
             <p className={styles1.title_text}>Tools</p>
           </div>
-          <div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'3px'}}>
-            <button style={{width:'100%'}} className={styles1.agent_button} onClick={() => sendToolData({ id: -2, name: 'new tool', contentType: 'Create_Tool' })}>
-              + Add Tool
-            </button>
-          </div>
+          {/*<div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'3px'}}>*/}
+          {/*  <button style={{width:'100%'}} className={styles1.agent_button} onClick={() => sendToolData({ id: -2, name: 'new tool', contentType: 'Create_Tool' })}>*/}
+          {/*    + Add Tool*/}
+          {/*  </button>*/}
+          {/*</div>*/}
         </div>
-        {/*<div className="row">*/}
-        {/*  */}
-        {/*  <div className="col-12">*/}
-        {/*    <div className="page_title">Tools</div>*/}
-        {/*    <button style={{width:'100%'}} className={styles1.agent_button} onClick={() => onSelectEvent('create_tool')}>*/}
-        {/*      + Add Tool*/}
-        {/*    </button>*/}
-        {/*    /!*<button className="primary_medium" style={{float: 'right', marginRight: '10px'}} onClick={() => onSelectEvent('create_tool')}>*!/*/}
-        {/*    /!*  <Image width={16} height={16} src="/images/add_circle.png" alt="tool-icon"/>&nbsp;Add*!/*/}
-        {/*    /!*</button>*!/*/}
-        {/*  </div>*/}
-        {/*</div>*/}
         <div className="row" style={{padding: '10px'}}>
           <div className="col-12">
             {tools.length > 0 ? <div>
-              <div style={{display: 'flex', marginBottom: '15px'}}>
-                <div onClick={() => handleFilter('all')} className={`${styles.tool_filter} ${filterSelected === 'all' ? styles.selected : styles.not_selected}`}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-evenly',marginBottom:'10px'}}>
+                <button onClick={() => handleFilter('all')} className={styles.tab_button} style={filterSelected === 'all' ? {background:'#454254'} : {background:'transparent'}}>
                   All
-                </div>
-                <div onClick={() => handleFilter('custom')} className={`${styles.tool_filter} ${filterSelected === 'custom' ? styles.selected : styles.not_selected}`}>
+                </button>
+                <button onClick={() => handleFilter('custom')} className={styles.tab_button} style={filterSelected === 'custom' ? {background:'#454254'} : {background:'transparent'}}>
                   Custom
-                </div>
+                </button>
               </div>
               <div className={styles.tool_container}>
                 {tools.map((tool) => (<div key={tool.id} className={styles.tool_box}>
-                  <div style={{paddingBottom:'10px',marginBottom:'-6px'}}>
-                    <div className="row">
-                      <div className="col-12">
-                        <div style={{display:'flex'}}>
-                          <div>
-                            <Image className={styles.image_class} width={40} height={40} src={tool.icon} alt="tool-icon"/>
-                          </div>
-                          <div style={{marginLeft:'8px',marginTop:'3px'}}>
-                            <div className={styles.tool_name}>{tool.name}</div>
-                            <div className={styles.tool_publisher}>by {tool.publisher}&nbsp;{tool.isVerified && <Image width={16} height={16} src="/images/is_verified.svg" alt="verified-icon"/>}</div>
-                          </div>
-                          <div className="dropdown_container" style={{marginTop:'-2px',flexBasis:'auto',marginLeft:'auto'}}
-                               onMouseLeave={() => handleEditDropdown(tool.id, false)}>
-                            <div style={{
-                              display: 'flex', alignItems: 'center', justifyContent: 'flex-end'
-                            }}>
-                              <button style={{marginLeft: '10px', background:'none !important', border:'none !important'}} className={styles.more_button}
-                                      onMouseEnter={() => handleEditDropdown(tool.id, true)}>
-                                <Image width={15} height={16} className="three_dots_img"
-                                       src="/images/three_dots.svg" alt="more-options"/>
-                              </button>
-                            </div>
-                            {tool.isEditing && (<div className="dropdown" style={{marginLeft: '-38px'}}
-                                                     onMouseEnter={() => handleEditDropdown(tool.id, true)}
-                                                     onMouseLeave={() => handleEditDropdown(tool.id, false)}>
-                              <ul>
-                                <li>Edit</li>
-                                <li onClick={() => openDeleteModal(tool.id)}
-                                    style={{color: '#FF5454'}} className="act_delete">Uninstall
-                                </li>
-                              </ul>
-                            </div>)}
-                          </div>
+                  <div className="row">
+                    <div className="col-12">
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start',padding:'5px'}}>
+                        <div>
+                          <Image className={styles.image_class} width={30} height={30} src={tool.icon} alt="tool-icon"/>
                         </div>
-                        {/*<div className={styles.tool_description}>{tool.description}</div>*/}
-                        {/*<div className={styles.tag_box}>*/}
-                        {/*  {tool.tags.map((tag, index) => (<div key={index} className="tool_container" style={{marginBottom:'10px'}}>*/}
-                        {/*    {tag}*/}
-                        {/*  </div>))}*/}
-                        {/*</div>*/}
+                        <div style={{marginLeft:'8px',marginTop:'3px'}}>
+                          <div className={styles.tool_name}>{tool.name}</div>
+                          <div className={styles.tool_publisher}>by {tool.publisher}&nbsp;{tool.isVerified && <Image width={16} height={16} src="/images/is_verified.svg" alt="verified-icon"/>}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -221,23 +153,6 @@ export default function ToolList({sendToolData}) {
             </div>}
           </div>
         </div>
-        {showDeleteModal && (<div className="modal" onClick={closeDeleteModal}>
-          <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-            <div style={{padding: '30px 30px 10px 30px'}}>
-              <p className="form_label" style={{fontSize: '18px'}}>Are you sure you want to uninstall
-                this tool?</p>
-            </div>
-            <br/>
-            <div style={{display: 'flex', justifyContent: 'flex-end', padding: '0 30px 20px 0'}}>
-              <button className="secondary_medium" style={{marginRight: '10px'}}
-                      onClick={closeDeleteModal}>Cancel
-              </button>
-              <button className="primary_medium" onClick={() => handleToolDelete(selectedTool)}>
-                Uninstall
-              </button>
-            </div>
-          </div>
-        </div>)}
       </div>
       <ToastContainer/>
     </>

@@ -4,8 +4,9 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import { createAgent } from "@/app/DashboardService";
+import { EventBus } from "@/utils/eventBus";
 
-export default function AgentCreate({selectedProjectId, fetchAgents}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, closeTab}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -19,7 +20,7 @@ export default function AgentCreate({selectedProjectId, fetchAgents}) {
   const constraintsArray = ['new constraint 1', 'new constraint 2', 'new constraint 3']
   const [constraints, setConstraints] = useState(constraintsArray);
 
-  const models = ['Open AI - 3.5', 'Open AI - 4.0', 'Open AI - 3.0']
+  const models = ['gpt-4', 'gpt-3']
   const [model, setModel] = useState(models[0]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -233,6 +234,8 @@ export default function AgentCreate({selectedProjectId, fetchAgents}) {
     createAgent(agentData)
       .then((response) => {
         fetchAgents();
+        closeTab();
+        sendAgentData({ id: response.data.id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id })
         toast.dark('Agent created successfully', {autoClose: 1800});
       })
       .catch((error) => {

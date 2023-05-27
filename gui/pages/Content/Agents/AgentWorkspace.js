@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,17 +9,19 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import { EventBus } from "@/utils/eventBus";
+import {getAgentDetails, getAgentExecutions} from "@/app/DashboardService";
 
-export default function AgentWorkspace({agent}) {
+export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('action_console')
   const [history, setHistory] = useState(false)
-  const [selectedRun, setSelectedRun] = useState(agent.runs[0])
+  const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
-  const agent_goals = agent.goal
-  const [goals, setGoals] = useState(agent_goals);
-  const [runName, setRunName] = useState("new run");
+  const [goals, setGoals] = useState(null)
+  const [runName, setRunName] = useState("new run")
+  const [isRunning, setAgentRunning] = useState(true)
+  const [agentDetails, setAgentDetails] = useState(null)
+  const [agentExecutions, setAgentExecutions] = useState(null)
 
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
@@ -52,25 +54,11 @@ export default function AgentWorkspace({agent}) {
       return
     }
 
-    EventBus.emit('runCreate', {
-      agentId: agent.id,
-      newRun: {
-        id: agent.runs.length,
-        name: runName,
-        is_running: false,
-        calls: 0,
-        last_active: 0,
-        notification_count: 0,
-        tasks: [],
-        feeds: []
-      },
-      updatedGoals: goals
-    });
     setRunModal(false);
   };
 
   const closeRunModal = () => {
-    setGoals(agent_goals);
+    setGoals(null);
     setRunName("new run");
     setRunModal(false);
   };
@@ -79,9 +67,29 @@ export default function AgentWorkspace({agent}) {
     e.stopPropagation();
   };
 
+  useEffect(() => {
+    getAgentDetails(agentId)
+      .then((response) => {
+        setAgentDetails(response.data);
+        setGoals(response.data.goal);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent details:', error);
+      });
+
+    getAgentExecutions(agentId)
+      .then((response) => {
+        setAgentExecutions(response.data);
+        setSelectedRun(response.data[0]);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent executions:', error);
+      });
+  }, [agentId])
+
   return (<>
     <div style={{display:'flex',height:'100%'}}>
-      {history && <RunHistory runs={agent.runs} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      {/*{history && <RunHistory runs={agentExecutions} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}*/}
       <div style={{width: history ? '40%' : '60%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -89,13 +97,13 @@ export default function AgentWorkspace({agent}) {
               <Image width={16} height={16} src="/images/history.png" alt="history-icon"/>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
-              {selectedRun.is_running && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
-              <div style={selectedRun.is_running ? {marginLeft:'7px'} : {marginLeft:'-8px'}}>{selectedRun.name}</div>
+              {isRunning && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
+              <div style={isRunning ? {marginLeft:'7px'} : {marginLeft:'-8px'}}>run name</div>
             </div>
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>
             </div>
-            {agent.agent_type === 'Maintain Task Queue' && <div style={{marginLeft:'7px'}}>
+            {agentDetails && agentDetails.agent_type === 'Maintain Task Queue' && <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button} style={leftPanel === 'agent_type' ? {background:'#454254'} : {background:'transparent'}}>Task Queue</button>
             </div>}
           </div>
@@ -108,8 +116,8 @@ export default function AgentWorkspace({agent}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <ActivityFeed feeds={selectedRun.feeds} is_running={selectedRun.is_running}/>}
-          {leftPanel === 'agent_type' && <TaskQueue tasks={selectedRun.tasks}/>}
+          {leftPanel === 'activity_feed' && <ActivityFeed/>}
+          {leftPanel === 'agent_type' && <TaskQueue/>}
         </div>
       </div>
       <div style={{width:'40%',height:'100%'}}>
@@ -144,7 +152,7 @@ export default function AgentWorkspace({agent}) {
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
-          {rightPanel === 'details' && <Details agent={agent}/>}
+          {rightPanel === 'details' && <Details agentDetails={agentDetails}/>}
           {rightPanel === 'resource_manager' && <ResourceManager/>}
         </div>
       </div>

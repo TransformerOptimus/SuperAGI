@@ -11,7 +11,6 @@ export default function App() {
   const [selectedView, setSelectedView] = useState('agents');
   const [userName, setUserName] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
-  const [projects, setProjects] = useState(null);
   const organisationId = 1;
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function App() {
 
       getProject(organisationId)
         .then((response) => {
-          setProjects(response.data);
           setSelectedProject(response.data[0]);
         })
         .catch((error) => {
@@ -96,7 +94,7 @@ export default function App() {
         </div>
         <div style={workSpaceStyle}>
           <div style={topBarStyle}>
-            <TopBar userName={userName} selectedProject={selectedProject} projects={projects}/>
+            <TopBar userName={userName} selectedProject={selectedProject}/>
           </div>
           <div style={contentStyle}>
             <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>

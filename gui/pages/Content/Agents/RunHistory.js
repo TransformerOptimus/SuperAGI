@@ -33,18 +33,19 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
               {run.is_running && <div><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
               <div style={run.is_running ? {marginLeft:'7px'} : {}}>{run.name}</div>
             </div>
-            {run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}
+            {/*{run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}*/}
           </div>
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+            {/*<div style={{display:'flex',alignItems:'center'}}>*/}
+            {/*  <div>*/}
+            {/*    <Image width={12} height={12} src="/images/call_made.png" alt="call-icon"/>*/}
+            {/*  </div>*/}
+            {/*  <div className={styles.history_info}>*/}
+            {/*    {run.calls} Calls*/}
+            {/*  </div>*/}
+            {/*</div>*/}
+            {/*<div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>*/}
             <div style={{display:'flex',alignItems:'center'}}>
-              <div>
-                <Image width={12} height={12} src="/images/call_made.png" alt="call-icon"/>
-              </div>
-              <div className={styles.history_info}>
-                {run.calls} Calls
-              </div>
-            </div>
-            <div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>
               <div>
                 <Image width={12} height={12} src="/images/schedule.png" alt="schedule-icon"/>
               </div>

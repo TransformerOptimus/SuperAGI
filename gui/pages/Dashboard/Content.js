@@ -8,12 +8,12 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import { getAgents, deleteAgent } from "@/app/DashboardService";
+import { getAgents } from "@/app/DashboardService";
 
 export default function Content({selectedView, selectedProjectId}) {
   const [tabs, setTabs] = useState([])
   const [selectedTab, setSelectedTab] = useState(null)
-  const [allAgents, setAgents] = useState(null);
+  const [agents, setAgents] = useState(null);
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -70,28 +70,22 @@ export default function Content({selectedView, selectedProjectId}) {
     };
   });
 
-  const handleDeleteAgent = (agentId) => {
-    deleteAgent(agentId)
-      .then(() => {
-        // Remove the deleted agent from the agents list
-        const updatedAgents = allAgents.filter((agent) => agent.id !== agentId);
-        setAgents(updatedAgents);
-      })
-      .catch((error) => {
-        console.error('Error deleting agent:', error);
-      });
-  };
-
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
-        {selectedView === 'agents' && <Agents sendAgentData={addTab} allAgents={allAgents}/>}
+        {selectedView === 'agents' && <Agents sendAgentData={addTab} agents={agents}/>}
         {selectedView === 'tools' && <Tools sendToolData={addTab}/>}
       </div>
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div className={styles.empty_state}>
           <div>
-            <Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/>
+            <div><Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/></div>
+            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
+              <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent" })} className={styles.empty_state_button}>Create new agent</button>
+            </div>
+            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'20px'}}>
+              <button className={styles.empty_state_button}>View last active agent</button>
+            </div>
           </div>
         </div>
       </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -115,13 +109,13 @@ export default function Content({selectedView, selectedProjectId}) {
             {tabs.map((tab) => (
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
-                  {tab.contentType === 'Agents' && <AgentWorkspace agent={tab}/>}
+                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate selectedProjectId={selectedProjectId} fetchAgents={fetchAgents}/>
+                        <AgentCreate closeTab={() => closeTab(-1)} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents}/>
                       </div>
                       <div className="col-3"></div>
                     </div>

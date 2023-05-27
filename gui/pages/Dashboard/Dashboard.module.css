@@ -175,3 +175,15 @@
     justify-content: flex-end;
     align-items: center;
 }
+
+.empty_state_button {
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: white;
+    padding: 5px 20px;
+}
+
+.empty_state_button:hover {
+    background: #494856;
+}

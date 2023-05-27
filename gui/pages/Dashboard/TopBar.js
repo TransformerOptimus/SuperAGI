@@ -3,7 +3,7 @@ import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
 
-export default function TopBar({userName, selectedProject, projects}) {
+export default function TopBar({userName, selectedProject}) {
   const settingsTab = () => {
     EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
   }
