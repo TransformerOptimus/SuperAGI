@@ -7,7 +7,10 @@ superagi/models/__pycache__
 superagi/controllers/__pycache__
 **agent_dictvenv
 **/__gitpycache__/
-gui
+gui/node_modules
+gui/.next
+.DS_Store
+.DS_Store?
 venv
 gui/node_modules
 gui/.next
