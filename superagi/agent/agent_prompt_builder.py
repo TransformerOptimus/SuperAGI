@@ -91,7 +91,6 @@ class AgentPromptBuilder:
     prompt_builder.set_ai_name(ai_name)
     prompt_builder.set_ai_role(ai_role)
     base_prompt = (
-      "Don't write any greet message instead directly jump to the respose format as your first response and write the goal as the first text thought"
       "Your decisions must always be made independently "
       "without seeking user assistance.\n"
       "Play to your strengths as an LLM and pursue simple "
@@ -115,6 +114,7 @@ class AgentPromptBuilder:
     prompt_builder.add_constraint("No user assistance")
     prompt_builder.add_constraint(
       'Exclusively use the commands listed in double quotes e.g. "command name"'
+      "You should always try to use LLmthinkingtool first instead of directly jumping to google search"
       "If you can't find a tool, use your own knowledge"
     )
 

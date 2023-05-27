@@ -6,6 +6,7 @@ from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.google_search.tools import GoogleSearchSchema, GoogleSearchTool
 from superagi.tools.google_serp_search.tools import GoogleSerpTool
 from superagi.tools.twitter.send_tweet import SendTweetTool
+from superagi.tools.thinking.tools import LlmThinkingTool
 from superagi.tools.email.read_email import ReadEmailTool
 from superagi.tools.email.send_email import SendEmailTool
 from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
@@ -26,6 +27,7 @@ def create_campaign(campaign_name: str):
 
 
 tools = [
+    LlmThinkingTool(),
     GoogleSearchTool(),
     WriteFileTool(),
     ReadFileTool(),
@@ -43,7 +45,7 @@ tools = [
 
 
 
-superagi = SuperAgi.from_llm_and_tools("Super AGI", "To solve any complex problems for you", memory, tools, OpenAi(model="gpt-4"))
+superagi = SuperAgi.from_llm_and_tools("Super AGI", "To solve any complex problems for you", memory, tools, OpenAi(model="gpt-3.5-turbo"))
 user_goal=[]
 user_goal=str(input("Enter your Goals seperated by ',':\n")).split(",")
 superagi.execute(user_goal)
