@@ -40,7 +40,7 @@ class AgentOutputParser(BaseOutputParser):
             format_prefix_green = "\033[92m\033[1m"
             format_suffix_green = "\033[0m\033[0m"
             print(format_prefix_green + "Intelligence : " + format_suffix_green)
-            print(format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
+            print(format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"]["text"] + "\n")
             print(format_prefix_yellow + "Reasoning: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
             print(format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "\n")
             print(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
