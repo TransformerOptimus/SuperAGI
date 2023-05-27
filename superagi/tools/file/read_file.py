@@ -23,6 +23,7 @@ class ReadFileTool(BaseTool):
         root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
         final_path = file_name
         if root_dir is not None:
+            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
             final_path = root_dir + file_name
         else:
@@ -33,4 +34,4 @@ class ReadFileTool(BaseTool):
 
         file = open(final_path, 'r')
         file_content = file.read()
-        return file_content
+        return file_content[:1500]
