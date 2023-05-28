@@ -14,7 +14,7 @@ def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]), Authorize: A
     db_user = db.session.query(User).filter(User.email == user.email).first()
     if db_user:
         return db_user
-    db_user = User(name=user.name, email=user.email, password=user.password, organisation=user.organisation)
+    db_user = User(name=user.name, email=user.email, password=user.password, organisation_id=user.organisation_id)
     db.session.add(db_user)
     db.session.commit()
     print("User created", db_user)

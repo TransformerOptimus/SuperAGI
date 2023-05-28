@@ -1,3 +1,5 @@
+import json
+
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
@@ -58,4 +60,33 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 @router.get("/get/execution/{agent_execution_id}")
 def get_agent_execution_feed(agent_execution_id: int, Authorize: AuthJWT = Depends()):
     feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).all()
-    return feeds
+    # parse json
+    final_feeds = []
+    for feed in feeds:
+        final_feeds.append(parse_feed(feed))
+    return final_feeds
+
+
+def parse_feed(feed):
+    if feed.role == "assistant":
+        try:
+            parsed = json.loads(feed.feed, strict=False)
+            format_prefix_yellow = "\033[93m\033[1m"
+            format_suffix_yellow = "\033[0m\033[0m"
+            format_prefix_green = "\033[92m\033[1m"
+            format_suffix_green = "\033[0m\033[0m"
+            final_output = format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"][
+                "reasoning"] + "<br>"
+            final_output += format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "<br>"
+            final_output += format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"][
+                "criticism"] + "<br>"
+            final_output += format_prefix_green + "Action : " + format_suffix_green + "<br>"
+            final_output += format_prefix_yellow + "Tool: " + format_suffix_yellow + parsed["command"]["name"] + "<br>"
+
+            return {"role": "assistant", "feed": final_output}
+        except Exception:
+            return feed
+    if feed.role == "assistant":
+        return feed
+
+    return feed

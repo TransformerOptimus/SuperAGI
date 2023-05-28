@@ -64,7 +64,6 @@ def update_agent_execution(agent_execution_id: int,
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
     db_agent_execution.last_execution_time = datetime.now()
-    db_agent_execution.name = agent_execution.name
     db.session.commit()
 
     if db_agent_execution.status == "RUNNING":
@@ -72,7 +71,7 @@ def update_agent_execution(agent_execution_id: int,
         print(db_agent_execution)
         print("JSON:")
         print(db_agent_execution.to_json())
-        execute_agent.delay(db_agent_execution.id)
+        execute_agent.delay(db_agent_execution.id, datetime.now())
         # AgentExecutor.create_execute_agent_task(db_agent_execution.id)
 
     return db_agent_execution

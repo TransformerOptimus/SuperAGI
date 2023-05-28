@@ -138,10 +138,10 @@ class SuperAgi:
 
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
 
-        spinner = Halo(text='Thinking...', spinner='dots')
-        spinner.start()
+        # spinner = Halo(text='Thinking...', spinner='dots')
+        # spinner.start()
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
-        spinner.stop()
+        # spinner.stop()
         print("\n")
 
         if response['content'] is None:

@@ -110,10 +110,10 @@ session = Session()
 organisation = session.query(Organisation).filter_by(id=1).first()
 
 if not organisation or organisation is None:
-    default_organization = Organisation(id=1, name='Default Organization',
+    organisation = Organisation(id=1, name='Default Organization',
                                         description='This is the default organization')
     print("Org create.....")
-    session.add(default_organization)
+    session.add(organisation)
     session.commit()
 
 project_name = "Default Project"

@@ -1,6 +1,8 @@
 # from superagi.models.types.agent_with_config import AgentWithConfig
 import importlib
 import json
+from datetime import datetime
+from time import time
 
 from celery import Celery
 from sqlalchemy.orm import sessionmaker
@@ -31,17 +33,6 @@ engine = connectDB()
 Session = sessionmaker(bind=engine)
 
 class AgentExecutor:
-    app = None
-    @classmethod
-    def create_execute_agent_task(cls, agent_execution_id: int):
-        superagi.worker.execute_agent.apply_async(agent_execution_id, 10)
-        # if cls.app is None:
-        #     cls.app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
-        #     cls.app.conf.broker_url = "redis://localhost:6379"  # 'redis://' + redis_url
-        #     cls.app.conf.result_backend = "redis://localhost:6379"  # 'redis://' + redis_url
-        #     cls.app.autodiscover_tasks(['superagi.worker'])
-        # cls.app.send_task("superagi.worker.execute_agent", args=[agent_execution_id])
-
     @staticmethod
     def validate_filename(filename):
         if filename.endswith(".py"):
@@ -106,9 +97,7 @@ class AgentExecutor:
             return
         else:
             print("Starting next job for agent execution id: ", agent_execution_id)
-            # AgentExecutor.create_execute_agent_task(agent_execution_id)
-
-            # worker.execute_agent.delay(agent_execution_id)
+            superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
     def fetch_agent_configuration(self, session, agent, agent_execution):
         agent_configurations = session.query(AgentConfiguration).filter_by(agent_id=agent_execution.agent_id).all()

@@ -7,16 +7,13 @@ from superagi.jobs.agent_executor import AgentExecutor
 
 redis_url = get_config('REDIS_URL')
 
-CELERY_IMPORTS = ('superagi.worker')
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
-app.conf.broker_url = "redis://localhost:6379" #'redis://' + redis_url
-app.conf.result_backend = "redis://localhost:6379" #'redis://' + redis_url
+app.conf.broker_url = "redis://" + redis_url + "/0"
+app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
-app.autodiscover_tasks(['superagi.worker'])
 
-
-@app.task(bind=True)
-def execute_agent(agent_execution_id: int):
+@app.task(name="execute_agent")
+def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
-    print(agent_execution_id)
+    print("Execute agent:" + str(time) + "," + str(agent_execution_id))
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)

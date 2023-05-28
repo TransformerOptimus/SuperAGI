@@ -19,6 +19,15 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const selectedRunId1 = selectedRunId;
+    const interval = window.setInterval(function(){
+      fetchFeeds(selectedRunId1);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [selectedRunId]);
+
   function checkEmptyText(text) {
     return text.replace(/\s/g, '') !== ''
   }
@@ -32,6 +41,16 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
         console.error('Error fetching execution feeds:', error);
       });
   }, [selectedRunId])
+
+  function fetchFeeds(selectedRunId) {
+    getExecutionFeeds(selectedRunId)
+      .then((response) => {
+        setFeeds(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching execution feeds:', error);
+      });
+  }
 
   return (<>
     <Head>

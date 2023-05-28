@@ -1,21 +1,16 @@
-from superagi.tools.file.write_file import WriteFileTool
-from superagi.tools.file.read_file import ReadFileTool
-from superagi.tools.google_search.google_search import GoogleSearchSchema, GoogleSearchTool
-from superagi.tools.google_serp_search.google_serp_search import GoogleSerpTool
+import argparse
+from datetime import datetime
+from time import time
+
+from sqlalchemy.orm import sessionmaker
+
+from superagi.worker import execute_agent
+from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from superagi.models.base_model import DBBaseModel
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.db import connectDB
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
-from superagi.models.agent import Agent
-from superagi.models.agent_execution import AgentExecution
-from datetime import datetime
-from superagi.models.db import connectDB
-from sqlalchemy.orm import sessionmaker, query
-from celery_app import test_fucntion
-
-import argparse
 
 parser = argparse.ArgumentParser(description='Create a new agent.')
 parser.add_argument('--name', type=str, help='Agent name for the script.')
@@ -109,6 +104,6 @@ def run_superagi_cli(agent_name=None,agent_description=None,agent_goals=None):
     print("Final Execution")
     print(execution)
 
-    test_fucntion.delay(execution.to_json())
+    execute_agent.delay(execution.id, datetime.now())
     
 run_superagi_cli(agent_name=agent_name,agent_description=agent_description,agent_goals=agent_goals)
