@@ -5,11 +5,11 @@ from superagi.models.base_model import DBBaseModel
 class User(DBBaseModel):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True,autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
-    organisation = Column(Integer)
+    organisation_id = Column(Integer)
 
 
     def __repr__(self):

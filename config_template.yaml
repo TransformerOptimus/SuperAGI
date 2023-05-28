@@ -29,3 +29,6 @@ DB_NAME:
 DB_USERNAME: 
 DB_PASSWORD: 
 MAX_TOOL_TOKEN_LIMIT: 600
+
+# redis details
+REDIS_URL: localhost:6379

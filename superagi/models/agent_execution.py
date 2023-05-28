@@ -11,19 +11,17 @@ class AgentExecution(DBBaseModel):
     id = Column(Integer, primary_key=True)
     status = Column(String) #like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED')
     # logs = Column(Text)
-    name = Column(String)
     agent_id = Column(Integer)
     last_execution_time = Column(DateTime)
 
 
     def __repr__(self):
-        return f"AgentExecution(id={self.id}, name={self.name},status='{self.status}', " \
+        return f"AgentExecution(id={self.id}, status='{self.status}', " \
                f"last_execution_time='{self.last_execution_time}', agent_id={self.agent_id})"
     
     def to_dict(self):
         return {
             'id': self.id,
-            'name':self.name,
             'status': self.status,
             'agent_id': self.agent_id,
             'last_execution_time': self.last_execution_time.isoformat()
@@ -38,7 +36,6 @@ class AgentExecution(DBBaseModel):
         last_execution_time = datetime.fromisoformat(data['last_execution_time'])
         return cls(
             id=data['id'],
-            name=data['name'],
             status=data['status'],
             agent_id=data['agent_id'],
             last_execution_time=last_execution_time

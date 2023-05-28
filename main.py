@@ -3,14 +3,16 @@ from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
-from superagi.models.user import User 
+
+from superagi.models.project import Project
+from superagi.models.user import User
 # from superagi.models.user import User 
 from superagi.models.organisation import Organisation
 
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from superagi.models.base_model import DBBaseModel
-from superagi.models.types.LoginRequest import LoginRequest
+from superagi.models.types.login_request import LoginRequest
 from superagi.controllers.user import router as user_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
@@ -31,15 +33,17 @@ from superagi.config.config import get_config
 import os
 import inspect
 
-
 app = FastAPI()
 
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
 
+if db_username is None:
+    db_url = f'postgresql://localhost/{db_name}'
+else:
+    db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'
 
-db_url = f'postgresql://{db_username}:{db_password}@localhost/{db_name}'
 engine = create_engine(db_url)
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -61,21 +65,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DBBaseModel.metadata.create_all(bind=engine,checkfirst=True)
+DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
 app.include_router(user_router, prefix="/users")
-app.include_router(tool_router,prefix="/tools")
+app.include_router(tool_router, prefix="/tools")
 app.include_router(organisation_router, prefix="/organisations")
 app.include_router(project_router, prefix="/projects")
 app.include_router(budget_router, prefix="/budgets")
-app.include_router(agent_router,prefix="/agents")
-app.include_router(agent_config_router,prefix="/agentconfigs")
-app.include_router(agent_execution_router,prefix="/agentexecutions")
-app.include_router(agent_execution_feed_router,prefix="/agentexecutionfeeds")
-
-
+app.include_router(agent_router, prefix="/agents")
+app.include_router(agent_config_router, prefix="/agentconfigs")
+app.include_router(agent_execution_router, prefix="/agentexecutions")
+app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 
 
 # in production you can use Settings management
@@ -83,10 +85,12 @@ app.include_router(agent_execution_feed_router,prefix="/agentexecutionfeeds")
 class Settings(BaseModel):
     authjwt_secret_key: str = "secret"
 
+
 # callback to get your configuration
 @AuthJWT.load_config
 def get_config():
     return Settings()
+
 
 # exception handler for authjwt
 # in production, you can tweak performance using orjson response
@@ -97,26 +101,36 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
         content={"detail": exc.message}
     )
 
+
 from superagi.models.db import connectDB
 from sqlalchemy.orm import sessionmaker, query
 
-
 Session = sessionmaker(bind=engine)
 session = Session()
-organisation = session.query(Organisation).filter_by(id=1)
-if not organisation:
-    default_organization = Organisation(id=1,name='Default Organization', description='This is the default organization')
+organisation = session.query(Organisation).filter_by(id=1).first()
+
+if not organisation or organisation is None:
+    default_organization = Organisation(id=1, name='Default Organization',
+                                        description='This is the default organization')
+    print("Org create.....")
     session.add(default_organization)
     session.commit()
 
+project_name = "Default Project"
+project = session.query(Project).filter_by(name="Default Project", organisation_id=organisation.id).first()
+# project = Project.query.filter_by(name=project, organisation_id=org.id).first()
+if project is None:
+    project = Project(name=project_name, description=project_name, organisation_id=organisation.id)
+    session.add(project)
+    session.commit()
 
 
 def get_classes_in_file(file_path):
     classes = []
-    
+
     # Load the module from the file
     module = load_module_from_file(file_path)
-    
+
     # Iterate over all members of the module
     for name, member in inspect.getmembers(module):
         # Check if the member is a class
@@ -124,35 +138,37 @@ def get_classes_in_file(file_path):
             # classes.append(member.__name__)
             class_dict = {}
             class_dict['class_name'] = member.__name__
-            
+
             class_obj = getattr(module, member.__name__)
-            if  member.__name__ != "BaseModel" and member.__name__ != "BaseTool" and member.__name__ .endswith("Tool"):
+            if member.__name__ != "BaseModel" and member.__name__ != "BaseTool" and member.__name__.endswith("Tool"):
                 try:
-                    obj = class_obj() 
+                    obj = class_obj()
                     class_dict['class_attribute'] = obj.name
                 except:
                     class_dict['class_attribute'] = None
             classes.append(class_dict)
     return classes
 
+
 def load_module_from_file(file_path):
     import importlib.util
-    
+
     spec = importlib.util.spec_from_file_location("module_name", file_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    
+
     return module
+
 
 # Function to process the files and extract class information
 def process_files(folder_path):
     existing_tools = session.query(Tool).all()
     print("Exisiting Tool")
-    existing_tools = [Tool(id=None, name=tool.name, folder_name=tool.folder_name, class_name=tool.class_name) for tool in existing_tools]
+    existing_tools = [Tool(id=None, name=tool.name, folder_name=tool.folder_name, class_name=tool.class_name) for tool
+                      in existing_tools]
     print(existing_tools)
 
-
-    new_tools = []         
+    new_tools = []
     # Iterate over all subfolders
     for folder_name in os.listdir(folder_path):
         folder_dir = os.path.join(folder_path, folder_name)
@@ -163,12 +179,14 @@ def process_files(folder_path):
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # print(f"Folder = {folder_name} File = {file_name}")
-                    #Get clasess
+                    # Get clasess
                     classes = get_classes_in_file(file_path=file_path)
-                    filtered_classes = [clazz for clazz in classes if clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
+                    filtered_classes = [clazz for clazz in classes if
+                                        clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
                     for clazz in filtered_classes:
-                        print("Class : ",clazz)
-                        new_tool = Tool(class_name=clazz["class_name"],folder_name=folder_name,file_name=file_name,name=clazz["class_attribute"])
+                        print("Class : ", clazz)
+                        new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name, file_name=file_name,
+                                        name=clazz["class_attribute"])
                         new_tools.append(new_tool)
                         # print("______________________________________________________________________")
                         # print(new_tool)
@@ -178,11 +196,11 @@ def process_files(folder_path):
                         # else:
                         #     print("OOLDDD")
                         #     # print(new_tool)
-    
+
     print("FINALLLLLLLLLLLLLLLLLLL")
     print(existing_tools)
     print(new_tools)
-    try:                        
+    try:
         session.query(Tool).delete()
         session.add_all(new_tools)
         session.commit()
@@ -190,15 +208,14 @@ def process_files(folder_path):
         # Roll back the transaction if an exception occurs
         session.rollback()
         raise e
-   
+
 
 # Specify the folder path
 folder_path = "superagi/tools"
 
 # Process the files and store class information
-# process_files(folder_path)
+process_files(folder_path)
 session.close()
-
 
 # @app.post('/login')
 # def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
@@ -220,8 +237,6 @@ session.close()
 #     return {"user": current_user}
 
 
-
-
 # @app.get("/")
 # async def root(Authorize: AuthJWT = Depends()):
 #     Authorize.jwt_required()
@@ -232,9 +247,6 @@ session.close()
 # @app.get("/hello/{name}")
 # async def say_hello(name: str,):
 #     return {"message": f"Hello {name}"}
-
-
-
 
 
 # # __________________TO RUN____________________________
@@ -248,4 +260,3 @@ session.close()
 # #     test_fucntion.delay()
 # #     print("Test Done!")
 # #     return "Returned!"
-

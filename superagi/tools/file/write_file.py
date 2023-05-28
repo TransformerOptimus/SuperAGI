@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 from superagi.tools.base_tool import BaseTool
 
-import tweepy
 from superagi.config.config import get_config
 
 
