@@ -14,10 +14,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
 
-  const goalsArray = ['agent goal 1', 'agent goal 2', 'agent goal 3']
+  const goalsArray = ['agent goal 1']
   const [goals, setGoals] = useState(goalsArray);
 
-  const constraintsArray = ['new constraint 1', 'new constraint 2', 'new constraint 3']
+  const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
+    "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
+    "No user assistance", "Ensure the command and args are as per current plan and reasoning",
+    'Exclusively use the commands listed in double quotes e.g. "command name"']
   const [constraints, setConstraints] = useState(constraintsArray);
 
   const models = ['gpt-3.5-turbo', 'gpt-4']

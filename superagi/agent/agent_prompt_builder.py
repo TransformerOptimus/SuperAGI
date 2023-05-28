@@ -92,17 +92,15 @@ class AgentPromptBuilder:
 
     #Base prompt is same always not fetching from DB
     base_prompt = (
-      "Your decisions must always be made independently "
-      "without seeking user assistance.\n"
-      "Play to your strengths as an LLM and pursue simple "
-      "strategies with no legal complications.\n"
+      "Your decisions must always be made independently without seeking user assistance.\n"
+      "Play to your strengths as an LLM and pursue simple strategies with no legal complications.\n"
       "If you have completed all your tasks, make sure to "
       'use the "finish" command.\n'
     )
     prompt_builder.set_base_prompt(base_prompt)
 
     # Add constraints to the PromptGenerator object
-    
+
 
     # prompt_builder.add_constraint(
       # "~4000 word limit for short term memory. "

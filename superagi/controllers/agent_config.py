@@ -6,36 +6,36 @@ from superagi.models.agent_config import AgentConfiguration
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
-
 router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentConfiguration),status_code=201)
-def create_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"]),Authorize: AuthJWT = Depends()):
-
+@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentConfiguration), status_code=201)
+def create_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"]),
+                 Authorize: AuthJWT = Depends()):
     agent = db.session.query(Agent).get(agent_config.agent_id)
-    
+
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-    
-    db_agent_config = AgentConfiguration(agent_id=agent_config.agent_id,key=agent_config.key,value=agent_config.value)
+
+    db_agent_config = AgentConfiguration(agent_id=agent_config.agent_id, key=agent_config.key, value=agent_config.value)
     db.session.add(db_agent_config)
     db.session.commit()
     return db_agent_config
 
+
 @router.get("/get/{agent_config_id}", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def get_agent(agent_config_id: int,Authorize: AuthJWT = Depends()):
+def get_agent(agent_config_id: int, Authorize: AuthJWT = Depends()):
     db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
     if not db_agent_config:
         raise HTTPException(status_code=404, detail="Agent Configuration not found")
     return db_agent_config
 
 
-
 @router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def update_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,exclude=["id"])):
-    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == agent_config.key,AgentConfiguration.agent_id == agent_config.agent_id).first()
+def update_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"])):
+    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == agent_config.key,
+                                                                  AgentConfiguration.agent_id == agent_config.agent_id).first()
     # if not db_agent_config:
     #     raise HTTPException(status_code=404, detail="Agent Configuration not found")
 
@@ -44,6 +44,7 @@ def update_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,exclude
 
     db.session.commit()
     return db_agent_config
+
 
 @router.get("/get/agent/{agent_id}")
 def get_agent_configurations(agent_id: int):
@@ -56,7 +57,7 @@ def get_agent_configurations(agent_id: int):
         raise HTTPException(status_code=404, detail="Agent configurations not found")
 
     parsed_response = {
-        "agent_id":agent_id,
+        "agent_id": agent_id,
         "name": agent.name,
         "project_id": agent.project_id,
         "description": agent.description,
@@ -86,7 +87,7 @@ def get_agent_configurations(agent_id: int):
         elif key == "agent_type":
             parsed_response["agent_type"] = value
         elif key == "constraints":
-            parsed_response["constraints"] = eval(value) # Using eval to parse the list of strings
+            parsed_response["constraints"] = eval(value)  # Using eval to parse the list of strings
         elif key == "tools":
             parsed_response["tools"] = eval(value)  # Using eval to parse the list of strings
         elif key == "exit":
@@ -99,7 +100,5 @@ def get_agent_configurations(agent_id: int):
             parsed_response["permission_type"] = value
         elif key == "LTM_DB":
             parsed_response["LTM_DB"] = value
-
-
 
     return parsed_response
