@@ -76,6 +76,7 @@ python-dotenv==1.0.0
 python-multipart==0.0.6
 pytz==2023.3
 PyYAML==6.0
+redis==4.5.5
 regex==2023.5.5
 requests==2.31.0
 requests-file==1.5.1
