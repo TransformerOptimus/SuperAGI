@@ -12,14 +12,21 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(User),status_code=201)
 def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]),Authorize: AuthJWT = Depends()):
-    db_user = User(name=user.name, email=user.email, password=user.password)
+    
+    print("User Requested")
+    print(user)
+    db_user = db.session.query(User).filter(User.email == user.email).first()
+    if db_user:
+        return db_user
+    db_user = User(name=user.name, email=user.email, password=user.password,organisation=user.organisation)
     db.session.add(db_user)
     db.session.commit()
+    print("User created",db_user)
     return db_user
 
 
 @router.get("/get/{user_id}", response_model=sqlalchemy_to_pydantic(User))
-def get_user(user_id: int,Authorize: AuthJWT = Depends()):
+def get_user(user_id: int,Authorize: AuthJWT = Depends()):      
     # Authorize.jwt_required()
     db_user = db.session.query(User).filter(User.id == user_id).first()
     if not db_user:

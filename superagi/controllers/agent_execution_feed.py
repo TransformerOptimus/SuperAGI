@@ -49,3 +49,8 @@ def update_agent_execution_feed(agent_execution_feed_id: int, agent_execution_fe
 
     db.session.commit()
     return db_agent_execution_feed
+
+@router.get("/get/execution/{agent_execution_id}")
+def get_agent_execution_feed(agent_execution_id: int,Authorize: AuthJWT = Depends()):
+    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).all()
+    return feeds
