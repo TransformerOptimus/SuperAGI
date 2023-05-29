@@ -115,9 +115,9 @@ class SuperAgi:
         format_prefix_green = "\033[92m\033[1m"
         format_suffix_green = "\033[0m\033[0m"
 
-        autogpt_prompt = AgentPromptBuilder.get_autogpt_prompt(self.ai_name, self.ai_role, goals, self.tools,
-                                                               self.agent_config)
-        messages = [{"role": "system", "content": autogpt_prompt},
+        superagi_prompt = AgentPromptBuilder.get_superagi_prompt(self.ai_name, self.ai_role, goals, self.tools,
+                                                                 self.agent_config)
+        messages = [{"role": "system", "content": superagi_prompt},
                     {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
         if len(full_message_history) <= 0:

@@ -84,7 +84,7 @@ class AgentPromptBuilder:
     return output
 
   @classmethod
-  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool],agent_config) -> str:
+  def get_superagi_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool], agent_config) -> str:
     # Initialize the PromptGenerator object
     prompt_builder = AgentPromptBuilder()
     prompt_builder.set_ai_name(ai_name)
