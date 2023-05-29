@@ -1,4 +1,4 @@
-<p align=center>
+[<p align=center>
 <a href="https://superagi.co"><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
 
 ° [![Join our Discord Server](https://img.shields.io/badge/Discord-SuperAGI-blueviolet?logo=discord&logoColor=white)](https://discord.gg/dXbRe5BHJC) °  [![Follow us on Twitter](https://img.shields.io/twitter/follow/_superAGI?label=_superAGI&style=social)](https://twitter.com/_superAGI) ° [![Join the discussion on Reddit](https://img.shields.io/reddit/subreddit-subscribers/Super_AGI?label=%2Fr/Super_AGI&style=social)](https://www.reddit.com/r/Super_AGI)
@@ -130,3 +130,4 @@ This project is under active development and may still have issues. We appreciat
 # ⭐Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=TransformerOptimus/SuperAGI&type=Date)](https://star-history.com/#TransformerOptimus/SuperAGI&Date)
+](https://github.com/TransformerOptimus/SuperAGI/blob/gpt3.5/README.MD)
