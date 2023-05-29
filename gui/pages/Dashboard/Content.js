@@ -123,7 +123,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
               <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent" })} className={styles.empty_state_button}>Create new agent</button>
             </div>
-            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'20px'}}>
+            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button className={styles.empty_state_button}>View last active agent</button>
             </div>
           </div>

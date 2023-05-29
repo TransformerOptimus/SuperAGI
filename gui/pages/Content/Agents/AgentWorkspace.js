@@ -184,11 +184,11 @@ export default function AgentWorkspace({agentId}) {
                 Details
               </button>
             </div>
-            {/*<div style={{marginLeft:'5px'}}>*/}
-            {/*  <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>*/}
-            {/*    Resource Manager*/}
-            {/*  </button>*/}
-            {/*</div>*/}
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>
+                Resource Manager
+              </button>
+            </div>
             {/*<div style={{marginLeft:'5px'}}>*/}
             {/*  <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Logs*/}
