@@ -31,6 +31,7 @@
 
 .selection_section {
     width: 100%;
+    margin-bottom: 5px;
 }
 
 .side_bar {
@@ -43,6 +44,10 @@
 }
 
 .selected {
+    background-color: #333141;
+}
+
+.section:hover {
     background-color: #333141;
 }
 
