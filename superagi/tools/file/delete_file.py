@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 
-import tweepy
 
 
 class DeleteFileInput(BaseModel):
@@ -20,7 +19,7 @@ class DeleteFileTool(BaseTool):
 
     def _execute(self, file_name: str, content: str):
         final_path = file_name
-        root_dir = get_config('RESOURCES_ROOT_DIR')
+        root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
         if root_dir is not None:
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
             final_path = root_dir + file_name

@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 from superagi.tools.base_tool import BaseTool
 
-import tweepy
 from superagi.config.config import get_config
 
 
@@ -22,8 +21,9 @@ class WriteFileTool(BaseTool):
 
     def _execute(self, file_name: str, content: str):
         final_path = file_name
-        root_dir = get_config('RESOURCES_ROOT_DIR')
+        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
+            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
             final_path = root_dir + file_name
         else:
@@ -32,6 +32,6 @@ class WriteFileTool(BaseTool):
         try:
             with open(final_path, 'w', encoding="utf-8") as file:
                 file.write(content)
-            return "File written to successfully."
+            return f"File written to successfully - {file_name}"
         except Exception as err:
             return f"Error: {err}"

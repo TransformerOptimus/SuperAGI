@@ -5,6 +5,8 @@ from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
 from inspect import signature
 
+from superagi.config.config import get_config
+
 
 class SchemaSettings:
     """Configuration for the pydantic model."""
@@ -71,6 +73,10 @@ class BaseTool(BaseModel):
     @abstractmethod
     def _execute(self, *args: Any, **kwargs: Any):
         pass
+
+    @property
+    def max_token_limit(self):
+        return get_config("MAX_TOOL_TOKEN_LIMIT", 600)
 
     def _parse_input(
             self,
