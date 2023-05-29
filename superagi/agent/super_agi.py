@@ -201,6 +201,7 @@ class SuperAgi:
         session.commit()
 
         print(format_prefix_green + "Iteration completed moving to next iteration!" + format_suffix_green)
+        session.close()
         return "PENDING"
 
     def split_history(self, history: Dict, pending_token_limit: int) -> Tuple[

@@ -21,7 +21,8 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
         raise HTTPException(status_code=404, detail="Agent Execution not found")
 
     db_agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_feed.agent_execution_id,
-                                                 feed=agent_execution_feed.feed, type=agent_execution_feed.type)
+                                                 feed=agent_execution_feed.feed, type=agent_execution_feed.type,
+                                                 extra_info=agent_execution_feed.extra_info)
     db.session.add(db_agent_execution_feed)
     db.session.commit()
     return db_agent_execution_feed
@@ -50,8 +51,12 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
             raise HTTPException(status_code=404, detail="Agent Execution not found")
         db_agent_execution_feed.agent_execution_id = agent_execution.id
 
-    db_agent_execution_feed.type = agent_execution_feed.type
-    db_agent_execution_feed.feed = agent_execution_feed.feed
+    if agent_execution_feed.type is not None:
+        db_agent_execution_feed.type = agent_execution_feed.type
+    if agent_execution_feed.feed is not None:
+        db_agent_execution_feed.feed = agent_execution_feed.feed
+    # if agent_execution_feed.extra_info is not None:
+    #     db_agent_execution_feed.extra_info = agent_execution_feed.extra_info
 
     db.session.commit()
     return db_agent_execution_feed

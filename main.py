@@ -21,6 +21,7 @@ from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from fastapi.middleware.cors import CORSMiddleware
 from superagi.models.tool import Tool
@@ -81,7 +82,7 @@ app.include_router(agent_router, prefix="/agents")
 app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
-
+app.include_router(resources_router, prefix="/resources")
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
