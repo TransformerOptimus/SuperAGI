@@ -248,9 +248,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'20px'}}>
+      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'40px 0'}}>
         <div>
-          <div className={styles.page_title} style={{marginTop:'20px'}}>Create new agent</div>
+          <div className={styles.page_title}>Create new agent</div>
         </div>
         <div style={{marginTop:'10px'}}>
           <div>
