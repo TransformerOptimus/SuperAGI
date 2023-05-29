@@ -115,6 +115,7 @@
     gap: 6px;
     cursor: pointer;
     width: 175px;
+    min-width: 175px;
     height: 100%;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;

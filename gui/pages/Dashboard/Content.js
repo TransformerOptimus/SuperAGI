@@ -49,21 +49,27 @@ export default function Content({selectedView, selectedProjectId, userName}) {
     fetchTools();
   }, [selectedProjectId])
 
-  const closeTab = (tabId) => {
+  const closeTab = (e, tabId) => {
+    e.stopPropagation();
     const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
-    const indexToRemove = tabs.findIndex((tab) => tab.id === tabId);
+    setTabs(updatedTabs);
 
-    let nextSelectedTabIndex;
-    if (indexToRemove === 0) {
-      nextSelectedTabIndex = 0;
-    } else if (indexToRemove === tabs.length - 1) {
-      nextSelectedTabIndex = tabs.length - 2;
-    } else {
-      nextSelectedTabIndex = indexToRemove;
+    if (selectedTab !== tabId) {
+      return;
     }
 
-    setTabs(updatedTabs);
-    setSelectedTab(tabs[nextSelectedTabIndex]?.id || null);
+    let nextSelectedTabId = null;
+    const indexToRemove = tabs.findIndex((tab) => tab.id === tabId);
+
+    if (indexToRemove === 0) {
+      nextSelectedTabId = tabs[1]?.id || null;
+    } else if (indexToRemove === tabs.length - 1) {
+      nextSelectedTabId = tabs[indexToRemove - 1]?.id || null;
+    } else {
+      nextSelectedTabId = tabs[indexToRemove + 1]?.id || null;
+    }
+
+    setSelectedTab(nextSelectedTabId);
   };
 
   const addTab = (element) => {
@@ -117,7 +123,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.png" alt="settings-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={() => closeTab(tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
               </div>
             ))}
           </div>
