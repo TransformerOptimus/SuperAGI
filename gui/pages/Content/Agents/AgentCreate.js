@@ -41,7 +41,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [stepTime, setStepTime] = useState(500);
 
   const rollingWindows = ["5", "10", "15", "20"]
-  const [rollingWindow, setRollingWindow] = useState(rollingWindows[0]);
+  const [rollingWindow, setRollingWindow] = useState(rollingWindows[1]);
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 

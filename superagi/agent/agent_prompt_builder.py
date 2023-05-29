@@ -48,12 +48,12 @@ class AgentPromptBuilder:
     final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
     final_string += self.agent_prompt.base_prompt
     final_string += "\n"
-    final_string += self.add_list_items_to_string("\033[94m\033[1m\nGOALS\033[0m\033[0m", self.agent_prompt.goals)
-    final_string += self.add_list_items_to_string("\033[96m\033[1m\nCONSTRAINTS\033[0m\033[0m", self.agent_prompt.constraints)
+    final_string += self.add_list_items_to_string("GOALS", self.agent_prompt.goals)
+    final_string += self.add_list_items_to_string("CONSTRAINTS", self.agent_prompt.constraints)
     # commands string
     final_string = self.add_tools_to_prompt(final_string)
-    final_string += self.add_list_items_to_string("\033[96m\033[1m\nRESOURCES\033[0m\033[0m", self.agent_prompt.resources)
-    final_string += self.add_list_items_to_string("\033[94m\033[1m\nPERFORMANCE EVALUATION\033[0m\033[0m", self.agent_prompt.evaluations)
+    final_string += self.add_list_items_to_string("RESOURCES", self.agent_prompt.resources)
+    final_string += self.add_list_items_to_string("PERFORMANCE EVALUATION", self.agent_prompt.evaluations)
     final_string += f"\nI should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
 
     final_string += "\nEnsure the response can be parsed by Python json.loads\n"
@@ -84,7 +84,7 @@ class AgentPromptBuilder:
     return output
 
   @classmethod
-  def get_autogpt_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool],agent_config) -> str:
+  def get_superagi_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool], agent_config) -> str:
     # Initialize the PromptGenerator object
     prompt_builder = AgentPromptBuilder()
     prompt_builder.set_ai_name(ai_name)

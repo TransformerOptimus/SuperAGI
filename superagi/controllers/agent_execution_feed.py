@@ -71,17 +71,12 @@ def parse_feed(feed):
     if feed.role == "assistant":
         try:
             parsed = json.loads(feed.feed, strict=False)
-            format_prefix_yellow = "\033[93m\033[1m"
-            format_suffix_yellow = "\033[0m\033[0m"
-            format_prefix_green = "\033[92m\033[1m"
-            format_suffix_green = "\033[0m\033[0m"
-            final_output = format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"][
-                "reasoning"] + "<br>"
-            final_output += format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "<br>"
-            final_output += format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"][
-                "criticism"] + "<br>"
-            final_output += format_prefix_green + "Action : " + format_suffix_green + "<br>"
-            final_output += format_prefix_yellow + "Tool: " + format_suffix_yellow + parsed["command"]["name"] + "<br>"
+            final_output = "Thoughts: " + parsed["thoughts"][
+                "reasoning"] + "\n"
+            final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n"
+            final_output += "Criticism: " + parsed["thoughts"][
+                "criticism"] + "\n"
+            final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
             return {"role": "assistant", "feed": final_output}
         except Exception:

@@ -63,7 +63,7 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
           {f.role === 'system' && <div className={styles.feed_icon}>🔧 </div>}
           {f.role === 'assistant' && <div className={styles.feed_icon}>💬</div>}
-          <div className={styles.feed_title}>{f?.feed || ''}</div>
+          <div className={styles.feed_title} style={{whiteSpace: 'pre-line'}}>{f?.feed || ''}</div>
         </div>
         {/*{checkEmptyText(feed.description) && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
         {/*  <div className={styles.feed_description}>{feed.description}</div>*/}
