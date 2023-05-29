@@ -11,6 +11,7 @@ import Details from "./Details";
 import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import {error} from "next/dist/build/output/log";
 
 export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
@@ -61,6 +62,7 @@ export default function AgentWorkspace({agentId}) {
     addExecution(executionData)
       .then((response) => {
         setRunModal(false);
+        fetchExecutions(agentId, response.data);
         EventBus.emit('reFetchAgents', {});
         toast.success("New run created", {autoClose: 1800});
       })
@@ -89,7 +91,7 @@ export default function AgentWorkspace({agentId}) {
 
     updateExecution(selectedRun.id, executionData)
       .then((response) => {
-        setSelectedRun(response.data);
+        fetchExecutions(agentId, response.data);
         EventBus.emit('reFetchAgents', {});
       })
       .catch((error) => {
@@ -102,30 +104,36 @@ export default function AgentWorkspace({agentId}) {
   };
 
   useEffect(() => {
+    fetchAgentDetails(agentId);
+    fetchExecutions(agentId);
+  }, [agentId])
+
+  function fetchAgentDetails(agentId) {
     getAgentDetails(agentId)
       .then((response) => {
         setAgentDetails(response.data);
-        console.log(response.data);
         setTools(response.data.tools);
         setGoals(response.data.goal);
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
       });
+  }
 
+  function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
       .then((response) => {
         setAgentExecutions(response.data);
-        setSelectedRun(response.data[0]);
+        setSelectedRun(currentRun ? currentRun : response.data[0]);
       })
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
       });
-  }, [agentId])
+  }
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
-      {history && <RunHistory runs={agentExecutions} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      {history && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
       <div style={{width: history ? '40%' : '60%',height:'100%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -166,7 +174,7 @@ export default function AgentWorkspace({agentId}) {
           {leftPanel === 'agent_type' && <TaskQueue/>}
         </div>
       </div>
-      <div style={{width:'40%',height:'100%'}}>
+      <div style={{width:'40%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
             {/*<div>*/}

@@ -13,7 +13,7 @@ export default function ResourceManager({agentId}) {
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
-    console.log(files);
+    setInput((prevArray) => [...prevArray, files[0]]);
   };
 
   const handleDropAreaClick = () => {
@@ -38,6 +38,7 @@ export default function ResourceManager({agentId}) {
     setIsDragging(false);
 
     const files = event.dataTransfer.files;
+    setInput((prevArray) => [...prevArray, files[0]]);
   };
 
   const outputFiles = [
@@ -53,7 +54,8 @@ export default function ResourceManager({agentId}) {
     { name: 'input_file4', type: 'application/txt', size: '128KB' },
   ]
 
-  const finalFiles = channel === 'input' ? inputFiles : outputFiles
+  const [output, setOutput] = useState(outputFiles);
+  const [input, setInput] = useState(inputFiles);
 
   return (<>
     <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
@@ -74,22 +76,27 @@ export default function ResourceManager({agentId}) {
       {channel === 'input' && <div style={{paddingBottom:'5px'}}>
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".pdf,.txt"
-              style={{ display: 'none' }}
-              onChange={handleFileInputChange}
-            /></div>
+          <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>File Formats .pdf, .txt</p>
+            <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
       <div className={styles.resources}>
-        {finalFiles.map((file, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'0px 10px',width:'49.5%'}}>
+        {channel === 'output' && output.map((file, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'0px 10px',width:'49.5%'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
             {file.type === 'application/pdf' && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon"/></div>}
             {file.type === 'application/txt' && <div><Image width={28} height={46} src={txt_icon} alt="file-icon"/></div>}
             <div style={{marginLeft:'5px'}}>
-              <div style={{fontSize:'11px'}}>{file.name}</div>
+              <div style={{fontSize:'11px'}} className={styles.tool_text}>{file.name}</div>
+              <div style={{color:'#888888',fontSize:'9px'}}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${file.size}` : ''}</div>
+            </div>
+          </div>
+        </div>))}
+        {channel === 'input' && input.map((file, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'0px 10px',width:'49.5%'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+            {file.type === 'application/pdf' && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon"/></div>}
+            {file.type === 'application/txt' && <div><Image width={28} height={46} src={txt_icon} alt="file-icon"/></div>}
+            <div style={{marginLeft:'5px'}}>
+              <div style={{fontSize:'11px'}} className={styles.tool_text}>{file.name}</div>
               <div style={{color:'#888888',fontSize:'9px'}}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${file.size}` : ''}</div>
             </div>
           </div>

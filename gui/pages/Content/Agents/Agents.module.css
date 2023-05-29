@@ -129,6 +129,14 @@
     padding-right: 10px;
 }
 
+.detail_body {
+    width: 100%;
+    height: fit-content;
+    overflow-y: scroll;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
 .tab_button {
     border: none;
     font-style: normal;
@@ -183,13 +191,6 @@
 
 .pause_button:hover {
     background: #C95034;
-}
-
-.detail_body {
-    width: 100%;
-    height: calc(100% - 44px);
-    overflow-y: scroll;
-    padding-right: 10px;
 }
 
 .history_box {

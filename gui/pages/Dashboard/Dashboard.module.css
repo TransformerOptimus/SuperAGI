@@ -102,7 +102,7 @@
     height: calc(100% - 36px);
     width: 100%;
     border-radius: 8px;
-    overflow-y: scroll;
+    overflow-y: hidden;
 }
 
 .tabs {

@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {formatTime} from "@/utils/utils";
 
-export default function RunHistory({runs, setHistory, selectedRun, setSelectedRun}) {
+export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun}) {
   return (<>
     <div style={{width:'20%',height:'100%'}}>
       <div className={styles.detail_top}>
@@ -22,7 +22,7 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
         </div>
       </div>
       <div className={styles.detail_body}>
-        {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRun === run ? {background:'#474255'} : {background:'#272335'}}>
+        {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRunId === run.id ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div style={{display:'flex',order:'0'}}>
               {run.status === 'RUNNING' && <div><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
