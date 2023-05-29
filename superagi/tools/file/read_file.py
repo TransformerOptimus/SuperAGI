@@ -6,8 +6,6 @@ from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 
-import tweepy
-
 
 class ReadFileSchema(BaseModel):
     """Input for CopyFileTool."""

@@ -17,6 +17,7 @@ class ReadEmailInput(BaseModel):
     page: int = Field(..., description="The index of the page result the function should resturn. Defaults to 0, the first page.")
     limit: int = Field(..., description="Number of emails to fetch in one cycle. Defaults to 5.")
 
+
 class ReadEmailTool(BaseTool):
     name: str = "Read Email"
     args_schema: Type[BaseModel] = ReadEmailInput

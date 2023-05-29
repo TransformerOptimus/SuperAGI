@@ -8,8 +8,9 @@ class AgentExecutionFeed(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     agent_execution_id = Column(Integer)
+    agent_id = Column(Integer)
     feed = Column(Text)
-    type = Column(String) #Like HUMAN,AI,SYSTEM
+    role = Column(String) #Like system', 'user' or the 'assistant'.
 
     def __repr__(self):
         return f"AgentExecutionFeed(id={self.id}, " \
