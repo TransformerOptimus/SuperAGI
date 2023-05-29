@@ -3,18 +3,6 @@
     text-rendering: optimizelegibility !important;
 }
 
-.progress-bar {
-    height: 15px;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.progress-bar-fill {
-    height: 11px;
-}
-
 .file-drop-area {
     border-radius: 8px;
     border: 1px dashed rgba(255, 255, 255, 0.2);
@@ -28,8 +16,6 @@
 }
 
 .file-drop-area.dragging {
-    border-radius: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
     background: #282436;
 }
 
