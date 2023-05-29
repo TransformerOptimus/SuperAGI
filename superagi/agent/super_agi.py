@@ -103,13 +103,13 @@ class SuperAgi:
 
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
             .filter(AgentExecutionFeed.agent_execution_id == self.agent_config["agent_execution_id"]) \
-            .order_by(asc(AgentExecutionFeed.created_at)) \
+            .order_by(desc(AgentExecutionFeed.created_at)) \
             .limit(memory_window) \
             .all()
+        agent_feeds = reversed(agent_feeds)
 
         # Format the query result as a list of dictionaries
         full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
-
         format_prefix_yellow = "\033[93m\033[1m"
         format_suffix_yellow = "\033[0m\033[0m"
         format_prefix_green = "\033[92m\033[1m"
