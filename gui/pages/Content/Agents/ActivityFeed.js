@@ -38,12 +38,12 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
-    <div>
+    <div style={{marginBottom:'140px'}}>
       {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
-          {f.role === 'system' && <div className={styles.feed_icon}>🔧 </div>}
-          {f.role === 'assistant' && <div className={styles.feed_icon}>💬</div>}
+          {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
+          {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
           <div className={styles.feed_title}>{f?.feed || ''}</div>
         </div>
         {/*{checkEmptyText(feed.description) && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}

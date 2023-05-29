@@ -73,7 +73,7 @@ export default function ResourceManager({agentId}) {
       </div>
     </div>
     <div className={styles.detail_body} style={{height:'auto'}}>
-      {channel === 'input' && <div style={{paddingBottom:'5px'}}>
+      {channel === 'input' && <div style={{paddingBottom:'10px'}}>
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
           <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>File Formats .pdf, .txt</p>

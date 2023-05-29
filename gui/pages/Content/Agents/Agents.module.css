@@ -131,10 +131,14 @@
 
 .detail_body {
     width: 100%;
-    height: fit-content;
-    overflow-y: scroll;
     padding-right: 10px;
-    padding-bottom: 10px;
+}
+
+.detail_content {
+    height: calc(100vh - 140px);
+    border-radius: 8px;
+    overflow-y: scroll;
+    padding-bottom: 0;
 }
 
 .tab_button {

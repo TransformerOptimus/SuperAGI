@@ -16,7 +16,7 @@ export default function Details({agentDetails, runCount}) {
   }
   
   return (<>
-    <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default',height:'100%',overflowY:'scroll'}}>
+    <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
       <div className={styles.detail_name}>{agentDetails?.name || ''}</div>
       <div>{agentDetails?.description || ''}</div>
       <div className={styles.separator}></div>

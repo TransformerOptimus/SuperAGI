@@ -154,7 +154,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <div className="row">
                       <div className="col-3"></div>
-                      <div className="col-6" style={{overflowY:'scroll'}}>
+                      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 138px)'}}>
                         <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                       </div>
                       <div className="col-3"></div>

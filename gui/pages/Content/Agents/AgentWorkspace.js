@@ -132,9 +132,9 @@ export default function AgentWorkspace({agentId}) {
   }
 
   return (<>
-    <div style={{display:'flex',height:'100%'}}>
+    <div style={{display:'flex'}}>
       {history && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
-      <div style={{width: history ? '40%' : '60%',height:'100%'}}>
+      <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
@@ -170,8 +170,8 @@ export default function AgentWorkspace({agentId}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/>}
-          {leftPanel === 'agent_type' && <TaskQueue/>}
+          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/></div>}
+          {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue/></div>}
         </div>
       </div>
       <div style={{width:'40%'}}>
