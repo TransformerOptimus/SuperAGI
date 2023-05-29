@@ -16,6 +16,8 @@
 }
 
 .file-drop-area.dragging {
+    border: none;
+    border-radius: 0;
     background: #282436;
 }
 
