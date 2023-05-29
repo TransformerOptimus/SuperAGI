@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
@@ -7,6 +7,16 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function ResourceManager() {
   const [channel, setChannel] = useState('input')
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileInputChange = (event) => {
+    const files = event.target.files;
+    console.log(files);
+  };
+
+  const handleDropAreaClick = () => {
+    fileInputRef.current.click();
+  };
 
   const handleDragEnter = (event) => {
     event.preventDefault();
@@ -26,7 +36,6 @@ export default function ResourceManager() {
     setIsDragging(false);
 
     const files = event.dataTransfer.files;
-    console.log(files);
   };
 
   const outputFiles = [
@@ -64,8 +73,17 @@ export default function ResourceManager() {
       </div>
     </div>
     <div className={styles.detail_body} style={{height:'auto'}}>
-      <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}>
-
+      <div>
+        <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
+          <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".pdf,.txt"
+              style={{ display: 'none' }}
+              onChange={handleFileInputChange}
+            /></div>
+        </div>
       </div>
       {finalFiles.map((file, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'0px 10px'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
