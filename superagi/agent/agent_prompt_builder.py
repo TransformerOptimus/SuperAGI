@@ -120,6 +120,7 @@ class AgentPromptBuilder:
     for constraint in agent_config["constraints"]:
       prompt_builder.add_constraint(constraint)
 
+
     # Add tools to the PromptGenerator object
     for tool in tools:
       prompt_builder.add_tool(tool)
