@@ -46,12 +46,12 @@ export default function AgentWorkspace({agentId}) {
 
   const handleCreateRun = () => {
     if (runName.replace(/\s/g, '') === '') {
-      toast.dark("Run name can't be blank", {autoClose: 1800});
+      toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
 
     if (goals.length <= 0) {
-      toast.dark("Agent needs to have goals", {autoClose: 1800});
+      toast.error("Agent needs to have goals", {autoClose: 1800});
       return
     }
 
@@ -62,11 +62,11 @@ export default function AgentWorkspace({agentId}) {
       .then((response) => {
         setRunModal(false);
         EventBus.emit('reFetchAgents', {});
-        toast.dark("New run created", {autoClose: 1800});
+        toast.success("New run created", {autoClose: 1800});
       })
       .catch((error) => {
         console.error('Error creating execution:', error);
-        toast.dark("Could not create run", {autoClose: 1800});
+        toast.error("Could not create run", {autoClose: 1800});
       });
 
     updateAgents(agentData)

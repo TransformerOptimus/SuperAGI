@@ -55,7 +55,7 @@ export default function ToolCreate() {
   };
 
   const handleToolCreate = (index) => {
-    toast.dark('Tool created successfully', {autoClose: 1800});
+    toast.success('Tool created successfully', {autoClose: 1800});
   };
 
 

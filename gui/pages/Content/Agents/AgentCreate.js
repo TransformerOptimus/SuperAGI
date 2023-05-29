@@ -203,22 +203,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const handleAddAgent = () => {
     if (agentName.replace(/\s/g, '') === '') {
-      toast.dark("Agent name can't be blank", {autoClose: 1800});
+      toast.error("Agent name can't be blank", {autoClose: 1800});
       return
     }
 
     if (agentDescription.replace(/\s/g, '') === '') {
-      toast.dark("Agent description can't be blank", {autoClose: 1800});
+      toast.error("Agent description can't be blank", {autoClose: 1800});
       return
     }
 
     if (goals.length <= 0) {
-      toast.dark("Add atleast one goal", {autoClose: 1800});
+      toast.error("Add atleast one goal", {autoClose: 1800});
       return
     }
 
     if (myTools.length <= 0) {
-      toast.dark("Add atleast one tool", {autoClose: 1800});
+      toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
 
@@ -242,7 +242,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       .then((response) => {
         fetchAgents();
         sendAgentData({ id: response.data.id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id })
-        toast.dark('Agent created successfully', {autoClose: 1800});
+        toast.success('Agent created successfully', {autoClose: 1800});
       })
       .catch((error) => {
         console.error('Error creating agent:', error);

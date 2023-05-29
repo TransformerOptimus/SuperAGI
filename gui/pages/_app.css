@@ -16,9 +16,8 @@
 }
 
 .file-drop-area.dragging {
-    border: none;
     border-radius: 0;
-    background: #282436;
+    background: #3A354A;
 }
 
 input[type="number"]::-webkit-inner-spin-button,

@@ -53,10 +53,6 @@ export default function ResourceManager() {
 
   const finalFiles = channel === 'input' ? inputFiles : outputFiles
 
-  const updateEmbedding = () => {
-    toast.dark('Embedding updated', {autoClose: 1800});
-  }
-
   return (<>
     <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
       <div style={{display:'flex',overflowX:'scroll'}}>

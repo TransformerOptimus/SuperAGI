@@ -15,13 +15,13 @@ export default function TaskQueue() {
 
   const handleTaskCreate = (task_title) => {
     if(task_title.replace(/\s/g, '') === '') {
-      toast.dark("Task is empty", {autoClose: 1800});
+      toast.error("Task is empty", {autoClose: 1800});
       return
     }
 
     const newTask = {title: task_title};
     setTask((prevArray) => [...prevArray, newTask]);
-    toast.dark("New task created", {autoClose: 1800});
+    toast.success("New task created", {autoClose: 1800});
     setTaskTitle("");
   };
 
