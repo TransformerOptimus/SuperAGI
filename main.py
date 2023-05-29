@@ -33,6 +33,8 @@ from superagi.config.config import get_config
 import os
 import inspect
 
+from superagi.tools.base_tool import BaseTool
+
 app = FastAPI()
 
 database_url = get_config('POSTGRES_URL')
@@ -126,6 +128,24 @@ if project is None:
     session.commit()
 
 
+def add_or_update_tool(db: Session, tool_name: str, folder_name: str, class_name: str, file_name: str):
+    # Check if a record with the given tool name already exists
+    tool = db.query(Tool).filter_by(name=tool_name).first()
+
+    if tool:
+        # Update the attributes of the existing tool record
+        tool.folder_name = folder_name
+        tool.class_name = class_name
+        tool.file_name = file_name
+    else:
+        # Create a new tool record
+        tool = Tool(name=tool_name, folder_name=folder_name, class_name=class_name, file_name=file_name)
+        db.add(tool)
+
+    db.commit()
+    return tool
+
+
 def get_classes_in_file(file_path):
     classes = []
 
@@ -134,19 +154,18 @@ def get_classes_in_file(file_path):
 
     # Iterate over all members of the module
     for name, member in inspect.getmembers(module):
-        # Check if the member is a class
-        if inspect.isclass(member):
-            # classes.append(member.__name__)
+        # Check if the member is a class and extends BaseTool
+        if inspect.isclass(member) and issubclass(member, BaseTool) and member != BaseTool:
             class_dict = {}
             class_dict['class_name'] = member.__name__
 
             class_obj = getattr(module, member.__name__)
-            if member.__name__ != "BaseModel" and member.__name__ != "BaseTool" and member.__name__.endswith("Tool"):
-                try:
-                    obj = class_obj()
-                    class_dict['class_attribute'] = obj.name
-                except:
-                    class_dict['class_attribute'] = None
+            try:
+                obj = class_obj()
+                class_dict['class_attribute'] = obj.name
+            except:
+                class_dict['class_attribute'] = None
+
             classes.append(class_dict)
     return classes
 
@@ -182,33 +201,28 @@ def process_files(folder_path):
                     # print(f"Folder = {folder_name} File = {file_name}")
                     # Get clasess
                     classes = get_classes_in_file(file_path=file_path)
-                    filtered_classes = [clazz for clazz in classes if
-                                        clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
-                    for clazz in filtered_classes:
+                    # filtered_classes = [clazz for clazz in classes if
+                    #                     clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
+                    for clazz in classes:
                         print("Class : ", clazz)
                         new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name, file_name=file_name,
                                         name=clazz["class_attribute"])
                         new_tools.append(new_tool)
-                        # print("______________________________________________________________________")
-                        # print(new_tool)
-                        # if new_tool not in existing_tools:
-                        #     print("New Tool found")
-                        #     # print(new_tool)
-                        # else:
-                        #     print("OOLDDD")
-                        #     # print(new_tool)
 
-    print("FINALLLLLLLLLLLLLLLLLLL")
     print(existing_tools)
     print(new_tools)
-    try:
-        session.query(Tool).delete()
-        session.add_all(new_tools)
-        session.commit()
-    except SQLAlchemyError as e:
-        # Roll back the transaction if an exception occurs
-        session.rollback()
-        raise e
+
+    for tool in new_tools:
+        add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
+                           class_name=tool.class_name)
+
+
+# Specify the folder path
+folder_path = "superagi/tools"
+
+# Process the files and store class information
+process_files(folder_path)
+session.close()
 
 
 # Specify the folder path

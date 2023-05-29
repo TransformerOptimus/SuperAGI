@@ -98,7 +98,8 @@ def create_agent_with_config(agent_with_config: AgentWithConfig):
     db.session.add_all(agent_configurations)
 
     # Creating an execution with CREATED status
-    execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id)
+    execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
+                               name="New Run")
     db.session.add(execution)
 
     db.session.commit()

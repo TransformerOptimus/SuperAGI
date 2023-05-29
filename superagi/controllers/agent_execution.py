@@ -30,7 +30,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
         raise HTTPException(status_code=404, detail="Agent not found")
 
     db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id)
+                                        agent_id=agent_execution.agent_id,name=agent_execution.name)
     db.session.add(db_agent_execution)
     db.session.commit()
     return db_agent_execution
@@ -48,6 +48,8 @@ def get_agent_execution(agent_execution_id: int, Authorize: AuthJWT = Depends())
 @router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def update_agent_execution(agent_execution_id: int,
                            agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"])):
+    print(agent_execution_id)
+    print(agent_execution)
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if agent_execution == "COMPLETED":
         raise HTTPException(status_code=400, detail="Invalid Request")
@@ -63,7 +65,10 @@ def update_agent_execution(agent_execution_id: int,
     if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED":
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
+
     db_agent_execution.last_execution_time = datetime.now()
+    if agent_execution.name != None:
+        db_agent_execution.name = agent_execution.name
     db.session.commit()
 
     if db_agent_execution.status == "RUNNING":

@@ -2,6 +2,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.agent import Agent
+from superagi.models.types.agent_config import AgentConfig
 from superagi.models.agent_config import AgentConfiguration
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
@@ -33,16 +34,20 @@ def get_agent(agent_config_id: int, Authorize: AuthJWT = Depends()):
 
 
 @router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def update_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"])):
+def update_agent(agent_config: AgentConfig):
     db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == agent_config.key,
                                                                   AgentConfiguration.agent_id == agent_config.agent_id).first()
-    # if not db_agent_config:
-    #     raise HTTPException(status_code=404, detail="Agent Configuration not found")
+    if not db_agent_config:
+        raise HTTPException(status_code=404, detail="Agent Configuration not found")
 
     db_agent_config.key = agent_config.key
-    db_agent_config.value = agent_config.value
-
+    if isinstance(agent_config.value, list):
+        # Convert the list to a string using the str() function
+        db_agent_config.value = str(agent_config.value)
+    else:
+        db_agent_config.value = agent_config.value
     db.session.commit()
+    db.session.flush()
     return db_agent_config
 
 
