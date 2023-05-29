@@ -8,9 +8,9 @@ export default function ResourceManager() {
   const [channel, setChannel] = useState('input')
   const [inputText, setInputText] = useState("")
   const outputFiles = [
-    { name: 'name', type: 'pdf', size: '15MB', internal_files: [], icon: '/images/pdf_file.png' },
-    { name: 'name', type: 'pdf', size: '24MB', internal_files: [], icon: '/images/pdf_file.png' },
-    { name: 'name', type: 'txt', size: '128KB', internal_files: [], icon: '/images/txt_file.png' },
+    { name: 'name', type: 'pdf', size: '15MB', internal_files: [], icon: '/images/pdf_file.svg' },
+    { name: 'name', type: 'pdf', size: '24MB', internal_files: [], icon: '/images/pdf_file.svg' },
+    { name: 'name', type: 'txt', size: '128KB', internal_files: [], icon: '/images/txt_file.svg' },
   ]
 
   const handleTextChange = (event) => {

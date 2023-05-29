@@ -37,7 +37,7 @@ export default function TaskQueue() {
           <div style={{flex:'1'}}><input className="input_medium" type="text" value={task_title} onChange={handleTaskTitleChange}/></div>
           <div>
             <button onClick={() => handleTaskCreate(task_title)} className={styles.agent_button} style={{marginLeft:'10px',padding:'5px 7px'}}>
-              <Image width={16} height={16} src="/images/add.png" alt="add-icon"/>
+              <Image width={16} height={16} src="/images/add.svg" alt="add-icon"/>
             </button>
           </div>
         </div>

@@ -20,7 +20,7 @@ export default function Agents({sendAgentData, agents}) {
           {agents.map((agent, index) => (
             <div key={index}>
               <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
-                {agent.status && <div className={styles.agent_active}><Image width={8} height={8} src="/images/active_icon.png" alt="active-icon"/></div>}
+                {agent.status && <div className={styles.agent_active}><Image width={8} height={8} src="/images/active_icon.svg" alt="active-icon"/></div>}
                 <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>
               </div>
             </div>

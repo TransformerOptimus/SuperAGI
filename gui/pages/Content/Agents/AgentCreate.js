@@ -271,7 +271,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
                 <div>
                   <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleGoalDelete(index)}>
-                    <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
+                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                   </button>
                 </div>
               </div>))}
@@ -281,7 +281,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <label className={styles.form_label}>Model</label><br/>
               <div className="dropdown_container_search" style={{width:'100%'}}>
                   <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
-                    {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
+                    {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                   </div>
                   <div>
                     {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
@@ -299,10 +299,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   {toolNames && toolNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
                     {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
                       <div className={styles.tool_text}>{tool}</div>
-                      <div><Image width={12} height={12} src='/images/close_light.png' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
+                      <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                     </div>))}
                   </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                  <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
+                  <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                 </div>
                 <div>
                   {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
@@ -315,7 +315,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
             <div style={{marginTop: '15px'}}>
               <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
-                {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.png" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.png" alt="expand-icon"/>}
+                {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.svg" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.svg" alt="expand-icon"/>}
               </button>
             </div>
             {advancedOptions &&
@@ -324,7 +324,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {/*  <label className={styles.form_label}>Agent Type</label><br/>*/}
                 {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
                 {/*    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>*/}
-                {/*      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>*/}
+                {/*      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
                 {/*    </div>*/}
                 {/*    <div>*/}
                 {/*      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>*/}
@@ -351,7 +351,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                     <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
                     <div>
                       <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
-                        <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
+                        <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                       </button>
                     </div>
                   </div>))}
@@ -361,7 +361,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {/*  <label className={styles.form_label}>Exit criterion</label>*/}
                 {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
                 {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
-                {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>*/}
+                {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
                 {/*    </div>*/}
                 {/*    <div>*/}
                 {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
@@ -380,7 +380,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <label className={styles.form_label}>Short term memory - Rolling window</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setRollingDropdown(!rollingDropdown)} style={{width:'100%'}}>
-                      {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
+                      {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                     </div>
                     <div>
                       {rollingDropdown && <div className="custom_select_options" ref={rollingRef} style={{width:'100%'}}>
@@ -403,7 +403,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <label className={styles.form_label}>Choose an LTM database</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
-                      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
+                      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                     </div>
                     <div>
                       {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
@@ -418,7 +418,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <label className={styles.form_label}>Permission Type</label>
                   <div className="dropdown_container_search" style={{width:'100%'}}>
                     <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
-                      {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
+                      {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                     </div>
                     <div>
                       {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>

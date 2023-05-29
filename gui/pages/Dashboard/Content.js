@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
@@ -15,6 +15,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
   const [selectedTab, setSelectedTab] = useState(null)
   const [agents, setAgents] = useState(null);
   const [tools, setTools] = useState(null);
+  const tabContainerRef = useRef(null);
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -81,6 +82,21 @@ export default function Content({selectedView, selectedProjectId, userName}) {
   };
 
   useEffect(() => {
+    if (tabContainerRef.current) {
+      const tabElement = tabContainerRef.current.querySelector(`[data-tab-id="${selectedTab}"]`);
+      if (tabElement) {
+        const containerScrollLeft = tabContainerRef.current.scrollLeft;
+        const tabOffsetLeft = tabElement.offsetLeft;
+        const containerWidth = tabContainerRef.current.offsetWidth;
+
+        if (tabOffsetLeft < containerScrollLeft || tabOffsetLeft >= containerScrollLeft + containerWidth) {
+          tabContainerRef.current.scrollLeft = tabOffsetLeft;
+        }
+      }
+    }
+  }, [selectedTab]);
+
+  useEffect(() => {
     const settingsTab = (eventData) => {
       addTab(eventData);
     };
@@ -114,16 +130,16 @@ export default function Content({selectedView, selectedProjectId, userName}) {
         </div>
       </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div className={styles.tabs}>
+          <div className={styles.tabs} ref={tabContainerRef}>
             {tabs.map((tab) => (
-              <div key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
+              <div data-tab-id={tab.id} key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
                 <div style={{display:'flex', order:'0'}}>
-                  {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
-                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
-                  {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.png" alt="settings-icon"/></div>}
+                  {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
+                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
+                  {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>

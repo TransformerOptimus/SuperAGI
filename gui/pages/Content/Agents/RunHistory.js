@@ -10,14 +10,14 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
         <div style={{display:'flex'}}>
           <div style={{display:'flex',alignItems:'center',paddingLeft:'0'}} className={styles.tab_text}>
             <div>
-              <Image width={16} height={16} src="/images/update.png" alt="update-icon"/>
+              <Image width={16} height={16} src="/images/update.svg" alt="update-icon"/>
             </div>
             <div style={{marginLeft:'7px'}}>Run history</div>
           </div>
         </div>
         <div style={{display:'flex'}}>
           <div style={{display:'flex',alignItems:'center',cursor:'pointer'}} onClick={() => setHistory(false)}>
-            <Image width={16} height={16} src="/images/close_history.png" alt="close-history-icon"/>
+            <Image width={16} height={16} src="/images/close_history.svg" alt="close-history-icon"/>
           </div>
         </div>
       </div>
@@ -33,7 +33,7 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
             {/*<div style={{display:'flex',alignItems:'center'}}>*/}
             {/*  <div>*/}
-            {/*    <Image width={12} height={12} src="/images/call_made.png" alt="call-icon"/>*/}
+            {/*    <Image width={12} height={12} src="/images/call_made.svg" alt="call-icon"/>*/}
             {/*  </div>*/}
             {/*  <div className={styles.history_info}>*/}
             {/*    {run.calls} Calls*/}
@@ -42,7 +42,7 @@ export default function RunHistory({runs, setHistory, selectedRun, setSelectedRu
             {/*<div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>*/}
             <div style={{display:'flex',alignItems:'center'}}>
               <div>
-                <Image width={12} height={12} src="/images/schedule.png" alt="schedule-icon"/>
+                <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
               </div>
               <div className={styles.history_info}>
                 {formatTime(run.last_execution_time)}

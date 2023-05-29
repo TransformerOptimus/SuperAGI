@@ -130,7 +130,7 @@ export default function AgentWorkspace({agentId}) {
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
-              <Image width={16} height={16} src="/images/history.png" alt="history-icon"/>
+              <Image width={16} height={16} src="/images/history.svg" alt="history-icon"/>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
               {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
@@ -156,7 +156,7 @@ export default function AgentWorkspace({agentId}) {
             </div>}
             <div>
               <button className={styles.run_button} onClick={() => setRunModal(true)}>
-                <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;New Run
+                <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function AgentWorkspace({agentId}) {
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
               <div>
                 <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                 </button>
               </div>
             </div>))}
@@ -227,7 +227,7 @@ export default function AgentWorkspace({agentId}) {
               Cancel
             </button>
             <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={() => handleCreateRun()}>
-              <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;Run
+              <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;Run
             </button>
           </div>
         </div>
