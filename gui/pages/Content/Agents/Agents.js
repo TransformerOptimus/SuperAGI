@@ -16,7 +16,6 @@ export default function Agents({sendAgentData, agents}) {
             + Create Agent
           </button>
         </div>
-        <div style={{overflowY:'scroll',height:'calc(100vh - 92px)'}}>
         {agents && agents.length > 0 ? <div className={styles.wrapper}>
           {agents.map((agent, index) => (
             <div key={index}>
@@ -30,7 +29,7 @@ export default function Agents({sendAgentData, agents}) {
           marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
         }} className="form_label">
           No Agents found
-        </div>}</div>
+        </div>}
       </div>
     <ToastContainer/>
   </>
