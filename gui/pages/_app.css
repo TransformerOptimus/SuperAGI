@@ -6,7 +6,6 @@
 .file-drop-area {
     border-radius: 8px;
     border: 1px dashed rgba(255, 255, 255, 0.2);
-    margin-top: 10px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -4,7 +4,6 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import { createAgent } from "@/app/DashboardService";
-import { EventBus } from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
@@ -14,13 +13,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
 
-  const goalsArray = ['agent goal 1', 'agent goal 2', 'agent goal 3']
+  const goalsArray = ['agent goal 1', 'agent goal 2']
   const [goals, setGoals] = useState(goalsArray);
 
-  const constraintsArray = ['new constraint 1', 'new constraint 2', 'new constraint 3']
+  const constraintsArray = ['new constraint 1', 'new constraint 2']
   const [constraints, setConstraints] = useState(constraintsArray);
 
-  const models = ['gpt-3.5-turbo', 'gpt-4']
+  const models = ['gpt-4', 'gpt-3.5-turbo']
   const [model, setModel] = useState(models[0]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);

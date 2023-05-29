@@ -199,7 +199,7 @@ export default function AgentWorkspace({agentId}) {
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
           {rightPanel === 'details' && <Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/>}
-          {rightPanel === 'resource_manager' && <ResourceManager/>}
+          {rightPanel === 'resource_manager' && <ResourceManager agentId={agentId}/>}
         </div>
       </div>
 

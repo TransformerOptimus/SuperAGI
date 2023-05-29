@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_BASE_URL = 'http://192.168.131.48:8002'; //for testing
+const API_BASE_URL = 'http://192.168.131.48:8001'; //for testing
 // const API_BASE_URL = 'http://localhost:8001';
 
 export const getOrganization = () => {
