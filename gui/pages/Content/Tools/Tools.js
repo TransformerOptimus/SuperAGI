@@ -11,7 +11,7 @@ export default function ToolList({sendToolData, tools, userName}) {
 
   const handleFilter = (value) => {
     setFilter(value)
-    const filteredTools = value === 'custom' ? toolsArray.filter(tool => tool.type === 'custom') : toolsArray;
+    const filteredTools = value === 'custom' ? tools.filter(tool => tool.type === 'custom') : tools;
     setTools(filteredTools);
   };
 
