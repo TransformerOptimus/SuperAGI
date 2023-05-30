@@ -308,8 +308,13 @@
 }
 
 .large_text_box {
-    overflow: hidden;
-    display: -webkit-box;
     -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
+}
+
+.show_more_button {
+    margin-top: 10px;
+    cursor: pointer;
+    width: fit-content;
+    color: #888888;
 }

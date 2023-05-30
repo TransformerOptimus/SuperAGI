@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 
 export default function Details({agentDetails, runCount}) {
+  const [showGoals, setShowGoals] = useState(false);
+  const [showConstraints, setShowConstraints] = useState(false);
+
   const info_text = {
     marginLeft:'7px',
-  }
+  };
 
   const info_text_secondary = {
     marginLeft:'3px',
@@ -13,7 +16,7 @@ export default function Details({agentDetails, runCount}) {
     color: '#888888',
     lineHeight: '13px',
     fontSize: '11px'
-  }
+  };
   
   return (<>
     <div className={styles.history_box} style={{background:'#272335',padding:'15px',cursor:'default'}}>
@@ -48,11 +51,13 @@ export default function Details({agentDetails, runCount}) {
         <div><Image width={15} height={15} src="/images/flag.svg" alt="goals-icon"/></div>
         <div style={info_text}>{agentDetails?.goal.length || 0} Goals</div>
       </div>
-      <div className={styles.large_text_box}>
-        {agentDetails.goal.map((goal, index) => (<div key={index} style={{marginTop:'0',marginBottom:'5px'}}>
-          <div>{index + 1}. {goal || ''}</div><br/>
+      {agentDetails && <div>{agentDetails.goal && agentDetails.goal.length > 0 && <div className={styles.large_text_box} style={!showGoals ? {overflow:'hidden',display:'-webkit-box'} : {}}>
+        {agentDetails.goal.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
+          <div>{index + 1}. {goal || ''}</div>{index !== agentDetails.goal.length - 1 && <br/>}
         </div>))}
-      </div>
+      </div>}
+        <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>{showGoals ? 'Show Less' : 'Show More'}</div>
+      </div>}
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/tools_dark.svg" alt="tools-icon"/></div>
@@ -68,12 +73,12 @@ export default function Details({agentDetails, runCount}) {
         <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
         <div style={info_text}>{agentDetails?.constraints.length || 0} Constraints</div>
       </div>
-      {agentDetails.constraints.length > 0 && <div><div className={styles.large_text_box}>
-        {agentDetails.constraints.map((constraint, index) => (<div key={index} style={{marginTop:'0',marginBottom:'5px'}}>
-          <div>{index + 1}. {constraint || ''}</div><br/>
+      {agentDetails && <div>{agentDetails.constraints && agentDetails.constraints.length > 0 && <div className={styles.large_text_box} style={!showConstraints ? {overflow:'hidden',display:'-webkit-box'} : {}}>
+        {agentDetails.constraints.map((constraint, index) => (<div key={index} style={{marginTop:'0'}}>
+          <div>{index + 1}. {constraint || ''}</div>{index !== agentDetails.constraints.length - 1 && <br/>}
         </div>))}
-      </div>
-        <div style={{marginTop:'10px',cursor:'pointer'}}>Show More</div>
+      </div>}
+        <div className={styles.show_more_button} onClick={() => setShowConstraints(!showConstraints)}>{showConstraints ? 'Show Less' : 'Show More'}</div>
       </div>}
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
