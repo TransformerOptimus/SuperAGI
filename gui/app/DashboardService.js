@@ -58,7 +58,3 @@ export const addExecution = (executionData) => {
 export const getResources = (projectId) => {
   return axios.get(`${API_BASE_URL}/resources/get/all/${projectId}`);
 };
-
-export const downloadResource = (fileId) => {
-  return axios.get(`${API_BASE_URL}/resources/get/${fileId}`);
-};

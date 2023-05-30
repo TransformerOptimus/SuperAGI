@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getResources, downloadResource} from "@/app/DashboardService";
+import {getResources} from "@/app/DashboardService";
 import axios from 'axios';
 
 export default function ResourceManager({selectedProjectId}) {
@@ -99,12 +99,7 @@ export default function ResourceManager({selectedProjectId}) {
   }
 
   function downloadFile(fileId) {
-    downloadResource(fileId)
-      .then((response) => {
-      })
-      .catch((error) => {
-        console.error('Error downloading file:', error);
-      });
+    window.open(`${API_BASE_URL}/resources/get/${fileId}`, '_blank');
   }
 
   function formatBytes(bytes, decimals = 2) {
