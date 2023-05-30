@@ -7,22 +7,22 @@ import {getResources, uploadResource} from "@/app/DashboardService";
 
 export default function ResourceManager({selectedProjectId}) {
   console.log(selectedProjectId)
-  const [output, setoutput] = useState([]);
-  const [input, setinput] = useState([]);
+  const [output, setOutput] = useState([]);
+  const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
   const [isDragging, setIsDragging] = useState(false);
-  const fileinputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
 
-  const handleFileinputChange = (event) => {
+  const handleFileInputChange = (event) => {
     const files = event.target.files;
     const fileData = {"name": files[0].name, "size": files[0].size, "type": files[0].type, "channel": 'INPUT'}
     uploadFile(fileData);
   };
 
   const handleDropAreaClick = () => {
-    fileinputRef.current.click();
+    fileInputRef.current.click();
   };
 
   const handleDragEnter = (event) => {
@@ -69,8 +69,8 @@ export default function ResourceManager({selectedProjectId}) {
         const outputFiles = resources.filter((resource) => resource.channel === 'OUTPUT');
         console.log(inputFiles)
         console.log(outputFiles)
-        setinput(inputFiles);
-        setoutput(outputFiles);
+        setInput(inputFiles);
+        setOutput(outputFiles);
       })
       .catch((error) => {
         console.error('Error fetching resources:', error);
@@ -84,10 +84,9 @@ export default function ResourceManager({selectedProjectId}) {
 
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
-
+    
     return `${formattedValue} ${sizes[i]}`;
   }
 
@@ -137,7 +136,7 @@ export default function ResourceManager({selectedProjectId}) {
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
           <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-            <input type="file" ref={fileinputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileinputChange}/></div>
+            <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} />
