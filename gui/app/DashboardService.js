@@ -55,10 +55,6 @@ export const addExecution = (executionData) => {
   return axios.post(`${API_BASE_URL}/agentexecutions/add`, executionData);
 };
 
-export const deleteExecution = (executionId) => {
-  return axios.delete(`${API_BASE_URL}/agentexecutions/delete/${executionId}`);
-};
-
 export const getResources = (projectId) => {
   return axios.get(`${API_BASE_URL}/resources/get/all/${projectId}`);
 };

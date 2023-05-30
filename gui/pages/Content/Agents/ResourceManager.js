@@ -101,7 +101,6 @@ export default function ResourceManager({selectedProjectId}) {
   function downloadFile(fileId) {
     downloadResource(fileId)
       .then((response) => {
-        console.log(response.data)
       })
       .catch((error) => {
         console.error('Error downloading file:', error);

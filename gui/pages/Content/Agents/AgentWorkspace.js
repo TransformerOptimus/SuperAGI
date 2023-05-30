@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, deleteExecution} from "@/app/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId, selectedProjectId}) {
@@ -23,6 +23,7 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
   const [runName, setRunName] = useState("New Run")
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
+  const [dropdown, setDropdown] = useState(false);
 
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
@@ -90,12 +91,18 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
 
     updateExecution(selectedRun.id, executionData)
       .then((response) => {
-        fetchExecutions(agentId, response.data);
+        if(status !== 'TERMINATED') {
+          fetchExecutions(agentId, response.data);
+        } else {
+          fetchExecutions(agentId);
+        }
         EventBus.emit('reFetchAgents', {});
       })
       .catch((error) => {
         console.error('Error updating execution:', error);
       });
+
+    setDropdown(false);
   };
 
   const preventDefault = (e) => {
@@ -122,22 +129,13 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
       .then((response) => {
-        setAgentExecutions(response.data);
-        setSelectedRun(currentRun ? currentRun : response.data[0]);
+        let data = response.data
+        data = data.filter((run) => run.status !== 'TERMINATED');
+        setAgentExecutions(data);
+        setSelectedRun(currentRun ? currentRun : data[0]);
       })
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
-      });
-  }
-
-  function removeExecution() {
-    deleteExecution(selectedRun.id)
-      .then((response) => {
-        fetchExecutions(agentId);
-        EventBus.emit('reFetchAgents', {});
-      })
-      .catch((error) => {
-        console.error('Error updating execution:', error);
       });
   }
 
@@ -162,21 +160,21 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
             </div>}
           </div>
           <div style={{display:'flex'}}>
-            {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginRight:'6px'}}>
-              <button className={styles.pause_button} onClick={() => {updateRunStatus("PAUSED")}}>
-                Pause Run
-              </button>
-            </div>}
-            {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <div style={{marginRight:'6px'}}>
-              <button style={{padding:'8px 10px'}} className={styles.run_button} onClick={() => {updateRunStatus("RUNNING")}}>
-                Resume
-              </button>
-            </div>}
             <div>
               <button className={styles.run_button} onClick={() => setRunModal(true)}>
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
+            <button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+              <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+            </button>
+            {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+              <ul className={styles.dropdown_container}>
+                {selectedRun && selectedRun.status === 'RUNNING' && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
+                <li className={styles.dropdown_item} onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>
+              </ul>
+            </div>}
           </div>
         </div>
         <div className={styles.detail_body}>
