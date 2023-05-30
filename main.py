@@ -233,30 +233,30 @@ folder_path = "superagi/tools"
 process_files(folder_path)
 session.close()
 
-# @app.post('/login')
-# def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
-#     email_to_find = request.email
-#     user:User = db.session.query(User).filter(User.email == email_to_find).first()
+@app.post('/login')
+def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
+    email_to_find = request.email
+    user:User = db.session.query(User).filter(User.email == email_to_find).first()
 
-#     if user ==None or request.email != user.email or request.password != user.password:
-#         raise HTTPException(status_code=401,detail="Bad username or password")
+    if user ==None or request.email != user.email or request.password != user.password:
+        raise HTTPException(status_code=401,detail="Bad username or password")
 
-#     # subject identifier for who this token is for example id or username from database
-#     access_token = Authorize.create_access_token(subject=user.email)
-#     return {"access_token": access_token}
-
-
-# @app.get('/user')
-# def user(Authorize: AuthJWT = Depends()):
-#     Authorize.jwt_required()
-#     current_user = Authorize.get_jwt_subject()
-#     return {"user": current_user}
+    # subject identifier for who this token is for example id or username from database
+    access_token = Authorize.create_access_token(subject=user.email)
+    return {"access_token": access_token}
 
 
-# @app.get("/")
-# async def root(Authorize: AuthJWT = Depends()):
-#     Authorize.jwt_required()
-#     return {"message": "Hello World"}
+@app.get('/user')
+def user(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+    current_user = Authorize.get_jwt_subject()
+    return {"user": current_user}
+
+
+@app.get("/")
+async def root(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+    return {"message": "Hello World"}
 
 
 # #Unprotected route

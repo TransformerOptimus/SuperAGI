@@ -95,6 +95,7 @@ def upgrade() -> None:
         sa.Column('agent_execution_id', sa.Integer()),
         sa.Column('feed', sa.TEXT()),
         sa.Column('role', sa.VARCHAR(250)),
+        sa.Column('extra_info', sa.VARCHAR(3000)),
         sa.Column('created_at', sa.DateTime()),
         sa.Column('updated_at', sa.DateTime()),
         sa.PrimaryKeyConstraint('id'),
@@ -121,6 +122,15 @@ def upgrade() -> None:
         sa.Column('file_name', sa.VARCHAR(), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint('id', name='tools_pkey')
     )
+
+    op.create_table(
+        'resources',
+        sa.Column('id', sa.Integer(), primary_key=True),
+        sa.Column('name', sa.String()),
+        sa.Column('storage_type', sa.String()),  # FILESERVER, S3
+        sa.Column('path', sa.String())  # required for S3
+    )
+
     # ### end Alembic commands ###
 
 

@@ -8,62 +8,45 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated
-
+from superagi.models.resource import Resource
 
 router = APIRouter()
 
 
-# CRUD Operations
 @router.post("/add", status_code=201)
-def upload(file: UploadFile = File(...)):
-    try:
-        save_directory = "./uploaded_files"
-        # Create the save directory if it doesn't exist
+async def upload(file: UploadFile = File(...), storage_type=Form(...), path=Form(...)):
+    # try:
+        save_directory = "./workspace/input"
+        # # Create the save directory if it doesn't exist
         os.makedirs(save_directory, exist_ok=True)
         # Create the file path
         file_path = os.path.join(save_directory, file.filename)
         # Save the file to the specified directory
         with open(file_path, "wb") as f:
-            contents = file.read()
+            contents = await file.read()
             f.write(contents)
-        # async with aiofiles.open(file_path, "wb") as f:
-        #     contents = await file.read()
-        #     await f.write(contents)
 
+        if storage_type not in ["S3", "FILE"]:
+            raise HTTPException(status_code=400, detail="S3,FILE are only supported storage type")
+        if storage_type == "FILES":
+            path = save_directory
+        elif path is None:
+            raise HTTPException(status_code=400, detail="S3 requires a path")
 
-    except Exception:
-        print(Exception)
-        return {"message": "There was an error uploading the file"}
-    finally:
+        resource = Resource(name=file.filename, path=path, storage_type=storage_type)
+        db.session.add(resource)
+        db.session.commit()
+
+    # except Exception as error:
+    #     print("ERROR!!")
+    #     print(str(error))
+        # raise HTTPException(status_code=500,detail="There was error uploading file")
+    # finally:
         file.file.close()
 
-    return {"message": f"Successfully uploaded {file.filename}"}
-# async def create_upload_file(file: Annotated[bytes, File()]):
-#     return {"filename": file.filename}
+        return resource
 
-# async def create_file(
-#     file: Annotated[bytes, File()],
-#     fileb: Annotated[UploadFile, File()],
-#     token: Annotated[str, Form()],
-# ):
-#     return {
-#         "file_size": len(file),
-#         "token": token,
-#         "fileb_content_type": fileb.content_type,
-#     }
-#
-# def upload_file(file: UploadFile = UploadFile(...)):
-#     save_directory = "./uploaded_files"
-#
-#     # Create the save directory if it doesn't exist
-#     os.makedirs(save_directory, exist_ok=True)
-#
-#     # Create the file path
-#     file_path = os.path.join(save_directory, file.filename)
-#
-#     # Save the file to the specified directory
-#     with open(file_path, "wb") as f:
-#         contents = file.read()
-#         f.write(contents)
-#
-#     return {"filename": file.filename, "saved_path": file_path}
+@router.get("/get/all", status_code=200)
+def get_all_resources():
+    resources = db.session.query(Resource).all()
+    return resources

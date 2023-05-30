@@ -55,49 +55,59 @@ class AgentExecutor:
         return new_object
 
     def execute_next_action(self, agent_execution_id):
-        session = Session()
-        agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-        agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
-        if not agent:
-            return "Agent Not found"
+        global engine
+        try:
+            engine.dispose()
+            session = Session()
+            agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+            agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
+            if not agent:
+                return "Agent Not found"
 
-        tools = [
-            GoogleSearchTool(),
-            WriteFileTool(),
-            ReadFileTool(),
-            ReadEmailTool(),
-            SendEmailTool(),
-            SendEmailAttachmentTool(),
-            CreateIssueTool(),
-            SearchJiraTool(),
-            GetProjectsTool(),
-            EditIssueTool()
-        ]
+            tools = [
+                GoogleSearchTool(),
+                WriteFileTool(),
+                ReadFileTool(),
+                ReadEmailTool(),
+                SendEmailTool(),
+                SendEmailAttachmentTool(),
+                CreateIssueTool(),
+                SearchJiraTool(),
+                GetProjectsTool(),
+                EditIssueTool()
+            ]
 
-        parsed_config = self.fetch_agent_configuration(session, agent, agent_execution)
-        if parsed_config["LTM_DB"] == "Pinecone":
-            memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
-        else:
-            memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
+            parsed_config = self.fetch_agent_configuration(session, agent, agent_execution)
+            if parsed_config["LTM_DB"] == "Pinecone":
+                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
+            else:
+                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
 
-        user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
+            user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
 
-        for tool in user_tools:
-            tools.append(AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name))
+            for tool in user_tools:
+                tools.append(AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name))
 
-        # TODO: Generate tools array on fly
-        spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
-                                 llm=OpenAi(model=parsed_config["model"]), tools=tools, memory=memory,
-                                 agent_config=parsed_config)
-        response = spawned_agent.execute(parsed_config["goal"])
+            # TODO: Generate tools array on fly
+            spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
+                                     llm=OpenAi(model=parsed_config["model"]), tools=tools, memory=memory,
+                                     agent_config=parsed_config)
+            response = spawned_agent.execute(parsed_config["goal"])
 
-        session.commit()
-        session.close()
-        if response == "COMPLETE":
-            return
-        else:
-            print("Starting next job for agent execution id: ", agent_execution_id)
-            superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            session.commit()
+            session.close()
+            if response == "COMPLETE":
+                return
+            else:
+                print("Starting next job for agent execution id: ", agent_execution_id)
+                superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+        except Exception as exception:
+            print("Exception Occured in celery job")
+            print(str(exception))
+        finally:
+            engine.dispose()
+
+
 
     def fetch_agent_configuration(self, session, agent, agent_execution):
         agent_configurations = session.query(AgentConfiguration).filter_by(agent_id=agent_execution.agent_id).all()
