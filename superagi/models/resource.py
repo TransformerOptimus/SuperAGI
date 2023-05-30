@@ -9,6 +9,10 @@ class Resource(DBBaseModel):
     name = Column(String)
     storage_type = Column(String) #FILESERVER,S3
     path = Column(String) #need for S3
+    size = Column(Integer)
+    type = Column(String) # application/pdf etc
+    channel = Column(String) #INPUT,OUTPUT
+    project_id = Column(Integer)
 
     def __repr__(self):
-        return f"Resource(id={self.id}, name='{self.name}', storage_type='{self.storage_type}', path='{self.path}')"
+        return f"Resource(id={self.id}, name='{self.name}', storage_type='{self.storage_type}', path='{self.path}, size='{self.size}', type='{self.type}')"

@@ -10,7 +10,7 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.tool import Tool
 from jsonmerge import merge
-
+from superagi.worker import execute_agent
 from datetime import datetime
 import json
 
@@ -98,11 +98,13 @@ def create_agent_with_config(agent_with_config: AgentWithConfig):
     db.session.add_all(agent_configurations)
 
     # Creating an execution with CREATED status
-    execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
+    execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run")
     db.session.add(execution)
-
     db.session.commit()
+    execute_agent.delay(execution.id, datetime.now())
+
+
     return {
         "id": db_agent.id,
         "execution_id": execution.id,
