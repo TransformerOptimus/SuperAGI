@@ -11,6 +11,7 @@ import Details from "./Details";
 import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import {error} from "next/dist/build/output/log";
 
 export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
@@ -46,12 +47,12 @@ export default function AgentWorkspace({agentId}) {
 
   const handleCreateRun = () => {
     if (runName.replace(/\s/g, '') === '') {
-      toast.dark("Run name can't be blank", {autoClose: 1800});
+      toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
 
     if (goals.length <= 0) {
-      toast.dark("Agent needs to have goals", {autoClose: 1800});
+      toast.error("Agent needs to have goals", {autoClose: 1800});
       return
     }
 
@@ -61,12 +62,13 @@ export default function AgentWorkspace({agentId}) {
     addExecution(executionData)
       .then((response) => {
         setRunModal(false);
+        fetchExecutions(agentId, response.data);
         EventBus.emit('reFetchAgents', {});
-        toast.dark("New run created", {autoClose: 1800});
+        toast.success("New run created", {autoClose: 1800});
       })
       .catch((error) => {
         console.error('Error creating execution:', error);
-        toast.dark("Could not create run", {autoClose: 1800});
+        toast.error("Could not create run", {autoClose: 1800});
       });
 
     updateAgents(agentData)
@@ -89,7 +91,7 @@ export default function AgentWorkspace({agentId}) {
 
     updateExecution(selectedRun.id, executionData)
       .then((response) => {
-        setSelectedRun(response.data);
+        fetchExecutions(agentId, response.data);
         EventBus.emit('reFetchAgents', {});
       })
       .catch((error) => {
@@ -102,35 +104,41 @@ export default function AgentWorkspace({agentId}) {
   };
 
   useEffect(() => {
+    fetchAgentDetails(agentId);
+    fetchExecutions(agentId);
+  }, [agentId])
+
+  function fetchAgentDetails(agentId) {
     getAgentDetails(agentId)
       .then((response) => {
         setAgentDetails(response.data);
-        console.log(response.data);
         setTools(response.data.tools);
         setGoals(response.data.goal);
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
       });
+  }
 
+  function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
       .then((response) => {
         setAgentExecutions(response.data);
-        setSelectedRun(response.data[0]);
+        setSelectedRun(currentRun ? currentRun : response.data[0]);
       })
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
       });
-  }, [agentId])
+  }
 
   return (<>
-    <div style={{display:'flex',height:'100%'}}>
-      {history && <RunHistory runs={agentExecutions} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
-      <div style={{width: history ? '40%' : '60%',height:'100%'}}>
+    <div style={{display:'flex'}}>
+      {history && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
-              <Image width={16} height={16} src="/images/history.png" alt="history-icon"/>
+              <Image width={16} height={16} src="/images/history.svg" alt="history-icon"/>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
               {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
@@ -156,17 +164,17 @@ export default function AgentWorkspace({agentId}) {
             </div>}
             <div>
               <button className={styles.run_button} onClick={() => setRunModal(true)}>
-                <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;New Run
+                <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/>}
-          {leftPanel === 'agent_type' && <TaskQueue/>}
+          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/></div>}
+          {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue/></div>}
         </div>
       </div>
-      <div style={{width:'40%',height:'100%'}}>
+      <div style={{width:'40%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
             {/*<div>*/}
@@ -184,11 +192,11 @@ export default function AgentWorkspace({agentId}) {
                 Details
               </button>
             </div>
-            {/*<div style={{marginLeft:'5px'}}>*/}
-            {/*  <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>*/}
-            {/*    Resource Manager*/}
-            {/*  </button>*/}
-            {/*</div>*/}
+            <div style={{marginLeft:'5px'}}>
+              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>
+                Resource Manager
+              </button>
+            </div>
             {/*<div style={{marginLeft:'5px'}}>*/}
             {/*  <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Logs*/}
@@ -199,7 +207,7 @@ export default function AgentWorkspace({agentId}) {
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
           {rightPanel === 'details' && <Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/>}
-          {rightPanel === 'resource_manager' && <ResourceManager/>}
+          {rightPanel === 'resource_manager' && <ResourceManager agentId={agentId}/>}
         </div>
       </div>
 
@@ -210,24 +218,24 @@ export default function AgentWorkspace({agentId}) {
             <label className={styles.form_label}>Name</label>
             <input className="input_medium" type="text" value={runName} onChange={handleRunNameChange}/>
           </div>
-          <div style={{marginTop: '15px'}}>
+          {goals && goals.length > 0 && <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Goals</label></div>
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
               <div>
                 <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                 </button>
               </div>
             </div>))}
             <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
-          </div>
+          </div>}
           <div style={{display: 'flex', justifyContent: 'flex-end'}}>
             <button className={styles.agent_button} style={{marginRight: '10px'}} onClick={closeRunModal}>
               Cancel
             </button>
             <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={() => handleCreateRun()}>
-              <Image width={14} height={14} src="/images/run_icon.png" alt="run-icon"/>&nbsp;Run
+              <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;Run
             </button>
           </div>
         </div>

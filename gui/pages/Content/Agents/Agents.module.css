@@ -1,7 +1,6 @@
 .container {
     height: 100%;
     width: 100%;
-    overflow-y: scroll;
     padding: 0 8px;
 }
 
@@ -129,6 +128,18 @@
     padding-right: 10px;
 }
 
+.detail_body {
+    width: 100%;
+    padding-right: 10px;
+}
+
+.detail_content {
+    height: calc(100vh - 140px);
+    border-radius: 8px;
+    overflow-y: scroll;
+    padding-bottom: 0;
+}
+
 .tab_button {
     border: none;
     font-style: normal;
@@ -183,13 +194,6 @@
 
 .pause_button:hover {
     background: #C95034;
-}
-
-.detail_body {
-    width: 100%;
-    height: calc(100% - 44px);
-    overflow-y: scroll;
-    padding-right: 10px;
 }
 
 .history_box {
@@ -295,4 +299,10 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
+}
+
+.resources {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
@@ -15,6 +15,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
   const [selectedTab, setSelectedTab] = useState(null)
   const [agents, setAgents] = useState(null);
   const [tools, setTools] = useState(null);
+  const tabContainerRef = useRef(null);
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -49,21 +50,27 @@ export default function Content({selectedView, selectedProjectId, userName}) {
     fetchTools();
   }, [selectedProjectId])
 
-  const closeTab = (tabId) => {
+  const closeTab = (e, tabId) => {
+    e.stopPropagation();
     const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
-    const indexToRemove = tabs.findIndex((tab) => tab.id === tabId);
+    setTabs(updatedTabs);
 
-    let nextSelectedTabIndex;
-    if (indexToRemove === 0) {
-      nextSelectedTabIndex = 0;
-    } else if (indexToRemove === tabs.length - 1) {
-      nextSelectedTabIndex = tabs.length - 2;
-    } else {
-      nextSelectedTabIndex = indexToRemove;
+    if (selectedTab !== tabId) {
+      return;
     }
 
-    setTabs(updatedTabs);
-    setSelectedTab(tabs[nextSelectedTabIndex]?.id || null);
+    let nextSelectedTabId = null;
+    const indexToRemove = tabs.findIndex((tab) => tab.id === tabId);
+
+    if (indexToRemove === 0) {
+      nextSelectedTabId = tabs[1]?.id || null;
+    } else if (indexToRemove === tabs.length - 1) {
+      nextSelectedTabId = tabs[indexToRemove - 1]?.id || null;
+    } else {
+      nextSelectedTabId = tabs[indexToRemove + 1]?.id || null;
+    }
+
+    setSelectedTab(nextSelectedTabId);
   };
 
   const addTab = (element) => {
@@ -73,6 +80,21 @@ export default function Content({selectedView, selectedProjectId, userName}) {
     }
     setSelectedTab(element.id);
   };
+
+  useEffect(() => {
+    if (tabContainerRef.current) {
+      const tabElement = tabContainerRef.current.querySelector(`[data-tab-id="${selectedTab}"]`);
+      if (tabElement) {
+        const containerScrollLeft = tabContainerRef.current.scrollLeft;
+        const tabOffsetLeft = tabElement.offsetLeft;
+        const containerWidth = tabContainerRef.current.offsetWidth;
+
+        if (tabOffsetLeft < containerScrollLeft || tabOffsetLeft >= containerScrollLeft + containerWidth) {
+          tabContainerRef.current.scrollLeft = tabOffsetLeft;
+        }
+      }
+    }
+  }, [selectedTab]);
 
   useEffect(() => {
     const settingsTab = (eventData) => {
@@ -91,8 +113,8 @@ export default function Content({selectedView, selectedProjectId, userName}) {
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
-        {selectedView === 'agents' && <Agents sendAgentData={addTab} agents={agents}/>}
-        {selectedView === 'tools' && <Tools sendToolData={addTab} tools={tools} userName={userName}/>}
+        {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
+        {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools} userName={userName}/></div>}
       </div>
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div className={styles.empty_state}>
@@ -101,23 +123,23 @@ export default function Content({selectedView, selectedProjectId, userName}) {
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
               <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent" })} className={styles.empty_state_button}>Create new agent</button>
             </div>
-            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'20px'}}>
+            {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button className={styles.empty_state_button}>View last active agent</button>
-            </div>
+            </div>}
           </div>
         </div>
       </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div className={styles.tabs}>
+          <div className={styles.tabs} ref={tabContainerRef}>
             {tabs.map((tab) => (
-              <div key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
+              <div data-tab-id={tab.id} key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
                 <div style={{display:'flex', order:'0'}}>
-                  {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.png" alt="agent-icon"/></div>}
-                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.png" alt="tools-icon"/></div>}
-                  {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.png" alt="settings-icon"/></div>}
+                  {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
+                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
+                  {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={() => closeTab(tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.png" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>
@@ -130,13 +152,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
-                    <div className="row">
-                      <div className="col-3"></div>
-                      <div className="col-6" style={{overflowY:'scroll'}}>
-                        <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
-                      </div>
-                      <div className="col-3"></div>
-                    </div>
+                    <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                   </div>}
                   {tab.contentType === 'Create_Tool' && <div className={styles.create_agent}>
                     <div className="row">

@@ -12,9 +12,5 @@ gui/.next
 .DS_Store
 .DS_Store?
 venv
-gui/node_modules
-gui/.next
-.DS_Store
-.DS_Store?
 workspace/output
 workspace/input

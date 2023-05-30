@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from superagi.models.project import Project
 from superagi.models.user import User
-# from superagi.models.user import User 
+# from superagi.models.user import User
 from superagi.models.organisation import Organisation
 
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
