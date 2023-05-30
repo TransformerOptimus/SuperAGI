@@ -16,7 +16,7 @@ export default function Details({agentDetails, runCount}) {
   }
   
   return (<>
-    <div className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
+    <div className={styles.history_box} style={{background:'#272335',padding:'15px',cursor:'default'}}>
       <div className={styles.detail_name}>{agentDetails?.name || ''}</div>
       <div>{agentDetails?.description || ''}</div>
       <div className={styles.separator}></div>
@@ -43,6 +43,16 @@ export default function Details({agentDetails, runCount}) {
         {/*  <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>7.6k</div>*/}
         {/*</div>*/}
       </div>
+      <div className={styles.separator}></div>
+      <div className={styles.agent_info_box}>
+        <div><Image width={15} height={15} src="/images/flag.svg" alt="goals-icon"/></div>
+        <div style={info_text}>{agentDetails?.goal.length || 0} Goals</div>
+      </div>
+      <div className={styles.large_text_box}>
+        {agentDetails.goal.map((goal, index) => (<div key={index} style={{marginTop:'0',marginBottom:'5px'}}>
+          <div>{index + 1}. {goal || ''}</div><br/>
+        </div>))}
+      </div>
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/tools_dark.svg" alt="tools-icon"/></div>
@@ -55,9 +65,17 @@ export default function Details({agentDetails, runCount}) {
       </div></div>}</div>}
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
-        <div><Image width={15} height={15} src="/images/flag.svg" alt="goals-icon"/></div>
-        <div style={info_text}>{agentDetails?.goal.length || 0} Goals</div>
+        <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
+        <div style={info_text}>{agentDetails?.constraints.length || 0} Constraints</div>
       </div>
+      {agentDetails.constraints.length > 0 && <div><div className={styles.large_text_box}>
+        {agentDetails.constraints.map((constraint, index) => (<div key={index} style={{marginTop:'0',marginBottom:'5px'}}>
+          <div>{index + 1}. {constraint || ''}</div><br/>
+        </div>))}
+      </div>
+        <div style={{marginTop:'10px',cursor:'pointer'}}>Show More</div>
+      </div>}
+      <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
         <div style={info_text}>{agentDetails?.agent_type || ''}</div>
@@ -70,10 +88,6 @@ export default function Details({agentDetails, runCount}) {
       {/*  <div><Image width={15} height={15} src="/images/cancel_presentation.svg" alt="exit-icon"/></div>*/}
       {/*  <div style={info_text}>{exit}</div>*/}
       {/*</div>*/}
-      <div className={styles.agent_info_box}>
-        <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
-        <div style={info_text}>{agentDetails?.constraints.length || 0} Constraints</div>
-      </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/overview.svg" alt="window-icon"/></div>
         <div style={info_text}>{agentDetails?.memory_window || 0} milliseconds</div>

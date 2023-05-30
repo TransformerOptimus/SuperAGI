@@ -29,6 +29,8 @@ services:
     build: ./gui
     ports:
       - "3000:3000"
+    volumes:
+      - ./gui:/app   # Add this line
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
     networks:

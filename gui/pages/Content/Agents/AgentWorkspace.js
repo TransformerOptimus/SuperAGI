@@ -9,10 +9,10 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, deleteExecution} from "@/app/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentWorkspace({agentId}) {
+export default function AgentWorkspace({agentId, selectedProjectId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(false)
@@ -20,7 +20,7 @@ export default function AgentWorkspace({agentId}) {
   const [runModal, setRunModal] = useState(false)
   const [goals, setGoals] = useState(null)
   const [tools, setTools] = useState([])
-  const [runName, setRunName] = useState("new run")
+  const [runName, setRunName] = useState("New Run")
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
 
@@ -81,7 +81,7 @@ export default function AgentWorkspace({agentId}) {
 
   const closeRunModal = () => {
     setGoals(null);
-    setRunName("new run");
+    setRunName("New Run");
     setRunModal(false);
   };
 
@@ -130,6 +130,17 @@ export default function AgentWorkspace({agentId}) {
       });
   }
 
+  function removeExecution() {
+    deleteExecution(selectedRun.id)
+      .then((response) => {
+        fetchExecutions(agentId);
+        EventBus.emit('reFetchAgents', {});
+      })
+      .catch((error) => {
+        console.error('Error updating execution:', error);
+      });
+  }
+
   return (<>
     <div style={{display:'flex'}}>
       {history && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
@@ -158,7 +169,7 @@ export default function AgentWorkspace({agentId}) {
             </div>}
             {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <div style={{marginRight:'6px'}}>
               <button style={{padding:'8px 10px'}} className={styles.run_button} onClick={() => {updateRunStatus("RUNNING")}}>
-                Run
+                Resume
               </button>
             </div>}
             <div>
@@ -205,8 +216,8 @@ export default function AgentWorkspace({agentId}) {
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && <ActionConsole/>}
-          {rightPanel === 'details' && <Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/>}
-          {rightPanel === 'resource_manager' && <ResourceManager agentId={agentId}/>}
+          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
+          {rightPanel === 'resource_manager' && <ResourceManager selectedProjectId={selectedProjectId}/>}
         </div>
       </div>
 

@@ -149,7 +149,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
             {tabs.map((tab) => (
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
-                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
+                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedProjectId={selectedProjectId}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>

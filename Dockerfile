@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 COPY config.yaml .
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0","--port", "8001","--reload","exclude=[\"./workspace\"]"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0","--port", "8001","--reload"]

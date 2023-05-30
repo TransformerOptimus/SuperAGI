@@ -306,3 +306,10 @@
     justify-content: space-between;
     flex-wrap: wrap;
 }
+
+.large_text_box {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+}
