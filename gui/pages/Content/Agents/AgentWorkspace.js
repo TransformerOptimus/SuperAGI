@@ -172,7 +172,7 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
               <ul className={styles.dropdown_container}>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
-                <li className={styles.dropdown_item} onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>
+                {agentExecutions && agentExecutions.length > 1 && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
               </ul>
             </div>}
           </div>
