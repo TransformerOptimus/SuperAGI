@@ -11,7 +11,6 @@ import Details from "./Details";
 import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {error} from "next/dist/build/output/log";
 
 export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
