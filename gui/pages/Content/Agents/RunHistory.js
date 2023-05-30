@@ -26,7 +26,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div style={{display:'flex',order:'0'}}>
               {run.status === 'RUNNING' && <div><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
-              <div style={run.status === 'RUNNING' ? {marginLeft:'7px'} : {}}>{run.name}</div>
+              <div className={styles.text_block} style={run.status === 'RUNNING' ? {marginLeft:'7px'} : {}}>{run.name}</div>
             </div>
             {/*{run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}*/}
           </div>

@@ -152,7 +152,7 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
               {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
-              <div style={selectedRun && selectedRun.status === 'RUNNING' ? {marginLeft:'7px'} : {marginLeft:'-8px'}}>{selectedRun?.name || ''}</div>
+              <div className={styles.single_line_block} style={selectedRun && selectedRun.status === 'RUNNING' ? {marginLeft:'7px', maxWidth:'100px'} : {marginLeft:'-8px', maxWidth:'100px'}}>{selectedRun?.name || ''}</div>
             </div>
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>

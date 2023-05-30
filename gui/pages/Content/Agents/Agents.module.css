@@ -318,3 +318,10 @@
     width: fit-content;
     color: #888888;
 }
+
+.single_line_block {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80%;
+}

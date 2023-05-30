@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
-// const API_BASE_URL = 'http://192.168.1.61:8001';
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+const API_BASE_URL = 'http://192.168.1.61:8001';
 
 export const getOrganization = () => {
   return axios.get(`${API_BASE_URL}/organisations/get/1`);
@@ -63,6 +63,6 @@ export const getResources = (projectId) => {
   return axios.get(`${API_BASE_URL}/resources/get/all/${projectId}`);
 };
 
-export const uploadResource = (projectId, fileData) => {
-  return axios.post(`${API_BASE_URL}/resources/add/${projectId}`, fileData);
+export const downloadResource = (fileId) => {
+  return axios.get(`${API_BASE_URL}/resources/get/${fileId}`);
 };

@@ -3,10 +3,10 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getResources, uploadResource} from "@/app/DashboardService";
+import {getResources, downloadResource} from "@/app/DashboardService";
+import axios from 'axios';
 
 export default function ResourceManager({selectedProjectId}) {
-  console.log(selectedProjectId)
   const [output, setOutput] = useState([]);
   const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
@@ -14,11 +14,20 @@ export default function ResourceManager({selectedProjectId}) {
   const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
+  // const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+  const API_BASE_URL = 'http://192.168.1.61:8001';
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
-    const fileData = {"name": files[0].name, "size": files[0].size, "type": files[0].type, "channel": 'INPUT'}
-    uploadFile(fileData);
+    if (files.length > 0) {
+      const fileData = {
+        "file": files[0],
+        "name": files[0].name,
+        "size": files[0].size,
+        "type": files[0].type,
+      };
+      uploadFile(fileData);
+    }
   };
 
   const handleDropAreaClick = () => {
@@ -42,8 +51,15 @@ export default function ResourceManager({selectedProjectId}) {
     event.preventDefault();
     setIsDragging(false);
     const files = event.dataTransfer.files;
-    const fileData = {"name": files[0].name, "size": files[0].size, "type": files[0].type, "channel": 'INPUT'}
-    uploadFile(fileData);
+    if (files.length > 0) {
+      const fileData = {
+        "file": files[0],
+        "name": files[0].name,
+        "size": files[0].size,
+        "type": files[0].type,
+      };
+      uploadFile(fileData);
+    }
   };
 
   useEffect(() => {
@@ -51,12 +67,19 @@ export default function ResourceManager({selectedProjectId}) {
   }, [selectedProjectId]);
 
   function uploadFile(fileData) {
-    uploadResource(selectedProjectId, fileData)
+    const formData = new FormData();
+    formData.append('file', fileData.file);
+    formData.append('name', fileData.name);
+    formData.append('size', fileData.size);
+    formData.append('type', fileData.type);
+
+    axios.post(`${API_BASE_URL}/resources/add/${selectedProjectId}`, formData)
       .then((response) => {
         fetchResources(selectedProjectId);
-        toast.success('Resource added successfully', {autoClose: 1800});
+        toast.success('Resource added successfully', { autoClose: 1800 });
       })
       .catch((error) => {
+        toast.success('Unsupported file format', { autoClose: 1800 });
         console.error('Error uploading resource:', error);
       });
   }
@@ -67,13 +90,21 @@ export default function ResourceManager({selectedProjectId}) {
         const resources = response.data;
         const inputFiles = resources.filter((resource) => resource.channel === 'INPUT');
         const outputFiles = resources.filter((resource) => resource.channel === 'OUTPUT');
-        console.log(inputFiles)
-        console.log(outputFiles)
         setInput(inputFiles);
         setOutput(outputFiles);
       })
       .catch((error) => {
         console.error('Error fetching resources:', error);
+      });
+  }
+
+  function downloadFile(fileId) {
+    downloadResource(fileId)
+      .then((response) => {
+        console.log(response.data)
+      })
+      .catch((error) => {
+        console.error('Error downloading file:', error);
       });
   }
 
@@ -86,21 +117,22 @@ export default function ResourceManager({selectedProjectId}) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
-    
+
     return `${formattedValue} ${sizes[i]}`;
   }
 
   const ResourceItem = ({ file }) => {
     const isPDF = file.type === 'application/pdf';
-    const isTXT = file.type === 'application/txt';
+    const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
 
     return (
-      <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
+      <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
           {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon" /></div>}
           {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px' }}>
-            <div style={{ fontSize: '11px' }} className={styles.tool_text}>{file.name}</div>
+          {!isTXT && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+          <div style={{ marginLeft: '5px', width:'100%' }}>
+            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
             <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
           </div>
         </div>
@@ -126,7 +158,7 @@ export default function ResourceManager({selectedProjectId}) {
         </div>
         <div>
           <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254'} : {background:'transparent'}}>
-            output
+            Output
           </button>
         </div>
       </div>
