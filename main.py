@@ -184,10 +184,10 @@ def load_module_from_file(file_path):
 # Function to process the files and extract class information
 def process_files(folder_path):
     existing_tools = session.query(Tool).all()
-    print("Exisiting Tool")
+    # print("Exisiting Tool")
     existing_tools = [Tool(id=None, name=tool.name, folder_name=tool.folder_name, class_name=tool.class_name) for tool
                       in existing_tools]
-    print(existing_tools)
+    # print(existing_tools)
 
     new_tools = []
     # Iterate over all subfolders
@@ -205,13 +205,13 @@ def process_files(folder_path):
                     # filtered_classes = [clazz for clazz in classes if
                     #                     clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
                     for clazz in classes:
-                        print("Class : ", clazz)
+                        # print("Class : ", clazz)
                         new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name, file_name=file_name,
                                         name=clazz["class_attribute"])
                         new_tools.append(new_tool)
 
-    print(existing_tools)
-    print(new_tools)
+    # print(existing_tools)
+    # print(new_tools)
 
     for tool in new_tools:
         add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,

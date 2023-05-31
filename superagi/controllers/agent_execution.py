@@ -62,7 +62,7 @@ def update_agent_execution(agent_execution_id: int,
         if not agent:
             raise HTTPException(status_code=404, detail="Agent not found")
         db_agent_execution.agent_id = agent.id
-    if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED":
+    if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED" and agent_execution.status != "TERMINATED":
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
 

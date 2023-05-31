@@ -61,20 +61,29 @@ class AgentExecutor:
             session = Session()
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
+            if agent_execution.status == "PAUSED" or agent_execution.status == "TERMINATED" \
+                    or agent_execution == "COMPLETED":
+                return
+
             if not agent:
                 return "Agent Not found"
+            print("Agent Under Execution : ")
+            print(agent)
+            print("Agent Execution : ")
+            print(agent_execution)
+
 
             tools = [
                 GoogleSearchTool(),
                 WriteFileTool(),
                 ReadFileTool(),
-                ReadEmailTool(),
-                SendEmailTool(),
-                SendEmailAttachmentTool(),
-                CreateIssueTool(),
-                SearchJiraTool(),
-                GetProjectsTool(),
-                EditIssueTool()
+                # ReadEmailTool(),
+                # SendEmailTool(),
+                # SendEmailAttachmentTool(),
+                # CreateIssueTool(),
+                # SearchJiraTool(),
+                # GetProjectsTool(),
+                # EditIssueTool()
             ]
 
             parsed_config = self.fetch_agent_configuration(session, agent, agent_execution)
@@ -88,10 +97,9 @@ class AgentExecutor:
             for tool in user_tools:
                 tools.append(AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name))
 
-            # TODO: Generate tools array on fly
             spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                      llm=OpenAi(model=parsed_config["model"]), tools=tools, memory=memory,
-                                     agent_config=parsed_config)
+                                     agent_config=parsed_config, agent=agent)
             response = spawned_agent.execute(parsed_config["goal"])
 
             session.commit()

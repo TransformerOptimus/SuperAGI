@@ -21,9 +21,7 @@ class WriteFileTool(BaseTool):
 
     def _execute(self, file_name: str, content: str):
         final_path = file_name
-        # root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-        root_dir = get_config('RESOURCES_INTPUT_ROOT_DIR')
-
+        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"

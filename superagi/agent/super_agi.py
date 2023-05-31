@@ -26,8 +26,15 @@ from superagi.models.db import connectDB
 from superagi.tools.base_tool import BaseTool
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.vector_store.base import VectorStore
+from superagi.models.agent import Agent
+from superagi.models.resource import Resource
+from superagi.config.config import get_config
+import os
 
 FINISH = "finish"
+WRITE_FILE = "write_file"
+FILE = "FILE"
+S3 = "S3"
 # print("\033[91m\033[1m"
 #         + "\nA bit about me...."
 #         + "\033[0m\033[0m")
@@ -38,18 +45,30 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def checkExecution(execution_id):
-    try:
-        execution = session.query(AgentExecution).filter_by(id=execution_id).first()
-        if execution and execution.status in ['PAUSED', 'COMPLETED']:
-            return False
-        else:
-            return True
-    except SQLAlchemyError as e:
-        print("Error occurred during execution status check:", e)
-        return False
-    finally:
-        session.close()
+def make_written_file_resource(file_name: str,project_id:int):
+    path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
+    storage_type = get_config("STORAGE_TYPE")
+    file_type = "application/txt"
+
+    root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+
+    if root_dir is not None:
+        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        final_path = root_dir + file_name
+    else:
+        final_path = os.getcwd() + "/" + file_name
+    file_size = os.path.getsize(final_path)
+    resource = None
+    if storage_type == FILE:
+        # Save Resource to Database
+        resource = Resource(name=file_name, path=path + file_name, storage_type=storage_type, size=file_size,
+                            type=file_type,
+                            channel="OUTPUT",
+                            project_id=project_id)
+    elif storage_type == S3:
+        pass
+    return resource
 
 
 class SuperAgi:
@@ -60,6 +79,7 @@ class SuperAgi:
                  memory: VectorStore,
                  tools: List[BaseTool],
                  agent_config: Any,
+                 agent: Agent,
                  output_parser: BaseOutputParser = AgentOutputParser(),
                  ):
         self.ai_name = ai_name
@@ -70,6 +90,7 @@ class SuperAgi:
         self.output_parser = output_parser
         self.tools = tools
         self.agent_config = agent_config
+        self.agent = agent
         # Init Log
         # print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 
@@ -117,6 +138,8 @@ class SuperAgi:
 
         superagi_prompt = AgentPromptBuilder.get_superagi_prompt(self.ai_name, self.ai_role, goals, self.tools,
                                                                  self.agent_config)
+        # print("BASE PROMPT")
+        # print(superagi_prompt)
         messages = [{"role": "system", "content": superagi_prompt},
                     {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
@@ -173,6 +196,11 @@ class SuperAgi:
             tool = tools[action.name]
             try:
                 observation = tool.execute(action.args)
+                if action.name == WRITE_FILE and observation is not None:
+                    resource = make_written_file_resource(file_name=action.args.get('file_name'),
+                                                          project_id=self.agent.project_id)
+                    if resource is not None:
+                        session.add(resource)
             except ValidationError as e:
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"
