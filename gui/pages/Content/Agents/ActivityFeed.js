@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './Agents.module.css';
 import Head from 'next/head';
 import {getExecutionFeeds} from "@/app/DashboardService";
+import Image from "next/image";
+import {formatTime} from "@/utils/utils";
 
 export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
@@ -76,6 +78,16 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
         {/*{checkEmptyText(feed.description) && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
         {/*  <div className={styles.feed_description}>{feed.description}</div>*/}
         {/*</div>}*/}
+        {formatTime(f.updated_at) !== 'Invalid Time' && <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginTop: '20px'}}>
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <div>
+              <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+            </div>
+            <div className={styles.history_info}>
+              {formatTime(f.updated_at)}
+            </div>
+          </div>
+        </div>}
       </div>))}
       {selectedRunStatus && selectedRunStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
         <div style={{display: 'flex'}}>
