@@ -62,7 +62,7 @@ def make_written_file_resource(file_name: str,project_id:int):
     resource = None
     if storage_type == FILE:
         # Save Resource to Database
-        resource = Resource(name=file_name, path=path + file_name, storage_type=storage_type, size=file_size,
+        resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
                             type=file_type,
                             channel="OUTPUT",
                             project_id=project_id)

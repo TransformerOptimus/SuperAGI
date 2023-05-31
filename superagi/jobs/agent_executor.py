@@ -105,6 +105,10 @@ class AgentExecutor:
             session.commit()
             session.close()
             if response == "COMPLETE":
+                db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == self.agent_config)\
+                    .first()
+                db_agent_execution.status == "COMPLETED"
+                session.commit(db_agent_execution)
                 return
             else:
                 print("Starting next job for agent execution id: ", agent_execution_id)
