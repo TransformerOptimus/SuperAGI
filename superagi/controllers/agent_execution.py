@@ -102,9 +102,27 @@ def list_running_agents(agent_id: str):
     return executions
 
 
-@router.get("/get/latest/agent")
-def get_agent_by_latest_execution():
-    latest_execution = db.session.query(AgentExecution).order_by(desc(AgentExecution.last_execution_time)).first()
+@router.get("/get/latest/agent/project/{project_id}")
+def get_agent_by_latest_execution(project_id:int):
+    latest_execution = (
+        db.session.query(AgentExecution)
+        .join(Agent, AgentExecution.agent_id == Agent.id)
+        .filter(Agent.project_id == project_id)
+        .order_by(desc(AgentExecution.last_execution_time))
+        .first()
+    )
+    isRunning = False
+    if latest_execution.status == "RUNNING":
+        isRunning = True
+    agent = db.session.query(Agent).filter(Agent.id == latest_execution.agent_id).first()
     return {
-        "agent_id": latest_execution.agent_id
+        "agent_id": latest_execution.agent_id,
+        "project_id": project_id,
+        "created_at": agent.created_at,
+        "description": agent.description,
+        "updated_at": agent.updated_at,
+        "name": agent.name,
+        "id": agent.id,
+        "status": isRunning,
+        "contentType": "Agents"
     }
