@@ -14,6 +14,7 @@ class Config(BaseSettings):
     @classmethod
     def load_config(cls, config_file: str) -> dict:
         # If config file exists, read it
+        config_data = {}
         if os.path.exists(config_file):
             with open(config_file, "r") as file:
                 config_data = yaml.safe_load(file)
