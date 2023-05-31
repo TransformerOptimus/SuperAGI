@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import Head from 'next/head';
 import {getExecutionFeeds} from "@/app/DashboardService";
@@ -93,6 +93,12 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
         <div style={{display: 'flex'}}>
           <div style={{fontSize: '20px'}}>🧠</div>
           <div className={styles.feed_title}><i>{loadingText}</i></div>
+        </div>
+      </div>}
+      {selectedRunStatus && selectedRunStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+        <div style={{display: 'flex'}}>
+          <div style={{fontSize: '20px'}}>🏁</div>
+          <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
         </div>
       </div>}
     </div>
