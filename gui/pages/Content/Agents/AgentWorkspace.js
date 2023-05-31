@@ -63,6 +63,7 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
       .then((response) => {
         setRunModal(false);
         fetchExecutions(agentId, response.data);
+        fetchAgentDetails(agentId);
         EventBus.emit('reFetchAgents', {});
         toast.success("New run created", {autoClose: 1800});
       })
