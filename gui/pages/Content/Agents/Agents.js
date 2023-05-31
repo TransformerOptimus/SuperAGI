@@ -16,7 +16,7 @@ export default function Agents({sendAgentData, agents}) {
             + Create Agent
           </button>
         </div>
-        {agents && agents.length > 0 ? <div className={styles.wrapper}>
+        {agents && agents.length > 0 ? <div className={styles.wrapper} style={{overflowY:'scroll',height:'calc(100vh - 92px)'}}>
           {agents.map((agent, index) => (
             <div key={index}>
               <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
