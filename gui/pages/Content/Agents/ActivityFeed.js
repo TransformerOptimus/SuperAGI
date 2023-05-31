@@ -9,12 +9,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const feedContainerRef = useRef(null);
 
   useEffect(() => {
-    if (feedContainerRef.current) {
-      feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
-    }
-  }, [feeds]);
-
-  useEffect(() => {
     const text = 'Thinking';
     let dots = '';
 
@@ -53,11 +47,18 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
         setFeeds(response.data);
+        scrollToBottom();
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
       });
   }
+
+  const scrollToBottom = () => {
+    if (feedContainerRef.current) {
+      feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
+    }
+  };
 
   return (<>
     <Head>
