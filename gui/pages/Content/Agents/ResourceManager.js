@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getResources} from "@/app/DashboardService";
+import {getResources, baseUrl} from "@/app/DashboardService";
 import axios from 'axios';
 
 export default function ResourceManager({selectedProjectId}) {
@@ -14,8 +14,6 @@ export default function ResourceManager({selectedProjectId}) {
   const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
-  // const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
-  const API_BASE_URL = 'http://192.168.1.61:8001';
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
@@ -73,13 +71,13 @@ export default function ResourceManager({selectedProjectId}) {
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    axios.post(`${API_BASE_URL}/resources/add/${selectedProjectId}`, formData)
+    axios.post(`${baseUrl}/resources/add/${selectedProjectId}`, formData)
       .then((response) => {
         fetchResources(selectedProjectId);
         toast.success('Resource added successfully', { autoClose: 1800 });
       })
       .catch((error) => {
-        toast.success('Unsupported file format', { autoClose: 1800 });
+        toast.error('Unsupported file format', { autoClose: 1800 });
         console.error('Error uploading resource:', error);
       });
   }
