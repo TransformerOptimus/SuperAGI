@@ -9,7 +9,10 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
-  const [firstFetch, setFirstFetch] = useState(true);
+
+  function checkEmptyText(text) {
+    return text.replace(/\s/g, '') !== ''
+  }
 
   useEffect(() => {
     const text = 'Thinking';
@@ -26,28 +29,24 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   useEffect(() => {
     const interval = window.setInterval(function(){
       fetchFeeds();
-    }, firstFetch ? 0 : 10000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [selectedRunId]);
 
-  function checkEmptyText(text) {
-    return text.replace(/\s/g, '') !== ''
-  }
+  useEffect(() => {
+    fetchFeeds();
+  }, [selectedRunId])
 
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
         const data = response.data || [];
-        setFeeds(prevFeeds => {
-          return data.map(item => {
-            const existingFeed = prevFeeds.find(feed => feed.id === item.id);
-            const isExpanded = existingFeed ? existingFeed.isExpanded : false;
-            return { ...item, isExpanded };
-          });
+        const updatedData = data.map(item => {
+          return { ...item, isExpanded: false };
         });
+        setFeeds(updatedData);
         scrollToBottom();
-        setFirstFetch(false);
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
