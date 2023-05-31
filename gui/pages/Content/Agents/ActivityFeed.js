@@ -9,6 +9,7 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
+  const [firstFetch, setFirstFetch] = useState(true);
 
   useEffect(() => {
     const text = 'Thinking';
@@ -23,10 +24,9 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   }, []);
 
   useEffect(() => {
-    const selectedRunId1 = selectedRunId;
     const interval = window.setInterval(function(){
-      fetchFeeds(selectedRunId1);
-    }, 10000);
+      fetchFeeds();
+    }, firstFetch ? 0 : 10000);
 
     return () => clearInterval(interval);
   }, [selectedRunId]);
@@ -35,21 +35,19 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
     return text.replace(/\s/g, '') !== ''
   }
 
-  useEffect(() => {
+  function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
-        setFeeds(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
-  }, [selectedRunId])
-
-  function fetchFeeds(selectedRunId) {
-    getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        setFeeds(response.data);
+        const data = response.data || [];
+        setFeeds(prevFeeds => {
+          return data.map(item => {
+            const existingFeed = prevFeeds.find(feed => feed.id === item.id);
+            const isExpanded = existingFeed ? existingFeed.isExpanded : false;
+            return { ...item, isExpanded };
+          });
+        });
         scrollToBottom();
+        setFirstFetch(false);
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
@@ -62,6 +60,14 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
     }
   };
 
+  function toggleExpand(index) {
+    setFeeds(prevFeeds => {
+      const updatedFeeds = [...prevFeeds];
+      updatedFeeds[index] = { ...updatedFeeds[index], isExpanded: !updatedFeeds[index].isExpanded };
+      return updatedFeeds;
+    });
+  }
+
   return (<>
     <Head>
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
@@ -73,21 +79,33 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
           {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
           {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
-          <div className={styles.feed_title} style={{whiteSpace: 'pre-line'}}>{f?.feed || ''}</div>
+          <div className={styles.feed_title} style={!f.isExpanded ? {overflow:'hidden',display:'-webkit-box'} : {}}>{f?.feed || ''}</div>
         </div>
-        {/*{checkEmptyText(feed.description) && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
-        {/*  <div className={styles.feed_description}>{feed.description}</div>*/}
-        {/*</div>}*/}
-        {formatTime(f.updated_at) !== 'Invalid Time' && <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginTop: '20px'}}>
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            <div>
-              <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+        <div className={styles.more_details_wrapper}>
+          {/*<div className={styles.more_details}>*/}
+          {/*  <div>*/}
+          {/*    <Image width={12} height={12} src="/images/tokens_consumed.svg" alt="tokens-icon"/>*/}
+          {/*  </div>*/}
+          {/*  <div className={styles.history_info}>*/}
+          {/*    45 Tokens Consumed*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+          {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <div>
+                <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+              </div>
+              <div className={styles.history_info}>
+                {formatTime(f.updated_at)}
+              </div>
             </div>
-            <div className={styles.history_info}>
-              {formatTime(f.updated_at)}
+          </div>}
+          <div className={styles.more_details}>
+            <div onClick={() => toggleExpand(index)} style={{ cursor: 'pointer' }} className={styles.history_info}>
+              {f.isExpanded ? 'Hide Details' : 'More Details'}
             </div>
           </div>
-        </div>}
+        </div>
       </div>))}
       {selectedRunStatus && selectedRunStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
         <div style={{display: 'flex'}}>

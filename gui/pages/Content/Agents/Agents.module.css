@@ -53,6 +53,11 @@
     border: 1px solid #494856;
     text-align: center;
     padding: 5px 15px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .agent_button:hover {
@@ -240,15 +245,9 @@
     font-size: 12px;
     line-height: 15px;
     color: white;
-}
-
-.feed_description {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 15px;
-    color: #888888;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    white-space: pre-line;
 }
 
 .feed_icon {
@@ -361,4 +360,17 @@
     background: transparent;
     border: none;
     border-radius: 8px;
+}
+
+.more_details {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+
+.more_details_wrapper {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    justify-content: flex-start;
 }
