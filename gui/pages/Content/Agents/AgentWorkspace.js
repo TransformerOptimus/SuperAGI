@@ -230,11 +230,12 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
             <div><label className={styles.form_label}>Goals</label></div>
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
-              <div>
-                <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleGoalDelete(index)}>
+              {goals.length > 1 && <div>
+                <button className={styles.agent_button} style={{marginLeft: '4px', padding: '5px'}}
+                        onClick={() => handleGoalDelete(index)}>
                   <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                 </button>
-              </div>
+              </div>}
             </div>))}
             <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
           </div>}
