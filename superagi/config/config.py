@@ -41,6 +41,7 @@ class Config(BaseSettings):
 
         # Merge environment variables and config data
         env_vars = dict(os.environ)
+        print(env_vars)
         config_data = {**config_data, **env_vars}
 
         return config_data
