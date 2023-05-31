@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'; //for testing
-// const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+// const API_BASE_URL = 'http://192.168.1.61:8001';
+
+export const baseUrl = () => {
+  return API_BASE_URL;
+};
 
 export const getOrganization = () => {
   return axios.get(`${API_BASE_URL}/organisations/get/1`);
@@ -53,4 +57,8 @@ export const updateExecution = (executionId, executionData) => {
 
 export const addExecution = (executionData) => {
   return axios.post(`${API_BASE_URL}/agentexecutions/add`, executionData);
+};
+
+export const getResources = (projectId) => {
+  return axios.get(`${API_BASE_URL}/resources/get/all/${projectId}`);
 };

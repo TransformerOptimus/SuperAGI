@@ -3,6 +3,22 @@
     text-rendering: optimizelegibility !important;
 }
 
+.file-drop-area {
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.file-drop-area.dragging {
+    border-radius: 0;
+    background: #3A354A;
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;

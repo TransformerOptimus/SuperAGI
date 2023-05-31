@@ -15,13 +15,13 @@ export default function TaskQueue() {
 
   const handleTaskCreate = (task_title) => {
     if(task_title.replace(/\s/g, '') === '') {
-      toast.dark("Task is empty", {autoClose: 1800});
+      toast.error("Task is empty", {autoClose: 1800});
       return
     }
 
     const newTask = {title: task_title};
     setTask((prevArray) => [...prevArray, newTask]);
-    toast.dark("New task created", {autoClose: 1800});
+    toast.success("New task created", {autoClose: 1800});
     setTaskTitle("");
   };
 
@@ -37,7 +37,7 @@ export default function TaskQueue() {
           <div style={{flex:'1'}}><input className="input_medium" type="text" value={task_title} onChange={handleTaskTitleChange}/></div>
           <div>
             <button onClick={() => handleTaskCreate(task_title)} className={styles.agent_button} style={{marginLeft:'10px',padding:'5px 7px'}}>
-              <Image width={16} height={16} src="/images/add.png" alt="add-icon"/>
+              <Image width={16} height={16} src="/images/add.svg" alt="add-icon"/>
             </button>
           </div>
         </div>
