@@ -97,7 +97,7 @@ export default function ResourceManager({selectedProjectId}) {
   }
 
   function downloadFile(fileId) {
-    window.open(`${API_BASE_URL}/resources/get/${fileId}`, '_blank');
+    window.open(`${baseUrl}/resources/get/${fileId}`, '_blank');
   }
 
   function formatBytes(bytes, decimals = 2) {
