@@ -71,7 +71,7 @@ export default function ResourceManager({selectedProjectId}) {
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    axios.post(`${baseUrl}/resources/add/${selectedProjectId}`, formData)
+    axios.post(`${baseUrl()}/resources/add/${selectedProjectId}`, formData)
       .then((response) => {
         fetchResources(selectedProjectId);
         toast.success('Resource added successfully', { autoClose: 1800 });
@@ -97,7 +97,7 @@ export default function ResourceManager({selectedProjectId}) {
   }
 
   function downloadFile(fileId) {
-    window.open(`${baseUrl}/resources/get/${fileId}`, '_blank');
+    window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
   }
 
   function formatBytes(bytes, decimals = 2) {
@@ -144,12 +144,12 @@ export default function ResourceManager({selectedProjectId}) {
     <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
       <div style={{display:'flex',overflowX:'scroll'}}>
         <div>
-          <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254'} : {background:'transparent'}}>
+          <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
             Input
           </button>
         </div>
         <div>
-          <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254'} : {background:'transparent'}}>
+          <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
             Output
           </button>
         </div>

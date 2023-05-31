@@ -16,7 +16,7 @@ export default function TopBar({userName, selectedProject}) {
             <div style={{marginTop:'-1px'}}><Image width={14} height={14} src="/images/project.svg" alt="project-icon"/></div>
             <div className={styles.top_bar_font}><p>{selectedProject?.name || ''}</p></div>
           </div>
-          <div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>
+          {/*<div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
         </div>
 
         <div className={styles.top_bar_section} style={{marginLeft:'10px',cursor:'default'}}>

@@ -213,9 +213,9 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
-          {rightPanel === 'action_console' && <ActionConsole/>}
+          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && <div className={styles.detail_content}><ActionConsole/></div>}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
-          {rightPanel === 'resource_manager' && <ResourceManager selectedProjectId={selectedProjectId}/>}
+          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager selectedProjectId={selectedProjectId}/></div>}
         </div>
       </div>
 
