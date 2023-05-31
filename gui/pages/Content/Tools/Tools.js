@@ -28,7 +28,7 @@ export default function ToolList({sendToolData, tools, userName}) {
         {/*</div>*/}
       </div>
       <div className="row" style={{padding:'10px'}}>
-        <div className="col-12" style={{overflowY:'scroll',height:'calc(100vh - 92px)'}}>
+        <div className="col-12" style={{overflowY:'scroll',height:'84vh'}}>
           {tools && tools.length > 0 ? <div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-evenly',marginBottom:'10px'}}>
               <button onClick={() => handleFilter('all')} className={styles.tab_button} style={filterSelected === 'all' ? {background:'#454254'} : {background:'transparent'}}>
