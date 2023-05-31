@@ -209,7 +209,7 @@ class SuperAgi:
                 observation = (
                     f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
                 )
-            result = f"Tool {tool.name} returned: {observation}"
+            result = f"Tool {tool.name} returned: \n {observation}"
         elif action.name == "ERROR":
             result = f"Error2: {action.args}. "
         else:

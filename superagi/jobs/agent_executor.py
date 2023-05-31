@@ -22,6 +22,7 @@ from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
 from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.file.write_file import WriteFileTool
 from superagi.tools.google_search.google_search import GoogleSearchTool
+from superagi.tools.thinking.tools import LlmThinkingTool
 from superagi.tools.jira.create_issue import CreateIssueTool
 from superagi.tools.jira.edit_issue import EditIssueTool
 from superagi.tools.jira.get_projects import GetProjectsTool
@@ -74,6 +75,7 @@ class AgentExecutor:
 
 
             tools = [
+                LlmThinkingTool(llm=OpenAi(model="gpt-4")),
                 GoogleSearchTool(),
                 WriteFileTool(),
                 ReadFileTool(),
@@ -105,7 +107,7 @@ class AgentExecutor:
             session.commit()
             session.close()
             if response == "COMPLETE":
-                db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == self.agent_config)\
+                db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id)\
                     .first()
                 db_agent_execution.status == "COMPLETED"
                 session.commit(db_agent_execution)

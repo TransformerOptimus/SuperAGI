@@ -29,10 +29,13 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
+    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id,name=agent_execution.name)
     db.session.add(db_agent_execution)
     db.session.commit()
+    if db_agent_execution.status == "RUNNING":
+        execute_agent.delay(db_agent_execution.id, datetime.now())
+
     return db_agent_execution
 
 
@@ -97,3 +100,11 @@ def list_running_agents(agent_id: str):
     executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(
         desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
     return executions
+
+
+@router.get("/get/latest/agent")
+def get_agent_by_latest_execution():
+    latest_execution = db.session.query(AgentExecution).order_by(desc(AgentExecution.last_execution_time)).first()
+    return {
+        "agent_id": latest_execution.agent_id
+    }
