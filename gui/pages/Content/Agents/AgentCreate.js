@@ -54,9 +54,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [myTools, setMyTools] = useState([]);
-  const [toolNames, setToolNames] = useState([]);
+  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
+
+  const filterToolsByNames = () => {
+    if(tools) {
+      const filteredTools = tools.filter((tool) => toolNames.includes(tool.name));
+      const toolIds = filteredTools.map((tool) => tool.id);
+      setMyTools(toolIds);
+    }
+  };
+
+  useEffect(() => {
+    filterToolsByNames();
+  }, [toolNames]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -308,8 +320,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div>
                 {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
-                  {tools && tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                    {tool.name || 'custom tool'}
+                  {tools && tools.map((tool, index) => (<div key={index}>
+                    {tool.name !== null && <div className="custom_select_option" onClick={() => addTool(tool)}
+                          style={{padding: '12px 14px', maxWidth: '100%'}}>
+                      {tool.name}
+                    </div>}
                   </div>))}
                 </div>}
               </div>

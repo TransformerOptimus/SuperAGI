@@ -40,19 +40,20 @@ export default function ToolList({sendToolData, tools, userName}) {
             </div>
             <div className={styles.tool_container}>
               {toolsArray.map((tool) => (<div key={tool.id} className={styles.tool_box}>
-                <div className="row">
+                {tool.name !== null && <div className="row">
                   <div className="col-12">
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start',padding:'5px'}}>
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px'}}>
                       <div>
-                        <Image className={styles.image_class} width={30} height={30} src="/images/custom_tool.svg" alt="tool-icon"/>
+                        <Image className={styles.image_class} width={30} height={30} src="/images/custom_tool.svg"
+                               alt="tool-icon"/>
                       </div>
-                      <div style={{marginLeft:'8px'}}>
-                        <div className={styles.tool_name}>{tool.name || 'custom tool'}</div>
+                      <div style={{marginLeft: '8px'}}>
+                        <div className={styles.tool_name}>{tool.name}</div>
                         <div className={styles.tool_publisher}>by {userName || 'SuperAGI'}</div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </div>}
               </div>))}
             </div>
           </div> : <div style={{
