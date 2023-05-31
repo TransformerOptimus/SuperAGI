@@ -23,10 +23,6 @@ export const getAgents = (projectId) => {
   return axios.get(`${API_BASE_URL}/agents/get/project/${projectId}`);
 };
 
-export const getAgent = (agentId) => {
-  return axios.get(`${API_BASE_URL}/agents/get/${agentId}`);
-};
-
 export const getTools = () => {
   return axios.get(`${API_BASE_URL}/tools/get`);
 };
