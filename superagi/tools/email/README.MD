@@ -65,7 +65,7 @@ To obtain App password for your Gmail Account follow the steps:
 
 1. **Read an email**
 
-By deafult SuperAGI's email tool reads last 10 emails from your inbox, to change the limit you can modify the default limit in read_email.py 
+By default SuperAGI's email tool reads last 10 emails from your inbox, to change the limit you can modify the default limit in read_email.py 
 
 2. **Send an email**
 
