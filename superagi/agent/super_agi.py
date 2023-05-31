@@ -32,7 +32,7 @@ from superagi.config.config import get_config
 import os
 
 FINISH = "finish"
-WRITE_FILE = "write_file"
+WRITE_FILE = "Write File"
 FILE = "FILE"
 S3 = "S3"
 # print("\033[91m\033[1m"
@@ -194,13 +194,22 @@ class SuperAgi:
             return "COMPLETE"
         if action.name in tools:
             tool = tools[action.name]
+            print("_________________TESTING__________________")
+            print(action.name)
+            print(action.args)
             try:
                 observation = tool.execute(action.args)
-                if action.name == WRITE_FILE and observation is not None:
+                print("Tool Observation : ")
+                print(observation)
+                if action.name == WRITE_FILE:
+                    print("________________WRITING________________")
                     resource = make_written_file_resource(file_name=action.args.get('file_name'),
                                                           project_id=self.agent.project_id)
+                    print(resource)
                     if resource is not None:
+                        print("___________________RESOURCE__________")
                         session.add(resource)
+                        session.commit()
             except ValidationError as e:
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"

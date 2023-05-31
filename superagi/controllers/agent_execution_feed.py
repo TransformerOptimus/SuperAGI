@@ -83,7 +83,7 @@ def parse_feed(feed):
                 "criticism"] + "\n"
             final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
-            return {"role": "assistant", "feed": final_output}
+            return {"role": "assistant", "feed": final_output, "updated_at":feed.updated_at}
         except Exception:
             return feed
     if feed.role == "assistant":

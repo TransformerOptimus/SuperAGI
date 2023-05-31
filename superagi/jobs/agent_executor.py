@@ -74,11 +74,15 @@ class AgentExecutor:
             print(agent_execution)
 
 
+
+
+            parsed_config = self.fetch_agent_configuration(session, agent, agent_execution)
+
             tools = [
-                LlmThinkingTool(llm=OpenAi(model="gpt-4")),
-                GoogleSearchTool(),
-                WriteFileTool(),
-                ReadFileTool(),
+                LlmThinkingTool(llm=OpenAi(model=parsed_config["model"])),
+                # GoogleSearchTool(),
+                # WriteFileTool(),
+                # ReadFileTool(),
                 # ReadEmailTool(),
                 # SendEmailTool(),
                 # SendEmailAttachmentTool(),
@@ -88,7 +92,6 @@ class AgentExecutor:
                 # EditIssueTool()
             ]
 
-            parsed_config = self.fetch_agent_configuration(session, agent, agent_execution)
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
             else:
@@ -107,10 +110,10 @@ class AgentExecutor:
             session.commit()
             session.close()
             if response == "COMPLETE":
-                db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id)\
-                    .first()
-                db_agent_execution.status == "COMPLETED"
-                session.commit(db_agent_execution)
+                print("_______________UPDATING STATUS : COMPLETED______________________")
+                db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+                db_agent_execution.status = "COMPLETED"
+                session.commit()
                 return
             else:
                 print("Starting next job for agent execution id: ", agent_execution_id)
