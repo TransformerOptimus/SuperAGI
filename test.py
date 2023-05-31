@@ -6,6 +6,7 @@ from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.google_search.tools import GoogleSearchSchema, GoogleSearchTool
 from superagi.tools.google_serp_search.tools import GoogleSerpTool
 from superagi.tools.twitter.send_tweet import SendTweetTool
+from superagi.tools.slack.tools import SlackTool
 from superagi.tools.thinking.tools import LlmThinkingTool
 from superagi.tools.email.read_email import ReadEmailTool
 from superagi.tools.email.send_email import SendEmailTool
@@ -32,6 +33,7 @@ tools = [
     WriteFileTool(),
     ReadFileTool(),
     ReadEmailTool(),
+    SlackTool(),
     SendEmailTool(),
     SendEmailAttachmentTool()
     # GoogleSerpTool()

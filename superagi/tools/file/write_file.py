@@ -18,11 +18,11 @@ class WriteFileInput(BaseModel):
 class WriteFileTool(BaseTool):
     name: str = "write_file"
     args_schema: Type[BaseModel] = WriteFileInput
-    description: str = "Writes text to a file"
+    description: str = "Writes text to a file "
 
     def _execute(self, file_name: str, content: str):
         final_path = file_name
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        root_dir = get_config('RESOURCES_DIR')
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
