@@ -8,7 +8,7 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getTools} from "@/app/DashboardService";
+import {getAgents, getTools, getLastActiveAgent} from "@/app/DashboardService";
 
 export default function Content({selectedView, selectedProjectId, userName}) {
   const [tabs, setTabs] = useState([])
@@ -110,6 +110,16 @@ export default function Content({selectedView, selectedProjectId, userName}) {
     };
   });
 
+  function getLastActive() {
+    getLastActiveAgent(selectedProjectId)
+      .then((response) => {
+        addTab(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching last active agent:', error);
+      });
+  }
+
   return (<>
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
@@ -124,7 +134,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
               <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent" })} className={styles.empty_state_button}>Create new agent</button>
             </div>
             {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
-              <button className={styles.empty_state_button}>View last active agent</button>
+              <button onClick={getLastActive} className={styles.empty_state_button}>View last active agent</button>
             </div>}
           </div>
         </div>

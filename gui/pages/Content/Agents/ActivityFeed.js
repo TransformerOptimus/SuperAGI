@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './Agents.module.css';
 import Head from 'next/head';
 import {getExecutionFeeds} from "@/app/DashboardService";
@@ -6,6 +6,7 @@ import {getExecutionFeeds} from "@/app/DashboardService";
 export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
+  const feedContainerRef = useRef(null);
 
   useEffect(() => {
     const text = 'Thinking';
@@ -46,18 +47,25 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
         setFeeds(response.data);
+        scrollToBottom();
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
       });
   }
 
+  const scrollToBottom = () => {
+    if (feedContainerRef.current) {
+      feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
+    }
+  };
+
   return (<>
     <Head>
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
-    <div style={{marginBottom:'140px'}}>
+    <div style={{marginBottom:'140px'}} ref={feedContainerRef}>
       {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}

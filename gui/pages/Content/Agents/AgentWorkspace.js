@@ -81,7 +81,6 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
   };
 
   const closeRunModal = () => {
-    setGoals(null);
     setRunName("New Run");
     setRunModal(false);
   };
