@@ -41,11 +41,7 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
-        const data = response.data || [];
-        const updatedData = data.map(item => {
-          return { ...item, isExpanded: false };
-        });
-        setFeeds(updatedData);
+        setFeeds(response.data);
         scrollToBottom();
       })
       .catch((error) => {
@@ -58,14 +54,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
       feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
     }
   };
-
-  function toggleExpand(index) {
-    setFeeds(prevFeeds => {
-      const updatedFeeds = [...prevFeeds];
-      updatedFeeds[index] = { ...updatedFeeds[index], isExpanded: !updatedFeeds[index].isExpanded };
-      return updatedFeeds;
-    });
-  }
 
   return (<>
     <Head>
@@ -99,11 +87,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
               </div>
             </div>
           </div>}
-          <div className={styles.more_details}>
-            <div onClick={() => toggleExpand(index)} style={{ cursor: 'pointer' }} className={styles.history_info}>
-              {f.isExpanded ? 'Hide Details' : 'More Details'}
-            </div>
-          </div>
         </div>
       </div>))}
       {selectedRunStatus && selectedRunStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
