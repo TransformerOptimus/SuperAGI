@@ -245,15 +245,15 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 
 @app.get('/github-login')
 def github_login():
-    github_client_id = "eaaf029abe1165e23c1e"
+    github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
 @app.get('/github-auth')
 def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
     print(code)
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = "eaaf029abe1165e23c1e"
-    github_client_secret = "4805d8dedd2a6301ea57ebb22f06d6d80966ff53"
+    github_client_id = ""
+    github_client_secret = ""
     frontend_url = "http://localhost:3000"
     params = {
         'client_id': github_client_id,
