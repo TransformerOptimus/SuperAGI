@@ -8,7 +8,7 @@ import Head from 'next/head';
 import { addUser, getOrganization, getProject } from "@/app/DashboardService";
 
 export default function App() {
-  const [selectedView, setSelectedView] = useState('agents');
+  const [selectedView, setSelectedView] = useState('');
   const [userName, setUserName] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
   const organisationId = 1;
