@@ -139,6 +139,11 @@ export default function App() {
     setSelectedView(data);
   };
 
+  function signInUser() {
+    const github_client_id = "eaaf029abe1165e23c1e";
+    window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+  }
+
   return (
     <div className="app">
       <Head>
@@ -163,7 +168,7 @@ export default function App() {
         </div>
         <div style={signInCenter}>
           <div style={signInWrapper}>
-            <button style={signInButton} onClick={() => setSignIn(true)}>
+            <button style={signInButton} onClick={signInUser}>
               <Image width={20} height={20} src="/images/github.svg" alt="github"/>&nbsp;Continue with Github
             </button>
             <div style={signInInfo}>
