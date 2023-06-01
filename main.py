@@ -65,7 +65,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
+# DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
