@@ -10,10 +10,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
 
-  function checkEmptyText(text) {
-    return text.replace(/\s/g, '') !== ''
-  }
-
   useEffect(() => {
     const text = 'Thinking';
     let dots = '';
@@ -41,30 +37,11 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
-        const data = response.data || [];
-        const updatedData = data.map(item => {
-          return { ...item, isExpanded: false };
-        });
-        setFeeds(updatedData);
-        scrollToBottom();
+        setFeeds(response.data);
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
       });
-  }
-
-  const scrollToBottom = () => {
-    if (feedContainerRef.current) {
-      feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
-    }
-  };
-
-  function toggleExpand(index) {
-    setFeeds(prevFeeds => {
-      const updatedFeeds = [...prevFeeds];
-      updatedFeeds[index] = { ...updatedFeeds[index], isExpanded: !updatedFeeds[index].isExpanded };
-      return updatedFeeds;
-    });
   }
 
   return (<>
@@ -78,7 +55,7 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
           {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
           {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
-          <div className={styles.feed_title} style={!f.isExpanded ? {overflow:'hidden',display:'-webkit-box'} : {}}>{f?.feed || ''}</div>
+          <div className={styles.feed_title}>{f?.feed || ''}</div>
         </div>
         <div className={styles.more_details_wrapper}>
           {/*<div className={styles.more_details}>*/}
@@ -99,11 +76,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
               </div>
             </div>
           </div>}
-          <div className={styles.more_details}>
-            <div onClick={() => toggleExpand(index)} style={{ cursor: 'pointer' }} className={styles.history_info}>
-              {f.isExpanded ? 'Hide Details' : 'More Details'}
-            </div>
-          </div>
         </div>
       </div>))}
       {selectedRunStatus && selectedRunStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
