@@ -33,6 +33,7 @@ import os
 
 FINISH = "finish"
 WRITE_FILE = "Write File"
+DALLE_IMAGE_GENERATION = "Dalle Image Generation"
 FILE = "FILE"
 S3 = "S3"
 # print("\033[91m\033[1m"
@@ -202,10 +203,22 @@ class SuperAgi:
                 print("Tool Observation : ")
                 print(observation)
                 if action.name == WRITE_FILE:
-                    print("________________WRITING________________")
+                    print("________________WRITING-FILE________________")
                     resource = make_written_file_resource(file_name=action.args.get('file_name'),
                                                           project_id=self.agent.project_id)
                     print(resource)
+                    if resource is not None:
+                        print("___________________RESOURCE__________")
+                        session.add(resource)
+                        session.commit()
+                if action.name == DALLE_IMAGE_GENERATION:
+                    total_images_count = action.args.get('num')
+                    images = action.args.get('image_name')
+                    for count in total_images_count:
+                        print("________________WRITING-IMAGE________________")
+                        resource = make_written_file_resource(file_name=images[count].name+f'_{count+1}',
+                                                          project_id=self.agent.project_id)
+                        print(resource)
                     if resource is not None:
                         print("___________________RESOURCE__________")
                         session.add(resource)

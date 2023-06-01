@@ -152,11 +152,14 @@ def get_classes_in_file(file_path):
         if inspect.isclass(member) and issubclass(member, BaseTool) and member != BaseTool:
             class_dict = {}
             class_dict['class_name'] = member.__name__
-
+            print("___________Class : ",class_dict['class_name'])
             class_obj = getattr(module, member.__name__)
+            if class_dict['class_name'] == 'ImageGenTool':
+                print(class_obj())
             try:
                 obj = class_obj()
                 class_dict['class_attribute'] = obj.name
+                print("Name : ", obj.name)
             except:
                 class_dict['class_attribute'] = None
 

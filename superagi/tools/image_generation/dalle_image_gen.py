@@ -11,14 +11,14 @@ class ImageGenInput(BaseModel):
     prompt: str = Field(..., description="Prompt for Image Generation to be used by Dalle.")
     size: int = Field(..., description="Size of the image to be Generated.")
     num: int = Field(..., description="Number of Images to be generated")
-    image_name: str = Field(..., description="Image Name for the generated image")
+    image_name: str = Field(..., description="Image Name for the generated image, as example name: image_name_1")
 
 class ImageGenTool(BaseTool):
-    name: str = "Dalle Image Generation"
+    name: str = "Dalle"
     args_schema: Type[BaseModel] = ImageGenInput
     description: str = "Generate Images using Dalle"
 
-    def _execute_(self, prompt: str, image_name: str, size: int = 512, num: int = 2):
+    def _execute(self, prompt: str, image_name: str, size: int = 512, num: int = 2):
         if size not in [256,512,1024]:
             size= min([256,512,1024], key=lambda x: abs(x-size))
         
