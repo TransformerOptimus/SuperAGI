@@ -7,4 +7,5 @@ COPY config.yaml ./config.yaml
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+# ENTRYPOINT ["./entrypoint.sh"]
+CMD ["sh", "-c", "./entrypoint.sh"]

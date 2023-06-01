@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # Run Alembic migration
 alembic upgrade head
 
