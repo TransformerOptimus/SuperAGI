@@ -55,6 +55,7 @@ app.add_middleware(DBSessionMiddleware, db_url=db_url)
 origins = [
     "http://localhost:3001",
     "http://localhost:3000",
+    "https://app.superagi.com",
     # Add more origins if needed
 ]
 
