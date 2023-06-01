@@ -163,7 +163,7 @@ export default function App() {
         </div>
         <div style={signInCenter}>
           <div style={signInWrapper}>
-            <button style={signInButton}>
+            <button style={signInButton} onClick={() => setSignIn(true)}>
               <Image width={20} height={20} src="/images/github.svg" alt="github"/>&nbsp;Continue with Github
             </button>
             <div style={signInInfo}>
