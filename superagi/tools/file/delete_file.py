@@ -16,6 +16,7 @@ class DeleteFileTool(BaseTool):
     name: str = "Delete File"
     args_schema: Type[BaseModel] = DeleteFileInput
     description: str = "Delete a file"
+    file_server_type: str = "s3"
 
     def _execute(self, file_name: str, content: str):
         final_path = file_name

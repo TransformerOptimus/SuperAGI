@@ -1,9 +1,9 @@
 import json
-from sqlalchemy import Column, Integer, String, Text, DateTime
-from sqlalchemy.orm import relationship
-from superagi.models.base_model import DBBaseModel
-from superagi.models.agent import Agent
 from datetime import datetime
+
+from sqlalchemy import Column, Integer, String, DateTime
+
+from superagi.models.base_model import DBBaseModel
 
 
 class AgentExecution(DBBaseModel):
@@ -14,20 +14,22 @@ class AgentExecution(DBBaseModel):
     name = Column(String)
     agent_id = Column(Integer)
     last_execution_time = Column(DateTime)
-    calls = Column(Integer, default=0)
-    tokens = Column(Integer, default=0)
+    num_of_calls = Column(Integer, default=0)
+    num_of_tokens = Column(Integer, default=0)
+    current_step_id = Column(Integer)
 
     def __repr__(self):
         return f"AgentExecution(id={self.id}, name={self.name},status='{self.status}', " \
-               f"last_execution_time='{self.last_execution_time}', agent_id={self.agent_id}, calls={self.calls})"
+               f"last_execution_time='{self.last_execution_time}', current_step_id={self.current_step_id}, " \
+               f"agent_id={self.agent_id}, num_of_calls={self.num_of_calls})"
 
     def to_dict(self):
         return {
             'id': self.id,
-            'name': self.name,
             'status': self.status,
             'agent_id': self.agent_id,
-            'calls': self.calls,
+            'current_step_id': self.current_step_id,
+            'num_of_calls': self.num_of_calls,
             'last_execution_time': self.last_execution_time.isoformat()
         }
 
@@ -40,7 +42,6 @@ class AgentExecution(DBBaseModel):
         last_execution_time = datetime.fromisoformat(data['last_execution_time'])
         return cls(
             id=data['id'],
-            name=data['name'],
             status=data['status'],
             agent_id=data['agent_id'],
             calls=data['calls'],

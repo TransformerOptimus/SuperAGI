@@ -72,8 +72,8 @@ class GoogleSearchWrap:
                     content = self.extractor.extract_with_bs4(links[i])
                 webpages.append(content)
         else:
-            snippets = ["", "", ""]
-            links = ["", "", ""]
-            webpages = ["", "", ""]
+            snippets = []
+            links = []
+            webpages = []
 
         return snippets, webpages, links

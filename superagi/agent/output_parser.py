@@ -40,22 +40,31 @@ class AgentOutputParser(BaseOutputParser):
             format_prefix_green = "\033[92m\033[1m"
             format_suffix_green = "\033[0m\033[0m"
             print(format_prefix_green + "Intelligence : " + format_suffix_green)
-            print(format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"]["text"] + "\n")
-            print(format_prefix_yellow + "Reasoning: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
-            print(format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "\n")
-            print(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
-            print(format_prefix_green + "Action : " + format_suffix_green)
-            print(format_prefix_yellow + "Tool: " + format_suffix_yellow + parsed["command"]["name"] + "\n")
-            # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["command"]["args"] + "\n")
+            if "text" in parsed["thoughts"]:
+                print(format_prefix_yellow + "Thoughts: " + format_suffix_yellow + parsed["thoughts"]["text"] + "\n")
+            if "reasoning" in parsed["thoughts"]:
+                print(format_prefix_yellow + "Reasoning: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
 
+            if "plan" in parsed["thoughts"]:
+                print(format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "\n")
+
+            if "criticism" in parsed["thoughts"]:
+                print(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
+
+            print(format_prefix_green + "Action : " + format_suffix_green)
+            # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["tool"]["args"] + "\n")
+            if parsed["tool"] is None or not parsed["tool"]:
+                return AgentGPTAction(name="", args="")
+            if "name" in parsed["tool"]:
+                print(format_prefix_yellow + "Tool: " + format_suffix_yellow + parsed["tool"]["name"] + "\n")
             return AgentGPTAction(
-                name=parsed["command"]["name"],
-                args=parsed["command"]["args"],
+                name=parsed["tool"]["name"],
+                args=parsed["tool"]["args"],
             )
         except (KeyError, TypeError):
-            # If the command is null or incomplete, return an erroneous tool
+            # If the tool is null or incomplete, return an erroneous tool
             return AgentGPTAction(
-                name="ERROR", args={"error": f"Incomplete command args: {parsed}"}
+                name="ERROR", args={"error": f"Incomplete tool args: {parsed}"}
             )
 
     def parse_tasks(self, text: str) -> AgentTasks:

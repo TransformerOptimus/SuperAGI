@@ -1,153 +1,57 @@
 import json
 from pydantic.types import List
 from superagi.agent.agent_prompt import AgentPrompt
+from superagi.helper.token_counter import TokenCounter
 from superagi.tools.base_tool import BaseTool
 from fastapi_sqlalchemy import db
+import re
 
 FINISH_NAME = "finish"
 
+
 class AgentPromptBuilder:
-  def __init__(self,):
-    self.agent_prompt = AgentPrompt()
 
-  def set_ai_name(self, ai_name):
-    self.agent_prompt.ai_name = ai_name
-
-  def set_ai_role(self, ai_role):
-    self.agent_prompt.ai_role = ai_role
-
-  def set_base_prompt(self, base_prompt):
-    self.agent_prompt.base_prompt = base_prompt
-
-  def add_goal(self, goal):
-    self.agent_prompt.goals.append(goal)
-
-  def add_tool(self, tool):
-    self.agent_prompt.tools.append(tool)
-
-  def add_resource(self, resource: str) -> None:
-    self.agent_prompt.resources.append(resource)
-
-  def add_constraint(self, constraint):
-    self.agent_prompt.constraints.append(constraint)
-
-  def add_evaluation(self, evaluation: str) -> None:
-    self.agent_prompt.evaluations.append(evaluation)
-
-  def set_response_format(self, response_format: str) -> None:
-    self.agent_prompt.response_format = response_format
-
-  def add_list_items_to_string(self, title: str, items: List[str]) -> str:
-    list_string = ""
-    for i, item in enumerate(items):
-      list_string += f"{i+1}. {item}\n"
-    return title + ":\n" + list_string + "\n"
-
-  def generate_prompt_string(self):
-    final_string = ""
-    final_string += f"I am {self.agent_prompt.ai_name}. My role is {self.agent_prompt.ai_role}\n"
-    final_string += self.agent_prompt.base_prompt
-    final_string += "\n"
-    final_string += self.add_list_items_to_string("GOALS", self.agent_prompt.goals)
-    final_string += self.add_list_items_to_string("CONSTRAINTS", self.agent_prompt.constraints)
-    # commands string
-    final_string = self.add_tools_to_prompt(final_string)
-    final_string += self.add_list_items_to_string("RESOURCES", self.agent_prompt.resources)
-    final_string += self.add_list_items_to_string("PERFORMANCE EVALUATION", self.agent_prompt.evaluations)
-    final_string += f"\nI should only respond in JSON format as described below\nResponse Format:\n{self.agent_prompt.response_format}"
-
-    final_string += "\nEnsure the response can be parsed by Python json.loads\n"
-    return final_string
-
-  def add_tools_to_prompt(self, final_string):
-    final_string += "\033[91m\033[1m\nTOOLS\033[0m\033[0m:\n"
-    for i, item in enumerate(self.agent_prompt.tools):
-      final_string += f"{i + 1}. {self._generate_command_string(item)}\n"
-    finish_description = (
-      "use this to signal that you have finished all your objectives"
-    )
-    finish_args = (
-      '"response": "final response to let '
-      'people know you have finished your objectives"'
-    )
-    finish_string = (
-      f"{len(self.agent_prompt.tools) + 1}. {FINISH_NAME}: "
-      f"{finish_description}, args: {finish_args}"
-    )
-    final_string = final_string + finish_string + "\n\n"
-    return final_string
-
-  def _generate_command_string(self, tool: BaseTool) -> str:
-    output = f"{tool.name}: {tool.description}"
-    # print(tool.args)
-    output += f", args json schema: {json.dumps(tool.args)}"
-    return output
-
-  @classmethod
-  def get_superagi_prompt(cls, ai_name:str, ai_role: str, goals: List[str], tools: List[BaseTool], agent_config) -> str:
-    # Initialize the PromptGenerator object
-    prompt_builder = AgentPromptBuilder()
-    prompt_builder.set_ai_name(ai_name)
-    prompt_builder.set_ai_role(ai_role)
-
-    #Base prompt is same always not fetching from DB
-    base_prompt = (
-      "Your decisions must always be made independently without seeking user assistance.\n"
-      "Play to your strengths as an LLM and pursue simple strategies with no legal complications.\n"
-      "If you have completed all your tasks, make sure to "
-      'use the "finish" command.\n'
-    )
-    prompt_builder.set_base_prompt(base_prompt)
-
-    # Add constraints to the PromptGenerator object
+    @staticmethod
+    def add_list_items_to_string(items: List[str]) -> str:
+        list_string = ""
+        for i, item in enumerate(items):
+            list_string += f"{i + 1}. {item}\n"
+        return list_string
 
 
-    # prompt_builder.add_constraint(
-      # "~4000 word limit for short term memory. "
-      # "Your short term memory is short, "
-      # "so immediately save important information to files."
-    # )
-    # prompt_builder.add_constraint(
-      # "If you are unsure how you previously did something "
-      # "or want to recall past events, "
-      # "thinking about similar events will help you remember."
-    # )
-    # prompt_builder.add_constraint("No user assistance")
-    # prompt_builder.add_constraint(
-    #   'Exclusively use the commands listed in double quotes e.g. "command name"'
-    # )
+    @classmethod
+    def add_tools_to_prompt(cls, tools: List[BaseTool]):
+        final_string = ""
+        for i, item in enumerate(tools):
+            final_string += f"{i + 1}. {cls._generate_command_string(item)}\n"
+        finish_description = (
+            "use this to signal that you have finished all your objectives"
+        )
+        finish_args = (
+            '"response": "final response to let '
+            'people know you have finished your objectives"'
+        )
+        finish_string = (
+            f"{len(tools) + 1}. {FINISH_NAME}: "
+            f"{finish_description}, args: {finish_args}"
+        )
+        final_string = final_string + finish_string + "\n\n"
+        return final_string
 
-    for constraint in agent_config["constraints"]:
-      prompt_builder.add_constraint(constraint)
+    @classmethod
+    def _generate_command_string(cls, tool: BaseTool) -> str:
+        output = f"{tool.name}: {tool.description}"
+        # print(tool.args)
+        output += f", args json schema: {json.dumps(tool.args)}"
+        return output
+    @classmethod
+    def clean_prompt(cls, prompt):
+        prompt = re.sub(' +', ' ', prompt)
+        return prompt
 
-
-    # Add tools to the PromptGenerator object
-    for tool in tools:
-      prompt_builder.add_tool(tool)
-
-    for goal in goals:
-      prompt_builder.add_goal(goal)
-
-    # resources = ["Internet access for searches and information gathering.",
-    #              "Long Term memory management.",
-    #              "GPT-3.5 powered Agents for delegation of simple tasks.",
-    #              "File output."]
-    # for resource in resources:
-    #   prompt_builder.add_resource(resource)
-
-    # Add performance evaluations to the PromptGenerator object
-    evaluations = [
-      "Continuously review and analyze your actions "
-      "to ensure you are performing to the best of your abilities.",
-      "Constructively self-criticize your big-picture behavior constantly.",
-      "Reflect on past decisions and strategies to refine your approach.",
-      "Every command has a cost, so be smart and efficient. "
-      "Aim to complete tasks in the least number of steps."
-    ]
-    for evaluation in evaluations:
-      prompt_builder.add_evaluation(evaluation)
-
-    response_format = {
+    @classmethod
+    def get_super_agi_single_prompt(cls):
+        response_format = {
             "thoughts": {
                 "text": "thought",
                 "reasoning": "reasoning",
@@ -155,11 +59,160 @@ class AgentPromptBuilder:
                 "criticism": "constructive self-criticism",
                 "speak": "thoughts summary to say to user",
             },
-            "command": {"name": "command name/task name", "description": "command or task description", "args": {"arg name": "value"}},
+            "tool": {"name": "tool name/task name", "description": "tool or task description",
+                     "args": {"arg name": "value"}},
         }
-    formatted_response_format = json.dumps(response_format, indent=4)
-    prompt_builder.set_response_format(formatted_response_format)
-    # Generate the prompt string
-    prompt_string = prompt_builder.generate_prompt_string()
+        formatted_response_format = json.dumps(response_format, indent=4)
 
-    return prompt_string
+        super_agi_prompt = """You are SuperAGI an AI assistant to solve complex problems. Your decisions must always be made independently without seeking user assistance.
+          Play to your strengths as an LLM and pursue simple strategies with no legal complications.
+          If you have completed all your tasks or reached end state, make sure to use the "finish" tool.
+    
+          GOALS:
+          {goals}
+    
+          CONSTRAINTS:
+          {constraints}
+          
+          TOOLS:
+          {tools}
+          
+          PERFORMANCE EVALUATION:
+          1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities. 
+          2. Constructively self-criticize your big-picture behavior constantly.
+          3. Reflect on past decisions and strategies to refine your approach.
+          4. Every tool has a cost, so be smart and efficient.
+          5. Aim to complete tasks in the least number of steps.
+          
+          I should only respond in JSON format as described below. 
+          Response Format:
+          {response_format}
+          
+          Ensure the response can be parsed by Python json.loads.
+        """
+
+        super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt).replace("{response_format}",
+                                                                                     formatted_response_format)
+        return {"prompt": super_agi_prompt, "variables": ["goals", "constraints", "tools"]}
+
+    @classmethod
+    def start_task_based(cls):
+        super_agi_prompt = """You are a task-generating AI known as SuperAGI. You are not a part of any system or device. Your role is to understand the goals presented to you, identify important components, and construct a thorough execution plan.
+        
+        GOALS:
+        {goals}
+        
+        Construct a sequence of actions, not exceeding 4 steps, to achieve this goal.
+        
+        Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
+        
+        Example: ["{{TASK-1}}", "{{TASK-2}}"].
+        """
+
+        return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt), "variables": ["goals"]}
+        # super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
+
+    # start task (push tasks) -> pop here -> analyse_task() -> command execute() -> create task()
+    # what is each step doing?
+    # execute the prompt with required variables.
+    # analyze_task -> command execute() -> add to queue (get next best command)
+    @classmethod
+    def analyse_task(cls):
+        constraints = [
+            'Exclusively use the tools listed in double quotes e.g. "tool name"'
+        ]
+        super_agi_prompt = """
+        High level goal: 
+        {goals}
+        
+        Your Current Task: `{current_task}`
+        
+        Task History:
+        `{task_history}`
+        
+        Based on this, your job is to understand the current task, pick out key parts, and think smart and fast. 
+        Explain why you are doing each action, create a plan, and mention any worries you might have. 
+        You have to pick your next action only from this list:
+        
+        TOOLS:
+        {tools}
+        
+        CONSTRAINTS:
+        {constraints}
+        
+        RESPONSE FORMAT:
+        {
+            "thoughts": {
+                "reasoning": "reasoning"
+            },
+            "tool": {"name": "tool name", "args": {"arg name": "value"}},
+        }
+        
+        Your answer must be something that JSON.parse() can read, and nothing else.
+        """
+
+        super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt) \
+            .replace("{constraints}", AgentPromptBuilder.add_list_items_to_string(constraints))
+        return {"prompt": super_agi_prompt, "variables": ["goals", "tools", "current_task"]}
+
+    @classmethod
+    def create_tasks(cls):
+        # just executed task `{last_task}` and got the result `{last_task_result}`
+        super_agi_prompt = """
+        You are an AI assistant to create tasks.
+        
+        You are following objectives:
+        {goals}
+        
+        You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
+        
+        Task History of completed tasks:
+        `{task_history}`
+         
+        Based on this, create a new task for your AI system ONLY IF REQUIRED to get closer to or fully reach your goal.
+        New tasks should be different from incomplete or completed tasks. 
+        Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new tasks are required.
+        """
+        return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
+                "variables": ["goals", "last_task", "last_task_result", "pending_tasks"]}
+
+    @classmethod
+    def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], constraints: List[str],
+                               tools: List[BaseTool]):
+        super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
+        super_agi_prompt = super_agi_prompt.replace("{constraints}",
+                                                    AgentPromptBuilder.add_list_items_to_string(constraints))
+        tools_string = AgentPromptBuilder.add_tools_to_prompt(tools)
+        super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
+        return super_agi_prompt
+
+    @classmethod
+    def replace_task_based_variables(cls, super_agi_prompt: str, current_task: str, last_task: str,
+                                     last_task_result: str, pending_tasks: List[str], completed_tasks: list, token_limit: int):
+        if "{current_task}" in super_agi_prompt:
+            super_agi_prompt = super_agi_prompt.replace("{current_task}", current_task)
+        if "{last_task}" in super_agi_prompt:
+            super_agi_prompt = super_agi_prompt.replace("{last_task}", last_task)
+        if "{last_task_result}" in super_agi_prompt:
+            super_agi_prompt = super_agi_prompt.replace("{last_task_result}", last_task_result)
+        if "{pending_tasks}" in super_agi_prompt:
+            super_agi_prompt = super_agi_prompt.replace("{pending_tasks}", str(pending_tasks))
+
+        if "{completed_tasks}" in super_agi_prompt:
+            completed_tasks_arr = []
+            for task in reversed(completed_tasks):
+                completed_tasks_arr.append(task['task'])
+            super_agi_prompt = super_agi_prompt.replace("{completed_tasks}", str(completed_tasks_arr))
+
+        base_token_limit = TokenCounter.count_message_tokens([{"role": "user", "content": super_agi_prompt}])
+        pending_tokens = token_limit - base_token_limit
+        final_output = ""
+        if "{task_history}" in super_agi_prompt:
+            for task in reversed(completed_tasks):
+                final_output = f"Task: {task['task']}\nResult: {task['response']}\n" + final_output
+                token_count = TokenCounter.count_message_tokens([{"role": "user", "content": final_output}])
+                # giving buffer of 100 tokens
+                if token_count > pending_tokens - 100:
+                    break
+            super_agi_prompt = super_agi_prompt.replace("{task_history}", "\n" + final_output + "\n")
+        return super_agi_prompt
