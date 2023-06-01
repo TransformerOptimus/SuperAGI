@@ -4,6 +4,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import { createAgent } from "@/app/DashboardService";
+import {EventBus} from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
@@ -254,6 +255,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     createAgent(agentData)
       .then((response) => {
         fetchAgents();
+        cancelCreate();
         sendAgentData({ id: response.data.id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id })
         toast.success('Agent created successfully', {autoClose: 1800});
       })
@@ -261,6 +263,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         console.error('Error creating agent:', error);
       });
   };
+
+  function cancelCreate() {
+    EventBus.emit('cancelAgentCreate', {});
+  }
 
   return (<>
     <div className="row">
@@ -321,7 +327,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div>
                 {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                   {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && <div className="custom_select_option" onClick={() => addTool(tool)}
+                    {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
                           style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
                     </div>}
@@ -449,7 +455,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button className={styles.agent_button} onClick={handleAddAgent}>Add agent</button>
+            <button style={{marginRight:'7px'}} className={styles.agent_button} onClick={cancelCreate}>Cancel</button>
+            <button className={styles.agent_button_primary} onClick={handleAddAgent}>Create and Run</button>
           </div>
         </div>
       </div>
