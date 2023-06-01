@@ -17,47 +17,6 @@ from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
-
-# @router.post("/add/", status_code=201)
-# async def upload(file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...)):
-#     # try:
-#     #     project = db.session.query(Project).filter(Project.id == project_id).first()
-#     #     if project is None:
-#     #         raise HTTPException(status_code=400, detail="Project does not exists")
-#
-#         storage_type = get_config("STORAGE_TYPE")
-#         save_directory = get_config("RESOURCES_ROOT_DIR")
-#
-#         print(storage_type)
-#         print(save_directory)
-#
-#         if not file.filename.endswith(".txt") and not file.filename.endswith(".pdf"):
-#             raise HTTPException(status_code=400, detail="File type not supported!")
-#
-#         # path = ""
-#         # if storage_type == "FILE":
-#         #     # Create the save directory if it doesn't exist
-#         #     intput_directory = save_directory + "/input"
-#         #     os.makedirs(intput_directory, exist_ok=True)
-#         #     # Create the file path
-#         #     file_path = os.path.join(intput_directory, file.filename)
-#         #     # Save the file to the specified directory
-#         #     with open(file_path, "wb") as f:
-#         #         contents = await file.read()
-#         #         f.write(contents)
-#         #         file.file.close()
-#         # elif storage_type == "S3":
-#         #     #Logic for uploading to S3
-#         #     bucket_name = get_config("BUCKET_NAME")
-#         #     s3_key = get_config("S3_KEY")
-#         #     pass
-#         #
-#         # resource = Resource(name=name, path=intput_directory, storage_type=storage_type,size=size,type=type,channel="INPUT")
-#         # db.session.add(resource)
-#         # db.session.commit()
-#         # return resource
-#         return "Hello!"
-
 @router.post("/add/{project_id}", status_code=201)
 async def upload(project_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...)):
     project = db.session.query(Project).filter(Project.id == project_id).first()
@@ -69,9 +28,6 @@ async def upload(project_id: int, file: UploadFile = File(...), name=Form(...), 
 
     storage_type = get_config("STORAGE_TYPE")
     save_directory = get_config("RESOURCES_INPUT_ROOT_DIR")
-
-    print(storage_type)
-    print(save_directory)
 
     path = ""
     if storage_type == "FILE":
@@ -119,8 +75,6 @@ def download_file_by_id(resource_id: int):
     if not abs_file_path.is_file():
         raise HTTPException(status_code=404, detail="File not found")
 
-    print("Resource: ", resource_id)
-    # return FileResponse(str(abs_file_path), media_type="application/txt", filename=file_name)
     return StreamingResponse(
         open(str(abs_file_path), "rb"),
         media_type="application/octet-stream",

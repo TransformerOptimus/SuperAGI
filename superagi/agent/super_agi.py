@@ -138,8 +138,6 @@ class SuperAgi:
 
         superagi_prompt = AgentPromptBuilder.get_superagi_prompt(self.ai_name, self.ai_role, goals, self.tools,
                                                                  self.agent_config)
-        # print("BASE PROMPT")
-        # print(superagi_prompt)
         messages = [{"role": "system", "content": superagi_prompt},
                     {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
@@ -185,7 +183,6 @@ class SuperAgi:
         session.add(agent_execution_feed)
         session.commit()
 
-        # print(assistant_reply)
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
@@ -194,20 +191,14 @@ class SuperAgi:
             return "COMPLETE"
         if action.name in tools:
             tool = tools[action.name]
-            print("_________________TESTING__________________")
-            print(action.name)
-            print(action.args)
             try:
                 observation = tool.execute(action.args)
                 print("Tool Observation : ")
                 print(observation)
                 if action.name == WRITE_FILE:
-                    print("________________WRITING________________")
                     resource = make_written_file_resource(file_name=action.args.get('file_name'),
                                                           project_id=self.agent.project_id)
-                    print(resource)
                     if resource is not None:
-                        print("___________________RESOURCE__________")
                         session.add(resource)
                         session.commit()
             except ValidationError as e:

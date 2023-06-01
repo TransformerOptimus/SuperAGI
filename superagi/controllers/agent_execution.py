@@ -51,8 +51,6 @@ def get_agent_execution(agent_execution_id: int, Authorize: AuthJWT = Depends())
 @router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def update_agent_execution(agent_execution_id: int,
                            agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"])):
-    print(agent_execution_id)
-    print(agent_execution)
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if agent_execution == "COMPLETED":
         raise HTTPException(status_code=400, detail="Invalid Request")
@@ -75,12 +73,7 @@ def update_agent_execution(agent_execution_id: int,
     db.session.commit()
 
     if db_agent_execution.status == "RUNNING":
-        print("DB EXEC : ")
-        print(db_agent_execution)
-        print("JSON:")
-        print(db_agent_execution.to_json())
         execute_agent.delay(db_agent_execution.id, datetime.now())
-        # AgentExecutor.create_execute_agent_task(db_agent_execution.id)
 
     return db_agent_execution
 
@@ -95,8 +88,6 @@ def list_running_agents(status: str):
 
 @router.get("/get/agent/{agent_id}")
 def list_running_agents(agent_id: str):
-    # print("")
-    # running_agent_ids = db.session.query(AgentExecution.agent_id).filter(AgentExecution.status == status.upper()).distinct().all()
     executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(
         desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
     return executions

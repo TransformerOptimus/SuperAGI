@@ -72,12 +72,7 @@ class AgentExecutor:
             print(agent)
             print("Agent Execution : ")
             print(agent_execution)
-
-
-
-
             parsed_config = self.fetch_agent_configuration(session, agent, agent_execution)
-
             tools = [
                 LlmThinkingTool(llm=OpenAi(model=parsed_config["model"])),
                 # GoogleSearchTool(),
@@ -110,7 +105,6 @@ class AgentExecutor:
             session.commit()
             session.close()
             if response == "COMPLETE":
-                print("_______________UPDATING STATUS : COMPLETED______________________")
                 db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
                 db_agent_execution.status = "COMPLETED"
                 session.commit()
