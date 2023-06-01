@@ -49,7 +49,14 @@ session = Session()
 def make_written_file_resource(file_name: str,project_id:int):
     path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
     storage_type = get_config("STORAGE_TYPE")
-    file_type = "application/txt"
+    file_type = None
+    if file_name.endswith('./txt'):
+        file_type = "application/txt"
+    elif file_name.endswith('./pdf'):
+        file_type = "application/pdf"
+    else:
+        file_type = "application/image"
+
 
     root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
 
@@ -60,6 +67,7 @@ def make_written_file_resource(file_name: str,project_id:int):
     else:
         final_path = os.getcwd() + "/" + file_name
     file_size = os.path.getsize(final_path)
+    print(storage_type)
     resource = None
     if storage_type == FILE:
         # Save Resource to Database
@@ -214,15 +222,15 @@ class SuperAgi:
                 if action.name == DALLE_IMAGE_GENERATION:
                     total_images_count = action.args.get('num')
                     images = action.args.get('image_name')
-                    for count in total_images_count:
+                    for count in range(0,total_images_count):
                         print("________________WRITING-IMAGE________________")
-                        resource = make_written_file_resource(file_name=images[count].name+f'_{count+1}',
+                        resource = make_written_file_resource(file_name=images[count],
                                                           project_id=self.agent.project_id)
                         print(resource)
-                    if resource is not None:
-                        print("___________________RESOURCE__________")
-                        session.add(resource)
-                        session.commit()
+                        if resource is not None:
+                            print("___________________RESOURCE__________")
+                            session.add(resource)
+                            session.commit()
             except ValidationError as e:
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"
