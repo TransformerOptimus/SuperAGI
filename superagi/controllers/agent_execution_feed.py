@@ -7,6 +7,8 @@ from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution import AgentExecution
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from sqlalchemy.sql import desc,asc
+
 
 router = APIRouter()
 
@@ -64,7 +66,7 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 
 @router.get("/get/execution/{agent_execution_id}")
 def get_agent_execution_feed(agent_execution_id: int, Authorize: AuthJWT = Depends()):
-    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).all()
+    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
     # parse json
     final_feeds = []
     for feed in feeds:
