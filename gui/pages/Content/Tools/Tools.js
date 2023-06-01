@@ -23,7 +23,7 @@ export default function ToolList({sendToolData, tools, userName}) {
         </div>
         {/*<div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'3px'}}>*/}
         {/*  <button style={{width:'100%'}} className={styles1.agent_button} onClick={() => sendToolData({ id: -2, name: 'new tool', contentType: 'Create_Tool' })}>*/}
-        {/*    + Add Tool*/}
+        {/*    + Create Tool*/}
         {/*  </button>*/}
         {/*</div>*/}
       </div>

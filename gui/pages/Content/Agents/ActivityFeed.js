@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import Head from 'next/head';
 import {getExecutionFeeds} from "@/app/DashboardService";
@@ -23,44 +23,26 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   }, []);
 
   useEffect(() => {
-    const selectedRunId1 = selectedRunId;
     const interval = window.setInterval(function(){
-      fetchFeeds(selectedRunId1);
+      fetchFeeds();
     }, 10000);
 
     return () => clearInterval(interval);
   }, [selectedRunId]);
 
-  function checkEmptyText(text) {
-    return text.replace(/\s/g, '') !== ''
-  }
-
   useEffect(() => {
-    getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        setFeeds(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
+    fetchFeeds();
   }, [selectedRunId])
 
-  function fetchFeeds(selectedRunId) {
+  function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
         setFeeds(response.data);
-        scrollToBottom();
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
       });
   }
-
-  const scrollToBottom = () => {
-    if (feedContainerRef.current) {
-      feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
-    }
-  };
 
   return (<>
     <Head>
@@ -73,26 +55,39 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
           {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
           {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
-          <div className={styles.feed_title} style={{whiteSpace: 'pre-line'}}>{f?.feed || ''}</div>
+          <div className={styles.feed_title}>{f?.feed || ''}</div>
         </div>
-        {/*{checkEmptyText(feed.description) && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
-        {/*  <div className={styles.feed_description}>{feed.description}</div>*/}
-        {/*</div>}*/}
-        {formatTime(f.updated_at) !== 'Invalid Time' && <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginTop: '20px'}}>
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            <div>
-              <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+        <div className={styles.more_details_wrapper}>
+          {/*<div className={styles.more_details}>*/}
+          {/*  <div>*/}
+          {/*    <Image width={12} height={12} src="/images/tokens_consumed.svg" alt="tokens-icon"/>*/}
+          {/*  </div>*/}
+          {/*  <div className={styles.history_info}>*/}
+          {/*    45 Tokens Consumed*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+          {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <div>
+                <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+              </div>
+              <div className={styles.history_info}>
+                {formatTime(f.updated_at)}
+              </div>
             </div>
-            <div className={styles.history_info}>
-              {formatTime(f.updated_at)}
-            </div>
-          </div>
-        </div>}
+          </div>}
+        </div>
       </div>))}
       {selectedRunStatus && selectedRunStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
         <div style={{display: 'flex'}}>
           <div style={{fontSize: '20px'}}>🧠</div>
           <div className={styles.feed_title}><i>{loadingText}</i></div>
+        </div>
+      </div>}
+      {selectedRunStatus && selectedRunStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+        <div style={{display: 'flex'}}>
+          <div style={{fontSize: '20px'}}>🏁</div>
+          <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
         </div>
       </div>}
     </div>
