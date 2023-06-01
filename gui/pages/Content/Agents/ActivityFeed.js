@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import Head from 'next/head';
-import {getExecutionFeeds} from "@/app/DashboardService";
+import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {formatTime} from "@/utils/utils";
 

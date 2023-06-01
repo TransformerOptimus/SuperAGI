@@ -8,7 +8,7 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getTools, getLastActiveAgent} from "@/app/DashboardService";
+import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
 
 export default function Content({selectedView, selectedProjectId, userName}) {
   const [tabs, setTabs] = useState([])

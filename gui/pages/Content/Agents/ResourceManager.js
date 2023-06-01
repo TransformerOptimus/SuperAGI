@@ -3,7 +3,8 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getResources, baseUrl} from "@/app/DashboardService";
+import {getResources} from "@/pages/api/DashboardService";
+import {baseUrl} from "@/pages/api/apiConfig";
 import axios from 'axios';
 
 export default function ResourceManager({selectedProjectId}) {

@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import { createAgent } from "@/app/DashboardService";
+import { createAgent } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {

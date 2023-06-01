@@ -6,14 +6,34 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { addUser, getOrganization, getProject } from "@/app/DashboardService";
+import { addUser, getOrganization, getProject } from "@/pages/api/DashboardService";
+import { useRouter } from 'next/router';
+import querystring from 'querystring';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
   const [userName, setUserName] = useState("");
-  const [isSignedIn, setSignIn] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const organisationId = 1;
+  const router = useRouter();
+
+  useEffect(() => {
+    const queryParams = router.asPath.split('?')[1];
+    const parsedParams = querystring.parse(queryParams);
+    let access_token = parsedParams.access_token || null;
+
+    if (typeof window !== 'undefined') {
+      if (access_token) {
+        localStorage.setItem('accessToken', access_token);
+      } else {
+        access_token = localStorage.getItem('accessToken') || null;
+      }
+    }
+
+    setAccessToken(access_token);
+  }, []);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -150,7 +170,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {isSignedIn ? <div style={projectStyle}>
+      {accessToken !== null ? <div style={projectStyle}>
         <div style={sideBarStyle}>
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
