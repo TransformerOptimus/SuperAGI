@@ -10,10 +10,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
 
-  function checkEmptyText(text) {
-    return text.replace(/\s/g, '') !== ''
-  }
-
   useEffect(() => {
     const text = 'Thinking';
     let dots = '';
@@ -42,18 +38,11 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
         setFeeds(response.data);
-        scrollToBottom();
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
       });
   }
-
-  const scrollToBottom = () => {
-    if (feedContainerRef.current) {
-      feedContainerRef.current.scrollTop = feedContainerRef.current.scrollHeight;
-    }
-  };
 
   return (<>
     <Head>
@@ -66,7 +55,7 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
           {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
           {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
-          <div className={styles.feed_title} style={!f.isExpanded ? {overflow:'hidden',display:'-webkit-box'} : {}}>{f?.feed || ''}</div>
+          <div className={styles.feed_title}>{f?.feed || ''}</div>
         </div>
         <div className={styles.more_details_wrapper}>
           {/*<div className={styles.more_details}>*/}

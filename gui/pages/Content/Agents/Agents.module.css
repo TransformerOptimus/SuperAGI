@@ -245,8 +245,6 @@
     font-size: 12px;
     line-height: 15px;
     color: white;
-    -webkit-line-clamp: 10;
-    -webkit-box-orient: vertical;
     white-space: pre-line;
 }
 
