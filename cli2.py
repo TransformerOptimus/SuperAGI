@@ -24,8 +24,8 @@ def run_npm_commands(shell=False):
 
 
 def run_server(shell=False,a_name=None,a_description=None,goals=None):
-    api_process = Process(target=subprocess.run, args=(["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"],), kwargs={"shell": shell})
-    celery_process = Process(target=subprocess.run, args=(["celery", "-A", "superagi.worker", "worker", "--loglevel=info"],), kwargs={"shell": shell})
+    api_process = Process(target=subprocess.run, args=(["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],), kwargs={"shell": shell})
+    celery_process = Process(target=subprocess.run, args=(["celery", "-A", "celery_app", "worker", "--loglevel=info"],), kwargs={"shell": shell})
     ui_process = Process(target=subprocess.run, args=(["python", "test.py","--name",a_name,"--description",a_description,"--goals"]+goals,), kwargs={"shell": shell})
 
     api_process.start()
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     isWindows = False
     if platform == "win32" or platform == "cygwin":
         isWindows = True
-    # run_npm_commands(shell=isWindows)
+    run_npm_commands(shell=isWindows)
 
     try:
         api_process, ui_process, celery_process = run_server(isWindows, agent_name, agent_description, goals)

@@ -31,6 +31,7 @@
 
 .selection_section {
     width: 100%;
+    margin-bottom: 5px;
 }
 
 .side_bar {
@@ -43,6 +44,10 @@
 }
 
 .selected {
+    background-color: #333141;
+}
+
+.section:hover {
     background-color: #333141;
 }
 
@@ -97,7 +102,7 @@
     height: calc(100% - 36px);
     width: 100%;
     border-radius: 8px;
-    overflow-y: scroll;
+    overflow-y: hidden;
 }
 
 .tabs {
@@ -115,6 +120,7 @@
     gap: 6px;
     cursor: pointer;
     width: 175px;
+    min-width: 175px;
     height: 100%;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;

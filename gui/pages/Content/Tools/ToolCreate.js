@@ -55,7 +55,7 @@ export default function ToolCreate() {
   };
 
   const handleToolCreate = (index) => {
-    toast.dark('Tool created successfully', {autoClose: 1800});
+    toast.success('Tool created successfully', {autoClose: 1800});
   };
 
 
@@ -86,7 +86,7 @@ export default function ToolCreate() {
                   <input className="input_medium" placeholder="Enter parameter" style={{width:'49%',float:'left'}} type="text" value={goal.paramater} onChange={(event) => handleGoalValue1Change(index, event)} />
                   <div className="dropdown_container_search" style={{marginLeft:'4%'}}>
                     <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{alignItems:'normal'}}>
-                      {argument}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.png' : '/images/dropdown_up.png'} alt="expand-icon"/>
+                      {argument}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                     </div>
                     <transition name="fade-scale">
                       {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
@@ -106,7 +106,7 @@ export default function ToolCreate() {
                 </div>
                 <div>
                   <button className={styles1.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={handleRemoveGoal} >
-                    <Image width={20} height={21} src="/images/close_light.png" alt="close-icon"/>
+                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                   </button>
                 </div>
               </div>))}

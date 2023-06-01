@@ -33,14 +33,22 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
     networks:
       - super_network
+    volumes:
+      - ./gui:/app
+      - /app/node_modules
+      - /app/.next
 
   super__redis:
     image: "redis:latest"
+    ports:
+      - "6379:6379"
     networks:
       - super_network
 
   super__postgres:
     image: "postgres:latest"
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_USER=superagi
       - POSTGRES_PASSWORD=password

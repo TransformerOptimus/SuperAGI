@@ -15,7 +15,7 @@ class WriteFileInput(BaseModel):
 
 
 class WriteFileTool(BaseTool):
-    name: str = "write_file"
+    name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"
 
