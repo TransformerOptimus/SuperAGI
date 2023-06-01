@@ -160,7 +160,7 @@ export default function App() {
   };
 
   function signInUser() {
-    const github_client_id = "eaaf029abe1165e23c1e";
+    const github_client_id = "";
     window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
   }
 
