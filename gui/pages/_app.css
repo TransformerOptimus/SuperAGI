@@ -53,7 +53,7 @@ input[type=checkbox i] {
 .tool_container {
     font-size: 12px;
     background: #656370;
-    border: 1px solid #726F7B;
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 16px;
     padding: 1px 10px;
     margin-right: 7px;

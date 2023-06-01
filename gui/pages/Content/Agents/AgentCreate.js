@@ -321,7 +321,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div>
                 {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                   {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && <div className="custom_select_option" onClick={() => addTool(tool)}
+                    {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
                           style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
                     </div>}
@@ -449,7 +449,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button className={styles.agent_button} onClick={handleAddAgent}>Add agent</button>
+            <button style={{marginRight:'7px'}} className={styles.agent_button} onClick={handleAddAgent}>Cancel</button>
+            <button className={styles.agent_button_primary} onClick={handleAddAgent}>Create and Run</button>
           </div>
         </div>
       </div>

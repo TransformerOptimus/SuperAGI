@@ -3,7 +3,7 @@ import Image from 'next/image';
 import styles from './Dashboard.module.css';
 
 export default function SideBar({onSelectEvent}) {
-  const [sectionSelected, setSelection] = useState('agents');
+  const [sectionSelected, setSelection] = useState('');
 
   const handleClick = (value) => {
     setSelection(value);
