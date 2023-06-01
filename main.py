@@ -71,15 +71,23 @@ DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
-app.include_router(user_router, prefix="/users")
-app.include_router(tool_router, prefix="/tools")
-app.include_router(organisation_router, prefix="/organisations")
-app.include_router(project_router, prefix="/projects")
-app.include_router(budget_router, prefix="/budgets")
-app.include_router(agent_router, prefix="/agents")
-app.include_router(agent_config_router, prefix="/agentconfigs")
-app.include_router(agent_execution_router, prefix="/agentexecutions")
-app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
+app.include_router(user_router, prefix="api/users")
+app.include_router(tool_router, prefix="api/tools")
+app.include_router(organisation_router, prefix="api/organisations")
+app.include_router(project_router, prefix="api/projects")
+app.include_router(budget_router, prefix="api/budgets")
+app.include_router(agent_router, prefix="api/agents")
+app.include_router(agent_config_router, prefix="api/agentconfigs")
+app.include_router(agent_execution_router, prefix="api/agentexecutions")
+app.include_router(agent_execution_feed_router, prefix="api/agentexecutionfeeds")
+
+# add a health route to check if the server is up and return 200
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
+
 
 
 # in production you can use Settings management
