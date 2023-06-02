@@ -12,7 +12,7 @@ import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentWorkspace({agentId, selectedProjectId}) {
+export default function AgentWorkspace({agentId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(false)
@@ -215,7 +215,7 @@ export default function AgentWorkspace({agentId, selectedProjectId}) {
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && <div className={styles.detail_content}><ActionConsole/></div>}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
-          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager selectedProjectId={selectedProjectId}/></div>}
+          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>
       </div>
 
