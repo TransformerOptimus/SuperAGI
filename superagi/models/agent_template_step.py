@@ -10,6 +10,7 @@ class AgentTemplateStep(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     agent_template_id = Column(Integer)
+    unique_id = Column(String)
     prompt = Column(Text)
     variables = Column(Text)
     output_type = Column(String)

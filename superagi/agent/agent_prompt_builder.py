@@ -112,10 +112,6 @@ class AgentPromptBuilder:
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt), "variables": ["goals"]}
         # super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
 
-    # start task (push tasks) -> pop here -> analyse_task() -> command execute() -> create task()
-    # what is each step doing?
-    # execute the prompt with required variables.
-    # analyze_task -> command execute() -> add to queue (get next best command)
     @classmethod
     def analyse_task(cls):
         constraints = [
@@ -132,7 +128,7 @@ class AgentPromptBuilder:
         
         Based on this, your job is to understand the current task, pick out key parts, and think smart and fast. 
         Explain why you are doing each action, create a plan, and mention any worries you might have. 
-        You have to pick your next action only from this list:
+        Ensure next action tool is picked from the below tool list.
         
         TOOLS:
         {tools}
@@ -159,7 +155,7 @@ class AgentPromptBuilder:
     def create_tasks(cls):
         # just executed task `{last_task}` and got the result `{last_task_result}`
         super_agi_prompt = """
-        You are an AI assistant to create tasks.
+        You are an AI assistant to create task.
         
         You are following objectives:
         {goals}
@@ -169,9 +165,10 @@ class AgentPromptBuilder:
         Task History of completed tasks:
         `{task_history}`
          
-        Based on this, create a new task for your AI system ONLY IF REQUIRED to get closer to or fully reach your goal.
-        New tasks should be different from incomplete or completed tasks. 
-        Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new tasks are required.
+        Based on this, create a new task to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your goal.
+        New task should be different from incomplete or completed tasks. 
+         
+        Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.
         """
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
                 "variables": ["goals", "last_task", "last_task_result", "pending_tasks"]}
@@ -208,7 +205,7 @@ class AgentPromptBuilder:
         pending_tokens = token_limit - base_token_limit
         final_output = ""
         if "{task_history}" in super_agi_prompt:
-            for task in reversed(completed_tasks):
+            for task in reversed(completed_tasks[-10:]):
                 final_output = f"Task: {task['task']}\nResult: {task['response']}\n" + final_output
                 token_count = TokenCounter.count_message_tokens([{"role": "user", "content": final_output}])
                 # giving buffer of 100 tokens

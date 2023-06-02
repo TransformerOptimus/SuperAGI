@@ -219,50 +219,83 @@ def process_files(folder_path):
                            class_name=tool.class_name)
 
 def build_single_step_agent():
-    agent_template_cnt = session.query(AgentTemplate).filter(AgentTemplate.name == "Goal Based Agent").count()
-    if agent_template_cnt > 0:
-        print("Existing template exists...")
-        return
-    agent_template = AgentTemplate(name="Goal Based Agent", description="Goal based agent")
-    session.add(agent_template)
-    session.commit()
+    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Goal Based Agent").first()
+
+    if agent_template is None:
+        agent_template = AgentTemplate(name="Goal Based Agent", description="Goal based agent")
+        session.add(agent_template)
+        session.commit()
+
     # step will have a prompt
     # output of step is either tasks or set commands
-    output = AgentPromptBuilder.get_super_agi_single_prompt()
-    first_step = AgentTemplateStep(prompt=output["prompt"], variables=str(output["variables"]),
-                                   agent_template_id=agent_template.id, output_type="tools",
-                                   step_type="TRIGGER",
-                                   history_enabled=True,
-                                   completion_prompt= "Determine which next command to use, and respond using the format specified above:")
-    session.add(first_step)
-    session.commit()
+    first_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "gb1").first()
+    if first_step is None:
+        output = AgentPromptBuilder.get_super_agi_single_prompt()
+        first_step = AgentTemplateStep(unique_id="gb1",
+                                       prompt=output["prompt"], variables=str(output["variables"]),
+                                       agent_template_id=agent_template.id, output_type="tools",
+                                       step_type="TRIGGER",
+                                       history_enabled=True,
+                                       completion_prompt= "Determine which next command to use, and respond using the format specified above:")
+        session.add(first_step)
+        session.commit()
     first_step.next_step_id = first_step.id
     session.commit()
 
 def build_task_based_agents():
-    agent_template_cnt = session.query(AgentTemplate).filter(AgentTemplate.name == "Task Queue Agent With Seed").count()
-    if agent_template_cnt > 0:
-        return
-    agent_template = AgentTemplate(name="Task Queue Agent With Seed", description="Task queue based agent")
-    session.add(agent_template)
-    session.commit()
+    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Task Queue Agent With Seed").first()
+    if agent_template is None:
+        agent_template = AgentTemplate(name="Task Queue Agent With Seed", description="Task queue based agent")
+        session.add(agent_template)
+        session.commit()
+
     output = AgentPromptBuilder.start_task_based()
-    template_step1 = AgentTemplateStep(prompt=output["prompt"], variables=str(output["variables"]),
-                                       step_type="TRIGGER",
-                                       agent_template_id=agent_template.id, next_step_id=-1,
-                                       output_type="tasks")
-    session.add(template_step1)
+
+    template_step1 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb1").first()
+    if template_step1 is None:
+        template_step1 = AgentTemplateStep(unique_id="tb1",
+                                prompt=output["prompt"], variables=str(output["variables"]),
+                                step_type="TRIGGER",
+                                agent_template_id=agent_template.id, next_step_id=-1,
+                                output_type="tasks")
+        session.add(template_step1)
+    else:
+        template_step1.prompt=output["prompt"]
+        template_step1.variables=str(output["variables"])
+        template_step1.output_type="tasks"
+        session.commit()
+
+    template_step2 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb2").first()
     output = AgentPromptBuilder.create_tasks()
-    template_step2 = AgentTemplateStep(prompt=output["prompt"], variables=str(output["variables"]),
-                                       step_type="NORMAL",
-                                       agent_template_id=agent_template.id, next_step_id=-1,
-                                       output_type="tasks")
-    session.add(template_step2)
+    if template_step2 is None:
+        template_step2 = AgentTemplateStep(unique_id="tb2",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_template_id=agent_template.id, next_step_id=-1,
+                                           output_type="tasks")
+        session.add(template_step2)
+    else:
+        template_step2.prompt=output["prompt"]
+        template_step2.variables=str(output["variables"])
+        template_step2.output_type="tasks"
+        session.commit()
+
+    template_step3 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb3").first()
+
     output = AgentPromptBuilder.analyse_task()
-    template_step3 = AgentTemplateStep(prompt=output["prompt"], variables=str(output["variables"]),
-                                       step_type="NORMAL",
-                                       agent_template_id=agent_template.id, next_step_id=-1, output_type="tools")
-    session.add(template_step3)
+    if template_step3 is None:
+        template_step3 = AgentTemplateStep(unique_id="tb3",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_template_id=agent_template.id, next_step_id=-1, output_type="tools")
+
+        session.add(template_step3)
+    else:
+        template_step3.prompt=output["prompt"]
+        template_step3.variables=str(output["variables"])
+        template_step3.output_type="tools"
+        session.commit()
+
     session.commit()
     template_step1.next_step_id = template_step3.id
     template_step3.next_step_id = template_step2.id

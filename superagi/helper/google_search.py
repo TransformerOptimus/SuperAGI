@@ -66,10 +66,13 @@ class GoogleSearchWrap:
                 #     attempts += 1
                 #     content = self.extractor.extract_with_3k(links[i])
                 content = self.extractor.extract_with_bs4(links[i])
+                max_length = len(' '.join(content.split(" ")[:500]))
+                content = content[:max_length]
                 attempts = 0
                 while content == "" and attempts < 2:
                     attempts += 1
                     content = self.extractor.extract_with_bs4(links[i])
+                    content = content[:max_length]
                 webpages.append(content)
         else:
             snippets = []

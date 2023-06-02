@@ -35,7 +35,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [modelDropdown, setModelDropdown] = useState(false);
 
   const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue"]
-  const [agentType, setAgentType] = useState(agentTypes[0]);
+  const [agentType, setAgentType] = useState(agentTypes[1]);
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
 

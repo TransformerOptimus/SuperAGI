@@ -21,9 +21,7 @@ class ReasoningTool(BaseTool):
     llm: Optional[BaseLlm] = None
     name = "ReasoningTool"
     description = (
-        "Reason about task via existing information or understanding. "
-        "Make decisions / selections from options."
-        #"Intelligent problem-solving assistant that comprehends tasks, identifies key variables, and makes efficient decisions, all while providing detailed, self-driven reasoning for its choices."
+        "Intelligent problem-solving assistant that comprehends tasks, identifies key variables, and makes efficient decisions, all while providing detailed, self-driven reasoning for its choices."
         #"Enhances critical thinking and reasoning for diverse tasks, facilitating logical problem-solving in a streamlined manner"
     )
     args_schema: Type[ReasoningSchema] = ReasoningSchema
@@ -40,8 +38,6 @@ class ReasoningTool(BaseTool):
             {goals} 
             
             and the following task, `{task_description}`.
-            
-            {past_task_results}
             
             Perform the task by understanding the problem, extracting variables, and being smart
             and efficient. Provide a descriptive response, make decisions yourself when

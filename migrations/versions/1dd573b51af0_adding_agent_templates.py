@@ -31,6 +31,7 @@ def upgrade() -> None:
         'agent_template_steps',
         sa.Column('id', sa.Integer()),
         sa.Column('agent_template_id', sa.Integer()),
+        sa.Column('unique_id', sa.String()),
         sa.Column('prompt', sa.TEXT()),
         sa.Column('variables', sa.TEXT()),
         sa.Column('step_type', sa.String(length=256)),
@@ -48,6 +49,10 @@ def upgrade() -> None:
 
     op.add_column('agent_executions', sa.Column('current_step_id', sa.Integer()))
     op.create_index("ix_aea_step_id", "agent_executions", ['current_step_id'])
+
+    op.create_index("ix_ats_unique_id", "agent_template_steps", ['unique_id'])
+    op.create_index("ix_at_name", "agent_templates", ['name'])
+
 
 def downgrade() -> None:
     pass
