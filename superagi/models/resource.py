@@ -13,6 +13,7 @@ class Resource(DBBaseModel):
     type = Column(String) # application/pdf etc
     channel = Column(String) #INPUT,OUTPUT
     project_id = Column(Integer)
+    agent_id = Column(Integer)
 
     def __repr__(self):
-        return f"Resource(id={self.id}, name='{self.name}', storage_type='{self.storage_type}', path='{self.path}, size='{self.size}', type='{self.type}')"
+        return f"Resource(id={self.id}, name='{self.name}', storage_type='{self.storage_type}', path='{self.path}, size='{self.size}', type='{self.type}', project_id='{self.project_id}', agent_id='{self.agent_id}')"

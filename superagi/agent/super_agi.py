@@ -45,7 +45,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def make_written_file_resource(file_name: str,project_id:int):
+def make_written_file_resource(file_name: str,agent_id:int):
     path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
     storage_type = get_config("STORAGE_TYPE")
     file_type = "application/txt"
@@ -65,7 +65,7 @@ def make_written_file_resource(file_name: str,project_id:int):
         resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
                             type=file_type,
                             channel="OUTPUT",
-                            project_id=project_id)
+                            agent_id=agent_id)
     elif storage_type == S3:
         pass
     return resource
@@ -117,17 +117,19 @@ class SuperAgi:
             "Determine which next command to use, and respond using the format specified above:"
         )
         token_limit = TokenCounter.token_limit(self.llm.get_model())
+        print("TOKEN LIMIT : ",token_limit)
         memory_window = session.query(AgentConfiguration).filter(
             AgentConfiguration.key == "memory_window",
             AgentConfiguration.agent_id == self.agent_config["agent_id"]
         ).order_by(desc(AgentConfiguration.updated_at)).first().value
-
+        print("MEMORY : ",memory_window)
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
             .filter(AgentExecutionFeed.agent_execution_id == self.agent_config["agent_execution_id"]) \
             .order_by(desc(AgentExecutionFeed.created_at)) \
             .limit(memory_window) \
             .all()
         agent_feeds = reversed(agent_feeds)
+        current_calls = 0
 
         # Format the query result as a list of dictionaries
         full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
@@ -135,18 +137,27 @@ class SuperAgi:
         format_suffix_yellow = "\033[0m\033[0m"
         format_prefix_green = "\033[92m\033[1m"
         format_suffix_green = "\033[0m\033[0m"
+        print("--------------------------------0---------------------------------------")
 
         superagi_prompt = AgentPromptBuilder.get_superagi_prompt(self.ai_name, self.ai_role, goals, self.tools,
                                                                  self.agent_config)
+        print("_________________________________After Prompt Builder__________________________")
         messages = [{"role": "system", "content": superagi_prompt},
                     {"role": "system", "content": f"The current time and date is {time.strftime('%c')}"}]
 
+        print("______________________HERE_____________________________________")
         if len(full_message_history) <= 0:
+            print("______________________HERE_1____________________________________")
+
             for message in messages:
+                print("______________________HERE__2___________________________________")
+                value = TokenCounter.count_message_tokens(message["content"], self.llm.get_model())
+                print("DEBUGGG : ",value)
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
                                                           feed=message["content"],
-                                                          role=message["role"])
+                                                          role=message["role"],
+                                                          tokens=TokenCounter.count_message_tokens(message["content"], self.llm.get_model()))
                 session.add(agent_execution_feed)
                 session.commit()
 
@@ -158,10 +169,11 @@ class SuperAgi:
         messages.append({"role": "user", "content": user_input})
 
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-
+        print("--------------------------------1---------------------------------------")
         # spinner = Halo(text='Thinking...', spinner='dots')
         # spinner.start()
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
+        current_calls = current_calls + 1
         # spinner.stop()
         print("\n")
 
@@ -169,19 +181,23 @@ class SuperAgi:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
 
+        print("--------------------------------2---------------------------------------")
+
         # Print Assistant thoughts
         self.full_message_history.append(HumanMessage(content=user_input))
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                  agent_id=self.agent_config["agent_id"], feed=user_input, role="user")
+                                                  agent_id=self.agent_config["agent_id"], feed=user_input, role="user"
+                                                  ,tokens=TokenCounter.count_message_tokens(user_input, self.llm.get_model()))
         session.add(agent_execution_feed)
         session.commit()
 
         self.full_message_history.append(AIMessage(content=assistant_reply))
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                   agent_id=self.agent_config["agent_id"], feed=assistant_reply,
-                                                  role="assistant")
+                                                  role="assistant",tokens=TokenCounter.count_message_tokens(assistant_reply, self.llm.get_model()))
         session.add(agent_execution_feed)
         session.commit()
+        print("--------------------------------3---------------------------------------")
 
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
@@ -196,8 +212,10 @@ class SuperAgi:
                 print("Tool Observation : ")
                 print(observation)
                 if action.name == WRITE_FILE:
+                    # resource = make_written_file_resource(file_name=action.args.get('file_name'),
+                    #                                       project_id=self.agent.project_id)
                     resource = make_written_file_resource(file_name=action.args.get('file_name'),
-                                                          project_id=self.agent.project_id)
+                                                          agent_id=self.agent.id)
                     if resource is not None:
                         session.add(resource)
                         session.commit()
@@ -224,10 +242,13 @@ class SuperAgi:
         self.full_message_history.append(SystemMessage(content=result))
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                  agent_id=self.agent_config["agent_id"], feed=result, role="system")
+                                                  agent_id=self.agent_config["agent_id"], feed=result, role="system",tokens=TokenCounter.count_message_tokens(result, self.llm.get_model()))
         session.add(agent_execution_feed)
         session.commit()
 
+        agent_execution = session.query(AgentExecution).filter(AgentExecution.id == self.agent_config["agent_execution_id"]).first()
+        agent_execution.calls += current_calls
+        session.commit()
         print(format_prefix_green + "Iteration completed moving to next iteration!" + format_suffix_green)
         session.close()
         return "PENDING"

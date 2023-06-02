@@ -24,7 +24,7 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
 
     db_agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_feed.agent_execution_id,
                                                  feed=agent_execution_feed.feed, type=agent_execution_feed.type,
-                                                 extra_info=agent_execution_feed.extra_info)
+                                                 extra_info=agent_execution_feed.extra_info, tokens=0)
     db.session.add(db_agent_execution_feed)
     db.session.commit()
     return db_agent_execution_feed
@@ -66,29 +66,46 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 
 @router.get("/get/execution/{agent_execution_id}")
 def get_agent_execution_feed(agent_execution_id: int, Authorize: AuthJWT = Depends()):
+    agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+    if agent_execution is None:
+        raise HTTPException(status_code=400, detail="Agent Run not found!")
     feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
     # parse json
     final_feeds = []
     for feed in feeds:
-        final_feeds.append(parse_feed(feed))
+        feed_dict = {
+            "id": feed.id,
+            "agent_id": feed.agent_id,
+            "updated_at": feed.updated_at,
+            "role": feed.role,
+            "tokens": feed.tokens,
+            "created_at": feed.created_at,
+            "agent_execution_id": feed.agent_execution_id,
+            "feed": feed.feed,
+            "extra_info": feed.extra_info,
+            "status": agent_execution.status
+        }
+
+        final_feeds.append(parse_feed(feed_dict))
     return final_feeds
 
 
 def parse_feed(feed):
-    if feed.role == "assistant":
+    if feed["role"] == "assistant":
         try:
             parsed = json.loads(feed.feed, strict=False)
             final_output = "Thoughts: " + parsed["thoughts"][
-                "reasoning"] + "\n"
-            final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n"
+                "text"] + "\n\n"
+            final_output += "Reasoning: " + parsed["thoughts"]["reasoning"] + "\n\n"
+            final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n\n"
             final_output += "Criticism: " + parsed["thoughts"][
-                "criticism"] + "\n"
-            final_output += "Tool: " + parsed["command"]["name"] + "\n"
+                "criticism"] + "\n\n"
+            final_output += "Tool: " + parsed["command"]["name"] + "\n\n"
 
-            return {"role": "assistant", "feed": final_output, "updated_at":feed.updated_at}
+            return {"role": "assistant", "feed": final_output, "updated_at":feed["updated_at"], "status": feed["status"]}
         except Exception:
             return feed
-    if feed.role == "assistant":
+    if feed["role"] == "assistant":
         return feed
 
     return feed

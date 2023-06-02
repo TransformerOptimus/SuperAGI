@@ -8,11 +8,14 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.tool import Tool
 from jsonmerge import merge
 from superagi.worker import execute_agent
 from datetime import datetime
 import json
+from sqlalchemy import func
+
 
 router = APIRouter()
 
@@ -158,11 +161,17 @@ def get_agent_configuration(agent_id: int):
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
+    total_calls = db.session.query(func.sum(AgentExecution.calls)).filter(AgentExecution.agent_id == agent_id).scalar()
+    total_tokens = db.session.query(func.sum(AgentExecutionFeed.tokens)). \
+        join(AgentExecution, AgentExecution.id == AgentExecutionFeed.agent_execution_id). \
+        filter(AgentExecution.agent_id == agent_id).scalar()
 
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 "goal": eval(response["goal"]),
+                                "calls": total_calls,
+                                "tokens": total_tokens,
                                 "constraints": eval(response["constraints"]),
                                 "tools": [int(x) for x in json.loads(response["tools"])]})
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
