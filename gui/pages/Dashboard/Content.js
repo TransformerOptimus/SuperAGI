@@ -41,7 +41,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
         setTools(updatedData);
       })
       .catch((error) => {
-        console.error('Error fetching agents:', error);
+        console.error('Error fetching tools:', error);
       });
   }
 
