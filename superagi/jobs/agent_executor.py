@@ -97,6 +97,8 @@ class AgentExecutor:
             for tool in user_tools:
                 tools.append(AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name))
 
+            tools = self.set_default_params_tools(tools, parsed_config, agent)
+
             spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                      llm=OpenAi(model=parsed_config["model"]), tools=tools, memory=memory,
                                      agent_config=parsed_config, agent=agent)
@@ -104,6 +106,7 @@ class AgentExecutor:
 
             session.commit()
             session.close()
+
             if response == "COMPLETE":
                 db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
                 db_agent_execution.status = "COMPLETED"
@@ -175,3 +178,16 @@ class AgentExecutor:
             elif key == "memory_window":
                 parsed_config["memory_window"] = int(value)
         return parsed_config
+
+    def set_default_params_tools(self, tools, parsed_config,agent):
+        new_tools = []
+        for tool in tools:
+            if hasattr(tool, 'goals'):
+                tool.goals = parsed_config["goal"]
+            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
+                tool.llm = OpenAi(model="gpt-3.5-turbo")
+            elif hasattr(tool, 'llm'):
+                tool.llm = OpenAi(model=parsed_config["model"])
+            elif hasattr(tool,'agent_id'):
+                tool.agent_id = agent.id
+        return tools

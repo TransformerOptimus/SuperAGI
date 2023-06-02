@@ -166,10 +166,7 @@ class SuperAgi:
         if action.name in tools:
             tool = tools[action.name]
             try:
-                if hasattr(tool, 'agent_id'):
-                    observation = tool.execute(action.args, agent_id=self.agent.id)
-                else:
-                    observation = tool.execute(action.args)
+                observation = tool.execute(action.args)
                 print("Tool Observation : ")
                 print(observation)
 

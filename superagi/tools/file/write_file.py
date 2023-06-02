@@ -40,7 +40,6 @@ class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
     file_name: str = Field(..., description="Name of the file to write")
     content: str = Field(..., description="File content to write")
-    agent_id: int = Field(..., description="Agent ID associated with the File")
 
 
 class WriteFileTool(BaseTool):
@@ -49,7 +48,7 @@ class WriteFileTool(BaseTool):
     description: str = "Writes text to a file"
     agent_id: int = None
 
-    def _execute(self, file_name: str, content: str, agent_id: int):
+    def _execute(self, file_name: str, content: str):
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
@@ -63,7 +62,7 @@ class WriteFileTool(BaseTool):
             with open(final_path, 'w', encoding="utf-8") as file:
                 file.write(content)
                 resource = make_written_file_resource(file_name=file_name,
-                                                      agent_id=agent_id)
+                                                      agent_id=self.agent_id)
                 if resource is not None:
                     session.add(resource)
                     session.commit()
