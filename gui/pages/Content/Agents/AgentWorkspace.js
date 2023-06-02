@@ -231,16 +231,16 @@ export default function AgentWorkspace({agentId}) {
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
               {goals.length > 1 && <div>
-                <button className={styles.agent_button} style={{marginLeft: '4px', padding: '5px'}}
+                <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
                   <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
-            <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
+            <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>}
           <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-            <button className={styles.agent_button} style={{marginRight: '10px'}} onClick={closeRunModal}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeRunModal}>
               Cancel
             </button>
             <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={() => handleCreateRun()}>

@@ -43,48 +43,6 @@
     background-color: #494856;
 }
 
-.agent_button_primary {
-    width: auto;
-    border-radius: 8px;
-    font-size: 14px;
-    color: black;
-    border: none;
-    height: 32px;
-    background: white;
-    text-align: center;
-    padding: 5px 15px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.agent_button_primary:hover {
-    background-color: rgba(255, 255, 255, 0.8);
-}
-
-.agent_button {
-    width: auto;
-    border-radius: 8px;
-    font-size: 14px;
-    color: white;
-    height: 32px;
-    background: #4D4A5A;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    text-align: center;
-    padding: 5px 15px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.agent_button:hover {
-    background-color: transparent;
-}
-
 .agent_active {
     display: flex;
     flex-direction: row;
@@ -322,6 +280,11 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+}
+
+.agent_resources {
+    width: 100%;
+    margin-top: 10px;
 }
 
 .large_text_box {

@@ -5,6 +5,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources} from "@/pages/api/DashboardService";
 import {baseUrl} from "@/pages/api/apiConfig";
+import {formatBytes} from "@/utils/utils";
 import axios from 'axios';
 
 export default function ResourceManager({agentId}) {
@@ -99,19 +100,6 @@ export default function ResourceManager({agentId}) {
 
   function downloadFile(fileId) {
     window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
-  }
-
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) {
-      return '0 Bytes';
-    }
-
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
-
-    return `${formattedValue} ${sizes[i]}`;
   }
 
   const ResourceItem = ({ file }) => {
