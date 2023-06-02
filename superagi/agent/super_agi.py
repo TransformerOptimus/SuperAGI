@@ -172,7 +172,6 @@ class SuperAgi:
                     observation = tool.execute(action.args)
                 print("Tool Observation : ")
                 print(observation)
-                # if action.name == WRITE_FILE:
 
             except ValidationError as e:
                 observation = (

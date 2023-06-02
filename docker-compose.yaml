@@ -40,8 +40,6 @@ services:
 
   super__redis:
     image: "redis:latest"
-    ports:
-      - "6379:6379"
     networks:
       - super_network
 
@@ -52,15 +50,14 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=super_agi_main
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - superagi_postgres_data:/var/lib/postgresql/data/
     networks:
       - super_network
-    ports:
-      - "5432:5432"
+
 
 networks:
   super_network:
     driver: bridge
 
 volumes:
-  postgres_data:
+  superagi_postgres_data:
