@@ -56,11 +56,19 @@ input[type=checkbox i] {
     background-color: #222222;
     border: 1px solid #4A4A55;
     border-radius: 4px;
+    position: relative;
 }
 
 .checkbox:checked {
-    background-color: white;
-    border: 1px solid #888888;
+    background-color: rgba(255, 255, 255);
+}
+
+.checkbox:checked::before {
+    content: '\2713';
+    position: absolute;
+    transform: translateY(-20%);
+    color: #312D44;
+    font-weight: 650;
 }
 
 .tool_container {
