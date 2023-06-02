@@ -45,32 +45,6 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def make_written_file_resource(file_name: str,project_id:int):
-    path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
-    storage_type = get_config("STORAGE_TYPE")
-    file_type = "application/txt"
-
-    root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-
-    if root_dir is not None:
-        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-        final_path = root_dir + file_name
-    else:
-        final_path = os.getcwd() + "/" + file_name
-    file_size = os.path.getsize(final_path)
-    resource = None
-    if storage_type == FILE:
-        # Save Resource to Database
-        resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
-                            type=file_type,
-                            channel="OUTPUT",
-                            project_id=project_id)
-    elif storage_type == S3:
-        pass
-    return resource
-
-
 class SuperAgi:
     def __init__(self,
                  ai_name: str,
@@ -192,15 +166,14 @@ class SuperAgi:
         if action.name in tools:
             tool = tools[action.name]
             try:
-                observation = tool.execute(action.args)
+                if hasattr(tool, 'agent_id'):
+                    observation = tool.execute(action.args, agent_id=self.agent.id)
+                else:
+                    observation = tool.execute(action.args)
                 print("Tool Observation : ")
                 print(observation)
-                if action.name == WRITE_FILE:
-                    resource = make_written_file_resource(file_name=action.args.get('file_name'),
-                                                          project_id=self.agent.project_id)
-                    if resource is not None:
-                        session.add(resource)
-                        session.commit()
+                # if action.name == WRITE_FILE:
+
             except ValidationError as e:
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"
