@@ -48,8 +48,8 @@ export const addExecution = (executionData) => {
   return api.post(`/agentexecutions/add`, executionData);
 };
 
-export const getResources = (projectId) => {
-  return api.get(`/resources/get/all/${projectId}`);
+export const getResources = (agentId) => {
+  return api.get(`/resources/get/all/${agentId}`);
 };
 
 export const getLastActiveAgent = (projectId) => {

@@ -7,7 +7,7 @@ import {getResources} from "@/pages/api/DashboardService";
 import {baseUrl} from "@/pages/api/apiConfig";
 import axios from 'axios';
 
-export default function ResourceManager({selectedProjectId}) {
+export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
   const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
@@ -62,8 +62,8 @@ export default function ResourceManager({selectedProjectId}) {
   };
 
   useEffect(() => {
-    fetchResources(selectedProjectId);
-  }, [selectedProjectId]);
+    fetchResources();
+  }, [agentId]);
 
   function uploadFile(fileData) {
     const formData = new FormData();
@@ -72,9 +72,9 @@ export default function ResourceManager({selectedProjectId}) {
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    axios.post(`${baseUrl()}/resources/add/${selectedProjectId}`, formData)
+    axios.post(`${baseUrl()}/resources/add/${agentId}`, formData)
       .then((response) => {
-        fetchResources(selectedProjectId);
+        fetchResources();
         toast.success('Resource added successfully', { autoClose: 1800 });
       })
       .catch((error) => {
@@ -83,8 +83,8 @@ export default function ResourceManager({selectedProjectId}) {
       });
   }
 
-  function fetchResources(selectedProjectId) {
-    getResources(selectedProjectId)
+  function fetchResources() {
+    getResources(agentId)
       .then((response) => {
         const resources = response.data;
         const inputFiles = resources.filter((resource) => resource.channel === 'INPUT');

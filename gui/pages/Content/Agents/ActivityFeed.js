@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Head from 'next/head';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {formatTime, formatNumber} from "@/utils/utils";
+import {formatTime} from "@/utils/utils";
 
 export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
@@ -58,14 +58,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           <div className={styles.feed_title}>{f?.feed || ''}</div>
         </div>
         <div className={styles.more_details_wrapper}>
-          <div className={styles.more_details}>
-            <div>
-              <Image width={12} height={12} src="/images/tokens_consumed.svg" alt="tokens-icon"/>
-            </div>
-            <div className={styles.history_info}>
-              {formatNumber(f?.tokens || 0)} Tokens Consumed
-            </div>
-          </div>
           {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
             <div style={{display: 'flex', alignItems: 'center'}}>
               <div>
