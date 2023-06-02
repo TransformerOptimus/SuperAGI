@@ -83,10 +83,12 @@
 <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113609.png height=50px width=50px alt="Slack" valign="middle" title="Slack"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113612.png height=50px width=50px alt="Email"  valign="middle" title="Email"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113610.png height=50px width=50px alt="Jira" valign="middle" title="Jira"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113611.png height=50px width=50px alt="File Manager" valign="middle" title="File Manager"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113613.png height=50px width=50px alt="Google Search" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113615.png height=50px width=50px alt="Dall-E" valign="middle" title="Dall-E"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113614.png height=50px width=50px alt="Github" valign="middle" title="Github"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113616.png height=50px width=50px alt="Web Interaction" valign="middle" title="Web Interaction"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113617.png height=50px width=50px alt="Zapier" valign="middle" title="Zapier"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113618.png height=50px width=50px alt="Instagram" valign="middle" title="Instagram"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113619.png height=50px width=50px alt="Trello" valign="middle" title="Trello"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113620.png height=50px width=50px alt="Google Analytics" valign="middle" title="Google Analytics"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113622.png height=50px width=50px alt="Duckduckgo" valign="middle" title="Duckduckgo"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113621.png height=50px width=50px alt="Discord" valign="middle" title="Discord">
 
 ## 💻 Screenshots
-**CLI View**
-![CLI](https://superagi.co/wp-content/uploads/2023/05/CLI.png)
 
-**GUI (Work in progress)**
+[//]: # (**CLI View**)
+
+[//]: # (![CLI]&#40;https://superagi.co/wp-content/uploads/2023/05/CLI.png&#41;)
+
+**GUI**
 
 <p align="center">
   <a href="https://superagi.com//#gh-light-mode-only">
@@ -118,7 +120,7 @@
 >If you're on the Pinecone free plan, you only have 1 pod and 1 index available.  As a workaround, change the index name used in test.py where `memory` is defined: `memory = VectorFactory.get_vector_storage("PineCone", "my-current-indexname", OpenAiEmbedding())`
 
 4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
-5. Once you have Docker Desktop running, run command : `docker-compose up` in SuperAGI directory. Open your browser and go to `localhost:3000` to see SuperAGI running.
+5. Once you have Docker Desktop running, run command : `docker-compose up --build` in SuperAGI directory. Open your browser and go to `localhost:3000` to see SuperAGI running.
 
 ## ⚠️ Under Development!
 This project is under active development and may still have issues. We appreciate your understanding and patience. If you encounter any problems, please first check the open issues. If your issue is not listed, kindly create a new issue detailing the error or problem you experienced. Thank you for your support!
