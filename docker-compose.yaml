@@ -33,6 +33,10 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
     networks:
       - super_network
+    volumes:
+      - ./gui:/app
+      - /app/node_modules
+      - /app/.next
 
   super__redis:
     image: "redis:latest"
@@ -46,13 +50,14 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=super_agi_main
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - superagi_postgres_data:/var/lib/postgresql/data/
     networks:
       - super_network
+
 
 networks:
   super_network:
     driver: bridge
 
 volumes:
-  postgres_data:
+  superagi_postgres_data:

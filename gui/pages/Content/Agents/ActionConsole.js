@@ -46,12 +46,12 @@ export default function ActionConsole() {
           <div style={{flex:'1'}}>{action.title}</div>
           <div>
             <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px',background:'transparent',border:'none'}}>
-              <Image width={20} height={21} src="/images/close.png" alt="close-icon"/>
+              <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
             </button>
           </div>
           <div>
             <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}}>
-              <Image width={20} height={21} src="/images/check.png" alt="check-icon"/>
+              <Image width={20} height={21} src="/images/check.svg" alt="check-icon"/>
             </button>
           </div>
         </div>}
@@ -61,19 +61,19 @@ export default function ActionConsole() {
             <div style={{flex:'1'}}><input className="input_medium" type="text"/></div>
             <div>
               <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px',background:'transparent',border:'none'}}>
-                <Image width={20} height={21} src="/images/close.png" alt="close-icon"/>
+                <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
               </button>
             </div>
             <div>
               <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}}>
-                <Image width={20} height={21} src="/images/send.png" alt="send-icon"/>
+                <Image width={20} height={21} src="/images/send.svg" alt="send-icon"/>
               </button>
             </div>
           </div>
         </div>}
         <div style={{display:'flex',alignItems:'center',paddingLeft:'0',paddingBottom:'0'}} className={styles.tab_text}>
           <div>
-            <Image width={12} height={12} src="/images/schedule.png" alt="schedule-icon"/>
+            <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
           </div>
           <div className={styles.history_info}>{action.timeStamp}</div>
         </div>
