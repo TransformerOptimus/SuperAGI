@@ -1,6 +1,4 @@
-import api, {baseUrl} from './apiConfig';
-import axios from "axios";
-import {toast} from "react-toastify";
+import api from './apiConfig';
 
 export const getOrganization = () => {
   return api.get(`/organisations/get/1`);

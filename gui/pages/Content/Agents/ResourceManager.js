@@ -4,9 +4,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
-import {baseUrl} from "@/pages/api/apiConfig";
 import {formatBytes, downloadFile} from "@/utils/utils";
-import axios from 'axios';
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);

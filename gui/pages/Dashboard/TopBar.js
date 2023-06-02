@@ -1,12 +1,20 @@
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
 
-export default function TopBar({userName, selectedProject}) {
+export default function TopBar({selectedProject}) {
+  const [dropdown, setDropdown] = useState(false);
+
   const settingsTab = () => {
     EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
   }
+
+  const logoutUser = () => {
+    localStorage.setItem('accessToken', '');
+    window.open('http://localhost:3000', '_self')
+    setDropdown(false);
+  };
 
   return (
     <div className={styles.top_bar}>
@@ -27,8 +35,14 @@ export default function TopBar({userName, selectedProject}) {
       <div className={styles.top_right}>
         {/*<div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>*/}
         {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}
-        <div className={styles.top_bar_font} style={{marginRight:'5px'}}><p>{userName}</p></div>
-        <div className={styles.top_right_icon}><Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/></div>
+        <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
+        </div>
+        {dropdown && <div style={{marginTop:'13vh',marginRight:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          <ul className="dropdown_container">
+            <li className="dropdown_item" onClick={logoutUser}>Logout</li>
+          </ul>
+        </div>}
       </div>
     </div>
   )

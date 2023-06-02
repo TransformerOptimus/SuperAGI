@@ -10,10 +10,10 @@ import { addUser, getOrganization, getProject } from "@/pages/api/DashboardServi
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
+import {EventBus} from "@/utils/eventBus";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [userName, setUserName] = useState("");
   const [accessToken, setAccessToken] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const organisationId = 1;
@@ -35,7 +35,6 @@ export default function App() {
     setAccessToken(access_token);
   }, []);
 
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       getOrganization()
@@ -55,7 +54,6 @@ export default function App() {
 
       addUser(userData)
         .then((response) => {
-          setUserName(response.data.name);
         })
         .catch((error) => {
           console.error('Error adding user:', error);
@@ -171,16 +169,16 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {accessToken !== null ? <div style={projectStyle}>
+      {accessToken !== null && accessToken !== '' ? <div style={projectStyle}>
         <div style={sideBarStyle}>
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
         <div style={workSpaceStyle}>
           <div style={topBarStyle}>
-            <TopBar userName={userName} selectedProject={selectedProject}/>
+            <TopBar selectedProject={selectedProject}/>
           </div>
           <div style={contentStyle}>
-            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''} userName={userName}/>
+            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
       </div> : <div style={signInStyle}>

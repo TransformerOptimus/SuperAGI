@@ -169,10 +169,10 @@ export default function AgentWorkspace({agentId}) {
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className={styles.dropdown_container}>
-                {selectedRun && selectedRun.status === 'RUNNING' && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
-                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
-                {agentExecutions && agentExecutions.length > 1 && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
+              <ul className="dropdown_container">
+                {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
+                {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
               </ul>
             </div>}
           </div>
