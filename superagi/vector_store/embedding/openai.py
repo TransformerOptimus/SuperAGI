@@ -27,7 +27,6 @@ class OpenAiEmbedding:
     def get_embedding(self, text):
         try:
             openai.api_key = get_config("OPENAI_API_KEY")
-            print(openai.api_key)
             response = openai.Embedding.create(
                 input=[text],
                 engine=self.model

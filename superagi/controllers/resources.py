@@ -9,9 +9,8 @@ import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated
 from superagi.models.resource import Resource
-from superagi.models.agent import Agent
 from superagi.config.config import get_config
-from superagi.models.project import Project
+from superagi.models.agent import Agent
 from starlette.responses import FileResponse
 from pathlib import Path
 from fastapi.responses import StreamingResponse
@@ -20,12 +19,9 @@ router = APIRouter()
 
 @router.post("/add/{agent_id}", status_code=201)
 async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...)):
-    # project = db.session.query(Project).filter(Project.id == project_id).first()
-    # if project is None:
-    #     raise HTTPException(status_code=400, detail="Project does not exists")
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
-        raise HTTPException(status_code=400,detail="Agent Not Found")
+        raise HTTPException(status_code=400, detail="Agent does not exists")
 
     if not name.endswith(".txt") and not name.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="File type not supported!")
@@ -51,8 +47,8 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         # path to be added
         pass
 
-    resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT"
-                        , agent_id=agent_id)
+    resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
+                        agent_id=agent.id)
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
@@ -60,15 +56,11 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     return resource
 
 
-# @router.get("/get/all/{project_id}", status_code=200)
-# def get_all_resources(project_id: int):
-#     resources = db.session.query(Resource).filter(Resource.project_id == project_id).all()
-#     return resources
-
 @router.get("/get/all/{agent_id}", status_code=200)
 def get_all_resources(agent_id: int):
     resources = db.session.query(Resource).filter(Resource.agent_id == agent_id).all()
     return resources
+
 
 @router.get("/get/{resource_id}", status_code=200)
 def download_file_by_id(resource_id: int):
