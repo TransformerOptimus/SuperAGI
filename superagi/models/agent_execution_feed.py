@@ -13,9 +13,8 @@ class AgentExecutionFeed(DBBaseModel):
     feed = Column(Text)
     role = Column(String)  # Like system', 'user' or the 'assistant'.
     extra_info = Column(String)
-    tokens = Column(Integer)
 
     def __repr__(self):
         return f"AgentExecutionFeed(id={self.id}, " \
                f"agent_execution_id={self.agent_execution_id}, " \
-               f"feed='{self.feed}', type='{self.type}')"
+               f"feed='{self.feed}', type='{self.type}', extra_info={self.extra_info})"

@@ -162,9 +162,10 @@ def get_agent_configuration(agent_id: int):
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
     total_calls = db.session.query(func.sum(AgentExecution.calls)).filter(AgentExecution.agent_id == agent_id).scalar()
-    total_tokens = db.session.query(func.sum(AgentExecutionFeed.tokens)). \
-        join(AgentExecution, AgentExecution.id == AgentExecutionFeed.agent_execution_id). \
-        filter(AgentExecution.agent_id == agent_id).scalar()
+    # total_tokens = db.session.query(func.sum(AgentExecutionFeed.tokens)). \
+    #     join(AgentExecution, AgentExecution.id == AgentExecutionFeed.agent_execution_id). \
+    #     filter(AgentExecution.agent_id == agent_id).scalar()
+    total_tokens = db.session.query(func.sum(AgentExecution.tokens)).filter(AgentExecution.agent_id == agent_id).scalar()
 
     # Construct the JSON response
     response = {result.key: result.value for result in results}

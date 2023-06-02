@@ -78,7 +78,6 @@ def get_agent_execution_feed(agent_execution_id: int, Authorize: AuthJWT = Depen
             "agent_id": feed.agent_id,
             "updated_at": feed.updated_at,
             "role": feed.role,
-            "tokens": feed.tokens,
             "created_at": feed.created_at,
             "agent_execution_id": feed.agent_execution_id,
             "feed": feed.feed,

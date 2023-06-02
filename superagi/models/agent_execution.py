@@ -11,11 +11,11 @@ class AgentExecution(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     status = Column(String)  # like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED', 'TERMINATED')
-    # logs = Column(Text)
     name = Column(String)
     agent_id = Column(Integer)
     last_execution_time = Column(DateTime)
     calls = Column(Integer, default=0)
+    tokens = Column(Integer, default=0)
 
 
     def __repr__(self):
