@@ -7,6 +7,7 @@ import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
 import { addUser, getOrganization, getProject } from "@/pages/api/DashboardService";
+import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
 
@@ -160,7 +161,7 @@ export default function App() {
   };
 
   function signInUser() {
-    const github_client_id = "eaaf029abe1165e23c1e";
+    const github_client_id = githubClientId();
     window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
   }
 
