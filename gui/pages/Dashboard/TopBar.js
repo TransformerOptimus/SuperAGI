@@ -18,15 +18,12 @@ export default function TopBar({userName, selectedProject}) {
           </div>
           {/*<div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
         </div>
-
         <div className={styles.top_bar_section} style={{marginLeft:'10px',cursor:'default'}}>
           <div style={{marginTop:'-2px'}}><Image width={14} height={14} src="/images/widgets.svg" alt="widgets-icon"/></div>
           <div className={styles.top_bar_font}><p>Marketplace (coming soon)</p></div>
           {/*<div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
         </div>
       </div>
-
-
       <div className={styles.top_right}>
         {/*<div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>*/}
         {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}

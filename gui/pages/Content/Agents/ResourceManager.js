@@ -3,9 +3,9 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getResources} from "@/pages/api/DashboardService";
+import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {baseUrl} from "@/pages/api/apiConfig";
-import {formatBytes} from "@/utils/utils";
+import {formatBytes, downloadFile} from "@/utils/utils";
 import axios from 'axios';
 
 export default function ResourceManager({agentId}) {
@@ -26,7 +26,7 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      uploadFile(fileData);
+      uploadResource(fileData);
     }
   };
 
@@ -58,7 +58,7 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      uploadFile(fileData);
+      uploadResource(fileData);
     }
   };
 
@@ -66,14 +66,14 @@ export default function ResourceManager({agentId}) {
     fetchResources();
   }, [agentId]);
 
-  function uploadFile(fileData) {
+  function uploadResource(fileData) {
     const formData = new FormData();
     formData.append('file', fileData.file);
     formData.append('name', fileData.name);
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    axios.post(`${baseUrl()}/resources/add/${agentId}`, formData)
+    uploadFile(agentId, formData)
       .then((response) => {
         fetchResources();
         toast.success('Resource added successfully', { autoClose: 1800 });
@@ -96,10 +96,6 @@ export default function ResourceManager({agentId}) {
       .catch((error) => {
         console.error('Error fetching resources:', error);
       });
-  }
-
-  function downloadFile(fileId) {
-    window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
   }
 
   const ResourceItem = ({ file }) => {

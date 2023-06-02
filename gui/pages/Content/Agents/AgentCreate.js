@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import { createAgent } from "@/pages/api/DashboardService";
+import {createAgent, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -222,6 +222,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     e.stopPropagation();
   };
 
+  function uploadResource(agentId, fileData) {
+    const formData = new FormData();
+    formData.append('file', fileData.file);
+    formData.append('name', fileData.name);
+    formData.append('size', fileData.size);
+    formData.append('type', fileData.type);
+
+    uploadFile(agentId, formData)
+      .then((response) => {
+      })
+      .catch((error) => {
+        console.error('Error uploading resource:', error);
+      });
+  }
+
   const handleAddAgent = () => {
     if (agentName.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
@@ -257,15 +272,20 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "model": model,
       "permission_type": permission,
       "LTM_DB": longTermMemory ? database : null,
-      "input_files": addResources ? input : null,
       "memory_window": rollingWindow
     };
 
     createAgent(agentData)
       .then((response) => {
+        const agent_id = response.data.id;
         fetchAgents();
         cancelCreate();
-        sendAgentData({ id: response.data.id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id })
+        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
+        if(addResources) {
+          input.forEach((fileData) => {
+            uploadResource(agent_id, fileData);
+          });
+        }
         toast.success('Agent created successfully', {autoClose: 1800});
       })
       .catch((error) => {

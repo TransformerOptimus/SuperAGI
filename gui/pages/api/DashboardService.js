@@ -1,4 +1,6 @@
-import api from './apiConfig';
+import api, {baseUrl} from './apiConfig';
+import axios from "axios";
+import {toast} from "react-toastify";
 
 export const getOrganization = () => {
   return api.get(`/organisations/get/1`);
@@ -55,3 +57,7 @@ export const getResources = (agentId) => {
 export const getLastActiveAgent = (projectId) => {
   return api.get(`/agentexecutions/get/latest/agent/project/${projectId}`);
 };
+
+export const uploadFile = (agentId, formData) => {
+  return api.post(`/resources/add/${agentId}`, formData);
+}
