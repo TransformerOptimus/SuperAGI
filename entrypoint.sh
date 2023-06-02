@@ -1,4 +1,4 @@
-# Run Alembic migration
+# Run Alembic migrations
 alembic upgrade head
 
 # Start the app
