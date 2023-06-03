@@ -24,7 +24,7 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
 
     db_agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_feed.agent_execution_id,
                                                  feed=agent_execution_feed.feed, type=agent_execution_feed.type,
-                                                 extra_info=agent_execution_feed.extra_info, tokens=0)
+                                                 extra_info=agent_execution_feed.extra_info)
     db.session.add(db_agent_execution_feed)
     db.session.commit()
     return db_agent_execution_feed

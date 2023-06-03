@@ -30,7 +30,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
         raise HTTPException(status_code=404, detail="Agent not found")
 
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id,name=agent_execution.name,calls=0)
+                                        agent_id=agent_execution.agent_id,name=agent_execution.name,calls=0,tokens=0)
     db.session.add(db_agent_execution)
     db.session.commit()
     if db_agent_execution.status == "RUNNING":
