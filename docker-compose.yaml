@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   backend:
+    container_name: backend
     volumes:
       - "./:/app"
     build: .
@@ -10,10 +11,13 @@ services:
     depends_on:
       - super__redis
       - super__postgres
+    restart: unless-stopped
+    read_only: true
     networks:
       - super_network
 
   celery:
+    container_name: celery
     volumes:
       - "./:/app"
     build:
@@ -22,10 +26,13 @@ services:
     depends_on:
       - super__redis
       - super__postgres
+    restart: unless-stopped
+    read_only: true
     networks:
       - super_network
 
   gui:
+    container_name: gui
     build: ./gui
     ports:
       - "3000:3000"
@@ -37,13 +44,19 @@ services:
       - ./gui:/app
       - /app/node_modules
       - /app/.next
+    restart: unless-stopped
+    read_only: true
 
   super__redis:
+    container_name: supper__redis
     image: "redis:latest"
+    restart: unless-stopped
+    read_only: true
     networks:
       - super_network
 
   super__postgres:
+    container_name: super__postgres
     image: "postgres:latest"
     environment:
       - POSTGRES_USER=superagi
@@ -51,6 +64,8 @@ services:
       - POSTGRES_DB=super_agi_main
     volumes:
       - superagi_postgres_data:/var/lib/postgresql/data/
+    restart: unless-stopped
+    read_only: true
     networks:
       - super_network
 
