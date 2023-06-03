@@ -62,6 +62,7 @@ class WriteFileTool(BaseTool):
         try:
             with open(final_path, 'w', encoding="utf-8") as file:
                 file.write(content)
+                file.close()
                 resource = make_written_file_resource(file_name=file_name,
                                                       agent_id=agent_id)
                 if resource is not None:
