@@ -55,8 +55,8 @@ export const addExecution = (executionData) => {
   return axios.post(`${API_BASE_URL}/agentexecutions/add`, executionData);
 };
 
-export const getResources = (projectId) => {
-  return axios.get(`${API_BASE_URL}/resources/get/all/${projectId}`);
+export const getResources = (agentId) => {
+  return axios.get(`${API_BASE_URL}/resources/get/all/${agentId}`);
 };
 
 export const getLastActiveAgent = (projectId) => {
