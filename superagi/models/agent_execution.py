@@ -17,7 +17,6 @@ class AgentExecution(DBBaseModel):
     calls = Column(Integer, default=0)
     tokens = Column(Integer, default=0)
 
-
     def __repr__(self):
         return f"AgentExecution(id={self.id}, name={self.name},status='{self.status}', " \
                f"last_execution_time='{self.last_execution_time}', agent_id={self.agent_id}, calls={self.calls})"

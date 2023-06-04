@@ -8,6 +8,7 @@ from superagi.models.agent_execution import AgentExecution
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy.sql import desc,asc
+from superagi.helper.auth import check_auth
 
 
 router = APIRouter()
@@ -16,7 +17,9 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed), status_code=201)
 def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
-                                Authorize: AuthJWT = Depends()):
+                                Authorize: AuthJWT = Depends(check_auth)):
+    """Add a new agent execution feed"""
+
     agent_execution = db.session.query(AgentExecution).get(agent_execution_feed.agent_execution_id)
 
     if not agent_execution:
@@ -31,7 +34,10 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
 
 
 @router.get("/get/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
-def get_agent_execution_feed(agent_execution_feed_id: int, Authorize: AuthJWT = Depends()):
+def get_agent_execution_feed(agent_execution_feed_id: int,
+                             Authorize: AuthJWT = Depends(check_auth)):
+    """Get an agent execution feed by agent_execution feed id"""
+
     db_agent_execution_feed = db.session.query(AgentExecutionFeed).filter(
         AgentExecutionFeed.id == agent_execution_feed_id).first()
     if not db_agent_execution_feed:
@@ -41,7 +47,10 @@ def get_agent_execution_feed(agent_execution_feed_id: int, Authorize: AuthJWT = 
 
 @router.put("/update/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
 def update_agent_execution_feed(agent_execution_feed_id: int,
-                                agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"])):
+                                agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+                                Authorize: AuthJWT = Depends(check_auth)):
+    """Update a particular agent_execution_feed_id"""
+
     db_agent_execution_feed = db.session.query(AgentExecutionFeed).filter(
         AgentExecutionFeed.id == agent_execution_feed_id).first()
     if not db_agent_execution_feed:
@@ -65,7 +74,10 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 
 
 @router.get("/get/execution/{agent_execution_id}")
-def get_agent_execution_feed(agent_execution_id: int, Authorize: AuthJWT = Depends()):
+def get_agent_execution_feed(agent_execution_id: int,
+                             Authorize: AuthJWT = Depends(check_auth)):
+    """Get agent execution feed with other execution details"""
+
     agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if agent_execution is None:
         raise HTTPException(status_code=400, detail="Agent Run not found!")

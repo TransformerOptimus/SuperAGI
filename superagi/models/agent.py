@@ -3,10 +3,11 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.project import Project
 from sqlalchemy.orm import relationship
 
+
 class Agent(DBBaseModel):
     __tablename__ = 'agents'
 
-    id = Column(Integer, primary_key=True,autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     project_id = Column(Integer)
     description = Column(String)

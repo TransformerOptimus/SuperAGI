@@ -14,11 +14,16 @@ from superagi.models.agent import Agent
 from starlette.responses import FileResponse
 from pathlib import Path
 from fastapi.responses import StreamingResponse
+from superagi.helper.auth import check_auth
 
 router = APIRouter()
 
 @router.post("/add/{agent_id}", status_code=201)
-async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...)):
+async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...),
+                 Authorize: AuthJWT = Depends(check_auth)):
+
+    """Upload a file as resource for agent"""
+
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=400, detail="Agent does not exists")
@@ -57,13 +62,21 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
 
 
 @router.get("/get/all/{agent_id}", status_code=200)
-def get_all_resources(agent_id: int):
+def get_all_resources(agent_id: int,
+                      Authorize: AuthJWT = Depends(check_auth)):
+
+    """Get all resources for an agent"""
+
     resources = db.session.query(Resource).filter(Resource.agent_id == agent_id).all()
     return resources
 
 
 @router.get("/get/{resource_id}", status_code=200)
-def download_file_by_id(resource_id: int):
+def download_file_by_id(resource_id: int,
+                        Authorize: AuthJWT = Depends(check_auth)):
+
+    """Download a particular resource by resource_id"""
+
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     download_file_path = resource.path
     file_name = resource.name

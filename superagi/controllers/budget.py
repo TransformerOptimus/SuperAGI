@@ -5,13 +5,17 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from superagi.models.budget import Budget
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from superagi.helper.auth import check_auth
 
 router = APIRouter()
 
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Budget), status_code=201)
-def create_budget(budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]), Authorize: AuthJWT = Depends()):
+def create_budget(budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]),
+                  Authorize: AuthJWT = Depends(check_auth)):
+    """Create new budget"""
+
     new_budget = Budget(
         budget=budget.budget,
         cycle=budget.cycle
@@ -23,7 +27,10 @@ def create_budget(budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]), Author
 
 
 @router.get("/get/{budget_id}", response_model=sqlalchemy_to_pydantic(Budget))
-def get_budget(budget_id: int, Authorize: AuthJWT = Depends()):
+def get_budget(budget_id: int,
+               Authorize: AuthJWT = Depends(check_auth)):
+    """Get a budget by budget_id"""
+
     db_budget = db.session.query(Budget).filter(Budget.id == budget_id).first()
     if not db_budget:
         raise HTTPException(status_code=404, detail="budget not found")
@@ -32,7 +39,9 @@ def get_budget(budget_id: int, Authorize: AuthJWT = Depends()):
 
 @router.put("/update/{budget_id}", response_model=sqlalchemy_to_pydantic(Budget))
 def update_budget(budget_id: int, budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]),
-                  Authorize: AuthJWT = Depends()):
+                  Authorize: AuthJWT = Depends(check_auth)):
+    """Update budget details by budget_id"""
+
     db_budget = db.session.query(Budget).filter(Budget.id == budget_id).first()
     if not db_budget:
         raise HTTPException(status_code=404, detail="budget not found")
