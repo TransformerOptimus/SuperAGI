@@ -6,7 +6,6 @@ from typing import Any
 from pydantic import BaseModel
 from serpapi import GoogleSearch
 
-
 from superagi.helper.webpage_extractor import WebpageExtractor
 
 
