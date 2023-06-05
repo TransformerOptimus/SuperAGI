@@ -2,17 +2,23 @@ import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
+import { useRouter } from 'next/router';
 
 export default function TopBar({selectedProject}) {
   const [dropdown, setDropdown] = useState(false);
+  const router = useRouter();
 
   const settingsTab = () => {
     EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
   }
 
   const logoutUser = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     localStorage.setItem('accessToken', '');
-    window.open('http://localhost:3000', '_self')
+    router.reload();
     setDropdown(false);
   };
 

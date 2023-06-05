@@ -59,3 +59,7 @@ export const getLastActiveAgent = (projectId) => {
 export const uploadFile = (agentId, formData) => {
   return api.post(`/resources/add/${agentId}`, formData);
 }
+
+export const validateAccessToken = () => {
+  return api.get(`/validate-access-token`);
+}

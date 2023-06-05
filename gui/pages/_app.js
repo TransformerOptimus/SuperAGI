@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { addUser, getOrganization, getProject } from "@/pages/api/DashboardService";
+import { addUser, getOrganization, getProject, validateAccessToken } from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
@@ -19,19 +19,23 @@ export default function App() {
   const router = useRouter();
 
   useEffect(() => {
-    const queryParams = router.asPath.split('?')[1];
-    const parsedParams = querystring.parse(queryParams);
-    let access_token = parsedParams.access_token || null;
+    if(typeof window !== 'undefined') {
+      const includesLocalhost = window.location.href.includes('localhost');
 
-    if (typeof window !== 'undefined') {
-      if (access_token) {
-        localStorage.setItem('accessToken', access_token);
-      } else {
-        access_token = localStorage.getItem('accessToken') || null;
+      if(includesLocalhost) {
+        const queryParams = router.asPath.split('?')[1];
+        const parsedParams = querystring.parse(queryParams);
+        let access_token = parsedParams.access_token || null;
+
+        if (access_token) {
+          localStorage.setItem('accessToken', access_token);
+        } else {
+          access_token = localStorage.getItem('accessToken') || null;
+        }
+
+        setAccessToken(access_token);
       }
     }
-
-    setAccessToken(access_token);
   }, []);
 
   useEffect(() => {
