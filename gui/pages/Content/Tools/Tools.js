@@ -5,7 +5,7 @@ import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function ToolList({sendToolData, tools, userName}) {
+export default function ToolList({sendToolData, tools}) {
   const [filterSelected, setFilter] = useState('all');
   const [toolsArray, setTools] = useState(tools);
 
@@ -50,7 +50,7 @@ export default function ToolList({sendToolData, tools, userName}) {
                         </div>
                         <div style={{marginLeft: '8px'}}>
                           <div className={styles.tool_name}>{tool.name}</div>
-                          <div className={styles.tool_publisher}>by {userName || 'SuperAGI'}</div>
+                          <div className={styles.tool_publisher}>by SuperAGI</div>
                         </div>
                       </div>
                     </div>
