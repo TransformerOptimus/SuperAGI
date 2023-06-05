@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { addUser, getOrganization, getProject, validateAccessToken } from "@/pages/api/DashboardService";
+import { getProject, validateAccessToken } from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
@@ -16,7 +16,7 @@ export default function App() {
   const [tokenAuthenticated, isTokenAuthenticated] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
-  const organisationId = 1;
+  const [organisationId, setOrganisationId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +31,7 @@ export default function App() {
     validateAccessToken()
       .then((response) => {
         setUserName(response.data.name || '');
+        setOrganisationId(response.data.organisation_id);
         isTokenAuthenticated(true);
       })
       .catch((error) => {
@@ -39,23 +40,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      getOrganization()
-        .then((response) => {
-
-        })
-        .catch((error) => {
-          console.error('Error adding organization:', error);
-        });
-
-      getProject(organisationId)
-        .then((response) => {
-          setSelectedProject(response.data[0]);
-        })
-        .catch((error) => {
-          console.error('Error fetching project:', error);
-        });
-    }
+    getProject(organisationId)
+      .then((response) => {
+        setSelectedProject(response.data[0]);
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
+      });
   }, [organisationId]);
   
   const handleSelectionEvent = (data) => {
@@ -73,7 +64,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {!tokenAuthenticated ? <div className="projectStyle">
+      {tokenAuthenticated ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>

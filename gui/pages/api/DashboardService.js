@@ -1,13 +1,5 @@
 import api from './apiConfig';
 
-export const getOrganization = () => {
-  return api.get(`/organisations/get/1`);
-};
-
-export const addUser = (userData) => {
-  return api.post(`/users/add`, userData);
-};
-
 export const getProject = (organisationId) => {
   return api.get(`/projects/get/organisation/${organisationId}`);
 };
