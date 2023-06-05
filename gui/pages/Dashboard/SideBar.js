@@ -26,12 +26,12 @@ export default function SideBar({onSelectEvent}) {
           <div>Tools</div>
         </div>
       </div>
-      {/*<div className={styles.selection_section}>*/}
-      {/*  <div onClick={() => handleClick(sectionSelected !== 'agent_cluster' ? 'agent_cluster' : '')} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>*/}
-      {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>*/}
-      {/*    <div>Agent Cluster</div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
+      <div className={styles.selection_section}>
+        <div onClick={() => handleClick(sectionSelected !== 'agent_cluster' ? 'agent_cluster' : '')} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>
+          <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>
+          <div>Agent Cluster</div>
+        </div>
+      </div>
       {/*<div className={styles.selection_section}>*/}
       {/*  <div onClick={() => handleClick(sectionSelected !== 'apm' ? 'apm' : '')} className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>*/}
       {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm_light.svg" alt="apm-icon"/></div>*/}
