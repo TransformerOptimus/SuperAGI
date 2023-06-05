@@ -26,8 +26,14 @@ export const formatNumber = (number) => {
   const magnitude = Math.floor(Math.log10(number) / 3);
   const scaledNumber = number / Math.pow(10, magnitude * 3);
   const suffix = suffixes[magnitude];
+
+  if (scaledNumber % 1 === 0) {
+    return scaledNumber.toFixed(0) + suffix;
+  }
+
   return scaledNumber.toFixed(1) + suffix;
-}
+};
+
 
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
