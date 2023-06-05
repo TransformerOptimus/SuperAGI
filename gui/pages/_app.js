@@ -32,6 +32,7 @@ export default function App() {
 
     validateAccessToken()
       .then((response) => {
+        setUserName(response.data.name || '');
         isTokenAuthenticated(true);
       })
       .catch((error) => {
@@ -80,7 +81,7 @@ export default function App() {
         </div>
         <div className="workSpaceStyle">
           <div className="topBarStyle">
-            <TopBar selectedProject={selectedProject}/>
+            <TopBar selectedProject={selectedProject} userName={userName}/>
           </div>
           <div className="contentStyle">
             <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>

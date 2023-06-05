@@ -4,7 +4,7 @@ import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
 import { useRouter } from 'next/router';
 
-export default function TopBar({selectedProject}) {
+export default function TopBar({selectedProject, userName}) {
   const [dropdown, setDropdown] = useState(false);
   const router = useRouter();
 
@@ -46,7 +46,7 @@ export default function TopBar({selectedProject}) {
         </div>
         {dropdown && <div style={{marginTop:'13vh',marginRight:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
           <ul className="dropdown_container" style={{width:'120px'}}>
-            <li className="dropdown_item" onClick={() => setDropdown(false)}>Username</li>
+            <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
             <li className="dropdown_item" onClick={logoutUser}>Logout</li>
           </ul>
         </div>}
