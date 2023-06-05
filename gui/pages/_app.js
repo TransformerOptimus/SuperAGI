@@ -13,29 +13,30 @@ import querystring from 'querystring';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [accessToken, setAccessToken] = useState(null);
+  const [tokenAuthenticated, isTokenAuthenticated] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [userName, setUserName] = useState('');
   const organisationId = 1;
   const router = useRouter();
 
   useEffect(() => {
+    const queryParams = router.asPath.split('?')[1];
+    const parsedParams = querystring.parse(queryParams);
+    let access_token = parsedParams.access_token || null;
+
     if(typeof window !== 'undefined') {
-      const includesLocalhost = window.location.href.includes('localhost');
-
-      if(includesLocalhost) {
-        const queryParams = router.asPath.split('?')[1];
-        const parsedParams = querystring.parse(queryParams);
-        let access_token = parsedParams.access_token || null;
-
-        if (access_token) {
-          localStorage.setItem('accessToken', access_token);
-        } else {
-          access_token = localStorage.getItem('accessToken') || null;
-        }
-
-        setAccessToken(access_token);
+      if (access_token) {
+        localStorage.setItem('accessToken', access_token);
       }
     }
+
+    validateAccessToken()
+      .then((response) => {
+        isTokenAuthenticated(true);
+      })
+      .catch((error) => {
+        console.error('Error validating access token:', error);
+      });
   }, []);
 
   useEffect(() => {
@@ -46,20 +47,6 @@ export default function App() {
         })
         .catch((error) => {
           console.error('Error adding organization:', error);
-        });
-
-      const userData =  {
-        "name" : "SuperAGI User",
-        "email" : "super6@agi.com",
-        "password" : "pass@123",
-        "organisation" : organisationId
-      }
-
-      addUser(userData)
-        .then((response) => {
-        })
-        .catch((error) => {
-          console.error('Error adding user:', error);
         });
 
       getProject(organisationId)
@@ -87,7 +74,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {accessToken !== null && accessToken !== '' ? <div className="projectStyle">
+      {tokenAuthenticated ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
