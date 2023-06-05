@@ -82,27 +82,18 @@ def get_agent_execution_feed(agent_execution_id: int,
     if agent_execution is None:
         raise HTTPException(status_code=400, detail="Agent Run not found!")
     feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
-    # parse json
+    # # parse json
     final_feeds = []
     for feed in feeds:
-        feed_dict = {
-            "id": feed.id,
-            "agent_id": feed.agent_id,
-            "updated_at": feed.updated_at,
-            "role": feed.role,
-            "created_at": feed.created_at,
-            "agent_execution_id": feed.agent_execution_id,
-            "feed": feed.feed,
-            "extra_info": feed.extra_info,
-            "status": agent_execution.status
-        }
-
-        final_feeds.append(parse_feed(feed_dict))
-    return final_feeds
+        final_feeds.append(parse_feed(feed))
+    return {
+        "status": agent_execution.status,
+        "feeds": final_feeds
+    }
 
 
 def parse_feed(feed):
-    if feed["role"] == "assistant":
+    if feed.role == "assistant":
         try:
             parsed = json.loads(feed.feed, strict=False)
             final_output = "Thoughts: " + parsed["thoughts"][
@@ -113,10 +104,10 @@ def parse_feed(feed):
                 "criticism"] + "\n\n"
             final_output += "Tool: " + parsed["command"]["name"] + "\n\n"
 
-            return {"role": "assistant", "feed": final_output, "updated_at":feed["updated_at"], "status": feed["status"]}
+            return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at, "status": feed.status}
         except Exception:
             return feed
-    if feed["role"] == "assistant":
+    if feed.role == "assistant":
         return feed
 
     return feed

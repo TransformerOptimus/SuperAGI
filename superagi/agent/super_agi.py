@@ -35,9 +35,6 @@ FINISH = "finish"
 WRITE_FILE = "Write File"
 FILE = "FILE"
 S3 = "S3"
-# print("\033[91m\033[1m"
-#         + "\nA bit about me...."
-#         + "\033[0m\033[0m")
 
 
 engine = connect_db()
@@ -97,7 +94,6 @@ class SuperAgi:
             "Determine which next command to use, and respond using the format specified above:"
         )
         token_limit = TokenCounter.token_limit(self.llm.get_model())
-        print("TOKEN LIMIT : ",token_limit)
         memory_window = session.query(AgentConfiguration).filter(
             AgentConfiguration.key == "memory_window",
             AgentConfiguration.agent_id == self.agent_config["agent_id"]
@@ -143,7 +139,6 @@ class SuperAgi:
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         # spinner.stop()
-        print("\n")
 
         if response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
@@ -168,10 +163,8 @@ class SuperAgi:
 
         agent_execution = session.query(AgentExecution).filter(
             AgentExecution.id == self.agent_config["agent_execution_id"]).first()
-        agent_execution.calls += current_calls
-        agent_execution.tokens += total_tokens
-        print("CALLS : ", agent_execution.calls)
-        print("TOKENS : ", agent_execution.tokens)
+        agent_execution.num_of_calls += current_calls
+        agent_execution.num_of_tokens += total_tokens
         session.commit()
 
         if action.name == FINISH:

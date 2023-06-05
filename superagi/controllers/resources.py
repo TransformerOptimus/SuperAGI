@@ -61,9 +61,6 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         # path to be added
         file_name = file.filename.split('.')
         path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now())+file_name[1]
-        print(file_path)
-        print(bucket_name)
-        print(path)
         s3.upload_file(file.file, bucket_name, path)
 
     resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
