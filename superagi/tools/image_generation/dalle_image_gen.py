@@ -27,8 +27,7 @@ class ImageGenTool(BaseTool):
             n = num,
             size = f"{size}x{size}"
         )
-        response = response.__dict__
-        response = response['_previous']['data']
+        response = response['data']
         for i in range(num):
             image = image_name[i]
             final_path = image
