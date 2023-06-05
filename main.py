@@ -277,6 +277,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     github_token_url = 'https://github.com/login/oauth/access_token'
     github_client_id = get_config("GITHUB_CLIENT_ID")
     github_client_secret = get_config("GITHUB_CLIENT_SECRET")
+
     frontend_url = "http://localhost:3000"
     params = {
         'client_id': github_client_id,
@@ -297,19 +298,23 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
         response = requests.get(github_api_url, headers=headers)
         if response.ok:
             user_data = response.json()
-            db_user: User = db.session.query(User).filter(User.email == user_data["email"]).first()
-            if db_user is None:
-                user = User(name=user_data["name"], email=user_data["email"])
-                db.session.add(user)
-                db.session.commit()
-            if user_data["email"] is not None:
-                # jwt_token = Authorize.create_access_token()
-                jwt_token = create_access_token(user_data["email"],Authorize)
-            else:
-                # jwt_token = Authorize.create_access_token(user_data["login"])
-                jwt_token = create_access_token(user_data["login"],Authorize)
+            user_email = user_data["email"]
+            if user_email is None:
+                user_email = user_data["login"] + "@github.com"
+            db_user: User = db.session.query(User).filter(User.email == user_email).first()
+            if db_user is not None:
+                jwt_token = create_access_token(user_email, Authorize)
+                redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+                return RedirectResponse(url=redirect_url_success)
+
+
+
+            user = User(name=user_data["name"], email=user_email)
+            db.session.add(user)
+            db.session.commit()
+            jwt_token = create_access_token(user_email, Authorize)
+
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
-            # redirect_url_success = "https://superagi.com/"
             return RedirectResponse(url=redirect_url_success)
         else:
             redirect_url_failure = "https://superagi.com/"
