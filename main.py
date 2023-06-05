@@ -26,6 +26,7 @@ from sqlalchemy import create_engine
 from superagi.config.config import get_config
 from sqlalchemy.orm import sessionmaker, query
 from superagi.tools.base_tool import BaseTool
+from datetime import timedelta
 import os
 import inspect
 import requests
@@ -85,6 +86,14 @@ app.include_router(resources_router, prefix="/resources")
 class Settings(BaseModel):
     authjwt_secret_key: str = "secret"
     # authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+
+def create_access_token(email,Authorize: AuthJWT = Depends()):
+    # expiry_time_hours = get_config("JWT_EXPIRY")
+    expiry_time_hours = 1
+    expires = timedelta(hours=expiry_time_hours)
+    print("EMAIL : ",email)
+    access_token = Authorize.create_access_token(subject=email,expires_time=expires)
+    return access_token
 
 # callback to get your configuration
 @AuthJWT.load_config
@@ -243,8 +252,8 @@ def github_login():
 @app.get('/github-auth')
 def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = ""
-    github_client_secret = ""
+    github_client_id = get_config("GITHUB_CLIENT_ID")
+    github_client_secret = get_config("GITHUB_CLIENT_SECRET")
     frontend_url = "http://localhost:3000"
     params = {
         'client_id': github_client_id,
@@ -296,9 +305,9 @@ def user(Authorize: AuthJWT = Depends()):
 async def root(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
-        return {
-            "message": "token is valid"
-        }
+        current_user_email = Authorize.get_jwt_subject()
+        current_user = session.query(User).filter(User.email == current_user_email).first()
+        return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
