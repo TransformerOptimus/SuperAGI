@@ -57,7 +57,7 @@
 }
 
 .top_bar {
-    padding: 8px;
+    padding: 8px 10px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -174,7 +174,7 @@
 }
 
 .top_right_icon {
-    margin-right: 15px;
+    margin-right: 5px;
     cursor: pointer;
     display: flex;
     order: 1;

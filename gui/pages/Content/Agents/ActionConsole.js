@@ -45,12 +45,12 @@ export default function ActionConsole() {
         {action.type === "boolean" && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{flex:'1'}}>{action.title}</div>
           <div>
-            <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px',background:'transparent',border:'none'}}>
+            <button className="secondary_button" style={{marginLeft:'4px',padding:'5px',background:'transparent',border:'none'}}>
               <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
             </button>
           </div>
           <div>
-            <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}}>
+            <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}}>
               <Image width={20} height={21} src="/images/check.svg" alt="check-icon"/>
             </button>
           </div>
@@ -60,12 +60,12 @@ export default function ActionConsole() {
           <div style={{marginTop:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{flex:'1'}}><input className="input_medium" type="text"/></div>
             <div>
-              <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px',background:'transparent',border:'none'}}>
+              <button className="secondary_button" style={{marginLeft:'4px',padding:'5px',background:'transparent',border:'none'}}>
                 <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
               </button>
             </div>
             <div>
-              <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}}>
+              <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}}>
                 <Image width={20} height={21} src="/images/send.svg" alt="send-icon"/>
               </button>
             </div>

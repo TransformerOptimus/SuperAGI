@@ -12,7 +12,6 @@ engine = None
 def connect_db():
     global engine
     if engine is not None:
-        print("Engine returned")
         return engine
 
     # Create the connection URL
