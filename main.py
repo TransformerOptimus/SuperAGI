@@ -93,8 +93,8 @@ app.include_router(resources_router, prefix="/resources")
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
     # jwt_secret = get_config("JWT_SECRET_KEY")
-    # authjwt_secret_key: str = "secret"
-    authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+    authjwt_secret_key: str = "secret"
+#     authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
 
 def create_access_token(email,Authorize: AuthJWT = Depends()):
     expiry_time_hours = get_config("JWT_EXPIRY")
@@ -275,8 +275,11 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = get_config("GITHUB_CLIENT_ID")
-    github_client_secret = get_config("GITHUB_CLIENT_SECRET")
+#     github_client_id = get_config("GITHUB_CLIENT_ID")
+#     github_client_secret = get_config("GITHUB_CLIENT_SECRET")
+
+    github_client_id = "eaaf029abe1165e23c1e"
+    github_client_secret = "c7636b16e87c052983fab230ee0d453ff14e2e76"
 
     frontend_url = "http://localhost:3000"
     params = {
