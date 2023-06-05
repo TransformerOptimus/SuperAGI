@@ -2,9 +2,11 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.agent import Agent
-from superagi.models.agent import Project
+from superagi.models.project import Project
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
+from superagi.models.agent_template import AgentTemplate
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
@@ -91,6 +93,14 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     db.session.flush()  # Flush pending changes to generate the agent's ID
     db.session.commit()
 
+    if agent_with_config.agent_type == "Don't Maintain Task Queue":
+        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Goal Based Agent").first()
+        db_agent.agent_template_id = agent_template.id
+    elif agent_with_config.agent_type == "Maintain Task Queue":
+        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Task Queue Agent With Seed").first()
+        db_agent.agent_template_id = agent_template.id
+    db.session.commit()
+
     # Create Agent Configuration
     agent_config_values = {
         "goal": agent_with_config.goal,
@@ -110,11 +120,12 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         for key, value in agent_config_values.items()
     ]
     db.session.add_all(agent_configurations)
-
+    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, db_agent.agent_template_id)
     # Creating an execution with CREATED status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run")
+                               name="New Run", current_step_id=start_step_id)
     db.session.add(execution)
+
     db.session.commit()
     execute_agent.delay(execution.id, datetime.now())
 

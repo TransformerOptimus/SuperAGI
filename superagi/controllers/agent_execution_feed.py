@@ -96,18 +96,23 @@ def parse_feed(feed):
     if feed.role == "assistant":
         try:
             parsed = json.loads(feed.feed, strict=False)
-            final_output = "Thoughts: " + parsed["thoughts"][
-                "text"] + "\n\n"
-            final_output += "Reasoning: " + parsed["thoughts"]["reasoning"] + "\n\n"
-            final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n\n"
-            final_output += "Criticism: " + parsed["thoughts"][
-                "criticism"] + "\n\n"
-            final_output += "Tool: " + parsed["command"]["name"] + "\n\n"
+
+            final_output = ""
+            if "reasoning" in parsed["thoughts"]:
+                final_output = "Thoughts: " + parsed["thoughts"]["reasoning"] + "\n"
+            if "plan" in parsed["thoughts"]:
+                final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n"
+            if "criticism" in parsed["thoughts"]:
+                final_output += "Criticism: " + parsed["thoughts"]["criticism"] + "\n"
+            if "tool" in parsed:
+                final_output += "Tool: " + parsed["tool"]["name"] + "\n"
+            if "command" in parsed:
+                final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
             return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at, "status": feed.status}
         except Exception:
             return feed
-    if feed.role == "assistant":
+    if feed.role == "system":
         return feed
 
     return feed

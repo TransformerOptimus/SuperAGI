@@ -1,39 +1,38 @@
-from fastapi import FastAPI, HTTPException, Depends, Request,status,Query
-from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
-from fastapi.responses import RedirectResponse
-from fastapi_jwt_auth.exceptions import AuthJWTException
-from pydantic import BaseModel
+import inspect
+import os
+from datetime import timedelta
 
-import superagi
-from superagi.models.project import Project
-from superagi.models.user import User
-from superagi.models.organisation import Organisation
+import requests
+from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
+from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi_sqlalchemy import DBSessionMiddleware, db
-from superagi.models.base_model import DBBaseModel
-from superagi.models.types.login_request import LoginRequest
-from superagi.controllers.user import router as user_router
-from superagi.controllers.organisation import router as organisation_router
-from superagi.controllers.project import router as project_router
-from superagi.controllers.budget import router as budget_router
+from pydantic import BaseModel
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.budget import router as budget_router
+from superagi.controllers.organisation import router as organisation_router
+from superagi.controllers.project import router as project_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
-from fastapi.middleware.cors import CORSMiddleware
+from superagi.controllers.user import router as user_router
+from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_template_step import AgentTemplateStep
+from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from sqlalchemy import create_engine
-from superagi.config.config import get_config
-from sqlalchemy.orm import sessionmaker, query
+from superagi.models.types.login_request import LoginRequest
+from superagi.models.user import User
 from superagi.tools.base_tool import BaseTool
-from datetime import timedelta
-import os
-import inspect
-import requests
-
-
 
 app = FastAPI()
 
@@ -219,14 +218,92 @@ def process_files(folder_path):
         add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
                            class_name=tool.class_name)
 
+def build_single_step_agent():
+    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Goal Based Agent").first()
 
-# Specify the folder path
-folder_path = "superagi/tools"
+    if agent_template is None:
+        agent_template = AgentTemplate(name="Goal Based Agent", description="Goal based agent")
+        session.add(agent_template)
+        session.commit()
 
-# Process the files and store class information
-process_files(folder_path)
-session.close()
+    # step will have a prompt
+    # output of step is either tasks or set commands
+    first_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "gb1").first()
+    if first_step is None:
+        output = AgentPromptBuilder.get_super_agi_single_prompt()
+        first_step = AgentTemplateStep(unique_id="gb1",
+                                       prompt=output["prompt"], variables=str(output["variables"]),
+                                       agent_template_id=agent_template.id, output_type="tools",
+                                       step_type="TRIGGER",
+                                       history_enabled=True,
+                                       completion_prompt= "Determine which next command to use, and respond using the format specified above:")
+        session.add(first_step)
+        session.commit()
+    first_step.next_step_id = first_step.id
+    session.commit()
 
+def build_task_based_agents():
+    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Task Queue Agent With Seed").first()
+    if agent_template is None:
+        agent_template = AgentTemplate(name="Task Queue Agent With Seed", description="Task queue based agent")
+        session.add(agent_template)
+        session.commit()
+
+    output = AgentPromptBuilder.start_task_based()
+
+    template_step1 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb1").first()
+    if template_step1 is None:
+        template_step1 = AgentTemplateStep(unique_id="tb1",
+                                prompt=output["prompt"], variables=str(output["variables"]),
+                                step_type="TRIGGER",
+                                agent_template_id=agent_template.id, next_step_id=-1,
+                                output_type="tasks")
+        session.add(template_step1)
+    else:
+        template_step1.prompt=output["prompt"]
+        template_step1.variables=str(output["variables"])
+        template_step1.output_type="tasks"
+        session.commit()
+
+    template_step2 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb2").first()
+    output = AgentPromptBuilder.create_tasks()
+    if template_step2 is None:
+        template_step2 = AgentTemplateStep(unique_id="tb2",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_template_id=agent_template.id, next_step_id=-1,
+                                           output_type="tasks")
+        session.add(template_step2)
+    else:
+        template_step2.prompt=output["prompt"]
+        template_step2.variables=str(output["variables"])
+        template_step2.output_type="tasks"
+        session.commit()
+
+    template_step3 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb3").first()
+
+    output = AgentPromptBuilder.analyse_task()
+    if template_step3 is None:
+        template_step3 = AgentTemplateStep(unique_id="tb3",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_template_id=agent_template.id, next_step_id=-1, output_type="tools")
+
+        session.add(template_step3)
+    else:
+        template_step3.prompt=output["prompt"]
+        template_step3.variables=str(output["variables"])
+        template_step3.output_type="tools"
+        session.commit()
+
+    session.commit()
+    template_step1.next_step_id = template_step3.id
+    template_step3.next_step_id = template_step2.id
+    template_step2.next_step_id = template_step3.id
+    session.commit()
+
+build_single_step_agent()
+build_task_based_agents()
 
 # Specify the folder path
 folder_path = "superagi/tools"
