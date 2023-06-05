@@ -267,8 +267,8 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = ""
-    github_client_secret = ""
+    github_client_id = get_config("GITHUB_CLIENT_ID")
+    github_client_secret = get_config("GITHUB_CLIENT_SECRET")
     frontend_url = "http://localhost:3000"
     params = {
         'client_id': github_client_id,
