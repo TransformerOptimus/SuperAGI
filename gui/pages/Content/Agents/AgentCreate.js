@@ -3,7 +3,8 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import { createAgent } from "@/app/DashboardService";
+import {createAgent, uploadFile} from "@/pages/api/DashboardService";
+import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
@@ -13,6 +14,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [selfEvaluation, setSelfEvaluation] = useState('');
   const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
+  const [addResources, setAddResources] = useState(true);
+  const [input, setInput] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+  const pdf_icon = '/images/pdf_file.svg'
+  const txt_icon = '/images/txt_file.svg'
 
   const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -215,6 +222,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     e.stopPropagation();
   };
 
+  function uploadResource(agentId, fileData) {
+    const formData = new FormData();
+    formData.append('file', fileData.file);
+    formData.append('name', fileData.name);
+    formData.append('size', fileData.size);
+    formData.append('type', fileData.type);
+
+    uploadFile(agentId, formData)
+      .then((response) => {
+      })
+      .catch((error) => {
+        console.error('Error uploading resource:', error);
+      });
+  }
+
   const handleAddAgent = () => {
     if (agentName.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
@@ -226,9 +248,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return
     }
 
-    if (goals.length <= 0) {
-      toast.error("Add atleast one goal", {autoClose: 1800});
-      return
+    const isEmptyGoal = goals.some((goal) => goal.replace(/\s/g, '') === '');
+    if (isEmptyGoal) {
+      toast.error("Goal can't be empty", { autoClose: 1800 });
+      return;
     }
 
     if (myTools.length <= 0) {
@@ -248,15 +271,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "iteration_interval": stepTime,
       "model": model,
       "permission_type": permission,
-      "LTM_DB": database,
+      "LTM_DB": longTermMemory ? database : null,
       "memory_window": rollingWindow
     };
 
     createAgent(agentData)
       .then((response) => {
+        const agent_id = response.data.id;
         fetchAgents();
         cancelCreate();
-        sendAgentData({ id: response.data.id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id })
+        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
+        if(addResources) {
+          input.forEach((fileData) => {
+            uploadResource(agent_id, fileData);
+          });
+        }
         toast.success('Agent created successfully', {autoClose: 1800});
       })
       .catch((error) => {
@@ -268,10 +297,84 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     EventBus.emit('cancelAgentCreate', {});
   }
 
+  const handleFileInputChange = (event) => {
+    const files = event.target.files;
+    setFileData(files);
+  };
+
+  const handleDropAreaClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleDragEnter = (event) => {
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  function setFileData(files) {
+    if (files.length > 0) {
+      const fileData = {
+        "file": files[0],
+        "name": files[0].name,
+        "size": files[0].size,
+        "type": files[0].type,
+      };
+      setInput((prevArray) => [...prevArray, fileData]);
+    }
+  }
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+    const files = event.dataTransfer.files;
+    setFileData(files);
+  };
+
+  const removeFile = (index) => {
+    const updatedFiles = input.filter((file) => input.indexOf(file) !== index);
+    setInput(updatedFiles);
+  };
+
+  const ResourceItem = ({ file, index }) => {
+    const isPDF = file.type === 'application/pdf';
+    const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
+
+    return (
+      <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon" /></div>}
+          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="file-icon" /></div>}
+          {!isTXT && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+          <div style={{ marginLeft: '5px', width:'100%' }}>
+            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
+            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+          </div>
+          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
+        </div>
+      </div>
+    );
+  };
+
+  const ResourceList = ({ files }) => (
+    <div className={styles.agent_resources}>
+      {files.map((file, index) => (
+        <ResourceItem key={index} file={file} index={index} />
+      ))}
+    </div>
+  );
+
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'40px 20px'}}>
+      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
         </div>
@@ -289,13 +392,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
               {goals.length > 1 && <div>
-                <button className={styles.agent_button} style={{marginLeft: '4px', padding: '5px'}}
+                <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
                   <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
-            <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
+            <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
@@ -369,16 +472,34 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
               {/*</div>*/}
               <div style={{marginTop: '15px'}}>
+                <div style={{display:'flex'}}>
+                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
+                    Add Resources
+                  </label>
+                </div>
+              </div>
+              <div style={{width:'100%',height:'auto',marginTop:'10px'}}>
+                {addResources && <div style={{paddingBottom:'10px'}}>
+                  <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
+                    <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
+                      <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
+                      <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+                  </div>
+                  <ResourceList files={input}/>
+                </div>}
+              </div>
+              <div style={{marginTop: '5px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
                 {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
                   <div>
-                    <button className={styles.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
+                    <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
                       <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                     </button>
                   </div>
                 </div>))}
-                <div><button className={styles.agent_button} onClick={addConstraint}>+ Add</button></div>
+                <div><button className="secondary_button" onClick={addConstraint}>+ Add</button></div>
               </div>
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <label className={styles.form_label}>Exit criterion</label>*/}
@@ -455,8 +576,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight:'7px'}} className={styles.agent_button} onClick={cancelCreate}>Cancel</button>
-            <button className={styles.agent_button_primary} onClick={handleAddAgent}>Create and Run</button>
+            <button style={{marginRight:'7px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
+            <button className="primary_button" onClick={handleAddAgent}>Create and Run</button>
           </div>
         </div>
       </div>

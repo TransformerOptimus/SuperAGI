@@ -111,3 +111,4 @@ tiktoken==0.4.0
 psycopg2==2.9.6
 playwright==1.18.1
 pyppeteer==1.0.2
+boto3~=1.26.146

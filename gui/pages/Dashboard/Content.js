@@ -8,9 +8,9 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getTools, getLastActiveAgent} from "@/app/DashboardService";
+import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
 
-export default function Content({selectedView, selectedProjectId, userName}) {
+export default function Content({selectedView, selectedProjectId}) {
   const [tabs, setTabs] = useState([])
   const [selectedTab, setSelectedTab] = useState(null)
   const [agents, setAgents] = useState(null);
@@ -41,7 +41,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
         setTools(updatedData);
       })
       .catch((error) => {
-        console.error('Error fetching agents:', error);
+        console.error('Error fetching tools:', error);
       });
   }
 
@@ -134,7 +134,7 @@ export default function Content({selectedView, selectedProjectId, userName}) {
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-        {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools} userName={userName}/></div>}
+        {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools}/></div>}
       </div>
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div className={styles.empty_state}>

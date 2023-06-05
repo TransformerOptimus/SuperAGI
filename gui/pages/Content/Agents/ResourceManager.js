@@ -3,8 +3,8 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getResources, baseUrl} from "@/app/DashboardService";
-import axios from 'axios';
+import {getResources, uploadFile} from "@/pages/api/DashboardService";
+import {formatBytes, downloadFile} from "@/utils/utils";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -24,7 +24,7 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      uploadFile(fileData);
+      uploadResource(fileData);
     }
   };
 
@@ -56,7 +56,7 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      uploadFile(fileData);
+      uploadResource(fileData);
     }
   };
 
@@ -64,14 +64,14 @@ export default function ResourceManager({agentId}) {
     fetchResources();
   }, [agentId]);
 
-  function uploadFile(fileData) {
+  function uploadResource(fileData) {
     const formData = new FormData();
     formData.append('file', fileData.file);
     formData.append('name', fileData.name);
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    axios.post(`${baseUrl()}/resources/add/${agentId}`, formData)
+    uploadFile(agentId, formData)
       .then((response) => {
         fetchResources();
         toast.success('Resource added successfully', { autoClose: 1800 });
@@ -94,23 +94,6 @@ export default function ResourceManager({agentId}) {
       .catch((error) => {
         console.error('Error fetching resources:', error);
       });
-  }
-
-  function downloadFile(fileId) {
-    window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
-  }
-
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) {
-      return '0 Bytes';
-    }
-
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
-
-    return `${formattedValue} ${sizes[i]}`;
   }
 
   const ResourceItem = ({ file }) => {
