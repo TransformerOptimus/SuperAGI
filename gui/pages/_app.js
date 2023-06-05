@@ -16,7 +16,6 @@ export default function App() {
   const [tokenAuthenticated, isTokenAuthenticated] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
-  const [organisationId, setOrganisationId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,23 +30,19 @@ export default function App() {
     validateAccessToken()
       .then((response) => {
         setUserName(response.data.name || '');
-        setOrganisationId(response.data.organisation_id);
         isTokenAuthenticated(true);
+        getProject(response.data.organisation_id)
+          .then((response) => {
+            setSelectedProject(response.data[0]);
+          })
+          .catch((error) => {
+            console.error('Error fetching project:', error);
+          });
       })
       .catch((error) => {
         console.error('Error validating access token:', error);
       });
   }, []);
-
-  useEffect(() => {
-    getProject(organisationId)
-      .then((response) => {
-        setSelectedProject(response.data[0]);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
-  }, [organisationId]);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);

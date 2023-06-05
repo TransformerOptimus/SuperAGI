@@ -163,6 +163,9 @@
 
 .top_right {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
     order: 1;
 }
 

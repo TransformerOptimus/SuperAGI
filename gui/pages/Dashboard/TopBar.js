@@ -68,9 +68,9 @@ export default function TopBar({selectedProject, userName}) {
           <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
             <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
           </div>
-          {dropdown && <div style={{marginTop:'13vh',marginRight:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-            <ul className="dropdown_container" style={{width:'120px'}}>
-              {userName && <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>}
+          {dropdown && <div style={{marginTop:'15vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <ul className="dropdown_container" style={{width:'fit-content'}}>
+              <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>
             </ul>
           </div>}
