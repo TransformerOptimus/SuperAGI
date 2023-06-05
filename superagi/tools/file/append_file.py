@@ -6,7 +6,6 @@ from superagi.config.config import get_config
 
 from superagi.tools.base_tool import BaseTool
 
-import tweepy
 
 
 class AppendFileInput(BaseModel):
