@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://app.superagi.com/api'; //for testing
 // const API_BASE_URL = 'http://localhost:8001';
+export const baseUrl = () => {
+  return API_BASE_URL;
+};
 
 export const getOrganization = () => {
   return axios.get(`${API_BASE_URL}/organisations/get/1`);
@@ -17,10 +20,6 @@ export const getProject = (organisationId) => {
 
 export const getAgents = (projectId) => {
   return axios.get(`${API_BASE_URL}/agents/get/project/${projectId}`);
-};
-
-export const getAgent = (agentId) => {
-  return axios.get(`${API_BASE_URL}/agents/get/${agentId}`);
 };
 
 export const getTools = () => {
@@ -53,4 +52,12 @@ export const updateExecution = (executionId, executionData) => {
 
 export const addExecution = (executionData) => {
   return axios.post(`${API_BASE_URL}/agentexecutions/add`, executionData);
+};
+
+export const getResources = (agentId) => {
+  return axios.get(`${API_BASE_URL}/resources/get/all/${agentId}`);
+};
+
+export const getLastActiveAgent = (projectId) => {
+  return axios.get(`${API_BASE_URL}/agentexecutions/get/latest/agent/project/${projectId}`);
 };

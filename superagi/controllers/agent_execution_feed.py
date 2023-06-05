@@ -7,6 +7,8 @@ from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution import AgentExecution
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from sqlalchemy.sql import desc,asc
+
 
 router = APIRouter()
 
@@ -21,7 +23,8 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
         raise HTTPException(status_code=404, detail="Agent Execution not found")
 
     db_agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_feed.agent_execution_id,
-                                                 feed=agent_execution_feed.feed, type=agent_execution_feed.type)
+                                                 feed=agent_execution_feed.feed, type=agent_execution_feed.type,
+                                                 extra_info=agent_execution_feed.extra_info)
     db.session.add(db_agent_execution_feed)
     db.session.commit()
     return db_agent_execution_feed
@@ -50,8 +53,12 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
             raise HTTPException(status_code=404, detail="Agent Execution not found")
         db_agent_execution_feed.agent_execution_id = agent_execution.id
 
-    db_agent_execution_feed.type = agent_execution_feed.type
-    db_agent_execution_feed.feed = agent_execution_feed.feed
+    if agent_execution_feed.type is not None:
+        db_agent_execution_feed.type = agent_execution_feed.type
+    if agent_execution_feed.feed is not None:
+        db_agent_execution_feed.feed = agent_execution_feed.feed
+    # if agent_execution_feed.extra_info is not None:
+    #     db_agent_execution_feed.extra_info = agent_execution_feed.extra_info
 
     db.session.commit()
     return db_agent_execution_feed
@@ -59,7 +66,7 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 
 @router.get("/get/execution/{agent_execution_id}")
 def get_agent_execution_feed(agent_execution_id: int, Authorize: AuthJWT = Depends()):
-    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).all()
+    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
     # parse json
     final_feeds = []
     for feed in feeds:
@@ -78,7 +85,7 @@ def parse_feed(feed):
                 "criticism"] + "\n"
             final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
-            return {"role": "assistant", "feed": final_output}
+            return {"role": "assistant", "feed": final_output, "updated_at":feed.updated_at}
         except Exception:
             return feed
     if feed.role == "assistant":

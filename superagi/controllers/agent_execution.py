@@ -29,10 +29,13 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id)
+    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+                                        agent_id=agent_execution.agent_id,name=agent_execution.name)
     db.session.add(db_agent_execution)
     db.session.commit()
+    if db_agent_execution.status == "RUNNING":
+        execute_agent.delay(db_agent_execution.id, datetime.now())
+
     return db_agent_execution
 
 
@@ -60,19 +63,17 @@ def update_agent_execution(agent_execution_id: int,
         if not agent:
             raise HTTPException(status_code=404, detail="Agent not found")
         db_agent_execution.agent_id = agent.id
-    if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED":
+    if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED" and agent_execution.status != "TERMINATED":
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
+
     db_agent_execution.last_execution_time = datetime.now()
+    if agent_execution.name != None:
+        db_agent_execution.name = agent_execution.name
     db.session.commit()
 
     if db_agent_execution.status == "RUNNING":
-        print("DB EXEC : ")
-        print(db_agent_execution)
-        print("JSON:")
-        print(db_agent_execution.to_json())
         execute_agent.delay(db_agent_execution.id, datetime.now())
-        # AgentExecutor.create_execute_agent_task(db_agent_execution.id)
 
     return db_agent_execution
 
@@ -87,8 +88,32 @@ def list_running_agents(status: str):
 
 @router.get("/get/agent/{agent_id}")
 def list_running_agents(agent_id: str):
-    # print("")
-    # running_agent_ids = db.session.query(AgentExecution.agent_id).filter(AgentExecution.status == status.upper()).distinct().all()
     executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(
         desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
     return executions
+
+
+@router.get("/get/latest/agent/project/{project_id}")
+def get_agent_by_latest_execution(project_id:int):
+    latest_execution = (
+        db.session.query(AgentExecution)
+        .join(Agent, AgentExecution.agent_id == Agent.id)
+        .filter(Agent.project_id == project_id)
+        .order_by(desc(AgentExecution.last_execution_time))
+        .first()
+    )
+    isRunning = False
+    if latest_execution.status == "RUNNING":
+        isRunning = True
+    agent = db.session.query(Agent).filter(Agent.id == latest_execution.agent_id).first()
+    return {
+        "agent_id": latest_execution.agent_id,
+        "project_id": project_id,
+        "created_at": agent.created_at,
+        "description": agent.description,
+        "updated_at": agent.updated_at,
+        "name": agent.name,
+        "id": agent.id,
+        "status": isRunning,
+        "contentType": "Agents"
+    }

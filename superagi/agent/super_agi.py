@@ -26,8 +26,15 @@ from superagi.models.db import connectDB
 from superagi.tools.base_tool import BaseTool
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.vector_store.base import VectorStore
+from superagi.models.agent import Agent
+from superagi.models.resource import Resource
+from superagi.config.config import get_config
+import os
 
 FINISH = "finish"
+WRITE_FILE = "Write File"
+FILE = "FILE"
+S3 = "S3"
 # print("\033[91m\033[1m"
 #         + "\nA bit about me...."
 #         + "\033[0m\033[0m")
@@ -38,20 +45,6 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def checkExecution(execution_id):
-    try:
-        execution = session.query(AgentExecution).filter_by(id=execution_id).first()
-        if execution and execution.status in ['PAUSED', 'COMPLETED']:
-            return False
-        else:
-            return True
-    except SQLAlchemyError as e:
-        print("Error occurred during execution status check:", e)
-        return False
-    finally:
-        session.close()
-
-
 class SuperAgi:
     def __init__(self,
                  ai_name: str,
@@ -60,6 +53,7 @@ class SuperAgi:
                  memory: VectorStore,
                  tools: List[BaseTool],
                  agent_config: Any,
+                 agent: Agent,
                  output_parser: BaseOutputParser = AgentOutputParser(),
                  ):
         self.ai_name = ai_name
@@ -70,6 +64,7 @@ class SuperAgi:
         self.output_parser = output_parser
         self.tools = tools
         self.agent_config = agent_config
+        self.agent = agent
         # Init Log
         # print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 
@@ -162,7 +157,6 @@ class SuperAgi:
         session.add(agent_execution_feed)
         session.commit()
 
-        # print(assistant_reply)
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
@@ -172,7 +166,13 @@ class SuperAgi:
         if action.name in tools:
             tool = tools[action.name]
             try:
-                observation = tool.execute(action.args)
+                if hasattr(tool, 'agent_id'):
+                    observation = tool.execute(action.args, agent_id=self.agent.id)
+                else:
+                    observation = tool.execute(action.args)
+                print("Tool Observation : ")
+                print(observation)
+
             except ValidationError as e:
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"
@@ -181,7 +181,7 @@ class SuperAgi:
                 observation = (
                     f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
                 )
-            result = f"Tool {tool.name} returned: {observation}"
+            result = f"Tool {tool.name} returned: \n {observation}"
         elif action.name == "ERROR":
             result = f"Error2: {action.args}. "
         else:
@@ -201,6 +201,7 @@ class SuperAgi:
         session.commit()
 
         print(format_prefix_green + "Iteration completed moving to next iteration!" + format_suffix_green)
+        session.close()
         return "PENDING"
 
     def split_history(self, history: Dict, pending_token_limit: int) -> Tuple[
