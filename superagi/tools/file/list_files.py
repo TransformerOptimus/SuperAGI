@@ -5,8 +5,6 @@ from pydantic import BaseModel, Field
 
 from superagi.tools.base_tool import BaseTool
 
-import tweepy
-
 
 class ListFileInput(BaseModel):
     """Input for CopyFileTool."""

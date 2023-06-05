@@ -1,0 +1,24 @@
+{
+  "name": "super-agi",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "bootstrap": "^5.2.3",
+    "date-fns": "^2.30.0",
+    "eslint": "8.40.0",
+    "eslint-config-next": "13.4.2",
+    "mitt": "^3.0.0",
+    "next": "13.4.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-toastify": "^9.1.3"
+  }
+}
