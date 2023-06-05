@@ -5,13 +5,35 @@ import TopBar from './Dashboard/TopBar';
 import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
-import { addUser, getOrganization, getProject } from "@/app/DashboardService";
+import Image from "next/image";
+import { addUser, getOrganization, getProject } from "@/pages/api/DashboardService";
+import { githubClientId } from "@/pages/api/apiConfig";
+import { useRouter } from 'next/router';
+import querystring from 'querystring';
+import {EventBus} from "@/utils/eventBus";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [userName, setUserName] = useState("");
+  const [accessToken, setAccessToken] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const organisationId = 1;
+  const router = useRouter();
+
+  useEffect(() => {
+    const queryParams = router.asPath.split('?')[1];
+    const parsedParams = querystring.parse(queryParams);
+    let access_token = parsedParams.access_token || null;
+
+    if (typeof window !== 'undefined') {
+      if (access_token) {
+        localStorage.setItem('accessToken', access_token);
+      } else {
+        access_token = localStorage.getItem('accessToken') || null;
+      }
+    }
+
+    setAccessToken(access_token);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -32,7 +54,6 @@ export default function App() {
 
       addUser(userData)
         .then((response) => {
-          setUserName(response.data.name);
         })
         .catch((error) => {
           console.error('Error adding user:', error);
@@ -78,9 +99,69 @@ export default function App() {
     width: '100%',
   }
 
+  const signInStyle = {
+    background:'#21173A',
+    width:'100vw',
+    height:'100vh'
+  }
+
+  const signInTopBar = {
+    width:'100%',
+    height:'10vh'
+  }
+
+  const superAgiLogo = {
+    paddingLeft:'30px',
+    display:'flex',
+    alignItems:'center'
+  }
+
+  const signInCenter = {
+    width:'100%',
+    height:'90vh',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center'
+  }
+
+  const signInWrapper = {
+    height:'fit-content',
+    width:'25vw',
+    padding:'25px 20px',
+    background: '#3A2E57',
+    borderRadius:'8px',
+    marginTop:'-30px'
+  }
+
+  const signInButton = {
+    color:'black',
+    width:'100%',
+    border:'none',
+    background:'white',
+    borderRadius:'8px',
+    padding:'7px',
+    fontWeight:'500',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center'
+  }
+
+  const signInInfo = {
+    color:'white',
+    fontSize:'10px',
+    textAlign:'center',
+    marginTop:'15px',
+    opacity:'0.7'
+  }
+
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
   };
+
+  function signInUser() {
+    const github_client_id = githubClientId();
+    window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+  }
 
   return (
     <div className="app">
@@ -88,19 +169,33 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      <div style={projectStyle}>
+      {accessToken !== null && accessToken !== '' ? <div style={projectStyle}>
         <div style={sideBarStyle}>
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
         <div style={workSpaceStyle}>
           <div style={topBarStyle}>
-            <TopBar userName={userName} selectedProject={selectedProject}/>
+            <TopBar selectedProject={selectedProject}/>
           </div>
           <div style={contentStyle}>
-            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''} userName={userName}/>
+            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
-      </div>
+      </div> : <div style={signInStyle}>
+        <div style={signInTopBar}>
+          <div style={superAgiLogo}><Image width={132} height={72} src="/images/sign-in-logo.svg" alt="super-agi-logo"/></div>
+        </div>
+        <div style={signInCenter}>
+          <div style={signInWrapper}>
+            <button style={signInButton} onClick={signInUser}>
+              <Image width={20} height={20} src="/images/github.svg" alt="github"/>&nbsp;Continue with Github
+            </button>
+            <div style={signInInfo}>
+              By continuing, you agree to Super AGI’s Terms of Service and Privacy Policy, and to receive important updates.
+            </div>
+          </div>
+        </div>
+      </div>}
     </div>
   );
 }
