@@ -5,13 +5,10 @@ from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from superagi.models.resource import Resource
 from sqlalchemy.orm import sessionmaker
-from superagi.models.db import connectDB
+from superagi.models.db import connect_db
 
-engine = connectDB()
-Session = sessionmaker(bind=engine)
-session = Session()
 
-def make_written_file_resource(file_name: str,agent_id:int):
+def make_written_file_resource(file_name: str, agent_id: int):
     path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
     storage_type = get_config("STORAGE_TYPE")
     file_type = "application/txt"
@@ -36,6 +33,7 @@ def make_written_file_resource(file_name: str,agent_id:int):
         pass
     return resource
 
+
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
     file_name: str = Field(..., description="Name of the file to write")
@@ -49,6 +47,10 @@ class WriteFileTool(BaseTool):
     agent_id: int = None
 
     def _execute(self, file_name: str, content: str):
+        engine = connect_db()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
@@ -67,6 +69,7 @@ class WriteFileTool(BaseTool):
                 if resource is not None:
                     session.add(resource)
                     session.commit()
+                session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:
             return f"Error: {err}"

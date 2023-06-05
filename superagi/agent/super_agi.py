@@ -22,7 +22,7 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
-from superagi.models.db import connectDB
+from superagi.models.db import connect_db
 from superagi.tools.base_tool import BaseTool
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from superagi.vector_store.base import VectorStore
@@ -40,9 +40,15 @@ S3 = "S3"
 #         + "\033[0m\033[0m")
 
 
-engine = connectDB()
+engine = connect_db()
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+format_prefix_yellow = "\033[93m\033[1m"
+format_suffix_yellow = "\033[0m\033[0m"
+format_prefix_green = "\033[92m\033[1m"
+format_suffix_green = "\033[0m\033[0m"
 
 
 class SuperAgi:
@@ -91,6 +97,7 @@ class SuperAgi:
             "Determine which next command to use, and respond using the format specified above:"
         )
         token_limit = TokenCounter.token_limit(self.llm.get_model())
+        print("TOKEN LIMIT : ",token_limit)
         memory_window = session.query(AgentConfiguration).filter(
             AgentConfiguration.key == "memory_window",
             AgentConfiguration.agent_id == self.agent_config["agent_id"]
@@ -102,13 +109,10 @@ class SuperAgi:
             .limit(memory_window) \
             .all()
         agent_feeds = reversed(agent_feeds)
+        current_calls = 0
 
         # Format the query result as a list of dictionaries
         full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
-        format_prefix_yellow = "\033[93m\033[1m"
-        format_suffix_yellow = "\033[0m\033[0m"
-        format_prefix_green = "\033[92m\033[1m"
-        format_suffix_green = "\033[0m\033[0m"
 
         superagi_prompt = AgentPromptBuilder.get_superagi_prompt(self.ai_name, self.ai_role, goals, self.tools,
                                                                  self.agent_config)
@@ -136,6 +140,8 @@ class SuperAgi:
         # spinner = Halo(text='Thinking...', spinner='dots')
         # spinner.start()
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
+        current_calls = current_calls + 1
+        total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         # spinner.stop()
         print("\n")
 
@@ -159,6 +165,14 @@ class SuperAgi:
 
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
+
+        agent_execution = session.query(AgentExecution).filter(
+            AgentExecution.id == self.agent_config["agent_execution_id"]).first()
+        agent_execution.calls += current_calls
+        agent_execution.tokens += total_tokens
+        print("CALLS : ", agent_execution.calls)
+        print("TOKENS : ", agent_execution.tokens)
+        session.commit()
 
         if action.name == FINISH:
             print(format_prefix_green + "\nTask Finished :) \n" + format_suffix_green)
@@ -196,7 +210,6 @@ class SuperAgi:
                                                   agent_id=self.agent_config["agent_id"], feed=result, role="system")
         session.add(agent_execution_feed)
         session.commit()
-
         print(format_prefix_green + "Iteration completed moving to next iteration!" + format_suffix_green)
         session.close()
         return "PENDING"

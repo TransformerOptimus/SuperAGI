@@ -9,11 +9,10 @@ db_name = get_config('DB_NAME')
 engine = None
 
 
-def connectDB():
+def connect_db():
     global engine
-    if engine != None:
+    if engine is not None:
         return engine
-
 
     # Create the connection URL
     if db_username is None:

@@ -14,7 +14,7 @@ from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.db import connectDB
+from superagi.models.db import connect_db
 from superagi.models.tool import Tool
 from superagi.tools.email.read_email import ReadEmailTool
 from superagi.tools.email.send_email import SendEmailTool
@@ -30,7 +30,7 @@ from superagi.tools.jira.search_issues import SearchJiraTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 import superagi.worker
-engine = connectDB()
+engine = connect_db()
 Session = sessionmaker(bind=engine)
 
 class AgentExecutor:
@@ -86,7 +86,7 @@ class AgentExecutor:
                 # GetProjectsTool(),
                 # EditIssueTool()
             ]
-
+            tools = self.set_default_params_tools(tools, parsed_config, agent)
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
             else:
@@ -121,7 +121,18 @@ class AgentExecutor:
         finally:
             engine.dispose()
 
-
+    def set_default_params_tools(self, tools, parsed_config, agent):
+        new_tools = []
+        for tool in tools:
+            if hasattr(tool, 'goals'):
+                tool.goals = parsed_config["goal"]
+            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
+                tool.llm = OpenAi(model="gpt-3.5-turbo")
+            elif hasattr(tool, 'llm'):
+                tool.llm = OpenAi(model=parsed_config["model"])
+            elif hasattr(tool,'agent_id'):
+                tool.agent_id = agent.id
+        return tools
 
     def fetch_agent_configuration(self, session, agent, agent_execution):
         agent_configurations = session.query(AgentConfiguration).filter_by(agent_id=agent_execution.agent_id).all()

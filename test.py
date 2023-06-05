@@ -8,7 +8,7 @@ from superagi.worker import execute_agent
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.db import connectDB
+from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 
@@ -22,7 +22,7 @@ agent_name = args.name
 agent_description = args.description
 agent_goals = args.goals
 
-engine = connectDB()
+engine = connect_db()
 Session = sessionmaker(bind=engine)
 session = Session()
 

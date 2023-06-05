@@ -4,6 +4,8 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
+
+import superagi
 from superagi.models.project import Project
 from superagi.models.user import User
 from superagi.models.organisation import Organisation
@@ -26,6 +28,7 @@ from sqlalchemy import create_engine
 from superagi.config.config import get_config
 from sqlalchemy.orm import sessionmaker, query
 from superagi.tools.base_tool import BaseTool
+from datetime import timedelta
 import os
 import inspect
 import requests
@@ -65,6 +68,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Creating requrired tables -- Now handled using migrations
 # DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
@@ -80,11 +84,23 @@ app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
 
+
+
+
+
+
 # in production you can use Settings management
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
-    authjwt_secret_key: str = "secret"
-    # authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+    # jwt_secret = get_config("JWT_SECRET_KEY")
+    # authjwt_secret_key: str = "secret"
+    authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+
+def create_access_token(email,Authorize: AuthJWT = Depends()):
+    expiry_time_hours = get_config("JWT_EXPIRY")
+    expires = timedelta(hours=expiry_time_hours)
+    access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
+    return access_token
 
 # callback to get your configuration
 @AuthJWT.load_config
@@ -106,19 +122,19 @@ Session = sessionmaker(bind=engine)
 session = Session()
 organisation = session.query(Organisation).filter_by(id=1).first()
 
-if not organisation or organisation is None:
-    organisation = Organisation(id=1, name='Default Organization',
-                                        description='This is the default organization')
-    session.add(organisation)
-    session.commit()
-
-project_name = "Default Project"
-project = session.query(Project).filter_by(name="Default Project", organisation_id=organisation.id).first()
-# project = Project.query.filter_by(name=project, organisation_id=org.id).first()
-if project is None:
-    project = Project(name=project_name, description=project_name, organisation_id=organisation.id)
-    session.add(project)
-    session.commit()
+# if not organisation or organisation is None:
+#     organisation = Organisation(id=1, name='Default Organization',
+#                                 description='This is the default organization')
+#     session.add(organisation)
+#     session.commit()
+#
+# project_name = "Default Project"
+# project = session.query(Project).filter_by(name="Default Project", organisation_id=organisation.id).first()
+# # project = Project.query.filter_by(name=project, organisation_id=org.id).first()
+# if project is None:
+#     project = Project(name=project_name, description=project_name, organisation_id=organisation.id)
+#     session.add(project)
+#     session.commit()
 
 
 def add_or_update_tool(db: Session, tool_name: str, folder_name: str, class_name: str, file_name: str):
@@ -156,10 +172,9 @@ def get_classes_in_file(file_path):
             try:
                 obj = class_obj()
                 class_dict['class_attribute'] = obj.name
+                classes.append(class_dict)
             except:
                 class_dict['class_attribute'] = None
-
-            classes.append(class_dict)
     return classes
 
 
@@ -194,9 +209,11 @@ def process_files(folder_path):
                     # filtered_classes = [clazz for clazz in classes if
                     #                     clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
                     for clazz in classes:
-                        new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name, file_name=file_name,
-                                        name=clazz["class_attribute"])
-                        new_tools.append(new_tool)
+                        if clazz["class_attribute"] is not None:
+                            new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name,
+                                            file_name=file_name,
+                                            name=clazz["class_attribute"])
+                            new_tools.append(new_tool)
 
     for tool in new_tools:
         add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
@@ -220,6 +237,8 @@ session.close()
 
 @app.post('/login')
 def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
+    """Login API for email and password based login"""
+
     email_to_find = request.email
     user:User = db.session.query(User).filter(User.email == email_to_find).first()
 
@@ -227,7 +246,7 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
         raise HTTPException(status_code=401,detail="Bad username or password")
 
     # subject identifier for who this token is for example id or username from database
-    access_token = Authorize.create_access_token(subject=user.email)
+    access_token = create_access_token(user.email,Authorize)
     return {"access_token": access_token}
 
 
@@ -237,14 +256,19 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 
 @app.get('/github-login')
 def github_login():
+    """GitHub login"""
+
     github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
+
 @app.get('/github-auth')
-def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
+def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    """GitHub login callback"""
+
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = ""
-    github_client_secret = ""
+    github_client_id = get_config("GITHUB_CLIENT_ID")
+    github_client_secret = get_config("GITHUB_CLIENT_SECRET")
     frontend_url = "http://localhost:3000"
     params = {
         'client_id': github_client_id,
@@ -271,9 +295,11 @@ def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
                 db.session.add(user)
                 db.session.commit()
             if user_data["email"] is not None:
-                jwt_token = Authorize.create_access_token(user_data["email"])
+                # jwt_token = Authorize.create_access_token()
+                jwt_token = create_access_token(user_data["email"],Authorize)
             else:
-                jwt_token = Authorize.create_access_token(user_data["login"])
+                # jwt_token = Authorize.create_access_token(user_data["login"])
+                jwt_token = create_access_token(user_data["login"],Authorize)
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
             # redirect_url_success = "https://superagi.com/"
             return RedirectResponse(url=redirect_url_success)
@@ -287,6 +313,8 @@ def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
 
 @app.get('/user')
 def user(Authorize: AuthJWT = Depends()):
+    """API to get current logged in User"""
+
     Authorize.jwt_required()
     current_user = Authorize.get_jwt_subject()
     return {"user": current_user}
@@ -294,29 +322,22 @@ def user(Authorize: AuthJWT = Depends()):
 
 @app.get("/validate-access-token")
 async def root(Authorize: AuthJWT = Depends()):
+    """API to validate access token"""
+
     try:
         Authorize.jwt_required()
-        return {
-            "message": "token is valid"
-        }
+        current_user_email = Authorize.get_jwt_subject()
+        current_user = session.query(User).filter(User.email == current_user_email)
+        return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-
-
-
-
-
-
-
 # #Unprotected route
-# @app.get("/hello/{name}")
-# async def say_hello(name: str,):
-#     return {"message": f"Hello {name}"}
-
+@app.get("/hello/{name}")
+async def say_hello(name: str,Authorize:AuthJWT=Depends()):
+    Authorize.jwt_required()
+    return {"message": f"Hello {name}"}
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-
-# # from superagi.task_queue.celery_app import test_fucntion

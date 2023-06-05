@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
+
+
 # from pydantic import BaseModel
 
 class ToolConfig(DBBaseModel):
