@@ -85,38 +85,31 @@ def get_agent_execution_feed(agent_execution_id: int,
     # parse json
     final_feeds = []
     for feed in feeds:
-        feed_dict = {
-            "id": feed.id,
-            "agent_id": feed.agent_id,
-            "updated_at": feed.updated_at,
-            "role": feed.role,
-            "created_at": feed.created_at,
-            "agent_execution_id": feed.agent_execution_id,
-            "feed": feed.feed,
-            "extra_info": feed.extra_info,
-            "status": agent_execution.status
-        }
-
-        final_feeds.append(parse_feed(feed_dict))
+        final_feeds.append(parse_feed(feed))
     return final_feeds
 
 
 def parse_feed(feed):
-    if feed["role"] == "assistant":
+    if feed.role == "assistant":
         try:
             parsed = json.loads(feed.feed, strict=False)
-            final_output = "Thoughts: " + parsed["thoughts"][
-                "text"] + "\n\n"
-            final_output += "Reasoning: " + parsed["thoughts"]["reasoning"] + "\n\n"
-            final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n\n"
-            final_output += "Criticism: " + parsed["thoughts"][
-                "criticism"] + "\n\n"
-            final_output += "Tool: " + parsed["command"]["name"] + "\n\n"
+
+            final_output = ""
+            if "reasoning" in parsed["thoughts"]:
+                final_output = "Thoughts: " + parsed["thoughts"]["reasoning"] + "\n"
+            if "plan" in parsed["thoughts"]:
+                final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n"
+            if "criticism" in parsed["thoughts"]:
+                final_output += "Criticism: " + parsed["thoughts"]["criticism"] + "\n"
+            if "tool" in parsed:
+                final_output += "Tool: " + parsed["tool"]["name"] + "\n"
+            if "command" in parsed:
+                final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
             return {"role": "assistant", "feed": final_output, "updated_at":feed["updated_at"], "status": feed["status"]}
         except Exception:
             return feed
-    if feed["role"] == "assistant":
+    if feed.role == "system":
         return feed
 
     return feed

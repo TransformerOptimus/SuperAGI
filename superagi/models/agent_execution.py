@@ -13,6 +13,7 @@ class AgentExecution(DBBaseModel):
     status = Column(String)  # like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED', 'TERMINATED')
     name = Column(String)
     agent_id = Column(Integer)
+    name = Column(String)
     last_execution_time = Column(DateTime)
     num_of_calls = Column(Integer, default=0)
     num_of_tokens = Column(Integer, default=0)
@@ -42,6 +43,7 @@ class AgentExecution(DBBaseModel):
         last_execution_time = datetime.fromisoformat(data['last_execution_time'])
         return cls(
             id=data['id'],
+            name=data['name'],
             status=data['status'],
             agent_id=data['agent_id'],
             calls=data['calls'],

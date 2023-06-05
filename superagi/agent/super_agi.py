@@ -161,8 +161,7 @@ class SuperAgi:
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
-
-
+        self.update_agent_execution_tokens(current_calls, total_tokens)
 
         if response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")

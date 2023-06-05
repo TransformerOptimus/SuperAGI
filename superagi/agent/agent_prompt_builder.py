@@ -60,7 +60,7 @@ class AgentPromptBuilder:
                 "speak": "thoughts summary to say to user",
             },
             "tool": {"name": "tool name/task name", "description": "tool or task description",
-                     "args": {"arg name": "value"}},
+                     "args": {"arg name": "value"}}
         }
         formatted_response_format = json.dumps(response_format, indent=4)
 
@@ -141,7 +141,7 @@ class AgentPromptBuilder:
             "thoughts": {
                 "reasoning": "reasoning"
             },
-            "tool": {"name": "tool name", "args": {"arg name": "value"}},
+            "tool": {"name": "tool name", "args": {"arg name": "string value"}}
         }
         
         Your answer must be something that JSON.parse() can read, and nothing else.
@@ -164,8 +164,11 @@ class AgentPromptBuilder:
         
         Task History of completed tasks:
         `{task_history}`
+        
+        Ensure the task created can be performed using following tools:
+        `{tools}`
          
-        Based on this, create a new task to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your goal.
+        Based on this, create one new task to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your goal.
         New task should be different from incomplete or completed tasks. 
          
         Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.

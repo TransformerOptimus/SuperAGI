@@ -62,7 +62,6 @@ class WriteFileTool(BaseTool):
 
         try:
             with open(final_path, 'w', encoding="utf-8") as file:
-                print(content)
                 file.write(content)
                 file.close()
                 resource = make_written_file_resource(file_name=file_name,
