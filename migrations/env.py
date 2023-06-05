@@ -22,6 +22,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from superagi.models.base_model import DBBaseModel
 target_metadata = DBBaseModel.metadata
+from superagi.models import *
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

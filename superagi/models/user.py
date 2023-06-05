@@ -13,4 +13,4 @@ class User(DBBaseModel):
 
 
     def __repr__(self):
-        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}', organisation={self.organisation})"
+        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}', organisation_id={self.organisation_id})"

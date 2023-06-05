@@ -1,15 +1,12 @@
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request,status,Query
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
+from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
-
 from superagi.models.project import Project
 from superagi.models.user import User
-# from superagi.models.user import User
 from superagi.models.organisation import Organisation
-
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from superagi.models.base_model import DBBaseModel
 from superagi.models.types.login_request import LoginRequest
@@ -25,16 +22,15 @@ from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from fastapi.middleware.cors import CORSMiddleware
 from superagi.models.tool import Tool
-
 from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError
-
 from superagi.config.config import get_config
+from sqlalchemy.orm import sessionmaker, query
+from superagi.tools.base_tool import BaseTool
 import os
 import inspect
+import requests
 
-from superagi.tools.base_tool import BaseTool
+
 
 app = FastAPI()
 
@@ -69,7 +65,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
+# DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
@@ -88,7 +84,7 @@ app.include_router(resources_router, prefix="/resources")
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
     authjwt_secret_key: str = "secret"
-
+    # authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
 
 # callback to get your configuration
 @AuthJWT.load_config
@@ -106,9 +102,6 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
     )
 
 
-from superagi.models.db import connectDB
-from sqlalchemy.orm import sessionmaker, query
-
 Session = sessionmaker(bind=engine)
 session = Session()
 organisation = session.query(Organisation).filter_by(id=1).first()
@@ -116,7 +109,6 @@ organisation = session.query(Organisation).filter_by(id=1).first()
 if not organisation or organisation is None:
     organisation = Organisation(id=1, name='Default Organization',
                                         description='This is the default organization')
-    print("Org create.....")
     session.add(organisation)
     session.commit()
 
@@ -184,10 +176,8 @@ def load_module_from_file(file_path):
 # Function to process the files and extract class information
 def process_files(folder_path):
     existing_tools = session.query(Tool).all()
-    # print("Exisiting Tool")
     existing_tools = [Tool(id=None, name=tool.name, folder_name=tool.folder_name, class_name=tool.class_name) for tool
                       in existing_tools]
-    # print(existing_tools)
 
     new_tools = []
     # Iterate over all subfolders
@@ -199,19 +189,14 @@ def process_files(folder_path):
             for file_name in os.listdir(folder_dir):
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
-                    # print(f"Folder = {folder_name} File = {file_name}")
                     # Get clasess
                     classes = get_classes_in_file(file_path=file_path)
                     # filtered_classes = [clazz for clazz in classes if
                     #                     clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
                     for clazz in classes:
-                        # print("Class : ", clazz)
                         new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name, file_name=file_name,
                                         name=clazz["class_attribute"])
                         new_tools.append(new_tool)
-
-    # print(existing_tools)
-    # print(new_tools)
 
     for tool in new_tools:
         add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
@@ -234,7 +219,7 @@ process_files(folder_path)
 session.close()
 
 @app.post('/login')
-def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
+def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
     email_to_find = request.email
     user:User = db.session.query(User).filter(User.email == email_to_find).first()
 
@@ -246,6 +231,60 @@ def login(request:LoginRequest, Authorize: AuthJWT = Depends()):
     return {"access_token": access_token}
 
 
+# def get_jwt_from_payload(user_email: str,Authorize: AuthJWT = Depends()):
+#     access_token = Authorize.create_access_token(subject=user_email)
+#     return access_token
+
+@app.get('/github-login')
+def github_login():
+    github_client_id = ""
+    return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
+
+@app.get('/github-auth')
+def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
+    github_token_url = 'https://github.com/login/oauth/access_token'
+    github_client_id = ""
+    github_client_secret = ""
+    frontend_url = "http://localhost:3000"
+    params = {
+        'client_id': github_client_id,
+        'client_secret': github_client_secret,
+        'code': code
+    }
+    headers = {
+        'Accept': 'application/json'
+    }
+    response = requests.post(github_token_url, params=params, headers=headers)
+    if response.ok:
+        data = response.json()
+        access_token = data.get('access_token')
+        github_api_url = 'https://api.github.com/user'
+        headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+        response = requests.get(github_api_url, headers=headers)
+        if response.ok:
+            user_data = response.json()
+            db_user: User = db.session.query(User).filter(User.email == user_data["email"]).first()
+            if db_user is None:
+                user = User(name=user_data["name"], email=user_data["email"])
+                db.session.add(user)
+                db.session.commit()
+            if user_data["email"] is not None:
+                jwt_token = Authorize.create_access_token(user_data["email"])
+            else:
+                jwt_token = Authorize.create_access_token(user_data["login"])
+            redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+            # redirect_url_success = "https://superagi.com/"
+            return RedirectResponse(url=redirect_url_success)
+        else:
+            redirect_url_failure = "https://superagi.com/"
+            return RedirectResponse(url=redirect_url_failure)
+    else:
+        redirect_url_failure = "https://superagi.com/"
+        return RedirectResponse(url=redirect_url_failure)
+
+
 @app.get('/user')
 def user(Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
@@ -253,10 +292,22 @@ def user(Authorize: AuthJWT = Depends()):
     return {"user": current_user}
 
 
-@app.get("/")
+@app.get("/validate-access-token")
 async def root(Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
-    return {"message": "Hello World"}
+    try:
+        Authorize.jwt_required()
+        return {
+            "message": "token is valid"
+        }
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+
+
+
+
+
+
 
 
 # #Unprotected route
@@ -269,10 +320,3 @@ async def root(Authorize: AuthJWT = Depends()):
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 # # from superagi.task_queue.celery_app import test_fucntion
-
-# # @app.get("/test")
-# # async def test():
-# #     print("Inside Test!")
-# #     test_fucntion.delay()
-# #     print("Test Done!")
-# #     return "Returned!"

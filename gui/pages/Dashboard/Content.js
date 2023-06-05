@@ -52,6 +52,10 @@ export default function Content({selectedView, selectedProjectId, userName}) {
 
   const closeTab = (e, tabId) => {
     e.stopPropagation();
+    cancelTab(tabId);
+  };
+
+  const cancelTab = (tabId) => {
     const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
     setTabs(updatedTabs);
 
@@ -101,12 +105,18 @@ export default function Content({selectedView, selectedProjectId, userName}) {
       addTab(eventData);
     };
 
+    const cancelAgentCreate = (eventData) => {
+      cancelTab(-1);
+    };
+
     EventBus.on('settingsTab', settingsTab);
     EventBus.on('reFetchAgents', fetchAgents);
+    EventBus.on('cancelAgentCreate', cancelAgentCreate);
 
     return () => {
       EventBus.off('settingsTab', settingsTab);
       EventBus.off('reFetchAgents', fetchAgents);
+      EventBus.off('cancelAgentCreate', cancelAgentCreate);
     };
   });
 
