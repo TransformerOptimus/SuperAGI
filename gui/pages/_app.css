@@ -47,10 +47,6 @@ input[type=checkbox] {
     visibility: visible !important;
 }
 
-input[type=range] {
-    background-color: #181526;
-}
-
 input[type=checkbox i] {
     cursor: pointer !important;
 }
