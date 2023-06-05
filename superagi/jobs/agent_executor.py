@@ -15,7 +15,7 @@ from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_template_step import AgentTemplateStep
-from superagi.models.db import connectDB
+from superagi.models.db import connect_db
 from superagi.models.tool import Tool
 from superagi.tools.code.tools import CodingTool
 from superagi.tools.email.read_email import ReadEmailTool
@@ -34,7 +34,7 @@ from superagi.tools.webscaper.tools import WebScraperTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 import superagi.worker
-engine = connectDB()
+engine = connect_db()
 Session = sessionmaker(bind=engine)
 
 class AgentExecutor:
