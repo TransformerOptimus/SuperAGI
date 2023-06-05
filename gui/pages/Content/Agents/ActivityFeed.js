@@ -39,8 +39,10 @@ export default function ActivityFeed({selectedRunId}) {
   useEffect(() => {
     if (feeds.length !== prevFeedsLength) {
       if (feedContainerRef.current) {
+        setTimeout(() => {
         feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
         setPrevFeedsLength(feeds.length);
+        }, 100);
       }
     }
   }, [feeds]);
