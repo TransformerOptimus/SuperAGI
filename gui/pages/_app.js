@@ -24,10 +24,8 @@ export default function App() {
     const parsedParams = querystring.parse(queryParams);
     let access_token = parsedParams.access_token || null;
 
-    if(typeof window !== 'undefined') {
-      if (access_token) {
-        localStorage.setItem('accessToken', access_token);
-      }
+    if(typeof window !== 'undefined' && access_token) {
+      localStorage.setItem('accessToken', access_token);
     }
 
     validateAccessToken()
@@ -75,7 +73,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {tokenAuthenticated ? <div className="projectStyle">
+      {!tokenAuthenticated ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
