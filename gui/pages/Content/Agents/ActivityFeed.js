@@ -10,6 +10,7 @@ export default function ActivityFeed({selectedRunId}) {
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
   const [runStatus, setRunStatus] = useState("");
+  const [prevFeedsLength,setPrevFeedsLength] =useState(0);
 
   useEffect(() => {
     const text = 'Thinking';
@@ -35,6 +36,15 @@ export default function ActivityFeed({selectedRunId}) {
     fetchFeeds();
   }, [selectedRunId])
 
+  useEffect(() => {
+    if (feeds.length !== prevFeedsLength) {
+      if (feedContainerRef.current) {
+        feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
+        setPrevFeedsLength(feeds.length);
+      }
+    }
+  }, [feeds]);
+
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
@@ -52,7 +62,8 @@ export default function ActivityFeed({selectedRunId}) {
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
     </Head>
-    <div style={{marginBottom:'140px'}} ref={feedContainerRef}>
+    <div style={{overflowY: "auto",maxHeight:'80vh'}} ref={feedContainerRef}>
+      <div style={{marginBottom:'140px'}} ref={feedContainerRef}>
       {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
@@ -85,6 +96,7 @@ export default function ActivityFeed({selectedRunId}) {
           <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
         </div>
       </div>}
+    </div>
     </div>
   </>)
 }
