@@ -1,14 +1,15 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import Head from 'next/head';
-import {getExecutionFeeds} from "@/app/DashboardService";
+import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {formatTime} from "@/utils/utils";
 
-export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
+export default function ActivityFeed({selectedRunId}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
+  const [runStatus, setRunStatus] = useState("");
 
   useEffect(() => {
     const text = 'Thinking';
@@ -37,7 +38,9 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
-        setFeeds(response.data);
+        const feedsArray = response.data;
+        setFeeds(feedsArray);
+        setRunStatus(feedsArray[feedsArray.length - 1].status);
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
@@ -58,14 +61,6 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           <div className={styles.feed_title}>{f?.feed || ''}</div>
         </div>
         <div className={styles.more_details_wrapper}>
-          {/*<div className={styles.more_details}>*/}
-          {/*  <div>*/}
-          {/*    <Image width={12} height={12} src="/images/tokens_consumed.svg" alt="tokens-icon"/>*/}
-          {/*  </div>*/}
-          {/*  <div className={styles.history_info}>*/}
-          {/*    45 Tokens Consumed*/}
-          {/*  </div>*/}
-          {/*</div>*/}
           {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
             <div style={{display: 'flex', alignItems: 'center'}}>
               <div>
@@ -78,13 +73,13 @@ export default function ActivityFeed({selectedRunId, selectedRunStatus}) {
           </div>}
         </div>
       </div>))}
-      {selectedRunStatus && selectedRunStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+      {runStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
         <div style={{display: 'flex'}}>
           <div style={{fontSize: '20px'}}>🧠</div>
           <div className={styles.feed_title}><i>{loadingText}</i></div>
         </div>
       </div>}
-      {selectedRunStatus && selectedRunStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+      {runStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
         <div style={{display: 'flex'}}>
           <div style={{fontSize: '20px'}}>🏁</div>
           <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
