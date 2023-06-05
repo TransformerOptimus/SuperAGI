@@ -12,7 +12,6 @@ engine = None
 def connectDB():
     global engine
     if engine != None:
-        print("Engine returned")
         return engine
 
 
