@@ -9,7 +9,7 @@ export default function ActivityFeed({selectedRunId}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
-  const [runStatus, setRunStatus] = useState("");
+  const [runStatus, setRunStatus] = useState("CREATED");
 
   useEffect(() => {
     const text = 'Thinking';

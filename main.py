@@ -102,6 +102,14 @@ def create_access_token(email,Authorize: AuthJWT = Depends()):
     access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
     return access_token
 
+def create_access_token(email,Authorize: AuthJWT = Depends()):
+    # expiry_time_hours = get_config("JWT_EXPIRY")
+    expiry_time_hours = 1
+    expires = timedelta(hours=expiry_time_hours)
+    print("EMAIL : ",email)
+    access_token = Authorize.create_access_token(subject=email,expires_time=expires)
+    return access_token
+
 # callback to get your configuration
 @AuthJWT.load_config
 def get_config():
@@ -327,7 +335,7 @@ async def root(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
         current_user_email = Authorize.get_jwt_subject()
-        current_user = session.query(User).filter(User.email == current_user_email)
+        current_user = session.query(User).filter(User.email == current_user_email).first()
         return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")

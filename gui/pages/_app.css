@@ -43,8 +43,12 @@ input[type="number"] {
 
 input[type=checkbox] {
     height: 17px !important;
-    width: 17px !important;;
+    width: 17px !important;
     visibility: visible !important;
+}
+
+input[type=range] {
+    background-color: #181526;
 }
 
 input[type=checkbox i] {
