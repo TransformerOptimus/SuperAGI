@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, Text, String
+
 from superagi.models.base_model import DBBaseModel
 
 
