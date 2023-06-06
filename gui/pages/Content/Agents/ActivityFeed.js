@@ -50,8 +50,9 @@ export default function ActivityFeed({selectedRunId}) {
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
-        setFeeds(response.data.feeds);
-        setRunStatus(response.data.status);
+        const data = response.data;
+        setFeeds(data.feeds);
+        setRunStatus(data.status);
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
