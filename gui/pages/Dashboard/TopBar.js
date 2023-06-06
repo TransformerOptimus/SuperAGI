@@ -65,13 +65,13 @@ export default function TopBar({selectedProject, userName, env}) {
             {/*<div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
           </div>
         </div>
-        <div className={styles.top_right}>
+        <div className={styles.top_right} onMouseLeave={() => setDropdown(false)}>
           <div onClick={() => setSettingsModal(true)} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
           {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}
-          <div className={styles.top_right_icon} onClick={() => setDropdown(!dropdown)}>
+          <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}>
             <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
           </div>
-          {dropdown && env !== 'DEV' && <div style={{marginTop:'13vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          {dropdown && env !== 'DEV' && <div style={{marginTop:'4vh',marginRight:'70px'}}>
             <ul className="dropdown_container" style={{width:'fit-content'}}>
               <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>

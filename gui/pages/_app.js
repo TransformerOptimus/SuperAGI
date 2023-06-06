@@ -14,12 +14,25 @@ import {refreshUrl} from "@/utils/utils";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [tokenAuthenticated, isTokenAuthenticated] = useState(false);
+  const [applicationState, setApplicationState] = useState("Initializing SuperAGI");
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
   const [organisationId, setOrganisationId] = useState(null);
   const [env, setEnv] = useState('DEV');
+  const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
+
+  useEffect(() => {
+    const text = 'Initializing SuperAGI';
+    let dots = '';
+
+    const interval = setInterval(() => {
+      dots = dots.length < 3 ? dots + '.' : '';
+      setLoadingText(`${text}${dots}`);
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -45,13 +58,13 @@ export default function App() {
           addUser(userData)
             .then((response) => {
               setUserName(response.data.name);
-              isTokenAuthenticated(true);
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
               console.error('Error adding user:', error);
             });
         } else {
+          setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
@@ -64,7 +77,6 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
-              isTokenAuthenticated(true);
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
@@ -80,6 +92,7 @@ export default function App() {
   useEffect(() => {
     getProject(organisationId)
       .then((response) => {
+        setApplicationState("AUTHENTICATED");
         setSelectedProject(response.data[0]);
       })
       .catch((error) => {
@@ -100,9 +113,11 @@ export default function App() {
     <div className="app">
       <Head>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {tokenAuthenticated ? <div className="projectStyle">
+      {applicationState === 'AUTHENTICATED' ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
@@ -119,14 +134,16 @@ export default function App() {
           <div className="superAgiLogo"><Image width={132} height={72} src="/images/sign-in-logo.svg" alt="super-agi-logo"/></div>
         </div>
         <div className="signInCenter">
-          <div className="signInWrapper">
+          {applicationState === 'NOT_AUTHENTICATED' ? <div className="signInWrapper">
             <button className="signInButton" onClick={signInUser}>
               <Image width={20} height={20} src="/images/github.svg" alt="github"/>&nbsp;Continue with Github
             </button>
             <div className="signInInfo">
               By continuing, you agree to Super AGI’s Terms of Service and Privacy Policy, and to receive important updates.
             </div>
-          </div>
+          </div> : <div className="signInWrapper" style={{background:'transparent'}}>
+            <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
+          </div>}
         </div>
       </div>}
     </div>

@@ -4,6 +4,7 @@ import Head from 'next/head';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {formatTime} from "@/utils/utils";
+import {EventBus} from "@/utils/eventBus";
 
 export default function ActivityFeed({selectedRunId}) {
   const [loadingText, setLoadingText] = useState("Thinking");
@@ -58,6 +59,20 @@ export default function ActivityFeed({selectedRunId}) {
         console.error('Error fetching execution feeds:', error);
       });
   }
+
+  useEffect(() => {
+    const updateRunStatus = (eventData) => {
+      if(eventData.selectedRunId === selectedRunId) {
+        setRunStatus(eventData.status);
+      }
+    };
+
+    EventBus.on('updateRunStatus', updateRunStatus);
+
+    return () => {
+      EventBus.off('updateRunStatus', updateRunStatus);
+    };
+  });
 
   return (<>
     <Head>
