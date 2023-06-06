@@ -224,6 +224,7 @@
     line-height: 15px;
     color: white;
     white-space: pre-line;
+    word-wrap: break-word;
 }
 
 .feed_icon {
