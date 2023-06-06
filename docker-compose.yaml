@@ -54,9 +54,7 @@ services:
     networks:
       - super_network
     ports:
-      - "5432:5432"  # Expose the PostgreSQL port
-
-
+      - "5432:5432"
 
 networks:
   super_network:
