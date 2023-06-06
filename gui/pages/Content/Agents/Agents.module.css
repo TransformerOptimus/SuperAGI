@@ -225,6 +225,7 @@
     color: white;
     white-space: pre-line;
     word-wrap: break-word;
+    max-width: 96%;
 }
 
 .feed_icon {
