@@ -253,8 +253,8 @@ class SuperAgi:
     def update_agent_execution_tokens(self, current_calls, total_tokens):
         agent_execution = session.query(AgentExecution).filter(
             AgentExecution.id == self.agent_config["agent_execution_id"]).first()
-        agent_execution.calls += current_calls
-        agent_execution.tokens += total_tokens
+        agent_execution.num_of_calls += current_calls
+        agent_execution.num_of_tokens += total_tokens
         session.commit()
 
     def build_agent_prompt(self, prompt: str, task_queue: TaskQueue, max_token_limit: int):

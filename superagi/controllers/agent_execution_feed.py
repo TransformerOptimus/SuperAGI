@@ -82,11 +82,14 @@ def get_agent_execution_feed(agent_execution_id: int,
     if agent_execution is None:
         raise HTTPException(status_code=400, detail="Agent Run not found!")
     feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
-    # parse json
+    # # parse json
     final_feeds = []
     for feed in feeds:
         final_feeds.append(parse_feed(feed))
-    return final_feeds
+    return {
+        "status": agent_execution.status,
+        "feeds": final_feeds
+    }
 
 
 def parse_feed(feed):
@@ -106,7 +109,7 @@ def parse_feed(feed):
             if "command" in parsed:
                 final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
-            return {"role": "assistant", "feed": final_output, "updated_at":feed["updated_at"], "status": feed["status"]}
+            return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at, "status": feed.status}
         except Exception:
             return feed
     if feed.role == "system":
