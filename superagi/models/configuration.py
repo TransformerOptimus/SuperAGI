@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String,Text
 from superagi.models.base_model import DBBaseModel
 
 
-class Config(DBBaseModel):
-    __tablename__ = 'configs'
+class Configuration(DBBaseModel):
+    __tablename__ = 'configurations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     organisation_id = Column(Integer)

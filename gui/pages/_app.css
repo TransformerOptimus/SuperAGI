@@ -268,7 +268,7 @@ input[type=checkbox i] {
 }
 
 .dropdown_container {
-    position: relative;
+    position: absolute;
     display: inline-block;
 }
 
