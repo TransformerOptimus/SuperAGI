@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { getProject, validateAccessToken } from "@/pages/api/DashboardService";
+import { getOrganisation, getProject, validateAccessToken } from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
@@ -16,6 +16,7 @@ export default function App() {
   const [tokenAuthenticated, isTokenAuthenticated] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
+  const [organisationId, setOrganisationId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,9 +32,9 @@ export default function App() {
       .then((response) => {
         setUserName(response.data.name || '');
         isTokenAuthenticated(true);
-        getProject(response.data.organisation_id)
+        getOrganisation(response.data.id)
           .then((response) => {
-            setSelectedProject(response.data[0]);
+            setOrganisationId(response.data.id);
           })
           .catch((error) => {
             console.error('Error fetching project:', error);
@@ -43,6 +44,16 @@ export default function App() {
         console.error('Error validating access token:', error);
       });
   }, []);
+
+  useEffect(() => {
+    getProject(organisationId)
+      .then((response) => {
+        setSelectedProject(response.data[0]);
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
+      });
+  }, [organisationId]);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);

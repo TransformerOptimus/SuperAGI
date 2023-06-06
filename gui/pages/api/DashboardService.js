@@ -1,5 +1,9 @@
 import api from './apiConfig';
 
+export const getOrganisation = (userId) => {
+  return api.get(`/organisations/get/user/${userId}`);
+};
+
 export const getProject = (organisationId) => {
   return api.get(`/projects/get/organisation/${organisationId}`);
 };
