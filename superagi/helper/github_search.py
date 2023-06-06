@@ -6,7 +6,6 @@ import json
 import os
 
 from pydantic import BaseModel
-from github import Github
 
 from superagi.helper.webpage_extractor import WebpageExtractor
 
