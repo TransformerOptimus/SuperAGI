@@ -8,7 +8,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {refreshUrl} from "@/utils/utils";
 
-export default function TopBar({selectedProject, userName}) {
+export default function TopBar({selectedProject, userName, env}) {
   const [dropdown, setDropdown] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const router = useRouter();
@@ -71,7 +71,7 @@ export default function TopBar({selectedProject, userName}) {
           <div className={styles.top_right_icon} onClick={() => setDropdown(!dropdown)}>
             <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
           </div>
-          {dropdown && <div style={{marginTop:'13vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          {dropdown && env !== 'DEV' && <div style={{marginTop:'13vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
             <ul className="dropdown_container" style={{width:'fit-content'}}>
               <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>

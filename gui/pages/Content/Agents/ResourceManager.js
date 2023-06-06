@@ -5,6 +5,8 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes, downloadFile} from "@/utils/utils";
+import axios from 'axios';
+import api, {baseUrl} from "@/pages/api/apiConfig";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -24,7 +26,7 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      uploadResource(fileData);
+      uploadFile(fileData);
     }
   };
 
@@ -56,7 +58,7 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      uploadResource(fileData);
+      uploadFile(fileData);
     }
   };
 
@@ -64,14 +66,14 @@ export default function ResourceManager({agentId}) {
     fetchResources();
   }, [agentId]);
 
-  function uploadResource(fileData) {
+  function uploadFile(fileData) {
     const formData = new FormData();
     formData.append('file', fileData.file);
     formData.append('name', fileData.name);
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    uploadFile(agentId, formData)
+    axios.post(`${baseUrl()}/resources/add/${agentId}`, formData)
       .then((response) => {
         fetchResources();
         toast.success('Resource added successfully', { autoClose: 1800 });

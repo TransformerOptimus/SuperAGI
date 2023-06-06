@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { getOrganisation, getProject, validateAccessToken } from "@/pages/api/DashboardService";
+import { getOrganisation, getProject, validateAccessToken, checkEnvironment, addUser } from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
@@ -18,32 +18,62 @@ export default function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
   const [organisationId, setOrganisationId] = useState(null);
+  const [env, setEnv] = useState('DEV');
   const router = useRouter();
 
-  useEffect(() => {
-    const queryParams = router.asPath.split('?')[1];
-    const parsedParams = querystring.parse(queryParams);
-    let access_token = parsedParams.access_token || null;
-
-    if(typeof window !== 'undefined' && access_token) {
-      localStorage.setItem('accessToken', access_token);
-      refreshUrl();
-    }
-
-    validateAccessToken()
+  function fetchOrganisation(userId) {
+    getOrganisation(userId)
       .then((response) => {
-        setUserName(response.data.name || '');
-        isTokenAuthenticated(true);
-        getOrganisation(response.data.id)
-          .then((response) => {
-            setOrganisationId(response.data.id);
-          })
-          .catch((error) => {
-            console.error('Error fetching project:', error);
-          });
+        setOrganisationId(response.data.id);
       })
       .catch((error) => {
-        console.error('Error validating access token:', error);
+        console.error('Error fetching project:', error);
+      });
+  }
+
+  useEffect(() => {
+    checkEnvironment()
+      .then((response) => {
+        setEnv(response.data.env);
+        if (response.data.env === 'DEV') {
+          const userData =  {
+            "name" : "SuperAGI User",
+            "email" : "super6@agi.com",
+            "password" : "pass@123",
+          }
+
+          addUser(userData)
+            .then((response) => {
+              setUserName(response.data.name);
+              isTokenAuthenticated(true);
+              fetchOrganisation(response.data.id);
+            })
+            .catch((error) => {
+              console.error('Error adding user:', error);
+            });
+        } else {
+          const queryParams = router.asPath.split('?')[1];
+          const parsedParams = querystring.parse(queryParams);
+          let access_token = parsedParams.access_token || null;
+
+          if(typeof window !== 'undefined' && access_token) {
+            localStorage.setItem('accessToken', access_token);
+            refreshUrl();
+          }
+
+          validateAccessToken()
+            .then((response) => {
+              setUserName(response.data.name || '');
+              isTokenAuthenticated(true);
+              fetchOrganisation(response.data.id);
+            })
+            .catch((error) => {
+              console.error('Error validating access token:', error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
       });
   }, []);
 
@@ -78,7 +108,7 @@ export default function App() {
         </div>
         <div className="workSpaceStyle">
           <div className="topBarStyle">
-            <TopBar selectedProject={selectedProject} userName={userName}/>
+            <TopBar selectedProject={selectedProject} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
             <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>

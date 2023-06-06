@@ -32,7 +32,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['agent goal 1']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo']
-  const [model, setModel] = useState(models[0]);
+  const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
