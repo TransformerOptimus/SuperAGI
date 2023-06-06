@@ -62,11 +62,12 @@ class GithubAddFileTool(BaseTool):
             github_username = get_config("GITHUB_USERNAME")
             githubrepo_search = GithubHelper(github_access_token,github_username)
             
+            file_path=f'{folder_path}'
             if folder_path:
-                folder_path+='/'
+                file_path+='/'
+            file_path+=file_name 
 
-
-            file_path=f'{folder_path}{file_name}' #hardcoded file path must be upated
+            
             head_branch = 'new-file' 
             headers={
                 "Authorization": f"token {github_access_token}" if github_access_token else None,
@@ -89,7 +90,7 @@ class GithubAddFileTool(BaseTool):
             branch_url = f'https://api.github.com/repos/{github_username}/{repository_name}/git/refs'
             branch_params = {
                 'ref': f'refs/heads/{head_branch}',
-                'sha': requests.get(f'https://api.github.com/repos/{github_username}/{repository_name}/git/refs/heads/{base_branch}').json()['object']['sha']
+                'sha': requests.get(f'https://api.github.com/repos/{github_username}/{repository_name}/git/refs/heads/{base_branch}',headers=headers).json()['object']['sha']
             }
             branch_response = requests.post(branch_url, json=branch_params, headers=headers)
             # print(branch_response.status_code)
