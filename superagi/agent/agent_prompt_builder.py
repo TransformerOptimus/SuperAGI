@@ -128,13 +128,10 @@ class AgentPromptBuilder:
         
         Based on this, your job is to understand the current task, pick out key parts, and think smart and fast. 
         Explain why you are doing each action, create a plan, and mention any worries you might have. 
-        Ensure next action tool is picked from the below tool list.
+        Ensure next action tool is picked from the below tool list. 
         
         TOOLS:
         {tools}
-        
-        CONSTRAINTS:
-        {constraints}
         
         RESPONSE FORMAT:
         {
@@ -161,9 +158,6 @@ class AgentPromptBuilder:
         {goals}
         
         You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
-        
-        Task History of completed tasks:
-        `{task_history}`
         
         Ensure the task created can be performed using following tools:
         `{tools}`

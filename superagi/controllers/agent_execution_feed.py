@@ -3,6 +3,8 @@ import json
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
+
+from superagi.agent.task_queue import TaskQueue
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution import AgentExecution
 from fastapi import APIRouter
@@ -91,6 +93,22 @@ def get_agent_execution_feed(agent_execution_id: int,
         "feeds": final_feeds
     }
 
+@router.get("/get/tasks/{agent_execution_id}")
+def get_execution_tasks(agent_execution_id: int,
+                             Authorize: AuthJWT = Depends(check_auth)):
+    """Get agent execution feed with other execution details"""
+    task_queue = TaskQueue(str(agent_execution_id))
+    tasks = []
+    for task in task_queue.get_tasks():
+        tasks.append({"name": task})
+    completed_tasks = []
+    for task in reversed(task_queue.get_completed_tasks()):
+        completed_tasks.append({"name": task['task']})
+
+    return {
+        "tasks": tasks,
+        "completed_tasks": completed_tasks
+    }
 
 def parse_feed(feed):
     if feed.role == "assistant":
@@ -109,7 +127,7 @@ def parse_feed(feed):
             if "command" in parsed:
                 final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
-            return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at, "status": feed.status}
+            return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at}
         except Exception:
             return feed
     if feed.role == "system":
