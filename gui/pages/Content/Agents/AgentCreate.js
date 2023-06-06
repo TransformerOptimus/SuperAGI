@@ -446,21 +446,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           </div>
           {advancedOptions &&
             <div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Agent Type</label><br/>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>*/}
-              {/*      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>*/}
-              {/*        {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {agent}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
+              <div style={{marginTop: '15px'}}>
+                <label className={styles.form_label}>Agent Type</label><br/>
+                <div className="dropdown_container_search" style={{width:'100%'}}>
+                  <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>
+                    {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                  </div>
+                  <div>
+                    {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>
+                      {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        {agent}
+                      </div>))}
+                    </div>}
+                  </div>
+                </div>
+              </div>
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
               {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}

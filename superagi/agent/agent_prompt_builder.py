@@ -102,7 +102,7 @@ class AgentPromptBuilder:
         GOALS:
         {goals}
         
-        Construct a sequence of actions, not exceeding 4 steps, to achieve this goal.
+        Construct a sequence of actions, not exceeding 3 steps, to achieve this goal.
         
         Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
         
@@ -154,16 +154,19 @@ class AgentPromptBuilder:
         super_agi_prompt = """
         You are an AI assistant to create task.
         
-        You are following objectives:
+        High level goal:
         {goals}
         
         You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
+        
+        Task History:
+        `{task_history}`
         
         Ensure the task created can be performed using following tools:
         `{tools}`
          
         Based on this, create one new task to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your goal.
-        New task should be different from incomplete or completed tasks. 
+        Ensure your new task are not deviated from completing the goal. New task should be different from incomplete tasks and completed tasks. 
          
         Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.
         """
@@ -192,9 +195,10 @@ class AgentPromptBuilder:
         if "{pending_tasks}" in super_agi_prompt:
             super_agi_prompt = super_agi_prompt.replace("{pending_tasks}", str(pending_tasks))
 
+        completed_tasks.reverse()
         if "{completed_tasks}" in super_agi_prompt:
             completed_tasks_arr = []
-            for task in reversed(completed_tasks):
+            for task in completed_tasks:
                 completed_tasks_arr.append(task['task'])
             super_agi_prompt = super_agi_prompt.replace("{completed_tasks}", str(completed_tasks_arr))
 
@@ -202,11 +206,12 @@ class AgentPromptBuilder:
         pending_tokens = token_limit - base_token_limit
         final_output = ""
         if "{task_history}" in super_agi_prompt:
+
             for task in reversed(completed_tasks[-10:]):
-                final_output = f"Task: {task['task']}\nResult: {task['response']}\n" + final_output
+                final_output = final_output + f"Task: {task['task']}\nResult: {task['response']}\n"
                 token_count = TokenCounter.count_message_tokens([{"role": "user", "content": final_output}])
                 # giving buffer of 100 tokens
-                if token_count > pending_tokens - 100:
+                if token_count > min(600, pending_tokens):
                     break
             super_agi_prompt = super_agi_prompt.replace("{task_history}", "\n" + final_output + "\n")
         return super_agi_prompt
