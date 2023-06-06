@@ -11,20 +11,19 @@ from superagi.llms.base_llm import BaseLlm
 from pydantic import BaseModel, Field, PrivateAttr
 
 
-class ReasoningSchema(BaseModel):
+class ThinkingSchema(BaseModel):
     task_description: str = Field(
         ...,
         description="Task description which needs reasoning.",
     )
 
-class ReasoningTool(BaseTool):
+class ThinkingTool(BaseTool):
     llm: Optional[BaseLlm] = None
-    name = "ReasoningTool"
+    name = "ThinkingTool"
     description = (
         "Intelligent problem-solving assistant that comprehends tasks, identifies key variables, and makes efficient decisions, all while providing detailed, self-driven reasoning for its choices."
-        #"Enhances critical thinking and reasoning for diverse tasks, facilitating logical problem-solving in a streamlined manner"
     )
-    args_schema: Type[ReasoningSchema] = ReasoningSchema
+    args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
 
     class Config:

@@ -36,7 +36,7 @@ def make_written_file_resource(file_name: str, agent_id: int):
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write")
+    file_name: str = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
     content: str = Field(..., description="File content to write")
 
 

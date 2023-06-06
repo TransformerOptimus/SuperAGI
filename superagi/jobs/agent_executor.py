@@ -29,7 +29,7 @@ from superagi.tools.jira.create_issue import CreateIssueTool
 from superagi.tools.jira.edit_issue import EditIssueTool
 from superagi.tools.jira.get_projects import GetProjectsTool
 from superagi.tools.jira.search_issues import SearchJiraTool
-from superagi.tools.thinking.tools import ReasoningTool
+from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.webscaper.tools import WebScraperTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
@@ -76,11 +76,7 @@ class AgentExecutor:
             return "Agent Not found"
 
         tools = [
-            GoogleSerpTool(),
-            WriteFileTool(),
-            ReadFileTool(),
-            ReasoningTool(),
-            CodingTool(),
+            ThinkingTool(),
             WebScraperTool(),
         ]
 

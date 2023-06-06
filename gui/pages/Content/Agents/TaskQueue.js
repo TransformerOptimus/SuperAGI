@@ -58,7 +58,7 @@ export default function TaskQueue({selectedRunId}) {
       {/*    </div>*/}
       {/*  </div>*/}
       {/*</div>*/}
-      <div style={{color: '#FFFFFF', padding: '5px 7px'}}>Pending Tasks</div>
+      {taskList.length > 0 ? <div style={{color: '#FFFFFF', padding: '5px 7px'}}>Pending Tasks</div> : <div></div>}
       {taskList.map((task, index) => (<div key={index} className={styles.history_box}
                                            style={{background: '#272335', padding: '20px', cursor: 'default'}}>
         <div style={{display: 'flex'}}>
@@ -68,7 +68,7 @@ export default function TaskQueue({selectedRunId}) {
       </div>))}
 
 
-      <div style={{color: '#FFFFFF', padding: '5px 7px'}}>Completed Tasks</div>
+      {completedTaskList.length > 0 ? <div style={{color: '#FFFFFF', padding: '5px 7px'}}>Completed Tasks</div> : <div></div>}
        {completedTaskList.map((task, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
           {/*<div className={styles.feed_icon}>🌟</div>*/}
