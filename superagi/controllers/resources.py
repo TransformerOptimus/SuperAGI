@@ -17,6 +17,9 @@ from fastapi.responses import StreamingResponse
 from superagi.helper.auth import check_auth
 import boto3
 import datetime
+from botocore.exceptions import NoCredentialsError
+import tempfile
+
 
 router = APIRouter()
 
@@ -64,15 +67,22 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         print(bucket_name)
         path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now()).replace(' ','').replace('.','').replace(':','')+'.'+file_name[1]
         print(path)
-        # s3.upload_file(file.file, bucket_name, path)
+        try:
+            # s3.upload_file(file.file, bucket_name, path)
+            response = s3.upload_fileobj(file.file, bucket_name, path)
+            print("File uploaded successfully!")
+            print(response)
+        except NoCredentialsError:
+            # response = s3.upload_fileobj(file.file, bucket_name,     f"input/{unique_file_name}")
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
     resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
     print("RESOURCES_______________________________")
     print(resource)
-    # db.session.add(resource)
-    # db.session.commit()
-    # db.session.flush()
+    db.session.add(resource)
+    db.session.commit()
+    db.session.flush()
     print(resource)
     return resource
 
@@ -96,6 +106,23 @@ def download_file_by_id(resource_id: int,
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     download_file_path = resource.path
     file_name = resource.name
+    print("Resource : ",resource)
+    if resource.storage_type == "S3":
+        print("S3")
+        bucket_name = get_config("BUCKET_NAME")
+        if resource.channel == "INPUT":
+            save_directory = get_config("RESOURCES_INPUT_ROOT_DIR")
+        elif resource.channel == "OUTPUT":
+            save_directory = get_config("RESOURCES_OUTPUT_ROOT_DIR")
+        print(bucket_name)
+        print(resource.path)
+        print(save_directory)
+        file = s3.download_file(bucket_name, resource.path, save_directory)
+        # print(file)
+        # temp_file = tempfile.NamedTemporaryFile(delete=False)
+        # temp_file.write(file.read())
+        # temp_file.close()
+        # abs_file_path = Path(temp_file.name)
 
     if not resource:
         raise HTTPException(status_code=400, detail="Resource Not found!")
