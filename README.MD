@@ -110,14 +110,14 @@
 2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml` and name it `config.yaml`.
 3. Enter your unique OpenAI API Key, Google key, Custom search engine ID, and Pinecone API key without any quotes or spaces in `config.yaml` file. Follow the links below to get your keys:
 
-|Keys|Accessing the keys|
-|--|--|
-|**OpenAI API Key**| Sign up and create an API key at [OpenAI Developer](https://beta.openai.com/signup/)|
-|**Google API key**| Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: Google Custom Search JSON API). Then, create an API key in the "Credentials" section.|
-|**Custom search engine ID**| Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.|
-|**Pinecone API key**| Sign up at [Pinecone](https://www.pinecone.io/) and create an API key in your account dashboard.|
+| Keys                            | Accessing the keys                                                                                                                                                                                              |
+|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **OpenAI API Key**              | Sign up and create an API key at [OpenAI Developer](https://beta.openai.com/signup/)                                                                                                                            |
+| **Google API key**              | Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: Google Custom Search JSON API). Then, create an API key in the "Credentials" section. |
+| **Custom search engine ID**     | Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.                            |
+| **Pinecone API key (Optional)** | Sign up at [Pinecone](https://www.pinecone.io/) and create an API key in your account dashboard.                                                                                                                |
 
->If you're on the Pinecone free plan, you only have 1 pod and 1 index available.  As a workaround, change the index name used in test.py where `memory` is defined: `memory = VectorFactory.get_vector_storage("PineCone", "my-current-indexname", OpenAiEmbedding())`
+[//]: # (>If you're on the Pinecone free plan, you only have 1 pod and 1 index available.  As a workaround, change the index name used in test.py where `memory` is defined: `memory = VectorFactory.get_vector_storage&#40;"PineCone", "my-current-indexname", OpenAiEmbedding&#40;&#41;&#41;`)
 
 4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
 5. Once you have Docker Desktop running, run command : `docker-compose up --build` in SuperAGI directory. Open your browser and go to `localhost:3000` to see SuperAGI running.
