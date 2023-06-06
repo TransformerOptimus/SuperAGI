@@ -87,10 +87,14 @@ class AgentExecutor:
                 # EditIssueTool()
             ]
 
-            if parsed_config["LTM_DB"] == "Pinecone":
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
-            else:
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
+            try:
+                if parsed_config["LTM_DB"] == "Pinecone":
+                    memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
+                else:
+                    memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())
+            except:
+                print("Unable to setup the pincone connection...")
+                memory = None
 
             user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
 
