@@ -33,6 +33,7 @@ from superagi.tools.thinking.tools import ReasoningTool
 from superagi.tools.webscaper.tools import WebScraperTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
+from sqlalchemy import func
 import superagi.worker
 engine = connect_db()
 Session = sessionmaker(bind=engine)
@@ -76,16 +77,27 @@ class AgentExecutor:
             return "Agent Not found"
 
         tools = [
-            GoogleSerpTool(),
-            WriteFileTool(),
-            ReadFileTool(),
-            ReasoningTool(),
-            CodingTool(),
             WebScraperTool(),
+            ReasoningTool()
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
-        #print(parsed_config)
+        print("PARSED_CONFIG")
+        print(parsed_config)
+        max_iterations = (parsed_config["max_iterations"])
+        print(max_iterations)
+        total_calls = session.query(func.sum(AgentExecution.num_of_calls)).filter(
+            AgentExecution.agent_id == agent.id).scalar()
+        print("ITERATION ")
+        print(total_calls)
+        # print(parsed_config["max_iterations"])
+
+        if max_iterations <= total_calls:
+            db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+            db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
+            session.commit()
+            return "ITERATION_LIMIT_CROSSED"
+
         parsed_config["agent_execution_id"] = agent_execution.id
         if parsed_config["LTM_DB"] == "Pinecone":
             memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding())

@@ -2,6 +2,10 @@ import os
 from abc import ABC, abstractmethod
 from superagi.config.config import get_config
 import openai
+from sqlalchemy.orm import sessionmaker
+
+from superagi.models.configuration import Configuration
+from superagi.models.db import connect_db
 
 class BaseEmbedding(ABC):
 
@@ -26,7 +30,13 @@ class OpenAiEmbedding:
 
     def get_embedding(self, text):
         try:
-            openai.api_key = get_config("OPENAI_API_KEY")
+            # openai.api_key = get_config("OPENAI_API_KEY")
+            # openai.api_key =
+            engine = connect_db()
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            configuration = session.query(Configuration).filter_by(organisation_id=organisation_id, key=key).first()
+
             response = openai.Embedding.create(
                 input=[text],
                 engine=self.model

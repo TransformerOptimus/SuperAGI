@@ -15,4 +15,5 @@ class AgentWithConfig(BaseModel):
     permission_type: str
     LTM_DB:str
     memory_window:int
+    max_iterations:int
     
