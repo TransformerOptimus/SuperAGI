@@ -26,6 +26,7 @@ from superagi.controllers.project import router as project_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.user import router as user_router
+from superagi.controllers.config import router as config_router
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_step import AgentTemplateStep
 from superagi.models.organisation import Organisation
@@ -82,6 +83,7 @@ app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
+app.include_router(config_router,prefix="/configs")
 
 
 
@@ -128,20 +130,6 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 Session = sessionmaker(bind=engine)
 session = Session()
 organisation = session.query(Organisation).filter_by(id=1).first()
-
-# if not organisation or organisation is None:
-#     organisation = Organisation(id=1, name='Default Organization',
-#                                 description='This is the default organization')
-#     session.add(organisation)
-#     session.commit()
-#
-# project_name = "Default Project"
-# project = session.query(Project).filter_by(name="Default Project", organisation_id=organisation.id).first()
-# # project = Project.query.filter_by(name=project, organisation_id=org.id).first()
-# if project is None:
-#     project = Project(name=project_name, description=project_name, organisation_id=organisation.id)
-#     session.add(project)
-#     session.commit()
 
 
 def add_or_update_tool(db: Session, tool_name: str, folder_name: str, class_name: str, file_name: str):
@@ -352,8 +340,8 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-#     github_client_id = get_config("GITHUB_CLIENT_ID")
-#     github_client_secret = get_config("GITHUB_CLIENT_SECRET")
+    github_client_id = get_config("GITHUB_CLIENT_ID")
+    github_client_secret = get_config("GITHUB_CLIENT_SECRET")
 
     github_client_id = "eaaf029abe1165e23c1e"
     github_client_secret = "c7636b16e87c052983fab230ee0d453ff14e2e76"
