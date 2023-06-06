@@ -21,7 +21,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
-  const [maxIterations, setIterations] = useState(50);
+  const [maxIterations, setIterations] = useState(20);
 
   const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",

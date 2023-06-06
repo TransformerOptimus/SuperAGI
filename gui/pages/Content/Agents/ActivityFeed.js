@@ -113,6 +113,12 @@ export default function ActivityFeed({selectedRunId}) {
             <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
           </div>
         </div>}
+        {runStatus === 'ITERATION_LIMIT_EXCEEDED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+          <div style={{display: 'flex'}}>
+            <div style={{fontSize: '20px'}}>⚠️</div>
+            <div className={styles.feed_title}><i>Stopped running as maximum iterations exceeded!</i></div>
+          </div>
+        </div>}
       </div>
     </div>
   </>)
