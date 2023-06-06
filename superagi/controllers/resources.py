@@ -60,14 +60,19 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         bucket_name = get_config("BUCKET_NAME")
         # path to be added
         file_name = file.filename.split('.')
-        path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now())+file_name[1]
-        s3.upload_file(file.file, bucket_name, path)
+        print(file_name)
+        print(bucket_name)
+        path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now()).replace(' ','').replace('.','').replace(':','')+'.'+file_name[1]
+        print(path)
+        # s3.upload_file(file.file, bucket_name, path)
 
     resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
-    db.session.add(resource)
-    db.session.commit()
-    db.session.flush()
+    print("RESOURCES_______________________________")
+    print(resource)
+    # db.session.add(resource)
+    # db.session.commit()
+    # db.session.flush()
     print(resource)
     return resource
 

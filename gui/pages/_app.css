@@ -47,10 +47,6 @@ input[type=checkbox] {
     visibility: visible !important;
 }
 
-input[type=range] {
-    background-color: #181526;
-}
-
 input[type=checkbox i] {
     cursor: pointer !important;
 }
@@ -168,11 +164,6 @@ input[type=checkbox i] {
     border-radius: 8px;
     list-style: none;
     cursor: pointer;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .dropdown_item:hover {

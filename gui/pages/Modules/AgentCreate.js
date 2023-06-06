@@ -33,7 +33,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['agent goal 1']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo']
-  const [model, setModel] = useState(models[0]);
+  const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -258,12 +258,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    uploadFile(agentId, formData)
-      .then((response) => {
-      })
-      .catch((error) => {
-        console.error('Error uploading resource:', error);
-      });
+    return uploadFile(agentId, formData);
   }
 
   const handleAddAgent = () => {
@@ -313,7 +308,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
           input.forEach((fileData) => {
-            uploadResource(agent_id, fileData);
+            input.forEach(fileData => {
+              uploadResource(agent_id, fileData)
+                .then(response => {})
+                .catch(error => {
+                  console.error('Error uploading resource:', error);
+                });
+            });
           });
         }
         toast.success('Agent created successfully', {autoClose: 1800});
@@ -566,11 +567,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               {!isCluster && <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Max iterations</label>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <input style={{width: '90%'}} type="range" min={0} max={100} value={maxIterations}
-                         onChange={handleIterationChange}/>
-                  <input style={{width: '9%', order: '1'}} disabled={true} className="input_medium" type="text"
-                         value={maxIterations}/>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <input style={{width:'90%'}} type="range" min={0} max={100} value={maxIterations} onChange={handleIterationChange}/>
+                  <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
                 </div>
               </div>}
               {isCluster && <div style={{marginTop: '15px'}}>

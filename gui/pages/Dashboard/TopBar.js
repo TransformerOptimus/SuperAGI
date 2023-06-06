@@ -6,8 +6,9 @@ import { useRouter } from 'next/router';
 import agentStyles from '../Content/Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {refreshUrl} from "@/utils/utils";
 
-export default function TopBar({selectedProject, userName}) {
+export default function TopBar({selectedProject, userName, env}) {
   const [dropdown, setDropdown] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const router = useRouter();
@@ -19,13 +20,15 @@ export default function TopBar({selectedProject, userName}) {
   }
 
   const logoutUser = () => {
+    setDropdown(false);
+
     if (typeof window === 'undefined') {
       return;
     }
 
-    localStorage.setItem('accessToken', '');
+    localStorage.removeItem('accessToken');
+    refreshUrl();
     router.reload();
-    setDropdown(false);
   };
 
   const handleOpenAIKey = (event) => {
@@ -65,31 +68,31 @@ export default function TopBar({selectedProject, userName}) {
         <div className={styles.top_right}>
           <div onClick={() => setSettingsModal(true)} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
           {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}
-          <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          <div className={styles.top_right_icon} onClick={() => setDropdown(!dropdown)}>
             <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
           </div>
-          {dropdown && <div style={{marginTop:'13vh',marginRight:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-            <ul className="dropdown_container" style={{width:'120px'}}>
-              {userName && <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>}
+          {dropdown && env !== 'DEV' && <div style={{marginTop:'13vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <ul className="dropdown_container" style={{width:'fit-content'}}>
+              <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>
             </ul>
           </div>}
         </div>
       </div>
       {settingsModal && (<div className="modal" onClick={() => setSettingsModal(false)}>
-        <div className="modal-content" style={{width: '40%'}} onClick={preventDefault}>
+        <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={agentStyles.detail_name}>Settings</div>
           <div>
             <label className={agentStyles.form_label}>Open-AI API Key</label>
             <input placeholder="Enter your Open-AI API key" className="input_medium" type="password" value={openAIKey} onChange={handleOpenAIKey}/>
           </div>
-          <div style={{marginTop:'15px'}}>
-            <label className={agentStyles.form_label}>Temperature</label>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <input style={{width:'90%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>
-              <input style={{width:'9%',order:'1'}} disabled={true} className="input_medium" type="text" value={temperature}/>
-            </div>
-          </div>
+          {/*<div style={{marginTop:'15px'}}>*/}
+          {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
+          {/*  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
+          {/*    <input style={{width:'90%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
+          {/*    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={temperature}/>*/}
+          {/*  </div>*/}
+          {/*</div>*/}
           <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
             <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setSettingsModal(false)}>
               Cancel

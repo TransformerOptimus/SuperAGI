@@ -81,25 +81,34 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    print(project)
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     for tool_id in agent_with_config.tools:
         tool = db.session.query(Tool).get(tool_id)
         if tool is None:
             # Tool does not exist, throw 404 or handle as desired
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
+    print("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
 
     db_agent = Agent(name=agent_with_config.name, description=agent_with_config.description,
                      project_id=agent_with_config.project_id)
     db.session.add(db_agent)
     db.session.flush()  # Flush pending changes to generate the agent's ID
     db.session.commit()
+    print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+
+    print(db_agent)
 
     if agent_with_config.agent_type == "Don't Maintain Task Queue":
         agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Goal Based Agent").first()
+        print(agent_template)
         db_agent.agent_template_id = agent_template.id
     elif agent_with_config.agent_type == "Maintain Task Queue":
         agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Task Queue Agent With Seed").first()
         db_agent.agent_template_id = agent_template.id
     db.session.commit()
+
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
     # Create Agent Configuration
     agent_config_values = {
@@ -115,15 +124,24 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         "memory_window": agent_with_config.memory_window
     }
 
+    print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+
     agent_configurations = [
         AgentConfiguration(agent_id=db_agent.id, key=key, value=str(value))
         for key, value in agent_config_values.items()
     ]
+
+    print("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
     db.session.add_all(agent_configurations)
+    print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
     start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, db_agent.agent_template_id)
     # Creating an execution with CREATED status
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!S")
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
+
+    print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+
     db.session.add(execution)
 
     db.session.commit()

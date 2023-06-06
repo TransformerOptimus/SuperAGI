@@ -1,5 +1,13 @@
 import api from './apiConfig';
 
+export const getOrganisation = (userId) => {
+  return api.get(`/organisations/get/user/${userId}`);
+};
+
+export const addUser = (userData) => {
+  return api.post(`/users/add`, userData);
+};
+
 export const getProject = (organisationId) => {
   return api.get(`/projects/get/organisation/${organisationId}`);
 };
@@ -54,4 +62,8 @@ export const uploadFile = (agentId, formData) => {
 
 export const validateAccessToken = () => {
   return api.get(`/validate-access-token`);
+}
+
+export const checkEnvironment = () => {
+  return api.get(`/configs/get/env`);
 }
