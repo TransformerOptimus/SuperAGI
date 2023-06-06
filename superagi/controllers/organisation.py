@@ -56,14 +56,11 @@ def update_organisation(organisation_id: int, organisation: sqlalchemy_to_pydant
 @router.get("/get/user/{user_id}",response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
 def get_organisations_by_user(user_id: int):
     user = db.session.query(User).filter(User.id == user_id).first()
-    print("User : ",user)
     if user is None:
         raise HTTPException(status_code=400,
                             detail="User not found")
-    print(user.organisation_id)
     if user.organisation_id is not None:
         organistaion = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
-        print("OLD ",organistaion)
         return organistaion
 
     new_organisation = Organisation(

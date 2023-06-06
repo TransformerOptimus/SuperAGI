@@ -60,11 +60,11 @@ class WebpageExtractor:
 
         except ArticleException as ae:
             print(f"Error while extracting text from HTML (newspaper3k): {str(ae)}")
-            return ""
+            return f"Error while extracting text from HTML (newspaper3k): {str(ae)}"
 
         except RequestException as re:
             print(f"Error while making the request to the URL (newspaper3k): {str(re)}")
-            return ""
+            return f"Error while making the request to the URL (newspaper3k): {str(re)}"
 
         except Exception as e:
             print(f"Unknown error while extracting text from HTML (newspaper3k): {str(e)}")
@@ -92,10 +92,10 @@ class WebpageExtractor:
 
                 content = re.sub(r'\t', ' ', content)
                 content = re.sub(r'\s+', ' ', content)
-                return content[:1500]
+                return content
             else:
                 print(f"Error while extracting text from HTML (bs4): {response.status_code}")
-                return ""
+                return f"Error while extracting text from HTML (bs4): {response.status_code}"
 
         except Exception as e:
             print(f"Unknown error while extracting text from HTML (bs4): {str(e)}")
@@ -117,7 +117,7 @@ class WebpageExtractor:
             content = ' '.join([para.text_content() for para in paragraphs if para.text_content()])
             content = content.replace('\t', ' ').replace('\n', ' ').strip()
 
-            return content[:1600]
+            return content
 
         except ArticleException as ae:
             print(f"Error while extracting text from HTML (lxml): {str(ae)}")

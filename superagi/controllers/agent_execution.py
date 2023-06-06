@@ -2,6 +2,8 @@ from datetime import datetime
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+
+from superagi.models.agent_template import AgentTemplate
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -11,6 +13,7 @@ from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 
 router = APIRouter()
+
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
@@ -22,9 +25,11 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, agent.agent_template_id)
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id,name=agent_execution.name,calls=0,tokens=0)
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
+                                        num_of_tokens=0,
+                                        current_step_id=start_step_id)
     db.session.add(db_agent_execution)
     db.session.commit()
     if db_agent_execution.status == "RUNNING":
@@ -67,8 +72,6 @@ def update_agent_execution(agent_execution_id: int,
     db_agent_execution.status = agent_execution.status
 
     db_agent_execution.last_execution_time = datetime.now()
-    if agent_execution.name != None:
-        db_agent_execution.name = agent_execution.name
     db.session.commit()
 
     if db_agent_execution.status == "RUNNING":
@@ -79,7 +82,7 @@ def update_agent_execution(agent_execution_id: int,
 
 @router.get("/get/agents/status/{status}")
 def agent_list_by_status(status: str,
-                        Authorize: AuthJWT = Depends(check_auth)):
+                         Authorize: AuthJWT = Depends(check_auth)):
     """Get list of all agent_ids for a given status"""
 
     running_agent_ids = db.session.query(AgentExecution.agent_id).filter(
