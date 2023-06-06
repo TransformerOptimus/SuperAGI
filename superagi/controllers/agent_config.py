@@ -7,6 +7,9 @@ from superagi.models.agent_config import AgentConfiguration
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
+from fastapi_jwt_auth import AuthJWT
+
+
 
 router = APIRouter()
 
