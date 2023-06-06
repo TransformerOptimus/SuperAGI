@@ -1,12 +1,11 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import AgentCreate from '../Content/Agents/AgentCreate';
+import AgentCreate from '../Modules/AgentCreate';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
 import Settings from "./Settings/Settings";
 import AgentCluster from '../Content/AgentCluster/AgentCluster';
-import AgentClusterCreate from '../Content/AgentCluster/AgentClusterCreate';
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
@@ -137,7 +136,7 @@ export default function Content({selectedView, selectedProjectId}) {
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
         {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools}/></div>}
-        {selectedView === 'agent_cluster' && <div><AgentCluster sendAgentClusterData={addTab} /></div>}
+        {selectedView === 'agent_cluster' && <div><AgentCluster sendAgentClusterData={addTab} agents={agents} /></div>}
       </div>
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div className={styles.empty_state}>
@@ -175,10 +174,10 @@ export default function Content({selectedView, selectedProjectId}) {
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
-                    <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
+                    <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} isCluster={false}/>
                   </div>}
                   {tab.contentType === 'Create_Agent_Cluster' && <div className={styles.create_agent}>
-                    <AgentClusterCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
+                    <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} isCluster={true}/>
                   </div>}
                   {tab.contentType === 'Create_Tool' && <div className={styles.create_agent}>
                     <div className="row">

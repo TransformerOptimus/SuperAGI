@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import styles from './Agents.module.css';
+import styles from '../Content/Agents/Agents.module.css';
 import {createAgent, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, isCluster}) {
+  const [pageTitle, setPageTitle] = useState('');
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -68,6 +69,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
+  const [myAgents, setMyAgents] = useState([]);
+  const [agentNames, setAgentNames] = useState(['Agent 1', 'Agent 2 ', 'Agent 3']);
+  const agentRef1 = useRef(null);
+  const [agentDropdown1, setAgentDropdown1] = useState(false);
+
   const filterToolsByNames = () => {
     if(tools) {
       const filteredTools = tools.filter((tool) => toolNames.includes(tool.name));
@@ -79,6 +85,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleIterationChange = (event) => {
     setIterations(parseInt(event.target.value));
   };
+  useEffect(() => {
+    setPageTitle(isCluster ? 'Create new cluster' : 'Create new agent');
+    setAdvancedOptions(isCluster ? true : false)
+  }, []);
 
   useEffect(() => {
     filterToolsByNames();
@@ -136,6 +146,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     });
 
     setToolNames((prevArray) => {
+      const newArray = [...prevArray];
+      newArray.splice(indexToDelete, 1);
+      return newArray;
+    });
+  };
+  const removeAgent = (indexToDelete) => {
+    setMyTools((prevArray) => {
+      const newArray = [...prevArray];
+      newArray.splice(indexToDelete, 1);
+      return newArray;
+    });
+
+    setAgentNames((prevArray) => {
       const newArray = [...prevArray];
       newArray.splice(indexToDelete, 1);
       return newArray;
@@ -383,7 +406,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
         <div>
-          <div className={styles.page_title}>Create new agent</div>
+          <div className={styles.page_title}>{pageTitle}</div>
         </div>
         <div style={{marginTop:'10px'}}>
           <div>
@@ -394,6 +417,30 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             <label className={styles.form_label}>Description</label>
             <textarea className="textarea_medium" rows={3} value={agentDescription} onChange={handleDescriptionChange}/>
           </div>
+          {isCluster && <div style={{marginTop: '15px'}}>
+            <label className={styles.form_label}>Agents</label>
+            <div className="dropdown_container_search" style={{width:'100%'}}>
+              <div className="custom_select_container" onClick={() => setAgentDropdown1(!agentDropdown1)} style={{width:'100%'}}>
+                {agentNames && agentNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
+                  {agentNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
+                    <div className={styles.tool_text}>{tool}</div>
+                    <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeAgent(index)}/></div>
+                  </div>))}
+                </div> : <div style={{color:'#666666'}}>Select Tools</div>}
+                <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+              </div>
+              <div>
+                {agentDropdown1 && <div className="custom_select_options" ref={agentRef1} style={{width:'100%'}}>
+                  {tools && tools.map((tool, index) => (<div key={index}>
+                    {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
+                                                                                   style={{padding: '12px 14px', maxWidth: '100%'}}>
+                      {tool.name}
+                    </div>}
+                  </div>))}
+                </div>}
+              </div>
+            </div>
+          </div>}
           <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Goals</label></div>
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -446,11 +493,16 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           </div>
-          <div style={{marginTop: '15px'}}>
-            <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
-              {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.svg" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.svg" alt="expand-icon"/>}
+          {!isCluster && <div style={{marginTop: '15px'}}>
+            <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)}
+                    style={advancedOptions ? {background: '#494856'} : {}}>
+              {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ?
+                <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_up.svg"
+                       alt="expand-icon"/> :
+                <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_down.svg"
+                       alt="expand-icon"/>}
             </button>
-          </div>
+          </div>}
           {advancedOptions &&
             <div>
               {/*<div style={{marginTop: '15px'}}>*/}
@@ -508,28 +560,39 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 </div>))}
                 <div><button className="secondary_button" onClick={addConstraint}>+ Add</button></div>
               </div>
-              <div style={{marginTop:'15px'}}>
-                <label className={styles.form_label}>Max iterations</label>
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <input style={{width:'90%'}} type="range" min={0} max={100} value={maxIterations} onChange={handleIterationChange}/>
-                  <input style={{width:'9%',order:'1'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
-                </div>
+              <div style={{marginTop: '15px'}}>
+                <label className={styles.form_label}>Exit criterion</label>
+                <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Exit criterion</label>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
-              {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
-              {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {exit}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
+              {!isCluster && <div style={{marginTop: '15px'}}>
+                <label className={styles.form_label}>Max iterations</label>
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                  <input style={{width: '90%'}} type="range" min={0} max={100} value={maxIterations}
+                         onChange={handleIterationChange}/>
+                  <input style={{width: '9%', order: '1'}} disabled={true} className="input_medium" type="text"
+                         value={maxIterations}/>
+                </div>
+              </div>}
+              {isCluster && <div style={{marginTop: '15px'}}>
+                <label className={styles.form_label}>Exit criterion</label>
+                <div className="dropdown_container_search" style={{width: '100%'}}>
+                  <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)}
+                       style={{width: '100%'}}>
+                    {exitCriterion}<Image width={20} height={21}
+                                          src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                          alt="expand-icon"/>
+                  </div>
+                  <div>
+                    {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width: '100%'}}>
+                      {exitCriteria.map((exit, index) => (
+                          <div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)}
+                               style={{padding: '12px 14px', maxWidth: '100%'}}>
+                            {exit}
+                          </div>))}
+                    </div>}
+                  </div>
+                </div>
+              </div>}
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Time between steps (in milliseconds)</label>
                 <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>

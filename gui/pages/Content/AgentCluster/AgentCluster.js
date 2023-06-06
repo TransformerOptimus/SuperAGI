@@ -4,7 +4,7 @@ import styles from '../Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function AgentCluster({sendAgentClusterData}) {
+export default function AgentCluster({sendAgentClusterData,agents}) {
     return (
         <>
             <div className={styles.container}>
@@ -16,20 +16,20 @@ export default function AgentCluster({sendAgentClusterData}) {
                         + Create cluster
                     </button>
                 </div>
-                {/*{agents && agents.length > 0 ? <div className={styles.wrapper} style={{overflowY:'scroll',height:'80vh'}}>*/}
-                {/*    {agents.map((agent, index) => (*/}
-                {/*        <div key={index}>*/}
-                {/*            <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>*/}
-                {/*                {agent.status && <div className={styles.agent_active}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="active-icon"/></div>}*/}
-                {/*                <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>*/}
-                {/*            </div>*/}
-                {/*        </div>*/}
-                {/*    ))}*/}
-                {/*</div> : <div style={{*/}
-                {/*    marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'*/}
-                {/*}} className="form_label">*/}
-                {/*    No Agents found*/}
-                {/*</div>}*/}
+                {agents && agents.length > 0 ? <div className={styles.wrapper} style={{overflowY:'scroll',height:'80vh'}}>
+                    {agents.map((agent, index) => (
+                        <div key={index}>
+                            <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
+                                {agent.status && <div className={styles.agent_active}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="active-icon"/></div>}
+                                <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>
+                            </div>
+                        </div>
+                    ))}
+                </div> : <div style={{
+                    marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }} className="form_label">
+                    No Agents Clusters found
+                </div>}
             </div>
             <ToastContainer/>
         </>
