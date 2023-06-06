@@ -163,6 +163,9 @@
 
 .top_right {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
     order: 1;
 }
 
@@ -174,7 +177,7 @@
 }
 
 .top_right_icon {
-    margin-right: 5px;
+    margin-right: 10px;
     cursor: pointer;
     display: flex;
     order: 1;

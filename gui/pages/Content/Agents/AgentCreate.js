@@ -6,6 +6,7 @@ import styles from './Agents.module.css';
 import {createAgent, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
@@ -20,6 +21,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
+  const [maxIterations, setIterations] = useState(50);
 
   const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -72,6 +74,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       const toolIds = filteredTools.map((tool) => tool.id);
       setMyTools(toolIds);
     }
+  };
+
+  const handleIterationChange = (event) => {
+    setIterations(parseInt(event.target.value));
   };
 
   useEffect(() => {
@@ -270,6 +276,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
+      "max_iterations": maxIterations,
       "permission_type": permission,
       "LTM_DB": longTermMemory ? database : null,
       "memory_window": rollingWindow
@@ -500,6 +507,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>))}
                 <div><button className="secondary_button" onClick={addConstraint}>+ Add</button></div>
+              </div>
+              <div style={{marginTop:'15px'}}>
+                <label className={styles.form_label}>Max iterations</label>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <input style={{width:'90%'}} type="range" min={0} max={100} value={maxIterations} onChange={handleIterationChange}/>
+                  <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
+                </div>
               </div>
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <label className={styles.form_label}>Exit criterion</label>*/}

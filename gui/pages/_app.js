@@ -6,71 +6,43 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { addUser, getOrganization, getProject, validateAccessToken } from "@/pages/api/DashboardService";
+import { getProject, validateAccessToken } from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [accessToken, setAccessToken] = useState(null);
+  const [tokenAuthenticated, isTokenAuthenticated] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const organisationId = 1;
+  const [userName, setUserName] = useState('');
   const router = useRouter();
 
   useEffect(() => {
-    if(typeof window !== 'undefined') {
-      const includesLocalhost = window.location.href.includes('localhost');
+    const queryParams = router.asPath.split('?')[1];
+    const parsedParams = querystring.parse(queryParams);
+    let access_token = parsedParams.access_token || null;
 
-      if(includesLocalhost) {
-        const queryParams = router.asPath.split('?')[1];
-        const parsedParams = querystring.parse(queryParams);
-        let access_token = parsedParams.access_token || null;
-
-        if (access_token) {
-          localStorage.setItem('accessToken', access_token);
-        } else {
-          access_token = localStorage.getItem('accessToken') || null;
-        }
-
-        setAccessToken(access_token);
-      }
+    if(typeof window !== 'undefined' && access_token) {
+      localStorage.setItem('accessToken', access_token);
     }
+
+    validateAccessToken()
+      .then((response) => {
+        setUserName(response.data.name || '');
+        isTokenAuthenticated(true);
+        getProject(response.data.organisation_id)
+          .then((response) => {
+            setSelectedProject(response.data[0]);
+          })
+          .catch((error) => {
+            console.error('Error fetching project:', error);
+          });
+      })
+      .catch((error) => {
+        console.error('Error validating access token:', error);
+      });
   }, []);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      getOrganization()
-        .then((response) => {
-
-        })
-        .catch((error) => {
-          console.error('Error adding organization:', error);
-        });
-
-      const userData =  {
-        "name" : "SuperAGI User",
-        "email" : "super6@agi.com",
-        "password" : "pass@123",
-        "organisation" : organisationId
-      }
-
-      addUser(userData)
-        .then((response) => {
-        })
-        .catch((error) => {
-          console.error('Error adding user:', error);
-        });
-
-      getProject(organisationId)
-        .then((response) => {
-          setSelectedProject(response.data[0]);
-        })
-        .catch((error) => {
-          console.error('Error fetching project:', error);
-        });
-    }
-  }, [organisationId]);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -87,13 +59,13 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {accessToken !== null && accessToken !== '' ? <div className="projectStyle">
+      {tokenAuthenticated ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
         <div className="workSpaceStyle">
           <div className="topBarStyle">
-            <TopBar selectedProject={selectedProject}/>
+            <TopBar selectedProject={selectedProject} userName={userName}/>
           </div>
           <div className="contentStyle">
             <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>

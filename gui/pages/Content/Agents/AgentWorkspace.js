@@ -178,7 +178,7 @@ export default function AgentWorkspace({agentId}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/></div>}
+          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedRunId={selectedRun?.id || 0}/></div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue/></div>}
         </div>
       </div>
