@@ -167,6 +167,7 @@
     align-items: center;
     width: fit-content;
     order: 1;
+    height: 100%;
 }
 
 .top_left {

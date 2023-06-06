@@ -91,6 +91,7 @@ export default function AgentWorkspace({agentId}) {
 
     updateExecution(selectedRun.id, executionData)
       .then((response) => {
+        EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
         if(status !== 'TERMINATED') {
           fetchExecutions(agentId, response.data);
         } else {

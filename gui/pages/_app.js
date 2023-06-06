@@ -140,9 +140,6 @@ export default function App() {
               By continuing, you agree to Super AGI’s Terms of Service and Privacy Policy, and to receive important updates.
             </div>
           </div> : <div className="signInWrapper" style={{background:'transparent'}}>
-            <div style={{display:'flex',justifyContent:'center'}}>
-              <Image width={40} height={40} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="active-icon"/>
-            </div>
             <div className="signInInfo" style={{fontSize:'18px'}}>{loadingText}</div>
           </div>}
         </div>
