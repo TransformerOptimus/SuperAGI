@@ -19,13 +19,24 @@ export default function TopBar({selectedProject, userName}) {
   }
 
   const logoutUser = () => {
+    setDropdown(false);
+
     if (typeof window === 'undefined') {
       return;
     }
 
-    localStorage.setItem('accessToken', '');
+    localStorage.removeItem('accessToken');
+    refreshLogout();
+  };
+
+  const refreshLogout = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const urlWithoutToken = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, urlWithoutToken);
     router.reload();
-    setDropdown(false);
   };
 
   const handleOpenAIKey = (event) => {
