@@ -77,7 +77,7 @@ export default function ResourceManager({agentId}) {
         toast.success('Resource added successfully', { autoClose: 1800 });
       })
       .catch((error) => {
-        toast.error('Unsupported file format', { autoClose: 1800 });
+        toast.error(error, { autoClose: 1800 });
         console.error('Error uploading resource:', error);
       });
   }

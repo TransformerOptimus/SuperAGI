@@ -190,22 +190,22 @@ export default function AgentWorkspace({agentId}) {
             {/*    Action Console*/}
             {/*  </button>*/}
             {/*</div>*/}
-            {/*<div style={{marginLeft:'5px'}}>*/}
+            {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Feedback*/}
             {/*  </button>*/}
             {/*</div>*/}
-            <div style={{marginLeft:'5px'}}>
-              <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254'} : {background:'transparent'}}>
-                Details
+            <div>
+              <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Details
               </button>
             </div>
-            <div style={{marginLeft:'5px'}}>
-              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>
-                Resource Manager
+            <div>
+              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                <Image style={{marginTop:'-2px'}} width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
               </button>
             </div>
-            {/*<div style={{marginLeft:'5px'}}>*/}
+            {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Logs*/}
             {/*  </button>*/}

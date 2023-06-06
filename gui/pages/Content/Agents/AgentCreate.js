@@ -235,12 +235,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     formData.append('size', fileData.size);
     formData.append('type', fileData.type);
 
-    uploadFile(agentId, formData)
-      .then((response) => {
-      })
-      .catch((error) => {
-        console.error('Error uploading resource:', error);
-      });
+    return uploadFile(agentId, formData);
   }
 
   const handleAddAgent = () => {
@@ -290,7 +285,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
           input.forEach((fileData) => {
-            uploadResource(agent_id, fileData);
+            input.forEach(fileData => {
+              uploadResource(agent_id, fileData)
+                .then(response => {})
+                .catch(error => {
+                  console.error('Error uploading resource:', error);
+                });
+            });
           });
         }
         toast.success('Agent created successfully', {autoClose: 1800});
