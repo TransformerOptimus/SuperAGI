@@ -67,3 +67,11 @@ export const validateAccessToken = () => {
 export const checkEnvironment = () => {
   return api.get(`/configs/get/env`);
 }
+
+export const getOrganisationConfig = (organisationId, key) => {
+  return api.get(`/configs/get/organisation/${organisationId}/key/${key}`);
+}
+
+export const updateOrganisationConfig = (organisationId, configData) => {
+  return api.post(`/configs/add/organisation/${organisationId}`, configData);
+}

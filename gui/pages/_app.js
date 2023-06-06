@@ -29,7 +29,7 @@ export default function App() {
     const interval = setInterval(() => {
       dots = dots.length < 3 ? dots + '.' : '';
       setLoadingText(`${text}${dots}`);
-    }, 250);
+    }, 500);
 
     return () => clearInterval(interval);
   }, []);
@@ -123,7 +123,7 @@ export default function App() {
         </div>
         <div className="workSpaceStyle">
           <div className="topBarStyle">
-            <TopBar selectedProject={selectedProject} userName={userName} env={env}/>
+            <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
             <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
