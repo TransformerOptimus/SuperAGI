@@ -14,16 +14,16 @@ import {refreshUrl} from "@/utils/utils";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [applicationState, setApplicationState] = useState("LOADING");
+  const [applicationState, setApplicationState] = useState("Initializing SuperAGI");
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
   const [organisationId, setOrganisationId] = useState(null);
   const [env, setEnv] = useState('DEV');
-  const [loadingText, setLoadingText] = useState("Loading");
+  const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
 
   useEffect(() => {
-    const text = 'Loading';
+    const text = 'Initializing SuperAGI';
     let dots = '';
 
     const interval = setInterval(() => {
@@ -113,6 +113,8 @@ export default function App() {
     <div className="app">
       <Head>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
       {applicationState === 'AUTHENTICATED' ? <div className="projectStyle">
@@ -140,7 +142,7 @@ export default function App() {
               By continuing, you agree to Super AGI’s Terms of Service and Privacy Policy, and to receive important updates.
             </div>
           </div> : <div className="signInWrapper" style={{background:'transparent'}}>
-            <div className="signInInfo" style={{fontSize:'18px'}}>{loadingText}</div>
+            <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
           </div>}
         </div>
       </div>}
