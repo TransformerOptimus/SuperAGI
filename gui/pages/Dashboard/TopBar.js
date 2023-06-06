@@ -80,7 +80,7 @@ export default function TopBar({selectedProject, userName}) {
         </div>
       </div>
       {settingsModal && (<div className="modal" onClick={() => setSettingsModal(false)}>
-        <div className="modal-content" style={{width: '40%'}} onClick={preventDefault}>
+        <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={agentStyles.detail_name}>Settings</div>
           <div>
             <label className={agentStyles.form_label}>Open-AI API Key</label>
