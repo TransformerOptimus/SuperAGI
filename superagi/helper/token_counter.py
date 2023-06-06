@@ -33,6 +33,8 @@ class TokenCounter:
 
         num_tokens = 0
         for message in messages:
+            if isinstance(message, str):
+                message = {'content': message}
             num_tokens += tokens_per_message
             num_tokens += len(encoding.encode(message['content']))
 

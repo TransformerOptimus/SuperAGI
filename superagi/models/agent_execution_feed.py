@@ -17,4 +17,4 @@ class AgentExecutionFeed(DBBaseModel):
     def __repr__(self):
         return f"AgentExecutionFeed(id={self.id}, " \
                f"agent_execution_id={self.agent_execution_id}, " \
-               f"feed='{self.feed}', type='{self.type}')"
+               f"feed='{self.feed}', type='{self.type}', extra_info={self.extra_info})"

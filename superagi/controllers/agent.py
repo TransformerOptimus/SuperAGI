@@ -2,24 +2,32 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.agent import Agent
-from superagi.models.agent import Project
+from superagi.models.project import Project
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
+from superagi.models.agent_template import AgentTemplate
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.tool import Tool
 from jsonmerge import merge
 from superagi.worker import execute_agent
 from datetime import datetime
 import json
+from sqlalchemy import func
+from superagi.helper.auth import check_auth
 
 router = APIRouter()
 
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
-def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]), Authorize: AuthJWT = Depends()):
+def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+                 Authorize: AuthJWT = Depends(check_auth)):
+    """Create agent new agent"""
+
     project = db.session.query(Project).get(agent.project_id)
 
     if not project:
@@ -28,12 +36,14 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]), Authorize
     db_agent = Agent(name=agent.name, description=agent.description, project_id=agent.project_id)
     db.session.add(db_agent)
     db.session.commit()
-    print(db_agent)
     return db_agent
 
 
 @router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
-def get_agent(agent_id: int, Authorize: AuthJWT = Depends()):
+def get_agent(agent_id: int,
+              Authorize: AuthJWT = Depends(check_auth)):
+    """Get particular agent by agent_id"""
+
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
@@ -41,7 +51,10 @@ def get_agent(agent_id: int, Authorize: AuthJWT = Depends()):
 
 
 @router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
-def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"])):
+def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+                 Authorize: AuthJWT = Depends(check_auth)):
+    """Update agent by agent_id"""
+
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
@@ -59,7 +72,10 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 
 
 @router.post("/create", status_code=201)
-def create_agent_with_config(agent_with_config: AgentWithConfig):
+def create_agent_with_config(agent_with_config: AgentWithConfig,
+                             Authorize: AuthJWT = Depends(check_auth)):
+    """Create new agent with configurations"""
+
     # Checking for project
     project = db.session.query(Project).get(agent_with_config.project_id)
     if not project:
@@ -75,6 +91,14 @@ def create_agent_with_config(agent_with_config: AgentWithConfig):
                      project_id=agent_with_config.project_id)
     db.session.add(db_agent)
     db.session.flush()  # Flush pending changes to generate the agent's ID
+    db.session.commit()
+
+    if agent_with_config.agent_type == "Don't Maintain Task Queue":
+        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Goal Based Agent").first()
+        db_agent.agent_template_id = agent_template.id
+    elif agent_with_config.agent_type == "Maintain Task Queue":
+        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Task Queue Agent With Seed").first()
+        db_agent.agent_template_id = agent_template.id
     db.session.commit()
 
     # Create Agent Configuration
@@ -96,14 +120,14 @@ def create_agent_with_config(agent_with_config: AgentWithConfig):
         for key, value in agent_config_values.items()
     ]
     db.session.add_all(agent_configurations)
-
+    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, db_agent.agent_template_id)
     # Creating an execution with CREATED status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run")
+                               name="New Run", current_step_id=start_step_id)
     db.session.add(execution)
+
     db.session.commit()
     execute_agent.delay(execution.id, datetime.now())
-
 
     return {
         "id": db_agent.id,
@@ -114,7 +138,10 @@ def create_agent_with_config(agent_with_config: AgentWithConfig):
 
 
 @router.get("/get/project/{project_id}")
-def get_agents_by_project_id(project_id: int):
+def get_agents_by_project_id(project_id: int,
+                             Authorize: AuthJWT = Depends(check_auth)):
+    """Get all agents by project_id"""
+
     # Checking for project
     project = db.session.query(Project).get(project_id)
     if not project:
@@ -134,8 +161,6 @@ def get_agents_by_project_id(project_id: int):
             if execution.status == "RUNNING":
                 isRunning = True
                 break
-        # Add the execution status to the agent dictionary
-        # agent['status'] = execution.status if execution else None
         new_agent = {
             **agent_dict,
             'status': isRunning
@@ -145,8 +170,11 @@ def get_agents_by_project_id(project_id: int):
 
 
 @router.get("/get/details/{agent_id}")
-def get_agent_configuration(agent_id: int):
-    # Define the keys to fetch
+def get_agent_configuration(agent_id: int,
+                            Authorize: AuthJWT = Depends(check_auth)):
+    """Get agent using agent_id with all its configuration"""
+
+    # Define the agent_config keys to fetch
     keys_to_fetch = ["goal", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
                      "permission_type", "LTM_DB", "memory_window"]
 
@@ -158,11 +186,16 @@ def get_agent_configuration(agent_id: int):
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
+    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(AgentExecution.agent_id == agent_id).scalar()
+    total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
+        AgentExecution.agent_id == agent_id).scalar()
 
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 "goal": eval(response["goal"]),
+                                "calls": total_calls,
+                                "tokens": total_tokens,
                                 "constraints": eval(response["constraints"]),
                                 "tools": [int(x) for x in json.loads(response["tools"])]})
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()

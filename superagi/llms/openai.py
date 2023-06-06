@@ -23,7 +23,6 @@ class OpenAi(BaseLlm):
 
     def chat_completion(self, messages, max_tokens=4032):
         try:
-            # print("Messages:", messages)
             openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.ChatCompletion.create(
                 n=self.number_of_results,

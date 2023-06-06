@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/app/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId}) {
@@ -169,10 +169,10 @@ export default function AgentWorkspace({agentId}) {
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className={styles.dropdown_container}>
-                {selectedRun && selectedRun.status === 'RUNNING' && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
-                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
-                {agentExecutions && agentExecutions.length > 1 && <li className={styles.dropdown_item} onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
+              <ul className="dropdown_container">
+                {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
+                {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
               </ul>
             </div>}
           </div>
@@ -231,16 +231,16 @@ export default function AgentWorkspace({agentId}) {
             {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{flex:'1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleGoalChange(index, event.target.value)}/></div>
               {goals.length > 1 && <div>
-                <button className={styles.agent_button} style={{marginLeft: '4px', padding: '5px'}}
+                <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
                   <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
-            <div><button className={styles.agent_button} onClick={addGoal}>+ Add</button></div>
+            <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>}
           <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-            <button className={styles.agent_button} style={{marginRight: '10px'}} onClick={closeRunModal}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeRunModal}>
               Cancel
             </button>
             <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={() => handleCreateRun()}>
