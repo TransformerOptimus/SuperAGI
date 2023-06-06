@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import agentStyles from '../Content/Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {refreshUrl} from "@/utils/utils";
 
 export default function TopBar({selectedProject, userName}) {
   const [dropdown, setDropdown] = useState(false);
@@ -26,16 +27,7 @@ export default function TopBar({selectedProject, userName}) {
     }
 
     localStorage.removeItem('accessToken');
-    refreshLogout();
-  };
-
-  const refreshLogout = () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const urlWithoutToken = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, urlWithoutToken);
+    refreshUrl();
     router.reload();
   };
 
@@ -76,10 +68,10 @@ export default function TopBar({selectedProject, userName}) {
         <div className={styles.top_right}>
           <div onClick={() => setSettingsModal(true)} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
           {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}
-          <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          <div className={styles.top_right_icon} onClick={() => setDropdown(!dropdown)}>
             <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
           </div>
-          {dropdown && <div style={{marginTop:'15vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          {dropdown && <div style={{marginTop:'13vh',marginRight:'-45px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
             <ul className="dropdown_container" style={{width:'fit-content'}}>
               <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>

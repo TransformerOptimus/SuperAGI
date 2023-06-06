@@ -10,6 +10,7 @@ import { getOrganisation, getProject, validateAccessToken } from "@/pages/api/Da
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
+import {refreshUrl} from "@/utils/utils";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -26,6 +27,7 @@ export default function App() {
 
     if(typeof window !== 'undefined' && access_token) {
       localStorage.setItem('accessToken', access_token);
+      refreshUrl();
     }
 
     validateAccessToken()
