@@ -102,10 +102,10 @@ export default function Details({agentDetails, runCount}) {
         <div><Image width={15} height={15} src="/images/key.svg" alt="permission-type-icon"/></div>
         <div style={info_text}>{agentDetails?.permission_type.replace(/\s*\([^)]*\)/g, '') || ''}</div>
       </div>
-      <div className={styles.agent_info_box}>
+      {agentDetails?.max_iterations && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
-        <div style={info_text}>Stop after {agentDetails?.max_iterations || 0} iterations</div>
-      </div>
+        <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
+      </div>}
     </div>
   </>)
 }
