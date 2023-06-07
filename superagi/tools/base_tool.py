@@ -180,6 +180,4 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
     else:
         return decorator
 
-# def registerTool():
-#     print("Register tool")
 

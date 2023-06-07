@@ -42,7 +42,8 @@ class Agent(DBBaseModel):
             "model": None,
             "permission_type": None,
             "LTM_DB": None,
-            "memory_window": None
+            "memory_window": None,
+            "max_iterations" : None
         }
         if not agent_configurations:
             return parsed_config
@@ -78,4 +79,6 @@ class Agent(DBBaseModel):
                 parsed_config["LTM_DB"] = value
             elif key == "memory_window":
                 parsed_config["memory_window"] = int(value)
+            elif key == "max_iterations":
+                parsed_config["max_iterations"] = int(value)
         return parsed_config
