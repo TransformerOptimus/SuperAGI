@@ -10,7 +10,7 @@ from superagi.tools.base_tool import BaseTool
 class WebScraperSchema(BaseModel):
     website_url: str = Field(
         ...,
-        description="website url",
+        description="Valid website url without any quotes.",
     )
 
 

@@ -32,6 +32,11 @@ export const getExecutionFeeds = (executionId) => {
   return api.get(`/agentexecutionfeeds/get/execution/${executionId}`);
 };
 
+export const getExecutionTasks = (executionId) => {
+  return api.get(`/agentexecutionfeeds/get/tasks/${executionId}`);
+};
+
+
 export const createAgent = (agentData) => {
   return api.post(`/agents/create`, agentData);
 };
@@ -66,4 +71,12 @@ export const validateAccessToken = () => {
 
 export const checkEnvironment = () => {
   return api.get(`/configs/get/env`);
+}
+
+export const getOrganisationConfig = (organisationId, key) => {
+  return api.get(`/configs/get/organisation/${organisationId}/key/${key}`);
+}
+
+export const updateOrganisationConfig = (organisationId, configData) => {
+  return api.post(`/configs/add/organisation/${organisationId}`, configData);
 }

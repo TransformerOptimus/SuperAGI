@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
@@ -7,8 +7,9 @@ import agentStyles from '../Content/Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {refreshUrl} from "@/utils/utils";
+import {getOrganisationConfig, updateOrganisationConfig} from "@/pages/api/DashboardService";
 
-export default function TopBar({selectedProject, userName, env}) {
+export default function TopBar({selectedProject, organisationId, userName, env}) {
   const [dropdown, setDropdown] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
   const router = useRouter();
@@ -17,6 +18,32 @@ export default function TopBar({selectedProject, userName, env}) {
 
   const settingsTab = () => {
     EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
+  }
+
+  function getKey(key) {
+    getOrganisationConfig(organisationId, key)
+      .then((response) => {
+        setKey(response.data.value);
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
+      });
+  }
+
+  useEffect(() => {
+    getKey("model_api_key");
+  }, [organisationId]);
+
+  function updateKey(key, value) {
+    const configData = {"key": key, "value": value};
+    updateOrganisationConfig(organisationId, configData)
+      .then((response) => {
+        getKey("model_api_key");
+        toast.success("Settings updated", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
+      });
   }
 
   const logoutUser = () => {
@@ -40,8 +67,8 @@ export default function TopBar({selectedProject, userName, env}) {
   };
 
   const saveSettings = () => {
+    updateKey("model_api_key", openAIKey);
     setSettingsModal(false);
-    toast.success("Settings updated", {autoClose: 1800});
   };
 
   const handleTemperatureChange = (event) => {

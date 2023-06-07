@@ -17,3 +17,13 @@ class Resource(DBBaseModel):
 
     def __repr__(self):
         return f"Resource(id={self.id}, name='{self.name}', storage_type='{self.storage_type}', path='{self.path}, size='{self.size}', type='{self.type}', channel={self.channel}, agent_id={self.agent_id})"
+
+    @staticmethod
+    def validate_resource_type(storage_type):
+        valid_types = ["FILE", "S3"]
+
+        if storage_type not in valid_types:
+            raise InvalidResourceType("Invalid resource type")
+
+class InvalidResourceType(Exception):
+    """Custom exception for invalid resource type"""

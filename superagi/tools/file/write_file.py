@@ -42,14 +42,9 @@ def make_written_file_resource(file_name: str, agent_id: int):
                             channel="OUTPUT",
                             agent_id=agent_id)
     elif storage_type == "S3":
-        # Logic for uploading to S3
         bucket_name = get_config("BUCKET_NAME")
-        # path to be added
         file_name = file_name.split('.')
-        print(file_name)
-        print(bucket_name)
         path = 'output/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(':', '') + '.' + file_name[1]
-        print(path)
         try:
             s3.upload_file(final_path, bucket_name, path)
             print("File uploaded successfully!")
@@ -61,7 +56,7 @@ def make_written_file_resource(file_name: str, agent_id: int):
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write")
+    file_name: str = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
     content: str = Field(..., description="File content to write")
 
 

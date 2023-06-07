@@ -93,6 +93,8 @@ class WebpageExtractor:
                 content = re.sub(r'\t', ' ', content)
                 content = re.sub(r'\s+', ' ', content)
                 return content
+            elif response.status_code == 404:
+                return f"Error: 404. Url is invalid or does not exist. Try with valid url..."
             else:
                 print(f"Error while extracting text from HTML (bs4): {response.status_code}")
                 return f"Error while extracting text from HTML (bs4): {response.status_code}"

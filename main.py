@@ -107,7 +107,6 @@ def create_access_token(email,Authorize: AuthJWT = Depends()):
     # expiry_time_hours = get_config("JWT_EXPIRY")
     expiry_time_hours = 1
     expires = timedelta(hours=expiry_time_hours)
-    print("EMAIL : ",email)
     access_token = Authorize.create_access_token(subject=email,expires_time=expires)
     return access_token
 
@@ -342,6 +341,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     github_token_url = 'https://github.com/login/oauth/access_token'
     # github_client_id = get_config("GITHUB_CLIENT_ID")
     # github_client_secret = get_config("GITHUB_CLIENT_SECRET")
+
 
     github_client_id = "eaaf029abe1165e23c1e"
     github_client_secret = "c7636b16e87c052983fab230ee0d453ff14e2e76"

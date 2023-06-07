@@ -136,10 +136,6 @@ class SuperAgi:
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": template_step.completion_prompt})
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=template_step.completion_prompt,
-                                                      role="user")
-            session.add(agent_execution_feed)
         else:
             prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue, max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
