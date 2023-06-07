@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
@@ -94,8 +95,7 @@ app.include_router(config_router,prefix="/configs")
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
     # jwt_secret = get_config("JWT_SECRET_KEY")
-    authjwt_secret_key: str = "secret"
-#     authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+    authjwt_secret_key: str = superagi.config.config.get_config("JWT_SECRET_KEY")
 
 def create_access_token(email,Authorize: AuthJWT = Depends()):
     expiry_time_hours = get_config("JWT_EXPIRY")
@@ -301,7 +301,7 @@ build_single_step_agent()
 build_task_based_agents()
 
 # Specify the folder path
-folder_path = "superagi/tools"
+folder_path = superagi.config.config.get_config("TOOLS_DIR")
 
 # Process the files and store class information
 process_files(folder_path)
@@ -339,14 +339,10 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-    # github_client_id = get_config("GITHUB_CLIENT_ID")
-    # github_client_secret = get_config("GITHUB_CLIENT_SECRET")
+    github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
+    github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
 
-
-    github_client_id = "eaaf029abe1165e23c1e"
-    github_client_secret = "c7636b16e87c052983fab230ee0d453ff14e2e76"
-
-    frontend_url = "http://localhost:3000"
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL")
     params = {
         'client_id': github_client_id,
         'client_secret': github_client_secret,
