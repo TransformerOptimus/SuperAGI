@@ -25,7 +25,7 @@ class GithubSearchRepoSchema(BaseModel):
     )
     folder_path: str = Field(
         ...,
-        description="folder path in which file is present",
+        description="Folder path in which file is present",
     )
 
 
