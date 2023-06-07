@@ -93,7 +93,6 @@ export default function App() {
     getProject(organisationId)
       .then((response) => {
         setSelectedProject(response.data[0]);
-        setApplicationState("AUTHENTICATED");
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
