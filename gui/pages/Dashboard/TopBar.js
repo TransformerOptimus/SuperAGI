@@ -98,7 +98,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
           <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}>
             <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
           </div>
-          {dropdown && env !== 'DEV' && <div style={{marginTop:'4vh',marginRight:'70px'}}>
+          {dropdown && env === 'PROD' && <div style={{marginTop:'4vh',marginRight:'70px'}}>
             <ul className="dropdown_container" style={{width:'fit-content'}}>
               <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>
