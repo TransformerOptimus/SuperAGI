@@ -14,7 +14,7 @@ import {refreshUrl} from "@/utils/utils";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [applicationState, setApplicationState] = useState("Initializing SuperAGI");
+  const [applicationState, setApplicationState] = useState("LOADING");
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
   const [organisationId, setOrganisationId] = useState(null);
@@ -48,22 +48,7 @@ export default function App() {
     checkEnvironment()
       .then((response) => {
         setEnv(response.data.env);
-        if (response.data.env === 'DEV') {
-          const userData =  {
-            "name" : "SuperAGI User",
-            "email" : "super6@agi.com",
-            "password" : "pass@123",
-          }
-
-          addUser(userData)
-            .then((response) => {
-              setUserName(response.data.name);
-              fetchOrganisation(response.data.id);
-            })
-            .catch((error) => {
-              console.error('Error adding user:', error);
-            });
-        } else {
+        if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
@@ -81,6 +66,21 @@ export default function App() {
             })
             .catch((error) => {
               console.error('Error validating access token:', error);
+            });
+        } else {
+          const userData =  {
+            "name" : "SuperAGI User",
+            "email" : "super6@agi.com",
+            "password" : "pass@123",
+          }
+
+          addUser(userData)
+            .then((response) => {
+              setUserName(response.data.name);
+              fetchOrganisation(response.data.id);
+            })
+            .catch((error) => {
+              console.error('Error adding user:', error);
             });
         }
       })
@@ -112,6 +112,7 @@ export default function App() {
   return (
     <div className="app">
       <Head>
+        <title>SuperAGI</title>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}

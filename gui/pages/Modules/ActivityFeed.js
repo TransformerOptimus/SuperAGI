@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from '../Content/Agents/Agents.module.css';
 import Head from 'next/head';
+import styles from './Agents.module.css';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {formatTime} from "@/utils/utils";
@@ -75,10 +76,6 @@ export default function ActivityFeed({selectedRunId}) {
   });
 
   return (<>
-    <Head>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
-    </Head>
     <div style={{overflowY: "auto",maxHeight:'80vh'}} ref={feedContainerRef}>
       <div style={{marginBottom:'140px'}}>
         {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>

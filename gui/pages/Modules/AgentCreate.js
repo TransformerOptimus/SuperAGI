@@ -6,7 +6,6 @@ import styles from '../Content/Agents/Agents.module.css';
 import {createAgent, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
-import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, isCluster}) {
   const [pageTitle, setPageTitle] = useState('');
@@ -19,6 +18,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [addResources, setAddResources] = useState(true);
   const [input, setInput] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [createClickable, setCreateClickable] = useState(true);
   const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
@@ -262,6 +262,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }
 
   const handleAddAgent = () => {
+    setCreateClickable(false);
+
     if (agentName.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
       return
@@ -318,9 +320,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           });
         }
         toast.success('Agent created successfully', {autoClose: 1800});
+        setCreateClickable(true);
       })
       .catch((error) => {
         console.error('Error creating agent:', error);
+        setCreateClickable(true);
       });
   };
 
@@ -653,7 +657,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
-            <button className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
           </div>
         </div>
       </div>

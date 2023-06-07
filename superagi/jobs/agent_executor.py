@@ -112,12 +112,7 @@ class AgentExecutor:
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
         max_iterations = (parsed_config["max_iterations"])
-        total_calls = session.query(func.sum(AgentExecution.num_of_calls)).filter(
-            AgentExecution.agent_id == agent.id).scalar()
-        print(max_iterations)
-        print("ITERATION ")
-        print(total_calls)
-        # print(parsed_config["max_iterations"])
+        total_calls = agent_execution.num_of_calls
 
         if max_iterations <= total_calls:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
@@ -174,9 +169,9 @@ class AgentExecutor:
             if hasattr(tool, 'goals'):
                 tool.goals = parsed_config["goal"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
-                tool.llm = OpenAi(model="gpt-3.5-turbo",api_key=model_api_key)
+                tool.llm = OpenAi(model="gpt-3.5-turbo",api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):
-                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
+                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
             elif hasattr(tool,'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"],api_key=model_api_key)
             elif hasattr(tool, 'agent_id'):

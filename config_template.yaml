@@ -1,25 +1,8 @@
+#####################------------------SYSTEM KEYS-------------------------########################
 PINECONE_API_KEY: YOUR_PINECONE_API_KEY
 PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
-OPENAI_API_KEY: YOUT_OPEN_API_KEY
-
-#####################------------------TOOLS KEY-------------------------########################
-#If you have google api key and CSE key, use this
-GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
-SEARCH_ENGINE_ID: YOUR_SEARCH_ENIGNE_ID
-
-# IF YOU DONT HAVE GOOGLE SERACH KEY, USE THIS
-SERP_API_KEY: YOUR_SERP_API_KEY
-
-#ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
-EMAIL_ADDRESS: YOUR_EMAIL_ADDRESS
-EMAIL_PASSWORD: YOUR_EMAIL_APP_PASSWORD #get the app password from (https://myaccount.google.com/apppasswords)
-EMAIL_SMTP_HOST: smtp.gmail.com #Change the SMTP host if not using Gmail
-EMAIL_SMTP_PORT: 587 #Change the SMTP port if not using Gmail
-EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
-EMAIL_SIGNATURE: Email sent by SuperAGI
-EMAIL_DRAFT_MODE_WITH_FOLDER: YOUR_DRAFTS_FOLDER
-EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
+OPENAI_API_KEY: YOUR_OPEN_API_KEY
 
 #DATABASE INFO
 MAX_TOOL_TOKEN_LIMIT: 800
@@ -33,6 +16,9 @@ REDIS_URL: "super__redis:6379"
 
 #STORAGE TYPE ("FILE" or "S3")
 STORAGE_TYPE: "FILE"
+
+#TOOLS
+TOOLS_DIR: "superagi/tools"
 
 #STORAGE INFO FOR FILES
 RESOURCES_INPUT_ROOT_DIR: workspace/input
@@ -51,3 +37,26 @@ expiry_time_hours: 1
 #GITHUB OAUTH:
 GITHUB_CLIENT_ID:
 GITHUB_CLIENT_SECRET:
+FRONTEND_URL: "http://localhost:3000"
+
+#ENCRPYTION KEY
+ENCRYPTION_KEY: secret
+
+
+#####################------------------TOOLS KEY-------------------------########################
+#If you have google api key and CSE key, use this
+GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
+SEARCH_ENGINE_ID: YOUR_SEARCH_ENIGNE_ID
+
+# IF YOU DONT HAVE GOOGLE SERACH KEY, USE THIS
+SERP_API_KEY: YOUR_SERP_API_KEY
+
+#ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
+EMAIL_ADDRESS: YOUR_EMAIL_ADDRESS
+EMAIL_PASSWORD: YOUR_EMAIL_APP_PASSWORD #get the app password from (https://myaccount.google.com/apppasswords)
+EMAIL_SMTP_HOST: smtp.gmail.com #Change the SMTP host if not using Gmail
+EMAIL_SMTP_PORT: 587 #Change the SMTP port if not using Gmail
+EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
+EMAIL_SIGNATURE: Email sent by SuperAGI
+EMAIL_DRAFT_MODE_WITH_FOLDER: YOUR_DRAFTS_FOLDER
+EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
