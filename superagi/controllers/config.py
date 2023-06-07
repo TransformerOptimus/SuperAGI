@@ -63,7 +63,7 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
                                                     Configuration.key == key).first()
     if config is None and key == "model_api_key":
         api_key = get_config("OPENAI_API_KEY")
-        if api_key is not None:
+        if api_key is not None and api_key != "YOUR_OPEN_API_KEY":
             encrypted_data = encrypt_data(api_key)
             new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
             db.session.add(new_config)
