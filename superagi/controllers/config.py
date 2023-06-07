@@ -64,13 +64,11 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
     if config is None:
         api_key = get_config("OPENAI_API_KEY")
         if api_key is not None:
-            print("API Key",api_key)
             encrypted_data = encrypt_data(api_key)
             new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
             db.session.add(new_config)
             db.session.commit()
             db.session.flush()
-            print("Backward compatible",new_config)
             return new_config
         return config
 
