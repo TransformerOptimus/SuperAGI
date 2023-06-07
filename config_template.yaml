@@ -1,7 +1,47 @@
+#####################------------------SYSTEM KEYS-------------------------########################
 PINECONE_API_KEY: YOUR_PINECONE_API_KEY
 PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
 OPENAI_API_KEY: YOUR_OPEN_API_KEY
+
+#DATABASE INFO
+MAX_TOOL_TOKEN_LIMIT: 800
+
+# redis details
+DB_NAME: super_agi_main
+POSTGRES_URL: super__postgres
+DB_USERNAME: superagi
+DB_PASSWORD: password
+REDIS_URL: "super__redis:6379"
+
+#STORAGE TYPE ("FILE" or "S3")
+STORAGE_TYPE: "FILE"
+
+#TOOLS
+TOOLS_DIR: "superagi/tools"
+
+#STORAGE INFO FOR FILES
+RESOURCES_INPUT_ROOT_DIR: workspace/input
+RESOURCES_OUTPUT_ROOT_DIR: workspace/output
+
+#S3 RELATED DETAILS ONLY WHEN STORAGE_TYPE IS "S3"
+BUCKET_NAME:
+AWS_ACCESS_KEY_ID:
+AWS_SECRET_ACCESS_KEY:
+
+#AUTH
+ENV: 'DEV' #DEV,PROD, to use GITHUB OAUTH set to PROD
+JWT_SECRET_KEY: 'secret'
+expiry_time_hours: 1
+
+#GITHUB OAUTH:
+GITHUB_CLIENT_ID:
+GITHUB_CLIENT_SECRET:
+FRONTEND_URL: "http://localhost:3000"
+
+#ENCRPYTION KEY
+ENCRYPTION_KEY: secret
+
 
 #####################------------------TOOLS KEY-------------------------########################
 #If you have google api key and CSE key, use this
@@ -20,24 +60,3 @@ EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
 EMAIL_SIGNATURE: Email sent by SuperAGI
 EMAIL_DRAFT_MODE_WITH_FOLDER: YOUR_DRAFTS_FOLDER
 EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
-
-#DATABASE INFO
-MAX_TOOL_TOKEN_LIMIT: 800
-
-# redis details
-DB_NAME: super_agi_main
-POSTGRES_URL: super__postgres
-DB_USERNAME: superagi
-DB_PASSWORD: password
-REDIS_URL: "super__redis:6379"
-
-#STORAGE TYPE ("FILE" or "S3")
-STORAGE_TYPE: "FILE"
-
-#STORAGE INFO FOR FILES
-RESOURCES_INPUT_ROOT_DIR: workspace/input
-RESOURCES_OUTPUT_ROOT_DIR: workspace/output
-
-#S3 RELATED DETAILS ONLY WHEN STORAGE_TYPE IS "S3"
-BUCKET_NAME:
-S3_KEY:

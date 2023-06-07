@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
-from sqlalchemy.orm import relationship
 from superagi.models.base_model import DBBaseModel
-from superagi.models.organisation import Organisation
 
 
 class Project(DBBaseModel):

@@ -53,7 +53,8 @@ services:
       - superagi_postgres_data:/var/lib/postgresql/data/
     networks:
       - super_network
-
+    ports:
+      - "5432:5432"
 
 networks:
   super_network:

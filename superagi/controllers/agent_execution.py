@@ -1,36 +1,35 @@
 from datetime import datetime
-
-from celery import Celery
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 
+from superagi.models.agent_template import AgentTemplate
 from superagi.worker import execute_agent
-from superagi.agent import super_agi
-from superagi.config.config import get_config
-from superagi.jobs.agent_executor import AgentExecutor
-# import worker
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
-
-# import superagi.worker
+from superagi.helper.auth import check_auth
 
 router = APIRouter()
+
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
 def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                           Authorize: AuthJWT = Depends()):
+                           Authorize: AuthJWT = Depends(check_auth)):
+    """Create a new agent execution/run"""
+
     agent = db.session.query(Agent).get(agent_execution.agent_id)
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, agent.agent_template_id)
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id,name=agent_execution.name)
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
+                                        num_of_tokens=0,
+                                        current_step_id=start_step_id)
     db.session.add(db_agent_execution)
     db.session.commit()
     if db_agent_execution.status == "RUNNING":
@@ -40,8 +39,10 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
 
 @router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
-def get_agent_execution(agent_execution_id: int, Authorize: AuthJWT = Depends()):
-    # Authorize.jwt_required()
+def get_agent_execution(agent_execution_id: int,
+                        Authorize: AuthJWT = Depends(check_auth)):
+    """Get a agent execution by agent_execution_id"""
+
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if not db_agent_execution:
         raise HTTPException(status_code=404, detail="Agent execution not found")
@@ -50,7 +51,10 @@ def get_agent_execution(agent_execution_id: int, Authorize: AuthJWT = Depends())
 
 @router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def update_agent_execution(agent_execution_id: int,
-                           agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"])):
+                           agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+                           Authorize: AuthJWT = Depends(check_auth)):
+    """Update details of particular agent_execution by agent_execution_id"""
+
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if agent_execution == "COMPLETED":
         raise HTTPException(status_code=400, detail="Invalid Request")
@@ -68,8 +72,6 @@ def update_agent_execution(agent_execution_id: int,
     db_agent_execution.status = agent_execution.status
 
     db_agent_execution.last_execution_time = datetime.now()
-    if agent_execution.name != None:
-        db_agent_execution.name = agent_execution.name
     db.session.commit()
 
     if db_agent_execution.status == "RUNNING":
@@ -79,7 +81,10 @@ def update_agent_execution(agent_execution_id: int,
 
 
 @router.get("/get/agents/status/{status}")
-def list_running_agents(status: str):
+def agent_list_by_status(status: str,
+                         Authorize: AuthJWT = Depends(check_auth)):
+    """Get list of all agent_ids for a given status"""
+
     running_agent_ids = db.session.query(AgentExecution.agent_id).filter(
         AgentExecution.status == status.upper()).distinct().all()
     agent_ids = [agent_id for (agent_id) in running_agent_ids]
@@ -87,14 +92,20 @@ def list_running_agents(status: str):
 
 
 @router.get("/get/agent/{agent_id}")
-def list_running_agents(agent_id: str):
+def list_running_agents(agent_id: str,
+                        Authorize: AuthJWT = Depends(check_auth)):
+    """Get all running state agents"""
+
     executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(
         desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
     return executions
 
 
 @router.get("/get/latest/agent/project/{project_id}")
-def get_agent_by_latest_execution(project_id:int):
+def get_agent_by_latest_execution(project_id: int,
+                                  Authorize: AuthJWT = Depends(check_auth)):
+    """Get latest executing agent details"""
+
     latest_execution = (
         db.session.query(AgentExecution)
         .join(Agent, AgentExecution.agent_id == Agent.id)

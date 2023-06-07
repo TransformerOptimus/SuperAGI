@@ -43,48 +43,6 @@
     background-color: #494856;
 }
 
-.agent_button_primary {
-    width: auto;
-    border-radius: 8px;
-    font-size: 14px;
-    color: black;
-    border: none;
-    height: 32px;
-    background: white;
-    text-align: center;
-    padding: 5px 15px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.agent_button_primary:hover {
-    background-color: rgba(255, 255, 255, 0.8);
-}
-
-.agent_button {
-    width: auto;
-    border-radius: 8px;
-    font-size: 14px;
-    color: white;
-    height: 32px;
-    background: #4D4A5A;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    text-align: center;
-    padding: 5px 15px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.agent_button:hover {
-    background-color: transparent;
-}
-
 .agent_active {
     display: flex;
     flex-direction: row;
@@ -266,6 +224,8 @@
     line-height: 15px;
     color: white;
     white-space: pre-line;
+    word-wrap: break-word;
+    max-width: 95%;
 }
 
 .feed_icon {
@@ -324,6 +284,11 @@
     flex-wrap: wrap;
 }
 
+.agent_resources {
+    width: 100%;
+    margin-top: 10px;
+}
+
 .large_text_box {
     -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
@@ -341,36 +306,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 80%;
-}
-
-.dropdown_container {
-    width: 90px;
-    height: fit-content;
-    background: #1B192C;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: absolute;
-    border-radius: 8px;
-    box-shadow: -3px 3px 8px rgba(0, 0, 0, 0.3);
-    padding: 4px 5px;
-}
-
-.dropdown_item {
-    width: 100%;
-    padding: 6px 10px;
-    text-align: left;
-    height: 100%;
-    font-size: 14px;
-    color: #FFFFFF;
-    text-decoration: none;
-    border-radius: 8px;
-    list-style: none;
-    cursor: pointer;
-}
-
-.dropdown_item:hover {
-    background: #2D334E;
 }
 
 .three_dots {
