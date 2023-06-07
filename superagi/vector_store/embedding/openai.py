@@ -14,12 +14,14 @@ class BaseEmbedding(ABC):
     pass
 
 class OpenAiEmbedding:
-    def __init__(self, model="text-embedding-ada-002"):
+    def __init__(self, model_api_key, model="text-embedding-ada-002"):
         self.model = model
+        self.model_api_key = model_api_key
 
     async def get_embedding_async(self, text):
         try:
-            openai.api_key = get_config("OPENAI_API_KEY")
+            # openai.api_key = get_config("OPENAI_API_KEY")
+            openai.api_key = self.model_api_key
             response = await openai.Embedding.create(
                 input=[text],
                 engine=self.model
