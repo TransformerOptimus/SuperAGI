@@ -48,22 +48,7 @@ export default function App() {
     checkEnvironment()
       .then((response) => {
         setEnv(response.data.env);
-        if (response.data.env === 'DEV') {
-          const userData =  {
-            "name" : "SuperAGI User",
-            "email" : "super6@agi.com",
-            "password" : "pass@123",
-          }
-
-          addUser(userData)
-            .then((response) => {
-              setUserName(response.data.name);
-              fetchOrganisation(response.data.id);
-            })
-            .catch((error) => {
-              console.error('Error adding user:', error);
-            });
-        } else if (response.data.env === 'PROD') {
+        if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
@@ -83,7 +68,20 @@ export default function App() {
               console.error('Error validating access token:', error);
             });
         } else {
-          setApplicationState("LOADING");
+          const userData =  {
+            "name" : "SuperAGI User",
+            "email" : "super6@agi.com",
+            "password" : "pass@123",
+          }
+
+          addUser(userData)
+            .then((response) => {
+              setUserName(response.data.name);
+              fetchOrganisation(response.data.id);
+            })
+            .catch((error) => {
+              console.error('Error adding user:', error);
+            });
         }
       })
       .catch((error) => {
