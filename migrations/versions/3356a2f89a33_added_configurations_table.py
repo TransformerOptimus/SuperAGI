@@ -27,16 +27,6 @@ def upgrade() -> None:
     sa.Column('value', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('tool_configs',
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=True),
-    sa.Column('key', sa.String(), nullable=True),
-    sa.Column('value', sa.String(), nullable=True),
-    sa.Column('agent_id', sa.Integer(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.drop_index('ix_aea_step_id', table_name='agent_executions')
     op.drop_index('ix_ats_unique_id', table_name='agent_template_steps')
     op.drop_index('ix_at_name', table_name='agent_templates')
@@ -50,6 +40,5 @@ def downgrade() -> None:
     op.create_index('ix_at_name', 'agent_templates', ['name'], unique=False)
     op.create_index('ix_ats_unique_id', 'agent_template_steps', ['unique_id'], unique=False)
     op.create_index('ix_aea_step_id', 'agent_executions', ['current_step_id'], unique=False)
-    op.drop_table('tool_configs')
     op.drop_table('configurations')
     # ### end Alembic commands ###
