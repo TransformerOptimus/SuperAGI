@@ -92,13 +92,18 @@ export default function App() {
   useEffect(() => {
     getProject(organisationId)
       .then((response) => {
-        setApplicationState("AUTHENTICATED");
         setSelectedProject(response.data[0]);
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
       });
   }, [organisationId]);
+
+  useEffect(() => {
+    if(selectedProject !== null) {
+      setApplicationState("AUTHENTICATED");
+    }
+  }, [selectedProject]);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
