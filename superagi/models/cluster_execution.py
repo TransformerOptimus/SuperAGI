@@ -7,28 +7,25 @@ from datetime import datetime
 
 
 class AgentExecution(DBBaseModel):
-    __tablename__ = 'agent_executions'
+    __tablename__ = 'cluster_executions'
 
     id = Column(Integer, primary_key=True)
     status = Column(String)  # like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED')
     # logs = Column(Text)
     name = Column(String)
-    agent_id = Column(Integer)
-    cluster_execution_id = Column(Integer)
+    cluster_id = Column(Integer)
     last_execution_time = Column(DateTime)
 
     def __repr__(self):
         return f"AgentExecution(id={self.id}, name={self.name},status='{self.status}', " \
-               f"last_execution_time='{self.last_execution_time}', agent_id={self.agent_id}, " \
-               f"cluster_execution_id={self.cluster_execution_id})"
+               f"last_execution_time='{self.last_execution_time}', cluster_id={self.cluster_id})"
 
     def to_dict(self):
         return {
             'id': self.id,
             'name': self.name,
             'status': self.status,
-            'agent_id': self.agent_id,
-            'cluster_execution_id': self.cluster_execution_id,
+            'cluster_id': self.cluster_id,
             'last_execution_time': self.last_execution_time.isoformat()
         }
 
@@ -43,7 +40,6 @@ class AgentExecution(DBBaseModel):
             id=data['id'],
             name=data['name'],
             status=data['status'],
-            agent_id=data['agent_id'],
-            cluster_execution_id=data['cluster_execution_id'],
+            cluster_id=data['cluster_id'],
             last_execution_time=last_execution_time
         )
