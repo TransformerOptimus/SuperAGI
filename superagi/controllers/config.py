@@ -105,7 +105,7 @@ def get_config_by_organisation_id(organisation_id: int,
 def current_env():
     """Get current ENV"""
 
-    env = get_config("ENV")
+    env = get_config("ENV", "DEV")
     return {
         "env": env
     }
