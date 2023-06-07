@@ -114,10 +114,6 @@ class AgentExecutor:
         max_iterations = (parsed_config["max_iterations"])
         total_calls = session.query(func.sum(AgentExecution.num_of_calls)).filter(
             AgentExecution.agent_id == agent.id).scalar()
-        print(max_iterations)
-        print("ITERATION ")
-        print(total_calls)
-        # print(parsed_config["max_iterations"])
 
         if max_iterations <= total_calls:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
