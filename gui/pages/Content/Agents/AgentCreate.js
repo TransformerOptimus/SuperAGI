@@ -3,11 +3,11 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -67,6 +67,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
+
+  const [hasAPIkey, setHasAPIkey] = useState(false);
+
+  useEffect(() => {
+    getOrganisationConfig(organisationId, "model_api_key")
+      .then((response) => {
+        const apiKey = response.data.value
+        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
+      });
+  }, [organisationId]);
 
   const filterToolsByNames = () => {
     if(tools) {
@@ -238,8 +251,24 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     return uploadFile(agentId, formData);
   }
 
+  useEffect(() => {
+    const keySet = (eventData) => {
+      setHasAPIkey(true);
+    };
+
+    EventBus.on('keySet', keySet);
+
+    return () => {
+      EventBus.off('keySet', keySet);
+    };
+  });
+
   const handleAddAgent = () => {
-    setCreateClickable(false);
+    if(!hasAPIkey) {
+      toast.error("Your OpenAI API key is empty!", {autoClose: 1800});
+      EventBus.emit("openSettings", {});
+      return
+    }
 
     if (agentName.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
@@ -261,6 +290,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
+
+    setCreateClickable(false);
 
     const agentData = {
       "name": agentName,
