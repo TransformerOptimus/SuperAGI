@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const GITHUB_CLIENT_ID = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_ID = "06b962774236a4a8448f"
 
-console.log("CHECK THIS LOG",process.env, GITHUB_CLIENT_ID)
 const API_BASE_URL = 'https://app.superagi.com/api';
 // const API_BASE_URL = 'http://192.168.127.48:8001';
 
