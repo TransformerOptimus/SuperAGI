@@ -48,22 +48,7 @@ export default function App() {
     checkEnvironment()
       .then((response) => {
         setEnv(response.data.env);
-        if (response.data.env === 'DEV') {
-          const userData =  {
-            "name" : "SuperAGI User",
-            "email" : "super6@agi.com",
-            "password" : "pass@123",
-          }
-
-          addUser(userData)
-            .then((response) => {
-              setUserName(response.data.name);
-              fetchOrganisation(response.data.id);
-            })
-            .catch((error) => {
-              console.error('Error adding user:', error);
-            });
-        } else if (response.data.env === 'PROD') {
+        if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
@@ -83,7 +68,20 @@ export default function App() {
               console.error('Error validating access token:', error);
             });
         } else {
-          setApplicationState("LOADING");
+          const userData =  {
+            "name" : "SuperAGI User",
+            "email" : "super6@agi.com",
+            "password" : "pass@123",
+          }
+
+          addUser(userData)
+            .then((response) => {
+              setUserName(response.data.name);
+              fetchOrganisation(response.data.id);
+            })
+            .catch((error) => {
+              console.error('Error adding user:', error);
+            });
         }
       })
       .catch((error) => {
@@ -94,13 +92,18 @@ export default function App() {
   useEffect(() => {
     getProject(organisationId)
       .then((response) => {
-        setApplicationState("AUTHENTICATED");
         setSelectedProject(response.data[0]);
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
       });
   }, [organisationId]);
+
+  useEffect(() => {
+    if(selectedProject !== null) {
+      setApplicationState("AUTHENTICATED");
+    }
+  }, [selectedProject]);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -129,7 +132,7 @@ export default function App() {
             <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
-            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
       </div> : <div className="signInStyle">

@@ -50,8 +50,7 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
     return new_config
 
 
-@router.get("/get/organisation/{organisation_id}/key/{key}",
-            response_model=sqlalchemy_to_pydantic(Configuration), status_code=201)
+@router.get("/get/organisation/{organisation_id}/key/{key}", status_code=200)
 def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
                                           Authorize: AuthJWT = Depends(check_auth)):
     """Get Config from organisation_id and given key"""
@@ -62,13 +61,22 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
 
     config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
                                                     Configuration.key == key).first()
-
-    print("CONFIG : ",config)
+    if config is None and key == "model_api_key":
+        api_key = get_config("OPENAI_API_KEY")
+        if api_key is not None and api_key != "YOUR_OPEN_API_KEY":
+            encrypted_data = encrypt_data(api_key)
+            new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
+            db.session.add(new_config)
+            db.session.commit()
+            db.session.flush()
+            return new_config
+        return config
 
     # Decrypt the API key
     if config.key == "model_api_key":
-        decrypted_data = decrypt_data(config.value)
-        config.value = decrypted_data
+        if config.value is not None:
+            decrypted_data = decrypt_data(config.value)
+            config.value = decrypted_data
 
     return config
 

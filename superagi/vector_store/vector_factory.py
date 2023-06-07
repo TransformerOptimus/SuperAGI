@@ -15,6 +15,8 @@ class VectorFactory:
             try:
                 api_key = get_config("PINECONE_API_KEY")
                 env = get_config("PINECONE_ENVIRONMENT")
+                if api_key is None or env is None:
+                    raise ValueError("PineCone API key not found")
                 pinecone.init(api_key=api_key, environment=env)
 
                 if index_name not in pinecone.list_indexes():
