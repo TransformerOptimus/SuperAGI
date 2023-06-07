@@ -1,6 +1,13 @@
-from pydantic import BaseModel
 from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field
 from superagi.helper.browser_wrapper import browser_wrapper
+
+from typing import Type, Optional, List
+
+from pydantic import BaseModel, Field
+
+from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field, PrivateAttr
 
 
 class GetURLSchema(BaseModel):
@@ -10,7 +17,7 @@ class GetURLSchema(BaseModel):
 class GetURLTool(BaseTool):
     name = "Get URL"
     description = "A tool for getting the current URL using Playwright.Retrieves the current url that the web_interaction plugin is on"
-    args_schema = GetURLSchema
+    args_schema: Type[GetURLSchema] = GetURLSchema
 
     def _execute(self) -> str:
         page = browser_wrapper.page

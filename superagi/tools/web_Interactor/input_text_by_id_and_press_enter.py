@@ -1,11 +1,24 @@
-from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field
 from superagi.helper.browser_wrapper import browser_wrapper
+
+from typing import Type, Optional, List
+
+from pydantic import BaseModel, Field
+
+from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field, PrivateAttr
 
 
 class InputTextByIdAndPressEnterSchema(BaseModel):
-    element_id: str = Field(..., description="The ID of the HTML element to input text.")
-    text: str = Field(..., description="The text to input into the element.")
+    element_id: str = Field(
+        ..., 
+        description="The ID of the HTML element to input text."
+        )
+    text: str = Field(
+        ..., 
+        description="The text to input into the element."
+        )
 
 
 class InputTextByIdAndPressEnterTool(BaseTool):
@@ -13,7 +26,7 @@ class InputTextByIdAndPressEnterTool(BaseTool):
     description = (
         "A tool for inputting text into an element by its ID and pressing Enter using Playwright."
     )
-    args_schema = InputTextByIdAndPressEnterSchema
+    args_schema: Type[InputTextByIdAndPressEnterSchema] = InputTextByIdAndPressEnterSchema
 
     def _execute(self, element_id: str, text: str) -> str:
         page = browser_wrapper.page
