@@ -1,8 +1,10 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import create_engine
 
+from sqlalchemy import pool
+import os
+import re
 from alembic import context
 
 from superagi.config.config import get_config
@@ -21,6 +23,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from superagi.models.base_model import DBBaseModel
+
 target_metadata = DBBaseModel.metadata
 from superagi.models import *
 
@@ -33,6 +36,7 @@ database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -73,15 +77,24 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    url_tokens = {
+        "DB_USER": os.getenv("DB_USERNAME", ""),
+        "DB_PASS": os.getenv("DB_PASSWORD", ""),
+        "DB_HOST": os.getenv("POSTGRES_URL", ""),
+        "DB_NAME": os.getenv("DB_NAME", "")
+    }
+
+    url = config.get_main_option("sqlalchemy.url")
+
+    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], url)
+
+    connectable = create_engine(url)
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata,
+            compare_type=True,
+            compare_server_default=True,
         )
 
         with context.begin_transaction():
