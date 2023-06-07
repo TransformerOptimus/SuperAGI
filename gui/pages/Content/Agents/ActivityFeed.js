@@ -47,6 +47,10 @@ export default function ActivityFeed({selectedRunId}) {
     fetchFeeds();
   }, [selectedRunId])
 
+  useEffect(() => {
+    EventBus.emit('reFetchAgents', {});
+  }, [runStatus])
+
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
       .then((response) => {
