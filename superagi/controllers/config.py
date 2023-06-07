@@ -61,15 +61,22 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
 
     config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
                                                     Configuration.key == key).first()
-    if config is None:
+    if config is None and key == "model_api_key":
+        api_key = get_config("OPENAI_API_KEY")
+        if api_key is not None:
+            encrypted_data = encrypt_data(api_key)
+            new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
+            db.session.add(new_config)
+            db.session.commit()
+            db.session.flush()
+            return new_config
         return config
-    print("CONFIG : ",config)
 
     # Decrypt the API key
     if config.key == "model_api_key":
         if config.value is not None:
             decrypted_data = decrypt_data(config.value)
-            config.value = decrypted_datas
+            config.value = decrypted_data
 
     return config
 
