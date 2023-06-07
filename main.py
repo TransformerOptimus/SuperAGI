@@ -100,10 +100,10 @@ async def health():
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
     # jwt_secret = get_config("JWT_SECRET_KEY")
-    authjwt_secret_key: str = superagi.config.config.get_config("JWT_SECRET_KEY")
+    authjwt_secret_key: str = os.getenv("JWT_SECRET_KEY",superagi.config.config.get_config("JWT_SECRET_KEY"))
 
 def create_access_token(email,Authorize: AuthJWT = Depends()):
-    expiry_time_hours = get_config("JWT_EXPIRY")
+    expiry_time_hours = os.getenv("JWT_EXPIRY",get_config("JWT_EXPIRY"))
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
     return access_token
