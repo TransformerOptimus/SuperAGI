@@ -6,6 +6,7 @@ from superagi.models.organisation import Organisation
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
+from superagi.models.project import Project
 from superagi.models.user import User
 
 router = APIRouter()
@@ -59,25 +60,7 @@ def get_organisations_by_user(user_id: int):
     if user is None:
         raise HTTPException(status_code=400,
                             detail="User not found")
-    if user.organisation_id is not None:
-        organistaion = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
-        return organistaion
 
-    existing_organisation = db.session.query(Organisation).filter(Organisation.name == "Default Organization").first()
-
-    if existing_organisation is not None:
-        user.organisation_id = existing_organisation.id
-        db.session.commit()
-        return existing_organisation
-
-    new_organisation = Organisation(
-        name="Default Organization",
-        description="New default organiztaion",
-    )
-
-    db.session.add(new_organisation)
-    db.session.commit()
-    db.session.flush()
-    user.organisation_id = new_organisation.id
-    db.session.commit()
-    return new_organisation
+    organisation = Organisation.find_or_create_organisation(db.session, user)
+    Project.find_or_create_default_project(db.session, organisation.id)
+    return organisation
