@@ -12,5 +12,7 @@ EXPOSE 3000
 EXPOSE 80
 RUN chmod +x ./entrypoint*
 
+ENV NEXT_PUBLIC_GITHUB_CLIENT_ID="06b962774236a4a8448f"
+
 # CMD ["npm", "run", "start"]
 ENTRYPOINT [ "./entrypoint.sh" ]
