@@ -19,6 +19,7 @@ import boto3
 import datetime
 from botocore.exceptions import NoCredentialsError
 import tempfile
+import requests
 
 
 router = APIRouter()
@@ -45,13 +46,11 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         raise HTTPException(status_code=400, detail="File type not supported!")
 
     storage_type = get_config("STORAGE_TYPE")
+    Resource.validate_resource_type(storage_type)
     save_directory = get_config("RESOURCES_INPUT_ROOT_DIR")
-
     path = ""
     os.makedirs(save_directory, exist_ok=True)
-    # Create the file path
     file_path = os.path.join(save_directory, file.filename)
-    # Save the file to the specified directory
     if storage_type == "FILE":
         path = file_path
         with open(file_path, "wb") as f:
@@ -59,27 +58,17 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
             f.write(contents)
             file.file.close()
     elif storage_type == "S3":
-        # Logic for uploading to S3
         bucket_name = get_config("BUCKET_NAME")
-        # path to be added
         file_name = file.filename.split('.')
-        print(file_name)
-        print(bucket_name)
         path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now()).replace(' ','').replace('.','').replace(':','')+'.'+file_name[1]
-        print(path)
         try:
-            # s3.upload_file(file.file, bucket_name, path)
-            response = s3.upload_fileobj(file.file, bucket_name, path)
+            s3.upload_fileobj(file.file, bucket_name, path)
             print("File uploaded successfully!")
-            print(response)
         except NoCredentialsError:
-            # response = s3.upload_fileobj(file.file, bucket_name,     f"input/{unique_file_name}")
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
     resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
-    print("RESOURCES_______________________________")
-    print(resource)
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
@@ -106,33 +95,23 @@ def download_file_by_id(resource_id: int,
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     download_file_path = resource.path
     file_name = resource.name
-    print("Resource : ",resource)
-    if resource.storage_type == "S3":
-        print("S3")
-        bucket_name = get_config("BUCKET_NAME")
-        if resource.channel == "INPUT":
-            save_directory = get_config("RESOURCES_INPUT_ROOT_DIR")
-        elif resource.channel == "OUTPUT":
-            save_directory = get_config("RESOURCES_OUTPUT_ROOT_DIR")
-        print(bucket_name)
-        print(resource.path)
-        print(save_directory)
-        file = s3.download_file(bucket_name, resource.path, save_directory)
-        # print(file)
-        # temp_file = tempfile.NamedTemporaryFile(delete=False)
-        # temp_file.write(file.read())
-        # temp_file.close()
-        # abs_file_path = Path(temp_file.name)
 
     if not resource:
         raise HTTPException(status_code=400, detail="Resource Not found!")
 
-    abs_file_path = Path(download_file_path).resolve()
-    if not abs_file_path.is_file():
-        raise HTTPException(status_code=404, detail="File not found")
+    if resource.storage_type == "S3":
+        bucket_name = get_config("BUCKET_NAME")
+        file_key = resource.path
+        response = s3.get_object(Bucket=bucket_name, Key=file_key)
+        content = response["Body"]
+    else:
+        abs_file_path = Path(download_file_path).resolve()
+        if not abs_file_path.is_file():
+            raise HTTPException(status_code=404, detail="File not found")
+        content = open(str(abs_file_path), "rb")
 
     return StreamingResponse(
-        open(str(abs_file_path), "rb"),
+        content,
         media_type="application/octet-stream",
         headers={
             "Content-Disposition": f"attachment; filename={file_name}"
