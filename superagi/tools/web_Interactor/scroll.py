@@ -1,18 +1,28 @@
-from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field
 from superagi.helper.browser_wrapper import browser_wrapper
+
+from typing import Type, Optional, List
+
+from pydantic import BaseModel, Field
+
+from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field, PrivateAttr
 
 class ScrollDirectionEnum(str):
     UP = "up"
     DOWN = "down"
 
 class ScrollSchema(BaseModel):
-    direction: ScrollDirectionEnum = Field(..., description="The scroll direction - 'up' or 'down'.")
+    direction: ScrollDirectionEnum = Field(
+        ..., 
+        description="The scroll direction - 'up' or 'down'.",
+        )
 
 class ScrollTool(BaseTool):
     name = "Scroll"
     description = "A tool for scrolling the webpage up or down using Playwright."
-    args_schema = ScrollSchema
+    args_schema: Type[ScrollSchema] = ScrollSchema
 
     def _execute(self, direction: ScrollDirectionEnum) -> str:
         page = browser_wrapper.page

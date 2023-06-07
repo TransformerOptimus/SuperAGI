@@ -1,20 +1,29 @@
+from superagi.tools.base_tool import BaseTool
 from pydantic import BaseModel, Field
 from superagi.helper.browser_wrapper import browser_wrapper
-from superagi.tools.base_tool import BaseTool
 
+from typing import Type, Optional, List
+
+from pydantic import BaseModel, Field
+
+from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field, PrivateAttr
 black_listed_elements = set(["html", "head", "title", "meta", "iframe", "body", "style", "script", "path", "svg", "br", "::marker",])
 # global page_element_buffer
 # page_element_buffer = {}
 
 
 class ClickElementByIdSchema(BaseModel):
-    element_id: str = Field(..., description="The ID of the HTML element to click.")
+    element_id: str = Field(
+        ..., 
+        description="The ID of the HTML element to click."
+        )
 
 
 class ClickElementByIdTool(BaseTool):
     name = "Click Element By ID"
     description = "A tool for clicking an element by its ID using Playwright.clicks an element. Specify the id with the unique id received from the get_dom command. CRITICAL: The ID must be the integer id from the get_dom command. It should execute after getting the DOM"
-    args_schema = ClickElementByIdSchema
+    args_schema: Type[ClickElementByIdSchema] = ClickElementByIdSchema
 
     def _execute(self, element_id: str) -> str:
         page_element_buffer = browser_wrapper.page_element_buffer

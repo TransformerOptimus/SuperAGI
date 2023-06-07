@@ -1,21 +1,31 @@
 from superagi.tools.base_tool import BaseTool
-from pydantic import BaseModel
-from superagi.helper.browser_wrapper import browser_wrapper
-from sys import argv, exit, platform
 from pydantic import BaseModel, Field
+from superagi.helper.browser_wrapper import browser_wrapper
+
+from typing import Type, Optional, List
+
+from pydantic import BaseModel, Field
+
+from superagi.tools.base_tool import BaseTool
+from pydantic import BaseModel, Field, PrivateAttr
+from sys import argv, exit, platform
+
 
 
 
 black_listed_elements = set(["html", "head", "title", "meta", "iframe", "body", "style", "script", "path", "svg", "br", "::marker",])
 
 class GetDOMSchema(BaseModel):
-    url: str = Field(..., description="The URL of the page whose DOM needs to be extracted")
+    url: str = Field(
+        ..., 
+        description="The URL of the page whose DOM needs to be extracted"
+        )
 
 
 class GetDOMTool(BaseTool):
     name = "Get DOM"
     description = "A tool to retrieve the rendered DOM from the current page.Returns a simplified DOM of the current web page. The id is specific to this plugin and will be needed to interact with elements. Make sure to run this before interacting with any elements on a webpage. Re-run this each time you're on a new webpage and want to interact with elements"
-    args_schema = GetDOMSchema
+    args_schema = Type[GetDOMSchema] = GetDOMSchema
 
     def _execute(self) -> str:
         page = browser_wrapper.page
