@@ -314,7 +314,7 @@ if folder_path is None:
 process_files(folder_path)
 session.close()
 
-@app.post('/login')
+@app.post('/api/login')
 def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
     """Login API for email and password based login"""
 
@@ -333,7 +333,7 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 #     access_token = Authorize.create_access_token(subject=user_email)
 #     return access_token
 
-@app.get('/github-login')
+@app.get('/api/github-login')
 def github_login():
     """GitHub login"""
 
@@ -341,7 +341,7 @@ def github_login():
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
 
-@app.get('/github-auth')
+@app.get('/api/github-auth')
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
@@ -395,7 +395,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
         return RedirectResponse(url=redirect_url_failure)
 
 
-@app.get('/user')
+@app.get('/api/user')
 def user(Authorize: AuthJWT = Depends()):
     """API to get current logged in User"""
 
@@ -404,7 +404,7 @@ def user(Authorize: AuthJWT = Depends()):
     return {"user": current_user}
 
 
-@app.get("/validate-access-token")
+@app.get("/api/validate-access-token")
 async def root(Authorize: AuthJWT = Depends()):
     """API to validate access token"""
 
@@ -418,7 +418,7 @@ async def root(Authorize: AuthJWT = Depends()):
 
 
 # #Unprotected route
-@app.get("/hello/{name}")
+@app.get("/api/hello/{name}")
 async def say_hello(name: str,Authorize:AuthJWT=Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
