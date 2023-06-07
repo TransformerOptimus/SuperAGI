@@ -43,7 +43,7 @@ input[type="number"] {
 
 input[type=checkbox] {
     height: 17px !important;
-    width: 17px !important;;
+    width: 17px !important;
     visibility: visible !important;
 }
 
@@ -164,11 +164,6 @@ input[type=checkbox i] {
     border-radius: 8px;
     list-style: none;
     cursor: pointer;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .dropdown_item:hover {
@@ -273,7 +268,7 @@ input[type=checkbox i] {
 }
 
 .dropdown_container {
-    position: relative;
+    position: absolute;
     display: inline-block;
 }
 
