@@ -1,8 +1,7 @@
-FROM python:3.9
+FROM mcr.microsoft.com/playwright/python:v1.34.0-jammy
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN playwright install --with-deps chrome chromium
 COPY . .
 COPY config.yaml ./config.yaml
 COPY entrypoint.sh /entrypoint.sh
