@@ -107,7 +107,6 @@ def create_access_token(email,Authorize: AuthJWT = Depends()):
     # expiry_time_hours = get_config("JWT_EXPIRY")
     expiry_time_hours = 1
     expires = timedelta(hours=expiry_time_hours)
-    print("EMAIL : ",email)
     access_token = Authorize.create_access_token(subject=email,expires_time=expires)
     return access_token
 
