@@ -128,9 +128,9 @@ class AgentExecutor:
             if hasattr(tool, 'goals'):
                 tool.goals = parsed_config["goal"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
-                tool.llm = OpenAi(model="gpt-3.5-turbo")
+                tool.llm = OpenAi(model="gpt-3.5-turbo", temperature=0.3)
             elif hasattr(tool, 'llm'):
-                tool.llm = OpenAi(model=parsed_config["model"])
+                tool.llm = OpenAi(model=parsed_config["model"], temperature=0.3)
             elif hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             new_tools.append(tool)
