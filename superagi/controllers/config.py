@@ -50,8 +50,7 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
     return new_config
 
 
-@router.get("/get/organisation/{organisation_id}/key/{key}",
-            response_model=sqlalchemy_to_pydantic(Configuration), status_code=201)
+@router.get("/get/organisation/{organisation_id}/key/{key}", status_code=200)
 def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
                                           Authorize: AuthJWT = Depends(check_auth)):
     """Get Config from organisation_id and given key"""
@@ -62,13 +61,15 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
 
     config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
                                                     Configuration.key == key).first()
-
+    if config is None:
+        return config
     print("CONFIG : ",config)
 
     # Decrypt the API key
     if config.key == "model_api_key":
-        decrypted_data = decrypt_data(config.value)
-        config.value = decrypted_data
+        if config.value is not None:
+            decrypted_data = decrypt_data(config.value)
+            config.value = decrypted_datas
 
     return config
 
