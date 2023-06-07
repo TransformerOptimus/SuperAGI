@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import styles from './Agents.module.css';
+import styles from '../Content/Agents/Agents.module.css';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

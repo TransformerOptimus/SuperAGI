@@ -3,12 +3,12 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import ActivityFeed from './ActivityFeed';
+import ActivityFeed from '../../Modules/ActivityFeed';
 import TaskQueue from './TaskQueue';
 import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
-import Details from "./Details";
-import ResourceManager from "./ResourceManager";
+import Details from "../../Modules/Details";
+import ResourceManager from "../../Modules/ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 

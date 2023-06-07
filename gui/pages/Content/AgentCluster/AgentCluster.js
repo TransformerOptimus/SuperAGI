@@ -19,7 +19,7 @@ export default function AgentCluster({sendAgentClusterData,agents}) {
                 {agents && agents.length > 0 ? <div className={styles.wrapper} style={{overflowY:'scroll',height:'80vh'}}>
                     {agents.map((agent, index) => (
                         <div key={index}>
-                            <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
+                            <div className={styles.agent_box} onClick={() => sendAgentClusterData(agent)}>
                                 {agent.status && <div className={styles.agent_active}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="active-icon"/></div>}
                                 <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>
                             </div>

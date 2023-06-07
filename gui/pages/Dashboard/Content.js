@@ -6,6 +6,7 @@ import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
 import Settings from "./Settings/Settings";
 import AgentCluster from '../Content/AgentCluster/AgentCluster';
+import AgentClusterWorkspace from '../Content/AgentCluster/AgentClusterWorkspace';
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
@@ -171,8 +172,9 @@ export default function Content({selectedView, selectedProjectId}) {
             {tabs.map((tab) => (
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
-                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
+                  {tab.contentType === 'Agents' && <AgentClusterWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
+                  {tab.contentType === 'AgentCluster' && <AgentClusterWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} isCluster={false}/>
                   </div>}
