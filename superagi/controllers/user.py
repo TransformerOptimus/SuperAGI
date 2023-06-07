@@ -22,7 +22,8 @@ def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]),
     db_user = User(name=user.name, email=user.email, password=user.password, organisation_id=user.organisation_id)
     db.session.add(db_user)
     db.session.commit()
-    organisation = Organisation.find_or_create_organisation(db.session, user)
+    db.session.flush()
+    organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
     print("User created", db_user)
     return db_user
