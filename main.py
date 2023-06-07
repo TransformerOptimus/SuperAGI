@@ -346,8 +346,8 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
-    github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
+    github_client_id = os.getenv("GITHUB_CLIENT_ID",superagi.config.config.get_config("GITHUB_CLIENT_ID"))
+    github_client_secret = os.getenv("GITHUB_CLIENT_SECRET",superagi.config.config.get_config("GITHUB_CLIENT_SECRET"))
 
     frontend_url = superagi.config.config.get_config("FRONTEND_URL")
     params = {
