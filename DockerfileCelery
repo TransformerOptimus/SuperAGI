@@ -1,11 +1,16 @@
-FROM mcr.microsoft.com/playwright/python:v1.34.0-jammy
+FROM python:3.9
 
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN playwright install --with-deps chromium
+RUN apt-get update && \
+    apt-get install -y xvfb && \
+    apt-get clean
 
+CMD ["xvfb-run", "<your-playwright-app>"]
 COPY . .
 COPY config.yaml .
 
-CMD ["celery", "-A", "superagi.worker", "worker", "--loglevel=info"]
+CMD ["xvfb-run","celery", "-A", "superagi.worker", "worker", "--loglevel=info"]
