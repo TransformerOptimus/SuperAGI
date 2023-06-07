@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
-from sqlalchemy.orm import relationship
 
 
 class Organisation(DBBaseModel):

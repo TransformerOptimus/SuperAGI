@@ -154,6 +154,10 @@ class FunctionalTool(BaseTool):
         else:
             return cls(description=func.__doc__)
 
+    def registerTool(cls):
+        cls.__registerTool__ = True
+        return cls
+
 
 def tool(*args: Union[str, Callable], return_direct: bool = False,
          args_schema: Optional[Type[BaseModel]] = None) -> Callable:
@@ -175,3 +179,5 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator(args[0])
     else:
         return decorator
+
+
