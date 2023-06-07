@@ -136,10 +136,6 @@ class SuperAgi:
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": template_step.completion_prompt})
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=template_step.completion_prompt,
-                                                      role="user")
-            session.add(agent_execution_feed)
         else:
             prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue, max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
@@ -258,10 +254,15 @@ class SuperAgi:
         session.commit()
 
     def build_agent_prompt(self, prompt: str, task_queue: TaskQueue, max_token_limit: int):
-        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"],
-                                                           self.agent_config["constraints"], self.tools)
-        response = task_queue.get_last_task_details()
+        pending_tasks = task_queue.get_tasks()
         completed_tasks = task_queue.get_completed_tasks()
+        add_finish_tool = True
+        if len(pending_tasks) > 0 or len(completed_tasks) > 0:
+            add_finish_tool = False
+        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"],
+                                                           self.agent_config["constraints"], self.tools, add_finish_tool)
+        response = task_queue.get_last_task_details()
+
         last_task = ""
         last_task_result = ""
         # pending_tasks = []
@@ -269,8 +270,6 @@ class SuperAgi:
         if response is not None:
             last_task = response["task"]
             last_task_result = response["response"]
-
-        pending_tasks = task_queue.get_tasks()
         current_task = task_queue.get_first_task() or ""
         token_limit = TokenCounter.token_limit(self.llm.get_model()) - max_token_limit
         prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,

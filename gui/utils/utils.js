@@ -51,3 +51,12 @@ export const formatBytes = (bytes, decimals = 2) => {
 export const  downloadFile = (fileId) => {
   window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
 }
+
+export const refreshUrl = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const urlWithoutToken = window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, urlWithoutToken);
+};

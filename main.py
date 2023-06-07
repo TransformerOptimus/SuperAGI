@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
@@ -26,6 +27,7 @@ from superagi.controllers.project import router as project_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.user import router as user_router
+from superagi.controllers.config import router as config_router
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_step import AgentTemplateStep
 from superagi.models.organisation import Organisation
@@ -82,6 +84,7 @@ app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
+app.include_router(config_router,prefix="/configs")
 
 
 
@@ -92,13 +95,19 @@ app.include_router(resources_router, prefix="/resources")
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
     # jwt_secret = get_config("JWT_SECRET_KEY")
-    # authjwt_secret_key: str = "secret"
-    authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+    authjwt_secret_key: str = superagi.config.config.get_config("JWT_SECRET_KEY")
 
 def create_access_token(email,Authorize: AuthJWT = Depends()):
     expiry_time_hours = get_config("JWT_EXPIRY")
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
+    return access_token
+
+def create_access_token(email,Authorize: AuthJWT = Depends()):
+    # expiry_time_hours = get_config("JWT_EXPIRY")
+    expiry_time_hours = 1
+    expires = timedelta(hours=expiry_time_hours)
+    access_token = Authorize.create_access_token(subject=email,expires_time=expires)
     return access_token
 
 # callback to get your configuration
@@ -120,20 +129,6 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 Session = sessionmaker(bind=engine)
 session = Session()
 organisation = session.query(Organisation).filter_by(id=1).first()
-
-# if not organisation or organisation is None:
-#     organisation = Organisation(id=1, name='Default Organization',
-#                                 description='This is the default organization')
-#     session.add(organisation)
-#     session.commit()
-#
-# project_name = "Default Project"
-# project = session.query(Project).filter_by(name="Default Project", organisation_id=organisation.id).first()
-# # project = Project.query.filter_by(name=project, organisation_id=org.id).first()
-# if project is None:
-#     project = Project(name=project_name, description=project_name, organisation_id=organisation.id)
-#     session.add(project)
-#     session.commit()
 
 
 def add_or_update_tool(db: Session, tool_name: str, folder_name: str, class_name: str, file_name: str):
@@ -306,7 +301,7 @@ build_single_step_agent()
 build_task_based_agents()
 
 # Specify the folder path
-folder_path = "superagi/tools"
+folder_path = superagi.config.config.get_config("TOOLS_DIR")
 
 # Process the files and store class information
 process_files(folder_path)
@@ -344,9 +339,10 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = get_config("GITHUB_CLIENT_ID")
-    github_client_secret = get_config("GITHUB_CLIENT_SECRET")
-    frontend_url = "http://localhost:3000"
+    github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
+    github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
+
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL")
     params = {
         'client_id': github_client_id,
         'client_secret': github_client_secret,
@@ -366,19 +362,23 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
         response = requests.get(github_api_url, headers=headers)
         if response.ok:
             user_data = response.json()
-            db_user: User = db.session.query(User).filter(User.email == user_data["email"]).first()
-            if db_user is None:
-                user = User(name=user_data["name"], email=user_data["email"])
-                db.session.add(user)
-                db.session.commit()
-            if user_data["email"] is not None:
-                # jwt_token = Authorize.create_access_token()
-                jwt_token = create_access_token(user_data["email"],Authorize)
-            else:
-                # jwt_token = Authorize.create_access_token(user_data["login"])
-                jwt_token = create_access_token(user_data["login"],Authorize)
+            user_email = user_data["email"]
+            if user_email is None:
+                user_email = user_data["login"] + "@github.com"
+            db_user: User = db.session.query(User).filter(User.email == user_email).first()
+            if db_user is not None:
+                jwt_token = create_access_token(user_email, Authorize)
+                redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+                return RedirectResponse(url=redirect_url_success)
+
+
+
+            user = User(name=user_data["name"], email=user_email)
+            db.session.add(user)
+            db.session.commit()
+            jwt_token = create_access_token(user_email, Authorize)
+
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
-            # redirect_url_success = "https://superagi.com/"
             return RedirectResponse(url=redirect_url_success)
         else:
             redirect_url_failure = "https://superagi.com/"
@@ -404,7 +404,7 @@ async def root(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
         current_user_email = Authorize.get_jwt_subject()
-        current_user = session.query(User).filter(User.email == current_user_email)
+        current_user = session.query(User).filter(User.email == current_user_email).first()
         return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")

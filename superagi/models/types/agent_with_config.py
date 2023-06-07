@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 
+
 class AgentWithConfig(BaseModel):
     name: str
     project_id: int
@@ -13,6 +14,6 @@ class AgentWithConfig(BaseModel):
     iteration_interval: int
     model: str
     permission_type: str
-    LTM_DB:str
-    memory_window:int
-    
+    LTM_DB: str
+    memory_window: int
+    max_iterations: int
