@@ -127,7 +127,7 @@ export default function App() {
             <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
-            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
       </div> : <div className="signInStyle">

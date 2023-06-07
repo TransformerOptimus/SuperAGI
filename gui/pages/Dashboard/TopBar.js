@@ -39,6 +39,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
     updateOrganisationConfig(organisationId, configData)
       .then((response) => {
         getKey("model_api_key");
+        EventBus.emit("keySet", {});
         toast.success("Settings updated", {autoClose: 1800});
       })
       .catch((error) => {
@@ -67,6 +68,11 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   };
 
   const saveSettings = () => {
+    if (openAIKey === null || openAIKey.replace(/\s/g, '') === '') {
+      toast.error("API key is empty", {autoClose: 1800});
+      return
+    }
+
     updateKey("model_api_key", openAIKey);
     setSettingsModal(false);
   };
@@ -74,6 +80,18 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   const handleTemperatureChange = (event) => {
     setTemperature(event.target.value);
   };
+
+  useEffect(() => {
+    const openSettings = (eventData) => {
+      setSettingsModal(true);
+    };
+
+    EventBus.on('openSettings', openSettings);
+
+    return () => {
+      EventBus.off('openSettings', openSettings);
+    };
+  });
 
   return (
     <>

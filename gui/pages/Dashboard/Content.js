@@ -10,7 +10,7 @@ import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
 
-export default function Content({selectedView, selectedProjectId}) {
+export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([])
   const [selectedTab, setSelectedTab] = useState(null)
   const [agents, setAgents] = useState(null);
@@ -172,7 +172,7 @@ export default function Content({selectedView, selectedProjectId}) {
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
-                    <AgentCreate sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
+                    <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                   </div>}
                   {tab.contentType === 'Create_Tool' && <div className={styles.create_agent}>
                     <div className="row">
