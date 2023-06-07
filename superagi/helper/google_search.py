@@ -59,22 +59,24 @@ class GoogleSearchWrap:
         if links:
             for i in range(0, self.num_extracts):
                 time.sleep(3)
-                content = self.extractor.extract_with_3k(links[i])
+                content = ""
+                # content = self.extractor.extract_with_3k(links[i])
+                # attempts = 0
+                # while content == "" and attempts < 2:
+                #     attempts += 1
+                #     content = self.extractor.extract_with_3k(links[i])
+                content = self.extractor.extract_with_bs4(links[i])
+                max_length = len(' '.join(content.split(" ")[:500]))
+                content = content[:max_length]
                 attempts = 0
                 while content == "" and attempts < 2:
                     attempts += 1
-                    content = self.extractor.extract_with_3k(links[i])
-                if content == "":
-                    time.sleep(3)
                     content = self.extractor.extract_with_bs4(links[i])
-                    attempts = 0
-                    while content == "" and attempts < 2:
-                        attempts += 1
-                        content = self.extractor.extract_with_bs4(links[i])
+                    content = content[:max_length]
                 webpages.append(content)
         else:
-            snippets = ["", "", ""]
-            links = ["", "", ""]
-            webpages = ["", "", ""]
+            snippets = []
+            links = []
+            webpages = []
 
         return snippets, webpages, links
