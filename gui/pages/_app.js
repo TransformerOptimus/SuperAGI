@@ -14,7 +14,7 @@ import {refreshUrl} from "@/utils/utils";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
-  const [applicationState, setApplicationState] = useState("Initializing SuperAGI");
+  const [applicationState, setApplicationState] = useState("LOADING");
   const [selectedProject, setSelectedProject] = useState(null);
   const [userName, setUserName] = useState('');
   const [organisationId, setOrganisationId] = useState(null);
@@ -63,7 +63,7 @@ export default function App() {
             .catch((error) => {
               console.error('Error adding user:', error);
             });
-        } else {
+        } else if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
@@ -82,6 +82,8 @@ export default function App() {
             .catch((error) => {
               console.error('Error validating access token:', error);
             });
+        } else {
+          setApplicationState("LOADING");
         }
       })
       .catch((error) => {
