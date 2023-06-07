@@ -302,6 +302,8 @@ build_task_based_agents()
 
 # Specify the folder path
 folder_path = superagi.config.config.get_config("TOOLS_DIR")
+if folder_path is None:
+    folder_path = "superagi/tools"
 
 # Process the files and store class information
 process_files(folder_path)
