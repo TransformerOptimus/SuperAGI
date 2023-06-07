@@ -168,7 +168,7 @@ class AgentExecutor:
         # finally:
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, agent_id,model_api_key):
+    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):
         new_tools = []
         for tool in tools:
             if hasattr(tool, 'goals'):
