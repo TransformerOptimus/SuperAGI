@@ -6,6 +6,18 @@ from superagi.config.config import get_config
 from superagi.models.resource import Resource
 from sqlalchemy.orm import sessionmaker
 from superagi.models.db import connect_db
+import datetime
+import boto3
+from botocore.exceptions import NoCredentialsError
+from fastapi import HTTPException, Depends, Request
+
+
+
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+)
 
 
 def make_written_file_resource(file_name: str, agent_id: int):
@@ -30,7 +42,15 @@ def make_written_file_resource(file_name: str, agent_id: int):
                             channel="OUTPUT",
                             agent_id=agent_id)
     elif storage_type == "S3":
-        pass
+        bucket_name = get_config("BUCKET_NAME")
+        file_name = file_name.split('.')
+        path = 'output/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(':', '') + '.' + file_name[1]
+        try:
+            s3.upload_file(final_path, bucket_name, path)
+            print("File uploaded successfully!")
+        except NoCredentialsError:
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
     return resource
 
 

@@ -91,6 +91,7 @@ export default function AgentWorkspace({agentId}) {
 
     updateExecution(selectedRun.id, executionData)
       .then((response) => {
+        EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
         if(status !== 'TERMINATED') {
           fetchExecutions(agentId, response.data);
         } else {
@@ -165,7 +166,7 @@ export default function AgentWorkspace({agentId}) {
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {selectedRun && selectedRun.status !== 'COMPLETED' && <button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            {selectedRun && agentExecutions && (selectedRun.status !== 'COMPLETED' || (selectedRun.status === 'COMPLETED' && agentExecutions.length > 1)) && <button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
@@ -178,7 +179,7 @@ export default function AgentWorkspace({agentId}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedRunId={selectedRun?.id || 0} selectedRunStatus={selectedRun?.status || 'CREATED'}/></div>}
+          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedRunId={selectedRun?.id || 0}/></div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
@@ -190,22 +191,22 @@ export default function AgentWorkspace({agentId}) {
             {/*    Action Console*/}
             {/*  </button>*/}
             {/*</div>*/}
-            {/*<div style={{marginLeft:'5px'}}>*/}
+            {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Feedback*/}
             {/*  </button>*/}
             {/*</div>*/}
-            <div style={{marginLeft:'5px'}}>
-              <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254'} : {background:'transparent'}}>
-                Details
+            <div>
+              <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Details
               </button>
             </div>
-            <div style={{marginLeft:'5px'}}>
-              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254'} : {background:'transparent'}}>
-                Resource Manager
+            <div>
+              <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                <Image style={{marginTop:'-2px'}} width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
               </button>
             </div>
-            {/*<div style={{marginLeft:'5px'}}>*/}
+            {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Logs*/}
             {/*  </button>*/}
