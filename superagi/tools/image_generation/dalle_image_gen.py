@@ -13,7 +13,7 @@ class ImageGenInput(BaseModel):
     prompt: str = Field(..., description="Prompt for Image Generation to be used by Dalle.")
     size: int = Field(..., description="Size of the image to be Generated.")
     num: int = Field(..., description="Number of Images to be generated")
-    image_name: list = Field(..., description="Image Names for the generated images")
+    image_name: list = Field(..., description="Image Names for the generated images, example 'image_1.png'")
 
 
 class ImageGenTool(BaseTool):
