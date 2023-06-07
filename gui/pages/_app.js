@@ -90,6 +90,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if(organisationId === null) {
+      return
+    }
     getProject(organisationId)
       .then((response) => {
         setSelectedProject(response.data[0]);
