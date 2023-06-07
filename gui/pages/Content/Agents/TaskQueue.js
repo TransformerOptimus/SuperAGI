@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
-import Head from 'next/head';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getExecutionFeeds, getExecutionTasks} from "@/pages/api/DashboardService";
+import {getExecutionTasks} from "@/pages/api/DashboardService";
 
 export default function TaskQueue({selectedRunId}) {
   const [task_title, setTaskTitle] = useState("")
@@ -42,10 +41,6 @@ export default function TaskQueue({selectedRunId}) {
       });
   }
   return (<>
-    <Head>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
-    </Head>
     <div>
       {/*<div className={styles.custom_task_box} style={{background:'#272335'}}>*/}
       {/*  <div>Add Custom Task</div>*/}
@@ -66,8 +61,6 @@ export default function TaskQueue({selectedRunId}) {
           <div className={styles.feed_title}>{task.name}</div>
         </div>
       </div>))}
-
-
       {completedTaskList.length > 0 ? <div style={{color: '#FFFFFF', padding: '5px 7px'}}>Completed Tasks</div> : <div></div>}
        {completedTaskList.map((task, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
         <div style={{display:'flex'}}>
@@ -76,7 +69,6 @@ export default function TaskQueue({selectedRunId}) {
         </div>
        </div>))}
     </div>
-
     <ToastContainer/>
   </>)
 }
