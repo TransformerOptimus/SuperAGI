@@ -63,10 +63,18 @@ def get_organisations_by_user(user_id: int):
         organistaion = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
         return organistaion
 
+    existing_organisation = db.session.query(Organisation).filter(Organisation.name == "Default Organization").first()
+
+    if existing_organisation is not None:
+        user.organisation_id = existing_organisation.id
+        db.session.commit()
+        return existing_organisation
+
     new_organisation = Organisation(
-        name="Default Organisation",
-        description="New default organistaion",
+        name="Default Organization",
+        description="New default organiztaion",
     )
+
     db.session.add(new_organisation)
     db.session.commit()
     db.session.flush()
