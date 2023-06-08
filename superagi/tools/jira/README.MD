@@ -27,6 +27,7 @@ Add the following configuration settings in the file:
 1. _JIRA API TOKEN:_
  - Login into your Jira Account. Go to "Manage Account".
  - Go to Security and click on "Create and Manage API Tokens".
+![Screenshot API Token jira](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/b9a535be-0f44-40f8-aec5-4f09bd223c9e)
  - Click on "Create API Token" and choose an appropriate label name.
  - Copy the API Token and paste it in your config.yaml file.
 
