@@ -3,64 +3,11 @@ from typing import Type
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
-from superagi.models.resource import Resource
 from sqlalchemy.orm import sessionmaker
 from superagi.models.db import connect_db
-import datetime
-import boto3
-from botocore.exceptions import NoCredentialsError
-from fastapi import HTTPException, Depends, Request
+from superagi.helper.resource_helper import make_written_file_resource
+from superagi.helper.s3_helper import upload_to_s3
 
-
-
-
-
-def upload_to_s3(file,path):
-    try:
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
-        )
-        bucket_name = get_config("BUCKET_NAME")
-        s3.upload_fileobj(file, bucket_name, path)
-        print("File uploaded in S3 successfully!")
-    except:
-        raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
-
-def make_written_file_resource(file_name: str, agent_id: int,file):
-    path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
-    storage_type = get_config("STORAGE_TYPE")
-    file_type = "application/txt"
-
-    root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-
-    if root_dir is not None:
-        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-        final_path = root_dir + file_name
-    else:
-        final_path = os.getcwd() + "/" + file_name
-    file_size = os.path.getsize(final_path)
-    resource = None
-    if storage_type == "FILE":
-        resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
-                            type=file_type,
-                            channel="OUTPUT",
-                            agent_id=agent_id)
-        return resource
-    elif storage_type == "S3":
-        file_name = file_name.split('.')
-        path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
-            ':', '') + '.' + file_name[1]
-        try:
-            resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
-                                type=file_type,
-                                channel="OUTPUT",
-                                agent_id=agent_id)
-            return resource
-        except NoCredentialsError:
-            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
 
 
@@ -96,14 +43,14 @@ class WriteFileTool(BaseTool):
                 file.close()
             with open(final_path, 'rb') as file:
                 resource = make_written_file_resource(file_name=file_name,
-                                                      agent_id=self.agent_id,file=file)
-                print("Resource",resource)
+                                                      agent_id=self.agent_id,file=file,channel="OUTPUT")
                 if resource is not None:
                     session.add(resource)
                     session.commit()
                     session.flush()
                     if resource.storage_type == "S3":
                         upload_to_s3(file, path=resource.path)
+                        print("Resource Uploaded to S3!")
                 session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:
