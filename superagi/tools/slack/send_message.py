@@ -20,7 +20,7 @@ class SlackMessageTool(SlackTool):
         - Individual Texting - Provide user-id 
         - Group Texting - Provide group-id
     '''
-    name = "SlackMessage"
+    name = "SendSlackMessage"
     description = "Send text message in Slack"
     args_schema: Type[SlackMessageSchema] = SlackMessageSchema
     
