@@ -177,9 +177,9 @@ class AgentExecutor:
                 tool.llm = OpenAi(model="gpt-3.5-turbo",api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):
                 tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
-            elif hasattr(tool,'image_llm'):
+            if hasattr(tool,'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"],api_key=model_api_key)
-            elif hasattr(tool, 'agent_id'):
+            if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             new_tools.append(tool)
         return tools
