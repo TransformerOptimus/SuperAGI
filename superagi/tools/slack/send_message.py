@@ -5,9 +5,9 @@ from pydantic import Field, BaseModel
 from superagi.tools.slack.tool import SlackTool
 
 class SlackMessageSchema(BaseModel):
-    id: str = Field(
+    channel: str = Field(
         ...,
-        description="Slack User-Id/Group-Id"
+        description="Slack Channel/Group Name"
     )
     message: str = Field(
         ...,
@@ -24,11 +24,11 @@ class SlackMessageTool(SlackTool):
     description = "Send text message in Slack"
     args_schema: Type[SlackMessageSchema] = SlackMessageSchema
     
-    def _execute(self, id: str, message: str):
+    def _execute(self, channel: str, message: str):
         slack = self.build_slack_web_client()
-        response = slack.chat_postMessage(channel=id, text=message)
+        response = slack.chat_postMessage(channel=channel, text=message)
         
         if response['ok']:
-            return f'Message sent to {id} Successfully'
+            return f'Message sent to {channel} Successfully'
         else:
             return 'Message sending failed!'
