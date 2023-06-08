@@ -48,9 +48,29 @@ export const formatBytes = (bytes, decimals = 2) => {
   return `${formattedValue} ${sizes[i]}`;
 }
 
-export const  downloadFile = (fileId) => {
-  window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
-}
+export const downloadFile = (fileId) => {
+  const authToken = localStorage.getItem('accessToken');
+  const url = `${baseUrl()}/resources/get/${fileId}`;
+  const env = localStorage.getItem('applicationEnvironment');
+
+  if(env === 'PROD') {
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+    };
+
+    fetch(url, { headers })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const fileUrl = window.URL.createObjectURL(blob);
+        window.open(fileUrl, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error downloading file:", error);
+      });
+  } else {
+    window.open(url, "_blank");
+  }
+};
 
 export const refreshUrl = () => {
   if (typeof window === 'undefined') {
