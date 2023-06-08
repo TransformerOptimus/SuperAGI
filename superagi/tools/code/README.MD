@@ -2,9 +2,9 @@
 <a href="https://superagi.co"><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
 </p>
 
-# SuperAGI Jira Tool
+# SuperAGI Coding Tool
 
-The robust SuperAGI Jira Tool lets help with their coding tasks like writing, reviewing, refactoring code, fixing bugs, and understanding programming concepts.
+The robust SuperAGI Coding Tool lets help with their coding tasks like writing, reviewing, refactoring code, fixing bugs, and understanding programming concepts.
 
 ## 💡 Features
 1. **Write Code:** With SuperAGI's Coding Tool, writing new code is a streamlined and effortless process, making your programming tasks much simpler.
