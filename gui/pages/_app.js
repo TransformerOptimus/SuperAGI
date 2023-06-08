@@ -47,7 +47,13 @@ export default function App() {
   useEffect(() => {
     checkEnvironment()
       .then((response) => {
-        setEnv(response.data.env);
+        const env = response.data.env;
+        setEnv(env);
+
+        if(typeof window !== 'undefined') {
+          localStorage.setItem('applicationEnvironment', env);
+        }
+
         if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
