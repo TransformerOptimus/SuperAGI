@@ -26,6 +26,8 @@ services:
       - super__postgres
     networks:
       - super_network
+    environment:
+      - DISPLAY=:0
 
   gui:
     build: ./gui
