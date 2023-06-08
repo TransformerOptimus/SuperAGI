@@ -1,41 +1,54 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Agents.module.css';
 import 'react-toastify/dist/ReactToastify.css';
-import {getExecutionTasks} from "@/pages/api/DashboardService";
+import { getExecutionTasks } from '@/pages/api/DashboardService';
+import Image from "next/image";
 
-export default function TaskQueue({selectedRunId}) {
-  const [taskList, setTasks] = useState([])
-  const [completedTaskList, setCompletedTasks] = useState([])
+export default function TaskQueue({ selectedRunId }) {
+  const [tasks, setTasks] = useState({ pending: [], completed: [] });
 
   useEffect(() => {
     fetchTasks();
-  }, [selectedRunId])
+  }, [selectedRunId]);
 
   function fetchTasks() {
     getExecutionTasks(selectedRunId)
       .then((response) => {
-        setTasks(response.data.tasks);
-        setCompletedTasks(response.data.completed_tasks);
+        setTasks({
+          pending: response.data.tasks,
+          completed: response.data.completed_tasks,
+        });
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);
       });
   }
 
-  return (<>
+  return (
     <div>
-      {taskList.length > 0 ? <div className={styles.task_header}>Pending Tasks</div> : <div></div>}
-      {taskList.map((task, index) => (<div key={index} className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-        <div style={{display: 'flex'}}>
-          <div className={styles.feed_title} style={{marginLeft:'0'}}>{task.name}</div>
+      {tasks.pending.length > 0 && <div className={styles.task_header}>Pending Tasks</div>}
+      {tasks.pending.map((task, index) => (
+        <div key={index} className={styles.history_box} style={{ background: '#272335', padding: '20px', cursor: 'default' }}>
+          <div style={{ display: 'flex' }}>
+            <div>
+              <Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/>
+            </div>
+            <div className={styles.feed_title}>
+              {task.name}
+            </div>
+          </div>
         </div>
-      </div>))}
-      {completedTaskList.length > 0 ? <div className={styles.task_header}>Completed Tasks</div> : <div></div>}
-       {completedTaskList.map((task, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
-        <div style={{display:'flex'}}>
-          <div className={styles.feed_title} style={{marginLeft:'0'}}>{task.name}</div>
+      ))}
+      {tasks.completed.length > 0 && <div className={styles.task_header}>Completed Tasks</div>}
+      {tasks.completed.map((task, index) => (
+        <div key={index} className={styles.history_box} style={{ background: '#272335', padding: '20px', cursor: 'default' }}>
+          <div style={{ display: 'flex' }}>
+            <div className={styles.feed_title} style={{marginLeft: '0' }}>
+              {task.name}
+            </div>
+          </div>
         </div>
-       </div>))}
+      ))}
     </div>
-  </>)
+  );
 }
