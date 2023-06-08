@@ -68,6 +68,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
+  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -473,7 +474,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div>
                 {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                   {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && tool.name !== 'ThinkingTool' && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
+                    {tool.name !== null && !excludedTools.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
                           style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
                     </div>}
