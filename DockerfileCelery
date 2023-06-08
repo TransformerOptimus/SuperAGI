@@ -6,11 +6,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN playwright install --with-deps chromium
 RUN apt-get update && \
-    apt-get install -y xvfb && \
+    apt-get install -y xvfb xauth x11vnc && \
     apt-get clean
 
-CMD ["xvfb-run", "<your-playwright-app>"]
 COPY . .
 COPY config.yaml .
 
-CMD ["xvfb-run","celery", "-A", "superagi.worker", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "superagi.worker", "worker", "--loglevel=info"]

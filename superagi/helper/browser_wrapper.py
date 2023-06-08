@@ -14,6 +14,7 @@ class BrowserWrapper:
             .start()
             .chromium.launch(
                 headless=False,
+                args=["--remote-debugging-port=9222"]
             )
         )
 

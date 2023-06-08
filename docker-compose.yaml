@@ -16,6 +16,8 @@ services:
   celery:
     volumes:
       - "./:/app"
+    ports:
+      - "5900:5900"
     build:
       context: .
       dockerfile: DockerfileCelery
