@@ -5,8 +5,9 @@ from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from sqlalchemy.orm import sessionmaker
 from superagi.models.db import connect_db
-from superagi.helper.resource_helper import make_written_file_resource
-from superagi.helper.s3_helper import upload_to_s3
+from superagi.helper.resource_helper import ResourceHelper
+# from superagi.helper.s3_helper import upload_to_s3
+from superagi.helper.s3_helper import S3Helper
 
 
 
@@ -42,14 +43,15 @@ class WriteFileTool(BaseTool):
                 file.write(content)
                 file.close()
             with open(final_path, 'rb') as file:
-                resource = make_written_file_resource(file_name=file_name,
+                resource = ResourceHelper.make_written_file_resource(file_name=file_name,
                                                       agent_id=self.agent_id,file=file,channel="OUTPUT")
                 if resource is not None:
                     session.add(resource)
                     session.commit()
                     session.flush()
                     if resource.storage_type == "S3":
-                        upload_to_s3(file, path=resource.path)
+                        s3_helper = S3Helper()
+                        s3_helper.upload_file(file, path=resource.path)
                         print("Resource Uploaded to S3!")
                 session.close()
             return f"File written to successfully - {file_name}"

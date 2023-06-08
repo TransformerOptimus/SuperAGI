@@ -171,11 +171,12 @@ class AgentExecutor:
     def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):
         new_tools = []
         for tool in tools:
-            print(tool)
             if hasattr(tool, 'goals'):
                 tool.goals = parsed_config["goal"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
                 tool.llm = OpenAi(model="gpt-3.5-turbo",api_key=model_api_key, temperature=0.3)
+            elif hasattr(tool, 'llm'):
+                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
             if hasattr(tool,'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"],api_key=model_api_key)
             if hasattr(tool, 'agent_id'):

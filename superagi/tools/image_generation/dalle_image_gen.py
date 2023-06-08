@@ -6,8 +6,8 @@ from superagi.config.config import get_config
 import os
 import requests
 from superagi.models.db import connect_db
-from superagi.helper.resource_helper import make_written_file_resource
-from superagi.helper.s3_helper import upload_to_s3
+from superagi.helper.resource_helper import ResourceHelper
+from superagi.helper.s3_helper import S3Helper
 from sqlalchemy.orm import sessionmaker
 
 
@@ -54,14 +54,15 @@ class ImageGenTool(BaseTool):
                 with open(final_path, mode="wb") as img:
                     img.write(data)
                 with open(final_path, 'rb') as img:
-                    resource = make_written_file_resource(file_name=image_name[i],
+                    resource = ResourceHelper.make_written_file_resource(file_name=image_name[i],
                                                           agent_id=self.agent_id, file=img,channel="OUTPUT")
                     if resource is not None:
                         session.add(resource)
                         session.commit()
                         session.flush()
                         if resource.storage_type == "S3":
-                            upload_to_s3(img, path=resource.path)
+                            s3_helper = S3Helper()
+                            s3_helper.upload_file(img, path=resource.path)
                     session.close()
                 print(f"Image {image} saved successfully")
             except Exception as err:
