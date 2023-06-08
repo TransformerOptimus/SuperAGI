@@ -16,6 +16,8 @@ services:
   celery:
     volumes:
       - "./:/app"
+    ports:
+      - "5900:5900"
     build:
       context: .
       dockerfile: DockerfileCelery
@@ -24,6 +26,8 @@ services:
       - super__postgres
     networks:
       - super_network
+    environment:
+      - DISPLAY=:0
 
   gui:
     build: ./gui
