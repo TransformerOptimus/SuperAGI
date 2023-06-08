@@ -13,14 +13,22 @@ from fastapi import HTTPException, Depends, Request
 
 
 
-s3 = boto3.client(
-    's3',
-    aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
-)
 
 
-def make_written_file_resource(file_name: str, agent_id: int):
+def upload_to_s3(file,path):
+    try:
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+        )
+        bucket_name = get_config("BUCKET_NAME")
+        s3.upload_fileobj(file, bucket_name, path)
+        print("File uploaded in S3 successfully!")
+    except:
+        raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
+def make_written_file_resource(file_name: str, agent_id: int,file):
     path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
     storage_type = get_config("STORAGE_TYPE")
     file_type = "application/txt"
@@ -36,22 +44,24 @@ def make_written_file_resource(file_name: str, agent_id: int):
     file_size = os.path.getsize(final_path)
     resource = None
     if storage_type == "FILE":
-        # Save Resource to Database
         resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
                             type=file_type,
                             channel="OUTPUT",
                             agent_id=agent_id)
+        return resource
     elif storage_type == "S3":
-        bucket_name = get_config("BUCKET_NAME")
         file_name = file_name.split('.')
-        path = 'output/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(':', '') + '.' + file_name[1]
+        path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
+            ':', '') + '.' + file_name[1]
         try:
-            s3.upload_file(final_path, bucket_name, path)
-            print("File uploaded successfully!")
+            resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
+                                type=file_type,
+                                channel="OUTPUT",
+                                agent_id=agent_id)
+            return resource
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
-    return resource
 
 
 class WriteFileInput(BaseModel):
@@ -84,11 +94,16 @@ class WriteFileTool(BaseTool):
             with open(final_path, 'w', encoding="utf-8") as file:
                 file.write(content)
                 file.close()
+            with open(final_path, 'rb') as file:
                 resource = make_written_file_resource(file_name=file_name,
-                                                      agent_id=self.agent_id)
+                                                      agent_id=self.agent_id,file=file)
+                print("Resource",resource)
                 if resource is not None:
                     session.add(resource)
                     session.commit()
+                    session.flush()
+                    if resource.storage_type == "S3":
+                        upload_to_s3(file, path=resource.path)
                 session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:
