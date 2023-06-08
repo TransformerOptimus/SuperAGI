@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
-import {formatTime} from "@/utils/utils";
+import {formatTime, formatNumber} from "@/utils/utils";
 
 export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun}) {
   return (<>
@@ -31,16 +31,15 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
             {/*{run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}*/}
           </div>
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
-            {/*<div style={{display:'flex',alignItems:'center'}}>*/}
-            {/*  <div>*/}
-            {/*    <Image width={12} height={12} src="/images/call_made.svg" alt="call-icon"/>*/}
-            {/*  </div>*/}
-            {/*  <div className={styles.history_info}>*/}
-            {/*    {run.calls} Calls*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-            {/*<div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>*/}
             <div style={{display:'flex',alignItems:'center'}}>
+              <div>
+                <Image width={12} height={12} src="/images/calls_made.svg" alt="call-icon"/>
+              </div>
+              <div className={styles.history_info}>
+                {formatNumber(run?.num_of_calls || 0)} Calls
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>
               <div>
                 <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
               </div>

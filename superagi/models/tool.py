@@ -1,11 +1,13 @@
 from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
+
+
 # from pydantic import BaseModel
 
 class Tool(DBBaseModel):
     __tablename__ = 'tools'
 
-    id = Column(Integer, primary_key=True,autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     folder_name = Column(String)
     class_name = Column(String)

@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
-from sqlalchemy.orm import relationship
 from superagi.models.base_model import DBBaseModel
-from superagi.models.organisation import Organisation
 
 
 class Project(DBBaseModel):
@@ -15,4 +13,18 @@ class Project(DBBaseModel):
     def __repr__(self):
         return f"Project(id={self.id}, name='{self.name}')"
 
-
+    @classmethod
+    def find_or_create_default_project(cls, session, organisation_id):
+        project = session.query(Project).filter(Project.organisation_id == organisation_id, Project.name == "Default Project").first()
+        if project is None:
+            default_project = Project(
+                name="Default Project",
+                organisation_id=organisation_id,
+                description="New Default Project"
+            )
+            session.add(default_project)
+            session.commit()
+            session.flush()
+        else:
+            default_project = project
+        return default_project

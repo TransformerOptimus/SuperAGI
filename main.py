@@ -1,36 +1,40 @@
-from fastapi import FastAPI, HTTPException, Depends, Request,status,Query
+import inspect
+import os
+from datetime import timedelta
+
+import requests
+from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
 from fastapi.responses import RedirectResponse
+from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
-from pydantic import BaseModel
-from superagi.models.project import Project
-from superagi.models.user import User
-from superagi.models.organisation import Organisation
 from fastapi_sqlalchemy import DBSessionMiddleware, db
-from superagi.models.base_model import DBBaseModel
-from superagi.models.types.login_request import LoginRequest
-from superagi.controllers.user import router as user_router
-from superagi.controllers.organisation import router as organisation_router
-from superagi.controllers.project import router as project_router
-from superagi.controllers.budget import router as budget_router
+from pydantic import BaseModel
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import superagi
+from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.budget import router as budget_router
+from superagi.controllers.organisation import router as organisation_router
+from superagi.controllers.project import router as project_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
-from fastapi.middleware.cors import CORSMiddleware
+from superagi.controllers.user import router as user_router
+from superagi.controllers.config import router as config_router
+from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_template_step import AgentTemplateStep
+from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from sqlalchemy import create_engine
-from superagi.config.config import get_config
-from sqlalchemy.orm import sessionmaker, query
+from superagi.models.types.login_request import LoginRequest
+from superagi.models.user import User
 from superagi.tools.base_tool import BaseTool
-import os
-import inspect
-import requests
-
-
 
 app = FastAPI()
 
@@ -65,6 +69,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Creating requrired tables -- Now handled using migrations
 # DBBaseModel.metadata.create_all(bind=engine, checkfirst=True)
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
@@ -79,12 +84,26 @@ app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
+app.include_router(config_router,prefix="/configs")
+
+
+
+
+
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
-    authjwt_secret_key: str = "secret"
-    # authjwt_secret_key: str = get_config("JWT_SECRET_KEY")
+    # jwt_secret = get_config("JWT_SECRET_KEY")
+    authjwt_secret_key: str = superagi.config.config.get_config("JWT_SECRET_KEY")
+
+
+def create_access_token(email, Authorize: AuthJWT = Depends()):
+    # expiry_time_hours = get_config("JWT_EXPIRY")
+    expiry_time_hours = 1
+    expires = timedelta(hours=expiry_time_hours)
+    access_token = Authorize.create_access_token(subject=email, expires_time=expires)
+    return access_token
 
 # callback to get your configuration
 @AuthJWT.load_config
@@ -105,20 +124,6 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 Session = sessionmaker(bind=engine)
 session = Session()
 organisation = session.query(Organisation).filter_by(id=1).first()
-
-if not organisation or organisation is None:
-    organisation = Organisation(id=1, name='Default Organization',
-                                        description='This is the default organization')
-    session.add(organisation)
-    session.commit()
-
-project_name = "Default Project"
-project = session.query(Project).filter_by(name="Default Project", organisation_id=organisation.id).first()
-# project = Project.query.filter_by(name=project, organisation_id=org.id).first()
-if project is None:
-    project = Project(name=project_name, description=project_name, organisation_id=organisation.id)
-    session.add(project)
-    session.commit()
 
 
 def add_or_update_tool(db: Session, tool_name: str, folder_name: str, class_name: str, file_name: str):
@@ -156,10 +161,9 @@ def get_classes_in_file(file_path):
             try:
                 obj = class_obj()
                 class_dict['class_attribute'] = obj.name
+                classes.append(class_dict)
             except:
                 class_dict['class_attribute'] = None
-
-            classes.append(class_dict)
     return classes
 
 
@@ -194,25 +198,107 @@ def process_files(folder_path):
                     # filtered_classes = [clazz for clazz in classes if
                     #                     clazz["class_name"].endswith("Tool") and clazz["class_name"] != "BaseTool"]
                     for clazz in classes:
-                        new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name, file_name=file_name,
-                                        name=clazz["class_attribute"])
-                        new_tools.append(new_tool)
+                        if clazz["class_attribute"] is not None:
+                            new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name,
+                                            file_name=file_name,
+                                            name=clazz["class_attribute"])
+                            new_tools.append(new_tool)
 
     for tool in new_tools:
         add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
                            class_name=tool.class_name)
 
+def build_single_step_agent():
+    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Goal Based Agent").first()
+
+    if agent_template is None:
+        agent_template = AgentTemplate(name="Goal Based Agent", description="Goal based agent")
+        session.add(agent_template)
+        session.commit()
+
+    # step will have a prompt
+    # output of step is either tasks or set commands
+    first_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "gb1").first()
+    if first_step is None:
+        output = AgentPromptBuilder.get_super_agi_single_prompt()
+        first_step = AgentTemplateStep(unique_id="gb1",
+                                       prompt=output["prompt"], variables=str(output["variables"]),
+                                       agent_template_id=agent_template.id, output_type="tools",
+                                       step_type="TRIGGER",
+                                       history_enabled=True,
+                                       completion_prompt= "Determine which next command to use, and respond using the format specified above:")
+        session.add(first_step)
+        session.commit()
+    first_step.next_step_id = first_step.id
+    session.commit()
+
+def build_task_based_agents():
+    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Task Queue Agent With Seed").first()
+    if agent_template is None:
+        agent_template = AgentTemplate(name="Task Queue Agent With Seed", description="Task queue based agent")
+        session.add(agent_template)
+        session.commit()
+
+    output = AgentPromptBuilder.start_task_based()
+
+    template_step1 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb1").first()
+    if template_step1 is None:
+        template_step1 = AgentTemplateStep(unique_id="tb1",
+                                prompt=output["prompt"], variables=str(output["variables"]),
+                                step_type="TRIGGER",
+                                agent_template_id=agent_template.id, next_step_id=-1,
+                                output_type="tasks")
+        session.add(template_step1)
+    else:
+        template_step1.prompt=output["prompt"]
+        template_step1.variables=str(output["variables"])
+        template_step1.output_type="tasks"
+        session.commit()
+
+    template_step2 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb2").first()
+    output = AgentPromptBuilder.create_tasks()
+    if template_step2 is None:
+        template_step2 = AgentTemplateStep(unique_id="tb2",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_template_id=agent_template.id, next_step_id=-1,
+                                           output_type="tasks")
+        session.add(template_step2)
+    else:
+        template_step2.prompt=output["prompt"]
+        template_step2.variables=str(output["variables"])
+        template_step2.output_type="tasks"
+        session.commit()
+
+    template_step3 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb3").first()
+
+    output = AgentPromptBuilder.analyse_task()
+    if template_step3 is None:
+        template_step3 = AgentTemplateStep(unique_id="tb3",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_template_id=agent_template.id, next_step_id=-1, output_type="tools")
+
+        session.add(template_step3)
+    else:
+        template_step3.prompt=output["prompt"]
+        template_step3.variables=str(output["variables"])
+        template_step3.output_type="tools"
+        session.commit()
+
+    session.commit()
+    template_step1.next_step_id = template_step3.id
+    template_step3.next_step_id = template_step2.id
+    template_step2.next_step_id = template_step3.id
+    session.commit()
+
+build_single_step_agent()
+build_task_based_agents()
 
 # Specify the folder path
-folder_path = "superagi/tools"
-
-# Process the files and store class information
-process_files(folder_path)
-session.close()
-
-
-# Specify the folder path
-folder_path = "superagi/tools"
+folder_path = superagi.config.config.get_config("TOOLS_DIR")
+if folder_path is None:
+    folder_path = "superagi/tools"
 
 # Process the files and store class information
 process_files(folder_path)
@@ -220,6 +306,8 @@ session.close()
 
 @app.post('/login')
 def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
+    """Login API for email and password based login"""
+
     email_to_find = request.email
     user:User = db.session.query(User).filter(User.email == email_to_find).first()
 
@@ -227,7 +315,7 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
         raise HTTPException(status_code=401,detail="Bad username or password")
 
     # subject identifier for who this token is for example id or username from database
-    access_token = Authorize.create_access_token(subject=user.email)
+    access_token = create_access_token(user.email,Authorize)
     return {"access_token": access_token}
 
 
@@ -237,15 +325,21 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 
 @app.get('/github-login')
 def github_login():
+    """GitHub login"""
+
     github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
+
 @app.get('/github-auth')
-def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
+def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    """GitHub login callback"""
+
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = ""
-    github_client_secret = ""
-    frontend_url = "http://localhost:3000"
+    github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
+    github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
+
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     params = {
         'client_id': github_client_id,
         'client_secret': github_client_secret,
@@ -265,17 +359,23 @@ def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
         response = requests.get(github_api_url, headers=headers)
         if response.ok:
             user_data = response.json()
-            db_user: User = db.session.query(User).filter(User.email == user_data["email"]).first()
-            if db_user is None:
-                user = User(name=user_data["name"], email=user_data["email"])
-                db.session.add(user)
-                db.session.commit()
-            if user_data["email"] is not None:
-                jwt_token = Authorize.create_access_token(user_data["email"])
-            else:
-                jwt_token = Authorize.create_access_token(user_data["login"])
+            user_email = user_data["email"]
+            if user_email is None:
+                user_email = user_data["login"] + "@github.com"
+            db_user: User = db.session.query(User).filter(User.email == user_email).first()
+            if db_user is not None:
+                jwt_token = create_access_token(user_email, Authorize)
+                redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+                return RedirectResponse(url=redirect_url_success)
+
+
+
+            user = User(name=user_data["name"], email=user_email)
+            db.session.add(user)
+            db.session.commit()
+            jwt_token = create_access_token(user_email, Authorize)
+
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
-            # redirect_url_success = "https://superagi.com/"
             return RedirectResponse(url=redirect_url_success)
         else:
             redirect_url_failure = "https://superagi.com/"
@@ -287,6 +387,8 @@ def github_auth_handler(code: str = Query(...),Authorize: AuthJWT = Depends()):
 
 @app.get('/user')
 def user(Authorize: AuthJWT = Depends()):
+    """API to get current logged in User"""
+
     Authorize.jwt_required()
     current_user = Authorize.get_jwt_subject()
     return {"user": current_user}
@@ -294,29 +396,22 @@ def user(Authorize: AuthJWT = Depends()):
 
 @app.get("/validate-access-token")
 async def root(Authorize: AuthJWT = Depends()):
+    """API to validate access token"""
+
     try:
         Authorize.jwt_required()
-        return {
-            "message": "token is valid"
-        }
+        current_user_email = Authorize.get_jwt_subject()
+        current_user = session.query(User).filter(User.email == current_user_email).first()
+        return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-
-
-
-
-
-
-
 # #Unprotected route
-# @app.get("/hello/{name}")
-# async def say_hello(name: str,):
-#     return {"message": f"Hello {name}"}
-
+@app.get("/hello/{name}")
+async def say_hello(name: str,Authorize:AuthJWT=Depends()):
+    Authorize.jwt_required()
+    return {"message": f"Hello {name}"}
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-
-# # from superagi.task_queue.celery_app import test_fucntion

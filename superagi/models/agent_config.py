@@ -1,9 +1,6 @@
-from sqlalchemy import Column, Integer, Text,String
+from sqlalchemy import Column, Integer, Text, String
+
 from superagi.models.base_model import DBBaseModel
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.orm import relationship
-from superagi.models.agent import Agent
-from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class AgentConfiguration(DBBaseModel):

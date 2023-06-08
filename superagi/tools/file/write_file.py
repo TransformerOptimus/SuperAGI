@@ -5,13 +5,22 @@ from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from superagi.models.resource import Resource
 from sqlalchemy.orm import sessionmaker
-from superagi.models.db import connectDB
+from superagi.models.db import connect_db
+import datetime
+import boto3
+from botocore.exceptions import NoCredentialsError
+from fastapi import HTTPException, Depends, Request
 
-engine = connectDB()
-Session = sessionmaker(bind=engine)
-session = Session()
 
-def make_written_file_resource(file_name: str,agent_id:int):
+
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+)
+
+
+def make_written_file_resource(file_name: str, agent_id: int):
     path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
     storage_type = get_config("STORAGE_TYPE")
     file_type = "application/txt"
@@ -33,14 +42,22 @@ def make_written_file_resource(file_name: str,agent_id:int):
                             channel="OUTPUT",
                             agent_id=agent_id)
     elif storage_type == "S3":
-        pass
+        bucket_name = get_config("BUCKET_NAME")
+        file_name = file_name.split('.')
+        path = 'output/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(':', '') + '.' + file_name[1]
+        try:
+            s3.upload_file(final_path, bucket_name, path)
+            print("File uploaded successfully!")
+        except NoCredentialsError:
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
     return resource
+
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write")
+    file_name: str = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
     content: str = Field(..., description="File content to write")
-    agent_id: int = Field(..., description="Agent ID associated with the File")
 
 
 class WriteFileTool(BaseTool):
@@ -49,7 +66,11 @@ class WriteFileTool(BaseTool):
     description: str = "Writes text to a file"
     agent_id: int = None
 
-    def _execute(self, file_name: str, content: str, agent_id: int):
+    def _execute(self, file_name: str, content: str):
+        engine = connect_db()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
@@ -64,10 +85,11 @@ class WriteFileTool(BaseTool):
                 file.write(content)
                 file.close()
                 resource = make_written_file_resource(file_name=file_name,
-                                                      agent_id=agent_id)
+                                                      agent_id=self.agent_id)
                 if resource is not None:
                     session.add(resource)
                     session.commit()
+                session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:
             return f"Error: {err}"

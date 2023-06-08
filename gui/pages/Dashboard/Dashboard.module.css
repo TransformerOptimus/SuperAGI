@@ -57,7 +57,7 @@
 }
 
 .top_bar {
-    padding: 8px;
+    padding: 8px 10px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -163,7 +163,11 @@
 
 .top_right {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
     order: 1;
+    height: 100%;
 }
 
 .top_left {
@@ -174,7 +178,7 @@
 }
 
 .top_right_icon {
-    margin-right: 15px;
+    margin-right: 10px;
     cursor: pointer;
     display: flex;
     order: 1;

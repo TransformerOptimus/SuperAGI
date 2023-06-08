@@ -1,12 +1,11 @@
-import os
-import sys
-import time
-from typing import Any
+import asyncio
+from typing import Any, List
 
-from pydantic import BaseModel
-from serpapi import GoogleSearch
+import aiohttp
 
+from superagi.config.config import get_config
 from superagi.helper.webpage_extractor import WebpageExtractor
+
 
 class GoogleSerpApiWrap:
     def __init__(self, api_key, num_results=10, num_pages=1, num_extracts=3):
@@ -17,42 +16,64 @@ class GoogleSerpApiWrap:
         self.extractor = WebpageExtractor()
 
     def search_run(self, query):
-        params = {
-            "api_key": self.api_key,
-            "engine": 'google',
-            "google_domain": "google.com",
-            "gl": "us",
-            "hl": "en",
-            "q": query
-        }
-
-        search = GoogleSearch(params)
-        results = search.get_dict()
+        results = asyncio.run(self.fetch_serper_results(query=query))
         response = self.process_response(results)
         return response
 
-    @staticmethod
-    def process_response(api_response: dict) -> str:
-        result = ""
-        if "error" in api_response.keys():
-            raise ValueError(f"Got error from SerpAPI: {api_response['error']}")
-        if "answer_box" in api_response.keys():
-            if "answer" in api_response["answer_box"].keys():
-                result = api_response["answer_box"]["answer"]
-            elif "snippet" in api_response["answer_box"].keys():
-                result = api_response["answer_box"]["snippet"]
-            elif "snippet_highlighted_words" in api_response["answer_box"].keys():
-                result = api_response["answer_box"]["snippet_highlighted_words"][0]
-        elif "sports_results" in api_response.keys() and "game_spotlight" in api_response["sports_results"].keys():
-            result = api_response["sports_results"]["game_spotlight"]
-        elif "knowledge_graph" in api_response.keys() and "description" in api_response["knowledge_graph"].keys():
-            result = api_response["knowledge_graph"]["description"]
-        elif "snippet" in api_response["organic_results"][0].keys():
-            result = api_response["organic_results"][0]["snippet"]
-        elif "answer_box" in api_response.keys() and "answer" in api_response["answer_box"].keys():
-            result = api_response["answer_box"]["answer"]
-        elif "snippet" in api_response["organic_results"][0].keys():
-            result = api_response["organic_results"][0]["snippet"]
-        else:
-            result = "No good search result found"
-        return result
+    async def fetch_serper_results(self,
+                                   query: str, search_type: str = "search"
+                                   ) -> dict[str, Any]:
+        headers = {
+            "X-API-KEY": self.api_key or "",
+            "Content-Type": "application/json",
+        }
+        params = {"q": query,}
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    f"https://google.serper.dev/{search_type}", headers=headers, params=params
+            ) as response:
+                response.raise_for_status()
+                search_results = await response.json()
+                return search_results
+
+    def process_response(self, results) -> str:
+        snippets: List[str] = []
+        links: List[str] = []
+
+        if results.get("answerBox"):
+            answer_values = []
+            answer_box = results.get("answerBox", {})
+            if answer_box.get("answer"):
+                answer_values.append(answer_box.get("answer"))
+            elif answer_box.get("snippet"):
+                answer_values.append(answer_box.get("snippet").replace("\n", " "))
+            elif answer_box.get("snippetHighlighted"):
+                answer_values.append(", ".join(answer_box.get("snippetHighlighted")))
+
+            if len(answer_values) > 0:
+                snippets.append("\n".join(answer_values))
+
+        if results.get("knowledgeGraph"):
+            knowledge_graph = results.get("knowledgeGraph", {})
+            title = knowledge_graph.get("title")
+            entity_type = knowledge_graph.get("type")
+            if entity_type:
+                snippets.append(f"{title}: {entity_type}.")
+            description = knowledge_graph.get("description")
+            if description:
+                snippets.append(description)
+            for attribute, value in knowledge_graph.get("attributes", {}).items():
+                snippets.append(f"{title} {attribute}: {value}.")
+
+        for result in results["organic"][:self.num_results]:
+            if "snippet" in result:
+                snippets.append(result["snippet"])
+            if "link" in result and len(links) < self.num_results:
+                links.append(result["link"])
+            for attribute, value in result.get("attributes", {}).items():
+                snippets.append(f"{attribute}: {value}.")
+
+        if len(snippets) == 0:
+            return {"snippets": "No good Google Search Result was found", "links": []}
+
+        return {"links": links, "snippets": snippets}

@@ -6,14 +6,20 @@ from superagi.models.types.agent_config import AgentConfig
 from superagi.models.agent_config import AgentConfiguration
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from superagi.helper.auth import check_auth
+from fastapi_jwt_auth import AuthJWT
+
+
 
 router = APIRouter()
 
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentConfiguration), status_code=201)
-def create_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"]),
-                 Authorize: AuthJWT = Depends()):
+def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"],),
+                 Authorize: AuthJWT = Depends(check_auth)):
+    """Create new agent configuration by setting new key and value related to agent"""
+
     agent = db.session.query(Agent).get(agent_config.agent_id)
 
     if not agent:
@@ -26,7 +32,10 @@ def create_agent(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclud
 
 
 @router.get("/get/{agent_config_id}", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def get_agent(agent_config_id: int, Authorize: AuthJWT = Depends()):
+def get_agent(agent_config_id: int,
+              Authorize: AuthJWT = Depends(check_auth)):
+    """Get a particular agent configuration by agent_config_id"""
+
     db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
     if not db_agent_config:
         raise HTTPException(status_code=404, detail="Agent Configuration not found")
@@ -34,7 +43,10 @@ def get_agent(agent_config_id: int, Authorize: AuthJWT = Depends()):
 
 
 @router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def update_agent(agent_config: AgentConfig):
+def update_agent(agent_config: AgentConfig,
+                 Authorize: AuthJWT = Depends(check_auth)):
+    """Update a particular agent configuration value for given agent_id and agent_config key"""
+
     db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == agent_config.key,
                                                                   AgentConfiguration.agent_id == agent_config.agent_id).first()
     if not db_agent_config:
@@ -52,7 +64,10 @@ def update_agent(agent_config: AgentConfig):
 
 
 @router.get("/get/agent/{agent_id}")
-def get_agent_configurations(agent_id: int):
+def get_agent_configurations(agent_id: int,
+                             Authorize: AuthJWT = Depends(check_auth)):
+    """Get all agent configurations for a given agent_id"""
+
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if not agent:
         raise HTTPException(status_code=404, detail="agent not found")
