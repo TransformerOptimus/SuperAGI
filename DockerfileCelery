@@ -4,6 +4,11 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+    apt-get install -y xvfb && \
+    apt-get clean
+RUN playwright install --with-deps chromium
+
 
 COPY . .
 COPY config.yaml .
