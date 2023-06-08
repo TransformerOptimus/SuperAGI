@@ -17,6 +17,8 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
 
 2. Your Private API Key would be made. Copy that and paste it in the config.yaml file.
 
+![Screenshot-google serp](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/7f20e9ae-3a25-49cd-aa72-b96f7e6ae305)
+
 ## Running SuperAGI Google Search Serp Tool
 
 You can simply ask your agent about latest information regarding anything in the world and your agent will be able to browse the internet to get that information for you. 
