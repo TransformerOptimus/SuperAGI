@@ -25,7 +25,6 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      console.log(fileData)
       uploadResource(fileData);
     }
   };
@@ -58,7 +57,6 @@ export default function ResourceManager({agentId}) {
         "size": files[0].size,
         "type": files[0].type,
       };
-      console.log(fileData)
       uploadResource(fileData);
     }
   };
