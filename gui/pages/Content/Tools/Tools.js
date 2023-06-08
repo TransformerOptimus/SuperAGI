@@ -40,7 +40,7 @@ export default function ToolList({sendToolData, tools}) {
             </div>
             <div className={styles.tool_container}>
               {toolsArray.map((tool) => (<div key={tool.id} style={{width:'100%'}}>
-                {tool.name !== null && tool.name !== 'ThinkingTool' && <div className={styles.tool_box}>
+                {tool.name !== null && tool.name !== 'ThinkingTool' && tool.name !== 'LlmThinkingTool' && <div className={styles.tool_box}>
                   <div className="row">
                     <div className="col-12">
                       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px'}}>
