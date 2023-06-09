@@ -107,7 +107,6 @@ class AgentExecutor:
 
         tools = [
           ThinkingTool(),
-          # WebScraperTool(),
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
