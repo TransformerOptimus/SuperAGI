@@ -6,9 +6,9 @@ import openai
 from typing import Type, List
 from pydantic import BaseModel, Field
 
-from superagi.helper.embeddings_creator import Embedding_creator_tool
+from superagi.helper.knowledge_tool import 
 from superagi.tools.base_tool import BaseTool
-from superagi.tools.file.read_file import ReadFileTool
+# from superagi.tools.file.read_file import ReadFileTool
 import pandas as pd
 
 # 1. define input schema
