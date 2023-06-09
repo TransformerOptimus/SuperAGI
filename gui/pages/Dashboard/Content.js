@@ -9,6 +9,7 @@ import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
+import Market from "../Content/Marketplace/Market";
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([])
@@ -16,6 +17,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   const [agents, setAgents] = useState(null);
   const [tools, setTools] = useState(null);
   const tabContainerRef = useRef(null);
+ 
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -78,6 +80,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   };
 
   const addTab = (element) => {
+    console.log(element + '//////')
     if (!tabs.some(item => item.id === element.id)) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
@@ -101,7 +104,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   }, [selectedTab]);
 
   useEffect(() => {
-    const settingsTab = (eventData) => {
+    const openNewTab = (eventData) => {
       addTab(eventData);
     };
 
@@ -109,12 +112,12 @@ export default function Content({selectedView, selectedProjectId, organisationId
       cancelTab(-1);
     };
 
-    EventBus.on('settingsTab', settingsTab);
+    EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', fetchAgents);
     EventBus.on('cancelAgentCreate', cancelAgentCreate);
 
     return () => {
-      EventBus.off('settingsTab', settingsTab);
+      EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', fetchAgents);
       EventBus.off('cancelAgentCreate', cancelAgentCreate);
     };
@@ -136,6 +139,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
         {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools}/></div>}
       </div>
+
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div className={styles.empty_state}>
           <div>
@@ -171,6 +175,11 @@ export default function Content({selectedView, selectedProjectId, organisationId
                 {selectedTab === tab.id && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
+
+                  {tab.contentType === 'Marketplace' && (
+                    <div className={styles.main_workspace} style={selectedView === '' ? {width:'91.5vw',paddingLeft:'8px'} : {width:'80.5vw'}}><Market tools={tools} />
+                  </div>)}
+
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                     <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                   </div>}
