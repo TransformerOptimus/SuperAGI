@@ -27,7 +27,7 @@ class KnowledgeSearchTool(BaseTool):
     def _execute(self, query: str):
         print(query)
         query_knowledge = Knowledgetoolhelper()
-        req_context = pd.DataFrame(query_knowledge.get_match_vectors(query))
+        req_context = query_knowledge.get_match_vectors(query)
         return req_context
 
         
