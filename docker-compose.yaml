@@ -69,13 +69,16 @@ services:
         max-size: '10m'
     networks:
       - super_network
-    deploy:
-        resources:
-          reservations:
-            devices:
-              - driver: nvidia
-                device_ids: ['0,1']
-                capabilities: [gpu]
+ #### Uncomment the following for nvidia GPU systems
+#    deploy:
+#        resources:
+#          reservations:
+#           devices:
+#             - driver: nvidia
+### Either uncomment count or divce_ids if you know which divces you would like to use, but do not uncomment both. They are incompatible.
+#               count: all
+#               device_ids: ['0,1']
+#               capabilities: [gpu]
 
 
   super__redis:
