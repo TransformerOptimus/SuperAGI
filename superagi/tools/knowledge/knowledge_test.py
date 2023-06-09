@@ -58,25 +58,25 @@ class KnowledgeSearchTool(BaseTool):
 
 
 
-class EmbeddingsCreatorSchema(BaseModel):
-    file_name: str = Field(...,description="The text file to be converted into embeddings.")
+# class EmbeddingsCreatorSchema(BaseModel):
+#     file_name: str = Field(...,description="The text file to be converted into embeddings.")
 
-class EmbeddingsCreatorTool(BaseTool):
-  name = "Knowledge"
-  args_schema: Type[BaseModel] = EmbeddingsCreatorSchema
-  description = (
-        "A tool for reading text from a text file and then transforming text into semantic vectors or embeddings. "
-        "Input should be a text file."
-  )
+# class EmbeddingsCreatorTool(BaseTool):
+#   name = "Knowledge"
+#   args_schema: Type[BaseModel] = EmbeddingsCreatorSchema
+#   description = (
+#         "A tool for reading text from a text file and then transforming text into semantic vectors or embeddings. "
+#         "Input should be a text file."
+#   )
   
-  def _execute(self, file_name: str):
-        # model = "text-embedding-ada-002"'
-        # print(type(file_name))
-        # print(file_name,'daedhafjeh')
-        file_content = ReadFileTool().execute(file_name)
-        # file_content = "hdfskjdfhksjh"
-        create_embeddings = Embedding_creator_tool()
-        embeddings = pd.DataFrame(create_embeddings.get_embeddings(file_content))
-        # embeddings = "sjkdfhdjsk"
-        return embeddings
+#   def _execute(self, file_name: str):
+#         # model = "text-embedding-ada-002"'
+#         # print(type(file_name))
+#         # print(file_name,'daedhafjeh')
+#         file_content = ReadFileTool().execute(file_name)
+#         # file_content = "hdfskjdfhksjh"
+#         create_embeddings = Embedding_creator_tool()
+#         embeddings = pd.DataFrame(create_embeddings.get_embeddings(file_content))
+#         # embeddings = "sjkdfhdjsk"
+#         return embeddings
  
