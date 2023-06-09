@@ -49,7 +49,9 @@ services:
         - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
     container_name: text-generation-webui
     environment:
+      # for GPU off loading comment out the next line and uncomment the one after that. After building navigate to localhost:7860, and then click on model settings and adjust the threads and n-gpu-layer settings to match the host device.
       - EXTRA_LAUNCH_ARGS="--chat --listen --verbose --extensions openai" # Custom launch args (e.g., --model MODEL_NAME)
+#      - EXTRA_LAUNCH_ARGS="--chat --listen --no-mmap --verbose --extensions openai --n-gpu-layers 15 --threads 4 --auto-devices" # Custom launch args (e.g., --model MODEL_NAME)
     ports:
       - 7860:7860  # Default web port
       - 5000:5000  # Default API port
