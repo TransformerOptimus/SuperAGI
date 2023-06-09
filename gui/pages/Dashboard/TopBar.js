@@ -134,7 +134,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
           {/*<div style={{marginTop:'15px'}}>*/}
           {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
           {/*  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
-          {/*    <input style={{width:'90%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
+          {/*    <input style={{width:'89%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
           {/*    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={temperature}/>*/}
           {/*  </div>*/}
           {/*</div>*/}
