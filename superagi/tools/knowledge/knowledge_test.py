@@ -6,7 +6,7 @@ import openai
 from typing import Type, List
 from pydantic import BaseModel, Field
 
-from superagi.helper.knowledge_tool import 
+from superagi.helper.knowledge_tool import Knowledgetoolhelper
 from superagi.tools.base_tool import BaseTool
 # from superagi.tools.file.read_file import ReadFileTool
 import pandas as pd
@@ -25,17 +25,17 @@ class KnowledgeSearchTool(BaseTool):
     )
 
     def _execute(self, query: str):
-        query_knowledge = Embedding_creator_tool()
-        embeddings = pd.DataFrame(create_embeddings.get_embeddings(file_content))
-        # embeddings = "sjkdfhdjsk"
-        return embeddings
+        print(query)
+        query_knowledge = Knowledgetoolhelper()
+        req_context = pd.DataFrame(query_knowledge.get_match_vectors(query))
+        return req_context
 
         
         
         
-        messages = []
+        #messages = []
         # message is system message
-        return ("Embed tool results")
+        #return ("Embed tool results")
 
 
 
