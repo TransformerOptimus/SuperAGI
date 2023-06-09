@@ -15,6 +15,22 @@
     background: transparent;
 }
 
+.back_to_top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #1B192C;
+    border-radius: 8px;
+    border: 1px solid #8C8C8C;
+    box-shadow: -3px 3px 8px rgba(0, 0, 0, 0.3);
+    bottom: 4%;
+    position: fixed;
+    z-index: 100;
+    cursor: pointer;
+}
+
 .file-drop-area {
     border-radius: 8px;
     border: 1px dashed rgba(255, 255, 255, 0.2);
