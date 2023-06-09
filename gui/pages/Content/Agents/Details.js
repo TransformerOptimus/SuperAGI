@@ -1,6 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
+import {formatNumber} from "@/utils/utils";
 
 export default function Details({agentDetails, runCount}) {
   const [showGoals, setShowGoals] = useState(false);
@@ -24,13 +25,13 @@ export default function Details({agentDetails, runCount}) {
       <div>{agentDetails?.description || ''}</div>
       <div className={styles.separator}></div>
       <div style={{display:'flex',marginBottom:'5px',alignItems:'center',justifyContent:'flex-start',gap:'7.5%'}}>
-        {/*<div>*/}
-        {/*  <div className={styles.agent_info_box}>*/}
-        {/*    <div><Image width={12} height={12} src="/images/calls_made.svg" alt="calls-icon"/></div>*/}
-        {/*    <div style={info_text_secondary}>Total Calls</div>*/}
-        {/*  </div>*/}
-        {/*  <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>9.5k</div>*/}
-        {/*</div>*/}
+        <div>
+          <div className={styles.agent_info_box}>
+            <div><Image width={12} height={12} src="/images/calls_made.svg" alt="calls-icon"/></div>
+            <div style={info_text_secondary}>Total Calls</div>
+          </div>
+          <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>{formatNumber(agentDetails?.calls || 0)}</div>
+        </div>
         <div>
           <div className={styles.agent_info_box}>
             <div><Image width={12} height={12} src="/images/runs_made.svg" alt="runs-icon"/></div>
@@ -38,13 +39,13 @@ export default function Details({agentDetails, runCount}) {
           </div>
           <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>{runCount || 0}</div>
         </div>
-        {/*<div>*/}
-        {/*  <div className={styles.agent_info_box}>*/}
-        {/*    <div><Image width={12} height={12} src="/images/tokens_consumed.svg" alt="tokens-icon"/></div>*/}
-        {/*    <div style={info_text_secondary}>Tokens Consumed</div>*/}
-        {/*  </div>*/}
-        {/*  <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>7.6k</div>*/}
-        {/*</div>*/}
+        <div>
+          <div className={styles.agent_info_box}>
+            <div><Image width={12} height={12} src="/images/tokens_consumed.svg" alt="tokens-icon"/></div>
+            <div style={info_text_secondary}>Tokens Consumed</div>
+          </div>
+          <div className={styles.feed_title} style={{fontSize:'20px',marginLeft:'0'}}>{formatNumber(agentDetails?.tokens || 0)}</div>
+        </div>
       </div>
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
@@ -101,6 +102,10 @@ export default function Details({agentDetails, runCount}) {
         <div><Image width={15} height={15} src="/images/key.svg" alt="permission-type-icon"/></div>
         <div style={info_text}>{agentDetails?.permission_type.replace(/\s*\([^)]*\)/g, '') || ''}</div>
       </div>
+      {agentDetails?.max_iterations && <div className={styles.agent_info_box}>
+        <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
+        <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
+      </div>}
     </div>
   </>)
 }

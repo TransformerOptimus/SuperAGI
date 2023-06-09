@@ -54,8 +54,7 @@ services:
     networks:
       - super_network
     ports:
-      - "5432:54432"
-
+      - "5432:5432"
 
 networks:
   super_network:
