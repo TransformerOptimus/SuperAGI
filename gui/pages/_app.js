@@ -47,7 +47,13 @@ export default function App() {
   useEffect(() => {
     checkEnvironment()
       .then((response) => {
-        setEnv(response.data.env);
+        const env = response.data.env;
+        setEnv(env);
+
+        if(typeof window !== 'undefined') {
+          localStorage.setItem('applicationEnvironment', env);
+        }
+
         if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
@@ -90,15 +96,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    getProject(organisationId)
-      .then((response) => {
-        setApplicationState("AUTHENTICATED");
-        setSelectedProject(response.data[0]);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
+    if(organisationId !== null) {
+      getProject(organisationId)
+        .then((response) => {
+          setSelectedProject(response.data[0]);
+        })
+        .catch((error) => {
+          console.error('Error fetching project:', error);
+        });
+    }
   }, [organisationId]);
+
+  useEffect(() => {
+    if(selectedProject !== null) {
+      setApplicationState("AUTHENTICATED");
+    }
+  }, [selectedProject]);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -127,7 +140,7 @@ export default function App() {
             <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
-            <Content selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
       </div> : <div className="signInStyle">

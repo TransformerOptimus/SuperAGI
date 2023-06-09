@@ -97,17 +97,12 @@ class Settings(BaseModel):
     # jwt_secret = get_config("JWT_SECRET_KEY")
     authjwt_secret_key: str = superagi.config.config.get_config("JWT_SECRET_KEY")
 
-def create_access_token(email,Authorize: AuthJWT = Depends()):
-    expiry_time_hours = get_config("JWT_EXPIRY")
-    expires = timedelta(hours=expiry_time_hours)
-    access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
-    return access_token
 
-def create_access_token(email,Authorize: AuthJWT = Depends()):
+def create_access_token(email, Authorize: AuthJWT = Depends()):
     # expiry_time_hours = get_config("JWT_EXPIRY")
     expiry_time_hours = 1
     expires = timedelta(hours=expiry_time_hours)
-    access_token = Authorize.create_access_token(subject=email,expires_time=expires)
+    access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
 
 # callback to get your configuration
@@ -344,7 +339,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
     github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
 
-    frontend_url = superagi.config.config.get_config("FRONTEND_URL")
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     params = {
         'client_id': github_client_id,
         'client_secret': github_client_secret,

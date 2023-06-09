@@ -39,6 +39,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
     updateOrganisationConfig(organisationId, configData)
       .then((response) => {
         getKey("model_api_key");
+        EventBus.emit("keySet", {});
         toast.success("Settings updated", {autoClose: 1800});
       })
       .catch((error) => {
@@ -67,6 +68,11 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   };
 
   const saveSettings = () => {
+    if (openAIKey === null || openAIKey.replace(/\s/g, '') === '') {
+      toast.error("API key is empty", {autoClose: 1800});
+      return
+    }
+
     updateKey("model_api_key", openAIKey);
     setSettingsModal(false);
   };
@@ -74,6 +80,18 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   const handleTemperatureChange = (event) => {
     setTemperature(event.target.value);
   };
+
+  useEffect(() => {
+    const openSettings = (eventData) => {
+      setSettingsModal(true);
+    };
+
+    EventBus.on('openSettings', openSettings);
+
+    return () => {
+      EventBus.off('openSettings', openSettings);
+    };
+  });
 
   return (
     <>
@@ -116,7 +134,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
           {/*<div style={{marginTop:'15px'}}>*/}
           {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
           {/*  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
-          {/*    <input style={{width:'90%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
+          {/*    <input style={{width:'89%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
           {/*    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={temperature}/>*/}
           {/*  </div>*/}
           {/*</div>*/}
