@@ -49,7 +49,7 @@ services:
         - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
     container_name: text-generation-webui
     environment:
-      - EXTRA_LAUNCH_ARGS="--chat --listen --no-mmap --verbose --extensions openai --gpu-memory 22 22 --n-gpu-layers 100 --threads 8 --model 30b-Lazarus.ggmlv3.q8_0.bin --auto-devices" # Custom launch args (e.g., --model MODEL_NAME)
+      - EXTRA_LAUNCH_ARGS="--chat --listen --verbose --extensions openai" # Custom launch args (e.g., --model MODEL_NAME)
     ports:
       - 7860:7860  # Default web port
       - 5000:5000  # Default API port
