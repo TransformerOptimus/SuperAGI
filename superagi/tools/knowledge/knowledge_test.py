@@ -25,6 +25,14 @@ class KnowledgeSearchTool(BaseTool):
     )
 
     def _execute(self, query: str):
+        query_knowledge = Embedding_creator_tool()
+        embeddings = pd.DataFrame(create_embeddings.get_embeddings(file_content))
+        # embeddings = "sjkdfhdjsk"
+        return embeddings
+
+        
+        
+        
         messages = []
         # message is system message
         return ("Embed tool results")
