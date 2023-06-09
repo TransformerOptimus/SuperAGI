@@ -367,3 +367,15 @@
     /* Add more custom styles as needed */
   }
 
+  .market_tool{
+    display: flex;
+    color:white;
+    font-size: small;
+    height: 80px;
+    width: 30%;
+    background-color: rgb(39,35,53);
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+

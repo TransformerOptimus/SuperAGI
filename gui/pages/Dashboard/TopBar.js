@@ -42,7 +42,7 @@ export default function TopBar({selectedProject}) {
         <div className={styles.top_bar_font} onClick={handleMarketplaceClick}><p>Marketplace</p>
         
         </div>
-  
+        
         </div>
       </div>
       <div className={styles.top_right}>
