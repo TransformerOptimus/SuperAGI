@@ -8,9 +8,10 @@ from superagi.config.config import get_config
 
 
 class OpenAi(BaseLlm):
-    def __init__(self, api_key, image_model=None, model="gpt-4", temperature=0.6, max_tokens=4032, top_p=1,
+    def __init__(self, api_key, api_base="https://api.openai.com/v1", image_model=None, model="gpt-4", temperature=0.6, max_tokens=4032, top_p=1,
                  frequency_penalty=0,
                  presence_penalty=0, number_of_results=1):
+
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
@@ -20,6 +21,7 @@ class OpenAi(BaseLlm):
         self.number_of_results = number_of_results
         self.api_key = api_key
         self.image_model = image_model
+        openai.api_base = api_base
         openai.api_key = api_key
 
     def get_model(self):
