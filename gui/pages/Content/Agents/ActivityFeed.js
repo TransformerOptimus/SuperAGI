@@ -11,7 +11,6 @@ export default function ActivityFeed({selectedRunId, selectedView}) {
   const feedContainerRef = useRef(null);
   const [runStatus, setRunStatus] = useState("CREATED");
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
-  const sideBarOpen = selectedView !== '' || false;
 
   useEffect(() => {
     const text = 'Thinking';
@@ -129,7 +128,7 @@ export default function ActivityFeed({selectedRunId, selectedView}) {
         </div>}
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
-        <div className="back_to_top" onClick={scrollToTop} style={sideBarOpen ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
+        <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
         <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
       </div>}
     </div>
