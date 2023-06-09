@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function ToolList({sendToolData, tools}) {
   const [filterSelected, setFilter] = useState('all');
   const [toolsArray, setTools] = useState(tools);
-  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool", "CodingTool"];
+  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
 
   const handleFilter = (value) => {
     setFilter(value)

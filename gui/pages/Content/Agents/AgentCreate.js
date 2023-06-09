@@ -69,7 +69,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
-  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool", "CodingTool"];
+  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
