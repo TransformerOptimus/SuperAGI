@@ -108,11 +108,11 @@ def create_access_token(email,Authorize: AuthJWT = Depends()):
     access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
     return access_token
 
-def create_access_token(email,Authorize: AuthJWT = Depends()):
+def create_access_token(email, Authorize: AuthJWT = Depends()):
     # expiry_time_hours = get_config("JWT_EXPIRY")
     expiry_time_hours = 1
     expires = timedelta(hours=expiry_time_hours)
-    access_token = Authorize.create_access_token(subject=email,expires_time=expires)
+    access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
 
 # callback to get your configuration
@@ -229,15 +229,21 @@ def build_single_step_agent():
     # step will have a prompt
     # output of step is either tasks or set commands
     first_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "gb1").first()
+    output = AgentPromptBuilder.get_super_agi_single_prompt()
     if first_step is None:
-        output = AgentPromptBuilder.get_super_agi_single_prompt()
         first_step = AgentTemplateStep(unique_id="gb1",
                                        prompt=output["prompt"], variables=str(output["variables"]),
                                        agent_template_id=agent_template.id, output_type="tools",
                                        step_type="TRIGGER",
                                        history_enabled=True,
-                                       completion_prompt= "Determine which next command to use, and respond using the format specified above:")
+                                       completion_prompt= "Determine which next tool to use, and respond using the format specified above:")
         session.add(first_step)
+        session.commit()
+    else:
+        first_step.prompt = output["prompt"]
+        first_step.variables = str(output["variables"])
+        first_step.output_type = "tools"
+        first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
         session.commit()
     first_step.next_step_id = first_step.id
     session.commit()
@@ -349,7 +355,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     github_client_id = os.getenv("GITHUB_CLIENT_ID",superagi.config.config.get_config("GITHUB_CLIENT_ID"))
     github_client_secret = os.getenv("GITHUB_CLIENT_SECRET",superagi.config.config.get_config("GITHUB_CLIENT_SECRET"))
 
-    frontend_url = superagi.config.config.get_config("FRONTEND_URL")
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     params = {
         'client_id': github_client_id,
         'client_secret': github_client_secret,
