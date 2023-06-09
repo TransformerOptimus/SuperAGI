@@ -26,6 +26,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
+    "Ensure the command and args are as per current plan and reasoning",
     'Exclusively use the commands listed in double quotes e.g. "command name"'
   ];
   const [constraints, setConstraints] = useState(constraintsArray);

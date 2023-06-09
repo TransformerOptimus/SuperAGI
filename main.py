@@ -233,6 +233,7 @@ def build_single_step_agent():
         first_step.prompt = output["prompt"]
         first_step.variables = str(output["variables"])
         first_step.output_type = "tools"
+        first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
         session.commit()
     first_step.next_step_id = first_step.id
     session.commit()

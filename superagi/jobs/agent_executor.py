@@ -106,8 +106,7 @@ class AgentExecutor:
           return "Agent Not found"
 
         tools = [
-          ThinkingTool(),
-          WebScraperTool(),
+          ThinkingTool()
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
