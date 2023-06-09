@@ -74,16 +74,10 @@ def get_projects_organisation(organisation_id: int,
 
     """Get all projects by organisation_id and create default if no project"""
 
+    Project.find_or_create_default_project(db.session, organisation_id)
     projects = db.session.query(Project).filter(Project.organisation_id == organisation_id).all()
-    if not projects:
-        default_project = Project(
-            name="Default Project",
-            organisation_id=organisation_id,
-            description="New Default Project"
-        )
-        db.session.add(default_project)
-        db.session.commit()
-        db.session.flush()
+    if len(projects) <= 0:
+        default_project = Project.find_or_create_default_project(db.session, organisation_id)
         projects.append(default_project)
 
     return projects

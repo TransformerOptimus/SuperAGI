@@ -5,6 +5,8 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes, downloadFile} from "@/utils/utils";
+import axios from 'axios';
+import api, {baseUrl} from "@/pages/api/apiConfig";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -77,7 +79,7 @@ export default function ResourceManager({agentId}) {
         toast.success('Resource added successfully', { autoClose: 1800 });
       })
       .catch((error) => {
-        toast.error('Unsupported file format', { autoClose: 1800 });
+        toast.error(error, { autoClose: 1800 });
         console.error('Error uploading resource:', error);
       });
   }
