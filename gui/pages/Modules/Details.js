@@ -59,6 +59,18 @@ export default function Details({agentDetails, runCount}) {
       </div>}
         <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>{showGoals ? 'Show Less' : 'Show More'}</div>
       </div>}
+
+      {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
+        <div className={styles.agent_info_box}>
+          <div><Image width={15} height={15} src="/images/tools_dark.svg" alt="tools-icon"/></div>
+          <div style={info_text}>Agents</div>
+        </div>
+        <div className={styles.agent_info_tools}>
+          {agentDetails.tools.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0',marginBottom:'5px'}}>
+            <div className={styles.tool_text}>{tool.name || ''}</div>
+          </div>))}
+        </div></div>}</div>}
+
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/tools_dark.svg" alt="tools-icon"/></div>
