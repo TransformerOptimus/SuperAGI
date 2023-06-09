@@ -25,7 +25,7 @@
 #     # # connect to index
 #     index = pinecone.Index(index_name)
 #     return index
-class knowledge_tool:
+class Knowledgetoolhelper:
   
   def get_match_vectors(self, query):
     embed_model = "text-embedding-ada-002"
