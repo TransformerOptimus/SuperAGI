@@ -2,7 +2,9 @@ from typing import Type
 
 from pydantic import Field, BaseModel
 
-from superagi.tools.slack.tool import SlackTool
+from superagi.tools.base_tool import BaseTool
+from superagi.config.config import get_config
+from slack_sdk import WebClient
 
 class SlackMessageSchema(BaseModel):
     channel: str = Field(
@@ -14,7 +16,7 @@ class SlackMessageSchema(BaseModel):
         description = "Text Message to be sent to a person or a group or people"
     )
 
-class SlackMessageTool(SlackTool):
+class SlackMessageTool(BaseTool):
     '''
     This Tool works for both Individual and Group messages
         - Individual Texting - Provide user-id 
@@ -32,3 +34,8 @@ class SlackMessageTool(SlackTool):
             return f'Message sent to {channel} Successfully'
         else:
             return 'Message sending failed!'
+
+    @classmethod
+    def build_slack_web_client(cls):
+        slack_bot_token = get_config("SLACK_BOT_TOKEN")
+        return WebClient(token=slack_bot_token)
