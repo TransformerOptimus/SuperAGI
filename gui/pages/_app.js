@@ -87,7 +87,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {accessToken !== null && accessToken !== '' ? <div className="projectStyle">
+      {!accessToken !== null && accessToken !== '' ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
