@@ -1,7 +1,4 @@
-
-
-
-
+import pinecone
 
 # def get_search_index(self):
 #     embed_model = "text-embedding-ada-002"
