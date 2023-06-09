@@ -366,4 +366,24 @@
     background-color:#454254;
     /* Add more custom styles as needed */
   }
+.top_heading{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+    color: #FFFFFF;
+}
+.description_text{
+    font-size: 12px;
+    line-height: 14px;
+    color: #FFFFFF;
+}
+.left_container{
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+}
+.description_heading{
+
+}
 
