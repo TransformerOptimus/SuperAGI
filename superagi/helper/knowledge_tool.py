@@ -23,13 +23,15 @@ import openai
 #     # # connect to index
 #     index = pinecone.Index(index_name)
 #     return index
+
+embed_model = "text-embedding-ada-002"
+namespace = "SEO Success"
+index = pinecone.Index('knowledge')#self.search_index_name)
+
 class Knowledgetoolhelper:
   
   def get_match_vectors(self, query):
-    embed_model = "text-embedding-ada-002"
-    namespace = "SEO Success"
-    index = pinecone.Index('knowledge')#self.search_index_name)
-#   openai.api_key = os.getenv("OPENAI_API_KEY")
+    #   openai.api_key = os.getenv("OPENAI_API_KEY")
 #   t1_start = perf_counter()
     query_res = openai.Embedding.create(
       input=[query],
