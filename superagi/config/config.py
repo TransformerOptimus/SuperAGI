@@ -27,7 +27,7 @@ class Config(BaseSettings):
             config_data = {
                 "PINECONE_API_KEY": input("Pinecone API Key: "),
                 "PINECONE_ENVIRONMENT": input("Pinecone Environment: "),
-                "OPENAI_API_KEY": input("OpenAI API Key: "),
+                # "OPENAI_API_KEY": input("OpenAI API Key: "),
                 "GOOGLE_API_KEY": input("Google API Key: "),
                 "SEARCH_ENGINE_ID": input("Search Engine ID: "),
                 "RESOURCES_ROOT_DIR": input(

@@ -3,30 +3,23 @@ import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import { EventBus } from "@/utils/eventBus";
 import { useRouter } from 'next/router';
-
-
 export default function TopBar({selectedProject}) {
   const [dropdown, setDropdown] = useState(false);
   const router = useRouter();
-
   const handleMarketplaceClick = () => {
     EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
   };
-  
   const settingsTab = () => {
     EventBus.emit('openNewTab', { id: -3, name: "Settings", contentType: "Settings" });
   };
-  
   const logoutUser = () => {
     if (typeof window === 'undefined') {
       return;
     };
-
     localStorage.setItem('accessToken', '');
     router.reload();
     setDropdown(false);
   };
-
   return (
     <div className={styles.top_bar}>
       <div className={styles.top_left}>
@@ -36,13 +29,11 @@ export default function TopBar({selectedProject}) {
             <div className={styles.top_bar_font}><p>{selectedProject?.name || ''}</p></div>
           </div>
           {/*<div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
-        </div> 
+        </div>
         <div className={styles.top_bar_section} style={{ marginLeft: '10px', cursor: 'pointer' }}>
         <div style={{ marginTop: '-2px' }}><Image width={14} height={14} src="/images/widgets.svg" alt="widgets-icon" /></div>
         <div className={styles.top_bar_font} onClick={handleMarketplaceClick}><p>Marketplace</p>
-        
         </div>
-  
         </div>
       </div>
       <div className={styles.top_right}>

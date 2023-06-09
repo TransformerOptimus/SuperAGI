@@ -95,11 +95,13 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
 
     if agent_with_config.agent_type == "Don't Maintain Task Queue":
         agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Goal Based Agent").first()
+        print(agent_template)
         db_agent.agent_template_id = agent_template.id
     elif agent_with_config.agent_type == "Maintain Task Queue":
         agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Task Queue Agent With Seed").first()
         db_agent.agent_template_id = agent_template.id
     db.session.commit()
+
 
     # Create Agent Configuration
     agent_config_values = {
@@ -112,18 +114,24 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         "model": agent_with_config.model,
         "permission_type": agent_with_config.permission_type,
         "LTM_DB": agent_with_config.LTM_DB,
-        "memory_window": agent_with_config.memory_window
+        "memory_window": agent_with_config.memory_window,
+        "max_iterations":agent_with_config.max_iterations
+
     }
+
 
     agent_configurations = [
         AgentConfiguration(agent_id=db_agent.id, key=key, value=str(value))
         for key, value in agent_config_values.items()
     ]
+
     db.session.add_all(agent_configurations)
     start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, db_agent.agent_template_id)
     # Creating an execution with CREATED status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
+
+
     db.session.add(execution)
 
     db.session.commit()
@@ -176,7 +184,7 @@ def get_agent_configuration(agent_id: int,
 
     # Define the agent_config keys to fetch
     keys_to_fetch = ["goal", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
-                     "permission_type", "LTM_DB", "memory_window"]
+                     "permission_type", "LTM_DB", "memory_window","max_iterations"]
 
     agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
 

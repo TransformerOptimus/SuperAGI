@@ -36,7 +36,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
                 <Image width={12} height={12} src="/images/calls_made.svg" alt="call-icon"/>
               </div>
               <div className={styles.history_info}>
-                {formatNumber(run?.calls || 0)} Calls
+                {formatNumber(run?.num_of_calls || 0)} Calls
               </div>
             </div>
             <div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>

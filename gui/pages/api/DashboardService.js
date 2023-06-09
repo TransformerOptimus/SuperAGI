@@ -1,7 +1,7 @@
 import api from './apiConfig';
 
-export const getOrganization = () => {
-  return api.get(`/organisations/get/1`);
+export const getOrganisation = (userId) => {
+  return api.get(`/organisations/get/user/${userId}`);
 };
 
 export const addUser = (userData) => {
@@ -67,4 +67,16 @@ export const uploadFile = (agentId, formData) => {
 
 export const validateAccessToken = () => {
   return api.get(`/validate-access-token`);
+}
+
+export const checkEnvironment = () => {
+  return api.get(`/configs/get/env`);
+}
+
+export const getOrganisationConfig = (organisationId, key) => {
+  return api.get(`/configs/get/organisation/${organisationId}/key/${key}`);
+}
+
+export const updateOrganisationConfig = (organisationId, configData) => {
+  return api.post(`/configs/add/organisation/${organisationId}`, configData);
 }
