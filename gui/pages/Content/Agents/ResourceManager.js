@@ -107,7 +107,7 @@ export default function ResourceManager({agentId}) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
           {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
           {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
           {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
           <div style={{ marginLeft: '5px', width:'100%' }}>
             <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
@@ -146,7 +146,7 @@ export default function ResourceManager({agentId}) {
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
           <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-            <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} />
