@@ -49,8 +49,8 @@ class Knowledgetoolhelper:
     contexts = [item['metadata']['text'] for item in search_res['matches']]
     search_res_appended=''
     for context in contexts:
-    search_res_appended+=context
-    print(search_res_appended)
+      search_res_appended+=context
+      #print(search_res_appended)
 
 
-    return contexts
+    return search_res_appended
