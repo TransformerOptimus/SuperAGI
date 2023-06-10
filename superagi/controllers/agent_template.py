@@ -50,9 +50,9 @@ def get_agent_template(agent_template_id: int,
 
 
 
-@router.put("/update/{agent_template_id}", response_model=sqlalchemy_to_pydantic(AgentTemplate))
+@router.post("/update/{agent_template_id}", response_model=sqlalchemy_to_pydantic(AgentTemplate))
 def update_agent_template(agent_template_id: int,
-                           agent_configs: map,
+                           agent_configs: dict,
                            Authorize: AuthJWT = Depends(check_auth)):
     """Update agent template"""
     db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id == agent_template_id).first()

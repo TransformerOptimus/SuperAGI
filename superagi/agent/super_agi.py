@@ -178,6 +178,18 @@ class SuperAgi:
             session.add(agent_execution_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
+        elif workflow_step.output_type == "replace_tasks":
+            tasks = eval(assistant_reply)
+            task_queue.clear_tasks()
+            for task in reversed(tasks):
+                task_queue.add_task(task)
+            if len(tasks) > 0:
+                print("Tasks reprioritized in order: " + str(tasks))
+            current_tasks = task_queue.get_tasks()
+            if len(current_tasks) == 0:
+                final_response = {"result": "COMPLETE", "pending_task_count": 0}
+            else:
+                final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
         elif workflow_step.output_type == "tasks":
             tasks = eval(assistant_reply)
             for task in reversed(tasks):

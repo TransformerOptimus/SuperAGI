@@ -176,6 +176,26 @@ class AgentPromptBuilder:
                 "variables": ["goals", "last_task", "last_task_result", "pending_tasks"]}
 
     @classmethod
+    def prioritize_tasks(cls):
+        # just executed task `{last_task}` and got the result `{last_task_result}`
+        super_agi_prompt = """
+            You are a task prioritization AI assistant. 
+
+            High level goal:
+            {goals}
+
+            You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
+
+            Based on this, evaluate the incomplete tasks and sort them in the order of execution. In output first task will be executed first and so on.
+            Remove if any tasks are unnecessary or duplicate incomplete tasks. Remove tasks if they are already covered in completed tasks.
+            Remove tasks if it does not help in achieving the main goal.
+
+            Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE.
+            """
+        return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
+                "variables": ["goals", "last_task", "last_task_result", "pending_tasks"]}
+
+    @classmethod
     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], constraints: List[str],
                                tools: List[BaseTool], add_finish_tool: bool = True):
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
