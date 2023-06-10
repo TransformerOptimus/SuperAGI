@@ -17,6 +17,7 @@ from sqlalchemy.orm import sessionmaker
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
+from superagi.controllers.agent_template import router as agent_template_router
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
@@ -85,7 +86,7 @@ app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
 app.include_router(config_router,prefix="/configs")
-
+app.include_router(agent_template_router,prefix="/agent_templates")
 
 
 
@@ -292,10 +293,25 @@ def build_task_based_agents():
         workflow_step3.output_type="tools"
         session.commit()
 
+    workflow_step4 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb4").first()
+    output = AgentPromptBuilder.prioritize_tasks()
+    if workflow_step4 is None:
+        workflow_step4 = AgentWorkflowStep(unique_id="tb4",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_workflow_id=agent_workflow.id, next_step_id=-1, output_type="replace_tasks")
+
+        session.add(workflow_step4)
+    else:
+        workflow_step4.prompt=output["prompt"]
+        workflow_step4.variables=str(output["variables"])
+        workflow_step4.output_type="replace_tasks"
+        session.commit()
     session.commit()
     workflow_step1.next_step_id = workflow_step3.id
     workflow_step3.next_step_id = workflow_step2.id
-    workflow_step2.next_step_id = workflow_step3.id
+    workflow_step2.next_step_id = workflow_step4.id
+    workflow_step4.next_step_id = workflow_step3.id
     session.commit()
 
 build_single_step_agent()
