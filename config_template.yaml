@@ -2,11 +2,16 @@
 PINECONE_API_KEY: YOUR_PINECONE_API_KEY
 PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
-OPENAI_API_KEY: YOUR_OPEN_API_KEY
+# For locally hosted LLMs comment out the next line and uncomment the one after
+# to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
+OPENAI_API_BASE: https://api.openai.com/v1
+#OPENAI_API_BASE: "http://super__tgwui:5001/v1"
+OPENAI_API_KEY: YOUR_OPENAI_KEY
+
+MAX_TOOL_TOKEN_LIMIT: 800
+MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
 
 #DATABASE INFO
-MAX_TOOL_TOKEN_LIMIT: 800
-
 # redis details
 DB_NAME: super_agi_main
 POSTGRES_URL: super__postgres
@@ -45,8 +50,8 @@ ENCRYPTION_KEY: secret
 
 #####################------------------TOOLS KEY-------------------------########################
 #If you have google api key and CSE key, use this
-GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
-SEARCH_ENGINE_ID: YOUR_SEARCH_ENIGNE_ID
+#GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
+#SEARCH_ENGINE_ID: YOUR_SEARCH_ENIGNE_ID
 
 # IF YOU DONT HAVE GOOGLE SERACH KEY, USE THIS
 SERP_API_KEY: YOUR_SERP_API_KEY

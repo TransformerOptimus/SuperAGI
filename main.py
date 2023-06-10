@@ -250,9 +250,9 @@ def build_task_based_agents():
                                 output_type="tasks")
         session.add(template_step1)
     else:
-        template_step1.prompt=output["prompt"]
-        template_step1.variables=str(output["variables"])
-        template_step1.output_type="tasks"
+        template_step1.prompt = output["prompt"]
+        template_step1.variables = str(output["variables"])
+        template_step1.output_type = "tasks"
         session.commit()
 
     template_step2 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb2").first()

@@ -3,16 +3,24 @@ from typing import List
 import tiktoken
 
 from superagi.types.common import BaseMessage
+from superagi.config.config import get_config
 
 class TokenCounter:
     @staticmethod
-    def token_limit(model: str = "gpt-3.5-turbo-0301") -> int:
-        try:
-            model_token_limit_dict = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092}
-            return model_token_limit_dict[model]
-        except KeyError:
-            print("Warning: model not found. Using cl100k_base encoding.")
-            return 8092
+    def token_limit() -> int:
+        token_limit = get_config(get_config("MAX_MODEL_TOKEN_LIMIT"))
+
+        if isinstance(token_limit, str):
+            try:
+                token_limit = int(token_limit)
+                return token_limit
+            except Exception:
+                return 2037
+
+        if not isinstance(token_limit, int):
+            return 2037
+
+        return token_limit
 
     @staticmethod
     def count_message_tokens(messages: List[BaseMessage], model: str = "gpt-3.5-turbo-0301") -> int:

@@ -8,12 +8,12 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - tgwui
+      - super__tgwui
       - super__redis
       - super__postgres
     networks:
       - super_network
-    
+
   celery:
     volumes:
       - "./:/app"
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: DockerfileCelery
     depends_on:
-      - tgwui
+      - super__tgwui
       - super__redis
       - super__postgres
     networks:
@@ -40,30 +40,29 @@ services:
       - /app/node_modules
       - /app/.next
 
-  tgwui:
+  super__tgwui:
     build:
       context: .
       target: llama-cublas  # Specify the variant to build
       dockerfile: DockerfileTGWUI
-      args:
-        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
+#      args:
+#        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
     container_name: text-generation-webui
     environment:
-      # for GPU off loading comment out the next line and uncomment the one after that. After building navigate to localhost:7860, and then click on model settings and adjust the threads and n-gpu-layer settings to match the host device.
-      - EXTRA_LAUNCH_ARGS="--chat --listen --verbose --extensions openai" # Custom launch args (e.g., --model MODEL_NAME)
-#      - EXTRA_LAUNCH_ARGS="--chat --listen --no-mmap --verbose --extensions openai --n-gpu-layers 15 --threads 4 --auto-devices" # Custom launch args (e.g., --model MODEL_NAME)
+      - EXTRA_LAUNCH_ARGS="--chat --listen --verbose --extensions openai --threads 4"
+#      - EXTRA_LAUNCH_ARGS="--listen --no-mmap --verbose --extensions openai --auto-devices --gpu-memory 20 20 --n-gpu-layers 100 --threads 8  --model vicuna-13b-cot.ggmlv3.q8_0.bin" # GPU Custom launch args (e.g., --model MODEL_NAME)
     ports:
       - 7860:7860  # Default web port
       - 5000:5000  # Default API port
       - 5005:5005  # Default streaming port
       - 5001:5001  # Default OpenAI API extension port
     volumes:
-      - ./tgwui_config/loras:/app/loras
-      - ./tgwui_config/models:/app/models
-      - ./tgwui_config/presets:/app/presets
-      - ./tgwui_config/prompts:/app/prompts
-      - ./tgwui_config/softprompts:/app/softprompts
-      - ./tgwui_config/training:/app/training
+      - ./tgwui/config/loras:/app/loras
+      - ./tgwui/config/models:/app/models
+      - ./tgwui/config/presets:/app/presets
+      - ./tgwui/config/prompts:/app/prompts
+      - ./tgwui/config/softprompts:/app/softprompts
+      - ./tgwui/config/training:/app/training
     logging:
       driver:  json-file
       options:
@@ -71,16 +70,15 @@ services:
         max-size: '10m'
     networks:
       - super_network
- #### Uncomment the following for nvidia GPU systems
+###  Uncomment the following lines to run the container using the host machine's GPU resources
 #    deploy:
 #        resources:
 #          reservations:
-#           devices:
-#             - driver: nvidia
-### Either uncomment count or divce_ids if you know which divces you would like to use, but do not uncomment both. They are incompatible.
-#               count: all
-#               device_ids: ['0,1']
-#               capabilities: [gpu]
+#            devices:
+#              - driver: nvidia
+#                count: all
+##                device_ids: ['0', '1'] # must comment the above line if this line is uncommented.
+#                capabilities: [gpu]
 
 
   super__redis:

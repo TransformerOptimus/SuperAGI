@@ -3,6 +3,8 @@ import importlib
 import os
 from datetime import datetime, timedelta
 from fastapi import  HTTPException
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 from time import time
 
@@ -88,12 +90,6 @@ class AgentExecutor:
         model_api_key = decrypt_data(config.value)
         return model_api_key
 
-    @staticmethod
-    def get_model_api_base_url():
-        base_url = get_config("OPENAI_API_BASE_URL")
-        # shell_url = os.getenv("OPENAI_API_BASE_URL")
-        return base_url
-
     def execute_next_action(self, agent_execution_id):
         global engine
         # try:
@@ -149,8 +145,8 @@ class AgentExecutor:
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,model_api_key=model_api_key)
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
-                               llm=OpenAi(api_base=AgentExecutor.get_model_api_base_url(), model=parsed_config["model"], api_key=model_api_key), tools=tools, memory=memory,
-                               agent_config=parsed_config)
+                                 llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools, memory=memory,
+                                 agent_config=parsed_config)
 
         agent_template_step = session.query(AgentTemplateStep).filter(
           AgentTemplateStep.id == agent_execution.current_step_id).first()
