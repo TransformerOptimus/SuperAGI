@@ -23,7 +23,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const txt_icon = '/images/txt_file.svg'
   const [maxIterations, setIterations] = useState(25);
 
-  const constraintsArray = ["~2000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
+  const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
     "No user assistance", "Ensure the command and args are as per current plan and reasoning",
     'Exclusively use the commands listed in double quotes e.g. "command name"']
