@@ -25,17 +25,21 @@ class ImageGenTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, prompt: str, image_name: list, size: int = 512, num: int = 2):
-        if size not in [256, 512, 1024]:
-            size = min([256, 512, 1024], key=lambda x: abs(x - size))
-        # openai.api_key = get_config('OPENAI_API_KEY')
-        # response = openai.Image.create(
-        #     prompt = prompt,
-        #     n = num,
-        #     size = f"{size}x{size}"
-        # )
-        response = self.llm.generate_image(prompt, size, num)
+    def generate_image(self, prompt: str, size: int = 512, num: int = 2):
+        tokens = TokenCounter.count_tokens(prompt)
+        message = "Token count should not exceed 2048 for image generation"
+        assert tokens <= 2048, message
+        images = [self.llm.generate_image(prompt, size=size) for _ in range(num)]
+        return images
 
+    def _execute(self, prompt: str, image_name: list, size: int = 512, num: int = 2):
+        size = min([256, 512, 1024], key=lambda x: abs(x - size))
+        openai.api_key = get_config('OPENAI_API_KEY')
+        response = openai.Image.create(
+            prompt=prompt,
+            n=num,
+            size=f"{size}x{size}"
+        )
         response = response.__dict__
         response = response['_previous']['data']
         for i in range(num):

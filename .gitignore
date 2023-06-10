@@ -1,5 +1,5 @@
 .idea
-**/.env
+**/
 **/.venv
 config.yaml
 __pycache__
