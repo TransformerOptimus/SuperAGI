@@ -47,7 +47,13 @@ export default function App() {
   useEffect(() => {
     checkEnvironment()
       .then((response) => {
-        setEnv(response.data.env);
+        const env = response.data.env;
+        setEnv(env);
+
+        if(typeof window !== 'undefined') {
+          localStorage.setItem('applicationEnvironment', env);
+        }
+
         if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
@@ -90,16 +96,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if(organisationId === null) {
-      return
+    if(organisationId !== null) {
+      getProject(organisationId)
+        .then((response) => {
+          setSelectedProject(response.data[0]);
+        })
+        .catch((error) => {
+          console.error('Error fetching project:', error);
+        });
     }
-    getProject(organisationId)
-      .then((response) => {
-        setSelectedProject(response.data[0]);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
   }, [organisationId]);
 
   useEffect(() => {
