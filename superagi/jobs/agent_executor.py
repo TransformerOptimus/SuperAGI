@@ -1,10 +1,7 @@
 # from superagi.models.types.agent_with_config import AgentWithConfig
 import importlib
-import os
 from datetime import datetime, timedelta
 from fastapi import  HTTPException
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
 
 from time import time
 
@@ -144,8 +141,8 @@ class AgentExecutor:
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,model_api_key=model_api_key)
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
-                                 llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools, memory=memory,
-                                 agent_config=parsed_config)
+                               llm=OpenAi(model=parsed_config["model"],api_key=model_api_key), tools=tools, memory=memory,
+                               agent_config=parsed_config)
 
         agent_template_step = session.query(AgentTemplateStep).filter(
           AgentTemplateStep.id == agent_execution.current_step_id).first()
@@ -179,9 +176,9 @@ class AgentExecutor:
                 tool.llm = OpenAi(model="gpt-3.5-turbo",api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):
                 tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
-            elif hasattr(tool,'image_llm'):
+            if hasattr(tool,'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"],api_key=model_api_key)
-            elif hasattr(tool, 'agent_id'):
+            if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             new_tools.append(tool)
         return tools

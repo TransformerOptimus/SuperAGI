@@ -5,8 +5,6 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes, downloadFile} from "@/utils/utils";
-import axios from 'axios';
-import api, {baseUrl} from "@/pages/api/apiConfig";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -16,6 +14,7 @@ export default function ResourceManager({agentId}) {
   const fileInputRef = useRef(null);
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
+  const img_icon = '/images/img_file.svg'
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
@@ -101,13 +100,15 @@ export default function ResourceManager({agentId}) {
   const ResourceItem = ({ file }) => {
     const isPDF = file.type === 'application/pdf';
     const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
+    const isIMG = file.type.includes('image');
 
     return (
       <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="file-icon" /></div>}
-          {!isTXT && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
+          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
+          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+          {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
           <div style={{ marginLeft: '5px', width:'100%' }}>
             <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
             <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
@@ -145,7 +146,7 @@ export default function ResourceManager({agentId}) {
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
           <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-            <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} />
