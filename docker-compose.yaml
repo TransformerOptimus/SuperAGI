@@ -43,7 +43,7 @@ services:
   super__tgwui:
     build:
       context: .
-      target: llama-cublas  # Specify the variant to build
+      #target: llama-cublas  # Specify the variant to build
       dockerfile: DockerfileTGWUI
 #      args:
 #        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
