@@ -2,19 +2,19 @@ import json
 
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_template_step import AgentTemplateStep
+from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.base_model import DBBaseModel
 
 
-class AgentTemplate(DBBaseModel):
-    __tablename__ = 'agent_templates'
+class AgentWorkflow(DBBaseModel):
+    __tablename__ = 'agent_workflows'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(Text)
 
     def __repr__(self):
-        return f"AgentTemplate(id={self.id}, name='{self.name}', " \
+        return f"AgentWorkflow(id={self.id}, name='{self.name}', " \
                f"description='{self.description}')"
     
     def to_dict(self):
@@ -37,7 +37,7 @@ class AgentTemplate(DBBaseModel):
         )
 
     @classmethod
-    def fetch_trigger_step_id(cls, session, template_id):
-        trigger_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.agent_template_id == template_id,
-                                                AgentTemplateStep.step_type == 'TRIGGER').first()
+    def fetch_trigger_step_id(cls, session, workflow_id):
+        trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
+                                                               AgentWorkflowStep.step_type == 'TRIGGER').first()
         return trigger_step.id

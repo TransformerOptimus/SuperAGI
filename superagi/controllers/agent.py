@@ -6,7 +6,7 @@ from superagi.models.project import Project
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
-from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
@@ -94,12 +94,12 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     db.session.commit()
 
     if agent_with_config.agent_type == "Don't Maintain Task Queue":
-        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Goal Based Agent").first()
-        print(agent_template)
-        db_agent.agent_template_id = agent_template.id
+        agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
+        print(agent_workflow)
+        db_agent.agent_workflow_id = agent_workflow.id
     elif agent_with_config.agent_type == "Maintain Task Queue":
-        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Task Queue Agent With Seed").first()
-        db_agent.agent_template_id = agent_template.id
+        agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == "Task Queue Agent With Seed").first()
+        db_agent.agent_workflow_id = agent_workflow.id
     db.session.commit()
 
 
@@ -126,7 +126,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     ]
 
     db.session.add_all(agent_configurations)
-    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, db_agent.agent_template_id)
+    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with CREATED status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)

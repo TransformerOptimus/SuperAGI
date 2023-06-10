@@ -17,11 +17,11 @@ class Agent(DBBaseModel):
     name = Column(String)
     project_id = Column(Integer)
     description = Column(String)
-    agent_template_id = Column(Integer)
+    agent_workflow_id = Column(Integer)
 
     def __repr__(self):
         return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
-               f"description='{self.description}', agent_template_id={self.agent_template_id})"
+               f"description='{self.description}', agent_workflow_id={self.agent_workflow_id})"
 
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
