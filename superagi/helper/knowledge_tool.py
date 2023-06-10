@@ -55,7 +55,7 @@ class Knowledgetoolhelper:
     search_res_appended=''
     i=0
     for context in contexts:
-      serach_res_appended+=str(f'chuck {i}\n')
+      search_res_appended+=str(f'chuck {i}\n')
       search_res_appended+=context
       i+=1
       #print(search_res_appended)
