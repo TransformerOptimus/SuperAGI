@@ -47,7 +47,7 @@ class Knowledgetoolhelper:
     # retrieve from Pinecone
     x_query = query_res['data'][0]['embedding']
     # get relevant contexts (including the questions)
-    search_res = index.query(x_query, top_k=30, namespace=namespace, include_metadata=True)#, include_values=True)
+    search_res = index.query(x_query, top_k=5, namespace=namespace, include_metadata=True)#, include_values=True)
 #   t1_stop2 = perf_counter()
 #   print("Pinecone Elapsed time:", t1_stop2 - t1_stop)
     print(search_res)
