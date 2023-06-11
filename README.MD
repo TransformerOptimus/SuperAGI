@@ -65,7 +65,7 @@
 <hr>
 
 ## 📽 Installation Video
-[Installation Video](https://github.com/Akki-jain/SuperAGI/assets/92881074/43652e24-0f95-40dc-bd21-eb6f3a1e86e6)
+[Installation Video](https://github.com/Akki-jain/SuperAGI/assets/92881074/1d86cc44-dc47-4690-9264-ef648d1c0220)
 
 
 ## 💡 Features
