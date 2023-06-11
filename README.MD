@@ -64,10 +64,6 @@
 
 <hr>
 
-## 📽 Installation Video
-[Installation Video](https://github.com/Akki-jain/SuperAGI/assets/92881074/1d86cc44-dc47-4690-9264-ef648d1c0220)
-
-
 ## 💡 Features
 
 - Provision, Spawn & Deploy Autonomous AI Agents
