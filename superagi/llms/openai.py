@@ -56,13 +56,6 @@ class OpenAi(BaseLlm):
         return response
 
     def summarize_conversation(self, request, max_tokens=800):
-        
-        print('---------------------------')
-        print('---------------------------')
-        print('---------summary_request_msg--------')
-        print(request)
-        print('---------------------------')
-
         try:
             response = openai.Completion.create(
                 model="text-davinci-003",
@@ -71,10 +64,6 @@ class OpenAi(BaseLlm):
                 temperature=0
             )
             content = response.choices[0].text
-            print('---------summary_response--------')
-            print(response)
-            print('---------------------------')
-
             return {"response": response, "content": content}
         except Exception as exception:
             print("Exception:", exception)
