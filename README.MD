@@ -65,7 +65,7 @@
 <hr>
 
 ## 📽 Installation Video
-
+[Demo](https://github.com/Akki-jain/test/assets/92881074/8c327ae4-cef8-4fc4-8786-06c084c51abe)
 
 ## 💡 Features
 
