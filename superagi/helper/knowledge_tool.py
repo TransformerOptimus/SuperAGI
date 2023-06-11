@@ -56,7 +56,7 @@ class Knowledgetoolhelper:
     search_res_appended+=f"\nQuery:{query}\n"
     i=0
     for context in contexts:
-      search_res_appended+=str(f'\nchuck {i}\n')
+      search_res_appended+=str(f'\nchuck{i}:\n')
       search_res_appended+=context
       i+=1
       #print(search_res_appended)
