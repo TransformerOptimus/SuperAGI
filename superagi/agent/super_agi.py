@@ -106,8 +106,16 @@ class SuperAgi:
             token_count = TokenCounter.count_message_tokens([{"role": message["role"], "content": message["content"]}],
                                                             self.llm.get_model())
             hist_token_count += token_count
-            if hist_token_count > pending_token_limit:
-                return history[:i], history[i:]
+            token_limit = TokenCounter.token_limit(self.llm.get_model())
+            if hist_token_count > token_limit / 2: # summarize when we're at the halfway mark
+                summary_request_msg = 'Please summarize this conversation for me:\n\n'
+                for item in history: # summarize everything but the user messages and the init/next prompt messages
+                    if item["role"] != "user" and not (item["role"] == "system" and "You are SuperAGI an AI assistant to solve complex problems." in item["content"]):
+                        summary_request_msg += f"{item['role']}: {item['content']}\n---\n"
+                summary_request_msg  += '\n\nReturn summary in markdown format with the following sections:\nImportant Details and Results:\n- Include key findings from the research and data collection phases.\n- Highlight important commands executed and their results.\n\nKey Highlights:\n- Summarize the main points of the conversation in bullet points.\n- Focus on relevant information and filter out redundant exchanges.\n\nAdditional Context:\n- Provide any relevant links or references mentioned during the conversation.\n\nPlease ensure the summary accurately captures the essential aspects of the task and includes details that are crucial for understanding the context and progress.\n\nThank you!'
+                
+                summarized_history = self.llm.summarize_conversation(summary_request_msg)
+                return history[:i], [{"role": "system", "content": f"Summary of previous conversation as of {time.strftime('%c')}:\n\n{summarized_history['content']}"}]
             i -= 1
         return [], history
 
@@ -134,6 +142,13 @@ class SuperAgi:
             past_messages, current_messages = self.split_history(full_message_history,
                                                                  token_limit - base_token_limit - max_token_limit)
             for history in current_messages:
+                agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+                                                          agent_id=self.agent_config["agent_id"],
+                                                          feed=history["content"],
+                                                          role=history["role"],
+                                                          extra_info="Summarized History")
+                session.add(agent_execution_feed)
+                session.commit()
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": template_step.completion_prompt})
         else:
