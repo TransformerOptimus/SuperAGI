@@ -64,6 +64,9 @@
 
 <hr>
 
+## 📽 Installation Video
+
+
 ## 💡 Features
 
 - Provision, Spawn & Deploy Autonomous AI Agents
