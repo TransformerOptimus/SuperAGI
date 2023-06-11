@@ -1,11 +1,26 @@
-import random
+import urllib.request
+import json
+import operator
 from typing import List
 import httpx
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
 
+def getSearxHost():
+    with urllib.request.urlopen("https://searx.space/data/instances.json") as url:
+        data = json.load(url)
+        instancelist = data["instances"]
+        valid_instances = {}
 
-searx_hosts = ["https://search.ononoki.org", "https://searx.be", "https://search.us.projectsegfau.lt"]
+        for key, value in instancelist.items():
+            if value["network_type"] == "normal" and value["http"]["error"] is None:
+                try:
+                    valid_instances[key] = value["timing"]["initial"]["all"]["value"] + value["timing"]["search_go"]["all"]["median"] + value["timing"]["search"]["all"]["median"]
+                except KeyError:
+                    pass
+    
+        sorted_instances = dict(sorted(valid_instances.items(), key=operator.itemgetter(1)))
+        return sorted_instances
 
 class SearchResult(BaseModel):
     id: int
@@ -20,16 +35,16 @@ class SearchResult(BaseModel):
 
 def search(query):
     '''Gets the raw HTML of a searx search result page'''
-    # TODO: use a better strategy for choosing hosts. Could use this list: https://searx.space/data/instances.json
-    searx_url = random.choice(searx_hosts)
-    res = httpx.get(
-        searx_url + "/search", params={"q": query}, headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/114.0"}
-    )
-    if res.status_code != 200:
-        print(res.status_code, searx_url)
-        raise Exception(f"Searx returned {res.status_code} status code")
-
-    return res.text
+    searx_urls = getSearxHost()
+    for searx_url in searx_urls:
+        res = httpx.get(
+            searx_url + "/search", params={"q": query}, headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/114.0"}
+        )
+        if res.status_code != 200:
+            pass
+        else:
+            return res.text
+    raise Exception(f"Searx returned {res.status_code} status code")
 
 def clean_whitespace(s: str):
     return " ".join(s.split())
