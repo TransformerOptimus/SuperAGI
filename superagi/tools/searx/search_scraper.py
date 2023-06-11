@@ -44,7 +44,7 @@ def search(query):
             pass
         else:
             return res.text
-    raise Exception(f"Searx returned {res.status_code} status code")
+    raise Exception(f"All Searx instances doesn't returned 200")
 
 def clean_whitespace(s: str):
     return " ".join(s.split())
