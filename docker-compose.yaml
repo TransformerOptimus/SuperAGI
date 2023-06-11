@@ -39,12 +39,12 @@ services:
       - /app/.next
 
   super__redis:
-    image: "redis:latest"
+    image: "docker.io/library/redis:latest"
     networks:
       - super_network
 
   super__postgres:
-    image: "postgres:latest"
+    image: "docker.io/library/postgres:latest"
     environment:
       - POSTGRES_USER=superagi
       - POSTGRES_PASSWORD=password
