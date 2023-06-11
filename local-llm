@@ -8,6 +8,7 @@ services:
     ports:
       - "8001:8001"
     depends_on:
+      - super__tgwui
       - super__redis
       - super__postgres
     networks:
@@ -20,11 +21,12 @@ services:
       context: .
       dockerfile: DockerfileCelery
     depends_on:
+      - super__tgwui
       - super__redis
       - super__postgres
     networks:
       - super_network
-
+    
   gui:
     build: ./gui
     ports:
@@ -38,13 +40,40 @@ services:
       - /app/node_modules
       - /app/.next
 
+  super__tgwui:
+    build:
+      context: .
+      dockerfile: ./tgwui/DockerfileTGWUI
+    container_name: super__tgwui
+    environment:
+      - EXTRA_LAUNCH_ARGS="--listen --verbose --extensions openai --threads 4 --n_ctx 1600"
+    ports:
+      - 7860:7860  # Default web port
+      - 5000:5000  # Default API port
+      - 5005:5005  # Default streaming port
+      - 5001:5001  # Default OpenAI API extension port
+    volumes:
+      - ./tgwui/config/loras:/app/loras
+      - ./tgwui/config/models:/app/models
+      - ./tgwui/config/presets:/app/presets
+      - ./tgwui/config/prompts:/app/prompts
+      - ./tgwui/config/softprompts:/app/softprompts
+      - ./tgwui/config/training:/app/training
+    logging:
+      driver:  json-file
+      options:
+        max-file: "3"   # number of files or file count
+        max-size: '10m'
+    networks:
+      - super_network
+
   super__redis:
-    image: "redis:latest"
+    image: "docker.io/library/redis:latest"
     networks:
       - super_network
 
   super__postgres:
-    image: "postgres:latest"
+    image: "docker.io/library/postgres:latest"
     environment:
       - POSTGRES_USER=superagi
       - POSTGRES_PASSWORD=password
@@ -59,6 +88,6 @@ services:
 networks:
   super_network:
     driver: bridge
-    
+
 volumes:
   superagi_postgres_data:

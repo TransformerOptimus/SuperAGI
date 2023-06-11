@@ -16,11 +16,10 @@ FROM env_base AS app_base
 ### DEVELOPERS/ADVANCED USERS ###
 # Clone oobabooga/text-generation-webui
 RUN git clone https://github.com/oobabooga/text-generation-webui /src
-# This is required to get multi-gpu support until the main branch updates the requirements.txt file to include llama-cpp-python 0.1.59 or greater.
-COPY tgwui/tgwui_requirements.txt /src/requirements.txt
 # To use local source: comment out the git clone command then set the build arg `LCL_SRC_DIR`
 #ARG LCL_SRC_DIR="text-generation-webui"
 #COPY ${LCL_SRC_DIR} /src
+# This is required to get multi-gpu support until the main branch updates the requirements.txt file to include llama-cpp-python 0.1.59 or greater.
 
 #################################
 # Copy source to app
@@ -28,15 +27,15 @@ RUN cp -ar /src /app
 # Install oobabooga/text-generation-webui
 RUN --mount=type=cache,target=/root/.cache/pip pip3 install -r /app/requirements.txt
 # Install extensions
-COPY tgwui/scripts/build_extensions.sh /scripts/build_extensions.sh
+COPY tgwui/scripts/build_extensions.sh /app/scripts/build_extensions.sh
 RUN --mount=type=cache,target=/root/.cache/pip \
-    chmod +x /scripts/build_extensions.sh && . /scripts/build_extensions.sh \
+    chmod +x /app/scripts/build_extensions.sh && . /app/scripts/build_extensions.sh
 
 ## Clone default GPTQ
 RUN git clone https://github.com/oobabooga/GPTQ-for-LLaMa.git -b cuda /app/repositories/GPTQ-for-LLaMa
 ## Build and install default GPTQ ('quant_cuda')
 ARG TORCH_CUDA_ARCH_LIST="6.1;7.0;7.5;8.0;8.6+PTX"
-#RUN cd /app/repositories/GPTQ-for-LLaMa/ && python3 setup_cuda.py install
+RUN cd /app/repositories/GPTQ-for-LLaMa/ && python3 setup_cuda.py install
 
 FROM nvidia/cuda:11.8.0-devel-ubuntu22.04 AS base
 # Runtime pre-reqs
@@ -62,6 +61,13 @@ ENV PYTHONUNBUFFERED=1
 ARG BUILD_DATE
 ENV BUILD_DATE=$BUILD_DATE
 RUN echo "$BUILD_DATE" > /build_date.txt
+
+# Set embeddings model for llama
+#ENV OPENEDAI_EMBEDDING_MODEL=/app/embeddings/SGPT-125M-weightedmean-nli-bitfit
+#COPY tgwui/config/embeddings/SGPT-125M-weightedmean-nli-bitfit /app/embeddings
+#RUN echo -e "Embeddings model $OPENEDAI_EMBEDDING_MODEL"
+#RUN python extensions/openai/cache_embedding_model.py
+
 # Run
 COPY tgwui/scripts/docker-entrypoint.sh /scripts/docker-entrypoint.sh
 RUN chmod +x /scripts/docker-entrypoint.sh

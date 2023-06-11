@@ -8,7 +8,6 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - super__tgwui
       - super__redis
       - super__postgres
     networks:
@@ -21,7 +20,6 @@ services:
       context: .
       dockerfile: DockerfileCelery
     depends_on:
-      - super__tgwui
       - super__redis
       - super__postgres
     networks:
@@ -39,47 +37,6 @@ services:
       - ./gui:/app
       - /app/node_modules
       - /app/.next
-
-  super__tgwui:
-    build:
-      context: .
-      #target: llama-cublas  # Specify the variant to build
-      dockerfile: DockerfileTGWUI
-#      args:
-#        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
-    container_name: text-generation-webui
-    environment:
-      - EXTRA_LAUNCH_ARGS="--chat --listen --verbose --extensions openai --threads 4"
-#      - EXTRA_LAUNCH_ARGS="--listen --no-mmap --verbose --extensions openai --auto-devices --gpu-memory 20 20 --n-gpu-layers 100 --threads 8  --model vicuna-13b-cot.ggmlv3.q8_0.bin" # GPU Custom launch args (e.g., --model MODEL_NAME)
-    ports:
-      - 7860:7860  # Default web port
-      - 5000:5000  # Default API port
-      - 5005:5005  # Default streaming port
-      - 5001:5001  # Default OpenAI API extension port
-    volumes:
-      - ./tgwui/config/loras:/app/loras
-      - ./tgwui/config/models:/app/models
-      - ./tgwui/config/presets:/app/presets
-      - ./tgwui/config/prompts:/app/prompts
-      - ./tgwui/config/softprompts:/app/softprompts
-      - ./tgwui/config/training:/app/training
-    logging:
-      driver:  json-file
-      options:
-        max-file: "3"   # number of files or file count
-        max-size: '10m'
-    networks:
-      - super_network
-###  Uncomment the following lines to run the container using the host machine's GPU resources
-#    deploy:
-#        resources:
-#          reservations:
-#            devices:
-#              - driver: nvidia
-#                count: all
-##                device_ids: ['0', '1'] # must comment the above line if this line is uncommented.
-#                capabilities: [gpu]
-
 
   super__redis:
     image: "docker.io/library/redis:latest"
