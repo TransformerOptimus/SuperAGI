@@ -17,11 +17,11 @@ class SendEmailAttachmentInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
     body: str = Field(..., description="Email Body to be sent")
-    filename: str = Field(..., description="Name of the file to be sent as an Attachement with Email")
+    filename: str = Field(..., description="Name of the file to be sent as an Attachment with Email")
 
 
 class SendEmailAttachmentTool(BaseTool):
-    name: str = "Send Email with Attachement"
+    name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
 
@@ -32,9 +32,9 @@ class SendEmailAttachmentTool(BaseTool):
         base_path = base_path + filename
         attachmentpath = base_path
         attachment = os.path.basename(attachmentpath)
-        return self.send_email_with_attachement(to, subject, body, attachmentpath, attachment)
+        return self.send_email_with_attachment(to, subject, body, attachmentpath, attachment)
 
-    def send_email_with_attachement(self, to, subject, body, attachment_path, attachment) -> str:
+    def send_email_with_attachment(self, to, subject, body, attachment_path, attachment) -> str:
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
