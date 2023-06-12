@@ -219,15 +219,21 @@ def build_single_step_agent():
     # step will have a prompt
     # output of step is either tasks or set commands
     first_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "gb1").first()
+    output = AgentPromptBuilder.get_super_agi_single_prompt()
     if first_step is None:
-        output = AgentPromptBuilder.get_super_agi_single_prompt()
         first_step = AgentTemplateStep(unique_id="gb1",
                                        prompt=output["prompt"], variables=str(output["variables"]),
                                        agent_template_id=agent_template.id, output_type="tools",
                                        step_type="TRIGGER",
                                        history_enabled=True,
-                                       completion_prompt= "Determine which next command to use, and respond using the format specified above:")
+                                       completion_prompt= "Determine which next tool to use, and respond using the format specified above:")
         session.add(first_step)
+        session.commit()
+    else:
+        first_step.prompt = output["prompt"]
+        first_step.variables = str(output["variables"])
+        first_step.output_type = "tools"
+        first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
         session.commit()
     first_step.next_step_id = first_step.id
     session.commit()
