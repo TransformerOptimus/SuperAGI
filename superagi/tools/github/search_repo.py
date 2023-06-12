@@ -1,13 +1,10 @@
-from typing import Type, List
+from typing import Type
+
 from pydantic import BaseModel, Field
 
-from superagi.helper.github_helper import GithubHelper
-from superagi.helper.token_counter import TokenCounter
-from superagi.tools.base_tool import BaseTool
-import os
-import json
 from superagi.config.config import get_config
-
+from superagi.helper.github_helper import GithubHelper
+from superagi.tools.base_tool import BaseTool
 
 
 class GithubSearchRepoSchema(BaseModel):
@@ -35,11 +32,11 @@ class GithubRepoSearchTool(BaseTool):
         "Search for a file inside a Github repository"
     )
     args_schema: Type[GithubSearchRepoSchema] = GithubSearchRepoSchema
-    
-    def _execute(self, repository_owner:str, repository_name: str,file_name: str,folder_path=None) -> str:
+
+    def _execute(self, repository_owner: str, repository_name: str, file_name: str, folder_path=None) -> str:
         github_access_token = get_config("GITHUB_ACCESS_TOKEN")
         github_username = get_config("GITHUB_USERNAME")
-        githubrepo_search = GithubHelper(github_access_token,github_username)
-        content= githubrepo_search.get_content_in_file(repository_owner,repository_name,file_name,folder_path)
+        github_repo_search = GithubHelper(github_access_token, github_username)
+        content = github_repo_search.get_content_in_file(repository_owner, repository_name, file_name, folder_path)
 
         return content
