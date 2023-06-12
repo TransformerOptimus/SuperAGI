@@ -15,7 +15,7 @@ export default function EachTool({}) {
         <>
            <div>
                <div className="row" style={{marginLeft:'auto'}}>
-                   <div style={{fontWeight: '500', fontSize: '12px', color: '#888888'}}>
+                   <div className={styles2.back_button}>
                        {'\u2190'} Back
                    </div>
                <div className="col-3" >
@@ -57,9 +57,12 @@ export default function EachTool({}) {
                        <EachToolOverview />
                    </div>}
                    {rightPanel==='tool_view' && <div>
-                       <div>
+                       <div  style={{overflowY:'scroll',height:'calc(100vh - 92px)'}}>
                            {tools.map((value, index) => (
-                               <div key={index} className={styles2.left_container} style={{marginBottom: '5px',color:'white'}}>{value}</div>
+                               <div key={index} className={styles2.left_container} style={{marginBottom: '5px',color:'white'}}>
+                               <span className={styles2.description_text}>{value}</span><br />
+                               <span className={styles2.sub_text}>shifting timeline across multiple time strings. Regard shifting multiple time string is the agents to be deploy Regard shifting multiple time string is the agents</span>
+                               </div>
                            ))}
                        </div>
                    </div>}

@@ -399,3 +399,14 @@
     border-radius: 8px;
     padding: 8px 10px;
 }
+.back_button{
+    font-weight: 500;
+    font-size: 12px;
+    color: #888888;
+    cursor: pointer;
+}
+.sub_text{
+    font-weight: 400;
+    font-size: 12px;
+    color: #888888;
+}
