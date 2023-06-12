@@ -9,9 +9,9 @@ from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution import AgentExecution
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from sqlalchemy.sql import desc,asc
+from sqlalchemy.sql import desc, asc
 from superagi.helper.auth import check_auth
-
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 router = APIRouter()
 
@@ -83,19 +83,35 @@ def get_agent_execution_feed(agent_execution_id: int,
     agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if agent_execution is None:
         raise HTTPException(status_code=400, detail="Agent Run not found!")
-    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
+    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(
+        asc(AgentExecutionFeed.created_at)).all()
     # # parse json
     final_feeds = []
     for feed in feeds:
         final_feeds.append(parse_feed(feed))
+
+    # get all permissions
+    execution_permissions = db.session.query(AgentExecutionPermission).filter_by(agent_execution_id=agent_execution_id). \
+        order_by(asc(AgentExecutionPermission.created_at)).all()
+
+    permissions = []
+    for permission in execution_permissions:
+        permissions.append({
+            "id": permission.id,
+            "response": permission.response,
+            "status": permission.status
+        })
+
     return {
         "status": agent_execution.status,
-        "feeds": final_feeds
+        "feeds": final_feeds,
+        "permissions": permissions
     }
+
 
 @router.get("/get/tasks/{agent_execution_id}")
 def get_execution_tasks(agent_execution_id: int,
-                             Authorize: AuthJWT = Depends(check_auth)):
+                        Authorize: AuthJWT = Depends(check_auth)):
     """Get agent execution feed with other execution details"""
     task_queue = TaskQueue(str(agent_execution_id))
     tasks = []
@@ -109,6 +125,7 @@ def get_execution_tasks(agent_execution_id: int,
         "tasks": tasks,
         "completed_tasks": completed_tasks
     }
+
 
 def parse_feed(feed):
     if feed.role == "assistant":

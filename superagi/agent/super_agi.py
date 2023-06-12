@@ -211,6 +211,13 @@ class SuperAgi:
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
+        if self.agent_config["permission_type"] == "RESTRICTED":
+            if action.name in tools:
+                # add permission request to the queue
+                tool = tools[action.name]
+
+                pass
+
         if action.name == FINISH or action.name == "":
             print("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
