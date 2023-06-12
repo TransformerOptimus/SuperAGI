@@ -386,3 +386,36 @@
     flex-wrap: wrap;  
   }
 
+.top_heading{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+    color: #FFFFFF;
+}
+.description_text{
+    font-size: 12px;
+    line-height: 14px;
+    color: #FFFFFF;
+}
+.left_container{
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+}
+.description_heading{
+    font-size: 20px;
+    line-height: 20px;
+    color: #FFFFFF;
+    font-weight: 600;
+}
+.tab_button {
+    border: none;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
