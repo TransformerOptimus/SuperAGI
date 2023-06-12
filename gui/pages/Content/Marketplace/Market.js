@@ -34,6 +34,7 @@ export default function Market() {
         <div  className={styles.tab_text}>Agents</div>
         </div> 
       </div>
+      
         <div>
         <SearchBox onSearch={handleSearch} />
         </div>
