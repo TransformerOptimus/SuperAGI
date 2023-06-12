@@ -20,8 +20,9 @@ export default function MarketTools() {
   return (
     <div>
     <div className={styles.history_box}>Tools</div>
-
-    <div className={styles.featured_text}>Top featured</div>
+    <div className={styles.featured_text}>
+      Top featured
+    </div>
 
     <div className={styles.rowContainer}>
       {dummyData.map((item, index) => (
@@ -30,7 +31,7 @@ export default function MarketTools() {
             <Image width={35} height={35} src={item.imageSrc} alt={item.altText} />
           </div>
           <div style={{ display: 'inline' }}>
-            <div style={{ paddingTop: '12px', paddingLeft: '6px' }}>{item.toolName}</div>
+            <div style={{ paddingTop: '12px', paddingLeft: '6px', paddingRight: '8px' }}>{item.toolName}</div>
             <div style={{ paddingLeft: '6px', fontSize: 'x-small', color: 'rgb(96, 96, 96)' }}>by {item.author}</div>
           </div>
           {/* Add a line break after each row */}
@@ -48,7 +49,7 @@ export default function MarketTools() {
             <Image width={35} height={35} src={item.imageSrc} alt={item.altText} />
           </div>
           <div style={{ display: 'inline' }}>
-            <div style={{ paddingTop: '12px', paddingLeft: '6px' }}>{item.toolName}</div>
+            <div style={{ paddingTop: '12px', paddingLeft: '6px' , paddingRight: '8px'}}>{item.toolName}</div>
             <div style={{ paddingLeft: '6px', fontSize: 'x-small', color: 'rgb(96, 96, 96)' }}>by {item.author}</div>
           </div>
           {/* Add a line break after each row */}
