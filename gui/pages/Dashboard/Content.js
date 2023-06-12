@@ -18,7 +18,6 @@ export default function Content({selectedView, selectedProjectId, organisationId
   const [tools, setTools] = useState(null);
   const tabContainerRef = useRef(null);
  
-
   function fetchAgents() {
     getAgents(selectedProjectId)
       .then((response) => {
@@ -177,7 +176,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
                   {tab.contentType === 'Settings' && <Settings/>}
 
                   {tab.contentType === 'Marketplace' && (
-                    <div className={styles.main_workspace} style={selectedView === '' ? {width:'91.5vw',paddingLeft:'8px'} : {width:'80.5vw'}}><Market tools={tools} />
+                    <div className={styles.main_workspace} style={selectedView === '' ? {width:'91vw',paddingLeft:'13px'} : {width:'80.5vw'}}><Market tools={tools} />
                   </div>)}
 
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
