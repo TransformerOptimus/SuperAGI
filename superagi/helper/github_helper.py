@@ -1,12 +1,8 @@
-import requests
-
 import base64
-
-from pydantic import BaseModel
+import requests
 
 
 class GithubHelper:
-
     def __init__(self, github_access_token, github_username):
         self.github_access_token = github_access_token
         self.github_username = github_username
