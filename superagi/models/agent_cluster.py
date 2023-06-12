@@ -4,7 +4,7 @@ from superagi.models.project import Project
 from sqlalchemy.orm import relationship
 
 
-class   AgentCluster(DBBaseModel):
+class AgentCluster(DBBaseModel):
     __tablename__ = 'agent_clusters'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

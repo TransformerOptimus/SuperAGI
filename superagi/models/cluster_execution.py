@@ -6,19 +6,19 @@ from superagi.models.agent import Agent
 from datetime import datetime
 
 
-class AgentExecution(DBBaseModel):
+class ClusterExecution(DBBaseModel):
     __tablename__ = 'cluster_executions'
 
     id = Column(Integer, primary_key=True)
     status = Column(String)  # like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED')
-    # logs = Column(Text)
     name = Column(String)
+    goal = Column(String)
     cluster_id = Column(Integer)
     last_execution_time = Column(DateTime)
 
     def __repr__(self):
         return f"AgentExecution(id={self.id}, name={self.name},status='{self.status}', " \
-               f"last_execution_time='{self.last_execution_time}', cluster_id={self.cluster_id})"
+               f"last_execution_time='{self.last_execution_time}', goal='{self.goal}' , cluster_id={self.cluster_id})"
 
     def to_dict(self):
         return {
