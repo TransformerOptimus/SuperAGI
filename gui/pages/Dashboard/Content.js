@@ -172,7 +172,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
             {tabs.map((tab) => (
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
-                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id}/>}
+                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'AgentCluster' && <AgentClusterWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
