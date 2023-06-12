@@ -8,8 +8,7 @@ The powerful SuperAGI GitHub Tool enables users to perform various operations on
 
 ## 💡 Features
 
-1. **Add Files or Folders:** With SuperAGI's GitHub Tool, you can easily add files or folders to a GitHub repository.
-
+1. **Add Files or Folders:** With SuperAGI's GitHub Tool, you can easily add files or folders to a GitHub repository
 2. **Delete Files:** Remove files from a GitHub repository effortlessly using SuperAGI's GitHub Tool. 
 
 3. **Search for Files or Folders:** Find specific files or folders within a GitHub repository using SuperAGI's GitHub Tool. 
@@ -28,9 +27,12 @@ Add the following configuration settings in the `config.yaml` file:
    - Obtain a GitHub access token with the necessary permissions for accessing and modifying repositories.
     - Go to Settings in your GitHub Account. Then go to Developer Settings.
     - Click on "Personal access tokens". Then click on "Tokens (classic)".
+    ![personal-access-token](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/ee646cdd-fa04-400b-ae84-e9aee7b46c36)
     - Click on "Generate new token". Then choose "Generate new token (classic)".
+    ![generate-new-token](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/64f1d681-236a-4008-a5d9-93bb368caaaf)
     - Write a Note about what the token is for and choose an appropriate expiration date.
-    - Select all the scopes (In this way, we won't have to create new Access Tokens everytime we add new scopes to the code).
+    ![github-permissions](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/757b02e8-0b49-47b8-bfef-5469c0d070eb)
+    - Select all the scopes (In this way, users won't have to create new Access Tokens everytime we add new scopes to the code).
     - Click on Generate New Token.
    - Copy the Token and set the `GITHUB_ACCESS_TOKEN` variable in the `config.yaml` file to the generated access token.
 
