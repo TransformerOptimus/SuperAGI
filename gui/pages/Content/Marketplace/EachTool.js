@@ -5,17 +5,19 @@ import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
+import EachToolOverview from "./EachToolOverview"
 
 export default function EachTool({}) {
     const [tools, setTools] = useState(['Gmailer','jira','openai','super agi','langchain','zapier','whatsapp'])
+    const [rightPanel, setRightPanel] = useState('overview')
 
     return (
         <>
            <div>
-               <div style={{fontWeight: '500', fontSize: '12px', color: '#888888'}}>
-                   {'\u2190'} Back
-               </div>
                <div className="row" style={{marginLeft:'auto'}}>
+                   <div style={{fontWeight: '500', fontSize: '12px', color: '#888888'}}>
+                       {'\u2190'} Back
+                   </div>
                <div className="col-3" >
                    <div className={styles2.left_container}>
                        <div style={{marginBottom:'15px'}}>
@@ -39,10 +41,28 @@ export default function EachTool({}) {
                    </div>
                </div>
                <div className="col-9">
-                   <div className={styles2.left_container}>
-                   <span className={styles2.description_text}>[![Join our Discord Server](https://img.shields.io/badge/Discord-SuperAGI-blueviolet?logo=discord&logoColor=white)](https://discord.gg/dXbRe5BHJC) ° [![Follow us on Twitter](https://img.shields.io/twitter/follow/_superAGI?label=_superAGI&style=social)](https://twitter.com/_superAGI) ° [![Join the discussion on Reddit](https://img.shields.io/reddit/subreddit-subscribers/Super_AGI?label=%2Fr/Super_AGI&style=social)](https://www.reddit.com/r/Super_AGI)</span>
-                   <span className={styles2.description_heading}></span>
+                   <div className={styles2.left_container} style={{marginBottom:'5px'}}>
+                       <div className="row">
+                           <div className="col-4">
+                              <button onClick={() => setRightPanel('overview')} className={styles2.tab_button} style={rightPanel === 'overview' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                                  &nbsp;Overview
+                              </button>
+                              <button onClick={() => setRightPanel('tool_view')} className={styles2.tab_button} style={rightPanel === 'tool_view' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                                  &nbsp;Tools Included
+                              </button>
+                           </div>
+                       </div>
                    </div>
+                   {rightPanel==='overview' && <div>
+                       <EachToolOverview />
+                   </div>}
+                   {rightPanel==='tool_view' && <div>
+                       <div>
+                           {tools.map((value, index) => (
+                               <div key={index} className={styles2.left_container} style={{marginBottom: '5px',color:'white'}}>{value}</div>
+                           ))}
+                       </div>
+                   </div>}
                </div>
                </div>
            </div>
