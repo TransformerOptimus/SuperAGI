@@ -249,7 +249,7 @@
     color: white;
     width: 100%;
     border-radius: 8px;
-    margin-bottom: 7px;
+    margin-bottom: 5px;
     padding: 15px 20px;
 }
 
@@ -366,6 +366,27 @@
     background-color:#454254;
     /* Add more custom styles as needed */
   }
+
+  .market_tool{
+    display: flex;
+    color:white;
+    font-size: small;
+    height: 90px;
+    width: 421px;
+    background-color: rgb(39,35,53);
+    border-radius: 8px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-right: 8px;
+    
+  }
+
+  .rowContainer{
+    display: flex;
+    flex-wrap: wrap; 
+    width:100%;
+  }
+
 .top_heading{
     font-style: normal;
     font-weight: 400;

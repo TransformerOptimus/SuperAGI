@@ -126,7 +126,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {!accessToken !== null && accessToken !== '' ? <div className="projectStyle">
+      {true ? <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
@@ -154,7 +154,7 @@ export default function App() {
             <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
           </div>}
         </div>
-      </div>}
+    </div>}
     </div>
   );
 }
