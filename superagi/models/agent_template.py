@@ -1,10 +1,15 @@
 import json
 
+import requests
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_workflow_step import AgentWorkflowStep
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_template_config import AgentTemplateConfig
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
 
+marketplace_url = "https://app.superagi.com/api/"
+# marketplace_url = "http://localhost:8001/"
 
 class AgentTemplate(DBBaseModel):
     """ AgentTemplate - used to store preconfigured agent templates"""
@@ -20,6 +25,9 @@ class AgentTemplate(DBBaseModel):
     """ name - name of the agent template"""
     description = Column(Text)
     """ description - description of the agent template"""
+    marketplace_template_id = Column(Integer)
+    """ marketplace_template_id - id of the template in the marketplace"""
+
 
     def __repr__(self):
         return f"AgentTemplate(id={self.id}, name='{self.name}', " \
@@ -49,3 +57,46 @@ class AgentTemplate(DBBaseModel):
         keys_to_fetch = ["goal", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
                          "permission_type", "LTM_DB", "memory_window", "max_iterations"]
         return keys_to_fetch
+
+    @classmethod
+    def fetch_marketplace_list(cls, search_str, page):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + "agent_templates/marketplace/list?search=" + search_str + "&page=" + str(page),
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []
+
+    @classmethod
+    def fetch_marketplace_detail(cls, agent_template_id):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + "agent_templates/marketplace/template_details/" + str(agent_template_id),
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {}
+
+    @classmethod
+    def clone_agent_template_from_marketplace(cls, db, organisation_id: int, agent_template_id: int):
+        agent_template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
+        agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == agent_template["agent_workflow_name"]).first()
+        template = AgentTemplate(organisation_id=organisation_id, agent_workflow_id=agent_workflow.id,
+                                 name=agent_template["name"], description=agent_template["description"],
+                                 marketplace_template_id=agent_template["id"])
+        db.session.add(template)
+        db.session.commit()
+        db.session.flush()
+
+        agent_configurations = []
+        for key, value in agent_template["configs"].items():
+            agent_configurations.append(
+                AgentTemplateConfig(agent_template_id=template.id, key=key, value=value["value"]))
+
+        db.session.add_all(agent_configurations)
+        db.session.commit()
+        db.session.flush()
+        return template
