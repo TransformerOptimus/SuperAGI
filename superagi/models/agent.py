@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String
 
 import superagi.models
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 #from superagi.models import AgentConfiguration
@@ -130,9 +131,9 @@ class Agent(DBBaseModel):
         return db_agent
 
     @classmethod
-    def create_agent_with_template_id(cls, db, agent_template):
+    def create_agent_with_template_id(cls, db, project_id, agent_template):
         db_agent = Agent(name=agent_template.name, description=agent_template.description,
-                         project_id=agent_template.project_id,
+                         project_id=project_id,
                          agent_workflow_id=agent_template.agent_workflow_id)
         db.session.add(db_agent)
         db.session.flush()  # Flush pending changes to generate the agent's ID
@@ -144,6 +145,25 @@ class Agent(DBBaseModel):
         agent_configurations = []
         for config in configs:
             agent_configurations.append(AgentConfiguration(agent_id=db_agent.id, key=config.key, value=config.value))
+        db.session.add_all(agent_configurations)
+        db.session.commit()
+        db.session.flush()
+        return db_agent
+
+    @classmethod
+    def create_agent_with_marketplace_template_id(cls, db, project_id, agent_template_id):
+        agent_template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
+        # we need to create agent workflow if not present. Add it once we get org id in agent workflow
+        db_agent = Agent(name=agent_template["name"], description=agent_template["description"],
+                         project_id=project_id,
+                         agent_workflow_id=agent_template["agent_workflow_id"])
+        db.session.add(db_agent)
+        db.session.flush()  # Flush pending changes to generate the agent's ID
+        db.session.commit()
+
+        agent_configurations = []
+        for key, value in agent_template["configs"].items():
+            agent_configurations.append(AgentConfiguration(agent_id=db_agent.id, key=key, value=value["value"]))
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()
