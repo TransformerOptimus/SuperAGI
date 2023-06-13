@@ -84,6 +84,10 @@ export const fetchAgentTemplateList = () => {
   return api.get('/agent_templates/list?template_source=marketplace');
 }
 
+export const fetchAgentTemplateListLocal = () => {
+  return api.get('/agent_templates/list?template_source=local');
+}
+
 export const fetchAgentTemplateDetails = (templateId) => {
   return api.get(`agent_templates/get/${templateId}?template_source=custom`);
 }
@@ -94,4 +98,8 @@ export const saveAgentAsTemplate = (agentId) => {
 
 export const fetchAgentTemplateConfig = (templateId) => {
   return api.get(`agent_templates/agent_config?agent_template_id=${templateId}`);
+}
+
+export const installAgentTemplate = (templateId) => {
+  return api.post(`agent_templates/download?agent_template_id=${templateId}`);
 }

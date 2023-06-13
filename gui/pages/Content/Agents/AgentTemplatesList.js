@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {
     fetchAgentTemplateDetails,
-    fetchAgentTemplateList,
+    fetchAgentTemplateList, fetchAgentTemplateListLocal,
     getAgentDetails,
     getAgents
 } from "@/pages/api/DashboardService";
@@ -14,10 +14,9 @@ export default function AgentTemplatesList(){
     const [agentTemplates, setAgentTemplates] = useState([])
 
     useEffect(() => {
-        fetchAgentTemplateList()
+        fetchAgentTemplateListLocal()
             .then((response) => {
                 const data = response.data || [];
-                console.log(data)
                 setAgentTemplates(data)
             })
             .catch((error) => {
@@ -26,6 +25,11 @@ export default function AgentTemplatesList(){
     }, [])
     function redirectToCreateAgent() {
         EventBus.emit('createAgent', {});
+    }
+    function handleTemplateClick(item) {
+        // EventBus.emit('createAgent', {});
+        console.log('in agent create')
+        EventBus.emit('createAgentFromTemplate', item);
     }
     return (
         <div>
@@ -37,7 +41,7 @@ export default function AgentTemplatesList(){
            </div>
             <div className={styles.rowContainer} style={{marginTop:'1%'}}>
                 {agentTemplates.map((item, index) => (
-                    <div className={styles.market_tool} key={item.id} style={{cursor:'pointer'}}>
+                    <div className={styles.market_tool} key={item.id} style={{cursor:'pointer'}} onClick={() => handleTemplateClick(item)}>
                         <div style={{ display: 'inline' }}>
                             <div style={{ paddingTop: '12px', paddingLeft: '12px', paddingRight: '12px' }}>{item.name}</div>
                             <div style={{ paddingLeft: '12px', fontSize: 'x-small', color: 'rgb(96, 96, 96)' }}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>

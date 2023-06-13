@@ -7,13 +7,11 @@ import {
     fetchAgentTemplateList,
     getAgents
 } from "@/pages/api/DashboardService";
-import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
 import {EventBus} from "@/utils/eventBus";
 
 export default function MarketAgent(){
     const [agentTemplates, setAgentTemplates] = useState([])
-    const [showTemplateDetails, setShowTemplateDetails] = useState(true)
-    const [templateSelected, setTemplateSelected] = useState([])
+
     useEffect(() => {
         fetchAgentTemplateList()
             .then((response) => {
@@ -27,8 +25,8 @@ export default function MarketAgent(){
     }, [])
 
     function handleTemplateClick(item) {
-        setTemplateSelected(item)
-        setShowTemplateDetails(false)
+        EventBus.emit('openTemplateDetails', item);
+
     }
 
     return (
@@ -36,7 +34,7 @@ export default function MarketAgent(){
     {/*<div className={styles.history_box}>*/}
     {/*    Agents*/}
     {/*</div>*/}
-            {showTemplateDetails && <div className={styles.rowContainer} style={{marginTop: '1%'}}>
+             <div className={styles.rowContainer} style={{marginTop: '1%'}}>
                 {agentTemplates.map((item, index) => (
                     <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                         <div style={{display: 'inline'}}>
@@ -48,9 +46,7 @@ export default function MarketAgent(){
                         </div>
                     </div>
                 ))}
-            </div>}
-            {!showTemplateDetails && <AgentTemplate template={templateSelected} />}
-
+            </div>
     </div>
     )  
 };

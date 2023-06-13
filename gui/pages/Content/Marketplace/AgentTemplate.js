@@ -6,25 +6,42 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
 import EachToolOverview from "./EachToolOverview"
-import {fetchAgentTemplateConfig, fetchAgentTemplateList} from "@/pages/api/DashboardService";
+import {fetchAgentTemplateConfig, fetchAgentTemplateList, installAgentTemplate} from "@/pages/api/DashboardService";
 
 export default function AgentTemplate({template}) {
     const [tools, setTools] = useState(['Gmailer','jira','openai','super agi','langchain','zapier','whatsapp'])
     const [templateConfigs, setTemplateConfigs] = useState([])
     const [rightPanel, setRightPanel] = useState('overview')
     const [goals, setGoals] = useState([])
+    const [installed, setInstalled] = useState('')
+
     useEffect(() => {
+        if(template.is_installed)
+            setInstalled('Installed')
+        else
+            setInstalled('Install')
         fetchAgentTemplateConfig(template.id)
             .then((response) => {
                 const data = response.data || [];
-                console.log(data)
                 setTemplateConfigs(data)
-                console.log(goals)
             })
             .catch((error) => {
                 console.error('Error fetching template details:', error);
             });
     }, [])
+    function handleInstallClick(){
+        if(template.is_installed) {
+            toast.error("Template is already installed", {autoClose: 1800});
+            return;
+        }
+        installAgentTemplate(template.id)
+            .then((response) => {
+                toast.success("Template installed", {autoClose: 1800});
+            })
+            .catch((error) => {
+                console.error('Error fetching template details:', error);
+            });
+    }
 
     return (
         <>
@@ -37,7 +54,7 @@ export default function AgentTemplate({template}) {
                         <div className={styles2.left_container}>
                             <span className={styles2.top_heading}>{template.name}</span>
                             <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/>&nbsp;{'\u00B7'}&nbsp;<Image width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/>&nbsp;247</span>
-                            <button className="primary_button" style={{marginTop:'15px',width:'100%'}}><Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;Installed</button>
+                            <button className="primary_button" style={{marginTop:'15px',width:'100%'}} onClick={() => handleInstallClick()}><Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}</button>
                         </div>
                         <div className={styles2.left_container} style={{marginTop:'0.7%'}}>
                             <span className={styles2.description_text}>{template.description}</span>
@@ -49,12 +66,12 @@ export default function AgentTemplate({template}) {
                                     <div className={styles1.tool_text}>{tool || ''}</div>
                                 </div>))}
                             </div><br />
-                            <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Agent Type</span>
-                            <div className="tool_container" style={{marginTop:'10px'}}>
+                            <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Agent Type</span>
+                            <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
                                 <div className={styles1.tool_text}>{templateConfigs.agent_type}</div>
                             </div><br />
-                            <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Model(s)</span>
-                            <div className="tool_container" style={{marginTop:'10px'}}>
+                            <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>
+                            <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
                                 <div className={styles1.tool_text}>{templateConfigs.model}</div>
                             </div>
                         </div>

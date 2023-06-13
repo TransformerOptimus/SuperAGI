@@ -6,18 +6,34 @@ import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
 import SearchBox from './SearchBox';
 import EachTool from './EachTool';
+import {fetchAgentTemplateConfig} from "@/pages/api/DashboardService";
+import {EventBus} from "@/utils/eventBus";
+import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
+import {arEG} from "date-fns/locale";
 
 export default function Market() {
     const [activeTab, setActiveTab] = useState('market_agents'); // State to track the active tab
     const [searchTerm, setSearchTerm] = useState('');
     const [Itemclicked, setItemclicked] = useState(false);
+    const [agentTemplateData, setAagentTemplateData] = useState([]);
     const handleSearch = (term) => {
       setSearchTerm(term);
       //opt
     };
     const handleToolClick = (clicked) => {
       setItemclicked(clicked);
-    }; 
+    };
+
+    useEffect(() => {
+        const handleOpenTemplateDetails = (item) => {
+            setAagentTemplateData(item)
+            setItemclicked(true)
+        };
+        EventBus.on('openTemplateDetails', handleOpenTemplateDetails);
+        return () => {
+            EventBus.off('openTemplateDetails', handleOpenTemplateDetails);
+        };
+    }, [])
 
   return (
     <div>
@@ -53,6 +69,7 @@ export default function Market() {
     </div>             
     </div>
     </div>}
+        {Itemclicked && <AgentTemplate template={agentTemplateData} />}
     </div>
   );
 };
