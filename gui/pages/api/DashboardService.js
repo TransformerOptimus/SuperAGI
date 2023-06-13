@@ -80,3 +80,11 @@ export const getOrganisationConfig = (organisationId, key) => {
 export const updateOrganisationConfig = (organisationId, configData) => {
   return api.post(`/configs/add/organisation/${organisationId}`, configData);
 }
+
+export const fetchAgentTemplateList = () => {
+  return api.get('/agent_templates/list');
+}
+
+export const fetchAgentTemplateDetails = (templateId) => {
+  return api.get(`/agent_templates/get/${templateId}`);
+}
