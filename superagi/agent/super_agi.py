@@ -176,9 +176,10 @@ class SuperAgi:
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed="",
                                                       role="system")
+            session.add(agent_execution_feed)
+            session.commit()
             tool_response = self.handle_tool_response(assistant_reply, agent_execution_feed.id)
             agent_execution_feed.feed = tool_response["result"]
-            session.add(agent_execution_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
         elif template_step.output_type == "tasks":
@@ -214,7 +215,14 @@ class SuperAgi:
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
-        if self.agent_config["permission_type"] == "RESTRICTED":
+        if action.name == FINISH or action.name == "":
+            print("\nTask Finished :) \n")
+            output = {"result": "COMPLETE", "retry": False}
+            return output
+
+        excluded_tools = ["finish", "ThinkingTool"]
+
+        if self.agent_config["permission_type"] == "RESTRICTED" and action.name not in excluded_tools:
             if action.name in tools:
                 # add permission request to the agent execution permission table
                 permission = AgentExecutionPermission(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -224,19 +232,19 @@ class SuperAgi:
                 session.add(permission)
                 session.commit()
                 # check if permission is granted
+                permission_status = permission.status
                 while True:
-                    permission_status = permission.status
+                    print("Waiting for permission to be granted...")
+                    if permission_status is None:
+                        time.sleep(5)
+                        session.refresh(permission)
+                        permission_status = permission.status
+                        continue
                     if permission_status:
                         break
                     else:
                         return {"result": "PERMISSION DENIED", "retry": False}
 
-                    time.sleep(5)
-
-        if action.name == FINISH or action.name == "":
-            print("\nTask Finished :) \n")
-            output = {"result": "COMPLETE", "retry": False}
-            return output
         if action.name in tools:
             tool = tools[action.name]
             try:

@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Annotated
+
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Body
 from fastapi_jwt_auth import AuthJWT
 
 from superagi.models.agent_execution_permission import AgentExecutionPermission
@@ -133,19 +135,21 @@ def get_agent_by_latest_execution(project_id: int,
 
 @router.put("/update/permission/{agent_execution_permission_id}")
 def update_agent_execution_permission(agent_execution_permission_id: int,
-                                      status: str = None,
+                                      status: Annotated[str, Body(embed=True)],
                                       Authorize: AuthJWT = Depends(check_auth)):
     """Update a particular execution permission"""
 
     agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
     print(agent_execution_permission)
     if agent_execution_permission is None:
-        return {"error": "AgentExecutionPermission not found"}
+        raise HTTPException(status_code=400, detail="Invalid Request")
+    if status is None:
+        raise HTTPException(status_code=400, detail="Invalid Request status is required")
     if status.upper() not in ["APPROVED", "REJECTED"]:
-        return {"error": "Invalid status"}
+        raise HTTPException(status_code=400, detail="Invalid Request status can be either APPROVED or REJECTED")
     if status == "APPROVED":
         agent_execution_permission.status = True
     else:
         agent_execution_permission.status = False
     db.session.commit()
-    return agent_execution_permission
+    return {"success": True}

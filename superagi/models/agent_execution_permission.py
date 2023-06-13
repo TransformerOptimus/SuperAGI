@@ -9,6 +9,7 @@ class AgentExecutionPermission(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     agent_execution_id = Column(Integer)
+    agent_execution_feed_id = Column(Integer)
     agent_id = Column(Integer)
     status = Column(Boolean)
     tool_name = Column(String)
