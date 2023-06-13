@@ -81,9 +81,9 @@ export const updateOrganisationConfig = (organisationId, configData) => {
 }
 
 export const fetchAgentTemplateList = () => {
-  return api.get('/agent_templates/list');
+  return api.get('/agent_templates/list?template_source=custom');
 }
 
 export const fetchAgentTemplateDetails = (templateId) => {
-  return api.get(`/agent_templates/get/${templateId}`);
+  return api.get(`agent_templates/get/${templateId}?template_source=custom`);
 }

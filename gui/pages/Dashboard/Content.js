@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import AgentCreate from '../Content/Agents/AgentCreate';
+import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
 import Settings from "./Settings/Settings";
@@ -10,6 +10,7 @@ import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
+import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([])
@@ -17,6 +18,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   const [agents, setAgents] = useState(null);
   const [tools, setTools] = useState(null);
   const tabContainerRef = useRef(null);
+  const [showAgentForm, setAgentForm]=useState(false)
  
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -111,14 +113,20 @@ export default function Content({selectedView, selectedProjectId, organisationId
       cancelTab(-1);
     };
 
+    const toCreateAgent = (eventData) => {
+      setAgentForm(true);
+    };
+
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', fetchAgents);
     EventBus.on('cancelAgentCreate', cancelAgentCreate);
+    EventBus.on('createAgent',toCreateAgent);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', fetchAgents);
       EventBus.off('cancelAgentCreate', cancelAgentCreate);
+      EventBus.off('createAgent',toCreateAgent);
     };
   });
 
@@ -180,7 +188,8 @@ export default function Content({selectedView, selectedProjectId, organisationId
                   </div>)}
 
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
-                    <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
+                    {!showAgentForm &&<AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>}
+                    {showAgentForm &&<AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} />}
                   </div>}
                   {tab.contentType === 'Create_Tool' && <div className={styles.create_agent}>
                     <div className="row">
