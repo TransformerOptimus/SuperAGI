@@ -105,38 +105,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         "contentType": "Agents"
     }
 
-@router.post("/create_agent_with_template", status_code=201)
-def create_agent_with_template(project_id: int, template_source: str, agent_template_id: int,
-                             organisation=Depends(get_user_organisation)):
-    """Create new agent with configurations"""
-
-    # Checking for project
-    if template_source == "custom":
-        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id == agent_template_id,
-                                                                AgentTemplate.organisation_id == organisation.id).first()
-        if not agent_template:
-            raise HTTPException(status_code=404, detail="Template not found")
-
-        db_agent = Agent.create_agent_with_template_id(db, project_id, agent_template)
-    else:
-        db_agent = Agent.create_agent_with_marketplace_template_id(db, project_id, agent_template_id)
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    # Creating an execution with CREATED status
-    execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step_id)
-
-    db.session.add(execution)
-    db.session.commit()
-    execute_agent.delay(execution.id, datetime.now())
-
-    return {
-        "id": db_agent.id,
-        "execution_id": execution.id,
-        "name": db_agent.name,
-        "contentType": "Agents"
-    }
-
-
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
@@ -184,7 +152,8 @@ def get_agent_configuration(agent_id: int,
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
-    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(AgentExecution.agent_id == agent_id).scalar()
+    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
+        AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
