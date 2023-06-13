@@ -9,6 +9,7 @@ class AgentExecutionFeed(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     agent_execution_id = Column(Integer)
+    agent_execution_feed_id = Column(Integer)
     agent_id = Column(Integer)
     feed = Column(Text)
     role = Column(String)  # Like system', 'user' or the 'assistant'.

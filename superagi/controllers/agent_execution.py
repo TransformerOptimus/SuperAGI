@@ -3,6 +3,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_template import AgentTemplate
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
@@ -128,3 +129,23 @@ def get_agent_by_latest_execution(project_id: int,
         "status": isRunning,
         "contentType": "Agents"
     }
+
+
+@router.put("/update/permission/{agent_execution_permission_id}")
+def update_agent_execution_permission(agent_execution_permission_id: int,
+                                      status: str = None,
+                                      Authorize: AuthJWT = Depends(check_auth)):
+    """Update a particular execution permission"""
+
+    agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
+    print(agent_execution_permission)
+    if agent_execution_permission is None:
+        return {"error": "AgentExecutionPermission not found"}
+    if status.upper() not in ["APPROVED", "REJECTED"]:
+        return {"error": "Invalid status"}
+    if status == "APPROVED":
+        agent_execution_permission.status = True
+    else:
+        agent_execution_permission.status = False
+    db.session.commit()
+    return agent_execution_permission

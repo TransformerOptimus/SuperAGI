@@ -23,6 +23,7 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_template_step import AgentTemplateStep
 from superagi.models.db import connect_db
 from superagi.tools.base_tool import BaseTool
@@ -171,10 +172,12 @@ class SuperAgi:
                                role="assistant")
             session.add(agent_execution_feed)
             session.commit()
-            tool_response = self.handle_tool_response(assistant_reply)
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=tool_response["result"],
+                                                      agent_id=self.agent_config["agent_id"],
+                                                      feed="",
                                                       role="system")
+            tool_response = self.handle_tool_response(assistant_reply, agent_execution_feed.id)
+            agent_execution_feed.feed = tool_response["result"]
             session.add(agent_execution_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
@@ -207,16 +210,28 @@ class SuperAgi:
         session.close()
         return final_response
 
-    def handle_tool_response(self, assistant_reply):
+    def handle_tool_response(self, assistant_reply, agent_execution_feed_id=None):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
         if self.agent_config["permission_type"] == "RESTRICTED":
             if action.name in tools:
-                # add permission request to the queue
-                tool = tools[action.name]
+                # add permission request to the agent execution permission table
+                permission = AgentExecutionPermission(agent_execution_id=self.agent_config["agent_execution_id"],
+                                                      agent_id=self.agent_config["agent_id"],
+                                                      agent_execution_feed_id=agent_execution_feed_id,
+                                                      tool_name=action.name)
+                session.add(permission)
+                session.commit()
+                # check if permission is granted
+                while True:
+                    permission_status = permission.status
+                    if permission_status:
+                        break
+                    else:
+                        return {"result": "PERMISSION DENIED", "retry": False}
 
-                pass
+                    time.sleep(5)
 
         if action.name == FINISH or action.name == "":
             print("\nTask Finished :) \n")

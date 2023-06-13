@@ -11,6 +11,7 @@ class AgentExecutionPermission(DBBaseModel):
     agent_execution_id = Column(Integer)
     agent_id = Column(Integer)
     status = Column(Boolean)
+    tool_name = Column(String)
     response = Column(Text)
 
     def __repr__(self):
