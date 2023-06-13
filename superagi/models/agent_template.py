@@ -3,9 +3,13 @@ import json
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_template_config import AgentTemplateConfig
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "https://app.superagi.com/api/"
+# marketplace_url = "http://localhost:8001/"
 
 class AgentTemplate(DBBaseModel):
     """ AgentTemplate - used to store preconfigured agent templates"""
@@ -21,6 +25,8 @@ class AgentTemplate(DBBaseModel):
     """ name - name of the agent template"""
     description = Column(Text)
     """ description - description of the agent template"""
+    marketplace_template_id = Column(Integer)
+    """ marketplace_template_id - id of the template in the marketplace"""
 
 
     def __repr__(self):
@@ -73,3 +79,24 @@ class AgentTemplate(DBBaseModel):
             return response.json()
         else:
             return {}
+
+    @classmethod
+    def clone_agent_template_from_marketplace(cls, db, organisation_id: int, agent_template_id: int):
+        agent_template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
+        agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == agent_template["agent_workflow_name"]).first()
+        template = AgentTemplate(organisation_id=organisation_id, agent_workflow_id=agent_workflow.id,
+                                 name=agent_template["name"], description=agent_template["description"],
+                                 marketplace_template_id=agent_template["id"])
+        db.session.add(template)
+        db.session.commit()
+        db.session.flush()
+
+        agent_configurations = []
+        for key, value in agent_template["configs"].items():
+            agent_configurations.append(
+                AgentTemplateConfig(agent_template_id=template.id, key=key, value=value["value"]))
+
+        db.session.add_all(agent_configurations)
+        db.session.commit()
+        db.session.flush()
+        return template

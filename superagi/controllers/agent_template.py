@@ -104,22 +104,27 @@ def save_agent_as_template(agent_id: str,
     return agent_template.to_dict()
 
 
-"""List agent templates"""
 @router.get("/list")
-def list_agent_templates(template_source, search_str="", page=0, organisation=Depends(get_user_organisation)):
-    """Get all agent templates"""
+def list_agent_templates(template_source="local", search_str="", page=0, organisation=Depends(get_user_organisation)):
+    """List agent templates"""
+    output_json = []
     if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
+        for template in templates:
+            output_json.append(template)
     else:
+        local_templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
+                                                                 AgentTemplate.marketplace_template_id != None).all()
+        local_templates_hash = {}
+        for local_template in local_templates:
+            local_templates_hash[local_template.marketplace_template_id] = True
         templates = AgentTemplate.fetch_marketplace_list(search_str, page)
 
-    output_json = []
-    for template in templates:
-        if template_source == "local":
-            output_json.append(template)
-        else:
+        for template in templates:
+            template["is_installed"] = local_templates_hash.get(template["id"], False)
             template["organisation_id"] = organisation.id
             output_json.append(template)
+
     return output_json
 
 
@@ -127,7 +132,7 @@ def list_agent_templates(template_source, search_str="", page=0, organisation=De
 def list_marketplace_templates(page=0):
     """Get all marketplace agent templates"""
     organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
-    page_size = 10
+    page_size = 30
     templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id).offset(
         page * page_size).limit(page_size).all()
     output_json = []
@@ -145,10 +150,53 @@ def marketplace_template_detail(agent_template_id):
 
     template_configs = db.session.query(AgentTemplateConfig).filter(
         AgentTemplateConfig.agent_template_id == template.id).all()
+
+    workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.id == template.agent_workflow_id).first()
+
     output_json = {
+        "id": template.id,
         "name": template.name,
         "description": template.description,
         "agent_workflow_id": template.agent_workflow_id,
+        "agent_workflow_name": workflow.name,
         "configs": {template_config.key: {"value": template_config.value} for template_config in template_configs}
     }
     return output_json
+
+
+@router.post("/download", status_code=201)
+def download_template(agent_template_id: int,
+                             organisation=Depends(get_user_organisation)):
+    """Create new agent with configurations
+
+    Parameters:
+        agent_template_id: agent template id
+    """
+    template = AgentTemplate.clone_agent_template_from_marketplace(db, organisation.id, agent_template_id)
+    return template.to_dict()
+
+
+@router.get("/agent_config", status_code=201)
+def fetch_agent_config_from_template(agent_template_id: int,
+                                     organisation=Depends(get_user_organisation)):
+    """Fetch agent config from template
+
+    Parameters:
+     agent_template_id: agent template id
+    """
+    agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id == agent_template_id,
+                                                            AgentTemplate.organisation_id == organisation.id).first()
+    if not agent_template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    template_config = db.session.query(AgentTemplateConfig).filter(
+        AgentTemplateConfig.agent_template_id == agent_template_id).all()
+    template_config_dict = {}
+    main_keys = AgentTemplate.main_keys()
+    for config in template_config:
+        if config.key in main_keys:
+            template_config_dict[config.key] = config.value
+
+    template_config_dict["agent_template_id"] = agent_template.id
+    return template_config_dict
+
