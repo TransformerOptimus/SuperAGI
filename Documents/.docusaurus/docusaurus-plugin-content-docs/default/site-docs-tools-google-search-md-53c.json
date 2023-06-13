@@ -1,0 +1,24 @@
+{
+  "unversionedId": "Tools/google_search",
+  "id": "Tools/google_search",
+  "title": "Google Search Tool",
+  "description": "The SuperAGI Google Search Tool helps users perform a Google search and extract snippets and webpages.",
+  "source": "@site/docs/Tools/google_search.md",
+  "sourceDirName": "Tools",
+  "slug": "/Tools/google_search",
+  "permalink": "/docs/Tools/google_search",
+  "draft": false,
+  "editUrl": "https://github.com/TransformerOptimus/SuperAGI/website/docs/Tools/google_search.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Email Tool",
+    "permalink": "/docs/Tools/email"
+  },
+  "next": {
+    "title": "Google SERP Search Tool",
+    "permalink": "/docs/Tools/google_serp"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "unversionedId": "Tools/jira",
+  "id": "Tools/jira",
+  "title": "Jira Tool",
+  "description": "The robust SuperAGI Jira Tool lets users create, edit and search issues while providing a foundation for other fascinating use cases.",
+  "source": "@site/docs/Tools/jira.md",
+  "sourceDirName": "Tools",
+  "slug": "/Tools/jira",
+  "permalink": "/docs/Tools/jira",
+  "draft": false,
+  "editUrl": "https://github.com/TransformerOptimus/SuperAGI/website/docs/Tools/jira.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Image Generation Tool",
+    "permalink": "/docs/Tools/image_generation"
+  },
+  "next": {
+    "title": "Web Scraper Tool",
+    "permalink": "/docs/Tools/webscraper"
+  }
+}

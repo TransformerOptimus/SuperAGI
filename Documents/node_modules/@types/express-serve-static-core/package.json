@@ -1,0 +1,55 @@
+{
+    "name": "@types/express-serve-static-core",
+    "version": "4.17.35",
+    "description": "TypeScript definitions for Express",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/express-serve-static-core",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Boris Yankov",
+            "url": "https://github.com/borisyankov",
+            "githubUsername": "borisyankov"
+        },
+        {
+            "name": "Satana Charuwichitratana",
+            "url": "https://github.com/micksatana",
+            "githubUsername": "micksatana"
+        },
+        {
+            "name": "Sami Jaber",
+            "url": "https://github.com/samijaber",
+            "githubUsername": "samijaber"
+        },
+        {
+            "name": "Jose Luis Leon",
+            "url": "https://github.com/JoseLion",
+            "githubUsername": "JoseLion"
+        },
+        {
+            "name": "David Stephens",
+            "url": "https://github.com/dwrss",
+            "githubUsername": "dwrss"
+        },
+        {
+            "name": "Shin Ando",
+            "url": "https://github.com/andoshin11",
+            "githubUsername": "andoshin11"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/express-serve-static-core"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*",
+        "@types/qs": "*",
+        "@types/range-parser": "*",
+        "@types/send": "*"
+    },
+    "typesPublisherContentHash": "ff8dd9048ee34bf16a6700ed4e90e394e1b8262392fc0c2dfa2e9ea6246bde19",
+    "typeScriptVersion": "4.3"
+}

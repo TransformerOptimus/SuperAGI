@@ -1,0 +1,67 @@
+{
+  "name": "wait-on",
+  "description": "wait-on is a cross platform command line utility and Node.js API which will wait for files, ports, sockets, and http(s) resources to become available",
+  "version": "6.0.1",
+  "main": "lib/wait-on",
+  "bin": {
+    "wait-on": "bin/wait-on"
+  },
+  "author": "Jeff Barczewski <info@codewinds.com>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/jeffbski/wait-on.git"
+  },
+  "bugs": {
+    "url": "http://github.com/jeffbski/wait-on/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"lib/**/*.js\" \"test/**/*.js\" \"bin/wait-on\"",
+    "publish:next": "npm publish --tag next && npm view",
+    "test": "mocha --exit 'test/**/*.mocha.js'"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-chai-friendly": "^0.7.2",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "expect-legacy": "^1.20.2",
+    "mkdirp": "^1.0.4",
+    "mocha": "^9.2.0",
+    "temp": "^0.9.4"
+  },
+  "dependencies": {
+    "axios": "^0.25.0",
+    "joi": "^17.6.0",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.5",
+    "rxjs": "^7.5.4"
+  },
+  "keywords": [
+    "wait",
+    "delay",
+    "cli",
+    "files",
+    "tcp",
+    "ports",
+    "sockets",
+    "http",
+    "exist",
+    "ready",
+    "available",
+    "portable",
+    "cross-platform",
+    "unix",
+    "linux",
+    "windows",
+    "win32",
+    "osx"
+  ]
+}
