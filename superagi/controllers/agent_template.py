@@ -10,7 +10,8 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
-
+from superagi.models.tool import Tool
+from datetime import datetime
 router = APIRouter()
 
 
@@ -111,6 +112,7 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
     if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
         for template in templates:
+            template.updated_at = template.updated_at.strftime('%d-%b-%Y').upper()
             output_json.append(template)
     else:
         local_templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
@@ -137,6 +139,7 @@ def list_marketplace_templates(page=0):
         page * page_size).limit(page_size).all()
     output_json = []
     for template in templates:
+        template.updated_at = template.updated_at.strftime('%d-%b-%Y').upper()
         output_json.append(template)
     return output_json
 
@@ -147,19 +150,25 @@ def marketplace_template_detail(agent_template_id):
     organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
     template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id,
                                                       AgentTemplate.id == agent_template_id).first()
-
     template_configs = db.session.query(AgentTemplateConfig).filter(
         AgentTemplateConfig.agent_template_id == template.id).all()
 
     workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.id == template.agent_workflow_id).first()
-
+    tool_configs = {}
+    for template_config in template_configs:
+        if template_config.key == "tools":
+            tool_ids = eval(template_config.value)
+            tool_names = Tool.convert_tool_ids_to_names(db, tool_ids)
+            tool_configs[template_config.key] = {"value": tool_names}
+        else:
+            tool_configs[template_config.key] = {"value": template_config.value}
     output_json = {
         "id": template.id,
         "name": template.name,
         "description": template.description,
         "agent_workflow_id": template.agent_workflow_id,
         "agent_workflow_name": workflow.name,
-        "configs": {template_config.key: {"value": template_config.value} for template_config in template_configs}
+        "configs": tool_configs
     }
     return output_json
 
@@ -195,7 +204,9 @@ def fetch_agent_config_from_template(agent_template_id: int,
     main_keys = AgentTemplate.main_keys()
     for config in template_config:
         if config.key in main_keys:
-            template_config_dict[config.key] = config.value
+            template_config_dict[config.key] = Agent.eval_agent_config(config.key, config.value)
+        if config.key == "tools":
+            template_config_dict[config.key] = Tool.convert_tool_ids_to_names(db, template_config_dict[config.key])
 
     template_config_dict["agent_template_id"] = agent_template.id
     return template_config_dict
