@@ -5,7 +5,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN playwright install --with-deps chromium
 COPY . .
 COPY config.yaml ./config.yaml
-RUN python tool_manager.py
 COPY entrypoint.sh /entrypoint.sh
 COPY wait-for-it.sh /wait-for-it.sh
 COPY install_tool_dependencies.sh /install_tool_dependencies.sh
