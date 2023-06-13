@@ -27,7 +27,7 @@ export default {
       {
         "docs": {
           "routeBasePath": "/",
-          "sidebarPath": "/Users/haider/Desktop/Docusaurus/SuperAGI/Documents/sidebars.js",
+          "sidebarPath": "/Users/haider/Desktop/Docusaurus/SuperAGI/documents/sidebars.js",
           "editUrl": "https://github.com/TransformerOptimus/SuperAGI/website/"
         },
         "blog": {
@@ -35,7 +35,7 @@ export default {
           "editUrl": "https://github.com/TransformerOptimus/SuperAGI/website/"
         },
         "theme": {
-          "customCss": "/Users/haider/Desktop/Docusaurus/SuperAGI/Documents/src/css/custom.css"
+          "customCss": "/Users/haider/Desktop/Docusaurus/SuperAGI/documents/src/css/custom.css"
         }
       }
     ]

@@ -15,9 +15,9 @@
           "editUrlLocalized": "https://github.com/TransformerOptimus/SuperAGI/website/i18n/en/docusaurus-plugin-content-docs/current",
           "isLast": true,
           "routePriority": -1,
-          "sidebarFilePath": "/Users/haider/Desktop/Docusaurus/SuperAGI/Documents/sidebars.js",
-          "contentPath": "/Users/haider/Desktop/Docusaurus/SuperAGI/Documents/docs",
-          "contentPathLocalized": "/Users/haider/Desktop/Docusaurus/SuperAGI/Documents/i18n/en/docusaurus-plugin-content-docs/current",
+          "sidebarFilePath": "/Users/haider/Desktop/Docusaurus/SuperAGI/documents/sidebars.js",
+          "contentPath": "/Users/haider/Desktop/Docusaurus/SuperAGI/documents/docs",
+          "contentPathLocalized": "/Users/haider/Desktop/Docusaurus/SuperAGI/documents/i18n/en/docusaurus-plugin-content-docs/current",
           "docs": [
             {
               "unversionedId": "Installation Guide/gitcode",

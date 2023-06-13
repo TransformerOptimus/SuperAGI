@@ -4,12 +4,12 @@ import ComponentCreator from '@docusaurus/ComponentCreator';
 export default [
   {
     path: '/docs/markdown-page',
-    component: ComponentCreator('/docs/markdown-page', '221'),
+    component: ComponentCreator('/docs/markdown-page', 'eb3'),
     exact: true
   },
   {
     path: '/docs/',
-    component: ComponentCreator('/docs/', '559'),
+    component: ComponentCreator('/docs/', 'f38'),
     routes: [
       {
         path: '/docs/',
