@@ -81,9 +81,17 @@ export const updateOrganisationConfig = (organisationId, configData) => {
 }
 
 export const fetchAgentTemplateList = () => {
-  return api.get('/agent_templates/list?template_source=custom');
+  return api.get('/agent_templates/list?template_source=marketplace');
 }
 
 export const fetchAgentTemplateDetails = (templateId) => {
   return api.get(`agent_templates/get/${templateId}?template_source=custom`);
+}
+
+export const saveAgentAsTemplate = (agentId) => {
+  return api.post(`agent_templates/save_agent_as_template/${agentId}`);
+}
+
+export const fetchAgentTemplateConfig = (templateId) => {
+  return api.get(`agent_templates/agent_config?agent_template_id=${templateId}`);
 }
