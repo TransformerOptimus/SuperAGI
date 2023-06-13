@@ -1,1 +1,0 @@
-{"version":3,"names":[],"sources":["../src/index.ts"],"sourcesContent":["export { OptionValidator } from \"./validator\";\nexport { findSuggestion } from \"./find-suggestion\";\n"],"mappings":";;;;;;;;;;;;;;;;;AAAA;AACA"}
