@@ -11,11 +11,22 @@ sidebar_position: 1
 2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml` and name it `config.yaml`.
 3. Enter your unique OpenAI API Key, Google key, Custom search engine ID without any quotes or spaces in `config.yaml` file. Follow the links below to get your keys:
 
-|Keys|Accessing the keys|
-|--|--|
-|**OpenAI API Key**| Sign up and create an API key at [OpenAI Developer](https://beta.openai.com/signup/)|
-|**Google API key**| Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: Google Custom Search JSON API). Then, create an API key in the "Credentials" section.|
-|**Custom search engine ID**| Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.|
+#### OpenAI API Key
+  - Go to https://beta.openai.com/signup/ and click on your name on the Top-Right of the Screen. Click on "View API Keys".
+  - Click on "Create new secret key". 
+  - Enter a suitable name and click on "Create secret key".
+#### Google API key
+  - Go to [Google Cloud Console](https://console.cloud.google.com/). 
+  - Click on "Select Project".
+  - Click on "New Project".
+  - Choose a suitable name and create a new project.
+  - Go to "API and Services" from home page.
+  - Click on "Credentials" and then click on "Create Credentials" on the top. 
+  - Click on "API Key" and your API Key will be created.
+#### Custom Search Engine ID
+  - Register using your gmail id.
+  - Choose a suitable name and select "Search the entire web" and click on "Create".
+  - Click on "Customise" and copy the "Search Engine ID".
 
 4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
 5. Once you have Docker Desktop running, run command : `docker-compose up --build` in SuperAGI directory. Open your browser and go to `localhost:3000` to see SuperAGI running.
