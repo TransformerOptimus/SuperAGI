@@ -1,16 +1,25 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
+// import qs from "qs";
+// import {googleClientId} from "@/pages/api/apiConfig";
 
 export default function SideBar({onSelectEvent}) {
   const [sectionSelected, setSelection] = useState('');
+  const [env, setEnv] = useState('DEV');
 
+  function getToken(){
+    const client_id = '149462257865-f1o8apqqt37vpc9u2hum3k5rbiv8n3fv.apps.googleusercontent.com';
+    const scope = 'https://www.googleapis.com/auth/calendar';
+    const redirect_uri = 'http://localhost:8001/oauth-calendar';
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+    window.location.href = authUrl;
+  }
   const handleClick = (value) => {
     setSelection(value);
     onSelectEvent(value);
   };
-
-  return (
+    return (
     <div className={styles.side_bar}>
       <div><Image width={64} height={48} className={styles.logo} src="/images/app-logo-light.png" alt="super-agi-logo"/>
       </div>
@@ -26,12 +35,12 @@ export default function SideBar({onSelectEvent}) {
           <div>Tools</div>
         </div>
       </div>
-      {/*<div className={styles.selection_section}>*/}
-      {/*  <div onClick={() => handleClick(sectionSelected !== 'agent_cluster' ? 'agent_cluster' : '')} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>*/}
-      {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>*/}
-      {/*    <div>Agent Cluster</div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
+      <div className={styles.selection_section}>
+        <div onClick={getToken} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>
+          <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>
+          <div>Google Calendar</div>
+        </div>
+      </div>
       {/*<div className={styles.selection_section}>*/}
       {/*  <div onClick={() => handleClick(sectionSelected !== 'apm' ? 'apm' : '')} className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>*/}
       {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm_light.svg" alt="apm-icon"/></div>*/}

@@ -6,6 +6,7 @@ import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import json
 from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -13,6 +14,14 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+# from apiclient import discovery
+# import httplib2
+# from oauth2client import client
+# from oauth2client.client import OAuth2WebServerFlow
+# from oauth2client.tools import run_flow
+# from oauth2client.file import Storage
+import http.client
 
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
@@ -330,6 +339,46 @@ def github_login():
     github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
+@app.get('/oauth-calendar')
+async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    print("///////////////////////////")
+    print(code)
+    client_id = "149462257865-f1o8apqqt37vpc9u2hum3k5rbiv8n3fv.apps.googleusercontent.com"
+    client_secret = "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"
+    redirect_uri = "http://localhost:8001/oauth-calendar"
+    token_uri = 'https://oauth2.googleapis.com/token'
+    scope = 'https://www.googleapis.com/auth/calendar'
+    access_token_uri = "https://accounts.google.com/o/oauth2/token"
+    params = {
+        'client_id': superagi.config.config.get_config('GOOGLE_CLIENT_ID'),
+        'client_secret': superagi.config.config.get_config('GOOGLE_CLIENT_SECRET'),
+        'redirect_uri': "http://localhost:8001/oauth-calendar",
+        'scope': scope,
+        'grant_type': 'authorization_code',
+        'code': code,
+        'access_type': 'offline'
+    }
+    response = requests.post(token_uri, data=params)
+    print("------------------------------------------")
+    response = response.json()
+    print(response)
+    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
+    file_name = "credential_token.json"
+    final_path = file_name
+    if root_dir is not None:
+        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        final_path = root_dir + file_name
+    else:
+        final_path = os.getcwd() + "/" + file_name
+    try:
+        with open(final_path, mode="w") as file:
+#             response = json.dumps(response)
+            json.dump(response, file)
+    except Exception as err:
+        return f"Error: {err}"
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    return RedirectResponse(frontend_url)
 
 @app.get('/github-auth')
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
