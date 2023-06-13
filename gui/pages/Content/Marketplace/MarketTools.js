@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import styles from './Market.module.css';
 
-export default function MarketTools() {
+
+export default function MarketTools({onToolClick}) {
   const dummyData = [];
   const numIterations = 6;
   const itemsPerRow = 3;
@@ -15,18 +16,19 @@ export default function MarketTools() {
       altText: 'empty-state',
     };
     dummyData.push(dummyItem);
-  }
+  };
+  const handleToolClick = () => {
+    onToolClick(true);
+  };
 
   return (
     <div>
     <div className={styles.history_box}>Tools</div>
-    <div className={styles.featured_text}>
-      Top featured
-    </div>
+    <div className={styles.featured_text}>Top featured</div>
 
     <div className={styles.rowContainer}>
       {dummyData.map((item, index) => (
-        <div className={styles.market_tool} key={item.id}>
+        <div className={styles.market_tool} key={item.id} onClick={handleToolClick}>
           <div style={{ padding: '12px' }}>
             <Image width={35} height={35} src={item.imageSrc} alt={item.altText} />
           </div>
@@ -44,7 +46,7 @@ export default function MarketTools() {
 
     <div className={styles.rowContainer}>
       {dummyData.map((item, index) => (
-        <div className={styles.market_tool} key={item.id}>
+        <div className={styles.market_tool} key={item.id} onClick={handleToolClick}>
           <div style={{ padding: '12px' }}>
             <Image width={35} height={35} src={item.imageSrc} alt={item.altText} />
           </div>

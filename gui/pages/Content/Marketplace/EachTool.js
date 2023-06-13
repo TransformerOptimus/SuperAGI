@@ -7,15 +7,19 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
 import EachToolOverview from "./EachToolOverview"
 
-export default function EachTool({}) {
+export default function EachTool({ handleToolClick }) {
     const [tools, setTools] = useState(['Gmailer','jira','openai','super agi','langchain','zapier','whatsapp'])
     const [rightPanel, setRightPanel] = useState('overview')
+
+    const handleBackClick = () => {
+        handleToolClick(false); // Notify the parent component (Market) to go back to the marketplace
+    };
 
     return (
         <>
            <div>
                <div className="row" style={{marginLeft:'auto'}}>
-                   <div className={styles2.back_button}>
+                   <div className={styles2.back_button} onClick={handleBackClick}>
                        {'\u2190'} Back
                    </div>
                <div className="col-3" >
