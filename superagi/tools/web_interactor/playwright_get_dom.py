@@ -60,7 +60,6 @@ class GetDOMTool(BaseTool):
         page_element_buffer = self.browser_wrapper.page_element_buffer
         print("##################################     PAGE      ######################################")
         print(page)
-        print()
         print("##################################     PAGE Buffer      ######################################")
         print(page_element_buffer)
         print("######################################     END    ##################################")
