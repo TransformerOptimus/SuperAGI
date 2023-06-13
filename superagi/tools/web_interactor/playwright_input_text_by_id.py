@@ -10,7 +10,7 @@ class InputTextByIdSchema(BaseModel):
 
 class InputTextByIdTool(BaseTool):
     
-    name = "Input Text By ID"
+    name = "PlaywrightInputTextByID"
     description = "A tool for inputting text into an element by its ID using Playwright."
     args_schema = InputTextByIdSchema
 

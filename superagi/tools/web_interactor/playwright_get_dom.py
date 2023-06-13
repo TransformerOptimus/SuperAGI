@@ -20,7 +20,7 @@ class GetDOMSchema(BaseModel):
 
 
 class GetDOMTool(BaseTool):
-    name = "Get DOM"
+    name = "PlaywrightGetDOM"
     description = "A tool to retrieve the rendered DOM from the current page.Returns a simplified DOM of the current web page. The id is specific to this plugin and will be needed to interact with elements. Make sure to run this before interacting with any elements on a webpage. Re-run this each time you're on a new webpage and want to interact with elements"
     args_schema = GetDOMSchema
 

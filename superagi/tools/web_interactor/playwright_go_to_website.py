@@ -17,7 +17,7 @@ class GoToWebsiteSchema(BaseModel):
 
 
 class GoToWebsiteTool(BaseTool):
-    name = "Go To Website"
+    name = "PlaywrightGoToWebsite"
     description = (
         "A tool for navigation to a specified URL using the Playwright browser.Goes to a website in the web interaction plugin. Must be ran after starting the browser and before attempting to interact with a website"
     )

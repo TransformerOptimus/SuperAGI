@@ -21,7 +21,7 @@ class ClickElementByIdSchema(BaseModel):
 
 
 class ClickElementByIdTool(BaseTool):
-    name = "Click Element By ID"
+    name = "PlaywrightClickElementByID"
     description = "A tool for clicking an element by its ID using Playwright.clicks an element. Specify the id with the unique id received from the get_dom command. CRITICAL: The ID must be the integer id from the get_dom command. It should execute after getting the DOM"
     args_schema: Type[ClickElementByIdSchema] = ClickElementByIdSchema
 

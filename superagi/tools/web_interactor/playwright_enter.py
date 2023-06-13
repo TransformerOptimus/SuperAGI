@@ -13,7 +13,7 @@ class EnterSchema(BaseModel):
 
 
 class EnterTool(BaseTool):
-    name = "Enter"
+    name = "PlaywrightEnter"
     description = "A tool for pressing the Enter key using Playwright."
     args_schema: Type[EnterSchema] = EnterSchema
 

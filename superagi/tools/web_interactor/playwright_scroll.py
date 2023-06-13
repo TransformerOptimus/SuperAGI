@@ -20,7 +20,7 @@ class ScrollSchema(BaseModel):
         )
 
 class ScrollTool(BaseTool):
-    name = "Scroll"
+    name = "PlaywrightScroll"
     description = "A tool for scrolling the webpage up or down using Playwright."
     args_schema: Type[ScrollSchema] = ScrollSchema
 

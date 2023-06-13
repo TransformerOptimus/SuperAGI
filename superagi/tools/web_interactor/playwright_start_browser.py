@@ -16,7 +16,7 @@ class StartBrowserAndGoToPageSchema(BaseModel):
     )
 
 class StartBrowserAndGoToPageTool(BaseTool):
-    name = "StartBrowserAndGoToPage"
+    name = "PlaywrightStartBrowserAndGoToPage"
     description = "A tool to start the Playwright browser after taking url as input and navigating to the url."
 
     args_schema: Type[StartBrowserAndGoToPageSchema] = StartBrowserAndGoToPageSchema

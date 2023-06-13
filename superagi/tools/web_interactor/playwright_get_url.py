@@ -15,7 +15,7 @@ class GetURLSchema(BaseModel):
 
 
 class GetURLTool(BaseTool):
-    name = "Get URL"
+    name = "PlaywrightGetURL"
     description = "A tool for getting the current URL using Playwright.Retrieves the current url that the web_interaction plugin is on"
     args_schema: Type[GetURLSchema] = GetURLSchema
 

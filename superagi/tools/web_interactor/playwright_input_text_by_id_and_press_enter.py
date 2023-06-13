@@ -22,7 +22,7 @@ class InputTextByIdAndPressEnterSchema(BaseModel):
 
 
 class InputTextByIdAndPressEnterTool(BaseTool):
-    name = "Input Text By ID And Press Enter"
+    name = "PlaywrightInputTextByIDAndPressEnter"
     description = (
         "A tool for inputting text into an element by its ID and pressing Enter using Playwright."
     )
