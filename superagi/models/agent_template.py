@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String, Text
 
 from superagi.models.base_model import DBBaseModel
 
-marketplace_url = "https://app.superagi.com/"
+marketplace_url = "https://app.superagi.com/api/"
 
 class AgentTemplate(DBBaseModel):
     """ AgentTemplate - used to store preconfigured agent templates"""

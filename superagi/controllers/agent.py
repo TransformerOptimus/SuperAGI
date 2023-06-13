@@ -111,7 +111,7 @@ def create_agent_with_template(project_id: int, template_source: str, agent_temp
     """Create new agent with configurations"""
 
     # Checking for project
-    if template_source == "custom":
+    if template_source == "local":
         agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id == agent_template_id,
                                                                 AgentTemplate.organisation_id == organisation.id).first()
         if not agent_template:

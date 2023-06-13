@@ -36,7 +36,7 @@ def create_agent_template(agent_template: sqlalchemy_to_pydantic(AgentTemplate, 
 @router.get("/get/{agent_template_id}")
 def get_agent_template(template_source, agent_template_id: int, organisation=Depends(get_user_organisation)):
     """Get particular agent_template details. All major configs goals, constraints, evaluation are shown in the frontend."""
-    if template_source == "custom":
+    if template_source == "local":
         db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
                                                                    AgentTemplate.id == agent_template_id).first()
         if not db_agent_template:
@@ -108,14 +108,14 @@ def save_agent_as_template(agent_id: str,
 @router.get("/list")
 def list_agent_templates(template_source, search_str="", page=0, organisation=Depends(get_user_organisation)):
     """Get all agent templates"""
-    if template_source == "custom":
+    if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
     else:
         templates = AgentTemplate.fetch_marketplace_list(search_str, page)
 
     output_json = []
     for template in templates:
-        if template_source == "custom":
+        if template_source == "local":
             output_json.append(template)
         else:
             template["organisation_id"] = organisation.id
