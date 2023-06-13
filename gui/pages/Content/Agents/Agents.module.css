@@ -327,3 +327,11 @@
     margin-top: 20px;
     justify-content: flex-start;
 }
+
+.task_header {
+    color: rgb(255, 255, 255);
+    padding: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Source Code Pro';
+}

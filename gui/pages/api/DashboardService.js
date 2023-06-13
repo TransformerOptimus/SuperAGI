@@ -36,7 +36,6 @@ export const getExecutionTasks = (executionId) => {
   return api.get(`/agentexecutionfeeds/get/tasks/${executionId}`);
 };
 
-
 export const createAgent = (agentData) => {
   return api.post(`/agents/create`, agentData);
 };

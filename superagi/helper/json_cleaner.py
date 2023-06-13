@@ -51,7 +51,7 @@ class JsonCleaner:
 
     @classmethod
     def remove_escape_sequences(cls, string):
-        return string.encode('utf-8').decode('unicode_escape')
+        return string.encode('utf-8').decode('unicode_escape').encode('raw_unicode_escape').decode('utf-8')
 
     @classmethod
     def add_quotes_to_property_names(cls, json_string: str) -> str:

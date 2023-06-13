@@ -19,17 +19,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [isDragging, setIsDragging] = useState(false);
   const [createClickable, setCreateClickable] = useState(true);
   const fileInputRef = useRef(null);
-  const pdf_icon = '/images/pdf_file.svg'
-  const txt_icon = '/images/txt_file.svg'
+  const pdf_icon = '/images/pdf_file.svg';
+  const txt_icon = '/images/txt_file.svg';
+  const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
 
-  const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
+  const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-    "No user assistance", "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the commands listed in double quotes e.g. "command name"']
+    "Ensure the command and args are as per current plan and reasoning",
+    'Exclusively use the commands listed in double quotes e.g. "command name"'
+  ];
   const [constraints, setConstraints] = useState(constraintsArray);
 
-  const [goals, setGoals] = useState(['agent goal 1']);
+  const [goals, setGoals] = useState(['Describe the agent goals here']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo']
   const [model, setModel] = useState(models[1]);
@@ -68,6 +70,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
+  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -389,13 +392,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const ResourceItem = ({ file, index }) => {
     const isPDF = file.type === 'application/pdf';
     const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
+    const isIMG = file.type.includes('image');
 
     return (
       <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="file-icon" /></div>}
-          {!isTXT && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
+          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
+          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+          {!isTXT && !isIMG && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
           <div style={{ marginLeft: '5px', width:'100%' }}>
             <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
             <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
@@ -473,7 +478,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div>
                 {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                   {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
+                    {tool.name !== null && !excludedTools.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
                           style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
                     </div>}
@@ -527,7 +532,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
                     <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
                       <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-                      <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+                      <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
                   </div>
                   <ResourceList files={input}/>
                 </div>}
