@@ -12,7 +12,7 @@ class EditIssueSchema(BaseModel):
     )
     fields: dict = Field(
         ...,
-        description='Dictionary of fields to create the Jira issue with. Format: {{"summary": "test issue", "description": "test description", "issuetype": {{"name": "Task"}}, "priority": {{"name": "Low"}}}}',
+        description='Dictionary of fields to create the Jira issue with. Format: {{"summary": "test issue", "project": "project_id", "description": "test description", "issuetype": {{"name": "Task"}}, "priority": {{"name": "Low"}}}}',
     )
 
 
