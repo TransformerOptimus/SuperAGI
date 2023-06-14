@@ -119,8 +119,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
   function fetchAgentDetails(agentId) {
     getAgentDetails(agentId)
       .then((response) => {
-        console.log("////////////////////////////////")
-        console.log(response.data)
         setAgentDetails(response.data);
         setTools(response.data.tools);
         setGoals(response.data.goal);
