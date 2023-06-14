@@ -371,8 +371,8 @@
     display: flex;
     color:white;
     font-size: small;
-    height: 90px;
-    width: 421px;
+    height: 14vh;
+    width: 29.2vw;
     background-color: rgb(39,35,53);
     border-radius: 8px;
     margin-top: 4px;
@@ -432,3 +432,7 @@
     font-size: 12px;
     color: #888888;
 }
+.marketContainer {
+    max-height: 94vh; /* Set the maximum height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }

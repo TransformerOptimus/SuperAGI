@@ -46,7 +46,7 @@ export default function Market() {
         <SearchBox onSearch={handleSearch} />
         </div>
     </div>
-    <div>
+    <div style={{height:'100vh'}}>
       {activeTab === 'market_tools' && <div><MarketTools onToolClick={handleToolClick} /></div>}
       {activeTab === 'market_embeddings' && <div><Embeddings /></div>}
       {activeTab === 'market_agents' && <div><MarketAgent /></div>}
