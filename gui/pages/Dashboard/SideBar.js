@@ -9,7 +9,7 @@ export default function SideBar({onSelectEvent}) {
   const [env, setEnv] = useState('DEV');
 
   function getToken(){
-    const client_id = '149462257865-f1o8apqqt37vpc9u2hum3k5rbiv8n3fv.apps.googleusercontent.com';
+    const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
     const scope = 'https://www.googleapis.com/auth/calendar';
     const redirect_uri = 'http://localhost:8001/oauth-calendar';
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;

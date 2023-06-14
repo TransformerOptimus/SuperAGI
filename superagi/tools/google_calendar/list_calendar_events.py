@@ -5,8 +5,8 @@ from typing import Type
 from superagi.config.config import get_config
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
-from googleapiclient.discovery import build
-from superagi.helper.go
+
+from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 
 class ListCalendarEventsInput(BaseModel):
     number_of_results: int = Field(..., description="The number of events to get from the calendar, default value is 0.")
@@ -19,13 +19,8 @@ class ListCalendarEventsTool(BaseTool):
     description: str = "Get the list of all the events from Google Calendar"
 
     def _execute(self, number_of_results: int, start_date: str, end_date: str):
-        print("/////////////////////////////////////")
-        print(number_of_results)
-        print(start_date)
-        print(end_date)
+        print("/////////////////////////////////////////////")
         service = GoogleCalendarCreds().get_credentials()
-        print("////////////////////////////////////////////////")
-        print(service)
 #         if not service:
 #             return f"Kindly Connect to Google Calendar"
         if start_date == 'None':

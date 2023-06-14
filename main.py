@@ -1,7 +1,7 @@
 import inspect
 import os
 from datetime import timedelta
-
+import pickle
 import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,7 +22,8 @@ from sqlalchemy.orm import sessionmaker
 # from oauth2client.tools import run_flow
 # from oauth2client.file import Storage
 import http.client
-
+from  datetime import datetime, timedelta
+import time
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
@@ -341,14 +342,8 @@ def github_login():
 
 @app.get('/oauth-calendar')
 async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
-    print("///////////////////////////")
-    print(code)
-    client_id = "149462257865-f1o8apqqt37vpc9u2hum3k5rbiv8n3fv.apps.googleusercontent.com"
-    client_secret = "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"
-    redirect_uri = "http://localhost:8001/oauth-calendar"
     token_uri = 'https://oauth2.googleapis.com/token'
     scope = 'https://www.googleapis.com/auth/calendar'
-    access_token_uri = "https://accounts.google.com/o/oauth2/token"
     params = {
         'client_id': superagi.config.config.get_config('GOOGLE_CLIENT_ID'),
         'client_secret': superagi.config.config.get_config('GOOGLE_CLIENT_SECRET'),
@@ -359,11 +354,12 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
         'access_type': 'offline'
     }
     response = requests.post(token_uri, data=params)
-    print("------------------------------------------")
     response = response.json()
-    print(response)
+    expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
+    expire_time = expire_time - timedelta(minutes=5)
+    response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
-    file_name = "credential_token.json"
+    file_name = "credential_token.pickle"
     final_path = file_name
     if root_dir is not None:
         root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
@@ -372,9 +368,8 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     else:
         final_path = os.getcwd() + "/" + file_name
     try:
-        with open(final_path, mode="w") as file:
-#             response = json.dumps(response)
-            json.dump(response, file)
+        with open(final_path, mode="wb") as file:
+            pickle.dump(response, file)
     except Exception as err:
         return f"Error: {err}"
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
