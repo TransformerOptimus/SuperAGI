@@ -56,15 +56,13 @@ app.add_middleware(DBSessionMiddleware, db_url=db_url)
 
 # Configure CORS middleware
 origins = [
-    "http://localhost:3001",
-    "http://localhost:3000",
     # Add more origins if needed
+    "*",  # Allow all origins
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
