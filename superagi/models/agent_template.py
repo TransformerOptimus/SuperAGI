@@ -96,10 +96,7 @@ class AgentTemplate(DBBaseModel):
 
         agent_configurations = []
         for key, value in agent_template["configs"].items():
-            # Converting tool names to ids and saving it in agent config
-            if key == "tools":
-                tool_ids = Tool.convert_tool_names_to_ids(db, value["value"])
-                value["value"] = str(tool_ids)
+            # Converting tool names to ids and saving it in agent configuration
             agent_configurations.append(
                 AgentTemplateConfig(agent_template_id=template.id, key=key, value=value["value"]))
 
