@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateList, fetchAgentTemplateListLocal, getAgentDetails, getAgents} from "@/pages/api/DashboardService";
-import AgentCreate from "@/pages/Content/Agents/AgentCreate";
+import AgentCreate from "../Modules/AgentCreate"
 
 export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}){
     const [agentTemplates, setAgentTemplates] = useState([])

@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {createAgent,fetchAgentTemplateConfig, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import styles from '../Content/Agents/Agents.module.css';
+import styles from '../Agents/Agents.module.css';
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -111,29 +111,31 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [toolNames]);
 
   useEffect(() => {
-    if(template===null)
+    if(template===null )
       return
     else{
-      setAgentName(template.name)
-      setAgentDescription(template.description)
-      setAdvancedOptions(true)
-      fetchAgentTemplateConfig(template.id)
-          .then((response) => {
-            const data = response.data || [];
-            setGoals(data.goal)
-            setAgentType(data.agent_type)
-            setConstraints(data.constraints)
-            setIterations(data.max_iterations)
-            setRollingWindow(data.memory_window)
-            setPermission(data.permission_type)
-            setStepTime(data.iteration_interval)
-            setDatabase(data.LTM_DB)
-            setModel(data.model)
-            setToolNames(data.tools)
-          })
-          .catch((error) => {
-            console.error('Error fetching template details:', error);
-          });
+      if(!isCluster) {
+        setAgentName(template.name)
+        setAgentDescription(template.description)
+        setAdvancedOptions(true)
+        fetchAgentTemplateConfig(template.id)
+            .then((response) => {
+              const data = response.data || [];
+              setGoals(data.goal)
+              setAgentType(data.agent_type)
+              setConstraints(data.constraints)
+              setIterations(data.max_iterations)
+              setRollingWindow(data.memory_window)
+              setPermission(data.permission_type)
+              setStepTime(data.iteration_interval)
+              setDatabase(data.LTM_DB)
+              setModel(data.model)
+              setToolNames(data.tools)
+            })
+            .catch((error) => {
+              console.error('Error fetching template details:', error);
+            });
+      }
     }
   }, []);
 

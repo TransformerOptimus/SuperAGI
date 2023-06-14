@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import AgentCreate from '../Modules/AgentCreate';
+import AgentCreate from '@/pages/Content/Modules/AgentCreate';
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
@@ -13,7 +13,6 @@ import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
-import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([])

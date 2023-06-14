@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import styles from '../Content/Agents/Agents.module.css';
+import styles from '../Agents/Agents.module.css';
 import Head from 'next/head';
 // import styles from './Agents.module.css';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
