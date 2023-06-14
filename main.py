@@ -29,6 +29,9 @@ from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.config import router as config_router
+from superagi.controllers.tool_kit import router as tool_kit_router
+from superagi.controllers.tool_config import router as tool_config_router
+
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
@@ -87,7 +90,8 @@ app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
 app.include_router(config_router,prefix="/configs")
 app.include_router(agent_template_router,prefix="/agent_templates")
-
+app.include_router(tool_kit_router,prefix="/tool_kits")
+app.include_router(tool_config_router,prefix="/tool_configs")
 
 
 

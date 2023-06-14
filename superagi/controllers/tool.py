@@ -2,10 +2,12 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.tool import Tool
-from superagi.models.project import Project
+from superagi.models.tool_kit import ToolKit
+from superagi.models.organisation import Organisation
+from superagi.models.tool_kit import ToolKit
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from superagi.helper.auth import check_auth
+from superagi.helper.auth import check_auth,get_user_organisation
 
 router = APIRouter()
 
@@ -14,6 +16,7 @@ router = APIRouter()
 def create_tool(
     tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
     Authorize: AuthJWT = Depends(check_auth),
+    organisation:Organisation = Depends(get_user_organisation)
 ):
 
     """Create a new tool"""
@@ -24,6 +27,18 @@ def create_tool(
         class_name=tool.class_name,
         file_name=tool.file_name,
     )
+
+    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool.folder_name)
+
+    if tool.tool_kit_id is None:
+        new_tool_kit = ToolKit(name=tool.folder_name,description=f"Tool kit consists of {tool.name}",show_tool_kit=False,organisation_id={organisation.id})
+        db.session.add(new_tool_kit)
+        db.session.commit()
+        db.session.flush()
+        db_tool.tool_kit_id = new_tool_kit.id
+    else:
+        db_tool.tool_kit_id=tool.tool_kit_id
+
     db.session.add(db_tool)
     db.session.commit()
     return db_tool
@@ -56,10 +71,21 @@ def update_tool(
     if not db_tool:
         raise HTTPException(status_code=404, detail="Tool not found")
 
-    db_tool.name = tool.name
-    db_tool.folder_name = tool.folder_name
-    db_tool.class_name = tool.class_name
-    db_tool.file_name = tool.file_name
+    if tool.name is not None:
+        db_tool.name = tool.name
+    if tool.folder_name is not None:
+        db_tool.folder_name = tool.folder_name
+    if tool.class_name is not None:
+        db_tool.class_name = tool.class_name
+    if tool.file_name is not None:
+        db_tool.file_name = tool.file_name
+    if tool.tool_kit_id is not None:
+        db_tool.tool_kit_id = tool.tool_kit_id
+
+    # db_tool.name = tool.name
+    # db_tool.folder_name = tool.folder_name
+    # db_tool.class_name = tool.class_name
+    # db_tool.file_name = tool.file_name
 
     db.session.add(db_tool)
     db.session.commit()
