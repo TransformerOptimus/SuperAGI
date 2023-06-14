@@ -1,11 +1,11 @@
 import os 
 import csv
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from typing import Type
 from superagi.config.config import get_config
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
-
+import googleapiclient.discovery as discovery
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 
 class ListCalendarEventsInput(BaseModel):
@@ -14,7 +14,7 @@ class ListCalendarEventsInput(BaseModel):
     end_date: str = Field(..., description="The end date to return events from the calendar in format 'yyyy-mm-dd' in a string variable, default value is 'None'.")
 
 class ListCalendarEventsTool(BaseTool):
-    name: str = "List Calendar Events"
+    name: str = "List Google Calendar Events"
     args_schema: Type[BaseModel] = ListCalendarEventsInput
     description: str = "Get the list of all the events from Google Calendar"
 
@@ -26,15 +26,14 @@ class ListCalendarEventsTool(BaseTool):
             return f"Kindly connect to Google Calendar"
         
         if start_date == 'None':
-            print("////////////////////////////////")
             start_date = datetime.now()
             start_datetime_utc = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            start_datetime_utc = start_datetime_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             print(start_datetime_utc)
         else:
-            print("/////////////////////////////////")
             start_date = datetime.strptime(start_date, "%Y-%m-%d")
             start_datetime_utc = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
-            print(start_datetime_utc)
+            start_datetime_utc = start_datetime_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
         if number_of_results != 0:
             event_results = (
@@ -44,18 +43,16 @@ class ListCalendarEventsTool(BaseTool):
                 maxResults=number_of_results,
                 singleEvents = True,
                 orderBy = "startTime",
-                timeZone = 'UTC',
                 ).execute()
             )
-            print(number_of_results)
         else:
             if end_date == 'None':
                 end_datetime_utc = start_date + timedelta(days=1) - timedelta(microseconds=1)
+                end_datetime_utc = end_datetime_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             else:
-                print("/////////////////////////////////")
                 end_date = datetime.strptime(start_date, "%Y-%m-%d")
                 end_datetime_utc = start_date.replace(hour=0, minute=59, second=59, microsecond=999999)
-                print(end_datetime_utc)
+                end_datetime_utc = end_datetime_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             
             event_results = (
                 service.events().list(
@@ -64,11 +61,24 @@ class ListCalendarEventsTool(BaseTool):
                 timeMax = end_datetime_utc,
                 singleEvents = True,
                 orderBy = "startTime",
-                timeZone = 'UTC',
                 ).execute()
             )
-        allDayEvents = [["Event Title", "Date"], *[[e.get("summary"), e.get("start").get("date")] for e in event_results.get("items", []) if e.get("start").get("date") and e.get("end").get("date")]]
-        file_name = "Google_Calendar_" + start_datetime_utc + ".csv"
+        print("---------------------------------------")
+        csv_data = [['Summary','Start Time','End Time','Attendees']]
+        for item in event_results['items']:
+            summary = item['summary']
+            if item['start'] and item['end']:
+                start_date = item['start']['dateTime']
+                end_date = item['end']['dateTime']
+            attendees = []
+            for attendee in item['attendees']:
+                attendees.append(attendee['email'])
+            attendees_str = ','.join(attendees)
+            csv_data.append([summary,start_date,end_date,attendees_str])
+
+        file = datetime.now()
+        file = file.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        file_name = "Google_Calendar_" + file + ".csv"
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
@@ -80,6 +90,7 @@ class ListCalendarEventsTool(BaseTool):
         
         with open(final_path, "w") as file:
             writer = csv.writer(file, lineterminator="\n")
-            writer.writerows(allDayEvents)
+            for row in csv_data:
+                writer.writerow(row)
         
         return f"List of Google Calendar Events successfully stored in {file_name}."

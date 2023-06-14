@@ -24,7 +24,6 @@ class GoogleCalendarCreds:
                 creds = pickle.load(file)
             if isinstance(creds, str):
                 creds = json.loads(creds)
-            print(creds["expiry"])
             expire_time = datetime.strptime(creds["expiry"], "%Y-%m-%dT%H:%M:%S.%fZ")
             creds = Credentials.from_authorized_user_info(info={
                 "client_id": get_config("GOOGLE_CLIENT_ID"),
