@@ -78,6 +78,11 @@ class BaseTool(BaseModel):
     def max_token_limit(self):
         return get_config("MAX_TOOL_TOKEN_LIMIT", 600)
 
+    # permission required to run tool in Restricted mode
+    @property
+    def permission_required(self):
+        return True
+
     def _parse_input(
             self,
             tool_input: Union[str, Dict],

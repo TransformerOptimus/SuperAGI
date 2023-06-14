@@ -174,10 +174,15 @@ class SuperAgi:
                                                       role="assistant")
             session.add(agent_execution_feed)
             session.commit()
+
             action = self.output_parser.parse(assistant_reply)
+            tools = {t.name: t for t in self.tools}
+
+            excluded_tools = [FINISH, '', None]
 
             # get the last agent execution permission for this agent execution
-            if self.agent_config["permission_type"].upper() == "RESTRICTED":
+            if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
+                    tools[action.name].permission_required:
                 new_agent_execution_permission = AgentExecutionPermission(
                     agent_execution_id=self.agent_config["agent_execution_id"],
                     agent_id=self.agent_config["agent_id"],

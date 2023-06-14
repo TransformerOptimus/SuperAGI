@@ -154,12 +154,14 @@ class AgentExecutor:
             agent_execution.status = "RUNNING"
             agent_execution_permission = session.query(AgentExecutionPermission).filter(
                                         AgentExecutionPermission.id == agent_execution.permission_id).first()
-
-            result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply)
+            if agent_execution_permission.status:
+                result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
+            else:
+                result = f"user denied the permission to run the tool {agent_execution_permission.tool_name}"
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                       agent_id=agent_execution_permission.agent_id,
-                                                      feed=result.get("result"),
+                                                      feed=result,
                                                       role="system"
                                                       )
             session.add(agent_execution_feed)
