@@ -3,11 +3,11 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, fetchAgentTemplateConfig, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId,template}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -99,6 +99,33 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   useEffect(() => {
     filterToolsByNames();
   }, [toolNames]);
+
+  useEffect(() => {
+    if(template===null)
+      return
+    else{
+      setAgentName(template.name)
+      setAgentDescription(template.description)
+      setAdvancedOptions(true)
+      fetchAgentTemplateConfig(template.id)
+          .then((response) => {
+            const data = response.data || [];
+            setGoals(data.goal)
+            setAgentType(data.agent_type)
+            setConstraints(data.constraints)
+            setIterations(data.max_iterations)
+            setRollingWindow(data.memory_window)
+            setPermission(data.permission_type)
+            setStepTime(data.iteration_interval)
+            setDatabase(data.LTM_DB)
+            setModel(data.model)
+            setToolNames(data.tools)
+          })
+          .catch((error) => {
+            console.error('Error fetching template details:', error);
+          });
+    }
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
