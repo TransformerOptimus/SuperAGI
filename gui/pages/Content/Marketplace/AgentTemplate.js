@@ -11,7 +11,8 @@ import {EventBus} from "@/utils/eventBus";
 
 export default function AgentTemplate({template}) {
     const [tools, setTools] = useState([])
-    const [templateConfigs, setTemplateConfigs] = useState([])
+    const [agentType, setAgentType] = useState('')
+    const [templateModel, setTemplateModel] = useState('')
     const [rightPanel, setRightPanel] = useState('overview')
     const [goals, setGoals] = useState([])
     const [installed, setInstalled] = useState('')
@@ -25,10 +26,11 @@ export default function AgentTemplate({template}) {
         fetchAgentTemplateConfig(template.id)
             .then((response) => {
                 const data = response.data || [];
-                setTemplateConfigs(data)
-                setGoals(data.goal)
-                setConstraints(data.constraints)
-                setTools(data.tools)
+                setAgentType(data.configs.agent_type.value)
+                setTemplateModel(data.configs.model.value)
+                setGoals(data.configs.goal.value)
+                setConstraints(data.configs.constraints.value)
+                setTools(data.configs.tools.value)
             })
             .catch((error) => {
                 console.error('Error fetching template details:', error);
@@ -76,11 +78,11 @@ export default function AgentTemplate({template}) {
                             </div><br />
                             <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Agent Type</span>
                             <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                                <div className={styles1.tool_text}>{templateConfigs.agent_type}</div>
+                                <div className={styles1.tool_text}>{agentType}</div>
                             </div><br />
                             <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>
                             <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                                <div className={styles1.tool_text}>{templateConfigs.model}</div>
+                                <div className={styles1.tool_text}>{templateModel}</div>
                             </div>
                         </div>
                         <div className={styles2.left_container} style={{marginTop:'0.7%'}}>
