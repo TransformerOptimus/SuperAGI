@@ -47,7 +47,8 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
         agent_template_configs = db.session.query(AgentTemplateConfig).filter(
             AgentTemplateConfig.agent_template_id == agent_template_id).all()
         for agent_template_config in agent_template_configs:
-            configs[agent_template_config.key] = {"value": agent_template_config.value}
+            config_value = AgentTemplate.eval_agent_config(agent_template_config.key, agent_template_config.value)
+            configs[agent_template_config.key] = {"value": config_value}
         template["configs"] = configs
     else:
         template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
@@ -95,10 +96,13 @@ def save_agent_as_template(agent_id: str,
     db.session.commit()
     main_keys = AgentTemplate.main_keys()
     for agent_configuration in agent_configurations:
+        config_value = agent_configuration.value
         if agent_configuration.key not in main_keys:
             continue
+        if agent_configuration.key == "tools":
+            config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_configuration.value)))
         agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_configuration.key,
-                                                    value=agent_configuration.value)
+                                                    value=config_value)
         db.session.add(agent_template_config)
     db.session.commit()
     db.session.flush()
@@ -156,12 +160,8 @@ def marketplace_template_detail(agent_template_id):
     workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.id == template.agent_workflow_id).first()
     tool_configs = {}
     for template_config in template_configs:
-        if template_config.key == "tools":
-            tool_ids = eval(template_config.value)
-            tool_names = Tool.convert_tool_ids_to_names(db, tool_ids)
-            tool_configs[template_config.key] = {"value": tool_names}
-        else:
-            tool_configs[template_config.key] = {"value": template_config.value}
+        config_value = AgentTemplate.eval_agent_config(template_config.key, template_config.value)
+        tool_configs[template_config.key] = {"value": config_value}
     output_json = {
         "id": template.id,
         "name": template.name,
@@ -204,10 +204,9 @@ def fetch_agent_config_from_template(agent_template_id: int,
     main_keys = AgentTemplate.main_keys()
     for config in template_config:
         if config.key in main_keys:
-            template_config_dict[config.key] = Agent.eval_agent_config(config.key, config.value)
-        if config.key == "tools":
-            template_config_dict[config.key] = Tool.convert_tool_ids_to_names(db, template_config_dict[config.key])
+            template_config_dict[config.key] = AgentTemplate.eval_agent_config(config.key, config.value)
 
     template_config_dict["agent_template_id"] = agent_template.id
     return template_config_dict
+
 
