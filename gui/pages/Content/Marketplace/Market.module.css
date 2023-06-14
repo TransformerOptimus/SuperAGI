@@ -369,16 +369,16 @@
 
   .market_tool{
     display: flex;
+    height:90px;
     color:white;
     font-size: small;
-    height: 90px;
-    width: 32%;
+    padding:12px;
+    width: 32% !important;
     background-color: rgb(39,35,53);
     border-radius: 8px;
     margin-top: 4px;
     margin-bottom: 4px;
     margin-right: 8px;
-    
   }
 
   .rowContainer{
@@ -406,7 +406,6 @@
 }
 .description_heading{
     font-size: 20px;
-    line-height: 20px;
     color: #FFFFFF;
     font-weight: 600;
 }
