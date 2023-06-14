@@ -1,4 +1,5 @@
 import multiprocessing
+import string
 from typing import List
 
 from sqlalchemy.orm import sessionmaker
@@ -38,10 +39,12 @@ class ClusterExecutor:
 
         # parallely execute all agents using multiprocessing
         tasks = []
-        agents_to_use = self.get_agents_to_use(cluster_execution, agents)
+        agents_to_use = self.get_agents_to_use(cluster_execution.goal, agents)
         for agent in agents_to_use:
             agent_execution = AgentExecution(agent_id=agent.agent_id, cluster_execution_id=cluster_execution.id,
                                              status="QUEUED")
+            goal_for_agent = self.get_goal_for_agent(cluster_execution.goal, agent)
+            
             session.add(agent_execution)
             session.commit()
             tasks.append(
@@ -53,8 +56,7 @@ class ClusterExecutor:
         self.pool.close()
         self.pool.join()
 
-    def get_agents_to_use(self, cluster_execution: ClusterExecution, agents: List[Agent]):
-        goal = cluster_execution.goal
+    def get_agents_to_use(self, cluster_execution_goal: string, agents: List[Agent]):
         agents_string = ""
         messages = []
         for index, agent in enumerate(agents):
@@ -67,7 +69,7 @@ class ClusterExecutor:
                  f"goal. You can select as many agents as you want. You have to select distinct agents. You have to " \
                  f"select at least one agent. You have to return the indices of the agents (separated by a comma if " \
                  f"they are more than one)." \
-                 f"/n/nGoal: {goal}" \
+                 f"/n/nGoal: {cluster_execution_goal}" \
                  f"/n/n Agents: \n{agents_string}"
         messages.append({"role": "system", "content": prompt})
         response = self.llm.chat_completion(messages)["content"]
@@ -80,3 +82,23 @@ class ClusterExecutor:
             agents_to_use.append(agents[index - 1])
 
         return agents_to_use
+
+    def get_goal_for_agent(self,cluster_execution_goal: string , agent: Agent):
+        agents_string = ""
+        messages = []
+
+        agents_string += f"Name: {agent.name}\n" \
+                         f"Description: {agent.description}\n\n"
+#         write a prompt to assign a very specific goal to this agent
+        prompt = f"You are a master agent and you have to assign a goal to the agent given below to overcome the objective given to you. "\
+                    f"You are given the agent's name and description about it's capabilities. You have to use sound " \
+                    f"reasoning and logic to assign a single goal to it. The agent will only overcome the goal you assign to it. " \
+                    f"/n/n Objective: {cluster_execution_goal}" \
+                    f"/n/n Agent: \n{agent.name}\n{agent.description}"
+        messages.append({"role": "system", "content": prompt})
+        response = self.llm.chat_completion(messages)["content"]
+        if len(response) == 0:
+            return
+
+        return response
+
