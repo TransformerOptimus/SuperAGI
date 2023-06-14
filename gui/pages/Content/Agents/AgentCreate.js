@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfig, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, fetchAgentTemplateConfig, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -107,7 +107,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setAgentName(template.name)
       setAgentDescription(template.description)
       setAdvancedOptions(true)
-      fetchAgentTemplateConfig(template.id)
+      fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
             setGoals(data.goal)
