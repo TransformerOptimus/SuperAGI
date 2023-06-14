@@ -1,12 +1,8 @@
-import requests
-
 import base64
-
-from pydantic import BaseModel
+import requests
 
 
 class GithubHelper:
-
     def __init__(self, github_access_token, github_username):
         self.github_access_token = github_access_token
         self.github_username = github_username
@@ -48,7 +44,6 @@ class GithubHelper:
     def sync_branch(self, repository_owner, repository_name, base_branch, head_branch, headers):
         base_branch_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/branches/{base_branch}'
         response = requests.get(base_branch_url, headers=headers)
-        print("dsf")
         response_json = response.json()
         base_commit_sha = response_json['commit']['sha']
         head_branch_url = f'https://api.github.com/repos/{self.github_username}/{repository_name}/git/refs/heads/{head_branch}'
