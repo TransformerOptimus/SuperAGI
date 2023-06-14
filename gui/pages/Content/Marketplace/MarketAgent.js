@@ -1,12 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import styles from './Market.module.css';
-import {
-    fetchAgentTemplateConfig,
-    fetchAgentTemplateDetails,
-    fetchAgentTemplateList,
-    getAgents
-} from "@/pages/api/DashboardService";
+import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function MarketAgent(){
