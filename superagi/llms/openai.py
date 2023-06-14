@@ -8,7 +8,7 @@ from superagi.config.config import get_config
 
 
 class OpenAi(BaseLlm):
-    def __init__(self, api_key, image_model=None, model="gpt-4", temperature=0.6, max_tokens=4032, top_p=1,
+    def __init__(self, api_key, image_model=None, model="gpt-4", temperature=0.6, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), top_p=1,
                  frequency_penalty=0,
                  presence_penalty=0, number_of_results=1):
         self.model = model
@@ -21,6 +21,7 @@ class OpenAi(BaseLlm):
         self.api_key = api_key
         self.image_model = image_model
         openai.api_key = api_key
+        openai.api_base = get_config("OPENAI_API_BASE", "https://api.openai.com/v1")
 
     def get_model(self):
         return self.model
@@ -28,7 +29,7 @@ class OpenAi(BaseLlm):
     def get_image_model(self):
         return self.image_model
 
-    def chat_completion(self, messages, max_tokens=4032):
+    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         try:
             # openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.ChatCompletion.create(

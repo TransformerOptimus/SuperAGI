@@ -117,7 +117,7 @@ class SuperAgi:
         agent_execution_id = self.agent_config["agent_execution_id"]
         task_queue = TaskQueue(str(agent_execution_id))
 
-        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        token_limit = TokenCounter.token_limit()
         agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"], self.agent_config["agent_id"])
         current_calls = 0
         if len(agent_feeds) <= 0:
@@ -283,7 +283,7 @@ class SuperAgi:
             last_task = response["task"]
             last_task_result = response["response"]
         current_task = task_queue.get_first_task() or ""
-        token_limit = TokenCounter.token_limit(self.llm.get_model()) - max_token_limit
+        token_limit = TokenCounter.token_limit() - max_token_limit
         prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                  pending_tasks, completed_tasks, token_limit)
         return prompt

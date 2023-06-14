@@ -1,6 +1,9 @@
-FROM python:3.9
+FROM python:3.10-slim
 
 WORKDIR /app
+
+RUN apt-get update && apt-get install --no-install-recommends -y git wget libpq-dev gcc python3-dev && pip install psycopg2
+RUN pip install --upgrade pip
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -13,6 +16,7 @@ RUN apt-get update && playwright install --with-deps chromium
 COPY entrypoint_celery.sh /entrypoint_celery.sh
 RUN chmod +x /entrypoint_celery.sh
 
+WORKDIR /app
 COPY . .
 COPY config.yaml .
 
