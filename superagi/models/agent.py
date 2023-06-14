@@ -30,8 +30,8 @@ class Agent(DBBaseModel):
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
         agent = session.query(Agent).filter_by(id=agent_id).first()
-        agent_configurations = session.query(superagi.models.agent_config.AgentConfiguration).filter_by(agent_id=agent_id).all()
-        # print("Configuration ", agent_configurations)
+        agent_configurations = session.query(superagi.models.agent_config.AgentConfiguration).filter_by(
+            agent_id=agent_id).all()
         parsed_config = {
             "agent_id": agent.id,
             "name": agent.name,
@@ -52,40 +52,19 @@ class Agent(DBBaseModel):
         if not agent_configurations:
             return parsed_config
         for item in agent_configurations:
-            key = item.key
-            value = item.value
-
-            if key == "name":
-                parsed_config["name"] = value
-            elif key == "project_id":
-                parsed_config["project_id"] = int(value)
-            elif key == "description":
-                parsed_config["description"] = value
-            elif key == "goal":
-                parsed_config["goal"] = eval(value)
-            elif key == "agent_type":
-                parsed_config["agent_type"] = value
-            elif key == "constraints":
-                parsed_config["constraints"] = eval(value)
-            elif key == "tools":
-                parsed_config["tools"] = [int(x) for x in json.loads(value)]
-            # elif key == "tools":
-            # parsed_config["tools"] = eval(value)
-            elif key == "exit":
-                parsed_config["exit"] = value
-            elif key == "iteration_interval":
-                parsed_config["iteration_interval"] = int(value)
-            elif key == "model":
-                parsed_config["model"] = value
-            elif key == "permission_type":
-                parsed_config["permission_type"] = value
-            elif key == "LTM_DB":
-                parsed_config["LTM_DB"] = value
-            elif key == "memory_window":
-                parsed_config["memory_window"] = int(value)
-            elif key == "max_iterations":
-                parsed_config["max_iterations"] = int(value)
+            parsed_config[item.key] = cls.eval_agent_config(item.key, item.value)
         return parsed_config
+
+    @classmethod
+    def eval_agent_config(cls, key, value):
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
+            return value
+        elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
+            return int(value)
+        elif key == "goal" or key == "constraints":
+            return eval(value)
+        elif key == "tools":
+            return [int(x) for x in json.loads(value)]
 
     @classmethod
     def create_agent_with_config(cls, db, agent_with_config):
