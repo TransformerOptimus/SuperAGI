@@ -89,7 +89,7 @@ class SuperAgi:
     def fetch_agent_feeds(self, session, agent_execution_id, agent_id):
         memory_window = session.query(AgentConfiguration).filter(
             AgentConfiguration.key == "memory_window",
-            AgentConfiguration.agent_id == agent_id
+            AgentConfiguration.agent_execution_id == agent_execution_id,
         ).order_by(desc(AgentConfiguration.updated_at)).first().value
 
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \

@@ -4,10 +4,11 @@ from superagi.models.base_model import DBBaseModel
 
 
 class AgentConfiguration(DBBaseModel):
-    __tablename__ = 'agent_configurations'
+    __tablename__ = 'agent_execution_configurations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     agent_id = Column(Integer)
+    agent_execution_id = Column(Integer)
     key = Column(String)
     value = Column(Text)
 

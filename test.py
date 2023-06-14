@@ -37,23 +37,23 @@ def ask_user_for_goals():
     return goals
 
 
-
-def run_superagi_cli(agent_name=None,agent_description=None,agent_goals=None):
+def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     # Create default organization
     organization = Organisation(name='Default Organization', description='Default organization description')
     session.add(organization)
     session.flush()  # Flush pending changes to generate the agent's ID
     session.commit()
     print(organization)
-   
+
     # Create default project associated with the organization
-    project = Project(name='Default Project', description='Default project description', organisation_id=organization.id)   
+    project = Project(name='Default Project', description='Default project description',
+                      organisation_id=organization.id)
     session.add(project)
     session.flush()  # Flush pending changes to generate the agent's ID
     session.commit()
     print(project)
 
-    #Agent
+    # Agent
     if agent_name is None:
         agent_name = input("Enter agent name: ")
     if agent_description is None:
@@ -64,30 +64,34 @@ def run_superagi_cli(agent_name=None,agent_description=None,agent_goals=None):
     session.commit()
     print(agent)
 
-    #Agent Config
+    # Agent Config
     # Create Agent Configuration
     agent_config_values = {
         "goal": ask_user_for_goals() if agent_goals is None else agent_goals,
         "agent_type": "Type Non-Queue",
-        "constraints": [  "~4000 word limit for short term memory. ",
-                "Your short term memory is short, so immediately save important information to files.",
-                "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-                "No user assistance",
-                "Exclusively use the commands listed in double quotes e.g. \"command name\""
-                ],
+        "constraints": ["~4000 word limit for short term memory. ",
+                        "Your short term memory is short, so immediately save important information to files.",
+                        "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
+                        "No user assistance",
+                        "Exclusively use the commands listed in double quotes e.g. \"command name\""
+                        ],
         "tools": [],
         "exit": "Default",
         "iteration_interval": 0,
         "model": "gpt-4",
         "permission_type": "Default",
         "LTM_DB": "Pinecone",
-        "memory_window":10
+        "memory_window": 10
     }
 
     # print("Id is ")
     # print(db_agent.id)
+    execution = AgentExecution(status='RUNNING', agent_id=agent.id, last_execution_time=datetime.utcnow())
+    session.add(execution)
+    session.commit()
+
     agent_configurations = [
-        AgentConfiguration(agent_id=agent.id, key=key, value=str(value))
+        AgentConfiguration(agent_execution_id=execution.id, key=key, value=str(value))
         for key, value in agent_config_values.items()
     ]
 
@@ -97,13 +101,11 @@ def run_superagi_cli(agent_name=None,agent_description=None,agent_goals=None):
     print(agent_configurations)
 
     # Create agent execution in RUNNING state associated with the agent
-    execution = AgentExecution(status='RUNNING', agent_id=agent.id, last_execution_time=datetime.utcnow())
-    session.add(execution)
-    session.commit()
 
     print("Final Execution")
     print(execution)
 
     execute_agent.delay(execution.id, datetime.now())
-    
-run_superagi_cli(agent_name=agent_name,agent_description=agent_description,agent_goals=agent_goals)
+
+
+run_superagi_cli(agent_name=agent_name, agent_description=agent_description, agent_goals=agent_goals)

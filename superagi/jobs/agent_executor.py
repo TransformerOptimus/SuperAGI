@@ -109,7 +109,7 @@ class AgentExecutor:
           ThinkingTool()
         ]
 
-        parsed_config = Agent.fetch_configuration(session, agent.id)
+        parsed_config = Agent.fetch_configuration(session, agent_execution_id)
         max_iterations = (parsed_config["max_iterations"])
         total_calls = agent_execution.num_of_calls
 

@@ -5,6 +5,7 @@ import json
 from sqlalchemy import Column, Integer, String
 
 import superagi.models
+from superagi.models.agent_execution import AgentExecution
 #from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
 
@@ -24,9 +25,10 @@ class Agent(DBBaseModel):
                f"description='{self.description}', agent_template_id={self.agent_template_id})"
 
     @classmethod
-    def fetch_configuration(cls, session, agent_id: int):
-        agent = session.query(Agent).filter_by(id=agent_id).first()
-        agent_configurations = session.query(superagi.models.agent_config.AgentConfiguration).filter_by(agent_id=agent_id).all()
+    def fetch_configuration(cls, session, agent_execution_id: int):
+        agent_execution = session.query(AgentExecution).filter_by(id=agent_execution_id).first()
+        agent = session.query(Agent).filter_by(id=agent_execution.agent_id).first()
+        agent_configurations = session.query(superagi.models.agent_config.AgentConfiguration).filter_by(agent_execution_id=agent_execution_id).all()
         # print("Configuration ", agent_configurations)
         parsed_config = {
             "agent_id": agent.id,
