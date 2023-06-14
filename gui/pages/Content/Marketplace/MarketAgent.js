@@ -29,7 +29,7 @@ export default function MarketAgent(){
     {/*<div className={styles.history_box}>*/}
     {/*    Agents*/}
     {/*</div>*/}
-             <div className={styles.rowContainer}>
+             <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
                 {agentTemplates.map((item, index) => (
                     <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                         <div style={{display: 'inline'}}>

@@ -38,7 +38,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                         </button>
                     </div>
                 </div>
-                <div className={styles.rowContainer} style={{marginTop: '1%'}}>
+                <div className={styles.rowContainer} style={{marginTop: '1%',maxHeight: '78vh',overflowY: 'auto'}}>
                     {agentTemplates.map((item, index) => (
                         <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
                              onClick={() => handleTemplateClick(item)}>
