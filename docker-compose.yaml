@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   backend:
     volumes:
@@ -12,7 +11,6 @@ services:
       - super__postgres
     networks:
       - super_network
-
   celery:
     volumes:
       - "./:/app"
@@ -24,7 +22,10 @@ services:
       - super__postgres
     networks:
       - super_network
-
+    environment:
+      - DISPLAY=:0
+    ports:
+      - "5900:5900"
   gui:
     build: ./gui
     ports:
@@ -37,12 +38,10 @@ services:
       - ./gui:/app
       - /app/node_modules
       - /app/.next
-
   super__redis:
     image: "docker.io/library/redis:latest"
     networks:
       - super_network
-
   super__postgres:
     image: "docker.io/library/postgres:latest"
     environment:
@@ -55,10 +54,8 @@ services:
       - super_network
     ports:
       - "5432:5432"
-
 networks:
   super_network:
     driver: bridge
-
 volumes:
   superagi_postgres_data:
