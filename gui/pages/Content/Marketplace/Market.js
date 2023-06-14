@@ -29,9 +29,14 @@ export default function Market() {
             setAagentTemplateData(item)
             setItemclicked(true)
         };
+        const handleBackClick = ()=>{
+            setItemclicked(false)
+        }
         EventBus.on('openTemplateDetails', handleOpenTemplateDetails);
+        EventBus.on('goToMarketplace', handleBackClick);
         return () => {
             EventBus.off('openTemplateDetails', handleOpenTemplateDetails);
+            EventBus.off('goToMarketplace', handleBackClick);
         };
     }, [])
 
