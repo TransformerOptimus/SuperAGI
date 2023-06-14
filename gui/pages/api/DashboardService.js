@@ -79,3 +79,7 @@ export const getOrganisationConfig = (organisationId, key) => {
 export const updateOrganisationConfig = (organisationId, configData) => {
   return api.post(`/configs/add/organisation/${organisationId}`, configData);
 }
+
+export const updatePermissions = (permissionId, status) => {
+  return api.put(`agentexecutions/update/permission/${permissionId}`, {status: status})
+}

@@ -60,7 +60,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
-  const permissions = ["God Mode"]
+  const permissions = ["God Mode","RESTRICTED"]
   const [permission, setPermission] = useState(permissions[0]);
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
