@@ -9,8 +9,8 @@ from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
 from superagi.models.tool import Tool
 
-# marketplace_url = "https://app.superagi.com/api/"
-marketplace_url = "http://localhost:8001/"
+marketplace_url = "https://app.superagi.com/api/"
+# marketplace_url = "http://localhost:8001/"
 
 
 class AgentTemplate(DBBaseModel):
