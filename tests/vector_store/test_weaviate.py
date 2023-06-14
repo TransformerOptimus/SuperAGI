@@ -24,6 +24,7 @@ def mock_openai_embedding(monkeypatch):
 
 @pytest.fixture
 def store(client, mock_openai_embedding):
+    client.schema.delete_all()
     yield weaviate.Weaviate(
         client, OpenAiEmbedding(api_key="test_api_key"), "Test_index", "text"
     )
