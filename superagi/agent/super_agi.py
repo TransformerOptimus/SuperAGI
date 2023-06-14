@@ -177,16 +177,18 @@ class SuperAgi:
             action = self.output_parser.parse(assistant_reply)
 
             # get the last agent execution permission for this agent execution
-            if self.agent_config["permission_type"] == "RESTRICTED":
+            if self.agent_config["permission_type"].upper() == "RESTRICTED":
                 new_agent_execution_permission = AgentExecutionPermission(
                     agent_execution_id=self.agent_config["agent_execution_id"],
                     agent_id=self.agent_config["agent_id"],
                     tool_name=action.name,
                     assistant_reply=assistant_reply)
 
-                agent_execution = session.query(AgentExecution).filter(AgentExecution.id == self.agent_config["agent_execution_id"]).first()
-                agent_execution.permission_id = new_agent_execution_permission.id
                 session.add(new_agent_execution_permission)
+                session.commit()
+                agent_execution = session.query(AgentExecution).filter(
+                    AgentExecution.id == self.agent_config["agent_execution_id"]).first()
+                agent_execution.permission_id = new_agent_execution_permission.id
                 session.commit()
                 return {"result": "WAITING_FOR_PERMISSION"}
 
