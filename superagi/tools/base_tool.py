@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from functools import wraps
 from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 
@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
 from inspect import signature
 
 from superagi.config.config import get_config
+from typing import List
 
 
 class SchemaSettings:
@@ -181,3 +182,18 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator
 
 
+class BaseToolKit(BaseModel, ABC):
+    name: str
+    description: str
+
+    @abstractmethod
+    def get_tools(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_initialized_tools(self) -> List[BaseTool]:
+        pass
+
+    @abstractmethod
+    def get_keys(self) -> List[str]:
+        pass

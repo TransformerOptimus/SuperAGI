@@ -52,8 +52,7 @@ def create_or_update_tool_kit(
         # New Tool Kit flow
         new_tool_kit = ToolKit(name=tool_kit_details['name'], description=tool_kit_details['description'],
                                show_tool_kit=show_tool_kit, organisation_id=MASTER_ORG_ID,
-                               tool_code_link=tool_kit_details['tool_code_link'],
-                               tool_readme_link=tool_kit_details['tool_readme_link'])
+                               tool_code_link=tool_kit_details['tool_code_link'])
         db.session.add(new_tool_kit)
         db.session.commit()
         db.session.flush()
@@ -76,8 +75,8 @@ def create_or_update_tool_kit(
         existing_tool_kit.description = tool_kit_details['description']
     if tool_kit_details['tool_code_link'] is not None:
         existing_tool_kit.tool_code_link = tool_kit_details['tool_code_link']
-    if tool_kit_details['tool_readme_link'] is not None:
-        existing_tool_kit.tool_readme_link = tool_kit_details['tool_readme_link']
+    # if tool_kit_details['tool_readme_link'] is not None:
+    #     existing_tool_kit.tool_readme_link = tool_kit_details['tool_readme_link']
 
     existing_tool_kit.show_tool_kit = show_tool_kit
     if tool_kit_details['tools'] is not None and len(tool_kit_details['tools']):
@@ -167,20 +166,20 @@ def get_readme(repo_url: str):
     return readme_content
 
 
-@router.get("/get/{tool_kit_id}")
-def get_tookit_by_master_organisation_and_tookit_id(tool_kit_id: int,
+@router.get("/get/{tool_kit_name}")
+def get_tookit_by_master_organisation_and_tookit_id(tool_kit_name: int,
                                                     Authorize: AuthJWT = Depends(check_auth)):
     """Get a tool kit by its ID along with the details of its tools"""
 
     # Fetch the tool kit by its ID
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.id == tool_kit_id, Organisation.id == MASTER_ORG_ID).first()
+    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name, Organisation.id == MASTER_ORG_ID).first()
 
     if not tool_kit:
         # Return an appropriate response if the tool kit doesn't exist
         raise HTTPException(status_code=404, detail='ToolKit not found')
 
     # Fetch the tools associated with the tool kit
-    tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit_id).all()
+    tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit.id).all()
 
     # Add the tools to the tool kit object
     tool_kit.tools = tools
@@ -193,16 +192,20 @@ def get_tookit_by_master_organisation_and_tookit_id(tool_kit_id: int,
     }
 
 
-@router.get("/install/{tool_kit_id}")
-def install_tool_kit(tool_kit_id: int):
+@router.get("/marketplace/install/{tool_kit_name}")
+def install_tool_kit(tool_kit_name:str):
+    """Download and Install from market place"""
     # Check if the tool kit exists
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.id == tool_kit_id).first()
+    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name).first()
     if not tool_kit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
 
     # Call the API to get the tool kit details
-    api_url = f"http://api.example.com/get/{tool_kit_id}"
+    base_url = "https://superagi.com/api"
+    get_tool_url = f"/tool_kits/get/{tool_kit_name}"
+    api_url = base_url + get_tool_url
     response = requests.get(api_url)
+
 
     if response.status_code == 200:
         # Extract the tool kit data from the response
@@ -221,7 +224,7 @@ def install_tool_kit(tool_kit_id: int):
         tools_data = tool_kit_data.get("tools")
         if tools_data:
             # Remove the existing tools associated with the tool kit
-            db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit_id).delete()
+            db.session.query(Tool).filter(Tool.name == tool_kit_name).delete()
 
             # Create new tool instances and associate them with the tool kit
             for tool_data in tools_data:
@@ -244,3 +247,6 @@ def install_tool_kit(tool_kit_id: int):
 
     else:
         raise HTTPException(status_code=response.status_code, detail="Error fetching ToolKit details")
+
+
+

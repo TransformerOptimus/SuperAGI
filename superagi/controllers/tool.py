@@ -8,6 +8,10 @@ from superagi.models.tool_kit import ToolKit
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth,get_user_organisation
+from superagi.helper.tool_download_helper import download_tool
+from superagi.config.config import get_config
+from superagi.helper.validator_helper import validate_github_link
+from superagi.helper.tool_download_helper import process_files
 
 router = APIRouter()
 
@@ -99,3 +103,24 @@ def get_tools(Authorize: AuthJWT = Depends(check_auth)):
 
     db_tools = db.session.query(Tool).all()
     return db_tools
+
+
+@router.post("/local/install", status_code=200)
+def download_and_install_tool(github_link:str):
+    """Install from Github and install locally"""
+    if not validate_github_link(github_link):
+        raise HTTPException(status_code=400, detail="Invalid Github link")
+    try:
+        download_folder = get_config("TOOLS_DIR")
+        download_tool(github_link, download_folder)
+        #parse config details and
+
+        process_files(download_folder, db.session)
+
+    except Exception:
+        print(Exception)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+# @router.post("/marketplace/install/{tool_kit_name}",status_code=200)
+# def download_and_install_from_market_place(tool_kit_name : str):
+#     """Download and Install from market place"""

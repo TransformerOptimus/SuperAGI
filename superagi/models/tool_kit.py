@@ -21,8 +21,8 @@ class ToolKit(DBBaseModel):
 
     tool_code_link = Column(String)
     """tool_code_link stores the link to the code repo of the tool"""
-    tool_readme_link = Column(String)
-    """tool_readme_link stores the link of the readme of the tool  """
+    # tool_readme_link = Column(String)
+    # """tool_readme_link stores the link of the readme of the tool  """
     # is_deleted = Column(Boolean)
 
     def __repr__(self):

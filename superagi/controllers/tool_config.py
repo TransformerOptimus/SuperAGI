@@ -43,7 +43,7 @@ router = APIRouter()
 
 
 @router.post("/add/{tool_kit_name}", status_code=201, response_model=sqlalchemy_to_pydantic(ToolConfig))
-def create_or_update_tool_config(tool_kit_name: str, tool_configs: List[sqlalchemy_to_pydantic(ToolConfig)],
+def create_or_update_tool_config(tool_kit_name: str, tool_configs,
                                  Authorize: AuthJWT = Depends(check_auth)):
     """Create or update Tool Configurations by Tool Kit Name"""
 
