@@ -106,8 +106,7 @@ class AgentExecutor:
           return "Agent Not found"
 
         tools = [
-          ThinkingTool(),
-          WebScraperTool(),
+          ThinkingTool()
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
@@ -131,7 +130,7 @@ class AgentExecutor:
             else:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1", OpenAiEmbedding(model_api_key))
         except:
-            print("Unable to setup the pincone connection...")
+            print("Unable to setup the pinecone connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
@@ -177,9 +176,9 @@ class AgentExecutor:
                 tool.llm = OpenAi(model="gpt-3.5-turbo",api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):
                 tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
-            elif hasattr(tool,'image_llm'):
+            if hasattr(tool,'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"],api_key=model_api_key)
-            elif hasattr(tool, 'agent_id'):
+            if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             new_tools.append(tool)
         return tools
