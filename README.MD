@@ -48,6 +48,16 @@
 </p>
 
 
+<p align="center"><b>Connect with the Creator </b></p>
+
+<p align="center">
+<a href="https://twitter.com/ishaanbhola" target="blank">
+<img src="https://img.shields.io/twitter/follow/ishaanbhola?label=Follow: ishaanbhola&style=social" alt="Follow _superAGI"/>
+</a>
+
+</p>
+
+
 <p align="center"><b>Share SuperAGI Repository</b></p>
 
 <p align="center">
