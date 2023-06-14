@@ -135,7 +135,7 @@ def get_agent_by_latest_execution(project_id: int,
 
 @router.put("/update/permission/{agent_execution_permission_id}")
 def update_agent_execution_permission(agent_execution_permission_id: int,
-                                      status: Annotated[str, Body(embed=True)],
+                                      status: Annotated[bool, Body(embed=True)],
                                       Authorize: AuthJWT = Depends(check_auth)):
     """Update a particular execution permission"""
 
@@ -145,11 +145,9 @@ def update_agent_execution_permission(agent_execution_permission_id: int,
         raise HTTPException(status_code=400, detail="Invalid Request")
     if status is None:
         raise HTTPException(status_code=400, detail="Invalid Request status is required")
-    if status.upper() not in ["APPROVED", "REJECTED"]:
-        raise HTTPException(status_code=400, detail="Invalid Request status can be either APPROVED or REJECTED")
-    if status == "APPROVED":
-        agent_execution_permission.status = True
-    else:
-        agent_execution_permission.status = False
+    agent_execution_permission.status = status
     db.session.commit()
+
+    execute_agent.delay(agent_execution_permission.agent_execution_id, datetime.now())
+
     return {"success": True}

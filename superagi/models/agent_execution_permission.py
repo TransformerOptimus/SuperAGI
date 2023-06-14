@@ -14,6 +14,7 @@ class AgentExecutionPermission(DBBaseModel):
     status = Column(Boolean)
     tool_name = Column(String)
     response = Column(Text)
+    assistant_reply = Column(Text)
 
     def __repr__(self):
         return f"AgentExecutionPermission(id={self.id}, " \

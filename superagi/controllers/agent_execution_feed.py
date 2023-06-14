@@ -99,6 +99,7 @@ def get_agent_execution_feed(agent_execution_id: int,
     for permission in execution_permissions:
         permissions.append({
             "id": permission.id,
+            "created_at": permission.created_at,
             "response": permission.response,
             "status": permission.status,
             "tool_name": permission.tool_name

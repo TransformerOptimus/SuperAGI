@@ -112,14 +112,14 @@ class SuperAgi:
             i -= 1
         return [], history
 
-
     def execute(self, template_step: AgentTemplateStep):
         session = Session()
         agent_execution_id = self.agent_config["agent_execution_id"]
         task_queue = TaskQueue(str(agent_execution_id))
 
         token_limit = TokenCounter.token_limit(self.llm.get_model())
-        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"], self.agent_config["agent_id"])
+        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"],
+                                             self.agent_config["agent_id"])
         current_calls = 0
         if len(agent_feeds) <= 0:
             task_queue.clear_tasks()
@@ -127,7 +127,8 @@ class SuperAgi:
         max_token_limit = 600
         # adding history to the messages
         if template_step.history_enabled:
-            prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue, max_token_limit=max_token_limit)
+            prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue,
+                                             max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
@@ -138,7 +139,8 @@ class SuperAgi:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": template_step.completion_prompt})
         else:
-            prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue, max_token_limit=max_token_limit)
+            prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue,
+                                             max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
             # agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
@@ -168,18 +170,40 @@ class SuperAgi:
 
         if template_step.output_type == "tools":
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                               agent_id=self.agent_config["agent_id"], feed=assistant_reply,
-                               role="assistant")
+                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      role="assistant")
             session.add(agent_execution_feed)
             session.commit()
+
+            action = self.output_parser.parse(assistant_reply)
+            tools = {t.name: t for t in self.tools}
+
+            excluded_tools = [FINISH, '', None]
+
+            # get the last agent execution permission for this agent execution
+            if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
+                    tools[action.name].permission_required:
+                new_agent_execution_permission = AgentExecutionPermission(
+                    agent_execution_id=self.agent_config["agent_execution_id"],
+                    agent_id=self.agent_config["agent_id"],
+                    tool_name=action.name,
+                    assistant_reply=assistant_reply)
+
+                session.add(new_agent_execution_permission)
+                session.commit()
+                agent_execution = session.query(AgentExecution).filter(
+                    AgentExecution.id == self.agent_config["agent_execution_id"]).first()
+                agent_execution.permission_id = new_agent_execution_permission.id
+                session.commit()
+                return {"result": "WAITING_FOR_PERMISSION"}
+
+            tool_response = self.handle_tool_response(assistant_reply)
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
-                                                      feed="",
-                                                      role="system")
+                                                      feed=tool_response["result"],
+                                                      role="system"
+                                                      )
             session.add(agent_execution_feed)
-            session.commit()
-            tool_response = self.handle_tool_response(assistant_reply, agent_execution_feed.id)
-            agent_execution_feed.feed = tool_response["result"]
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
         elif template_step.output_type == "tasks":
@@ -211,7 +235,7 @@ class SuperAgi:
         session.close()
         return final_response
 
-    def handle_tool_response(self, assistant_reply, agent_execution_feed_id=None):
+    def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
@@ -219,32 +243,6 @@ class SuperAgi:
             print("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
             return output
-
-        excluded_tools = ["finish", "ThinkingTool"]
-
-        if self.agent_config["permission_type"] == "RESTRICTED" and action.name not in excluded_tools:
-            if action.name in tools:
-                # add permission request to the agent execution permission table
-                permission = AgentExecutionPermission(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"],
-                                                      agent_execution_feed_id=agent_execution_feed_id,
-                                                      tool_name=action.name)
-                session.add(permission)
-                session.commit()
-                # check if permission is granted
-                permission_status = permission.status
-                while True:
-                    print("Waiting for permission to be granted...")
-                    if permission_status is None:
-                        time.sleep(5)
-                        session.refresh(permission)
-                        permission_status = permission.status
-                        continue
-                    if permission_status:
-                        break
-                    else:
-                        return {"result": "PERMISSION DENIED", "retry": False}
-
         if action.name in tools:
             tool = tools[action.name]
             try:
@@ -290,7 +288,8 @@ class SuperAgi:
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
         prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"],
-                                                           self.agent_config["constraints"], self.tools, add_finish_tool)
+                                                           self.agent_config["constraints"], self.tools,
+                                                           add_finish_tool)
         response = task_queue.get_last_task_details()
 
         last_task = ""

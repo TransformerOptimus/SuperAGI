@@ -26,6 +26,10 @@ class ThinkingTool(BaseTool):
     args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
 
+    @property
+    def permission_required(self):
+        return False
+
     class Config:
         arbitrary_types_allowed = True
 
