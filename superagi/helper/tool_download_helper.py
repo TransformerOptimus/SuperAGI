@@ -4,6 +4,7 @@ import zipfile
 import json
 import inspect
 from superagi.models.tool import Tool
+from superagi.models.tool_kit import ToolKit
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolKit
 
@@ -84,7 +85,7 @@ def download_tool(tool_url, target_folder):
 
 
 
-def get_classes_in_file(file_path):
+def get_classes_in_file(file_path,clazz):
     classes = []
 
     # Load the module from the file
@@ -93,17 +94,20 @@ def get_classes_in_file(file_path):
     # Iterate over all members of the module
     for name, member in inspect.getmembers(module):
         # Check if the member is a class and extends BaseTool
-        if inspect.isclass(member) and issubclass(member, BaseTool) and member != BaseTool:
+        if inspect.isclass(member) and issubclass(member, clazz) and member != clazz:
             class_dict = {}
             class_dict['class_name'] = member.__name__
 
             class_obj = getattr(module, member.__name__)
             try:
                 obj = class_obj()
-                class_dict['class_attribute'] = obj.name
+                class_dict['tool_kit_name'] = obj.name
+                class_dict['tool_kit_description'] = obj.description
+                class_dict['tools'] = obj.get_tools()
                 classes.append(class_dict)
             except:
-                class_dict['class_attribute'] = None
+                # pass
+                class_dict = None
     return classes
 def load_module_from_file(file_path):
     import importlib.util
@@ -116,43 +120,68 @@ def load_module_from_file(file_path):
 
 
 # Function to process the files and extract class information
-def process_files(folder_path, session):
-    existing_tools = session.query(Tool).all()
-
-    new_tools = []
-    # Iterate over all subfolders
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
-
-        if os.path.isdir(folder_dir):
-            # Iterate over all files in the subfolder
-            for file_name in os.listdir(folder_dir):
-                file_path = os.path.join(folder_dir, file_name)
-                if file_name.endswith(".py") and not file_name.startswith("__init__"):
-                    # Get clasess
-                    classes = get_classes_in_file(file_path=file_path)
-                    for clazz in classes:
-                        if clazz["class_attribute"] is not None:
-                            new_tool = Tool(class_name=clazz["class_name"], folder_name=folder_name,
-                                            file_name=file_name,
-                                            name=clazz["class_attribute"])
-                            new_tools.append(new_tool)
-
-    # Delete tools that are not present in the updated tools
-    for tool in existing_tools:
-        if tool.name not in [new_tool.name for new_tool in new_tools]:
-            Tool.delete_tool(session, tool.name)
-
-    # Update the latest tool
-    for tool in new_tools:
-        Tool.add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
-                           class_name=tool.class_name)
-
-
+# def process_files(folder_path, session):
+#     existing_tools = session.query(Tool).all()
+#
+#     new_tools = []
+#     # Iterate over all subfolders
+#     for folder_name in os.listdir(folder_path):
+#         folder_dir = os.path.join(folder_path, folder_name)
+#
+#         if os.path.isdir(folder_dir):
+#             # Iterate over all files in the subfolder
+#             for file_name in os.listdir(folder_dir):
+#                 file_path = os.path.join(folder_dir, file_name)
+#                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
+#                     # Get clasess
+#                     classes = get_classes_in_file(file_path=file_path,clazz=BaseTool)
+#                     for clazz in classes:
+#                         if clazz is not None:
+#                             new_tool = Tool(class_name=clazz["c"], folder_name=folder_name,
+#                                             file_name=file_name,
+#                                             name=clazz["class_attribute"])
+#                             new_tools.append(new_tool)
+#
+#     # Delete tools that are not present in the updated tools
+#     for tool in existing_tools:
+#         if tool.name not in [new_tool.name for new_tool in new_tools]:
+#             Tool.delete_tool(session, tool.name)
+#
+#     # Update the latest tool
+#     for tool in new_tools:
+#         Tool.add_or_update_tool(session, tool_name=tool.name, file_name=tool.file_name, folder_name=tool.folder_name,
+#                            class_name=tool.class_name)
 
 
 
-def process_files(folder_path, session):
+# def get_class(file_path,clazz):
+#     classes = []
+#
+#     # Load the module from the file
+#     module = load_module_from_file(file_path)
+#
+#     # Iterate over all members of the module
+#     for name, member in inspect.getmembers(module):
+#         # Check if the member is a class and extends BaseTool
+#         if inspect.isclass(member) and issubclass(member, clazz) and member != clazz:
+#             class_dict = {}
+#             class_dict['class_name'] = member.__name__
+#
+#             class_obj = getattr(module, member.__name__)
+#             try:
+#                 obj = class_obj()
+#                 # class_dict['class_attribute'] = obj.name
+#                 class_dict['name'] = obj.name
+#                 class_dict['description'] = obj.description
+#                 class_dict['tools'] = obj.get_tools()
+#                 class_dict['keys'] = obj.get_env_keys()
+#                 classes.append(class_dict)
+#             except:
+#                 class_dict['class_attribute'] = None
+#     return classes
+
+
+def process_files(folder_path, session,organisation):
     existing_toolkits = session.query(ToolKit).all()
 
     new_toolkits = []
@@ -166,10 +195,11 @@ def process_files(folder_path, session):
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
-                    classes = get_classes_in_file(file_path=file_path)
+                    classes = get_classes_in_file(file_path=file_path,clazz=BaseToolKit)
+
                     for clazz in classes:
                         if clazz["class_attribute"] is not None:
-                            toolkit_name = clazz["class_attribute"]
+                            toolkit_name = clazz["class_name"]
                             toolkit_description = clazz["class_description"]
                             tools = clazz["tools"]
 
@@ -177,7 +207,7 @@ def process_files(folder_path, session):
                             new_toolkit = ToolKit(
                                 name=toolkit_name,
                                 description=toolkit_description,
-                                show_tool_kit=True,
+                                show_tool_kit = True if len(tools) > 1 else False,
                                 organisation_id=1  # Set the organization ID as needed
                             )
 

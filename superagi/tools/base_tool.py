@@ -187,13 +187,9 @@ class BaseToolKit(BaseModel, ABC):
     description: str
 
     @abstractmethod
-    def get_tools(self) -> List[str]:
+    def get_tools(self) -> List[BaseTool]:
         pass
 
     @abstractmethod
-    def get_initialized_tools(self) -> List[BaseTool]:
-        pass
-
-    @abstractmethod
-    def get_keys(self) -> List[str]:
+    def get_env_keys(self) -> List[str]:
         pass
