@@ -114,7 +114,8 @@
 ## ⚙️ Setting up
 
 1. Download the repo using `git clone https://github.com/TransformerOptimus/SuperAGI.git` in your terminal or directly from github page in zip format.
-2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml` and name it `config.yaml`.
+
+2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml`, naming it `config.yaml` (take note of the file extension `.yaml`, *not* `.yml`).
 3. Enter your unique OpenAI API Key, Google key, Custom search engine ID without any quotes or spaces in `config.yaml` file. Follow the links below to get your keys:
 
 |Keys|Accessing the keys|
@@ -124,7 +125,11 @@
 |**Custom search engine ID**| Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.|
 
 4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
-5. Once you have Docker Desktop running, run command : `docker-compose up --build` in SuperAGI directory. Open your browser and go to `localhost:3000` to see SuperAGI running.
+5. Once you have Docker Desktop running, run the command: `docker-compose up --build` in the SuperAGI directory. Open your browser and navigate to `http://localhost:3000` to access SuperAGI.
+
+   - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
+
+
 
 ## ⚠️ Under Development!
 This project is under active development and may still have issues. We appreciate your understanding and patience. If you encounter any problems, please first check the open issues. If your issue is not listed, kindly create a new issue detailing the error or problem you experienced. Thank you for your support!
