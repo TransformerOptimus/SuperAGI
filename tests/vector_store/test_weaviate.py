@@ -87,3 +87,10 @@ def test_add_texts(store, data, results, request):
 
     # manual cleanup because you will upload to the same index again
     store.client.schema.delete_all()
+
+
+def test_get_matching_text(store, dataset):
+    store.add_documents(dataset)
+    results = store.get_matching_text("The Great Gatsby", top_k=2)
+    assert len(results) == 2
+    assert results[0] == dataset[0]

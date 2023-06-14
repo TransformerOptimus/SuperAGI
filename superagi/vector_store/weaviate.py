@@ -69,9 +69,30 @@ class Weaviate(VectorStore):
         return result
 
     def get_matching_text(
-        self, query: str, top_k: int, **kwargs: Any
+        self, query: str, top_k: int = 5, **kwargs: Any
     ) -> List[Document]:
-        return super().get_matching_text(query, top_k, **kwargs)
+        alpha = kwargs.get("alpha", 0.5)
+        metadata_fields = self._get_metadata_fields()
+        query_vector = self.embedding_model.get_embedding(query)
+
+        results = (
+            self.client.query.get(self.index, metadata_fields + [self.text_field])
+            .with_hybrid(query, vector=query_vector, alpha=alpha)
+            .with_limit(top_k)
+            .do()
+        )
+
+        results_data = results["data"]["Get"][self.index]
+        documents = []
+        for result in results_data:
+            text_content = result[self.text_field]
+            metadata = {}
+            for field in metadata_fields:
+                metadata[field] = result[field]
+            document = Document(text_content=text_content, metadata=metadata)
+            documents.append(document)
+
+        return documents
 
     def _get_metadata_fields(self) -> List[str]:
         schema = self.client.schema.get(self.index)
