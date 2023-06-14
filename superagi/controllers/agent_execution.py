@@ -149,7 +149,25 @@ def update_agent_execution_permission(agent_execution_permission_id: int,
         raise HTTPException(status_code=400, detail="Invalid Request status can be either APPROVED or REJECTED")
     if status == "APPROVED":
         agent_execution_permission.status = True
+        # result = SuperAgi(ai_name=None, ai_role=None,
+        #                          llm=None, tools=,
+        #                          memory=memory,
+        #                          agent_config=parsed_config).handle_tool_response(agent_execution_permission.assistant_reply)['result']
     else:
         agent_execution_permission.status = False
+        result = f"user rejected to access to run {agent_execution_permission.tool_name}"
+    # agent_execution_permission.response = response
     db.session.commit()
+    # db_agent_execution = db.session.query(AgentExecution). \
+    #     get(agent_execution_permission.agent_execution_id)
+    # db_agent_execution.status = "RUNNING"
+    # agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
+    #                                           agent_id=agent_execution_permission.agent_id,
+    #                                           feed=result,
+    #                                           role="system"
+    #                                           )
+    # db.session.add(agent_execution_feed)
+    # db.session.commit()
+    execute_agent.delay(agent_execution_permission.agent_execution_id, datetime.now())
+
     return {"success": True}

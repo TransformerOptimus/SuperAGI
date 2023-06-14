@@ -178,31 +178,24 @@ class SuperAgi:
 
             # get the last agent execution permission for this agent execution
             if self.agent_config["permission_type"] == "RESTRICTED":
-                agent_execution_permission = session.query(AgentExecutionPermission).filter(
-                    AgentExecutionPermission.agent_execution_id == self.agent_config["agent_execution_id"],
-                    AgentExecutionPermission.agent_id == self.agent_config["agent_id"]).\
-                    order_by(desc(AgentExecutionPermission.created_at)).first()
+                new_agent_execution_permission = AgentExecutionPermission(
+                    agent_execution_id=self.agent_config["agent_execution_id"],
+                    agent_id=self.agent_config["agent_id"],
+                    tool_name=action.name,
+                    assistant_reply=assistant_reply)
 
-                if agent_execution_permission.tool_name != action.name:
-                    new_agent_execution_permission = AgentExecutionPermission(
-                        agent_execution_id=self.agent_config["agent_execution_id"],
-                        agent_id=self.agent_config["agent_id"],
-                        tool_name=action.name)
+                agent_execution = session.query(AgentExecution).filter(AgentExecution.id == self.agent_config["agent_execution_id"]).first()
+                agent_execution.permission_id = new_agent_execution_permission.id
+                session.add(new_agent_execution_permission)
+                session.commit()
+                return {"result": "WAITING_FOR_PERMISSION"}
 
-                    session.add(new_agent_execution_permission)
-                    session.commit()
-                    return {"result": "WAITING_FOR_PERMISSION"}
-
-                if agent_execution_permission.status:
-                    tool_response = self.handle_tool_response(assistant_reply)
-                else:
-                    tool_response = {"result": f"permission to run {action.name} was denied by user", "retry": False}
-            else:
-                tool_response = self.handle_tool_response(assistant_reply)
+            tool_response = self.handle_tool_response(assistant_reply)
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed=tool_response["result"],
-                                                      role="system")
+                                                      role="system"
+                                                      )
             session.add(agent_execution_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
