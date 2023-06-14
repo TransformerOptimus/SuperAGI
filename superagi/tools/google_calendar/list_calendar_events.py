@@ -1,6 +1,6 @@
 import os 
 import csv
-import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Type
 from superagi.config.config import get_config
 from pydantic import BaseModel, Field
@@ -19,17 +19,22 @@ class ListCalendarEventsTool(BaseTool):
     description: str = "Get the list of all the events from Google Calendar"
 
     def _execute(self, number_of_results: int, start_date: str, end_date: str):
-        print("/////////////////////////////////////////////")
         service = GoogleCalendarCreds().get_credentials()
-#         if not service:
-#             return f"Kindly Connect to Google Calendar"
+        if service["success"]:
+            service = service["service"]
+        else:
+            return f"Kindly connect to Google Calendar"
+        
         if start_date == 'None':
-            start_date = datetime.date.today()
-        elif isinstance(start_date, str):
-            start_date = datetime.date.fromisoformat(start_date)
-
-        start_datetime = datetime.datetime.combine(start_date, datetime.time.min)
-        start_datetime_utc = start_datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            print("////////////////////////////////")
+            start_date = datetime.now()
+            start_datetime_utc = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            print(start_datetime_utc)
+        else:
+            print("/////////////////////////////////")
+            start_date = datetime.strptime(start_date, "%Y-%m-%d")
+            start_datetime_utc = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            print(start_datetime_utc)
 
         if number_of_results != 0:
             event_results = (
@@ -45,12 +50,13 @@ class ListCalendarEventsTool(BaseTool):
             print(number_of_results)
         else:
             if end_date == 'None':
-                end_date = datetime.date.today()
-            elif isinstance(start_date, str):
-                end_date = datetime.date.fromisoformat(end_date)
+                end_datetime_utc = start_date + timedelta(days=1) - timedelta(microseconds=1)
+            else:
+                print("/////////////////////////////////")
+                end_date = datetime.strptime(start_date, "%Y-%m-%d")
+                end_datetime_utc = start_date.replace(hour=0, minute=59, second=59, microsecond=999999)
+                print(end_datetime_utc)
             
-            end_datetime = datetime.datetime.combine(end_date, datetime.time.min)
-            end_datetime_utc = end_datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             event_results = (
                 service.events().list(
                 calendarId = "primary",
@@ -62,7 +68,7 @@ class ListCalendarEventsTool(BaseTool):
                 ).execute()
             )
         allDayEvents = [["Event Title", "Date"], *[[e.get("summary"), e.get("start").get("date")] for e in event_results.get("items", []) if e.get("start").get("date") and e.get("end").get("date")]]
-        file_name = "Google_Calendar_" + start_datetime + ".csv"
+        file_name = "Google_Calendar_" + start_datetime_utc + ".csv"
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:

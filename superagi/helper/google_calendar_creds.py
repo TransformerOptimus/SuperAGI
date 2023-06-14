@@ -1,5 +1,6 @@
 import pickle
 import os
+import json
 from  datetime import datetime
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -21,6 +22,9 @@ class GoogleCalendarCreds:
         if os.path.exists(file_path):
             with open(file_path,'rb') as file:
                 creds = pickle.load(file)
+            if isinstance(creds, str):
+                creds = json.loads(creds)
+            print(creds["expiry"])
             expire_time = datetime.strptime(creds["expiry"], "%Y-%m-%dT%H:%M:%S.%fZ")
             creds = Credentials.from_authorized_user_info(info={
                 "client_id": get_config("GOOGLE_CLIENT_ID"),
