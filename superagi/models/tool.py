@@ -24,4 +24,4 @@ class Tool(DBBaseModel):
     @classmethod
     def convert_tool_ids_to_names(cls, db, tool_ids):
         tools = db.session.query(Tool).filter(Tool.id.in_(tool_ids)).all()
-        return [tool.name for tool in tools]
+        return [str(tool.name) for tool in tools]

@@ -9,8 +9,8 @@ from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
 from superagi.models.tool import Tool
 
-marketplace_url = "https://app.superagi.com/api/"
-# marketplace_url = "http://localhost:8001/"
+# marketplace_url = "https://app.superagi.com/api/"
+marketplace_url = "http://localhost:8001/"
 
 
 class AgentTemplate(DBBaseModel):
@@ -98,9 +98,20 @@ class AgentTemplate(DBBaseModel):
         for key, value in agent_template["configs"].items():
             # Converting tool names to ids and saving it in agent configuration
             agent_configurations.append(
-                AgentTemplateConfig(agent_template_id=template.id, key=key, value=value["value"]))
+                AgentTemplateConfig(agent_template_id=template.id, key=key, value=str(value["value"])))
 
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()
         return template
+
+    @classmethod
+    def eval_agent_config(cls, key, value):
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
+            return value
+        elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
+            return int(value)
+        elif key == "goal" or key == "constraints":
+            return eval(value)
+        elif key == "tools":
+            return [str(x) for x in eval(value)]
