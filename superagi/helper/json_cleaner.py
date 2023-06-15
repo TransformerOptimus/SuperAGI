@@ -6,10 +6,16 @@ class JsonCleaner:
 
     @classmethod
     def check_and_clean_json(cls, json_string: str):
+        contents=None
+        try:
+            contents = cls.get_contents(json_string)
+        except Exception as e:
+            contents = None
         try:
             json_string = json_string.replace("\\t", "")
             json_string = json_string.replace("\\n", "")
             json_string = cls.remove_escape_sequences(json_string)
+            json_string = cls.replace_contents(json_string, contents)
             json.loads(json_string)
             return json_string
         except json.JSONDecodeError as e:
@@ -18,6 +24,7 @@ class JsonCleaner:
             json_string = cls.add_quotes_to_property_names(json_string)
             json_string = cls.remove_escape_sequences(json_string)
             json_string = cls.balance_braces(json_string)
+            json_string = cls.replace_contents(json_string, contents)
             try:
                 json.loads(json_string)
                 return json_string
@@ -25,6 +32,7 @@ class JsonCleaner:
                 print(json_string)
                 # If the json is still invalid, try to extract the json section
                 json_string = cls.extract_json_section(json_string)
+                json_string = cls.replace_contents(json_string, contents)
                 return json_string
         return json_string
 
@@ -78,3 +86,23 @@ class JsonCleaner:
             json_string += '}' * (open_braces_count - closed_braces_count)
 
         return json_string
+    
+    @classmethod
+    def get_contents(cls, json_string: str) -> str:
+        pattern = re.compile(r'"content":\s*"(.+?)"')
+        match = pattern.search(json_string)
+
+        if match:
+            content = match.group(1)
+            content = cls.preprocess_json_input(content)
+            content = cls.add_quotes_to_property_names(content)
+            content = cls.remove_escape_sequences(content)
+            return content
+        else:
+            return None
+        
+    @classmethod
+    def replace_contents(cls, json_string: str, contents: str) -> str:
+        pattern = re.compile(r'"content":\s*"(.+?)"')
+        return pattern.sub(f'"content": "{contents}"', json_string)
+
