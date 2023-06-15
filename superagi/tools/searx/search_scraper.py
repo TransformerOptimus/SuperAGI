@@ -43,8 +43,12 @@ def scrape_results(html):
     result_list = []
     n = 1
     for result_div in result_divs:
+        if result_div is None:
+            continue
         # Needed to work on multiple versions of Searx
         header = result_div.find(["h4", "h3"])
+        if header is None:
+            continue
         link = header.find("a")["href"]
         title = header.text.strip()
 
