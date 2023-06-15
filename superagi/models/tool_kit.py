@@ -4,10 +4,10 @@ from sqlalchemy import Column, Integer, String, Boolean
 
 from superagi.models.base_model import DBBaseModel
 
-marketplace_url = "https://app.superagi.com/api/"
+# marketplace_url = "https://app.superagi.com/api/"
 
 
-# marketplace_url = "http://localhost:8001/"
+marketplace_url = "http://localhost:8001"
 
 class ToolKit(DBBaseModel):
     """ToolKit - used to store tool kits"""
@@ -58,7 +58,7 @@ class ToolKit(DBBaseModel):
     @staticmethod
     def add_or_update(session, name, description, show_tool_kit, organisation_id, tool_code_link):
         # Check if the toolkit exists
-        toolkit = session.query(ToolKit).filter(ToolKit.name == name).first()
+        toolkit = session.query(ToolKit).filter(ToolKit.name == name,ToolKit.organisation_id == organisation_id).first()
 
         if toolkit:
             # Update the existing toolkit
@@ -85,10 +85,10 @@ class ToolKit(DBBaseModel):
         return toolkit
 
     @classmethod
-    def fetch_marketplace_list(cls, search_str, page):
+    def fetch_marketplace_list(cls, page):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
-            marketplace_url + "tool_kits/marketplace/list?search=" + search_str + "&page=" + str(page),
+            marketplace_url + f"/tool_kits/marketplace/list/{str(page)}",
             headers=headers, timeout=10)
         if response.status_code == 200:
             return response.json()
@@ -98,8 +98,10 @@ class ToolKit(DBBaseModel):
     @classmethod
     def fetch_marketplace_detail(cls, search_str, tool_kit_name):
         headers = {'Content-Type': 'application/json'}
+        search_str = search_str.replace(' ', '%20')
+        tool_kit_name = tool_kit_name.replace(' ', '%20')
         response = requests.get(
-            marketplace_url + f"tool_kits/marketplace/{search_str}/{tool_kit_name}",
+            marketplace_url + f"/tool_kits/marketplace/{search_str}/{tool_kit_name}",
             headers=headers, timeout=10)
         if response.status_code == 200:
             return response.json()

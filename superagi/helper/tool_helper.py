@@ -165,11 +165,11 @@ def get_readme_content_from_code_link(tool_code_link):
     repository = path_parts[2]
     branch = path_parts[4] if len(path_parts) > 4 else "main"
 
-    readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.md"
+    readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.MD"
     print("README ", readme_url)
     response = requests.get(readme_url)
     if response.status_code == 404:
-        readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.MD"
+        readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.md"
         response = requests.get(readme_url)
     readme_content = response.text
     return readme_content
