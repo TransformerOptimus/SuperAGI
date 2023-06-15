@@ -33,6 +33,9 @@ class JsonCleaner:
                 # If the json is still invalid, try to extract the json section
                 json_string = cls.extract_json_section(json_string)
                 json_string = cls.replace_contents(json_string, contents)
+
+                print("========json2=========")
+                print(json_string)
                 return json_string
         return json_string
 
@@ -89,7 +92,7 @@ class JsonCleaner:
     
     @classmethod
     def get_contents(cls, json_string: str) -> str:
-        pattern = re.compile(r'"content":\s*"(.+?)"')
+        pattern = re.compile(r'"content":\s*(.+?)(?=,|\})', re.DOTALL)
         match = pattern.search(json_string)
 
         if match:
@@ -103,6 +106,5 @@ class JsonCleaner:
         
     @classmethod
     def replace_contents(cls, json_string: str, contents: str) -> str:
-        pattern = re.compile(r'"content":\s*"(.+?)"')
+        pattern = re.compile(r'"content":"\s*"(.+?)"')
         return pattern.sub(f'"content": "{contents}"', json_string)
-
