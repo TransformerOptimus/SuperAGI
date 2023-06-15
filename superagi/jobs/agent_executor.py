@@ -136,12 +136,17 @@ class AgentExecutor:
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
+
         for tool in user_tools:
             tool = AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name)
             tools.append(tool)
+        print("____________________________________", user_tools.__repr__)
+        print(user_tools)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key)
+        
+
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
@@ -176,6 +181,8 @@ class AgentExecutor:
         for tool in tools:
             if hasattr(tool, 'goals'):
                 tool.goals = parsed_config["goal"]
+            if hasattr(tool, 'instructions'):
+                tool.instructions = parsed_config["instruction"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
                 tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):

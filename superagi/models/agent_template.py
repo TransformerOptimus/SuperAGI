@@ -55,7 +55,7 @@ class AgentTemplate(DBBaseModel):
 
     @classmethod
     def main_keys(cls):
-        keys_to_fetch = ["goal", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
+        keys_to_fetch = ["goal", "instruction", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
                          "permission_type", "LTM_DB", "memory_window", "max_iterations"]
         return keys_to_fetch
 
@@ -111,7 +111,7 @@ class AgentTemplate(DBBaseModel):
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
-        elif key == "goal" or key == "constraints":
+        elif key == "goal" or key == "constraints" or key == "instruction":
             return eval(value)
         elif key == "tools":
             return [str(x) for x in eval(value)]
