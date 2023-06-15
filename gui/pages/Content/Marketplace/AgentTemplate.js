@@ -15,6 +15,7 @@ export default function AgentTemplate({template}) {
     const [templateModel, setTemplateModel] = useState('')
     const [rightPanel, setRightPanel] = useState('overview')
     const [goals, setGoals] = useState([])
+    const [instructions, setInstructions] = useState([])
     const [installed, setInstalled] = useState('')
     const [constraints, setConstraints] = useState([])
 
@@ -31,6 +32,7 @@ export default function AgentTemplate({template}) {
                 setGoals(data.configs.goal.value)
                 setConstraints(data.configs.constraints.value)
                 setTools(data.configs.tools.value)
+                setInstructions(data.configs.instructions.value)
             })
             .catch((error) => {
                 console.error('Error fetching template details:', error);
@@ -113,14 +115,14 @@ export default function AgentTemplate({template}) {
                                 </div>))}
                             </div>
                         </div>
-                        {/*   <div className={styles2.left_container} style={{marginBottom:'5px'}}>*/}
-                        {/*    <div>*/}
-                        {/*        <span className={styles2.description_heading} style={{fontWeight:'400'}}>4 Instructions</span><br /><br />*/}
-                        {/*        {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>*/}
-                        {/*            <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}*/}
-                        {/*        </div>))}*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
+                           <div className={styles2.left_container} style={{marginBottom:'5px'}}>
+                            <div>
+                                <span className={styles2.description_heading} style={{fontWeight:'400'}}>4 Instructions</span><br /><br />
+                                {instructions.map((instruction, index) => (<div key={index} style={{marginTop:'0'}}>
+                                    <div className={styles2.description_text}>{index + 1}. {instruction || ''}</div>{index !== instructions.length - 1 && <br/>}
+                                </div>))}
+                            </div>
+                        </div>
                            <div className={styles2.left_container} style={{marginBottom:'5px'}}>
                             <div>
                                 <span className={styles2.description_heading} style={{fontWeight:'400'}}>{constraints.length}&nbsp;Constraints</span><br /><br />

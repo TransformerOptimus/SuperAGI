@@ -15,7 +15,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
-  const [addInstructions, setAddInstructions] = useState(true);
   const [input, setInput] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [createClickable, setCreateClickable] = useState(true);
@@ -33,7 +32,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [constraints, setConstraints] = useState(constraintsArray);
 
   const [goals, setGoals] = useState(['Describe the agent goals here']);
-  const [instructions, setInstructions] = useState(['Describe the agent instructions here']);
+  const [instructions, setInstructions] = useState(['']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo']
   const [model, setModel] = useState(models[1]);
@@ -494,14 +493,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           </div>
 
           <div style={{marginTop: '15px'}}>
-            <div style={{display:'flex'}}>
-              <input className="checkbox" type="checkbox" checked={addInstructions} onChange={() => setAddInstructions(!addInstructions)} />
-              <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddInstructions(!addInstructions)}>
-                Add instructions
-              </label>
-            </div>
-            {addInstructions &&<div>
-              {instructions.map((goal, index) => (<div key={index} style={{marginTop: '4px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+            <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
+              {instructions.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                 <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
                 </div>{instructions.length > 1 && <div>
                   <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
@@ -512,7 +505,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div>
                 <button className="secondary_button" onClick={addInstruction}>+ Add</button>
               </div>
-            </div>}
           </div>
 
           <div style={{marginTop: '15px'}}>
