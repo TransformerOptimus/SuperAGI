@@ -274,10 +274,9 @@ class SuperAgi:
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
         print(self.tools)
-        print("@@@@@@@@@@@@@@@@@@@@@@@")
-        print(len(self.agent_config["instruction"]))
-        print("@@@@@@@@@@@@@@@@@@@@@@@")
         if len(self.agent_config["instruction"]) > 0:
+            print("@@@@@@@@@@@@@@@@@")
+            print(self.agent_config["instruction"])
             self.agent_config["instruction"].insert(0, "INSTRUCTION: ")
             prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"], self.agent_config["instruction"],
                                                            self.agent_config["constraints"], self.tools, add_finish_tool)
