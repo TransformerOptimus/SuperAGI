@@ -93,6 +93,10 @@ export const saveAgentAsTemplate = (agentId) => {
 }
 
 export const fetchAgentTemplateConfig = (templateId) => {
+  return api.get(`agent_templates/get/${templateId}?template_source=marketplace`);
+}
+
+export const fetchAgentTemplateConfigLocal = (templateId) => {
   return api.get(`agent_templates/agent_config?agent_template_id=${templateId}`);
 }
 

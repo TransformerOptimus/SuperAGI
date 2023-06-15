@@ -111,14 +111,14 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [toolNames]);
 
   useEffect(() => {
-    if(template===null )
+    if(template===null)
       return
-    else{
-      if(!isCluster) {
+    else {
+      if (!isCluster) {
         setAgentName(template.name)
         setAgentDescription(template.description)
         setAdvancedOptions(true)
-        fetchAgentTemplateConfig(template.id)
+        fetchAgentTemplateConfigLocal(template.id)
             .then((response) => {
               const data = response.data || [];
               setGoals(data.goal)

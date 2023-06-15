@@ -11,6 +11,7 @@ def check_auth(Authorize: AuthJWT = Depends()):
     env = get_config("ENV", "DEV")
     if env == "PROD":
         Authorize.jwt_required()
+    return Authorize
 
 
 def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
