@@ -86,7 +86,8 @@ class AgentPromptBuilder:
           {tools}
           
           PERFORMANCE EVALUATION:
-          1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities. 
+          1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
+          2. Use instruction to decide the flow of execution and decide the next steps for achieving the task.
           2. Constructively self-criticize your big-picture behavior constantly.
           3. Reflect on past decisions and strategies to refine your approach.
           4. Every tool has a cost, so be smart and efficient.
@@ -120,7 +121,7 @@ class AgentPromptBuilder:
         INSTRUCTIONS:
         {instructions}
 
-        Follow these instruction to decide the flow of execute and decide the next steps for achieving the task.
+        Follow these instruction to decide the flow of execution and decide the next steps for achieving the task.
 
         Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
         
