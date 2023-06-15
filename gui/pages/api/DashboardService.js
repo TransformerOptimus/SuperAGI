@@ -80,6 +80,6 @@ export const updateOrganisationConfig = (organisationId, configData) => {
   return api.post(`/configs/add/organisation/${organisationId}`, configData);
 }
 
-export const updatePermissions = (permissionId, status) => {
-  return api.put(`agentexecutions/update/permission/${permissionId}`, {status: status})
+export const updatePermissions = (permissionId, data) => {
+  return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
 }
