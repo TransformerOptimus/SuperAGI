@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
+import ToolWorkspace from '../Content/Tools/ToolWorkspace';
 import AgentCreate from '../Content/Agents/AgentCreate';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
@@ -173,6 +174,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
+                  {tab.contentType === 'Tools' && <ToolWorkspace tool={tab} selectedView={selectedView}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
 
                   {tab.contentType === 'Marketplace' && (
@@ -186,11 +188,12 @@ export default function Content({selectedView, selectedProjectId, organisationId
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <ToolCreate/>
+                        <ToolCreate sendToolData={addTab}/>
                       </div>
                       <div className="col-3"></div>
                     </div>
                   </div>}
+
                 </div>}
               </div>
             ))}

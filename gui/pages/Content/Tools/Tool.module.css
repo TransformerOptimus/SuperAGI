@@ -141,3 +141,112 @@
     display: flex;
     gap: 5px;
 }
+
+.tool1_box {
+    width:125px;
+    height: 30px;
+    font-size: 12px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tab_text {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #FFFFFF;
+    padding: 8px;
+}
+
+.tools_container{
+    text-align: center;
+    font-size: 12px;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 350px; /* Replace with your desired height */
+    width: 650px; 
+    text-align: center;
+    padding: 20px;
+}
+
+.search_box {/**/
+}
+
+.search_box input {
+  /* Styles for the input element */
+  width: 600px;
+  height:25px;
+  font-size: x-small;
+  padding: 5px;
+  border: 0.5px solid rgb(96, 96, 96);
+  border-radius: 6px;
+  background-color:#454254;
+  /* Add more custom styles as needed */
+}
+
+.primary_button {
+    width: auto;
+    border-radius: 8px;
+    font-size: 12px;
+    color: black;
+    border: none;
+    font-weight: 500;
+    height: 30px;
+    background: white;
+    text-align: center;
+    padding: 5px 15px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.primary_button:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.secondary_button {
+    width: auto;
+    border-radius: 8px;
+    font-size: 12px;
+    color: white;
+    height: 30px;
+    background: #4D4A5A;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    text-align: center;
+    padding: 5px 15px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.secondary_button:hover {
+    background-color: transparent;
+}
+
+.show_more_button {
+    margin-top: 1px;
+    cursor: pointer;
+    width: fit-content;
+    color: #888888;
+}
+
+.tools_included{
+    background-color:rgb(39,35,53);
+    border-radius: 8px;
+    width:600px;
+    height: 70px;
+    text-align: left;
+    padding:10px;
+}

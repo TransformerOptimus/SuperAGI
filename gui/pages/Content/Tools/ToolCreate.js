@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 
-export default function ToolCreate() {
+export default function ToolCreate({sendToolData}) {
   const goalsArray = [{ paramater: '', argument: '' }];
   const [goals, setGoals] = useState(goalsArray);
   const [toolName, setToolName] = useState("");
@@ -63,7 +63,7 @@ export default function ToolCreate() {
     <div>
       <div className="row" style={{padding: '10px'}}>
         <div className="col-12">
-          <div>
+        <div>
             <div className={styles1.page_title} style={{marginTop:'10px'}}>Create new tool</div>
           </div>
           <div style={{marginTop:'10px'}}>
