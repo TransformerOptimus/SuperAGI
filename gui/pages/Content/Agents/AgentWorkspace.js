@@ -9,13 +9,13 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents} from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, saveAgentAsTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId, selectedView}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('details')
-  const [history, setHistory] = useState(false)
+  const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
   const [goals, setGoals] = useState(null)
@@ -140,14 +140,26 @@ export default function AgentWorkspace({agentId, selectedView}) {
       });
   }
 
+  function saveAgentTemplate() {
+    console.log('in saving agent')
+    saveAgentAsTemplate(agentId)
+        .then((response) => {
+          toast.success("Agent saved as template Successfully", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error fetching agent executions:', error);
+        });
+  }
+
   return (<>
     <div style={{display:'flex'}}>
-      {history && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && selectedRun !== null && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
-              <Image width={16} height={16} src="/images/history.svg" alt="history-icon"/>
+              <div className={styles.run_history_button}><Image width={16} height={16} src="/images/update.svg" alt="update-icon"/><span>&nbsp;Show run history</span>
+              </div>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
               {selectedRun && selectedRun.status === 'RUNNING' && <div style={{marginLeft:'-6px'}}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="loading-icon"/></div>}
@@ -166,11 +178,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {selectedRun && agentExecutions && (selectedRun.status !== 'COMPLETED' || (selectedRun.status === 'COMPLETED' && agentExecutions.length > 1)) && <button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            {<button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className="dropdown_container">
+              <ul className="dropdown_container" style={{marginTop:'1%'}}>
+                <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}

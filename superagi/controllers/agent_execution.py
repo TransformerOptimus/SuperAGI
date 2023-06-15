@@ -3,7 +3,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 
-from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -25,7 +25,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, agent.agent_template_id)
+    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
