@@ -47,6 +47,14 @@
 <a href="https://www.youtube.com/@_superagi" target="_blank"><img src="https://img.shields.io/twitter/url?label=Youtube&logo=youtube&style=social&url=https://github.com/TransformerOptimus/SuperAGI"/></a>
 </p>
 
+<p align="center"><b>Connect with the Creator </b></p>
+
+<p align="center">
+<a href="https://twitter.com/ishaanbhola" target="blank">
+<img src="https://img.shields.io/twitter/follow/ishaanbhola?label=Follow: ishaanbhola&style=social" alt="Follow ishaanbhola"/>
+</a>
+</p>
+
 
 <p align="center"><b>Share SuperAGI Repository</b></p>
 
