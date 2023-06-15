@@ -14,7 +14,7 @@ from superagi.helper.auth import check_auth
 router = APIRouter()
 
 
-@router.get("/get/permission/{agent_execution_permission_id}")
+@router.get("/get/{agent_execution_permission_id}")
 def get_agent_execution_permission(agent_execution_permission_id: int,
                                    Authorize: AuthJWT = Depends(check_auth)):
     """Get an agent execution permission by agent_execution_permission_id"""
@@ -25,7 +25,7 @@ def get_agent_execution_permission(agent_execution_permission_id: int,
     return db_agent_execution_permission
 
 
-@router.post("/add/permission", response_model=sqlalchemy_to_pydantic(AgentExecutionPermission))
+@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecutionPermission))
 def create_agent_execution_permission(
         agent_execution_permission: sqlalchemy_to_pydantic(AgentExecutionPermission, exclude=["id"])
         , Authorize: AuthJWT = Depends(check_auth)):
@@ -37,7 +37,26 @@ def create_agent_execution_permission(
     return new_agent_execution_permission
 
 
-@router.put("/update/permission/{agent_execution_permission_id}")
+@router.patch("/update/{agent_execution_permission_id}",
+              response_model=sqlalchemy_to_pydantic(AgentExecutionPermission, exclude=["id"]))
+def update_agent_execution_permission(agent_execution_permission_id: int,
+                                      agent_execution_permission: sqlalchemy_to_pydantic(AgentExecutionPermission,
+                                                                                         exclude=["id"]),
+                                      Authorize: AuthJWT = Depends(check_auth)):
+    """Update a particular execution permission"""
+
+    db_agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
+    if not db_agent_execution_permission:
+        raise HTTPException(status_code=404, detail="Agent execution permission not found")
+
+    for key, value in agent_execution_permission.dict().items():
+        setattr(db_agent_execution_permission, key, value)
+
+    db.session.commit()
+    return db_agent_execution_permission
+
+
+@router.put("/update/status/{agent_execution_permission_id}")
 def update_agent_execution_permission(agent_execution_permission_id: int,
                                       status: Annotated[bool, Body(embed=True)],
                                       Authorize: AuthJWT = Depends(check_auth)):
