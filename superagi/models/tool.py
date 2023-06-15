@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, DefaultClause
+from sqlalchemy import Column, Integer, String
+
 from superagi.models.base_model import DBBaseModel
 
 
@@ -20,7 +21,8 @@ class Tool(DBBaseModel):
                f" file_name = {self.file_name}, class_name='{self.class_name}, tool_kit_id={self.tool_kit_id}')"
 
     @staticmethod
-    def add_or_update_tool(session, tool_name: str, folder_name: str, class_name: str, file_name: str):
+    def add_or_update(session, tool_name: str, description: str, folder_name: str, class_name: str, file_name: str,
+                      tool_kit_id: int):
         # Check if a record with the given tool name already exists
         tool = session.query(Tool).filter_by(name=tool_name).first()
 
@@ -29,9 +31,12 @@ class Tool(DBBaseModel):
             tool.folder_name = folder_name
             tool.class_name = class_name
             tool.file_name = file_name
+            tool.description = description
         else:
             # Create a new tool record
-            tool = Tool(name=tool_name, folder_name=folder_name, class_name=class_name, file_name=file_name)
+            tool = Tool(name=tool_name, description=description, folder_name=folder_name, class_name=class_name,
+                        file_name=file_name,
+                        tool_kit_id=tool_kit_id)
             session.add(tool)
 
         session.commit()

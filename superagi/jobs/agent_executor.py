@@ -23,9 +23,9 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.tools.code.tools import CodingTool
-from superagi.tools.email.read_email import ReadEmailTool
-from superagi.tools.email.send_email import SendEmailTool
-from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
+# from superagi.tools.email.read_email import ReadEmailTool
+# from superagi.tools.email.send_email import SendEmailTool
+# from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
 from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.file.write_file import WriteFileTool
 from superagi.tools.google_search.google_search import GoogleSearchTool

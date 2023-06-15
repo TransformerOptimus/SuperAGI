@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import Session
+
 from superagi.models.base_model import DBBaseModel
 import json
 
@@ -39,3 +41,16 @@ class ToolConfig(DBBaseModel):
             value=data['value'],
             tool_kit_id=data['tool_kit_id'],
         )
+
+    @staticmethod
+    def add_or_update(session: Session, tool_kit_id: int, key: str, value: str = None):
+        tool_config = session.query(ToolConfig).filter_by(tool_kit_id=tool_kit_id, key=key).first()
+        if tool_config:
+            # Update existing tool config
+            tool_config.value = value
+        else:
+            # Create new tool config
+            tool_config = ToolConfig(tool_kit_id=tool_kit_id, key=key, value=value)
+            session.add(tool_config)
+
+        session.commit()

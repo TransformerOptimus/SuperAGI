@@ -21,7 +21,7 @@ class SendEmailAttachmentInput(BaseModel):
 
 
 class SendEmailAttachmentTool(BaseTool):
-    name: str = "Send Email with Attachement"
+    name: str = "Helps Send Email with Attachement"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
 

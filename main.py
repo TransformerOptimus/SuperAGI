@@ -38,7 +38,24 @@ from superagi.models.tool import Tool
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 from superagi.tools.base_tool import BaseTool
-from superagi.helper.tool_download_helper import process_files
+from superagi.helper.tool_helper import process_files
+
+import sys
+import os
+
+# print("CURRENT : ",os.getcwd())
+# Get the absolute path of the 'superagi/tools/email' directory
+# tools_email_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'superagi','tools'))
+
+# Add the 'superagi/tools/email' directory to the system path
+# sys.path.append(tools_email_path)
+# print("PATH : ",tools_email_path)
+# # Now you can import the classes using the simplified relative import
+# from read_email import ReadEmailTool
+# from send_email import SendEmailTool
+
+# Rest of your code...
+
 
 app = FastAPI()
 
@@ -247,7 +264,12 @@ if folder_path is None:
     folder_path = "superagi/tools"
 
 # Process the files and store class information
-process_files(folder_path,session)
+# Get default user organisation
+# default_user = session.query(User).filter(User.email =="super6@agi.com")
+# print(default_user)
+# default_user_org = session.query(Organisation).filter(Organisation.id == default_user.organisation_id)
+# print(default_user_org)
+# process_files(folder_path, session, default_user_org)
 session.close()
 
 

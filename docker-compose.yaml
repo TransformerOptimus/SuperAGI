@@ -12,6 +12,8 @@ services:
       - super__postgres
     networks:
       - super_network
+    environment:
+      - PYCHARM_DEBUG  # Add this line to enable the PyCharm debugger
 
   celery:
     volumes:

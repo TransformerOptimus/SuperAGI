@@ -1,28 +1,28 @@
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
+from fastapi import APIRouter, Body
+from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from superagi.config.config import get_config
+from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.helper.tool_helper import download_tool
+from superagi.helper.tool_helper import process_files
+from superagi.helper.validator_helper import validate_github_link
+from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
 from superagi.models.tool_kit import ToolKit
-from superagi.models.organisation import Organisation
-from superagi.models.tool_kit import ToolKit
-from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from superagi.helper.auth import check_auth,get_user_organisation
-from superagi.helper.tool_download_helper import download_tool
-from superagi.config.config import get_config
-from superagi.helper.validator_helper import validate_github_link
-from superagi.helper.tool_download_helper import process_files
+from superagi.types.common import GitHubLinkRequest
 
 router = APIRouter()
+
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Tool), status_code=201)
 def create_tool(
-    tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
-    Authorize: AuthJWT = Depends(check_auth),
-    organisation:Organisation = Depends(get_user_organisation)
+        tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
+        Authorize: AuthJWT = Depends(check_auth),
+        organisation: Organisation = Depends(get_user_organisation)
 ):
-
     """Create a new tool"""
 
     db_tool = Tool(
@@ -35,13 +35,14 @@ def create_tool(
     tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool.folder_name)
 
     if tool.tool_kit_id is None:
-        new_tool_kit = ToolKit(name=tool.folder_name,description=f"Tool kit consists of {tool.name}",show_tool_kit=False,organisation_id={organisation.id})
+        new_tool_kit = ToolKit(name=tool.folder_name, description=f"Tool kit consists of {tool.name}",
+                               show_tool_kit=False, organisation_id={organisation.id})
         db.session.add(new_tool_kit)
         db.session.commit()
         db.session.flush()
         db_tool.tool_kit_id = new_tool_kit.id
     else:
-        db_tool.tool_kit_id=tool.tool_kit_id
+        db_tool.tool_kit_id = tool.tool_kit_id
 
     db.session.add(db_tool)
     db.session.commit()
@@ -50,10 +51,9 @@ def create_tool(
 
 @router.get("/get/{tool_id}", response_model=sqlalchemy_to_pydantic(Tool))
 def get_tool(
-    tool_id: int,
-    Authorize: AuthJWT = Depends(check_auth),
+        tool_id: int,
+        Authorize: AuthJWT = Depends(check_auth),
 ):
-
     """Get a particular tool details"""
 
     db_tool = db.session.query(Tool).filter(Tool.id == tool_id).first()
@@ -64,11 +64,10 @@ def get_tool(
 
 @router.put("/update/{tool_id}", response_model=sqlalchemy_to_pydantic(Tool))
 def update_tool(
-    tool_id: int,
-    tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
-    Authorize: AuthJWT = Depends(check_auth),
+        tool_id: int,
+        tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
+        Authorize: AuthJWT = Depends(check_auth),
 ):
-
     """Update a particular tool"""
 
     db_tool = db.session.query(Tool).filter(Tool.id == tool_id).first()
@@ -98,28 +97,11 @@ def update_tool(
 
 @router.get("/get")
 def get_tools(Authorize: AuthJWT = Depends(check_auth)):
-
     """Get all tools"""
 
     db_tools = db.session.query(Tool).all()
     return db_tools
 
-
-@router.post("/local/install", status_code=200)
-def download_and_install_tool(github_link:str):
-    """Install from Github and install locally"""
-    if not validate_github_link(github_link):
-        raise HTTPException(status_code=400, detail="Invalid Github link")
-    try:
-        download_folder = get_config("TOOLS_DIR")
-        download_tool(github_link, download_folder)
-        #parse config details and
-
-        process_files(download_folder, db.session)
-
-    except Exception:
-        print(Exception)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # @router.post("/marketplace/install/{tool_kit_name}",status_code=200)
 # def download_and_install_from_market_place(tool_kit_name : str):

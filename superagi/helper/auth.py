@@ -11,17 +11,16 @@ def check_auth(Authorize: AuthJWT = Depends()):
     env = get_config("ENV", "DEV")
     if env == "PROD":
         Authorize.jwt_required()
+    return Authorize
 
-
-def authorize_user(Authorize: AuthJWT = Depends(check_auth)):
-    """Dependency function to authorize the user based on the JWT token"""
-
-    email = Authorize.get_jwt_subject()
-    user = db.session.query(User).filter(User.email == email).first()
-    if not user:
-        raise HTTPException(status_code=403, detail="Unauthorized")
-    return user
-
+# def authorize_user(Authorize: AuthJWT = Depends(check_auth)):
+#     """Dependency function to authorize the user based on the JWT token"""
+#
+#     email = Authorize.get_jwt_subject()
+#     user = db.session.query(User).filter(User.email == email).first()
+#     if not user:
+#         raise HTTPException(status_code=403, detail="Unauthorized")
+#     return user
 
 # def authorize_organisation(organisation_id: int, Authorize: AuthJWT = Depends(check_auth)):
 #     """Dependency function to validate the organisation ID and check if the user has access"""
@@ -54,6 +53,6 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     # Query the User table to find the user by their email
     user = db.session.query(User).filter(User.email == email).first()
     if user is None:
-        raise HTTPException(status_code=401,detail="Unauthenticated")
+        raise HTTPException(status_code=401 ,detail="Unauthenticated")
     organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
     return organisation

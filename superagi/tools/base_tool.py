@@ -182,7 +182,7 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator
 
 
-class BaseToolKit(BaseModel, ABC):
+class BaseToolKit(BaseModel):
     name: str
     description: str
 
