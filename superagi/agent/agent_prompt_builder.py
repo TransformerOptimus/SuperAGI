@@ -76,7 +76,6 @@ class AgentPromptBuilder:
           GOALS:
           {goals}
 
-          INSTRUCTIONS:
           {instructions}
     
           CONSTRAINTS:
@@ -118,7 +117,6 @@ class AgentPromptBuilder:
         Example: ["{{TASK-1}}", "{{TASK-2}}"].
 
 
-        INSTRUCTIONS:
         {instructions}
 
         Follow these instruction to decide the flow of execution and decide the next steps for achieving the task.
@@ -143,7 +141,6 @@ class AgentPromptBuilder:
         High level goal: 
         {goals}
 
-        Instruction to follow the goal:
         {instructions}
         
         Your Current Task: `{current_task}`
@@ -182,7 +179,6 @@ class AgentPromptBuilder:
         High level goal:
         {goals}
 
-        Instruction to follow the goal:
         {instructions}
         
         You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
@@ -208,7 +204,6 @@ class AgentPromptBuilder:
             High level goal:
             {goals}
 
-            Instruction to follow the goal:
             {instructions}
 
             You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
