@@ -137,7 +137,7 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
 @router.get("/marketplace/list")
 def list_marketplace_templates(page=0):
     """Get all marketplace agent templates"""
-    organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
+    organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     page_size = 30
     templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id).offset(
         page * page_size).limit(page_size).all()
@@ -151,7 +151,7 @@ def list_marketplace_templates(page=0):
 @router.get("/marketplace/template_details/{agent_template_id}")
 def marketplace_template_detail(agent_template_id):
     """Get marketplace template details"""
-    organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
+    organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id,
                                                       AgentTemplate.id == agent_template_id).first()
     template_configs = db.session.query(AgentTemplateConfig).filter(

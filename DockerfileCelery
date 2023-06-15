@@ -7,18 +7,9 @@ RUN pip install --upgrade pip
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN apt-get update && \
-    apt-get install -y xvfb xauth x11vnc && \
-    apt-get clean
-RUN apt-get update && playwright install --with-deps chromium
-
-
-COPY entrypoint_celery.sh /entrypoint_celery.sh
-RUN chmod +x /entrypoint_celery.sh
 
 WORKDIR /app
 COPY . .
 COPY config.yaml .
 
-ENTRYPOINT ["/entrypoint_celery.sh"]
 CMD ["celery", "-A", "superagi.worker", "worker", "--loglevel=info"]
