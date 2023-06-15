@@ -44,6 +44,7 @@ export default function AgentTemplate({template}) {
         installAgentTemplate(template.id)
             .then((response) => {
                 toast.success("Template installed", {autoClose: 1800});
+                setInstalled('Installed');
             })
             .catch((error) => {
                 console.error('Error fetching template details:', error);
