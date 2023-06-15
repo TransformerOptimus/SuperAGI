@@ -344,6 +344,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "project_id": selectedProjectId,
       "description": agentDescription,
       "goal": goals,
+      "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
       "tools": myTools,
