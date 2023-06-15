@@ -335,3 +335,13 @@
     font-weight: 500;
     font-family: 'Source Code Pro';
 }
+
+.text_12_n
+{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    color: #FFFFFF;
+    margin-top: 2px;
+}

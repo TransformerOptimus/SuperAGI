@@ -171,7 +171,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
                 {selectedTab === tab.id && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
-                  {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
+                  {tab.contentType === 'Create_Agent' && <div className={styles.create_agent} style={{overflowX:'hidden'}}>
                     <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
                   </div>}
                   {tab.contentType === 'Create_Tool' && <div className={styles.create_agent}>
