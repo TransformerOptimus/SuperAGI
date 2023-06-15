@@ -118,6 +118,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setRollingWindow(data.memory_window)
             setPermission(data.permission_type)
             setStepTime(data.iteration_interval)
+            setInstructions(data.instruction)
             setDatabase(data.LTM_DB)
             setModel(data.model)
             setToolNames(data.tools)
