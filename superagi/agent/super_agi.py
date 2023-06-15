@@ -274,7 +274,7 @@ class SuperAgi:
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
         print(self.tools)
-        if len(self.agent_config["instruction"]) > 0:
+        if len(self.agent_config["instruction"][0]) > 2:
             print("@@@@@@@@@@@@@@@@@")
             print(self.agent_config["instruction"])
             self.agent_config["instruction"].insert(0, "INSTRUCTION: ")
