@@ -57,6 +57,14 @@ FRONTEND_URL: "http://localhost:3000"
 ENCRYPTION_KEY: secret
 
 
+#WEAVIATE
+
+# If you are using docker or web hosted uncomment the next two lines and comment the third one
+# WEAVIATE_URL: YOUR_WEAVIATE_URL
+# WEAVIATE_API_KEY: YOUR_WEAVIATE_API_KEY
+WEAVIATE_USE_EMBEDDED: true
+
+
 #####################------------------TOOLS KEY-------------------------########################
 #If you have google api key and CSE key, use this
 GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
