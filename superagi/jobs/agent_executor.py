@@ -151,22 +151,10 @@ class AgentExecutor:
                                  agent_config=parsed_config)
 
         if agent_execution.status == "WAITING_FOR_PERMISSION":
-            agent_execution.status = "RUNNING"
-            agent_execution_permission = session.query(AgentExecutionPermission).filter(
-                                        AgentExecutionPermission.id == agent_execution.permission_id).first()
-            if agent_execution_permission.status:
-                result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
-            else:
-                result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
-                         f"{' and has given the following feedback : '+agent_execution_permission.response if agent_execution_permission.response else ''}"
-
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
-                                                      agent_id=agent_execution_permission.agent_id,
-                                                      feed=result,
-                                                      role="system"
-                                                      )
-            session.add(agent_execution_feed)
-            session.commit()
+            try:
+                self.handle_wait_for_permission(agent_execution, spawned_agent, session)
+            except ValueError:
+                return
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
@@ -182,6 +170,7 @@ class AgentExecutor:
         elif response["result"] == "WAITING_FOR_PERMISSION":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "WAITING_FOR_PERMISSION"
+            db_agent_execution.permission_id = response["permission_id"]
             session.commit()
         else:
             print("Starting next job for agent execution id: ", agent_execution_id)
@@ -209,3 +198,23 @@ class AgentExecutor:
                 tool.agent_id = agent_id
             new_tools.append(tool)
         return tools
+
+    def handle_wait_for_permission(self, agent_execution, spawned_agent, session):
+        agent_execution_permission = session.query(AgentExecutionPermission).filter(
+            AgentExecutionPermission.id == agent_execution.permission_id).first()
+        if agent_execution_permission.status == "PENDING":
+            raise ValueError("Permission is still pending")
+        if agent_execution_permission.status == "APPROVED":
+            result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
+        else:
+            result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
+                     f"{' and has given the following feedback : ' + agent_execution_permission.response if agent_execution_permission.response else ''}"
+
+        agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
+                                                  agent_id=agent_execution_permission.agent_id,
+                                                  feed=result,
+                                                  role="system"
+                                                  )
+        session.add(agent_execution_feed)
+        agent_execution.status = "RUNNING"
+        session.commit()

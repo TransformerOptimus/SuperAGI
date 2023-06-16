@@ -175,27 +175,10 @@ class SuperAgi:
             session.add(agent_execution_feed)
             session.commit()
 
-            action = self.output_parser.parse(assistant_reply)
-            tools = {t.name: t for t in self.tools}
-
-            excluded_tools = [FINISH, '', None]
-
-            # get the last agent execution permission for this agent execution
-            if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
-                    tools[action.name].permission_required:
-                new_agent_execution_permission = AgentExecutionPermission(
-                    agent_execution_id=self.agent_config["agent_execution_id"],
-                    agent_id=self.agent_config["agent_id"],
-                    tool_name=action.name,
-                    assistant_reply=assistant_reply)
-
-                session.add(new_agent_execution_permission)
-                session.commit()
-                agent_execution = session.query(AgentExecution).filter(
-                    AgentExecution.id == self.agent_config["agent_execution_id"]).first()
-                agent_execution.permission_id = new_agent_execution_permission.id
-                session.commit()
-                return {"result": "WAITING_FOR_PERMISSION"}
+            # check if permission is required for the tool in restricted mode
+            is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
+            if is_permission_required:
+                return response
 
             tool_response = self.handle_tool_response(assistant_reply)
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -316,3 +299,23 @@ class SuperAgi:
         prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                  pending_tasks, completed_tasks, token_limit)
         return prompt
+
+    def check_permission_in_restricted_mode(self, assistant_reply: str):
+        action = self.output_parser.parse(assistant_reply)
+        tools = {t.name: t for t in self.tools}
+
+        excluded_tools = [FINISH, '', None]
+
+        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
+                tools[action.name].permission_required:
+            new_agent_execution_permission = AgentExecutionPermission(
+                agent_execution_id=self.agent_config["agent_execution_id"],
+                status="PENDING",
+                agent_id=self.agent_config["agent_id"],
+                tool_name=action.name,
+                assistant_reply=assistant_reply)
+
+            session.add(new_agent_execution_permission)
+            session.commit()
+            return True, {"result": "WAITING_FOR_PERMISSION", "permission_id": new_agent_execution_permission.id}
+        return False, None

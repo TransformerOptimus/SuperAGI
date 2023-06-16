@@ -57,10 +57,10 @@ def update_agent_execution_permission(agent_execution_permission_id: int,
 
 
 @router.put("/update/status/{agent_execution_permission_id}")
-def update_agent_execution_permission(agent_execution_permission_id: int,
-                                      status: Annotated[bool, Body(embed=True)],
-                                      response: Annotated[str, Body(embed=True)] = "",
-                                      Authorize: AuthJWT = Depends(check_auth)):
+def update_agent_execution_permission_status(agent_execution_permission_id: int,
+                                             status: Annotated[bool, Body(embed=True)],
+                                             user_feedback: Annotated[str, Body(embed=True)] = "",
+                                             Authorize: AuthJWT = Depends(check_auth)):
     """Update a particular execution permission"""
 
     agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
@@ -69,8 +69,8 @@ def update_agent_execution_permission(agent_execution_permission_id: int,
         raise HTTPException(status_code=400, detail="Invalid Request")
     if status is None:
         raise HTTPException(status_code=400, detail="Invalid Request status is required")
-    agent_execution_permission.status = status
-    agent_execution_permission.response = response.strip() if len(response.strip()) > 0 else None
+    agent_execution_permission.status = "APPROVED" if status else "REJECTED"
+    agent_execution_permission.user_feedback = user_feedback.strip() if len(user_feedback.strip()) > 0 else None
     db.session.commit()
 
     execute_agent.delay(agent_execution_permission.agent_execution_id, datetime.now())

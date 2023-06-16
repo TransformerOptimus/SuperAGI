@@ -23,11 +23,10 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('agent_execution_id', sa.Integer(), nullable=True),
-    sa.Column('agent_execution_feed_id', sa.Integer(), nullable=True),
     sa.Column('agent_id', sa.Integer(), nullable=True),
-    sa.Column('status', sa.Boolean(), nullable=True),
+    sa.Column('status', sa.String(), nullable=True),
     sa.Column('tool_name', sa.String(), nullable=True),
-    sa.Column('response', sa.Text(), nullable=True),
+    sa.Column('user_feedback', sa.Text(), nullable=True),
     sa.Column('assistant_reply', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

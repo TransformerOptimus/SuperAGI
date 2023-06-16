@@ -64,7 +64,7 @@ export default function ActionConsole({ actions }) {
 
         const data = {
             status: status,
-            response: reasons[index],
+            user_feedback: reasons[index],
         };
 
         updatePermissions(permissionId, data).then((response) => {
@@ -74,8 +74,8 @@ export default function ActionConsole({ actions }) {
 
     return (
         <>
-            {actions.some(action => action.status === null) ? (<div className={styles.detail_body} style={{ height: "auto" }}>
-                {actions.map((action, index) => action.status === null && !hiddenActions.includes(index) && (
+            {actions.some(action => action.status === "PENDING") ? (<div className={styles.detail_body} style={{ height: "auto" }}>
+                {actions.map((action, index) => action.status === "PENDING" && !hiddenActions.includes(index) && (
                     <div key={index} className={styles.history_box} style={{ background: "#272335", padding: "16px", cursor: "default" }}>
                         <div style={{ display: "flex", flexDirection: 'column' }}>
                             <div>Tool <b>{action.tool_name}</b> is seeking for Permissions</div>
