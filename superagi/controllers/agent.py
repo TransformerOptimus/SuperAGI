@@ -157,10 +157,14 @@ def get_agent_configuration(agent_id: int,
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
+
     # Construct the JSON response
     response = {result.key: result.value for result in results}
+    print(response["instruction"])
     response = merge(response, {"name": agent.name, "description": agent.description,
+    # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
+                                "instruction": eval(response["instruction"]),
                                 "calls": total_calls,
                                 "tokens": total_tokens,
                                 "constraints": eval(response["constraints"]),
