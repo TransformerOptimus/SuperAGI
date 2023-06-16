@@ -8,6 +8,7 @@ from superagi.models.user import User
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]),
     db.session.flush()
     organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
-    print("User created", db_user)
+    logger.info("User created", db_user)
     return db_user
 
 

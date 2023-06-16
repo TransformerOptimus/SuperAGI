@@ -3,6 +3,7 @@ from typing import List
 import tiktoken
 
 from superagi.types.common import BaseMessage
+from superagi.lib.logger import logger
 
 class TokenCounter:
     @staticmethod
@@ -11,7 +12,7 @@ class TokenCounter:
             model_token_limit_dict = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092}
             return model_token_limit_dict[model]
         except KeyError:
-            print("Warning: model not found. Using cl100k_base encoding.")
+            logger.warning("Warning: model not found. Using cl100k_base encoding.")
             return 8092
 
     @staticmethod
@@ -20,7 +21,7 @@ class TokenCounter:
             model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3}
             encoding = tiktoken.encoding_for_model(model)
         except KeyError:
-            print("Warning: model not found. Using cl100k_base encoding.")
+            logger.warning("Warning: model not found. Using cl100k_base encoding.")
             encoding = tiktoken.get_encoding("cl100k_base")
 
         tokens_per_message = model_token_per_message_dict[model]

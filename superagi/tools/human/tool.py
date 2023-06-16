@@ -3,11 +3,11 @@ from typing import Callable, Type
 from pydantic import Field, BaseModel
 
 from superagi.tools.base_tool import BaseTool
-
+from superagi.lib.logger import logger
 
 def print_func(text: str) -> None:
-    print("\n")
-    print(text)
+    logger.info("\n")
+    logger.info(text)
 
 class HumanInputSchema(BaseModel):
     query: str = Field(

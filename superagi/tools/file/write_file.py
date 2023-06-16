@@ -8,6 +8,7 @@ from superagi.models.db import connect_db
 from superagi.helper.resource_helper import ResourceHelper
 # from superagi.helper.s3_helper import upload_to_s3
 from superagi.helper.s3_helper import S3Helper
+from superagi.lib.logger import logger
 
 
 
@@ -52,7 +53,7 @@ class WriteFileTool(BaseTool):
                     if resource.storage_type == "S3":
                         s3_helper = S3Helper()
                         s3_helper.upload_file(file, path=resource.path)
-                        print("Resource Uploaded to S3!")
+                        logger.info("Resource Uploaded to S3!")
                 session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:
