@@ -111,18 +111,13 @@ class AgentPromptBuilder:
         
         GOALS:
         {goals}
-        
-        Construct a sequence of actions, not exceeding 3 steps, to achieve this goal.
-        
-        Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
-        
-        Example: ["{{TASK-1}}", "{{TASK-2}}"].
 
-
-        {instructions}
+        {task_instructions}
 
         Follow these instruction to decide the flow of execution and decide the next steps for achieving the task.
 
+        Construct a sequence of actions, not exceeding 3 steps, to achieve this goal.
+        
         Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
         
         Example: ["{{TASK-1}}", "{{TASK-2}}"].
@@ -143,7 +138,7 @@ class AgentPromptBuilder:
         High level goal: 
         {goals}
 
-        {instructions}
+        {task_instructions}
         
         Your Current Task: `{current_task}`
         
@@ -181,7 +176,7 @@ class AgentPromptBuilder:
         High level goal:
         {goals}
 
-        {instructions}
+        {task_instructions}
         
         You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
         
@@ -206,7 +201,7 @@ class AgentPromptBuilder:
             High level goal:
             {goals}
 
-            {instructions}
+            {task_instructions}
 
             You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
 
@@ -222,14 +217,17 @@ class AgentPromptBuilder:
     @classmethod
     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
                                tools: List[BaseTool], add_finish_tool: bool = True):
-        print(tools)
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
+            task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
             super_agi_prompt = super_agi_prompt.replace("{instructions}", "INSTRUCTION: " + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
+            super_agi_prompt = super_agi_prompt.replace("{task_instructions}", task_str + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
         else:
             super_agi_prompt = super_agi_prompt.replace("{instructions}", '')
         super_agi_prompt = super_agi_prompt.replace("{constraints}",
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
+        
+    
         print(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
