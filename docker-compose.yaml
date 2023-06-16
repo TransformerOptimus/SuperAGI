@@ -22,10 +22,6 @@ services:
       - super__postgres
     networks:
       - super_network
-    environment:
-      - DISPLAY=:0
-    ports:
-      - "5900:5900"
   gui:
     build: ./gui
     ports:
