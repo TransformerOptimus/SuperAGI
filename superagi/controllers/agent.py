@@ -160,14 +160,13 @@ def get_agent_configuration(agent_id: int,
 
     # Construct the JSON response
     response = {result.key: result.value for result in results}
-    print(response["instruction"])
     response = merge(response, {"name": agent.name, "description": agent.description,
     # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
-                                "instruction": eval(response["instruction"]),
+                                "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,
                                 "tokens": total_tokens,
-                                "constraints": eval(response["constraints"]),
+                                "constraints": eval(response.get("constraints")),
                                 "tools": [int(x) for x in json.loads(response["tools"])]})
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
     # print(tools)
