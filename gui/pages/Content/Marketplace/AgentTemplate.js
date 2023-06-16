@@ -115,14 +115,16 @@ export default function AgentTemplate({template}) {
                                 </div>))}
                             </div>
                         </div>
-                           <div className={styles2.left_container} style={{marginBottom:'5px'}}>
-                            <div>
-                                <span className={styles2.description_heading} style={{fontWeight:'400'}}>{instructions.length} Instructions</span><br /><br />
-                                {instructions.map((instruction, index) => (<div key={index} style={{marginTop:'0'}}>
-                                    <div className={styles2.description_text}>{index + 1}. {instruction || ''}</div>{index !== instructions.length - 1 && <br/>}
-                                </div>))}
-                            </div>
-                        </div>
+                            {instructions.length>0 && <div className={styles2.left_container} style={{marginBottom: '5px'}}>
+                                <div>
+                                    <span className={styles2.description_heading} style={{fontWeight: '400'}}>{instructions.length} Instructions</span><br/><br/>
+                                    {instructions.map((instruction, index) => (
+                                        <div key={index} style={{marginTop: '0'}}>
+                                            <div className={styles2.description_text}>{index + 1}. {instruction || ''}</div>
+                                            {index !== instructions.length - 1 && <br/>}
+                                        </div>))}
+                                </div>
+                            </div>}
                            <div className={styles2.left_container} style={{marginBottom:'5px'}}>
                             <div>
                                 <span className={styles2.description_heading} style={{fontWeight:'400'}}>{constraints.length}&nbsp;Constraints</span><br /><br />
