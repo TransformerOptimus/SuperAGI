@@ -109,7 +109,7 @@ export default function ActionConsole({ actions }) {
                 (
                     <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginTop:'40px'}}>
                         <Image width={150} height={60} src="/images/no_permissions.svg" alt="no permissions" />
-                        <span className={styles.feed_title} style={{marginTop: '8px'}}>No Actions to Display!!</span>
+                        <span className={styles.feed_title} style={{marginTop: '8px'}}>No Actions to Display!</span>
                     </div>)}
         </>
     );
