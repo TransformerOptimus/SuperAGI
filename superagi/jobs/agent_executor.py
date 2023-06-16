@@ -150,11 +150,10 @@ class AgentExecutor:
                                  memory=memory,
                                  agent_config=parsed_config)
 
-        if agent_execution.status == "WAITING_FOR_PERMISSION":
-            try:
-                self.handle_wait_for_permission(agent_execution, spawned_agent, session)
-            except ValueError:
-                return
+        try:
+            self.handle_wait_for_permission(agent_execution, spawned_agent, session)
+        except ValueError:
+            return
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
@@ -200,6 +199,8 @@ class AgentExecutor:
         return tools
 
     def handle_wait_for_permission(self, agent_execution, spawned_agent, session):
+        if agent_execution.status != "WAITING_FOR_PERMISSION":
+            return
         agent_execution_permission = session.query(AgentExecutionPermission).filter(
             AgentExecutionPermission.id == agent_execution.permission_id).first()
         if agent_execution_permission.status == "PENDING":
