@@ -234,7 +234,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
-          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && <div className={styles.detail_content}><ActionConsole actions={fetchedData}/></div>}
+          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
+              <div className={styles.detail_content}>
+                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} />
+              </div>
+          )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>
