@@ -4,7 +4,7 @@ import aiohttp
 from superagi.helper.google_serp import GoogleSerpApiWrap
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 import os
 

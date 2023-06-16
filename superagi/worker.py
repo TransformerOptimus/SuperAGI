@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from celery import Celery
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.jobs.agent_executor import AgentExecutor
 redis_url = get_config('REDIS_URL')
 

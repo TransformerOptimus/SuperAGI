@@ -1,7 +1,7 @@
 import os
 
 import redis
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 
 # Message broker connection parameters

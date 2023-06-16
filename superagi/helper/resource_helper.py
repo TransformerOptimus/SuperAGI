@@ -1,4 +1,4 @@
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.models.resource import Resource
 import os
 import datetime

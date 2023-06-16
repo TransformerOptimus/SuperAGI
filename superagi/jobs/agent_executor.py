@@ -11,7 +11,7 @@ from ast import literal_eval
 
 from superagi import worker
 from superagi.agent.super_agi import SuperAgi
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration

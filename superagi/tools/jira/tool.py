@@ -4,7 +4,7 @@ import requests
 from typing import List, Type
 from pydantic import BaseModel, Field
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.tools.base_tool import BaseTool
 from jira import JIRA
 

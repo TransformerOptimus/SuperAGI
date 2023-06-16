@@ -3,7 +3,7 @@ from confluent_kafka import Producer, Consumer, KafkaError
 
 import redis
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 # Message broker connection parameters
 class KafkaBroker:
 

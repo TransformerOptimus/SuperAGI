@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import openai
 from superagi.llms.base_llm import BaseLlm
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 
 class OpenAi(BaseLlm):

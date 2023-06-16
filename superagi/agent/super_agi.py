@@ -30,7 +30,7 @@ from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMe
 from superagi.vector_store.base import VectorStore
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
-from superagi.config.config import get_config
+from superagi.config import get_config
 import os
 
 FINISH = "finish"

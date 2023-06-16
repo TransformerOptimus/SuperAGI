@@ -4,7 +4,7 @@ import pinecone
 from pinecone import UnauthorizedException
 
 from superagi.vector_store.pinecone import Pinecone
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 
 class VectorFactory:

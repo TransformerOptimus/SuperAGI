@@ -1,7 +1,7 @@
 from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 from fastapi_sqlalchemy import db
 from superagi.models.organisation import Organisation
 from superagi.models.user import User

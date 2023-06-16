@@ -9,7 +9,7 @@ import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated
 from superagi.models.resource import Resource
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.models.agent import Agent
 from starlette.responses import FileResponse
 from pathlib import Path

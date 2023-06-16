@@ -2,7 +2,7 @@ import json
 
 import redis
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 redis_url = get_config('REDIS_URL')
 """TaskQueue manages current tasks and past tasks in Redis """

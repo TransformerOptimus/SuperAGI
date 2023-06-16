@@ -4,7 +4,7 @@ from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.helper.auth import check_auth
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.encyption_helper import encrypt_data,decrypt_data

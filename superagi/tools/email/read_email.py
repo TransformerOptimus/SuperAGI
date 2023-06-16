@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from superagi.helper.token_counter import TokenCounter
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.helper.imap_email import ImapEmail
 from superagi.helper.read_email import ReadEmail
 import email

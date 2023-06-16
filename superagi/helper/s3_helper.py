@@ -1,5 +1,5 @@
 import boto3
-from superagi.config.config import get_config
+from superagi.config import get_config
 from fastapi import HTTPException
 
 class S3Helper:

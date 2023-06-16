@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from superagi.config.config import get_config
+from superagi.config import get_config
 import openai
 from sqlalchemy.orm import sessionmaker
 

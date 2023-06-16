@@ -1,7 +1,7 @@
 from typing import Type
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.github_helper import GithubHelper
 

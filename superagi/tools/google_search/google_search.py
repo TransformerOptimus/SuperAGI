@@ -8,7 +8,7 @@ from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
 import os
 import json
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 
 

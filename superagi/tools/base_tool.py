@@ -5,7 +5,7 @@ from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
 from inspect import signature
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 
 class SchemaSettings:

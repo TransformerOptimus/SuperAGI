@@ -2,7 +2,7 @@ import os
 from typing import Type
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
+from superagi.config import get_config
 from sqlalchemy.orm import sessionmaker
 from superagi.models.db import connect_db
 from superagi.helper.resource_helper import ResourceHelper

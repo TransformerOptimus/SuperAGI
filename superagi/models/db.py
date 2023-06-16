@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from superagi.config.config import get_config
+from superagi.config import get_config
 
 database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')

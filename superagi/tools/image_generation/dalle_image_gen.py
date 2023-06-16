@@ -2,7 +2,7 @@ from typing import Type, Optional
 from pydantic import BaseModel, Field
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
+from superagi.config import get_config
 import os
 import requests
 from superagi.models.db import connect_db

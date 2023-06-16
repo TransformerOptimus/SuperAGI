@@ -3,7 +3,7 @@ from typing import Any, List
 
 import aiohttp
 
-from superagi.config.config import get_config
+from superagi.config import get_config
 from superagi.helper.webpage_extractor import WebpageExtractor
 
 
