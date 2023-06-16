@@ -80,12 +80,12 @@ export const updateOrganisationConfig = (organisationId, configData) => {
   return api.post(`/configs/add/organisation/${organisationId}`, configData);
 }
 
-export const fetchAgentTemplateList = () => {
-  return api.get('/agent_templates/list?template_source=marketplace');
+export const fetchAgentTemplateList = (page) => {
+  return api.get(`/agent_templates/list?template_source=marketplace&page=${page}`);
 }
 
-export const fetchAgentTemplateListLocal = () => {
-  return api.get('/agent_templates/list?template_source=local');
+export const fetchAgentTemplateListLocal = (page) => {
+  return api.get(`/agent_templates/list?template_source=local&page=${page}`);
 }
 
 export const saveAgentAsTemplate = (agentId) => {
