@@ -49,10 +49,12 @@ class AgentPromptBuilder:
         # print(tool.args)
         output += f", args json schema: {json.dumps(tool.args)}"
         return output
+    
     @classmethod
     def clean_prompt(cls, prompt):
-        prompt = re.sub(' +', ' ', prompt)
-        return prompt
+        prompt = re.sub('[ \t]+', ' ', prompt)
+        return prompt.strip()
+    
 
     @classmethod
     def get_super_agi_single_prompt(cls):
@@ -222,7 +224,7 @@ class AgentPromptBuilder:
                                tools: List[BaseTool], add_finish_tool: bool = True):
         print(tools)
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
-        super_agi_prompt = super_agi_prompt.replace("{instructions}", AgentPromptBuilder.add_list_items_to_string(instructions))
+        super_agi_prompt = super_agi_prompt.replace("{instructions}", "INSTRUCTION: " + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
         super_agi_prompt = super_agi_prompt.replace("{constraints}",
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
         print(tools)
