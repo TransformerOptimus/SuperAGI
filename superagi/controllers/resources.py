@@ -42,8 +42,8 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if agent is None:
         raise HTTPException(status_code=400, detail="Agent does not exists")
 
-    if not name.endswith(".txt") and not name.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="File type not supported!")
+    # if not name.endswith(".txt") and not name.endswith(".pdf"):
+    #     raise HTTPException(status_code=400, detail="File type not supported!")
 
     storage_type = get_config("STORAGE_TYPE")
     Resource.validate_resource_type(storage_type)
