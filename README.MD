@@ -76,6 +76,11 @@
 ## 📽 Installation Video
 [Installation Video](https://github.com/Akki-jain/SuperAGI/assets/92881074/d217f5de-f218-4b3c-9fe4-8f6c6718c86d)
 
+<hr>
+<p align="center">
+<a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/iSPHZ1onQ44">Learn here</a>
+</p>
+<hr>
 
 ## 💡 Features
 
