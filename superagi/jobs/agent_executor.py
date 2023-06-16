@@ -170,6 +170,9 @@ class AgentExecutor:
 
         agent_template_step = session.query(AgentTemplateStep).filter(
             AgentTemplateStep.id == agent_execution.current_step_id).first()
+
+
+
         response = spawned_agent.execute(agent_template_step)
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_template_step)
