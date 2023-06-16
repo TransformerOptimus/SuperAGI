@@ -8,11 +8,28 @@ export default function ActionConsole({ actions }) {
     const [reasons, setReasons] = useState(actions.map(() => ''));
     const [localActions, setLocalActions] = useState(actions);
     const [denied, setDenied] = useState([]);
+    const [localActionIds, setLocalActionIds] = useState([]);
 
     useEffect(() => {
-        setLocalActions(actions);
-        setDenied(actions.map(() => false));
-        setReasons(actions.map(() => '')); // Added this line to reset reasons when actions change
+        const updatedActions = actions.filter(
+            (action) => !localActionIds.includes(action.id)
+        );
+
+        if (updatedActions.length > 0) {
+            setLocalActions(
+                localActions.map((localAction) =>
+                    updatedActions.find(({ id }) => id === localAction.id) || localAction
+                )
+            );
+
+            const updatedDenied = updatedActions.map(() => false);
+            const updatedReasons = updatedActions.map(() => '');
+
+            setDenied((prev) => prev.map((value, index) => updatedDenied[index] || value));
+            setReasons((prev) => prev.map((value, index) => updatedReasons[index] || value));
+
+            setLocalActionIds([...localActionIds, ...updatedActions.map(({ id }) => id)]);
+        }
     }, [actions]);
 
     const handleDeny = index => {
