@@ -58,6 +58,7 @@ app.add_middleware(DBSessionMiddleware, db_url=db_url)
 origins = [
     "http://localhost:3001",
     "http://localhost:3000",
+    "https://eqxwow-congenial-space-disco-x59r7rr6gr6cv465-3000.preview.app.github.dev"
     # Add more origins if needed
 ]
 
@@ -339,7 +340,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
     github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
 
-    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "https://eqxwow-congenial-space-disco-x59r7rr6gr6cv465-3000.preview.app.github.dev")
     params = {
         'client_id': github_client_id,
         'client_secret': github_client_secret,

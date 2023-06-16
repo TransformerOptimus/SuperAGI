@@ -31,7 +31,13 @@ class Knowledgetoolhelper:
     print(get_config('PINECONE_API_KEY'), get_config('PINECONE_ENVIRONMENT'))
     pinecone.init(api_key=get_config('PINECONE_API_KEY'), environment=get_config('PINECONE_ENVIRONMENT'))
     embed_model = "text-embedding-ada-002"
-    namespace = "SEO Success_lang"
+    # namespace = "SEO Success_lang" chunk_size = 256 token, overlap = 0
+    namespace = "SEO Success_lang_cs512_ol10"
+    # namespace = "SEO Success_lang_cs4000_ol1000"
+    # namespace = "SEO Success_lang_hybrid" # cs256_ol0, cs512_ol10, cs4000_ol1000,
+    # using langchain token splitters
+
+
     # print(pinecone.list_indexes())
 
     index = pinecone.Index('knowledge') 

@@ -30,7 +30,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
+      - NEXT_PUBLIC_API_BASE_URL=https://eqxwow-congenial-space-disco-x59r7rr6gr6cv465-8001.preview.app.github.dev
     networks:
       - super_network
     volumes:
