@@ -275,7 +275,7 @@ class SuperAgi:
             add_finish_tool = False
         print(self.tools)
         if len(self.agent_config["instruction"][0]) > 2:
-            self.agent_config["instruction"].insert(0, "INSTRUCTION: ")
+            print( self.agent_config["instruction"])
             prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"], self.agent_config["instruction"],
                                                            self.agent_config["constraints"], self.tools, add_finish_tool)
         else:
