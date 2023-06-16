@@ -18,7 +18,7 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
-from superagi.models.agent_template_step import AgentTemplateStep
+from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
@@ -168,15 +168,12 @@ class AgentExecutor:
             session.add(agent_execution_feed)
             session.commit()
 
-        agent_template_step = session.query(AgentTemplateStep).filter(
-            AgentTemplateStep.id == agent_execution.current_step_id).first()
-
-
-
-        response = spawned_agent.execute(agent_template_step)
+        agent_workflow_step = session.query(AgentWorkflowStep).filter(
+            AgentWorkflowStep.id == agent_execution.current_step_id).first()
+        response = spawned_agent.execute(agent_workflow_step)
         if "retry" in response and response["retry"]:
-            response = spawned_agent.execute(agent_template_step)
-        agent_execution.current_step_id = agent_template_step.next_step_id
+            response = spawned_agent.execute(agent_workflow_step)
+        agent_execution.current_step_id = agent_workflow_step.next_step_id
         session.commit()
         if response["result"] == "COMPLETE":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
