@@ -140,7 +140,6 @@ class AgentExecutor:
         for tool in user_tools:
             tool = AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name)
             tools.append(tool)
-        print("____________________________________", user_tools.__repr__)
         print(user_tools)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
