@@ -1,12 +1,9 @@
 from datetime import datetime
-from typing import Annotated
-
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Body
+from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 
-from superagi.models.agent_execution_permission import AgentExecutionPermission
-from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -28,7 +25,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, agent.agent_template_id)
+    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
@@ -131,23 +128,3 @@ def get_agent_by_latest_execution(project_id: int,
         "status": isRunning,
         "contentType": "Agents"
     }
-
-
-@router.put("/update/permission/{agent_execution_permission_id}")
-def update_agent_execution_permission(agent_execution_permission_id: int,
-                                      status: Annotated[bool, Body(embed=True)],
-                                      Authorize: AuthJWT = Depends(check_auth)):
-    """Update a particular execution permission"""
-
-    agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
-    print(agent_execution_permission)
-    if agent_execution_permission is None:
-        raise HTTPException(status_code=400, detail="Invalid Request")
-    if status is None:
-        raise HTTPException(status_code=400, detail="Invalid Request status is required")
-    agent_execution_permission.status = status
-    db.session.commit()
-
-    execute_agent.delay(agent_execution_permission.agent_execution_id, datetime.now())
-
-    return {"success": True}

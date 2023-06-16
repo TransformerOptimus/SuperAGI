@@ -2,11 +2,13 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.agent import Agent
+from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.project import Project
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
-from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
@@ -17,7 +19,7 @@ from superagi.worker import execute_agent
 from datetime import datetime
 import json
 from sqlalchemy import func
-from superagi.helper.auth import check_auth
+from superagi.helper.auth import check_auth, get_user_organisation
 
 router = APIRouter()
 
@@ -86,54 +88,13 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         if tool is None:
             # Tool does not exist, throw 404 or handle as desired
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
-
-    db_agent = Agent(name=agent_with_config.name, description=agent_with_config.description,
-                     project_id=agent_with_config.project_id)
-    db.session.add(db_agent)
-    db.session.flush()  # Flush pending changes to generate the agent's ID
-    db.session.commit()
-
-    if agent_with_config.agent_type == "Don't Maintain Task Queue":
-        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Goal Based Agent").first()
-        print(agent_template)
-        db_agent.agent_template_id = agent_template.id
-    elif agent_with_config.agent_type == "Maintain Task Queue":
-        agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.name=="Task Queue Agent With Seed").first()
-        db_agent.agent_template_id = agent_template.id
-    db.session.commit()
-
-
-    # Create Agent Configuration
-    agent_config_values = {
-        "goal": agent_with_config.goal,
-        "agent_type": agent_with_config.agent_type,
-        "constraints": agent_with_config.constraints,
-        "tools": agent_with_config.tools,
-        "exit": agent_with_config.exit,
-        "iteration_interval": agent_with_config.iteration_interval,
-        "model": agent_with_config.model,
-        "permission_type": agent_with_config.permission_type,
-        "LTM_DB": agent_with_config.LTM_DB,
-        "memory_window": agent_with_config.memory_window,
-        "max_iterations":agent_with_config.max_iterations
-
-    }
-
-
-    agent_configurations = [
-        AgentConfiguration(agent_id=db_agent.id, key=key, value=str(value))
-        for key, value in agent_config_values.items()
-    ]
-
-    db.session.add_all(agent_configurations)
-    start_step_id = AgentTemplate.fetch_trigger_step_id(db.session, db_agent.agent_template_id)
+    db_agent = Agent.create_agent_with_config(db, agent_with_config)
+    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with CREATED status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
-
     db.session.add(execution)
-
     db.session.commit()
     execute_agent.delay(execution.id, datetime.now())
 
@@ -143,7 +104,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         "name": db_agent.name,
         "contentType": "Agents"
     }
-
 
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
@@ -183,9 +143,7 @@ def get_agent_configuration(agent_id: int,
     """Get agent using agent_id with all its configuration"""
 
     # Define the agent_config keys to fetch
-    keys_to_fetch = ["goal", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
-                     "permission_type", "LTM_DB", "memory_window","max_iterations"]
-
+    keys_to_fetch = AgentTemplate.main_keys()
     agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
 
     if not agent:
@@ -194,7 +152,8 @@ def get_agent_configuration(agent_id: int,
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
-    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(AgentExecution.agent_id == agent_id).scalar()
+    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
+        AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 

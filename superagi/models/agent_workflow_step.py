@@ -5,11 +5,11 @@ from sqlalchemy import Column, Integer, String, Text, Boolean
 from superagi.models.base_model import DBBaseModel
 
 
-class AgentTemplateStep(DBBaseModel):
-    __tablename__ = 'agent_template_steps'
+class AgentWorkflowStep(DBBaseModel):
+    __tablename__ = 'agent_workflow_steps'
 
     id = Column(Integer, primary_key=True)
-    agent_template_id = Column(Integer)
+    agent_workflow_id = Column(Integer)
     unique_id = Column(String)
     prompt = Column(Text)
     variables = Column(Text)
@@ -20,7 +20,7 @@ class AgentTemplateStep(DBBaseModel):
     completion_prompt = Column(Text)
 
     def __repr__(self):
-        return f"AgentStep(id={self.id}, status='{self.next_step_id}', " \
+        return f"AgentWorkflowStep(id={self.id}, status='{self.next_step_id}', " \
                f"prompt='{self.prompt}', agent_id={self.agent_id})"
     
     def to_dict(self):

@@ -146,7 +146,17 @@
 .tab_button:hover {
     background: #454254;
 }
-
+.run_history_button{
+    background: rgba(255, 255, 255, 0.14);
+    border: none;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 12px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px 8px 5px;
+}
 .run_button {
     background: #62A168;
     border: none;

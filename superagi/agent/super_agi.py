@@ -24,7 +24,7 @@ from superagi.models.agent_execution import AgentExecution
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
-from superagi.models.agent_template_step import AgentTemplateStep
+from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.db import connect_db
 from superagi.tools.base_tool import BaseTool
 from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
@@ -112,12 +112,12 @@ class SuperAgi:
             i -= 1
         return [], history
 
-    def execute(self, template_step: AgentTemplateStep):
+    def execute(self, workflow_step: AgentWorkflowStep):
         session = Session()
         agent_execution_id = self.agent_config["agent_execution_id"]
         task_queue = TaskQueue(str(agent_execution_id))
 
-        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        token_limit = TokenCounter.token_limit()
         agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"],
                                              self.agent_config["agent_id"])
         current_calls = 0
@@ -126,8 +126,8 @@ class SuperAgi:
         messages = []
         max_token_limit = 600
         # adding history to the messages
-        if template_step.history_enabled:
-            prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue,
+        if workflow_step.history_enabled:
+            prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
@@ -137,9 +137,9 @@ class SuperAgi:
                                                                  token_limit - base_token_limit - max_token_limit)
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
-            messages.append({"role": "user", "content": template_step.completion_prompt})
+            messages.append({"role": "user", "content": workflow_step.completion_prompt})
         else:
-            prompt = self.build_agent_prompt(template_step.prompt, task_queue=task_queue,
+            prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
             # agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -168,7 +168,7 @@ class SuperAgi:
 
         final_response = {"result": "PENDING", "retry": False}
 
-        if template_step.output_type == "tools":
+        if workflow_step.output_type == "tools":
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"], feed=assistant_reply,
                                                       role="assistant")
@@ -206,7 +206,19 @@ class SuperAgi:
             session.add(agent_execution_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
-        elif template_step.output_type == "tasks":
+        elif workflow_step.output_type == "replace_tasks":
+            tasks = eval(assistant_reply)
+            task_queue.clear_tasks()
+            for task in reversed(tasks):
+                task_queue.add_task(task)
+            if len(tasks) > 0:
+                print("Tasks reprioritized in order: " + str(tasks))
+            current_tasks = task_queue.get_tasks()
+            if len(current_tasks) == 0:
+                final_response = {"result": "COMPLETE", "pending_task_count": 0}
+            else:
+                final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
+        elif workflow_step.output_type == "tasks":
             tasks = eval(assistant_reply)
             for task in reversed(tasks):
                 task_queue.add_task(task)
@@ -224,7 +236,7 @@ class SuperAgi:
             else:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
 
-        if template_step.output_type == "tools" and final_response["retry"] == False:
+        if workflow_step.output_type == "tools" and final_response["retry"] == False:
             task_queue.complete_task(final_response["result"])
             current_tasks = task_queue.get_tasks()
             if len(current_tasks) > 0 and final_response["result"] == "COMPLETE":
@@ -300,7 +312,7 @@ class SuperAgi:
             last_task = response["task"]
             last_task_result = response["response"]
         current_task = task_queue.get_first_task() or ""
-        token_limit = TokenCounter.token_limit(self.llm.get_model()) - max_token_limit
+        token_limit = TokenCounter.token_limit() - max_token_limit
         prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                  pending_tasks, completed_tasks, token_limit)
         return prompt
