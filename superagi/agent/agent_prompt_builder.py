@@ -224,7 +224,10 @@ class AgentPromptBuilder:
                                tools: List[BaseTool], add_finish_tool: bool = True):
         print(tools)
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
-        super_agi_prompt = super_agi_prompt.replace("{instructions}", "INSTRUCTION: " + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
+        if len(instructions) > 0 and len(instructions[0]) > 0:
+            super_agi_prompt = super_agi_prompt.replace("{instructions}", "INSTRUCTION: " + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
+        else:
+            super_agi_prompt = super_agi_prompt.replace("{instructions}", '')
         super_agi_prompt = super_agi_prompt.replace("{constraints}",
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
         print(tools)
