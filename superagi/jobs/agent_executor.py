@@ -169,7 +169,7 @@ class AgentExecutor:
         elif response["result"] == "WAITING_FOR_PERMISSION":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "WAITING_FOR_PERMISSION"
-            db_agent_execution.permission_id = response["permission_id"]
+            db_agent_execution.permission_id = response.get("permission_id", None)
             session.commit()
         else:
             print("Starting next job for agent execution id: ", agent_execution_id)

@@ -23,8 +23,8 @@ class AgentExecutionPermission(DBBaseModel):
     __tablename__ = 'agent_execution_permissions'
 
     id = Column(Integer, primary_key=True)
-    agent_execution_id = Column(Integer, ForeignKey('agent_executions.id'))
-    agent_id = Column(Integer, ForeignKey('agents.id'))
+    agent_execution_id = Column(Integer)
+    agent_id = Column(Integer)
     status = Column(String)
     tool_name = Column(String)
     user_feedback = Column(Text)
