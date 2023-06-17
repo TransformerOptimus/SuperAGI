@@ -3,6 +3,7 @@ from typing import List
 import httpx
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
+from superagi.lib.logger import logger
 
 
 searx_hosts = ["https://search.ononoki.org", "https://searx.be", "https://search.us.projectsegfau.lt"]
@@ -26,7 +27,7 @@ def search(query):
         searx_url + "/search", params={"q": query}, headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/114.0"}
     )
     if res.status_code != 200:
-        print(res.status_code, searx_url)
+        logger.info(res.status_code, searx_url)
         raise Exception(f"Searx returned {res.status_code} status code")
 
     return res.text

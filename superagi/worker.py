@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from superagi.lib.logger import logger
 
 from celery import Celery
 
@@ -14,5 +15,5 @@ app.conf.worker_concurrency = 10
 def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
     from superagi.jobs.agent_executor import AgentExecutor
-    print("Execute agent:" + str(time) + "," + str(agent_execution_id))
+    logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)

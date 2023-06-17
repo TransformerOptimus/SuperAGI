@@ -1,6 +1,7 @@
 import requests
 import time
 from pydantic import BaseModel
+from superagi.lib.logger import logger
 
 from superagi.helper.webpage_extractor import WebpageExtractor
 
@@ -37,11 +38,11 @@ class GoogleSearchWrap:
                             all_snippets.append(item["snippet"])
                             links.append(item["link"])
                     else:
-                        print("No items found in the response.")
+                        logger.info("No items found in the response.")
                 except ValueError as e:
-                    print(f"Error while parsing JSON data: {e}")
+                    logger.error(f"Error while parsing JSON data: {e}")
             else:
-                print(f"Error: {response.status_code}")
+                logger.error(f"Error: {response.status_code}")
 
         return all_snippets, links, response.status_code
 
@@ -52,7 +53,7 @@ class GoogleSearchWrap:
         attempts = 0
         while snippets == [] and attempts < 2:
             attempts += 1
-            print("Google blocked the request. Trying again...")
+            logger.info("Google blocked the request. Trying again...")
             time.sleep(3)
             snippets, links, error_code = self.search_run(query)
 

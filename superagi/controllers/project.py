@@ -6,6 +6,7 @@ from superagi.models.organisation import Organisation
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
 
     """Create a new project"""
 
-    print("Organisation_id : ", project.organisation_id)
+    logger.info("Organisation_id : ", project.organisation_id)
     organisation = db.session.query(Organisation).get(project.organisation_id)
 
     if not organisation:

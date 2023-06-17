@@ -33,6 +33,7 @@ from superagi.models.agent import Agent
 from superagi.models.resource import Resource
 from superagi.config.config import get_config
 import os
+from superagi.lib.logger import logger
 
 FINISH = "finish"
 WRITE_FILE = "Write File"
@@ -146,7 +147,7 @@ class SuperAgi:
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
 
-        print(prompt)
+        logger.info(prompt)
         if len(agent_feeds) <= 0:
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -195,7 +196,7 @@ class SuperAgi:
             for task in reversed(tasks):
                 task_queue.add_task(task)
             if len(tasks) > 0:
-                print("Tasks reprioritized in order: " + str(tasks))
+                logger.info("Tasks reprioritized in order: " + str(tasks))
             current_tasks = task_queue.get_tasks()
             if len(current_tasks) == 0:
                 final_response = {"result": "COMPLETE", "pending_task_count": 0}
@@ -206,7 +207,7 @@ class SuperAgi:
             for task in reversed(tasks):
                 task_queue.add_task(task)
             if len(tasks) > 0:
-                print("Adding task to queue: " + str(tasks))
+                logger.info("Adding task to queue: " + str(tasks))
             for task in tasks:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
@@ -226,7 +227,7 @@ class SuperAgi:
                 final_response["result"] = "PENDING"
         session.commit()
 
-        print("Iteration completed moving to next iteration!")
+        logger.info("Iteration completed moving to next iteration!")
         session.close()
         return final_response
 
@@ -235,15 +236,15 @@ class SuperAgi:
         tools = {t.name: t for t in self.tools}
 
         if action.name == FINISH or action.name == "":
-            print("\nTask Finished :) \n")
+            logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
             return output
         if action.name in tools:
             tool = tools[action.name]
             try:
                 observation = tool.execute(action.args)
-                print("Tool Observation : ")
-                print(observation)
+                logger.info("Tool Observation : ")
+                logger.info(observation)
 
             except ValidationError as e:
                 observation = (
@@ -266,7 +267,7 @@ class SuperAgi:
             )
             output = {"result": result, "retry": True}
 
-        print("Tool Response : " + str(output) + "\n")
+        logger.info("Tool Response : " + str(output) + "\n")
         return output
 
     def update_agent_execution_tokens(self, current_calls, total_tokens):

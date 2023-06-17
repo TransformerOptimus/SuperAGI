@@ -9,6 +9,7 @@ from superagi.models.db import connect_db
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from sqlalchemy.orm import sessionmaker
+from superagi.lib.logger import logger
 
 
 
@@ -64,7 +65,7 @@ class ImageGenTool(BaseTool):
                             s3_helper = S3Helper()
                             s3_helper.upload_file(img, path=resource.path)
                     session.close()
-                print(f"Image {image} saved successfully")
+                logger.info(f"Image {image} saved successfully")
             except Exception as err:
                 return f"Error: {err}"
         return "Images downloaded successfully"

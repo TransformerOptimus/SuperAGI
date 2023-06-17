@@ -87,6 +87,7 @@ PyJWT==1.7.1
 PyPDF2==3.0.1
 pyquery==2.0.0
 pyrsistent==0.19.3
+pytest==7.3.2
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 python-multipart==0.0.6
@@ -123,6 +124,7 @@ vine==5.0.0
 w3lib==2.1.1
 watchfiles==0.19.0
 wcwidth==0.2.6
+weaviate-client==3.20.1
 websockets==10.4
 yarl==1.9.2
 zipp==3.15.0
