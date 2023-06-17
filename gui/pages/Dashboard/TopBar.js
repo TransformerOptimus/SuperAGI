@@ -19,7 +19,8 @@ export default function TopBar({selectedProject, organisationId, userName, env})
     EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
   };
   const settingsTab = () => {
-    EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
+    // EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
+    setSettingsModal(true)
   }
 
   function getKey(key) {
@@ -112,7 +113,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
         </div>
       </div>
       <div className={styles.top_right}>
-        {/* <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div> */}
+         <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
         {/* <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div> */}
         <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
           <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
