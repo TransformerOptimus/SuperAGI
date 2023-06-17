@@ -1,29 +1,22 @@
-from fastapi_sqlalchemy import DBSessionMiddleware, db
-from fastapi import HTTPException, Depends, Request
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
-from superagi.models.budget import Budget
-from fastapi import APIRouter, UploadFile
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-import os
-from fastapi import FastAPI, File, Form, UploadFile
-from typing import Annotated
-from superagi.models.resource import Resource
-from superagi.config.config import get_config
-from superagi.models.agent import Agent
-from starlette.responses import FileResponse
-from pathlib import Path
-from fastapi.responses import StreamingResponse
-from superagi.helper.auth import check_auth
-import boto3
 import datetime
-from botocore.exceptions import NoCredentialsError
-import tempfile
-import requests
+import os
+from pathlib import Path
 
+import boto3
+from botocore.exceptions import NoCredentialsError
+from fastapi import APIRouter
+from fastapi import File, Form, UploadFile
+from fastapi import HTTPException, Depends
+from fastapi.responses import StreamingResponse
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+
+from superagi.config.config import get_config
+from superagi.helper.auth import check_auth
+from superagi.models.agent import Agent
+from superagi.models.resource import Resource
 
 router = APIRouter()
-
 
 s3 = boto3.client(
     's3',
@@ -35,8 +28,25 @@ s3 = boto3.client(
 @router.post("/add/{agent_id}", status_code=201)
 async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...),
                  Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Upload a file as a resource for an agent.
 
-    """Upload a file as resource for agent"""
+    Args:
+        agent_id (int): ID of the agent.
+        file (UploadFile): Uploaded file.
+        name (str): Name of the resource.
+        size (str): Size of the resource.
+        type (str): Type of the resource.
+
+    Returns:
+        Resource: Uploaded resource.
+
+    Raises:
+        HTTPException (status_code=400): If the agent with the specified ID does not exist.
+        HTTPException (status_code=400): If the file type is not supported.
+        HTTPException (status_code=500): If AWS credentials are not found or if there is an issue uploading to S3.
+
+    """
 
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
@@ -60,7 +70,8 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     elif storage_type == "S3":
         bucket_name = get_config("BUCKET_NAME")
         file_name = file.filename.split('.')
-        path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now()).replace(' ','').replace('.','').replace(':','')+'.'+file_name[1]
+        path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
+            ':', '') + '.' + file_name[1]
         try:
             s3.upload_fileobj(file.file, bucket_name, path)
             print("File uploaded successfully!")
@@ -79,8 +90,16 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
 @router.get("/get/all/{agent_id}", status_code=200)
 def get_all_resources(agent_id: int,
                       Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get all resources for an agent.
 
-    """Get all resources for an agent"""
+    Args:
+        agent_id (int): ID of the agent.
+
+    Returns:
+        List[Resource]: List of resources belonging to the agent.
+
+    """
 
     resources = db.session.query(Resource).filter(Resource.agent_id == agent_id).all()
     return resources
@@ -89,8 +108,21 @@ def get_all_resources(agent_id: int,
 @router.get("/get/{resource_id}", status_code=200)
 def download_file_by_id(resource_id: int,
                         Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Download a particular resource by resource_id.
 
-    """Download a particular resource by resource_id"""
+    Args:
+        resource_id (int): ID of the resource.
+        Authorize (AuthJWT, optional): Authorization dependency.
+
+    Returns:
+        StreamingResponse: Streaming response for downloading the resource.
+
+    Raises:
+        HTTPException (status_code=400): If the resource with the specified ID is not found.
+        HTTPException (status_code=404): If the file is not found.
+
+    """
 
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     download_file_path = resource.path

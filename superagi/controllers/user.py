@@ -16,6 +16,20 @@ router = APIRouter()
 @router.post("/add", response_model=sqlalchemy_to_pydantic(User), status_code=201)
 def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]),
                 Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Create a new user.
+
+    Args:
+        user (sqlalchemy_to_pydantic(User, exclude=["id"])): User data.
+
+    Returns:
+        User: The created user.
+
+    Raises:
+        HTTPException (status_code=400): If there is an issue creating the user.
+
+    """
+
     db_user = db.session.query(User).filter(User.email == user.email).first()
     if db_user:
         return db_user
@@ -32,6 +46,20 @@ def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]),
 @router.get("/get/{user_id}", response_model=sqlalchemy_to_pydantic(User))
 def get_user(user_id: int,
              Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get a particular user details.
+
+    Args:
+        user_id (int): ID of the user.
+
+    Returns:
+        User: The user details.
+
+    Raises:
+        HTTPException (status_code=404): If the user with the specified ID is not found.
+
+    """
+
     # Authorize.jwt_required()
     db_user = db.session.query(User).filter(User.id == user_id).first()
     if not db_user:
@@ -43,6 +71,21 @@ def get_user(user_id: int,
 def update_user(user_id: int,
                 user: sqlalchemy_to_pydantic(User, exclude=["id"]),
                 Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Update a particular user.
+
+    Args:
+        user_id (int): ID of the user.
+        user (sqlalchemy_to_pydantic(User, exclude=["id"])): Updated user data.
+
+    Returns:
+        User: The updated user details.
+
+    Raises:
+        HTTPException (status_code=404): If the user with the specified ID is not found.
+
+    """
+
     db_user = db.session.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
