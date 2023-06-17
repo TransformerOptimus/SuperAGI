@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from superagi.models.base_model import DBBaseModel
 import json
+
+from sqlalchemy import Column, Integer, String
+
+from superagi.models.base_model import DBBaseModel
+
 
 class ToolStatistics(DBBaseModel):
     """ToolStatistics - used to store statistics for tool kits"""
@@ -9,15 +11,13 @@ class ToolStatistics(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     """id - id of the statistics entry"""
-    toolkit_id = Column(Integer, ForeignKey('tool_kits.id'))
+    toolkit_id = Column(Integer)
     """toolkit_id - foreign key reference to the tool kit"""
 
     key = Column(String)
     """key - key for the statistic"""
     value = Column(String)
     """value - value associated with the statistic"""
-
-    toolkit = relationship("ToolKit", back_populates="statistics")
 
     def __repr__(self):
         return f"ToolStatistics(id={self.id}, toolkit_id={self.toolkit_id}, key='{self.key}', value='{self.value}')"
