@@ -18,6 +18,15 @@ class ReadFileTool(BaseTool):
     description: str = "Reads the file content in a specified location"
 
     def _execute(self, file_name: str):
+        """
+        Execute the read file tool.
+
+        Args:
+            file_name (str): The name of the file to read.
+
+        Returns:
+            str: The file content
+        """
         input_root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
         output_root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         final_path = None

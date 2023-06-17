@@ -17,6 +17,15 @@ class ListFileTool(BaseTool):
     description: str = "lists files in a directory recursively"
 
     def _execute(self, directory: str):
+        """
+        Execute the list file tool.
+
+        Args:
+            directory (str): The directory to list files in.
+
+        Returns:
+            str: list of files
+        """
         found_files = []
         for root, dirs, files in os.walk(directory):
             for file in files:

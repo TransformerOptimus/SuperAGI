@@ -34,6 +34,18 @@ class GithubRepoSearchTool(BaseTool):
     args_schema: Type[GithubSearchRepoSchema] = GithubSearchRepoSchema
 
     def _execute(self, repository_owner: str, repository_name: str, file_name: str, folder_path=None) -> str:
+        """
+        Execute the search file tool.
+
+        Args:
+            repository_owner (str): The owner of the repository to search file in.
+            repository_name (str): The name of the repository to search file in.
+            file_name (str): The name of the file to search.
+            folder_path (str): The path of the folder to search the file in.
+
+        Returns:
+            str: The content of the file.
+        """
         github_access_token = get_config("GITHUB_ACCESS_TOKEN")
         github_username = get_config("GITHUB_USERNAME")
         github_repo_search = GithubHelper(github_access_token, github_username)

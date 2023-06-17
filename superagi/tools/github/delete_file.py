@@ -41,6 +41,20 @@ class GithubDeleteFileTool(BaseTool):
 
     def _execute(self, repository_name: str, base_branch: str, file_name: str, commit_message: str,
                  repository_owner: str, folder_path=None) -> str:
+        """
+        Execute the delete file tool.
+
+        Args:
+            repository_name (str): The name of the repository to delete file from.
+            base_branch (str): The branch to interact with.
+            file_name (str): The name of the file to delete.
+            commit_message (str): Clear description of the contents of file.
+            repository_owner (str): Owner of the GitHub repository.
+            folder_path (str): The path of the folder to delete the file from.
+
+        Returns:
+            str: The response from the GitHub API.
+        """
 
         try:
             github_access_token = get_config("GITHUB_ACCESS_TOKEN")
