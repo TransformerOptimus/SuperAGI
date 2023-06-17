@@ -13,6 +13,14 @@ class ReadFileSchema(BaseModel):
 
 
 class ReadFileTool(BaseTool):
+    """
+    Read File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Read File"
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"
@@ -22,10 +30,10 @@ class ReadFileTool(BaseTool):
         Execute the read file tool.
 
         Args:
-            file_name (str): The name of the file to read.
+            file_name : The name of the file to read.
 
         Returns:
-            str: The file content
+            The file content
         """
         input_root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
         output_root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')

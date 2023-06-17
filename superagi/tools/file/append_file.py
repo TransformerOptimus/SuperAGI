@@ -15,6 +15,14 @@ class AppendFileInput(BaseModel):
 
 
 class AppendFileTool(BaseTool):
+    """
+    Append File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Append File"
     args_schema: Type[BaseModel] = AppendFileInput
     description: str = "Append text to a file"
@@ -24,11 +32,11 @@ class AppendFileTool(BaseTool):
         Execute the append file tool.
 
         Args:
-            file_name (str): The name of the file to write.
-            content (str): The text to append to the file.
+            file_name : The name of the file to write.
+            content : The text to append to the file.
 
         Returns:
-            str: The result.
+            file written to successfully. or error message.
         """
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')

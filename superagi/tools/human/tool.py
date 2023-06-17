@@ -16,6 +16,14 @@ class HumanInputSchema(BaseModel):
     )
 
 class HumanInput(BaseTool):
+    """
+    Human tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name = "Human"
     description = (
         "You can ask a human for guidance when you think you "
@@ -30,5 +38,14 @@ class HumanInput(BaseTool):
         self,
         query: str
     ) -> str:
+        """
+        Execute the human tool.
+
+        Args:
+            query : The question for the human.
+
+        Returns:
+            The answer from the human.
+        """
         self.prompt_func(query)
         return self.input_func()

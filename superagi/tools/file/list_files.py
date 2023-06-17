@@ -12,6 +12,14 @@ class ListFileInput(BaseModel):
 
 
 class ListFileTool(BaseTool):
+    """
+    List File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "List File"
     args_schema: Type[BaseModel] = ListFileInput
     description: str = "lists files in a directory recursively"
@@ -21,10 +29,10 @@ class ListFileTool(BaseTool):
         Execute the list file tool.
 
         Args:
-            directory (str): The directory to list files in.
+            directory : The directory to list files in.
 
         Returns:
-            str: list of files
+            list of files in directory.
         """
         found_files = []
         for root, dirs, files in os.walk(directory):

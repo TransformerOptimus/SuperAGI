@@ -18,11 +18,11 @@ class CodingTool(BaseTool):
     The CodingTool class.
 
     Attributes:
-        llm (BaseLlm): The LLM.
-        name (str): The name.
-        description (str): The description.
-        args_schema (Type[CodingSchema]): The args schema.
-        goals (List[str]): The goals.
+        llm : The LLM.
+        name : The name of tool.
+        description : The description of tool.
+        args_schema : The args schema.
+        goals : The goals.
     """
     llm: Optional[BaseLlm] = None
     name = "CodingTool"
@@ -41,10 +41,10 @@ class CodingTool(BaseTool):
         Execute the code tool.
 
         Args:
-            task_description (str): The task description.
+            task_description : The task description.
 
         Returns:
-            str: The result.
+            Generated code or error message.
         """
         try:
             prompt = """You're a top-notch coder, knowing all programming languages, software systems, and architecture.

@@ -12,6 +12,14 @@ class SearxSearchSchema(BaseModel):
     )
 
 class SearxSearchTool(BaseTool):
+    """
+    Searx Search tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     llm: Optional[BaseLlm] = None
     name = "SearxSearch"
     description = (
@@ -24,12 +32,31 @@ class SearxSearchTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, query: str) -> tuple:
+        """
+        Execute the Searx search tool.
+
+        Args:
+            query : The query to search for.
+
+        Returns:
+            Snippets from the Searx search.
+        """
         snippets = search_results(query)
         summary = self.summarise_result(query, snippets)
 
         return summary
 
     def summarise_result(self, query, snippets):
+        """
+        Summarise the result of the Searx search.
+
+        Args:
+            query : The query to search for.
+            snippets : The snippets from the Searx search.
+
+        Returns:
+            A summary of the result.
+        """
         summarize_prompt = """Summarize the following text `{snippets}`
             Write a concise or as descriptive as necessary and attempt to
             answer the query: `{query}` as best as possible. Use markdown formatting for

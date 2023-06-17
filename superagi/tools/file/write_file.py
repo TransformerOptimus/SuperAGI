@@ -19,6 +19,14 @@ class WriteFileInput(BaseModel):
 
 
 class WriteFileTool(BaseTool):
+    """
+    Write File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"
@@ -29,11 +37,11 @@ class WriteFileTool(BaseTool):
         Execute the write file tool.
 
         Args:
-            file_name (str): The name of the file to write.
-            content (str): The text to write to the file.
+            file_name : The name of the file to write.
+            content : The text to write to the file.
 
         Returns:
-            str: The result.
+            file written to successfully. or error message.
         """
         engine = connect_db()
         Session = sessionmaker(bind=engine)

@@ -23,9 +23,9 @@ class ReadEmailTool(BaseTool):
     Read emails from an IMAP mailbox
 
     Attributes:
-        name (str): The name.
-        description (str): The description.
-        args_schema (Type[ReadEmailInput]): The args schema.
+        name : The name of the tool.
+        description : The description of the tool.
+        args_schema : The args schema.
     """
     name: str = "Read Email"
     args_schema: Type[BaseModel] = ReadEmailInput
@@ -36,12 +36,12 @@ class ReadEmailTool(BaseTool):
         Execute the read email tool.
 
         Args:
-            imap_folder (str): The email folder to read from. Defaults to "INBOX".
-            page (int): The index of the page result the function should resturn. Defaults to 0, the first page.
-            limit (int): Number of emails to fetch in one cycle. Defaults to 5.
+            imap_folder : The email folder to read from. Defaults to "INBOX".
+            page : The index of the page result the function should return. Defaults to 0, the first page.
+            limit : Number of emails to fetch in one cycle. Defaults to 5.
 
         Returns:
-            str: The result.
+            email content or error message
         """
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')

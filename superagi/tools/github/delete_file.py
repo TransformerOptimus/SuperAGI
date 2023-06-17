@@ -35,6 +35,14 @@ class GithubDeleteFileSchema(BaseModel):
 
 
 class GithubDeleteFileTool(BaseTool):
+    """
+    Delete File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Github Delete File"
     args_schema: Type[BaseModel] = GithubDeleteFileSchema
     description: str = "Delete a file or folder inside a particular github repository"
@@ -45,15 +53,15 @@ class GithubDeleteFileTool(BaseTool):
         Execute the delete file tool.
 
         Args:
-            repository_name (str): The name of the repository to delete file from.
-            base_branch (str): The branch to interact with.
-            file_name (str): The name of the file to delete.
-            commit_message (str): Clear description of the contents of file.
-            repository_owner (str): Owner of the GitHub repository.
-            folder_path (str): The path of the folder to delete the file from.
+            repository_name : The name of the repository to delete file from.
+            base_branch : The branch to interact with.
+            file_name : The name of the file to delete.
+            commit_message : Clear description of the contents of file.
+            repository_owner : Owner of the GitHub repository.
+            folder_path : The path of the folder to delete the file from.
 
         Returns:
-            str: The response from the GitHub API.
+            pull request deletion message. or error message
         """
 
         try:

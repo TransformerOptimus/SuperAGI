@@ -21,6 +21,14 @@ class SendEmailAttachmentInput(BaseModel):
 
 
 class SendEmailAttachmentTool(BaseTool):
+    """
+    Send an Email with Attachment tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
@@ -30,13 +38,13 @@ class SendEmailAttachmentTool(BaseTool):
         Execute the send email tool with attachment.
 
         Args:
-            to (str): The email address of the receiver.
-            subject (str): The subject of the email.
-            body (str): The body of the email.
-            filename (str): The name of the file to be sent as an attachment with the email.
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+            filename : The name of the file to be sent as an attachment with the email.
 
         Returns:
-            str: The result.
+
         """
         base_path = get_config('EMAIL_ATTACHMENT_BASE_PATH')
         if not base_path:
@@ -51,14 +59,14 @@ class SendEmailAttachmentTool(BaseTool):
         Send an email with attachment.
 
         Args:
-            to (str): The email address of the receiver.
-            subject (str): The subject of the email.
-            body (str): The body of the email.
-            attachment_path (str): The path of the file to be sent as an attachment with the email.
-            attachment (str): The name of the file to be sent as an attachment with the email.
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+            attachment_path : The path of the file to be sent as an attachment with the email.
+            attachment : The name of the file to be sent as an attachment with the email.
 
         Returns:
-            str: The result.
+            
         """
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
