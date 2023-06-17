@@ -28,7 +28,24 @@ router = APIRouter()
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
 def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
                  Authorize: AuthJWT = Depends(check_auth)):
-    """Create agent new agent"""
+    """
+        Creates a new Agent
+
+        Args:
+
+            name : Name of the Agent
+            project_id = Identifier of the associated project
+            description = Description of the Agent
+            agent_workflow_id = Identifier of the Agent Workflow in use
+
+        Returns:
+            Agent : An object of Agent
+
+        Raises:
+            HTTPException (Status Code=404) : If Project is not found
+
+    """
+
 
     project = db.session.query(Project).get(agent.project_id)
 
