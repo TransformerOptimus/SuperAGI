@@ -15,8 +15,19 @@ router = APIRouter()
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Project), status_code=201)
 def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
                    Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Create a new project.
 
-    """Create a new project"""
+    Args:
+        project (Project): Project data.
+
+    Returns:
+        dict: Dictionary containing the created project.
+
+    Raises:
+        HTTPException (status_code=404): If the organization with the specified ID is not found.
+
+    """
 
     logger.info("Organisation_id : ", project.organisation_id)
     organisation = db.session.query(Organisation).get(project.organisation_id)
@@ -38,8 +49,19 @@ def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
 
 @router.get("/get/{project_id}", response_model=sqlalchemy_to_pydantic(Project))
 def get_project(project_id: int, Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get project details by project_id.
 
-    """Get Project details by project_id"""
+    Args:
+        project_id (int): ID of the project.
+
+    Returns:
+        dict: Dictionary containing the project details.
+
+    Raises:
+        HTTPException (status_code=404): If the project with the specified ID is not found.
+
+    """
 
     db_project = db.session.query(Project).filter(Project.id == project_id).first()
     if not db_project:
@@ -50,8 +72,21 @@ def get_project(project_id: int, Authorize: AuthJWT = Depends(check_auth)):
 @router.put("/update/{project_id}", response_model=sqlalchemy_to_pydantic(Project))
 def update_project(project_id: int, project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
                    Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Update a project detail by project_id.
 
-    """Update a project detail by project_id"""
+    Args:
+        project_id (int): ID of the project.
+        project (Project): Updated project data.
+
+    Returns:
+        dict: Dictionary containing the updated project details.
+
+    Raises:
+        HTTPException (status_code=404): If the project with the specified ID is not found.
+        HTTPException (status_code=404): If the organization with the specified ID is not found.
+
+    """
 
     db_project = db.session.query(Project).get(project_id)
     if not db_project:
@@ -72,8 +107,19 @@ def update_project(project_id: int, project: sqlalchemy_to_pydantic(Project, exc
 @router.get("/get/organisation/{organisation_id}")
 def get_projects_organisation(organisation_id: int,
                               Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get all projects by organisation_id and create default if no project.
 
-    """Get all projects by organisation_id and create default if no project"""
+    Args:
+        organisation_id (int): ID of the organisation.
+
+    Returns:
+        List[Project]: List of projects belonging to the organisation.
+
+    Raises:
+        HTTPException (status_code=404): If the organization with the specified ID is not found.
+
+    """
 
     Project.find_or_create_default_project(db.session, organisation_id)
     projects = db.session.query(Project).filter(Project.organisation_id == organisation_id).all()

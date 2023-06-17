@@ -15,11 +15,31 @@ class SearchIssueSchema(BaseModel):
 
 
 class SearchJiraTool(JiraTool):
+    """
+    Search Jira Issues tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name = "SearchJiraIssues"
     description = "This tool is a wrapper around atlassian-python-api's Jira jql API, useful when you need to search for Jira issues."
     args_schema: Type[SearchIssueSchema] = SearchIssueSchema
 
     def _execute(self, query: str) -> str:
+        """
+        Execute the search issues tool.
+
+        Args:
+            query : JQL query string to search issues. For example, to find all the issues in project "Test"
+        assigned to the, you would pass in the following string: project = Test AND assignee = currentUser() or to
+        find issues with summaries that contain the word "test", you would pass in the following string: summary ~
+        'test'.
+
+        Returns:
+            The key of the created issue.
+        """
         jira = JiraTool.build_jira_instance()
         issues = jira.search_issues(query)
         parsed_issues = self.parse_issues(issues)
@@ -29,6 +49,15 @@ class SearchJiraTool(JiraTool):
         return parsed_issues_str
 
     def parse_issues(self, issues: Dict) -> List[dict]:
+        """
+        Parse the issues returned by the Jira API.
+
+        Args:
+            issues : Dictionary of issues returned by the Jira API.
+
+        Returns:
+            List of parsed issues.
+        """
         parsed = []
         for issue in issues["issues"]:
             key = issue.key

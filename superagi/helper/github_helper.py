@@ -5,10 +5,27 @@ from superagi.lib.logger import logger
 
 class GithubHelper:
     def __init__(self, github_access_token, github_username):
+        """
+        Initializes the GithubHelper with the provided access token and username.
+
+        Args:
+            github_access_token (str): Personal GitHub access token.
+            github_username (str): GitHub username.
+        """
         self.github_access_token = github_access_token
         self.github_username = github_username
 
     def get_file_path(self, file_name, folder_path):
+        """
+        Returns the path of the given file with respect to the specified folder.
+
+        Args:
+            file_name (str): Name of the file.
+            folder_path (str): Path to the folder.
+
+        Returns:
+            str: Combined file path.
+        """
         file_path = f'{folder_path}'
         if folder_path:
             file_path += '/'
@@ -16,6 +33,17 @@ class GithubHelper:
         return file_path
 
     def check_repository_visibility(self, repository_owner, repository_name):
+        """
+        Checks the visibility (public/private) of a given repository.
+
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+
+        Returns:
+            bool: True if the repository is private, False if it's public.
+        """
         url = f"https://api.github.com/repos/{repository_owner}/{repository_name}"
         headers = {
             "Authorization": f"Token {self.github_access_token}",
@@ -30,6 +58,18 @@ class GithubHelper:
             return None
 
     def search_repo(self, repository_owner, repository_name, file_name, folder_path=None):
+        """
+        Searches for a file in the given repository and returns the file's metadata.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            file_name (str): Name of the file to search for.
+            folder_path (str, optional): Path to the folder containing the file. Defaults to None.
+
+        Returns:
+            dict: File metadata.
+        """
         headers = {
             "Authorization": f"token {self.github_access_token}" if self.github_access_token else None,
             "Content-Type": "application/vnd.github+json"
@@ -43,6 +83,19 @@ class GithubHelper:
         return data
 
     def sync_branch(self, repository_owner, repository_name, base_branch, head_branch, headers):
+        """
+        Syncs the head branch with the base branch.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            base_branch (str): Base branch to sync with.
+            head_branch (str): Head branch to sync.
+            headers (dict): Request headers.
+
+        Returns:
+            None
+        """
         base_branch_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/branches/{base_branch}'
         response = requests.get(base_branch_url, headers=headers)
         response_json = response.json()
@@ -59,6 +112,18 @@ class GithubHelper:
             logger.info('Failed to sync the branch. Check your inputs and permissions.')
 
     def make_fork(self, repository_owner, repository_name, base_branch, headers):
+        """
+        Creates a fork of the given repository.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            base_branch (str): Base branch to sync with.
+            headers (dict): Request headers.
+
+        Returns:
+            int: Status code of the fork request.
+        """
         fork_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/forks'
         fork_response = requests.post(fork_url, headers=headers)
         if fork_response.status_code == 202:
@@ -70,6 +135,18 @@ class GithubHelper:
         return fork_response.status_code
 
     def create_branch(self, repository_name, base_branch, head_branch, headers):
+        """
+        Creates a new branch in the given repository.
+
+        Args:
+            repository_name (str): Name of the repository.
+            base_branch (str): Base branch to sync with.
+            head_branch (str): Head branch to sync.
+            headers (dict): Request headers.
+
+        Returns:
+            int: Status code of the branch creation request.
+        """
         branch_url = f'https://api.github.com/repos/{self.github_username}/{repository_name}/git/refs'
         branch_params = {
             'ref': f'refs/heads/{head_branch}',
@@ -88,6 +165,20 @@ class GithubHelper:
         return branch_response.status_code
 
     def delete_file(self, repository_name, file_name, folder_path, commit_message, head_branch, headers):
+        """
+        Deletes a file or folder from the given repository.
+
+        Args:
+            repository_name (str): Name of the repository.
+            file_name (str): Name of the file to delete.
+            folder_path (str): Path to the folder containing the file.
+            commit_message (str): Commit message.
+            head_branch (str): Head branch to sync.
+            headers (dict): Request headers.
+
+        Returns:
+            int: Status code of the file deletion request.
+        """
         file_path = self.get_file_path(file_name, folder_path)
         file_url = f'https://api.github.com/repos/{self.github_username}/{repository_name}/contents/{file_path}'
         file_params = {
@@ -105,6 +196,21 @@ class GithubHelper:
 
     def add_file(self, repository_owner, repository_name, file_name, folder_path, head_branch, base_branch, headers,
                  body, commit_message):
+        """
+        Adds a file to the given repository.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            file_name (str): Name of the file to add.
+            folder_path (str): Path to the folder containing the file.
+            head_branch (str): Head branch to sync.
+            base_branch (str): Base branch to sync with.
+
+        Returns:
+            None
+        """
+
         body_bytes = body.encode("ascii")
         base64_bytes = base64.b64encode(body_bytes)
         file_content = base64_bytes.decode("ascii")
@@ -125,6 +231,19 @@ class GithubHelper:
         return file_response.status_code
 
     def create_pull_request(self, repository_owner, repository_name, head_branch, base_branch, headers):
+        """
+        Creates a pull request in the given repository.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            head_branch (str): Head branch to sync.
+            base_branch (str): Base branch to sync with.
+            headers (dict): Request headers.
+
+        Returns:
+            int: Status code of the pull request creation request.
+        """
         pull_request_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/pulls'
         pull_request_params = {
             'title': f'Pull request by {self.github_username}',
@@ -145,10 +264,34 @@ class GithubHelper:
         return pr_response.status_code
 
     def get_sha(self, repository_owner, repository_name, file_name, folder_path=None):
+        """
+        Gets the sha of the file to be deleted.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            file_name (str): Name of the file to delete.
+            folder_path (str): Path to the folder containing the file.
+
+        Returns:
+            str: Sha of the file to be deleted.
+        """
         data = self.search_repo(repository_owner, repository_name, file_name, folder_path)
         return data['sha']
 
     def get_content_in_file(self, repository_owner, repository_name, file_name, folder_path=None):
+        """
+        Gets the content of the file.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            file_name (str): Name of the file to delete.
+            folder_path (str): Path to the folder containing the file.
+
+        Returns:
+            str: Content of the file.
+        """
         data = self.search_repo(repository_owner, repository_name, file_name, folder_path)
         file_content = data['content']
         file_content_encoding = data.get('encoding')
