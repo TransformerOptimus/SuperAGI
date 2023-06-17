@@ -115,12 +115,8 @@ def process_files(folder_path, session, organisation, code_link=None):
     # tool_name_to_tool_kit = []
     tool_name_to_tool_kit = init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session)
     init_tools(folder_path, session, tool_name_to_tool_kit)
-    # print(tool_name_to_tool_kit['Read Email'])
 
 def init_tools(folder_path, session, tool_name_to_tool_kit):
-    # print("INIT TOOLS : ")
-    print("_______________MAPPING___________________ : ")
-    print(tool_name_to_tool_kit)
     # Iterate over all subfolders
     for folder_name in os.listdir(folder_path):
         folder_dir = os.path.join(folder_path, folder_name)
@@ -133,20 +129,19 @@ def init_tools(folder_path, session, tool_name_to_tool_kit):
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)
-                    # print("FINAL TOOLS CLASSES : ")
-                    print(classes)
                     for clazz in classes:
-                        # print("FInal", clazz["tool_kit_description"])
                         if clazz["class_name"] is not None:
-                            # print("____________________________________Class name found")
                             tool_name = clazz['tool_name']
                             tool_description = clazz['tool_description']
-                            # print("TOOL NAME ----------------- > ",tool_name)
-                            new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
-                                                          class_name=clazz['class_name'], file_name=file_name,
-                                                          tool_kit_id=tool_name_to_tool_kit[tool_name],
-                                                          description=tool_description)
-                            # print("Final New-Tool", new_tool)
+                            tool_kit_id = tool_name_to_tool_kit.get(tool_name,None)
+                            if tool_kit_id is not None:
+                                new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
+                                                              class_name=clazz['class_name'], file_name=file_name,
+                                                              tool_kit_id=tool_name_to_tool_kit[tool_name],
+                                                              description=tool_description)
+                                print("Updated Tool path details for tool : ",new_tool)
+                            else:
+                                print("Tool Kit Not Found for tool : ",tool_name)
 
 
 def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session):
