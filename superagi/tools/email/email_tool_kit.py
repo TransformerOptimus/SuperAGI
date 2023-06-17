@@ -7,8 +7,8 @@ from send_email_attachment import SendEmailAttachmentTool
 
 
 class EmailToolKit(BaseToolKit, ABC):
-    name: str = "Changed Email Toolkit"
-    description: str = "Emailll Tool kit contains all tools related to sending email"
+    name: str = "Email Toolkit"
+    description: str = "Email Tool kit contains all tools related to sending email"
 
     def get_tools(self) -> List[BaseTool]:
         return [ReadEmailTool(), SendEmailTool(),SendEmailAttachmentTool()]

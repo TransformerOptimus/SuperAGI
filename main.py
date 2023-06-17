@@ -17,6 +17,7 @@ import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
 from superagi.controllers.agent_template import router as agent_template_router
+from superagi.controllers.agent_workflow import router as agent_workflow_router
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
@@ -107,9 +108,11 @@ app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(resources_router, prefix="/resources")
 app.include_router(config_router, prefix="/configs")
-app.include_router(agent_template_router, prefix="/agent_templates")
 app.include_router(tool_kit_router, prefix="/tool_kits")
 app.include_router(tool_config_router, prefix="/tool_configs")
+app.include_router(config_router, prefix="/configs")
+app.include_router(agent_template_router, prefix="/agent_templates")
+app.include_router(agent_workflow_router, prefix="/agent_workflows")
 
 
 # in production you can use Settings management

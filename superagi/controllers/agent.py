@@ -20,7 +20,7 @@ from superagi.worker import execute_agent
 from datetime import datetime
 import json
 from sqlalchemy import func
-from superagi.helper.auth import check_auth
+from superagi.helper.auth import check_auth, get_user_organisation
 
 router = APIRouter()
 
@@ -129,34 +129,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         "contentType": "Agents"
     }
 
-@router.post("/create_agent_with_template", status_code=201)
-def create_agent_with_template(agent_template_id: int,
-                             Authorize: AuthJWT = Depends(check_auth)):
-    """Create new agent with configurations"""
-
-    # Checking for project
-    agent_template = db.session.query(AgentTemplate).get(agent_template_id)
-    if not agent_template:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    db_agent = Agent.create_agent_with_template_id(db, agent_template)
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    # Creating an execution with CREATED status
-    execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step_id)
-
-    db.session.add(execution)
-    db.session.commit()
-    execute_agent.delay(execution.id, datetime.now())
-
-    return {
-        "id": db_agent.id,
-        "execution_id": execution.id,
-        "name": db_agent.name,
-        "contentType": "Agents"
-    }
-
-
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
@@ -204,7 +176,8 @@ def get_agent_configuration(agent_id: int,
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
-    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(AgentExecution.agent_id == agent_id).scalar()
+    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
+        AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 

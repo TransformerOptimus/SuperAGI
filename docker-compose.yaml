@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   backend:
     volumes:
@@ -12,9 +11,6 @@ services:
       - super__postgres
     networks:
       - super_network
-    environment:
-      - PYCHARM_DEBUG  # Add this line to enable the PyCharm debugger
-
   celery:
     volumes:
       - "./:/app"
@@ -26,7 +22,6 @@ services:
       - super__postgres
     networks:
       - super_network
-
   gui:
     build: ./gui
     ports:
@@ -39,12 +34,10 @@ services:
       - ./gui:/app
       - /app/node_modules
       - /app/.next
-
   super__redis:
     image: "docker.io/library/redis:latest"
     networks:
       - super_network
-
   super__postgres:
     image: "docker.io/library/postgres:latest"
     environment:
@@ -57,10 +50,8 @@ services:
       - super_network
     ports:
       - "5432:5432"
-
 networks:
   super_network:
     driver: bridge
-
 volumes:
   superagi_postgres_data:

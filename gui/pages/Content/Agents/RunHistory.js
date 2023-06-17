@@ -17,7 +17,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
         </div>
         <div style={{display:'flex'}}>
           <div style={{display:'flex',alignItems:'center',cursor:'pointer'}} onClick={() => setHistory(false)}>
-            <Image width={16} height={16} src="/images/close_history.svg" alt="close-history-icon"/>
+            <Image width={28} height={28} src="/images/close_history.svg" alt="close-history-icon"/>
           </div>
         </div>
       </div>

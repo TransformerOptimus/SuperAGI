@@ -136,7 +136,7 @@ class AgentExecutor:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            print("Unable to setup the pincone connection...")
+            print("Unable to setup the pinecone connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()

@@ -52,3 +52,14 @@ class Tool(DBBaseModel):
         if tool:
             session.delete(tool)
             session.commit()
+            session.flush()
+
+    @classmethod
+    def convert_tool_names_to_ids(cls, db, tool_names):
+        tools = db.session.query(Tool).filter(Tool.name.in_(tool_names)).all()
+        return [tool.id for tool in tools]
+
+    @classmethod
+    def convert_tool_ids_to_names(cls, db, tool_ids):
+        tools = db.session.query(Tool).filter(Tool.id.in_(tool_ids)).all()
+        return [str(tool.name) for tool in tools]
