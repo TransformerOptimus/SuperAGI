@@ -20,6 +20,16 @@ class AppendFileTool(BaseTool):
     description: str = "Append text to a file"
 
     def _execute(self, file_name: str, content: str):
+        """
+        Execute the append file tool.
+
+        Args:
+            file_name (str): The name of the file to write.
+            content (str): The text to append to the file.
+
+        Returns:
+            str: The result.
+        """
         final_path = file_name
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:

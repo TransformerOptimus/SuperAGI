@@ -53,6 +53,21 @@ class GithubAddFileTool(BaseTool):
 
     def _execute(self, repository_name: str, base_branch: str, body: str, commit_message: str, repository_owner: str,
                  file_name='.gitkeep', folder_path=None) -> str:
+        """
+        Execute the add file tool.
+
+        Args:
+            repository_name (str): The name of the repository to add file to.
+            base_branch (str): The branch to interact with.
+            body (str): The content to be stored.
+            commit_message (str): Clear description of the contents of file.
+            repository_owner (str): Owner of the GitHub repository.
+            file_name (str): The name of the file to add.
+            folder_path (str): The path of the folder to add the file to.
+
+        Returns:
+            str: The result
+        """
         try:
             github_access_token = get_config("GITHUB_ACCESS_TOKEN")
             github_username = get_config("GITHUB_USERNAME")

@@ -25,6 +25,16 @@ class WriteFileTool(BaseTool):
     agent_id: int = None
 
     def _execute(self, file_name: str, content: str):
+        """
+        Execute the write file tool.
+
+        Args:
+            file_name (str): The name of the file to write.
+            content (str): The text to write to the file.
+
+        Returns:
+            str: The result.
+        """
         engine = connect_db()
         Session = sessionmaker(bind=engine)
         session = Session()

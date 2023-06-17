@@ -14,6 +14,16 @@ class CodingSchema(BaseModel):
     )
 
 class CodingTool(BaseTool):
+    """
+    The CodingTool class.
+
+    Attributes:
+        llm (BaseLlm): The LLM.
+        name (str): The name.
+        description (str): The description.
+        args_schema (Type[CodingSchema]): The args schema.
+        goals (List[str]): The goals.
+    """
     llm: Optional[BaseLlm] = None
     name = "CodingTool"
     description = (
@@ -27,6 +37,15 @@ class CodingTool(BaseTool):
 
 
     def _execute(self, task_description: str):
+        """
+        Execute the code tool.
+
+        Args:
+            task_description (str): The task description.
+
+        Returns:
+            str: The result.
+        """
         try:
             prompt = """You're a top-notch coder, knowing all programming languages, software systems, and architecture.
         

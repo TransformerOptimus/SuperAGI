@@ -23,6 +23,17 @@ class SendEmailTool(BaseTool):
     description: str = "Send an Email"
 
     def _execute(self, to: str, subject: str, body: str) -> str:
+        """
+        Execute the send email tool.
+
+        Args:
+            to (str): The email address of the receiver.
+            subject (str): The subject of the email.
+            body (str): The body of the email.
+
+        Returns:
+            str: The result.
+        """
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
