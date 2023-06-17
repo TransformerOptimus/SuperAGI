@@ -1,22 +1,29 @@
-import datetime
-import os
-from pathlib import Path
-
-import boto3
-from botocore.exceptions import NoCredentialsError
-from fastapi import APIRouter
-from fastapi import File, Form, UploadFile
-from fastapi import HTTPException, Depends
-from fastapi.responses import StreamingResponse
+from fastapi_sqlalchemy import DBSessionMiddleware, db
+from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
-from fastapi_sqlalchemy import db
-
-from superagi.config.config import get_config
-from superagi.helper.auth import check_auth
-from superagi.models.agent import Agent
+from fastapi_jwt_auth.exceptions import AuthJWTException
+from superagi.models.budget import Budget
+from fastapi import APIRouter, UploadFile
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+import os
+from fastapi import FastAPI, File, Form, UploadFile
+from typing import Annotated
 from superagi.models.resource import Resource
+from superagi.config.config import get_config
+from superagi.models.agent import Agent
+from starlette.responses import FileResponse
+from pathlib import Path
+from fastapi.responses import StreamingResponse
+from superagi.helper.auth import check_auth
+import boto3
+import datetime
+from botocore.exceptions import NoCredentialsError
+import tempfile
+import requests
+from superagi.lib.logger import logger
 
 router = APIRouter()
+
 
 s3 = boto3.client(
     's3',
@@ -74,7 +81,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
             ':', '') + '.' + file_name[1]
         try:
             s3.upload_fileobj(file.file, bucket_name, path)
-            print("File uploaded successfully!")
+            logger.info("File uploaded successfully!")
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
@@ -83,7 +90,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    print(resource)
+    logger.info(resource)
     return resource
 
 

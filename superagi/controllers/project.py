@@ -1,12 +1,12 @@
-from fastapi import APIRouter
-from fastapi import HTTPException, Depends
+from fastapi_sqlalchemy import DBSessionMiddleware, db
+from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
-from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
-from superagi.helper.auth import check_auth
-from superagi.models.organisation import Organisation
 from superagi.models.project import Project
+from superagi.models.organisation import Organisation
+from fastapi import APIRouter
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from superagi.helper.auth import check_auth
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -29,6 +29,7 @@ def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
 
     """
 
+    logger.info("Organisation_id : ", project.organisation_id)
     organisation = db.session.query(Organisation).get(project.organisation_id)
 
     if not organisation:

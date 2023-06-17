@@ -11,6 +11,7 @@ from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
+from superagi.lib.logger import logger
 
 
 class Agent(DBBaseModel):
@@ -129,7 +130,7 @@ class Agent(DBBaseModel):
 
         if agent_with_config.agent_type == "Don't Maintain Task Queue":
             agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
-            print(agent_workflow)
+            logger.info(agent_workflow)
             db_agent.agent_workflow_id = agent_workflow.id
         elif agent_with_config.agent_type == "Maintain Task Queue":
             agent_workflow = db.session.query(AgentWorkflow).filter(

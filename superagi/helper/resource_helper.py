@@ -2,6 +2,7 @@ from superagi.config.config import get_config
 from superagi.models.resource import Resource
 import os
 import datetime
+from superagi.lib.logger import logger
 
 
 class ResourceHelper:
@@ -51,7 +52,7 @@ class ResourceHelper:
             else:
                 path = 'output'
 
-        print(path + "/" + file_name)
+        logger.info(path + "/" + file_name)
         resource = Resource(name=file_name, path=path + "/" + file_name, storage_type=storage_type, size=file_size,
                             type=file_type,
                             channel="OUTPUT",

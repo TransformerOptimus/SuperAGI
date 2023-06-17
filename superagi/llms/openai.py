@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 import openai
 from superagi.llms.base_llm import BaseLlm
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
 
 
 class OpenAi(BaseLlm):
@@ -75,7 +76,7 @@ class OpenAi(BaseLlm):
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
         except Exception as exception:
-            print("Exception:", exception)
+            logger.info("Exception:", exception)
             return {"error": exception}
 
     def generate_image(self, prompt: str, size: int = 512, num: int = 2):

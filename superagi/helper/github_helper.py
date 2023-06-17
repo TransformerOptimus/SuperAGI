@@ -1,5 +1,6 @@
 import base64
 import requests
+from superagi.lib.logger import logger
 
 
 class GithubHelper:
@@ -53,7 +54,7 @@ class GithubHelper:
             repository_data = response.json()
             return repository_data['private']
         else:
-            print(f"Failed to fetch repository information: {response.status_code} - {response.text}")
+            logger.info(f"Failed to fetch repository information: {response.status_code} - {response.text}")
             return None
 
     def search_repo(self, repository_owner, repository_name, file_name, folder_path=None):
@@ -106,10 +107,9 @@ class GithubHelper:
         }
         response = requests.patch(head_branch_url, json=data, headers=headers)
         if response.status_code == 200:
-            print(
-                f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
+            logger.info(f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
         else:
-            print('Failed to sync the branch. Check your inputs and permissions.')
+            logger.info('Failed to sync the branch. Check your inputs and permissions.')
 
     def make_fork(self, repository_owner, repository_name, base_branch, headers):
         """
@@ -127,10 +127,10 @@ class GithubHelper:
         fork_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/forks'
         fork_response = requests.post(fork_url, headers=headers)
         if fork_response.status_code == 202:
-            print('Fork created successfully.')
+            logger.info('Fork created successfully.')
             self.sync_branch(repository_owner, repository_name, base_branch, base_branch, headers)
         else:
-            print('Failed to create the fork:', fork_response.json()['message'])
+            logger.info('Failed to create the fork:', fork_response.json()['message'])
 
         return fork_response.status_code
 
@@ -156,11 +156,11 @@ class GithubHelper:
         }
         branch_response = requests.post(branch_url, json=branch_params, headers=headers)
         if branch_response.status_code == 201:
-            print('Branch created successfully.')
+            logger.info('Branch created successfully.')
         elif branch_response.status_code == 422:
-            print('Branch new-file already exists, making commits to new-file branch')
+            logger.info('Branch new-file already exists, making commits to new-file branch')
         else:
-            print('Failed to create branch:', branch_response.json()['message'])
+            logger.info('Failed to create branch:', branch_response.json()['message'])
 
         return branch_response.status_code
 
@@ -188,9 +188,9 @@ class GithubHelper:
         }
         file_response = requests.delete(file_url, json=file_params, headers=headers)
         if file_response.status_code == 200:
-            print('File or folder delete successfully.')
+            logger.info('File or folder delete successfully.')
         else:
-            print('Failed to Delete file or folder:', file_response.json())
+            logger.info('Failed to Delete file or folder:', file_response.json())
 
         return file_response.status_code
 
@@ -223,11 +223,11 @@ class GithubHelper:
         }
         file_response = requests.put(file_url, json=file_params, headers=headers)
         if file_response.status_code == 201:
-            print('File content uploaded successfully.')
+            logger.info('File content uploaded successfully.')
         elif file_response.status_code == 422:
-            print('File already exists')
+            logger.info('File already exists')
         else:
-            print('Failed to upload file content:', file_response.json()['message'])
+            logger.info('Failed to upload file content:', file_response.json()['message'])
         return file_response.status_code
 
     def create_pull_request(self, repository_owner, repository_name, head_branch, base_branch, headers):
@@ -255,11 +255,11 @@ class GithubHelper:
         pr_response = requests.post(pull_request_url, json=pull_request_params, headers=headers)
 
         if pr_response.status_code == 201:
-            print('Pull request created successfully.')
+            logger.info('Pull request created successfully.')
         elif pr_response.status_code == 422:
-            print('Added changes to already existing pull request')
+            logger.info('Added changes to already existing pull request')
         else:
-            print('Failed to create pull request:', pr_response.json()['message'])
+            logger.info('Failed to create pull request:', pr_response.json()['message'])
 
         return pr_response.status_code
 

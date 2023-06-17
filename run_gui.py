@@ -3,10 +3,11 @@ import sys
 import subprocess
 from time import sleep
 import shutil
+from superagi.lib.logger import logger
 
 def check_command(command, message):
     if not shutil.which(command):
-        print(message)
+        logger.info(message)
         sys.exit(1)
 
 def run_npm_commands():
@@ -14,7 +15,7 @@ def run_npm_commands():
     try:
         subprocess.run(["npm", "install"], check=True)
     except subprocess.CalledProcessError:
-        print(f"Error during '{' '.join(sys.exc_info()[1].cmd)}'. Exiting.")
+        logger.error(f"Error during '{' '.join(sys.exc_info()[1].cmd)}'. Exiting.")
         sys.exit(1)
     os.chdir("..")
 
@@ -26,10 +27,10 @@ def run_server():
     return api_process, ui_process
 
 def cleanup(api_process, ui_process):
-    print("Shutting down processes...")
+    logger.info("Shutting down processes...")
     api_process.terminate()
     ui_process.terminate()
-    print("Processes terminated. Exiting.")
+    logger.info("Processes terminated. Exiting.")
     sys.exit(1)
 
 if __name__ == "__main__":

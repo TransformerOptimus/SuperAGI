@@ -9,6 +9,7 @@ from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from superagi.llms.base_llm import BaseLlm
 from pydantic import BaseModel, Field, PrivateAttr
+from superagi.lib.logger import logger
 
 
 class ThinkingSchema(BaseModel):
@@ -66,5 +67,5 @@ class ThinkingTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             return result["content"]
         except Exception as e:
-            print(e)
+            logger.error(e)
             return f"Error generating text: {e}"

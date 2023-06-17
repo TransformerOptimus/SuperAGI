@@ -1,5 +1,6 @@
 import json
 import re
+from superagi.lib.logger import logger
 
 
 class JsonCleaner:
@@ -32,7 +33,7 @@ class JsonCleaner:
                 json.loads(json_string)
                 return json_string
             except json.JSONDecodeError as e:
-                print(json_string)
+                logger.info(json_string)
                 # If the json is still invalid, try to extract the json section
                 json_string = cls.extract_json_section(json_string)
                 return json_string

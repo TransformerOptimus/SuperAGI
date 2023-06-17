@@ -1,14 +1,14 @@
 from fastapi import APIRouter
-from fastapi import HTTPException, Depends
-from fastapi_jwt_auth import AuthJWT
-from fastapi_sqlalchemy import db
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
-from superagi.config.config import get_config
-from superagi.helper.auth import check_auth
-from superagi.helper.encyption_helper import encrypt_data, decrypt_data
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
+from fastapi_sqlalchemy import db
+from fastapi import HTTPException, Depends, Request
+from superagi.config.config import get_config
+from superagi.helper.auth import check_auth
+from fastapi_jwt_auth import AuthJWT
+from superagi.helper.encyption_helper import encrypt_data,decrypt_data
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -51,7 +51,10 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
         db.session.flush()
         return existing_config
 
+    logger.info("NEW CONFIG")
     new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
+    logger.info(new_config)
+    logger.info("ORGANISATION ID : ",organisation_id)
     db.session.add(new_config)
     db.session.commit()
     db.session.flush()
@@ -84,7 +87,7 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
         api_key = get_config("OPENAI_API_KEY")
         if api_key is not None and api_key != "YOUR_OPEN_API_KEY":
             encrypted_data = encrypt_data(api_key)
-            new_config = Configuration(organisation_id=organisation_id, key="model_api_key", value=encrypted_data)
+            new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
             db.session.add(new_config)
             db.session.commit()
             db.session.flush()

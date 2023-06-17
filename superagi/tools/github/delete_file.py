@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from superagi.config.config import get_config
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.github_helper import GithubHelper
+from superagi.lib.logger import logger
 
 
 class GithubDeleteFileSchema(BaseModel):
@@ -76,7 +77,7 @@ class GithubDeleteFileTool(BaseTool):
             if repository_owner != github_username:
                 fork_response = github_helper.make_fork(repository_owner, repository_name, base_branch, headers)
             branch_response = github_helper.create_branch(repository_name, base_branch, head_branch, headers)
-            print("branch_response", branch_response)
+            logger.info("branch_response", branch_response)
             if branch_response == 201 or branch_response == 422:
                 github_helper.sync_branch(github_username, repository_name, base_branch, head_branch, headers)
 
