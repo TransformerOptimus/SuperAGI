@@ -150,6 +150,7 @@ def get_execution_tasks(agent_execution_id: int,
     Returns:
         dict: The tasks and completed tasks for the agent execution.
     """
+
     task_queue = TaskQueue(str(agent_execution_id))
     tasks = []
     for task in task_queue.get_tasks():

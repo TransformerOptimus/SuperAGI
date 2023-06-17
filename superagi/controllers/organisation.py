@@ -25,6 +25,9 @@ def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclu
     Returns:
         dict: Dictionary containing the created organisation.
 
+    Raises:
+        HTTPException (status_code=400): If there is an issue creating the organisation.
+
     """
 
     new_organisation = Organisation(
@@ -50,6 +53,9 @@ def get_organisation(organisation_id: int, Authorize: AuthJWT = Depends(check_au
     Returns:
         dict: Dictionary containing the organisation details.
 
+    Raises:
+        HTTPException (status_code=404): If the organisation with the specified ID is not found.
+
     """
 
     db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
@@ -70,6 +76,9 @@ def update_organisation(organisation_id: int, organisation: sqlalchemy_to_pydant
 
     Returns:
         dict: Dictionary containing the updated organisation details.
+
+    Raises:
+        HTTPException (status_code=404): If the organisation with the specified ID is not found.
 
     """
 
@@ -94,6 +103,9 @@ def get_organisations_by_user(user_id: int):
 
     Returns:
         dict: Dictionary containing the organisation details.
+
+    Raises:
+        HTTPException (status_code=400): If the user with the specified ID is not found.
 
     """
 
