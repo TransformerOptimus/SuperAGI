@@ -8,6 +8,7 @@ from superagi.config.config import get_config
 from superagi.helper.auth import check_auth
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.encyption_helper import encrypt_data,decrypt_data
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -40,10 +41,10 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
         db.session.flush()
         return existing_config
 
-    print("NEW CONFIG")
+    logger.info("NEW CONFIG")
     new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
-    print(new_config)
-    print("ORGANISATION ID : ",organisation_id)
+    logger.info(new_config)
+    logger.info("ORGANISATION ID : ",organisation_id)
     db.session.add(new_config)
     db.session.commit()
     db.session.flush()

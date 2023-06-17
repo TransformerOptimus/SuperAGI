@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
+from superagi.lib.logger import logger
 
 
 class CodingSchema(BaseModel):
@@ -46,5 +47,5 @@ class CodingTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             return result["content"]
         except Exception as e:
-            print(e)
+            logger.error(e)
             return f"Error generating text: {e}"

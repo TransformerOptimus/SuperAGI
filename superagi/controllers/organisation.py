@@ -8,6 +8,7 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
 from superagi.models.project import Project
 from superagi.models.user import User
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclu
     db.session.add(new_organisation)
     db.session.commit()
     db.session.flush()
-    print(new_organisation)
+    logger.info(new_organisation)
 
     return new_organisation
 

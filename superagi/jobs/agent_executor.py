@@ -41,6 +41,7 @@ from superagi.vector_store.vector_factory import VectorFactory
 from superagi.helper.encyption_helper import decrypt_data
 from sqlalchemy import func
 import superagi.worker
+from superagi.lib.logger import logger
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
@@ -117,7 +118,7 @@ class AgentExecutor:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
             session.commit()
-            print("ITERATION_LIMIT_CROSSED")
+            logger.info("ITERATION_LIMIT_CROSSED")
             return "ITERATION_LIMIT_CROSSED"
 
         parsed_config["agent_execution_id"] = agent_execution.id
@@ -132,7 +133,7 @@ class AgentExecutor:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            print("Unable to setup the pinecone connection...")
+            logger.info("Unable to setup the pinecone connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
@@ -161,7 +162,7 @@ class AgentExecutor:
 
             session.commit()
         else:
-            print("Starting next job for agent execution id: ", agent_execution_id)
+            logger.info("Starting next job for agent execution id: ", agent_execution_id)
             superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()

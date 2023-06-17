@@ -20,7 +20,7 @@ import datetime
 from botocore.exceptions import NoCredentialsError
 import tempfile
 import requests
-
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -63,7 +63,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now()).replace(' ','').replace('.','').replace(':','')+'.'+file_name[1]
         try:
             s3.upload_fileobj(file.file, bucket_name, path)
-            print("File uploaded successfully!")
+            logger.info("File uploaded successfully!")
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
@@ -72,7 +72,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    print(resource)
+    logger.info(resource)
     return resource
 
 

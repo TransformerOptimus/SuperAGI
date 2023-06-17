@@ -10,6 +10,7 @@ from requests_html import HTMLSession
 import time
 import random
 from lxml import html
+from superagi.lib.logger import logger
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -59,15 +60,15 @@ class WebpageExtractor:
             return content[:1500]
 
         except ArticleException as ae:
-            print(f"Error while extracting text from HTML (newspaper3k): {str(ae)}")
+            logger.error(f"Error while extracting text from HTML (newspaper3k): {str(ae)}")
             return f"Error while extracting text from HTML (newspaper3k): {str(ae)}"
 
         except RequestException as re:
-            print(f"Error while making the request to the URL (newspaper3k): {str(re)}")
+            logger.error(f"Error while making the request to the URL (newspaper3k): {str(re)}")
             return f"Error while making the request to the URL (newspaper3k): {str(re)}"
 
         except Exception as e:
-            print(f"Unknown error while extracting text from HTML (newspaper3k): {str(e)}")
+            logger.error(f"Unknown error while extracting text from HTML (newspaper3k): {str(e)}")
             return ""
 
     def extract_with_bs4(self, url):
@@ -96,11 +97,11 @@ class WebpageExtractor:
             elif response.status_code == 404:
                 return f"Error: 404. Url is invalid or does not exist. Try with valid url..."
             else:
-                print(f"Error while extracting text from HTML (bs4): {response.status_code}")
+                logger.error(f"Error while extracting text from HTML (bs4): {response.status_code}")
                 return f"Error while extracting text from HTML (bs4): {response.status_code}"
 
         except Exception as e:
-            print(f"Unknown error while extracting text from HTML (bs4): {str(e)}")
+            logger.error(f"Unknown error while extracting text from HTML (bs4): {str(e)}")
             return ""
 
     def extract_with_lxml(self, url):
@@ -122,14 +123,14 @@ class WebpageExtractor:
             return content
 
         except ArticleException as ae:
-            print(f"Error while extracting text from HTML (lxml): {str(ae)}")
+            logger.error("Error while extracting text from HTML (lxml): {str(ae)}")
             return ""
 
         except RequestException as re:
-            print(f"Error while making the request to the URL (lxml): {str(re)}")
+            logger.error(f"Error while making the request to the URL (lxml): {str(re)}")
             return ""
 
         except Exception as e:
-            print(f"Unknown error while extracting text from HTML (lxml): {str(e)}")
+            logger.error(f"Unknown error while extracting text from HTML (lxml): {str(e)}")
             return ""
     
