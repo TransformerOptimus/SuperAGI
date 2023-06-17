@@ -1,13 +1,14 @@
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from superagi.models.configuration import Configuration
-from superagi.models.organisation import Organisation
+from fastapi import HTTPException, Depends
+from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
 from superagi.config.config import get_config
 from superagi.helper.auth import check_auth
-from fastapi_jwt_auth import AuthJWT
-from superagi.helper.encyption_helper import encrypt_data,decrypt_data
+from superagi.helper.encyption_helper import encrypt_data, decrypt_data
+from superagi.models.configuration import Configuration
+from superagi.models.organisation import Organisation
 
 router = APIRouter()
 
@@ -17,7 +18,17 @@ router = APIRouter()
              response_model=sqlalchemy_to_pydantic(Configuration))
 def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]), organisation_id: int,
                   Authorize: AuthJWT = Depends(check_auth)):
-    """Create a new Organisation level config"""
+    """
+    Creates a new Organisation level config.
+
+    Args:
+        config (Configuration): Configuration details.
+        organisation_id (int): ID of the organisation.
+
+    Returns:
+        Configuration: Created configuration.
+
+    """
 
     db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
     if not db_organisation:
@@ -40,10 +51,7 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
         db.session.flush()
         return existing_config
 
-    print("NEW CONFIG")
     new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
-    print(new_config)
-    print("ORGANISATION ID : ",organisation_id)
     db.session.add(new_config)
     db.session.commit()
     db.session.flush()
@@ -53,7 +61,18 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
 @router.get("/get/organisation/{organisation_id}/key/{key}", status_code=200)
 def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
                                           Authorize: AuthJWT = Depends(check_auth)):
-    """Get Config from organisation_id and given key"""
+    """
+    Get a configuration by organisation ID and key.
+
+    Args:
+        organisation_id (int): ID of the organisation.
+        key (str): Key of the configuration.
+        Authorize (AuthJWT, optional): Authorization JWT token. Defaults to Depends(check_auth).
+
+    Returns:
+        Configuration: Retrieved configuration.
+
+    """
 
     db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
     if not db_organisation:
@@ -65,7 +84,7 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
         api_key = get_config("OPENAI_API_KEY")
         if api_key is not None and api_key != "YOUR_OPEN_API_KEY":
             encrypted_data = encrypt_data(api_key)
-            new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
+            new_config = Configuration(organisation_id=organisation_id, key="model_api_key", value=encrypted_data)
             db.session.add(new_config)
             db.session.commit()
             db.session.flush()
@@ -84,7 +103,17 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
 @router.get("/get/organisation/{organisation_id}", status_code=201)
 def get_config_by_organisation_id(organisation_id: int,
                                   Authorize: AuthJWT = Depends(check_auth)):
-    """Get all configs from organisation_id"""
+    """
+    Get all configurations for a given organisation ID.
+
+    Args:
+        organisation_id (int): ID of the organisation.
+        Authorize (AuthJWT, optional): Authorization JWT token. Defaults to Depends(check_auth).
+
+    Returns:
+        List[Configuration]: List of configurations for the organisation.
+
+    """
 
     db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
     if not db_organisation:
@@ -103,7 +132,13 @@ def get_config_by_organisation_id(organisation_id: int,
 
 @router.get("/get/env", status_code=200)
 def current_env():
-    """Get current ENV"""
+    """
+    Get the current environment.
+
+    Returns:
+        dict: Dictionary containing the current environment.
+
+    """
 
     env = get_config("ENV", "DEV")
     return {

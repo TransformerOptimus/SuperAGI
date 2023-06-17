@@ -4,9 +4,10 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy.sql import asc
+
 from superagi.agent.task_queue import TaskQueue
 from superagi.helper.auth import check_auth
-from superagi.helper.parse_helper import parse_feed
+from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 
