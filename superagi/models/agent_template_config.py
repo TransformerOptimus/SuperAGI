@@ -2,7 +2,6 @@ import json
 
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.base_model import DBBaseModel
 
 
@@ -23,7 +22,6 @@ class AgentTemplateConfig(DBBaseModel):
     agent_template_id = Column(Integer)
     key = Column(String)
     value = Column(Text)
-
 
     def __repr__(self):
         """
@@ -80,4 +78,3 @@ class AgentTemplateConfig(DBBaseModel):
             key=data['key'],
             value=data['value']
         )
-
