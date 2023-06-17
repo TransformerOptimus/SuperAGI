@@ -17,7 +17,7 @@ class AgentExecution(DBBaseModel):
         name (str): The name of the agent execution.
         agent_id (int): The identifier of the associated agent.
         last_execution_time (datetime): The timestamp of the last execution time.
-        num_of_calls (int): The number of calls made during the execution.
+        num_of_calls (int): The number of API calls made to model during the execution.
         num_of_tokens (int): The number of tokens used during the execution.
         current_step_id (int): The identifier of the current step in the execution.
     """

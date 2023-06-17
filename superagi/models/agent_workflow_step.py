@@ -13,7 +13,7 @@ class AgentWorkflowStep(DBBaseModel):
         id (int): The unique identifier of the agent workflow step.
         agent_workflow_id (int): The ID of the agent workflow to which this step belongs.
         unique_id (str): The unique identifier of the step.
-        prompt (str): The prompt for the step.
+        prompt (str): The prompt for the step to be given to the model.
         variables (str): The variables associated with the step.
         output_type (str): The output type of the step.
         step_type (str): The type of the step (TRIGGER, NORMAL).
