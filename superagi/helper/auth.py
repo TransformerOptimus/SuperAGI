@@ -38,8 +38,10 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     if env == "DEV":
         email = "super6@agi.com"
     else:
+        # Retrieve the email of the logged-in user from the JWT token payload
         email = Authorize.get_jwt_subject()
 
+    # Query the User table to find the user by their email
     user = db.session.query(User).filter(User.email == email).first()
     organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
     return organisation
