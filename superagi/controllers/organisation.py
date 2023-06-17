@@ -13,13 +13,13 @@ router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add",     response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
+@router.post("/add", response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
 def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclude=["id"]),
                         Authorize: AuthJWT = Depends(check_auth)):
     """Create a new organistaion"""
 
     new_organisation = Organisation(
-            name=organisation.name,
+        name=organisation.name,
         description=organisation.description,
     )
     db.session.add(new_organisation)
@@ -54,7 +54,8 @@ def update_organisation(organisation_id: int, organisation: sqlalchemy_to_pydant
 
     return db_organisation
 
-@router.get("/get/user/{user_id}",response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
+
+@router.get("/get/user/{user_id}", response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
 def get_organisations_by_user(user_id: int):
     user = db.session.query(User).filter(User.id == user_id).first()
     if user is None:

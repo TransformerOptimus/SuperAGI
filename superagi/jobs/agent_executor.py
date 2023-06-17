@@ -56,7 +56,11 @@ class AgentExecutor:
     @staticmethod
     def create_object(class_name, folder_name, file_name):
         file_name = AgentExecutor.validate_filename(filename=file_name)
-        module_name = f"superagi.tools.{folder_name}.{file_name}"
+
+        tools_dir = get_config("TOOLS_DIR").rstrip("/")
+        module_name = ".".join(tools_dir.split("/") + [folder_name, file_name])
+
+        # module_name = f"superagi.tools.{folder_name}.{file_name}"
 
         # Load the module dynamically
         module = importlib.import_module(module_name)
@@ -142,7 +146,12 @@ class AgentExecutor:
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key)
-
+        print("final tools ________________")
+        print(tools)
+        print("API KEY: ")
+        print(model_api_key)
+        test_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
+        print(test_llm)
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,

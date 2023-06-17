@@ -6,6 +6,7 @@ from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 from slack_sdk import WebClient
 
+
 class SlackMessageSchema(BaseModel):
     channel: str = Field(
         ...,
@@ -13,8 +14,9 @@ class SlackMessageSchema(BaseModel):
     )
     message: str = Field(
         ...,
-        description = "Text Message to be sent to a person or a group or people"
+        description="Text Message to be sent to a person or a group or people"
     )
+
 
 class SlackMessageTool(BaseTool):
     '''
@@ -25,11 +27,11 @@ class SlackMessageTool(BaseTool):
     name = "SendSlackMessage"
     description = "Send text message in Slack"
     args_schema: Type[SlackMessageSchema] = SlackMessageSchema
-    
+
     def _execute(self, channel: str, message: str):
         slack = self.build_slack_web_client()
         response = slack.chat_postMessage(channel=channel, text=message)
-        
+
         if response['ok']:
             return f'Message sent to {channel} Successfully'
         else:

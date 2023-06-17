@@ -58,7 +58,7 @@ class ToolKit(DBBaseModel):
     @staticmethod
     def add_or_update(session, name, description, show_tool_kit, organisation_id, tool_code_link):
         # Check if the toolkit exists
-        toolkit = session.query(ToolKit).filter(ToolKit.name == name,ToolKit.organisation_id == organisation_id).first()
+        toolkit = session.query(ToolKit).filter(ToolKit.name == name, ToolKit.organisation_id == organisation_id).first()
 
         if toolkit:
             # Update the existing toolkit
@@ -81,7 +81,7 @@ class ToolKit(DBBaseModel):
 
         session.commit()
         session.flush()
-
+        print("NEW TOOL KIT MADE :",toolkit)
         return toolkit
 
     @classmethod
@@ -107,3 +107,10 @@ class ToolKit(DBBaseModel):
             return response.json()
         else:
             return None
+
+    @staticmethod
+    def get_tool_kit_from_name(session, tool_kit_name):
+        tool_kit = session.query(ToolKit).filter_by(name=tool_kit_name).first()
+        if tool_kit:
+            return tool_kit
+        return None

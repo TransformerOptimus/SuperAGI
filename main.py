@@ -30,6 +30,7 @@ from superagi.controllers.user import router as user_router
 from superagi.controllers.config import router as config_router
 from superagi.controllers.tool_kit import router as tool_kit_router
 from superagi.controllers.tool_config import router as tool_config_router
+from superagi.llms.openai import OpenAi
 
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
@@ -144,7 +145,10 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 Session = sessionmaker(bind=engine)
 session = Session()
-organisation = session.query(Organisation).filter_by(id=1).first()
+default_user = session.query(User).filter(User.email == "super6@agi.com").first()
+print(default_user)
+organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
+print(organisation)
 
 
 def build_single_step_agent():
@@ -262,14 +266,8 @@ build_task_based_agents()
 folder_path = superagi.config.config.get_config("TOOLS_DIR")
 if folder_path is None:
     folder_path = "superagi/tools"
-
-# Process the files and store class information
-# Get default user organisation
-# default_user = session.query(User).filter(User.email =="super6@agi.com")
-# print(default_user)
-# default_user_org = session.query(Organisation).filter(Organisation.id == default_user.organisation_id)
-# print(default_user_org)
-# process_files(folder_path, session, default_user_org)
+if organisation is not None:
+    process_files(folder_path, session, organisation)
 session.close()
 
 
@@ -372,6 +370,19 @@ async def root(Authorize: AuthJWT = Depends()):
         return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+
+@app.get("/validate-open-ai-key/{open_ai_key}")
+async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
+    """API to validate Open AI Key"""
+
+    try:
+        llm = OpenAi(api_key=open_ai_key)
+        response = llm.chat_completion([{"role": "system", "content": "Hey!"}])
+        print(response)
+        # if response.get('content')
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
 
 
 # #Unprotected route

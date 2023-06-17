@@ -23,23 +23,27 @@ class Tool(DBBaseModel):
     @staticmethod
     def add_or_update(session, tool_name: str, description: str, folder_name: str, class_name: str, file_name: str,
                       tool_kit_id: int):
-        # Check if a record with the given tool name already exists
-        tool = session.query(Tool).filter_by(name=tool_name).first()
-
-        if tool:
+        # Check if a record with the given tool name already exists inside a toolkit
+        tool = session.query(Tool).filter_by(name=tool_name,
+                                             tool_kit_id=tool_kit_id).first()
+        print("____ADD OR UPDATE TOOL KIT")
+        if tool is not None:
             # Update the attributes of the existing tool record
+            print("UPDATED TOOL KIT")
             tool.folder_name = folder_name
             tool.class_name = class_name
             tool.file_name = file_name
             tool.description = description
         else:
             # Create a new tool record
+            print("CREATED TOOL KIT")
             tool = Tool(name=tool_name, description=description, folder_name=folder_name, class_name=class_name,
                         file_name=file_name,
                         tool_kit_id=tool_kit_id)
             session.add(tool)
 
         session.commit()
+        session.flush()
         return tool
 
     @staticmethod

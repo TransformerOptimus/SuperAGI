@@ -5,8 +5,6 @@ from read_email import ReadEmailTool
 from send_email import SendEmailTool
 from send_email_attachment import SendEmailAttachmentTool
 
-from pydantic import BaseModel, Field
-
 
 class EmailToolKit(BaseToolKit, ABC):
     name: str = "Changed Email Toolkit"

@@ -9,6 +9,7 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.tool_kit import ToolKit
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
@@ -83,14 +84,37 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    print("AGENT TOOLS : ")
+    print(agent_with_config.tools)
     for tool_id in agent_with_config.tools:
         tool = db.session.query(Tool).get(tool_id)
         if tool is None:
             # Tool does not exist, throw 404 or handle as desired
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
+
+    agent_tool_kit_tools = []
+    print("AGENT TOOLKITS:")
+    print(agent_with_config.tool_kits)
+    for tool_kit_id in agent_with_config.tool_kits:
+        print("inside1 : ",tool_kit_id)
+        tool_kit_tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit_id).all()
+        print("tools : ",tool_kit_tools)
+        for tool in tool_kit_tools:
+            print("inside2")
+            tool = db.session.query(Tool).filter(Tool.id == tool.id).first()
+            print(tool)
+            if tool is None:
+                # Tool does not exist, throw 404
+                raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
+            else:
+                agent_tool_kit_tools.append(tool.id)
+
+    agent_with_config.tools.extend(agent_tool_kit_tools)
+    print("FINAL TOOLS: ")
+    print(agent_with_config)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    # Creating an execution with CREATED status
+    # Creating an execution with RUNNING status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 

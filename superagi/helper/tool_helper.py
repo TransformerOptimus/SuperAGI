@@ -11,6 +11,7 @@ from superagi.models.tool_kit import ToolKit
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolKit
 from urllib.parse import urlparse
+import importlib.util
 
 
 def parse_github_url(github_url):
@@ -80,18 +81,24 @@ def get_classes_in_file(file_path, clazz):
             class_obj = getattr(module, member.__name__)
             try:
                 obj = class_obj()
-                class_dict['tool_kit_name'] = obj.name
-                class_dict['tool_kit_description'] = obj.description
-                class_dict['tool_kit_tools'] = obj.get_tools()
-                class_dict['tool_kit_keys'] = obj.get_env_keys()
-                classes.append(class_dict)
+                if clazz == BaseToolKit:
+                    class_dict['tool_kit_name'] = obj.name
+                    class_dict['tool_kit_description'] = obj.description
+                    class_dict['tool_kit_tools'] = obj.get_tools()
+                    class_dict['tool_kit_keys'] = obj.get_env_keys()
+                    classes.append(class_dict)
+                elif clazz == BaseTool:
+                    # print("FOUND BASE TOOL__________")
+                    class_dict['tool_name'] = obj.name
+                    class_dict['tool_description'] = obj.description
+                    classes.append(class_dict)
+                    # print(obj.name)
             except:
                 class_dict = None
     return classes
 
 
 def load_module_from_file(file_path):
-    import importlib.util
 
     spec = importlib.util.spec_from_file_location("module_name", file_path)
     module = importlib.util.module_from_spec(spec)
@@ -101,25 +108,65 @@ def load_module_from_file(file_path):
 
 
 def process_files(folder_path, session, organisation, code_link=None):
+    print("GETTING TOOLKITS OF : ")
+    print(organisation)
     existing_toolkits = session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
 
+    # tool_name_to_tool_kit = []
+    tool_name_to_tool_kit = init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session)
+    init_tools(folder_path, session, tool_name_to_tool_kit)
+    # print(tool_name_to_tool_kit['Read Email'])
+
+def init_tools(folder_path, session, tool_name_to_tool_kit):
+    # print("INIT TOOLS : ")
+    print("_______________MAPPING___________________ : ")
+    print(tool_name_to_tool_kit)
+    # Iterate over all subfolders
+    for folder_name in os.listdir(folder_path):
+        folder_dir = os.path.join(folder_path, folder_name)
+        # Iterate over all files in the subfolder
+        if os.path.isdir(folder_dir):
+            # sys.path.append(os.path.abspath('superagi/tools/email'))
+            sys.path.append(folder_dir)
+            for file_name in os.listdir(folder_dir):
+                file_path = os.path.join(folder_dir, file_name)
+                if file_name.endswith(".py") and not file_name.startswith("__init__"):
+                    # Get classes
+                    classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)
+                    # print("FINAL TOOLS CLASSES : ")
+                    print(classes)
+                    for clazz in classes:
+                        # print("FInal", clazz["tool_kit_description"])
+                        if clazz["class_name"] is not None:
+                            # print("____________________________________Class name found")
+                            tool_name = clazz['tool_name']
+                            tool_description = clazz['tool_description']
+                            # print("TOOL NAME ----------------- > ",tool_name)
+                            new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
+                                                          class_name=clazz['class_name'], file_name=file_name,
+                                                          tool_kit_id=tool_name_to_tool_kit[tool_name],
+                                                          description=tool_description)
+                            # print("Final New-Tool", new_tool)
+
+
+def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session):
+    tool_name_to_tool_kit = {}
     new_toolkits = []
     # Iterate over all subfolders
     for folder_name in os.listdir(folder_path):
         folder_dir = os.path.join(folder_path, folder_name)
 
         if os.path.isdir(folder_dir):
-            sys.path.append(os.path.abspath('superagi/tools/email'))
-
+            # sys.path.append(os.path.abspath('superagi/tools/email'))
+            sys.path.append(folder_dir)
             # Iterate over all files in the subfolder
             for file_name in os.listdir(folder_dir):
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseToolKit)
-
                     for clazz in classes:
-                        print("FInal", clazz["tool_kit_description"])
+                        # print("FInal", clazz["tool_kit_description"])
                         if clazz["class_name"] is not None:
                             toolkit_name = clazz["tool_kit_name"]
                             toolkit_description = clazz["tool_kit_description"]
@@ -135,25 +182,36 @@ def process_files(folder_path, session, organisation, code_link=None):
                                 tool_code_link=code_link
                             )
 
+                            tool_mapping = {}
                             # Store the tools in the database
                             for tool in tools:
-                                Tool.add_or_update(session, tool_name=tool.name, folder_name=folder_name,
-                                                   class_name=clazz['class_name'], file_name=file_name,
-                                                   tool_kit_id=new_toolkit.id, description=tool.description)
+                                # print("INSIDE TOOLS")
+                                new_tool = Tool.add_or_update(session, tool_name=tool.name, folder_name=None,
+                                                              class_name=None, file_name=None,
+                                                              tool_kit_id=new_toolkit.id, description=tool.description)
+                                tool_mapping[tool.name] = new_toolkit.id
+                            tool_name_to_tool_kit = {**tool_mapping,**tool_name_to_tool_kit}
+                                # print("New Tool",new_tool)
+
                             # Store the tools config in the database
                             for tool_config_key in tool_config_keys:
-                                ToolConfig.add_or_update(session, tool_kit_id=new_toolkit.id,
-                                                         key=tool_config_key)
-
+                                # print("INSIDE CONFIG")
+                                new_config = ToolConfig.add_or_update(session, tool_kit_id=new_toolkit.id,
+                                                                      key=tool_config_key)
+                                # print("New config : ",new_config)
     # Delete toolkits that are not present in the updated toolkits
-    for toolkit in existing_toolkits:
-        if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
-            session.query(Tool).filter(Tool.tool_kit_id == toolkit.id).delete()
-            session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).delete()
-            session.delete(toolkit)
-
+    print("EXISTING TOOLS : ___________")
+    print(existing_toolkits)
+    # for toolkit in existing_toolkits:
+    #     if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
+    #         session.query(Tool).filter(Tool.tool_kit_id == toolkit.id).delete()
+    #         session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).delete()
+    #         print("_______________DELETEING________________")
+    #         print(toolkit)
+    #         session.delete(toolkit)
     # Commit the changes to the database
     session.commit()
+    return tool_name_to_tool_kit
 
 def get_readme_content_from_code_link(tool_code_link):
     parsed_url = urlparse(tool_code_link)
