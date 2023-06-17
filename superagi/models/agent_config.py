@@ -4,6 +4,17 @@ from superagi.models.base_model import DBBaseModel
 
 
 class AgentConfiguration(DBBaseModel):
+
+    """
+    Represents a configuration for an agent.
+
+    Attributes:
+        id (int): The unique identifier of the agent configuration.
+        agent_id (int): The identifier of the associated agent.
+        key (str): The key of the configuration setting.
+        value (str): The value of the configuration setting.
+    """
+
     __tablename__ = 'agent_configurations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
