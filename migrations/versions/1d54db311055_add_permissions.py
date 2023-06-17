@@ -31,6 +31,10 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.add_column('agent_executions', sa.Column('permission_id', sa.Integer(), nullable=True))
+    # index on agent_execution_id
+    op.create_index(op.f('ix_agent_execution_permissions_agent_execution_id')
+                    , 'agent_execution_permissions', ['agent_execution_id'], unique=False)
+
     # ### end Alembic commands ###
 
 
