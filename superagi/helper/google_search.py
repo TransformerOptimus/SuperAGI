@@ -8,6 +8,17 @@ from superagi.helper.webpage_extractor import WebpageExtractor
 class GoogleSearchWrap:
 
     def __init__(self, api_key, search_engine_id, num_results=3, num_pages=1, num_extracts=3):
+        """
+        Initialize the GoogleSearchWrap class.
+
+        Args:
+            api_key (str): Google API key
+            search_engine_id (str): Google Search Engine ID
+            num_results (int): Number of results per page
+            num_pages (int): Number of pages to search
+            num_extracts (int): Number of extracts to extract from each webpage
+        """
+
         self.api_key = api_key
         self.search_engine_id = search_engine_id
         self.num_results = num_results
@@ -16,6 +27,15 @@ class GoogleSearchWrap:
         self.extractor = WebpageExtractor()
 
     def search_run(self, query):
+        """
+        Run the Google search.
+
+        Args:
+            query (str): The query to search for.
+
+        Returns:
+            list: A list of extracts from the search results.
+        """
         all_snippets = []
         links = []
         for page in range(1, self.num_pages * self.num_results, self.num_results):
@@ -46,6 +66,15 @@ class GoogleSearchWrap:
         return all_snippets, links, response.status_code
 
     def get_result(self, query):
+        """
+        Get the result of the Google search.
+
+        Args:
+            query (str): The query to search for.
+
+        Returns:
+            list: A list of extracts from the search results.
+        """
         snippets, links, error_code = self.search_run(query)
 
         webpages = []

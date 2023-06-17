@@ -8,6 +8,18 @@ class ResourceHelper:
 
     @staticmethod
     def make_written_file_resource(file_name: str, agent_id: int, file, channel):
+        """
+        Function to create a Resource object for a written file.
+
+        Args:
+            file_name (str): The name of the file.
+            agent_id (int): The ID of the agent.
+            file (FileStorage): The file.
+            channel (str): The channel of the file.
+
+        Returns:
+            Resource: The Resource object.
+        """
         path = get_config("RESOURCES_OUTPUT_ROOT_DIR")
         storage_type = get_config("STORAGE_TYPE")
         file_extension = os.path.splitext(file_name)[1][1:]
