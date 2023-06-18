@@ -46,14 +46,14 @@ class Tool(DBBaseModel):
                                              tool_kit_id=tool_kit_id).first()
         if tool is not None:
             # Update the attributes of the existing tool record
-            print("UPDATED TOOL")
+            # print("UPDATED TOOL")
             tool.folder_name = folder_name
             tool.class_name = class_name
             tool.file_name = file_name
             tool.description = description
         else:
             # Create a new tool record
-            print("CREATED TOOL")
+            # print("CREATED TOOL")
             tool = Tool(name=tool_name, description=description, folder_name=folder_name, class_name=class_name,
                         file_name=file_name,
                         tool_kit_id=tool_kit_id)
@@ -61,7 +61,7 @@ class Tool(DBBaseModel):
 
         session.commit()
         session.flush()
-        print("FINAL TOOL : ",tool)
+        # print("FINAL TOOL : ",tool)
         return tool
 
     @staticmethod

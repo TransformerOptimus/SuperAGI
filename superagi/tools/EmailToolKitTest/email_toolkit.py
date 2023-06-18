@@ -1,5 +1,5 @@
 from abc import ABC
-from superagi_tools_lib import BaseToolKit, BaseTool
+from superagi.tools.base_tool import BaseToolKit, BaseTool
 from typing import Type, List
 from read_email import ReadEmailTool
 from send_email import SendEmailTool

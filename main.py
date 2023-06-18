@@ -40,7 +40,7 @@ from superagi.models.tool import Tool
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 from superagi.tools.base_tool import BaseTool
-from superagi.helper.tool_helper import process_files
+from superagi.helper.tool_helper import process_files, register_tool_kits
 
 import sys
 import os
@@ -149,17 +149,11 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 Session = sessionmaker(bind=engine)
 session = Session()
 default_user = session.query(User).filter(User.email == "super6@agi.com").first()
-# print(default_user)
-# if default_user is not None:
-#     organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
-#     print(organisation)
-#     # Specify the folder path
-#     folder_path = superagi.config.config.get_config("TOOLS_DIR")
-#     if folder_path is None:
-#         folder_path = "superagi/tools"
-#     if organisation is not None:
-#         process_files(folder_path, session, organisation)
-
+print(default_user)
+if default_user is not None:
+    organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
+    print(organisation)
+    register_tool_kits(session,organisation)
 def build_single_step_agent():
     agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
 

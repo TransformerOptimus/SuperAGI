@@ -2,7 +2,7 @@ from typing import Type
 
 from pydantic import BaseModel, Field
 
-from superagi_tools_lib import BaseTool
+from superagi.tools.base_tool import BaseTool
 
 
 class ReadEmailInput(BaseModel):

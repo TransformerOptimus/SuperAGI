@@ -109,6 +109,8 @@ def load_module_from_file(file_path):
 
 
 def init_tools(folder_path, session, tool_name_to_tool_kit):
+    print("__________________________________INIT TOOLS______________________________________")
+
     # Iterate over all subfolders
     for folder_name in os.listdir(folder_path):
         folder_dir = os.path.join(folder_path, folder_name)
@@ -137,6 +139,7 @@ def init_tools(folder_path, session, tool_name_to_tool_kit):
 
 
 def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session):
+    print("__________________________________INIT TOOL KITS______________________________________")
     tool_name_to_tool_kit = {}
     new_toolkits = []
     # Iterate over all subfolders
@@ -151,6 +154,7 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
+                    print("FILE : ",file_path)
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseToolKit)
                     for clazz in classes:
                         # print("FInal", clazz["tool_kit_description"])
@@ -184,14 +188,16 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                                 new_config = ToolConfig.add_or_update(session, tool_kit_id=new_toolkit.id,
                                                                       key=tool_config_key)
     # Delete toolkits that are not present in the updated toolkits
-    print("EXISTING TOOLS : ___________")
-    print(existing_toolkits)
+    # print("EXISTING TOOLS : ___________")
+    # print(existing_toolkits)
+    # print("NEW FINAL TOOLS : ___________")
+    # print(new_toolkits)
     for toolkit in existing_toolkits:
         if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
             session.query(Tool).filter(Tool.tool_kit_id == toolkit.id).delete()
             session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).delete()
-            print("_______________DELETEING________________")
-            print(toolkit)
+            # print("_______________DELETEING________________")
+            # print(toolkit)
             session.delete(toolkit)
     # Commit the changes to the database
     session.commit()
@@ -234,6 +240,8 @@ def register_tool_kits(session, organisation):
         folder_path = "superagi/tools"
     if organisation is not None:
         process_files(folder_path, session, organisation)
+        # print("__________________________INPUT TOOL PARSING__________________")
+        # process_files("superagi/.input_tools", session, organisation)
 
 
 def extract_repo_name(repo_link):

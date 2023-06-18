@@ -5,7 +5,7 @@ from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
 from inspect import signature
 
-from config import get_config
+from superagi.config.config import get_config
 from typing import List
 
 
@@ -192,8 +192,4 @@ class BaseToolKit(BaseModel):
 
     @abstractmethod
     def get_env_keys(self) -> List[str]:
-        pass
-
-    @abstractmethod
-    def get_config(self) -> str:
         pass

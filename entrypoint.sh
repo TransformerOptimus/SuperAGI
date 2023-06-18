@@ -4,7 +4,7 @@
 #set -e
 
 # Run tool_manager.py if needed
-# python tool_manager.py
+ python tool_manager.py
 
 # Set executable permissions for install_tool_dependencies.sh
 chmod +x install_tool_dependencies.sh
