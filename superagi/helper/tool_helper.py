@@ -110,7 +110,7 @@ def load_module_from_file(file_path):
 
 def init_tools(folder_path, session, tool_name_to_tool_kit):
     print("__________________________________INIT TOOLS______________________________________")
-
+    print(tool_name_to_tool_kit)
     # Iterate over all subfolders
     for folder_name in os.listdir(folder_path):
         folder_dir = os.path.join(folder_path, folder_name)
@@ -127,11 +127,11 @@ def init_tools(folder_path, session, tool_name_to_tool_kit):
                         if clazz["class_name"] is not None:
                             tool_name = clazz['tool_name']
                             tool_description = clazz['tool_description']
-                            tool_kit_id = tool_name_to_tool_kit.get(tool_name, None)
+                            tool_kit_id = tool_name_to_tool_kit.get((tool_name,folder_name), None)
                             if tool_kit_id is not None:
                                 new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
                                                               class_name=clazz['class_name'], file_name=file_name,
-                                                              tool_kit_id=tool_name_to_tool_kit[tool_name],
+                                                              tool_kit_id=tool_name_to_tool_kit[(tool_name,folder_name)],
                                                               description=tool_description)
                                 print("Updated Tool path details for tool : ", new_tool)
                             else:
@@ -177,10 +177,10 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                             # Store the tools in the database
                             for tool in tools:
                                 # print("INSIDE TOOLS")
-                                new_tool = Tool.add_or_update(session, tool_name=tool.name, folder_name=None,
+                                new_tool = Tool.add_or_update(session, tool_name=tool.name, folder_name=folder_name,
                                                               class_name=None, file_name=None,
                                                               tool_kit_id=new_toolkit.id, description=tool.description)
-                                tool_mapping[tool.name] = new_toolkit.id
+                                tool_mapping[tool.name,folder_name] = new_toolkit.id
                             tool_name_to_tool_kit = {**tool_mapping, **tool_name_to_tool_kit}
 
                             # Store the tools config in the database

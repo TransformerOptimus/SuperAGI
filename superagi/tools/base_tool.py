@@ -188,8 +188,10 @@ class BaseToolKit(BaseModel):
 
     @abstractmethod
     def get_tools(self) -> List[BaseTool]:
+        # Add file related tools object here
         pass
 
     @abstractmethod
     def get_env_keys(self) -> List[str]:
+        # Add file related config keys here
         pass
