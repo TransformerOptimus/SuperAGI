@@ -62,6 +62,7 @@ class ToolKit(DBBaseModel):
 
         if toolkit:
             # Update the existing toolkit
+            print("Updated Tool Kit!")
             toolkit.name = name
             toolkit.description = description
             toolkit.show_tool_kit = show_tool_kit
@@ -69,6 +70,7 @@ class ToolKit(DBBaseModel):
             toolkit.tool_code_link = tool_code_link
         else:
             # Create a new toolkit
+            print("Created Tool Kit")
             toolkit = ToolKit(
                 name=name,
                 description=description,
@@ -81,7 +83,7 @@ class ToolKit(DBBaseModel):
 
         session.commit()
         session.flush()
-        print("NEW TOOL KIT MADE :",toolkit)
+        print("Final returned toolkit :",toolkit)
         return toolkit
 
     @classmethod

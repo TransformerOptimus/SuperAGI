@@ -1,17 +1,19 @@
+import importlib.util
+import inspect
+import json
 import os
 import sys
+import zipfile
+from urllib.parse import urlparse
 
 import requests
-import zipfile
-import json
-import inspect
+
+from superagi.config.config import get_config
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.tool_kit import ToolKit
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolKit
-from urllib.parse import urlparse
-import importlib.util
 
 
 def parse_github_url(github_url):
@@ -99,22 +101,12 @@ def get_classes_in_file(file_path, clazz):
 
 
 def load_module_from_file(file_path):
-
     spec = importlib.util.spec_from_file_location("module_name", file_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
     return module
 
-
-def process_files(folder_path, session, organisation, code_link=None):
-    print("GETTING TOOLKITS OF : ")
-    print(organisation)
-    existing_toolkits = session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
-
-    # tool_name_to_tool_kit = []
-    tool_name_to_tool_kit = init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session)
-    init_tools(folder_path, session, tool_name_to_tool_kit)
 
 def init_tools(folder_path, session, tool_name_to_tool_kit):
     # Iterate over all subfolders
@@ -133,15 +125,15 @@ def init_tools(folder_path, session, tool_name_to_tool_kit):
                         if clazz["class_name"] is not None:
                             tool_name = clazz['tool_name']
                             tool_description = clazz['tool_description']
-                            tool_kit_id = tool_name_to_tool_kit.get(tool_name,None)
+                            tool_kit_id = tool_name_to_tool_kit.get(tool_name, None)
                             if tool_kit_id is not None:
                                 new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
                                                               class_name=clazz['class_name'], file_name=file_name,
                                                               tool_kit_id=tool_name_to_tool_kit[tool_name],
                                                               description=tool_description)
-                                print("Updated Tool path details for tool : ",new_tool)
+                                print("Updated Tool path details for tool : ", new_tool)
                             else:
-                                print("Tool Kit Not Found for tool : ",tool_name)
+                                print("Tool Kit Not Found for tool : ", tool_name)
 
 
 def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session):
@@ -176,7 +168,7 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                                 organisation_id=organisation.id,
                                 tool_code_link=code_link
                             )
-
+                            new_toolkits.append(new_toolkit)
                             tool_mapping = {}
                             # Store the tools in the database
                             for tool in tools:
@@ -185,28 +177,36 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                                                               class_name=None, file_name=None,
                                                               tool_kit_id=new_toolkit.id, description=tool.description)
                                 tool_mapping[tool.name] = new_toolkit.id
-                            tool_name_to_tool_kit = {**tool_mapping,**tool_name_to_tool_kit}
-                                # print("New Tool",new_tool)
+                            tool_name_to_tool_kit = {**tool_mapping, **tool_name_to_tool_kit}
 
                             # Store the tools config in the database
                             for tool_config_key in tool_config_keys:
-                                # print("INSIDE CONFIG")
                                 new_config = ToolConfig.add_or_update(session, tool_kit_id=new_toolkit.id,
                                                                       key=tool_config_key)
-                                # print("New config : ",new_config)
     # Delete toolkits that are not present in the updated toolkits
     print("EXISTING TOOLS : ___________")
     print(existing_toolkits)
-    # for toolkit in existing_toolkits:
-    #     if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
-    #         session.query(Tool).filter(Tool.tool_kit_id == toolkit.id).delete()
-    #         session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).delete()
-    #         print("_______________DELETEING________________")
-    #         print(toolkit)
-    #         session.delete(toolkit)
+    for toolkit in existing_toolkits:
+        if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
+            session.query(Tool).filter(Tool.tool_kit_id == toolkit.id).delete()
+            session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).delete()
+            print("_______________DELETEING________________")
+            print(toolkit)
+            session.delete(toolkit)
     # Commit the changes to the database
     session.commit()
     return tool_name_to_tool_kit
+
+
+def process_files(folder_path, session, organisation, code_link=None):
+    print("GETTING TOOLKITS OF : ")
+    print(organisation)
+    existing_toolkits = session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
+
+    # tool_name_to_tool_kit = []
+    tool_name_to_tool_kit = init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session)
+    init_tools(folder_path, session, tool_name_to_tool_kit)
+
 
 def get_readme_content_from_code_link(tool_code_link):
     parsed_url = urlparse(tool_code_link)
@@ -226,3 +226,39 @@ def get_readme_content_from_code_link(tool_code_link):
         response = requests.get(readme_url)
     readme_content = response.text
     return readme_content
+
+
+def register_tool_kits(session, organisation):
+    folder_path = get_config("TOOLS_DIR")
+    if folder_path is None:
+        folder_path = "superagi/tools"
+    if organisation is not None:
+        process_files(folder_path, session, organisation)
+
+
+def extract_repo_name(repo_link):
+    # Extract the repository name from the link
+    # Assuming the GitHub link format: https://github.com/username/repoName
+    repo_name = repo_link.rsplit('/', 1)[-1]
+
+    return repo_name
+
+
+def add_tool_to_json(repo_link):
+    # Read the content of the tools.json file
+    with open('tools.json', 'r') as file:
+        tools_data = json.load(file)
+
+    # Extract the repository name from the link
+    repo_name = extract_repo_name(repo_link)
+
+    # Add a new key-value pair to the tools object
+    tools_data['tools'][repo_name] = repo_link
+
+    # Write the updated JSON object back to tools.json
+    with open('tools.json', 'w') as file:
+        json.dump(tools_data, file, indent=2)
+
+# # Example usage
+# repo_link = "https://github.com/Autocop-Agent/discord"
+# add_tool_to_json(repo_link)

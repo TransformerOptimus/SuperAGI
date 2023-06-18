@@ -12,6 +12,17 @@ class VectorFactory:
 
     @classmethod
     def get_vector_storage(cls, vector_store, index_name, embedding_model):
+        """
+        Get the vector storage.
+
+        Args:
+            vector_store : The vector store name.
+            index_name : The index name.
+            embedding_model : The embedding model.
+
+        Returns:
+            The vector storage object.
+        """
         if vector_store == "PineCone":
             try:
                 api_key = get_config("PINECONE_API_KEY")

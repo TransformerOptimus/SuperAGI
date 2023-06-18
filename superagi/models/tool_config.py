@@ -6,17 +6,22 @@ import json
 
 
 class ToolConfig(DBBaseModel):
-    """ToolConfig - used to store tool configurations"""
+    """
+        Model representing a tool configuration.
+
+        Attributes:
+            id (Integer): The primary key of the tool configuration.
+            key (String): The key of the tool configuration.
+            value (String): The value of the tool configuration.
+            tool_kit_id (Integer): The identifier of the associated toolkit.
+    """
     __tablename__ = 'tool_configs'
 
+
     id = Column(Integer, primary_key=True)
-    """id - id of the tool config"""
     key = Column(String)
-    """key - configuration key"""
     value = Column(String)
-    """value - configuration value"""
     tool_kit_id = Column(Integer)
-    """tool_config_id - foreign key referencing the tool configuration"""
 
     def __repr__(self):
         return f"ToolConfig(id={self.id}, key='{self.key}', value='{self.value}, tool_kit_id={self.tool_kit_id}')"

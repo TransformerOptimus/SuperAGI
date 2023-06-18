@@ -149,10 +149,16 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 Session = sessionmaker(bind=engine)
 session = Session()
 default_user = session.query(User).filter(User.email == "super6@agi.com").first()
-print(default_user)
-organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
-print(organisation)
-
+# print(default_user)
+# if default_user is not None:
+#     organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
+#     print(organisation)
+#     # Specify the folder path
+#     folder_path = superagi.config.config.get_config("TOOLS_DIR")
+#     if folder_path is None:
+#         folder_path = "superagi/tools"
+#     if organisation is not None:
+#         process_files(folder_path, session, organisation)
 
 def build_single_step_agent():
     agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
@@ -264,13 +270,6 @@ def build_task_based_agents():
 
 build_single_step_agent()
 build_task_based_agents()
-
-# Specify the folder path
-folder_path = superagi.config.config.get_config("TOOLS_DIR")
-if folder_path is None:
-    folder_path = "superagi/tools"
-if organisation is not None:
-    process_files(folder_path, session, organisation)
 session.close()
 
 

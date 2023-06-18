@@ -6,7 +6,7 @@ from fastapi import HTTPException, Depends, Query
 from fastapi_sqlalchemy import db
 from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
-from superagi.helper.tool_helper import get_readme_content_from_code_link, download_tool,process_files
+from superagi.helper.tool_helper import get_readme_content_from_code_link, download_tool,process_files,add_tool_to_json
 from superagi.helper.validator_helper import validate_github_link
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
@@ -120,9 +120,10 @@ def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...)
     github_link = github_link_request.github_link
     if not validate_github_link(github_link):
         raise HTTPException(status_code=400, detail="Invalid Github link")
-    download_folder = get_config("TOOLS_DIR")
-    download_tool(github_link, download_folder)
-    process_files(download_folder, db.session, organisation, code_link=github_link)
+    # download_folder = get_config("TOOLS_DIR")
+    # download_tool(github_link, download_folder)
+    # process_files(download_folder, db.session, organisation, code_link=github_link)
+    add_tool_to_json(github_link)
 
 @router.get("/get/readme/{tool_kit_name}")
 def get_installed_toolkit_readme(tool_kit_name: str, organisation: Organisation = Depends(get_user_organisation)):
