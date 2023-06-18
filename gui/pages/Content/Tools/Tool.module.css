@@ -243,10 +243,12 @@
 }
 
 .tools_included{
+    font-size: small;
     background-color:rgb(39,35,53);
     border-radius: 8px;
     width:600px;
-    height: 70px;
+    height: auto;
     text-align: left;
     padding:10px;
+    margin-bottom: 6px;
 }

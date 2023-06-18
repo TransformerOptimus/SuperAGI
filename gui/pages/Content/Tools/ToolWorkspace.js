@@ -3,9 +3,10 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {EventBus} from "@/utils/eventBus";
 import styles from './Tool.module.css';
+import axios from 'axios';
 
 
-export default function ToolWorkspace({tool}){
+export default function ToolWorkspace({tool,toolDetails}){
     const [activeTab,setActiveTab] = useState('Configuration')
     const [showDescription,setShowDescription] = useState(false)
     const defaultDescription = "Shifting timeline accross multiple time strings. Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.";
@@ -13,38 +14,108 @@ export default function ToolWorkspace({tool}){
     if (!tool || !tool.description) {
       tool = { ...tool, description: defaultDescription };
     }
+
+    
     const ConfigurationSection = () => {
+      const [configItems, setConfigItems] = useState([]);
+    
+      useEffect(() => {
+        // Fetch the current key-value pairs from the API
+        fetchConfigItems();
+      }, []);
+    
+      const fetchConfigItems = async () => {
+        try {
+          const response = await axios.get('http://192.168.211.48:8001/tool_configs/get/toolkit/Changed ');
+          setConfigItems(response.data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    
+      const updateConfigItem = async (id, value) => {
+        try {
+          const response = await axios.put('http://192.168.211.48:8001/tool_configs/add/Changed');
+          console.log(response.data); // Handle the response as per your requirement
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    
+      const handleInputChange = (id, value) => {
+        // Update the value in the local state
+        const updatedConfigItems = configItems.map((item) =>
+          item.id === id ? { ...item, value } : item
+        );
+        setConfigItems(updatedConfigItems);
+      };
+    
+      const handleUpdateChanges = () => {
+        // Send update requests for modified key-value pairs
+        configItems.forEach((item) => {
+          if (item.value !== null) {
+            updateConfigItem(item.id, item.value);
+          }
+        });
+      };
+    
+      return (
+        <div>
+          {/* Loop through the configItems and generate the input fields */}
+          {configItems.map((configItem) => (
+            <div
+              key={configItem.id}
+              style={{
+                color: '#666666',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                marginBottom: '20px',
+              }}
+            >
+              <div style={{ marginBottom: '6px' }}>{configItem.key}</div>
+              <div className={styles.search_box}>
+                <input
+                  type="text"
+                  placeholder="Enter here"
+                  value={configItem.value || ''}
+                  onChange={(e) => handleInputChange(configItem.id, e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+    
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button style={{ marginRight: '7px' }} className={styles.secondary_button}>
+              Cancel
+            </button>
+            <button className={styles.primary_button} onClick={handleUpdateChanges}>
+              Update Changes
+            </button>
+          </div>
+        </div>
+      );
+    };
+    
+      
+      const ToolsIncludedSection = () => {
+        const [toolsIncluded, setToolsIncluded] = useState([]);
+        useEffect(() => {
+          if (toolDetails && toolDetails.tools) {
+            setToolsIncluded(toolDetails.tools);
+          }
+        }, [toolDetails]);
 
         return (
             <div>
-            <div style={{color:' #666666',display:'flex',flexDirection: 'column', alignItems: 'flex-start',marginBottom:'20px'}}>
-            <div style={{ marginBottom: '6px' }}>API Key</div>
-            <div className={styles.search_box}>
-            <input type="text" placeholder="Enter here" />
-            </div>
-            </div>
-    
-            <div style={{color:' #666666',display:'flex',flexDirection: 'column', alignItems: 'flex-start',marginBottom:'20px'}}>
-            <div style={{ marginBottom: '6px' }}>Organization ID</div>
-            <div className={styles.search_box}>
-            <input type="text" placeholder="Enter here" />
-            </div>
-            </div>
-    
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button style={{marginRight:'7px'}} className={styles.secondary_button} >Cancel</button>
-            <button className={styles.primary_button} >Update Changes</button>
-            </div>
-            </div>
-        );
-
-      };
-      
-      const ToolsIncludedSection = () => {
-        // Add the desired content for the "Tools Included" section
-        return (
+            {toolsIncluded.map((tool, index) => (
             <div className={styles.tools_included}>
-                <div>Create issue</div>
+            <div key={index}>
+                <div style={{color:'white'}}>{tool.name}</div>
+                <div style={{color:'#888888'}}>{tool.description}</div>
+            </div>
+            </div>
+            ))}   
             </div>
         );
       };
@@ -59,10 +130,10 @@ export default function ToolWorkspace({tool}){
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
                 <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
-                    <div>{tool.name}</div>
+                    <div>{toolDetails.name}</div>
                     <div style={{marginRight:'40px'}}>
                     <div className={styles.description} style={!showDescription ? { maxHeight: '1.5em', overflow: 'hidden' } : {}}>
-                    {tool.description}
+                    {toolDetails.description}
                     </div>
                     {tool.description.length > 0 && (
                     <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
