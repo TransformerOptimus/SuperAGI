@@ -234,14 +234,14 @@ class SuperAgi:
 
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
-        tools = {t.name: t for t in self.tools}
+        tools = {t.name.lower(): t for t in self.tools}
 
-        if action.name == FINISH or action.name == "":
+        if action.name.lower() == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
             return output
-        if action.name in tools:
-            tool = tools[action.name]
+        if action.name.lower() in tools:
+            tool = tools[action.name.lower()]
             try:
                 observation = tool.execute(action.args)
                 logger.info("Tool Observation : ")
