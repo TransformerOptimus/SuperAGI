@@ -8,8 +8,8 @@ from superagi.tools.google_calendar.event_details_calendar import EventDetailsCa
 
 
 class GoogleCalendarToolKit(BaseToolKit, ABC):
-    name: str = "Email Toolkit"
-    description: str = "Email Tool kit contains all tools related to sending email"
+    name: str = "Google Calendar Toolkit"
+    description: str = "Google Calendar Tool kit contains all tools related to Google Calendar"
 
     def get_tools(self) -> List[BaseTool]:
         return [CreateEventCalendarTool(), DeleteCalendarEventTool(), ListCalendarEventsTool(), EventDetailsCalendarTool()]
