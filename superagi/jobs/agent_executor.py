@@ -230,6 +230,17 @@ class AgentExecutor:
         return tools
 
     def handle_wait_for_permission(self, agent_execution, spawned_agent, session):
+        """
+        Handle the wait for permission.
+
+        Args:
+            agent_execution (AgentExecution): The agent execution.
+            spawned_agent (SuperAgi): The spawned agent.
+            session (Session): The database session object.
+
+        Raises:
+            ValueError: If the permission is still pending.
+        """
         if agent_execution.status != "WAITING_FOR_PERMISSION":
             return
         agent_execution_permission = session.query(AgentExecutionPermission).filter(
