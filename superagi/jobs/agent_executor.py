@@ -262,7 +262,7 @@ class AgentExecutor:
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                   agent_id=agent_execution_permission.agent_id,
                                                   feed=result,
-                                                  role="system"
+                                                  role="user"
                                                   )
         session.add(agent_execution_feed)
         agent_execution.status = "RUNNING"
