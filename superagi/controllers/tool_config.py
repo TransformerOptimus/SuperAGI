@@ -12,37 +12,26 @@ from typing import List
 router = APIRouter()
 
 
-# @router.post("/add/{tool_kit_name}", status_code=201, response_model=sqlalchemy_to_pydantic(ToolConfig))
-# def create_or_update_tool_config(tool_kit_name: str, tool_config: sqlalchemy_to_pydantic(ToolConfig),
-#                                  Authorize: AuthJWT = Depends(check_auth)):
-#     """Create or update a Tool Configuration by Tool Kit Name"""
-#
-#     toolkit = db.session.query(ToolKit).filter_by(name=tool_kit_name).first()
-#     if not toolkit:
-#         raise HTTPException(status_code=404, detail='ToolKit not found')
-#
-#     existing_tool_config = db.session.query(ToolConfig).filter(
-#         ToolConfig.tool_kit_id == toolkit.id,
-#         ToolConfig.key == tool_config.key
-#     ).first()
-#
-#     if existing_tool_config:
-#         # Update the existing tool config
-#         existing_tool_config.value = tool_config.value
-#         db.session.commit()
-#         db.session.refresh(existing_tool_config)
-#         return existing_tool_config
-#     else:
-#         # Create a new tool config
-#         new_tool_config = ToolConfig(**tool_config.dict())
-#         db.session.add(new_tool_config)
-#         db.session.commit()
-#         db.session.refresh(new_tool_config)
-#         return new_tool_config
-
-# @router.put("/tool-configs/{tool_kit_name}")
 @router.post("/add/{tool_kit_name}", status_code=201)
-async def update_tool_config(tool_kit_name: str, configs: list):
+def update_tool_config(tool_kit_name: str, configs: list):
+    """
+    Update tool configurations for a specific tool kit.
+
+    Args:
+        tool_kit_name (str): The name of the tool kit.
+        configs (list): A list of dictionaries containing the tool configurations.
+            Each dictionary should have the following keys:
+            - "key" (str): The key of the configuration.
+            - "value" (str): The new value for the configuration.
+
+    Returns:
+        dict: A dictionary with the message "Tool configs updated successfully".
+
+    Raises:
+        HTTPException (status_code=404): If the specified tool kit is not found.
+        HTTPException (status_code=500): If an unexpected error occurs during the update process.
+    """
+
     try:
         # Check if the tool kit exists
         tool_kit = ToolKit.get_tool_kit_from_name(db.session, tool_kit_name)
@@ -67,10 +56,22 @@ async def update_tool_config(tool_kit_name: str, configs: list):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/add/{tool_kit_name}", status_code=201, response_model=sqlalchemy_to_pydantic(ToolConfig))
+@router.post("/create-or-update/{tool_kit_name}", status_code=201, response_model=sqlalchemy_to_pydantic(ToolConfig))
 def create_or_update_tool_config(tool_kit_name: str, tool_configs,
                                  Authorize: AuthJWT = Depends(check_auth)):
-    """Create or update Tool Configurations by Tool Kit Name"""
+    """
+    Create or update tool configurations for a specific tool kit.
+
+    Args:
+        tool_kit_name (str): The name of the tool kit.
+        tool_configs (list): A list of tool configuration objects.
+
+    Returns:
+        ToolKit: The updated tool kit object.
+
+    Raises:
+        HTTPException (status_code=404): If the specified tool kit is not found.
+    """
 
     toolkit = db.session.query(ToolKit).filter_by(name=tool_kit_name).first()
     if not toolkit:
@@ -102,25 +103,49 @@ def create_or_update_tool_config(tool_kit_name: str, tool_configs,
 
 @router.get("/get/toolkit/{tool_kit_name}", status_code=200)
 def get_all_tool_configs(tool_kit_name: str, organisation: Organisation = Depends(get_user_organisation)):
-    """Get all tool configurations by Tool Kit Name"""
-    print("USER ORG", organisation)
+    """
+    Get all tool configurations by Tool Kit Name.
+
+    Args:
+        tool_kit_name (str): The name of the tool kit.
+        organisation (Organisation): The organization associated with the user.
+
+    Returns:
+        list: A list of tool configurations for the specified tool kit.
+
+    Raises:
+        HTTPException (status_code=404): If the specified tool kit is not found.
+        HTTPException (status_code=403): If the user is not authorized to access the tool kit.
+    """
     user_tool_kits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
-    print(user_tool_kits)
     toolkit = db.session.query(ToolKit).filter_by(name=tool_kit_name).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
-    print(toolkit)
     if toolkit.name not in [user_tool_kit.name for user_tool_kit in user_tool_kits]:
         raise HTTPException(status_code=403, detail='Unauthorized')
 
     tool_configs = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).all()
-    print(tool_configs)
     return tool_configs
 
 
 @router.get("/get/toolkit/{tool_kit_name}/key/{key}", status_code=200)
 def get_tool_config(toolkit: str, key: str, organisation: Organisation = Depends(get_user_organisation)):
-    """Get a specific tool configuration by org_id and key"""
+    """
+    Get a specific tool configuration by tool kit name and key.
+
+    Args:
+        tool_kit_name (str): The name of the tool kit.
+        key (str): The key of the tool configuration.
+        organisation (Organisation): The organization associated with the user.
+
+    Returns:
+        ToolConfig: The tool configuration with the specified key.
+
+    Raises:
+        HTTPException (status_code=403): If the user is not authorized to access the tool kit.
+        HTTPException (status_code=404): If the specified tool kit or tool configuration is not found.
+    """
+
     user_tool_kits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
 
     toolkit = db.session.query(ToolKit).filter_by(name=toolkit)

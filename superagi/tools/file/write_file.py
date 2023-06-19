@@ -63,7 +63,8 @@ class WriteFileTool(BaseTool):
                 file.close()
             with open(final_path, 'rb') as file:
                 resource = ResourceHelper.make_written_file_resource(file_name=file_name,
-                                                      agent_id=self.agent_id,file=file,channel="OUTPUT")
+                                                                     agent_id=self.agent_id, file=file,
+                                                                     channel="OUTPUT")
                 if resource is not None:
                     session.add(resource)
                     session.commit()

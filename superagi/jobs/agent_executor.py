@@ -43,22 +43,20 @@ class AgentExecutor:
         return filename
 
     @staticmethod
-    def create_object(class_name, folder_name, file_name):
+    def create_object(tool):
         """
-        Create an object of a class dynamically.
+        Create an object of a agent usable tool dynamically.
 
         Args:
-            class_name (str): The name of the class.
-            folder_name (str): The name of the folder.
-            file_name (str): The name of the file.
+            tool (Tool) : Tool object from which agent tool would be made.
 
         Returns:
-            object: The object of the class.
+            object: The object of the agent usable tool.
         """
-        file_name = AgentExecutor.validate_filename(filename=file_name)
+        file_name = AgentExecutor.validate_filename(filename=tool.file_name)
 
         tools_dir = get_config("TOOLS_DIR").rstrip("/")
-        module_name = ".".join(tools_dir.split("/") + [folder_name, file_name])
+        module_name = ".".join(tools_dir.split("/") + [tool.folder_name, file_name])
 
         # module_name = f"superagi.tools.{folder_name}.{file_name}"
 
@@ -66,10 +64,12 @@ class AgentExecutor:
         module = importlib.import_module(module_name)
 
         # Get the class from the loaded module
-        obj_class = getattr(module, class_name)
+        obj_class = getattr(module, tool.class_name)
 
         # Create an instance of the class
         new_object = obj_class()
+        if hasattr(new_object,'tool_kit_id'):
+            new_object.tool_kit_id = tool.tool_kit_id
         return new_object
 
     @staticmethod
@@ -160,17 +160,16 @@ class AgentExecutor:
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
         for tool in user_tools:
-            tool = AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name)
+            tool = AgentExecutor.create_object(tool)
             tools.append(tool)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key)
-        print("final tools ________________")
-        print(tools)
-        print("API KEY: ")
-        print(model_api_key)
-        test_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
-        print(test_llm)
+        # print("final tools ________________")
+        # print(tools)
+        # for tool in tools:
+        #     print(tool)
+        #     print("It belongs to ",tool.tool_kit_id)
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,

@@ -59,7 +59,8 @@ class BaseTool(BaseModel):
     name: str = None
     description: str
     args_schema: Type[BaseModel] = None
-
+    tool_kit_id: int = None
+    # session  = None
     @property
     def args(self):
         # print("args_schema", self.args_schema)

@@ -153,8 +153,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    print("AGENT TOOLS : ")
-    print(agent_with_config.tools)
     for tool_id in agent_with_config.tools:
         tool = db.session.query(Tool).get(tool_id)
         if tool is None:
@@ -162,16 +160,10 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
 
     agent_tool_kit_tools = []
-    print("AGENT TOOLKITS:")
-    print(agent_with_config.tool_kits)
     for tool_kit_id in agent_with_config.tool_kits:
-        print("inside1 : ",tool_kit_id)
         tool_kit_tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit_id).all()
-        print("tools : ",tool_kit_tools)
         for tool in tool_kit_tools:
-            print("inside2")
             tool = db.session.query(Tool).filter(Tool.id == tool.id).first()
-            print(tool)
             if tool is None:
                 # Tool does not exist, throw 404
                 raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
@@ -179,8 +171,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
                 agent_tool_kit_tools.append(tool.id)
 
     agent_with_config.tools.extend(agent_tool_kit_tools)
-    print("FINAL TOOLS: ")
-    print(agent_with_config)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with RUNNING status

@@ -8,6 +8,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.tool_kit import ToolKit
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.models.tool import Tool
+from sqlalchemy.orm import joinedload
 
 router = APIRouter()
 
@@ -138,9 +139,19 @@ def get_tools(Authorize: AuthJWT = Depends(check_auth),
     tool_kits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id)
     tools = []
     for tool_kit in tool_kits:
-        db_tools = db.session.query(Tool).filter(ToolKit.id == tool_kit.id).all()
+        db_tools = (
+            db.session.query(Tool)
+            .join(ToolKit)
+            .options(joinedload(Tool.tool_kit))
+            .filter(ToolKit.id == tool_kit.id)
+            .all()
+        )
+
+        # db_tools = db.session.query(Tool).filter(ToolKit.id == tool_kit.id).all()
         tools.extend(db_tools)
     return tools
+
+
 @router.put("/update/{tool_id}", response_model=sqlalchemy_to_pydantic(Tool))
 def update_tool(
         tool_id: int,

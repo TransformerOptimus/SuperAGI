@@ -52,7 +52,8 @@ class ToolConfig(DBBaseModel):
         tool_config = session.query(ToolConfig).filter_by(tool_kit_id=tool_kit_id, key=key).first()
         if tool_config:
             # Update existing tool config
-            tool_config.value = value
+            if value is not None:
+                tool_config.value = value
         else:
             # Create new tool config
             tool_config = ToolConfig(tool_kit_id=tool_kit_id, key=key, value=value)
