@@ -11,6 +11,7 @@ import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
 import {refreshUrl} from "@/utils/utils";
+import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -21,6 +22,7 @@ export default function App() {
   const [env, setEnv] = useState('DEV');
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
+  const [showMarketplace, setShowMarketplace] = useState(false);
 
   useEffect(() => {
     const text = 'Initializing SuperAGI';
@@ -112,6 +114,12 @@ export default function App() {
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
+
+  useEffect(() => {
+      if(window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true)
+    }
+  }, []);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -131,7 +139,8 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {applicationState === 'AUTHENTICATED' ? <div className="projectStyle">
+      {showMarketplace && <div className="projectStyle"> <MarketplacePublic /> </div>}
+      {applicationState === 'AUTHENTICATED' && !showMarketplace ? ( <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
@@ -143,12 +152,12 @@ export default function App() {
             <Content organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
-      </div> : <div className="signInStyle">
+      </div> ) : !showMarketplace ? ( <div className="signInStyle">
         <div className="signInTopBar">
           <div className="superAgiLogo"><Image width={132} height={72} src="/images/sign-in-logo.svg" alt="super-agi-logo"/></div>
         </div>
         <div className="signInCenter">
-          {applicationState === 'NOT_AUTHENTICATED' ? <div className="signInWrapper">
+          {applicationState === 'NOT_AUTHENTICATED' && !showMarketplace ? <div className="signInWrapper">
             <button className="signInButton" onClick={signInUser}>
               <Image width={20} height={20} src="/images/github.svg" alt="github"/>&nbsp;Continue with Github
             </button>
@@ -159,7 +168,7 @@ export default function App() {
             <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
           </div>}
         </div>
-      </div>}
+      </div>) : true }
     </div>
   );
 }
