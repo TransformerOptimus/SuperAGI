@@ -303,6 +303,8 @@ def fetch_agent_config_from_template(agent_template_id: int,
     for config in template_config:
         if config.key in main_keys:
             template_config_dict[config.key] = AgentTemplate.eval_agent_config(config.key, config.value)
-
+    if "instruction" not in template_config_dict:
+        template_config_dict["instruction"] = []
     template_config_dict["agent_template_id"] = agent_template.id
+
     return template_config_dict
