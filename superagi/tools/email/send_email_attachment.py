@@ -21,11 +21,31 @@ class SendEmailAttachmentInput(BaseModel):
 
 
 class SendEmailAttachmentTool(BaseTool):
+    """
+    Send an Email with Attachment tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
 
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
+        """
+        Execute the send email tool with attachment.
+
+        Args:
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+            filename : The name of the file to be sent as an attachment with the email.
+
+        Returns:
+
+        """
         base_path = get_config('EMAIL_ATTACHMENT_BASE_PATH')
         if not base_path:
             base_path = ""
@@ -35,6 +55,19 @@ class SendEmailAttachmentTool(BaseTool):
         return self.send_email_with_attachment(to, subject, body, attachmentpath, attachment)
 
     def send_email_with_attachment(self, to, subject, body, attachment_path, attachment) -> str:
+        """
+        Send an email with attachment.
+
+        Args:
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+            attachment_path : The path of the file to be sent as an attachment with the email.
+            attachment : The name of the file to be sent as an attachment with the email.
+
+        Returns:
+            
+        """
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():

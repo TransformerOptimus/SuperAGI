@@ -9,6 +9,14 @@ class GetProjectsSchema(BaseModel):
 
 
 class GetProjectsTool(JiraTool):
+    """
+    Get Jira Projects tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name = "GetJiraProjects"
     description = "This tool is a wrapper around atlassian-python-api's Jira project API. Useful in fetching all the projects accessible to the user, discovering the total count of projects, or utilizing it as an interim step during project-based searches."
     args_schema: Type[GetProjectsSchema] = GetProjectsSchema
@@ -20,6 +28,12 @@ class GetProjectsTool(JiraTool):
         return parsed
 
     def _execute(self) -> str:
+        """
+        Execute the get projects tool.
+
+        Returns:
+            The key of the created issue.
+        """
         jira = JiraTool.build_jira_instance()
         projects = jira.projects()
         parsed_projects = self.parse_projects(projects)

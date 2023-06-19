@@ -8,6 +8,7 @@ from superagi.models.db import connect_db
 from superagi.helper.resource_helper import ResourceHelper
 # from superagi.helper.s3_helper import upload_to_s3
 from superagi.helper.s3_helper import S3Helper
+from superagi.lib.logger import logger
 
 
 
@@ -19,12 +20,30 @@ class WriteFileInput(BaseModel):
 
 
 class WriteFileTool(BaseTool):
+    """
+    Write File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"
     agent_id: int = None
 
     def _execute(self, file_name: str, content: str):
+        """
+        Execute the write file tool.
+
+        Args:
+            file_name : The name of the file to write.
+            content : The text to write to the file.
+
+        Returns:
+            file written to successfully. or error message.
+        """
         engine = connect_db()
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -52,7 +71,7 @@ class WriteFileTool(BaseTool):
                     if resource.storage_type == "S3":
                         s3_helper = S3Helper()
                         s3_helper.upload_file(file, path=resource.path)
-                        print("Resource Uploaded to S3!")
+                        logger.info("Resource Uploaded to S3!")
                 session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:

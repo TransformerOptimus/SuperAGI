@@ -2,6 +2,7 @@ import os
 
 import redis
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
 
 
 # Message broker connection parameters
@@ -14,14 +15,14 @@ class RedisBroker:
   def push_message(self, topic: str, message: str):
     # Establish connection to the message broker
     self.redis_client.publish(topic, message)
-    print("Message sent to the broker.")
+    logger.info("Message sent to the broker.")
 
   def start_listener(self, topic: str, on_message_received: callable):
     # Subscribe to the channel
     pubsub = self.redis_client.pubsub()
     pubsub.subscribe(topic)
 
-    print("Waiting for messages. To exit, press CTRL+C")
+    logger.info("Waiting for messages. To exit, press CTRL+C")
 
     # Start listening for messages
     for message in pubsub.listen():
