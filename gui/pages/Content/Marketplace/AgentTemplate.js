@@ -19,11 +19,7 @@ export default function AgentTemplate({template}) {
     const [constraints, setConstraints] = useState([])
 
     useEffect(() => {
-        if(template && template.is_installed) {
-            setInstalled('Installed');
-        } else {
-            setInstalled('Install');
-        }
+        setInstalled(template && template.is_installed? 'Installed' : 'Install');
 
         fetchAgentTemplateConfig(template.id)
           .then((response) => {
