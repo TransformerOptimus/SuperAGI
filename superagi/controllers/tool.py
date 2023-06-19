@@ -142,7 +142,7 @@ def get_tools(Authorize: AuthJWT = Depends(check_auth),
         db_tools = (
             db.session.query(Tool)
             .join(ToolKit)
-            .options(joinedload(Tool.tool_kit))
+            .options(joinedload(Tool.tool_kit_id))
             .filter(ToolKit.id == tool_kit.id)
             .all()
         )

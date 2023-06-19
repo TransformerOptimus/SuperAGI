@@ -21,7 +21,8 @@ class ListCalendarEventsTool(BaseTool):
     description: str = "Get the list of all the events from Google Calendar"
 
     def _execute(self, start_time: str = 'None', start_date: str = 'None', end_date: str = 'None', end_time: str = 'None'):
-        service = GoogleCalendarCreds().get_credentials()
+        toolkit_id = self.tool_kit_id
+        service = GoogleCalendarCreds().get_credentials(toolkit_id)
         if service["success"]:
             service = service["service"]
         else:

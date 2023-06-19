@@ -7,9 +7,12 @@ from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
 from superagi.config.config import get_config
 from googleapiclient.discovery import build
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
+from superagi.models.tool_config import ToolConfig
 
 class GoogleCalendarCreds:
-    def get_credentials(self):
+    def get_credentials(self, toolkit_id):
         file_name = "credential_token.pickle"
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         file_path = file_name
@@ -20,13 +23,27 @@ class GoogleCalendarCreds:
         else:
             file_path = os.getcwd() + "/" + file_name
         if os.path.exists(file_path):
+            engine = connect_db()
+            Session = sessionmaker(bind=engine)
+            session = Session()
             with open(file_path,'rb') as file:
                 creds = pickle.load(file)
             if isinstance(creds, str):
                 creds = json.loads(creds)
             expire_time = datetime.strptime(creds["expiry"], "%Y-%m-%dT%H:%M:%S.%fZ")
+            google_creds = session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id).all()
+            for creds in google_creds:
+                if creds["key"] == "GOOGLE_CLIENT_ID":
+                    client_id = creds["value"]
+                else:
+                    client_secret = creds["value"]
+            
+            print("/////////////////////////////")
+            print(client_id)
+            print("-----------------------------")
+            print(client_secret)
             creds = Credentials.from_authorized_user_info(info={
-                "client_id": get_config("GOOGLE_CLIENT_ID"),
+                "client_id": client_id,
                 "client_secret": get_config("GOOGLE_CLIENT_SECRET"),
                 "refresh_token": creds["refresh_token"],
                 "scopes": "https://www.googleapis.com/auth/calendar"
