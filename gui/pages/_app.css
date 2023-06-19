@@ -469,7 +469,9 @@ p {
     background: white;
     text-align: center;
     padding: 5px 15px;
-    display: -webkit-box;
+    display: -webkit-inline-flex;
+    justify-content: center;
+    align-items: center;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
     overflow: hidden;
@@ -493,6 +495,7 @@ p {
     display: -webkit-flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;

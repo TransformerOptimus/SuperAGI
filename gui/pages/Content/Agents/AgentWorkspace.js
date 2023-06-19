@@ -229,11 +229,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
       <div style={{width:'40%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
-            <div>
+            {agentDetails && !agentDetails.permission_type.includes('God Mode') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
-                Action Console
+                <Image width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console
               </button>
-            </div>
+            </div>}
             {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Feedback*/}
@@ -241,12 +241,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
             {/*</div>*/}
             <div>
               <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
-                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Details
+                <Image width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Details
               </button>
             </div>
             <div>
               <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
-                <Image style={{marginTop:'-2px'}} width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
+                <Image width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
               </button>
             </div>
             {/*<div>*/}
