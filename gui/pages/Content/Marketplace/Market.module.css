@@ -412,6 +412,7 @@
     font-size: 12px;
     line-height: 14px;
     color: #FFFFFF;
+    margin-bottom: 16px;
 }
 
 .left_container {
@@ -444,4 +445,21 @@
     display: flex;
     margin-top: 60px;
     justify-content: center;
+}
+
+.horizontal_line {
+    margin: 20px 0 20px -20px;
+    border: 1px solid #ffffff20;
+    width: calc(100% + 40px);
+    display: flex;
+    height: 0;
+}
+
+.back_button_text {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 14px;
+    color: #888888;
+    margin-left: 4px;
 }
