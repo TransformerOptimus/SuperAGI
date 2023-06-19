@@ -24,7 +24,21 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
   const [dropdown, setDropdown] = useState(false);
+  const [instructions, setInstructions] = useState(['']);
 
+  const addInstruction = () => {
+    setInstructions((prevArray) => [...prevArray, 'new instructions']);
+  };
+  const handleInstructionDelete = (index) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions.splice(index, 1);
+    setInstructions(updatedInstructions);
+  };
+  const handleInstructionChange = (index, newValue) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions[index] = newValue;
+    setInstructions(updatedInstructions);
+  };
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
   };
@@ -58,6 +72,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
     const executionData = { "agent_id": agentId, "name": runName }
     const agentData = { "agent_id": agentId, "key": "goal", "value": goals}
+    const agentData1 = { "agent_id": agentId, "key": "instruction", "value": instructions}
 
     addExecution(executionData)
       .then((response) => {
@@ -79,6 +94,13 @@ export default function AgentWorkspace({agentId, selectedView}) {
       .catch((error) => {
         console.error('Error updating agent:', error);
       });
+    updateAgents(agentData1)
+        .then((response) => {
+          EventBus.emit('reFetchAgents', {});
+        })
+        .catch((error) => {
+          console.error('Error updating agent:', error);
+        });
   };
 
   const closeRunModal = () => {
@@ -121,6 +143,8 @@ export default function AgentWorkspace({agentId, selectedView}) {
         setAgentDetails(response.data);
         setTools(response.data.tools);
         setGoals(response.data.goal);
+        setInstructions(response.data.instruction);
+        console.log(response.data)
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -253,6 +277,20 @@ export default function AgentWorkspace({agentId, selectedView}) {
             </div>))}
             <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>}
+          <div style={{marginTop: '15px'}}>
+            <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
+            {instructions.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+              <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+              </div>{instructions.length > 1 && <div>
+              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+              </button>
+            </div>}
+            </div>))}
+            <div>
+              <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+            </div>
+          </div>
           <div style={{display: 'flex', justifyContent: 'flex-end'}}>
             <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeRunModal}>
               Cancel

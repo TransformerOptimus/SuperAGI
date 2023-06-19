@@ -114,6 +114,8 @@ class SuperAgi:
 
 
     def execute(self, workflow_step: AgentWorkflowStep):
+        print(self.tools)
+
         session = Session()
         agent_execution_id = self.agent_config["agent_execution_id"]
         task_queue = TaskQueue(str(agent_execution_id))
@@ -272,8 +274,10 @@ class SuperAgi:
         add_finish_tool = True
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
-        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"],
+        print(self.tools)
+        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"], self.agent_config["instruction"],
                                                            self.agent_config["constraints"], self.tools, add_finish_tool)
+
         response = task_queue.get_last_task_details()
 
         last_task = ""
