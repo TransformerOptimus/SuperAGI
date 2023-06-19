@@ -14,7 +14,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
         fetchAgentTemplateListLocal()
             .then((response) => {
                 const data = response.data || [];
-                setAgentTemplates(data);
+                // setAgentTemplates(data);
             })
             .catch((error) => {
                 console.error('Error fetching agent templates:', error);
@@ -38,7 +38,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
         <div>
             {!createAgentClicked ?
                 <div>
-                <div className='row' style={{marginTop: '1%'}}>
+                <div className='row' style={{marginTop: '10px'}}>
                     <div className='col-12'>
                         <span className={styles.description_heading}
                               style={{fontWeight:'400',verticalAlign:'text-top',marginLeft:'10px',fontSize:'16px'}}>Choose a template</span>
@@ -70,8 +70,14 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                                 </div>
                             </div>
                         </div>
-                    </div> : <div>
-                        
+                    </div> : <div className={styles.empty_templates}>
+                        <div style={{textAlign:'center'}}>
+                            <Image width={100} height={100} src="/images/marketplace_empty.svg" alt="empty-templates"/>
+                            <div style={{textAlign:'center',color:'white',marginTop:'15px',fontSize:'15px'}}>Browse templates from marketplace</div>
+                            <div style={{marginTop:'15px',display:'flex',justifyContent:'center',alignItems:'center'}}>
+                                <button className="primary_button" onClick={openMarketplace}>Go to marketplace</button>
+                            </div>
+                        </div>
                     </div>}
                 </div>
             </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} template={sendTemplate} />}

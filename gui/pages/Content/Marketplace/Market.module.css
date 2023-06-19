@@ -439,3 +439,9 @@
     font-size: 12px;
     color: #888888;
 }
+
+.empty_templates {
+    display: flex;
+    margin-top: 60px;
+    justify-content: center;
+}
