@@ -160,6 +160,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
                   {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
+                  {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
                 <div onClick={(e) => closeTab(e, tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
