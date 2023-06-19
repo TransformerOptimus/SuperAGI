@@ -44,10 +44,10 @@ export default function Market() {
   return (
     <div>
         {!itemClicked ? <div className={styles.empty_state}>
-          <div style={{width:'100%',display:'flex',marginTop:'0px',flexDirection:'column'}}>
+          <div style={{width:'100%',display:'flex',flexDirection:'column'}}>
               <div className={styles.detail_top}>
 
-              <div style={{display:'flex',overflowX:'scroll'}}>
+              <div style={{display:'flex',overflowX:'scroll',marginLeft:'3px'}}>
                   {/*<div>*/}
                   {/*    <button onClick={() => setActiveTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
                   {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>&nbsp;Tools*/}
@@ -70,9 +70,9 @@ export default function Market() {
                 {/*</div>*/}
             </div>
             <div>
-              {activeTab === 'market_tools' && <div><MarketTools onToolClick={handleToolClick} /></div>}
-              {activeTab === 'market_embeddings' && <div><Embeddings /></div>}
-              {activeTab === 'market_agents' && <div><MarketAgent /></div>}
+              {activeTab === 'market_tools' && <MarketTools onToolClick={handleToolClick} />}
+              {activeTab === 'market_embeddings' && <Embeddings />}
+              {activeTab === 'market_agents' && <MarketAgent />}
             </div>
         </div>
         </div> : <div>

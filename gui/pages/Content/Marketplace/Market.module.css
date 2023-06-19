@@ -354,37 +354,51 @@
     color: white;
 }
 
-.search_box { /**/
+.search_box {
+
 }
 
 .search_box input {
-    /* Styles for the input element */
     width: 160px;
     height: 25px;
     font-size: x-small;
     padding: 5px;
-    border: 0.5px solid rgb(96, 96, 96);
+    border: 1px solid rgb(96, 96, 96);
     border-radius: 6px;
     background-color: #454254;
-    /* Add more custom styles as needed */
 }
 
 .market_tool {
     display: flex;
-    height: 90px;
+    height: 110px;
     color: white;
     font-size: small;
     padding: 12px;
-    width: 32% !important;
+    width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
     margin-top: 4px;
     margin-bottom: 4px;
-    margin-right: 8px;
+}
+
+.tool_description {
+    margin-top: 2px;
+    color: rgb(96, 96, 96);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .rowContainer {
     height: 100%;
+}
+
+.resources {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .top_heading {

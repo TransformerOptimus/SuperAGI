@@ -176,9 +176,11 @@ export default function Content({selectedView, selectedProjectId, organisationId
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
 
-                  {tab.contentType === 'Marketplace' && (
-                    <div className={styles.main_workspace} style={selectedView === '' ? {width:'91vw',paddingLeft:'13px'} : {width:'80.5vw'}}><Market tools={tools} />
-                  </div>)}
+                  {/*{tab.contentType === 'Marketplace' && (*/}
+                  {/*  <div className={styles.main_workspace} style={selectedView === '' ? {width:'91vw',paddingLeft:'13px'} : {width:'80.5vw'}}><Market tools={tools} selectedView={selectedView}/>*/}
+                  {/*</div>)}*/}
+
+                  {tab.contentType === 'Marketplace' && <Market tools={tools} selectedView={selectedView}/>}
 
                   {tab.contentType === 'Create_Agent' && <div className={styles.create_agent}>
                      <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>
