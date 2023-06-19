@@ -157,7 +157,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && selectedRun !== null && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
-              <div className={styles.run_history_button}><Image width={16} height={16} src="/images/update.svg" alt="update-icon"/><span>&nbsp;Show run history</span>
+              <div className={styles.run_history_button}><Image style={{marginTop:'-2px'}} width={16} height={16} src="/images/update.svg" alt="update-icon"/><span>&nbsp;Show run history</span>
               </div>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>

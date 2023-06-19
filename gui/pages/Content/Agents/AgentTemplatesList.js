@@ -36,23 +36,23 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                 <div className='row' style={{marginTop: '1%'}}>
                     <div className='col-12'>
                         <span className={styles.description_heading}
-                              style={{fontWeight: '400',verticalAlign:'text-top',marginLeft: '1.5%'}}>Choose a template</span>
+                              style={{fontWeight:'400',verticalAlign:'text-top',marginLeft:'10px',fontSize:'16px'}}>Choose a template</span>
                         <button className="primary_button" onClick={redirectToCreateAgent}
-                                style={{float: 'right',marginRight: '1.8%'}}>&nbsp;Build From Scratch
+                                style={{float: 'right',marginRight: '3px'}}>&nbsp;Build From Scratch
                         </button>
                     </div>
                 </div>
-                <div className={styles.rowContainer} style={{marginLeft: '0.5%',marginTop: '0.5%',maxHeight: '78vh',overflowY: 'auto'}}>
-                    <div className='row' style={{paddingLeft:'1.8%'}}>
-                    {agentTemplates.map((item, index) => (
-                        <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
-                             onClick={() => handleTemplateClick(item)}>
-                            <div style={{display: 'inline',overflow:'auto'}}>
-                                <div>{item.name}</div>
-                                <div style={{marginTop:'8px',lineHeight: '14px',color: 'rgb(96, 96, 96)'}}>{item.description}</div>
+                <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
+                    <div className={styles.resources}>
+                        {agentTemplates.map((item, index) => (
+                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
+                                 onClick={() => handleTemplateClick(item)}>
+                                <div style={{display: 'inline',overflow:'auto'}}>
+                                    <div>{item.name}</div>
+                                    <div style={{marginTop:'5px',color: 'rgb(96, 96, 96)'}}>{item.description}</div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
                     </div>
                 </div>
             </div>}
