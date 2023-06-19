@@ -1,3 +1,4 @@
+import inspect
 import os
 from datetime import timedelta
 import pickle
@@ -14,12 +15,6 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# from apiclient import discovery
-# import httplib2
-# from oauth2client import client
-# from oauth2client.client import OAuth2WebServerFlow
-# from oauth2client.tools import run_flow
-# from oauth2client.file import Storage
 import http.client
 from  datetime import datetime, timedelta
 import time
@@ -51,6 +46,7 @@ from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.tool_helper import process_files, register_tool_kits
+from superagi.models.tool_config import ToolConfig
 
 import sys
 import os
@@ -138,7 +134,6 @@ def create_access_token(email, Authorize: AuthJWT = Depends()):
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
-
 
 # callback to get your configuration
 @AuthJWT.load_config
@@ -424,7 +419,9 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
 
-
+@app.get("google/get_google_creds/toolkit_id/{toolkit_id}")
+def get_google_calendar_tool_configs(toolkit_id: int):
+    db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID")
 # #Unprotected route
 @app.get("/hello/{name}")
 async def say_hello(name: str, Authorize: AuthJWT = Depends()):

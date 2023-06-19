@@ -103,3 +103,7 @@ export const fetchAgentTemplateConfigLocal = (templateId) => {
 export const installAgentTemplate = (templateId) => {
   return api.post(`agent_templates/download?agent_template_id=${templateId}`);
 }
+
+export const getGoogleCreds = (toolkit_id) => {
+  return api.get(`google/get_google_creds/toolkit_id/${toolkit_id}`)
+}
