@@ -11,17 +11,15 @@ export default function MarketAgent(){
         fetchAgentTemplateList()
             .then((response) => {
                 const data = response.data || [];
-                console.log(data)
                 setAgentTemplates(data)
             })
             .catch((error) => {
-                console.error('Error fetching agents:', error);
+                console.error('Error fetching agent templates:', error);
             });
     }, [])
 
     function handleTemplateClick(item) {
         EventBus.emit('openTemplateDetails', item);
-
     }
 
     return (

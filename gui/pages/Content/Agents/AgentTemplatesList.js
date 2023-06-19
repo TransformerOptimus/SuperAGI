@@ -8,6 +8,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
     const [agentTemplates, setAgentTemplates] = useState([])
     const [createAgentClicked, setCreateAgentClicked] = useState(false)
     const [sendTemplate, setSendTemplate] = useState(null)
+
     useEffect(() => {
         fetchAgentTemplateListLocal()
             .then((response) => {
@@ -15,16 +16,19 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                 setAgentTemplates(data)
             })
             .catch((error) => {
-                console.error('Error fetching agents:', error);
+                console.error('Error fetching agent templates:', error);
             });
     }, [])
+
     function redirectToCreateAgent() {
         setCreateAgentClicked(true);
     }
+
     function handleTemplateClick(item) {
         setSendTemplate(item);
         setCreateAgentClicked(true);
     }
+
     return (
         <div>
             {!createAgentClicked &&

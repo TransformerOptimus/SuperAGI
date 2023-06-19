@@ -141,13 +141,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
   }
 
   function saveAgentTemplate() {
-    console.log('in saving agent')
     saveAgentAsTemplate(agentId)
         .then((response) => {
-          toast.success("Agent saved as template Successfully", {autoClose: 1800});
+          toast.success("Agent saved as template successfully", {autoClose: 1800});
         })
         .catch((error) => {
-          console.error('Error fetching agent executions:', error);
+          console.error('Error saving agent as template:', error);
         });
   }
 
