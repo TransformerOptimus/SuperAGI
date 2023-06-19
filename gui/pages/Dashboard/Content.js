@@ -11,7 +11,7 @@ import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
-import AgentCreate from "@/pages/Content/Agents/AgentCreate";
+import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([])
