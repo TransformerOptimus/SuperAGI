@@ -19,10 +19,12 @@ export default function AgentTemplate({template}) {
     const [constraints, setConstraints] = useState([])
 
     useEffect(() => {
-        if(template.is_installed)
-            setInstalled('Installed')
-        else
-            setInstalled('Install')
+        if(template && template.is_installed) {
+            setInstalled('Installed');
+        } else {
+            setInstalled('Install');
+        }
+
         fetchAgentTemplateConfig(template.id)
           .then((response) => {
               const data = response.data || [];
@@ -36,12 +38,14 @@ export default function AgentTemplate({template}) {
           .catch((error) => {
               console.error('Error fetching template details:', error);
           });
-    }, [])
+    }, []);
+
     function handleInstallClick(){
-        if(template.is_installed) {
+        if(template && template.is_installed) {
             toast.error("Template is already installed", {autoClose: 1800});
             return;
         }
+
         installAgentTemplate(template.id)
           .then((response) => {
               toast.success("Template installed", {autoClose: 1800});
@@ -51,6 +55,7 @@ export default function AgentTemplate({template}) {
               console.error('Error fetching template details:', error);
           });
     }
+
     function handleBackClick(){
         EventBus.emit('goToMarketplace', {});
     }
