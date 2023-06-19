@@ -26,6 +26,4 @@ class DeleteCalendarEventTools(BaseTool):
                 calendarId = "primary",
                 eventId = event_id
             ).execute()
-            print("///////////////////////////")
-            print(result)
             return f"Event Successfully deleted from your Google Calendar"

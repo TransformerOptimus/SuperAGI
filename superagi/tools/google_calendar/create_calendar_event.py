@@ -63,4 +63,4 @@ class CreateEventCalendarTool(BaseTool):
         
         event = service.events().insert(calendarId="primary", body=event, conferenceDataVersion=1).execute()
         output_str = f"Event {event_name} at {date_utc['start_datetime_utc']} created successfully, link for the event {event.get('htmlLink')}"
-        print(output_str)
+        return output_str

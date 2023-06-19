@@ -5,9 +5,9 @@ from typing import Type
 from superagi.config.config import get_config
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
-import googleapiclient.discovery as discovery
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 from superagi.helper.calendar_date import CalendarDate
+from urllib.parse import urlparse, parse_qs
 
 class ListCalendarEventsInput(BaseModel):
     start_time: str = Field(..., description="A string variable storing the start time to return events from the calendar in format 'HH:MM:SS'. if no value is given keep default value as 'None'")
@@ -44,7 +44,10 @@ class ListCalendarEventsTool(BaseTool):
         
         csv_data = [['Event ID','Event Name','Start Time','End Time','Attendees']]
         for item in event_results['items']:
-            event_id = item["id"]
+            eid_url = item["htmlLink"]
+            parsed_url = urlparse(eid_url)
+            query_parameters = parse_qs(parsed_url.query)
+            event_id = query_parameters.get('eid',[None])[0]
             summary = ""
             start_date = ""
             end_date = ""
@@ -77,4 +80,4 @@ class ListCalendarEventsTool(BaseTool):
             for row in csv_data:
                 writer.writerow(row)
         
-        return f"List of Google Calendar Events for this month successfully stored in {file_name}."
+        return f"List of Google Calendar Events month successfully stored in {file_name}."
