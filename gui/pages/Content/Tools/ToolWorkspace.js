@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {EventBus} from "@/utils/eventBus";
-import {updateToolConfig, getToolConfig} from "@/pages/api/DashboardService";
+import {updateToolConfig, getToolConfig,getGoogleCreds} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
 import axios from 'axios';
 
@@ -12,14 +12,24 @@ export default function ToolWorkspace({tool,toolDetails}){
     const [apiConfigs, setApiConfigs] = useState([]);
     const defaultDescription = "Shifting timeline accross multiple time strings. Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.";
     const [toolsIncluded, setToolsIncluded] = useState([]);
+    const [getID,setgetID] = useState([]);
 
-    const handleKeyChange = (event, index) => {
+    let handleKeyChange = (event, index) => {
+      
       const updatedData = [...apiConfigs];
       updatedData[index].value = event.target.value;
       setApiConfigs(updatedData);
+      
     };
     
-
+    // function getToken(getID){
+    //   // const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
+    //   const scope = 'https://www.googleapis.com/auth/calendar';
+    //   const redirect_uri = 'http://localhost:8001/oauth-calendar';
+    //   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${getID}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+    //   window.location.href = authUrl;
+    // }
+    
     useEffect(() => {
       if (toolDetails && toolDetails.tools) {
         setToolsIncluded(toolDetails.tools);
@@ -44,11 +54,12 @@ export default function ToolWorkspace({tool,toolDetails}){
     }, []);
 
     const handleUpdateChanges = async () => {
+      
       const updatedConfigData = apiConfigs.map((config) => ({
         key: config.key,
         value: config.value,
       }));
-
+      
       updateToolConfig(toolDetails.name, updatedConfigData)
       .then((response) => {
           console.log(response);
@@ -57,6 +68,17 @@ export default function ToolWorkspace({tool,toolDetails}){
         console.error('Error updating tool config:', error);
       });
     };
+
+    const handleAuthenticateClick = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8001/google/get_google_creds/toolkit_id/${toolDetails.id}`);
+        setgetID(response.data);
+        console.log(getID);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
 
     return (
         <>
@@ -82,7 +104,7 @@ export default function ToolWorkspace({tool,toolDetails}){
                 </div>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                <button className={styles.secondary_button} >...</button>
+                <button style={{width:'200px'}}className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>
                 </div>
             </div>
 
