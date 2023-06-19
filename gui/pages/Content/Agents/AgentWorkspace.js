@@ -72,6 +72,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
     const executionData = { "agent_id": agentId, "name": runName }
     const agentData = { "agent_id": agentId, "key": "goal", "value": goals}
+    const agentData1 = { "agent_id": agentId, "key": "instruction", "value": instructions}
 
     addExecution(executionData)
       .then((response) => {
@@ -93,6 +94,13 @@ export default function AgentWorkspace({agentId, selectedView}) {
       .catch((error) => {
         console.error('Error updating agent:', error);
       });
+    updateAgents(agentData1)
+        .then((response) => {
+          EventBus.emit('reFetchAgents', {});
+        })
+        .catch((error) => {
+          console.error('Error updating agent:', error);
+        });
   };
 
   const closeRunModal = () => {
