@@ -45,11 +45,11 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
                     <div className={styles.resources}>
                         {agentTemplates.map((item, index) => (
-                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
+                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'100px'}}
                                  onClick={() => handleTemplateClick(item)}>
                                 <div style={{display: 'inline',overflow:'auto'}}>
                                     <div>{item.name}</div>
-                                    <div style={{marginTop:'5px',color: 'rgb(96, 96, 96)'}}>{item.description}</div>
+                                    <div className={styles.tool_description} style={{marginTop:'10px'}}>{item.description}</div>
                                 </div>
                             </div>
                         ))}
