@@ -231,7 +231,7 @@ class AgentExecutor:
 
     def handle_wait_for_permission(self, agent_execution, spawned_agent, session):
         """
-        Handle the wait for permission.
+        Handles the wait for permission when the agent execution is waiting for permission.
 
         Args:
             agent_execution (AgentExecution): The agent execution.
