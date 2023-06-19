@@ -2,6 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Dict, NamedTuple, List
 import re
+import json5
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
 
@@ -28,7 +29,7 @@ class AgentOutputParser(BaseOutputParser):
         try:
             logger.info(text)
             text = JsonCleaner.check_and_clean_json(text)
-            parsed = json.loads(text, strict=False)
+            parsed = json5.loads(text)
         except json.JSONDecodeError:
             return AgentGPTAction(
                 name="ERROR",
