@@ -2,29 +2,46 @@ import json
 
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.base_model import DBBaseModel
 
 
 class AgentTemplateConfig(DBBaseModel):
-    """Agent Template Configs are stored in this table. """
+    """
+    Represents the configuration settings for an agent template.
+
+    Attributes:
+        id (int): The unique identifier of the agent template config.
+        agent_template_id (int): The identifier of the associated agent template.
+        key (str): The key of the configuration setting.
+        value (str): The value of the configuration setting.
+    """
+
     __tablename__ = 'agent_template_configs'
 
     id = Column(Integer, primary_key=True)
-    """Agent Template Config ID."""
     agent_template_id = Column(Integer)
-    """Agent Template Id"""
     key = Column(String)
-    """Agent Template Config Key"""
     value = Column(Text)
-    """Agent Template Config Value"""
-
 
     def __repr__(self):
+        """
+        Returns a string representation of the AgentTemplateConfig object.
+
+        Returns:
+            str: String representation of the AgentTemplateConfig.
+        """
+
         return f"AgentTemplateConfig(id={self.id}, agent_template_id='{self.agent_template_id}', " \
                f"key='{self.key}', value='{self.value}')"
 
     def to_dict(self):
+        """
+        Converts the AgentTemplateConfig object to a dictionary.
+
+        Returns:
+            dict: Dictionary representation of the AgentTemplateConfig.
+        """
+
         return {
             'id': self.id,
             'agent_template_id': self.agent_template_id,
@@ -33,10 +50,27 @@ class AgentTemplateConfig(DBBaseModel):
         }
 
     def to_json(self):
+        """
+        Converts the AgentTemplateConfig object to a JSON string.
+
+        Returns:
+            str: JSON string representation of the AgentTemplateConfig.
+        """
+
         return json.dumps(self.to_dict())
 
     @classmethod
     def from_json(cls, json_data):
+        """
+        Creates an AgentTemplateConfig object from a JSON string.
+
+        Args:
+            json_data (str): JSON string representing the AgentTemplateConfig.
+
+        Returns:
+            AgentTemplateConfig: AgentTemplateConfig object created from the JSON string.
+        """
+
         data = json.loads(json_data)
         return cls(
             id=data['id'],
@@ -44,4 +78,3 @@ class AgentTemplateConfig(DBBaseModel):
             key=data['key'],
             value=data['value']
         )
-

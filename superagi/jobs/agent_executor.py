@@ -1,20 +1,13 @@
-# from superagi.models.types.agent_with_config import AgentWithConfig
 import importlib
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 
-from time import time
-
-from celery import Celery
 from sqlalchemy.orm import sessionmaker
-from ast import literal_eval
 
 from superagi import worker
 from superagi.agent.super_agi import SuperAgi
-from superagi.config.config import get_config
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
-from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.configuration import Configuration
@@ -22,25 +15,12 @@ from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
-from superagi.tools.code.tools import CodingTool
-from superagi.tools.email.read_email import ReadEmailTool
-from superagi.tools.email.send_email import SendEmailTool
-from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
-from superagi.tools.file.read_file import ReadFileTool
-from superagi.tools.file.write_file import WriteFileTool
-from superagi.tools.google_search.google_search import GoogleSearchTool
-from superagi.tools.google_serp_search.google_serp_search import GoogleSerpTool
-from superagi.tools.jira.create_issue import CreateIssueTool
-from superagi.tools.jira.edit_issue import EditIssueTool
-from superagi.tools.jira.get_projects import GetProjectsTool
-from superagi.tools.jira.search_issues import SearchJiraTool
 from superagi.tools.thinking.tools import ThinkingTool
-from superagi.tools.webscaper.tools import WebScraperTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.helper.encyption_helper import decrypt_data
-from sqlalchemy import func
 import superagi.worker
+from superagi.lib.logger import logger
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
@@ -49,12 +29,32 @@ Session = sessionmaker(bind=engine)
 class AgentExecutor:
     @staticmethod
     def validate_filename(filename):
+        """
+        Validate the filename by removing the last three characters if the filename ends with ".py".
+
+        Args:
+            filename (str): The filename.
+
+        Returns:
+            str: The validated filename.
+        """
         if filename.endswith(".py"):
             return filename[:-3]  # Remove the last three characters (i.e., ".py")
         return filename
 
     @staticmethod
     def create_object(class_name, folder_name, file_name):
+        """
+        Create an object of a class dynamically.
+
+        Args:
+            class_name (str): The name of the class.
+            folder_name (str): The name of the folder.
+            file_name (str): The name of the file.
+
+        Returns:
+            object: The object of the class.
+        """
         file_name = AgentExecutor.validate_filename(filename=file_name)
         module_name = f"superagi.tools.{folder_name}.{file_name}"
 
@@ -70,6 +70,16 @@ class AgentExecutor:
 
     @staticmethod
     def get_model_api_key_from_execution(agent_execution, session):
+        """
+        Get the model API key from the agent execution.
+
+        Args:
+            agent_execution (AgentExecution): The agent execution.
+            session (Session): The database session.
+
+        Returns:
+            str: The model API key.
+        """
         agent_id = agent_execution.agent_id
         agent = session.query(Agent).filter(Agent.id == agent_id).first()
         if not agent:
@@ -88,6 +98,15 @@ class AgentExecutor:
         return model_api_key
 
     def execute_next_action(self, agent_execution_id):
+        """
+        Execute the next action of the agent execution.
+
+        Args:
+            agent_execution_id (int): The ID of the agent execution.
+
+        Returns:
+            None
+        """
         global engine
         # try:
         engine.dispose()
@@ -117,7 +136,7 @@ class AgentExecutor:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
             session.commit()
-            print("ITERATION_LIMIT_CROSSED")
+            logger.info("ITERATION_LIMIT_CROSSED")
             return "ITERATION_LIMIT_CROSSED"
 
         parsed_config["agent_execution_id"] = agent_execution.id
@@ -132,7 +151,7 @@ class AgentExecutor:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            print("Unable to setup the pinecone connection...")
+            logger.info("Unable to setup the pinecone connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
@@ -165,7 +184,7 @@ class AgentExecutor:
 
             session.commit()
         else:
-            print("Starting next job for agent execution id: ", agent_execution_id)
+            logger.info("Starting next job for agent execution id: ", agent_execution_id)
             superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()
@@ -176,6 +195,18 @@ class AgentExecutor:
         engine.dispose()
 
     def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):
+        """
+        Set the default parameters for the tools.
+
+        Args:
+            tools (list): The list of tools.
+            parsed_config (dict): The parsed configuration.
+            agent_id (int): The ID of the agent.
+            model_api_key (str): The API key of the model.
+
+        Returns:
+            list: The list of tools with default parameters.
+        """
         new_tools = []
         for tool in tools:
             if hasattr(tool, 'goals'):

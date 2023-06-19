@@ -19,7 +19,18 @@ router = APIRouter()
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
 def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
                            Authorize: AuthJWT = Depends(check_auth)):
-    """Create a new agent execution/run"""
+    """
+    Create a new agent execution/run.
+
+    Args:
+        agent_execution (AgentExecution): The agent execution data.
+
+    Returns:
+        AgentExecution: The created agent execution.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent is not found.
+    """
 
     agent = db.session.query(Agent).get(agent_execution.agent_id)
 
@@ -41,7 +52,18 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 @router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def get_agent_execution(agent_execution_id: int,
                         Authorize: AuthJWT = Depends(check_auth)):
-    """Get a agent execution by agent_execution_id"""
+    """
+    Get an agent execution by agent_execution_id.
+
+    Args:
+        agent_execution_id (int): The ID of the agent execution.
+
+    Returns:
+        AgentExecution: The requested agent execution.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent execution is not found.
+    """
 
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if not db_agent_execution:

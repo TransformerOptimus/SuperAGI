@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
+from superagi.lib.logger import logger
 
 
 class CodingSchema(BaseModel):
@@ -14,6 +15,16 @@ class CodingSchema(BaseModel):
     )
 
 class CodingTool(BaseTool):
+    """
+    Used to generate code.
+
+    Attributes:
+        llm: LLM used for code generation.
+        name : The name of tool.
+        description : The description of tool.
+        args_schema : The args schema.
+        goals : The goals.
+    """
     llm: Optional[BaseLlm] = None
     name = "CodingTool"
     description = (
@@ -27,6 +38,15 @@ class CodingTool(BaseTool):
 
 
     def _execute(self, task_description: str):
+        """
+        Execute the code tool.
+
+        Args:
+            task_description : The task description.
+
+        Returns:
+            Generated code or error message.
+        """
         try:
             prompt = """You're a top-notch coder, knowing all programming languages, software systems, and architecture.
         
@@ -46,5 +66,5 @@ class CodingTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             return result["content"]
         except Exception as e:
-            print(e)
+            logger.error(e)
             return f"Error generating text: {e}"
