@@ -24,6 +24,9 @@ export default function AgentTemplate({template}) {
         } else {
             setInstalled('Install');
         }
+        if(window.location.href.toLowerCase().includes('marketplace')) {
+            setInstalled('Sign in to install')
+        }
 
         fetchAgentTemplateConfig(template.id)
           .then((response) => {
@@ -41,6 +44,15 @@ export default function AgentTemplate({template}) {
     }, []);
 
     function handleInstallClick(){
+        if(window.location.href.toLowerCase().includes('marketplace')) {
+            if (window.location.href.toLowerCase().includes('localhost')) {
+                window.location.href = '/';
+            }
+            else
+                window.open(`https://app.superagi.com/`, '_self')
+            return;
+        }
+
         if(template && template.is_installed) {
             toast.error("Template is already installed", {autoClose: 1800});
             return;

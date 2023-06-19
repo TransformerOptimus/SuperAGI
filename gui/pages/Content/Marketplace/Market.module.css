@@ -381,7 +381,8 @@
 }
 
 .tool_description {
-    margin-top: 2px;
+    line-height:16px;
+    margin-top: 5px;
     color: #888888;
     display: -webkit-box;
     -webkit-box-orient: vertical;

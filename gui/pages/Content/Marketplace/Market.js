@@ -16,7 +16,7 @@ export default function Market() {
     const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
     const [agentTemplateData, setAgentTemplateData] = useState([]);
-    
+
     const handleSearch = (term) => {
       setSearchTerm(term);
     };
@@ -47,7 +47,7 @@ export default function Market() {
           <div style={{width:'100%',display:'flex',flexDirection:'column'}}>
               <div className={styles.detail_top}>
 
-              <div style={{display:'flex',overflowX:'scroll',marginLeft:'3px'}}>
+              <div style={{display:'flex',overflowX:'scroll',marginLeft:'8px'}}>
                   {/*<div>*/}
                   {/*    <button onClick={() => setActiveTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
                   {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>&nbsp;Tools*/}
