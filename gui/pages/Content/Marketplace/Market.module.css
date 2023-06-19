@@ -437,3 +437,19 @@
     font-size: 12px;
     color: #888888;
 }
+
+.vertical_line{
+    width: 0px;
+    height: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex: none;
+    margin-left:8px;
+}
+.topbar_heading{
+    font-style: normal;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 18px;
+    color: #FFFFFF;
+    margin-left:8px;
+}
