@@ -413,17 +413,6 @@
     font-weight: 600;
 }
 
-.tab_button {
-    border: none;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 15px;
-    color: #FFFFFF;
-    border-radius: 8px;
-    padding: 8px 10px;
-}
-
 .back_button {
     font-weight: 500;
     font-size: 12px;
