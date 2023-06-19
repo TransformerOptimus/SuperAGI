@@ -84,8 +84,9 @@ class ImageGenTool(BaseTool):
                         if resource.storage_type == "S3":
                             s3_helper = S3Helper()
                             s3_helper.upload_file(img, path=resource.path)
-                    session.close()
                 logger.info(f"Image {image} saved successfully")
             except Exception as err:
+                session.close()
                 return f"Error: {err}"
+        session.close()
         return "Images downloaded successfully"

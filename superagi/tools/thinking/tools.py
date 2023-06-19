@@ -26,6 +26,7 @@ class ThinkingTool(BaseTool):
         name : The name.
         description : The description.
         args_schema : The args schema.
+        llm: LLM used for thinking.
     """
     llm: Optional[BaseLlm] = None
     name = "ThinkingTool"

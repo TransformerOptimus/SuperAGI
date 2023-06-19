@@ -32,6 +32,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [constraints, setConstraints] = useState(constraintsArray);
 
   const [goals, setGoals] = useState(['Describe the agent goals here']);
+  const [instructions, setInstructions] = useState(['']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k']
   const [model, setModel] = useState(models[1]);
@@ -117,6 +118,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setRollingWindow(data.memory_window)
             setPermission(data.permission_type)
             setStepTime(data.iteration_interval)
+            setInstructions(data.instruction)
             setDatabase(data.LTM_DB)
             setModel(data.model)
             setToolNames(data.tools)
@@ -224,6 +226,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     updatedGoals[index] = newValue;
     setGoals(updatedGoals);
   };
+  const handleInstructionChange = (index, newValue) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions[index] = newValue;
+    setInstructions(updatedInstructions);
+  };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
@@ -237,6 +244,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setGoals(updatedGoals);
   };
 
+  const handleInstructionDelete = (index) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions.splice(index, 1);
+    setInstructions(updatedInstructions);
+  };
+
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
@@ -245,6 +258,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
+  };
+  const addInstruction = () => {
+    setInstructions((prevArray) => [...prevArray, 'new instructions']);
   };
 
   const addConstraint = () => {
@@ -334,6 +350,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "project_id": selectedProjectId,
       "description": agentDescription,
       "goal": goals,
+      "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
       "tools": myTools,
@@ -481,6 +498,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>))}
             <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>
+
+          <div style={{marginTop: '15px'}}>
+            <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
+              {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+                </div>{instructions.length > 1 && <div>
+                  <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  </button>
+                </div>}
+              </div>))}
+              <div>
+                <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+              </div>
+          </div>
+
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
             <div className="dropdown_container_search" style={{width:'100%'}}>

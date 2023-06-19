@@ -123,6 +123,7 @@ def get_agent_configurations(agent_id: int,
         "project_id": agent.project_id,
         "description": agent.description,
         "goal": [],
+        "instruction": [],
         "agent_type": None,
         "constraints": None,
         "tools": [],
@@ -145,6 +146,8 @@ def get_agent_configurations(agent_id: int,
             parsed_response["description"] = value
         elif key == "goal":
             parsed_response["goal"] = eval(value)  # Using eval to parse the list of strings
+        elif key == "instruction":
+            parsed_response["instruction"] = eval(value)
         elif key == "agent_type":
             parsed_response["agent_type"] = value
         elif key == "constraints":
