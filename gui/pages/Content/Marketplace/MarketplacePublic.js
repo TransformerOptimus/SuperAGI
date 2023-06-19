@@ -14,16 +14,16 @@ export default function MarketplacePublic() {
 
     return (
         <div style={{height:'100vh',width:'100%'}}>
-             <div style={{height:'6.5vh',display:'flex',width:'100%'}}>
+             <div className={styles.marketplace_public_container}>
                  <div className="superAgiLogo" style={{paddingLeft:'24px'}}><Image width={132} height={24} src="/images/sign-in-logo.svg" alt="super-agi-logo"/>
                     <div className={styles.vertical_line} />
                     <div className={styles.topbar_heading}>&nbsp;marketplace</div>
                  </div>
-                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center',width:'100%',paddingRight:'24px' }}>
+                 <div className={styles.marketplace_public_button}>
                      <button className="primary_button" onClick={handleSignupClick}>Try for free today!</button>
                  </div>
              </div>
-            <div style={{height:'92.5vh',width:'99vw',background: 'rgba(255, 255, 255, 0.08)',marginLeft:'8px',borderRadius: '8px'}}>
+            <div className={styles.marketplace_public_content}>
                 <Market />
             </div>
         </div>
