@@ -11,46 +11,6 @@ export default function Tools({ sendToolData, tools }) {
   const [toolsArray, setTools] = useState(tools);
   const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
   
-
-  useEffect(() => {
-    axios.get('http://192.168.173.48:8001/tool_kits/get/local/list')
-      .then(response => {
-        console.log(response.data)
-        const data = response.data || [];
-        const updatedData = data.map(item => {
-          return { ...item, contentType: "Tools" };
-        });
-        setTools(updatedData);
-      })
-      .catch(error => {
-        console.log('Error fetching tools:', error);
-        // Handle error if needed
-      });
-  }, []);
-
-  // const toolsArray = [
-  //   {
-  //     id: 1,
-  //     name: "Tool 1",
-  //     description: "custom",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Tool 2",
-  //     description: "default",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Tool 3",
-  //     description: "custom",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Tool 4",
-  //     description: "default",
-  //   },
-  // ];
-  
   
   const handleFilter = (value) => {
     setFilter(value);
