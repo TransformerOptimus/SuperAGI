@@ -208,7 +208,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .dropdown_container {
-    width: 90px;
+    width: 150px;
     height: fit-content;
     background: #1B192C;
     display: flex;
@@ -231,6 +231,9 @@ input[type="range"]::-moz-range-track {
     border-radius: 8px;
     list-style: none;
     cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .dropdown_item:hover {
