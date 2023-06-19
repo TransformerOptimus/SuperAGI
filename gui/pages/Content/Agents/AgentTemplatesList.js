@@ -14,7 +14,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
         fetchAgentTemplateListLocal()
             .then((response) => {
                 const data = response.data || [];
-                // setAgentTemplates(data);
+                setAgentTemplates(data);
             })
             .catch((error) => {
                 console.error('Error fetching agent templates:', error);
