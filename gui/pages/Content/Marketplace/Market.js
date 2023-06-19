@@ -75,7 +75,9 @@ export default function Market() {
               {activeTab === 'market_agents' && <MarketAgent />}
             </div>
         </div>
-        </div> : <AgentTemplate template={agentTemplateData} />}
+        </div> : <div style={{padding: '0 30px'}}>
+            <AgentTemplate template={agentTemplateData} />
+        </div>}
     </div>
   );
 };
