@@ -59,9 +59,12 @@ class AgentOutputParser(BaseOutputParser):
                 return AgentGPTAction(name="", args="")
             if "name" in parsed["tool"]:
                 logger.info(format_prefix_yellow + "Tool: " + format_suffix_yellow + parsed["tool"]["name"] + "\n")
+            args = {}
+            if "args" in parsed["tool"]:
+                args = parsed["tool"]["args"]
             return AgentGPTAction(
                 name=parsed["tool"]["name"],
-                args=parsed["tool"]["args"],
+                args=args,
             )
         except (KeyError, TypeError):
             # If the tool is null or incomplete, return an erroneous tool
