@@ -3,6 +3,7 @@
 # agent can run the task queue as well with long term memory
 from __future__ import annotations
 
+import json
 import time
 from typing import Any, Dict
 from typing import Tuple
@@ -34,6 +35,8 @@ from superagi.models.resource import Resource
 from superagi.config.config import get_config
 import os
 from superagi.lib.logger import logger
+
+from superagi.vector_store.document import Document
 
 FINISH = "finish"
 WRITE_FILE = "Write File"
@@ -130,7 +133,7 @@ class SuperAgi:
         # adding history to the messages
         if workflow_step.history_enabled:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
-                                             max_token_limit=max_token_limit)
+                                             max_token_limit=max_token_limit, agent_feeds=agent_feeds)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
@@ -169,8 +172,15 @@ class SuperAgi:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
 
-        final_response = {"result": "PENDING", "retry": False}
+        final_response = self.handle_workflow_step_output(session, assistant_reply, task_queue, workflow_step)
+        session.commit()
 
+        print("Iteration completed moving to next iteration!")
+        session.close()
+        return final_response
+
+    def handle_workflow_step_output(self, session: Session, assistant_reply: str, task_queue: TaskQueue, workflow_step: AgentWorkflowStep):
+        final_response = {"result": "PENDING", "retry": False}
         if workflow_step.output_type == "tools":
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"], feed=assistant_reply,
@@ -187,9 +197,11 @@ class SuperAgi:
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed=tool_response["result"],
-                                                      role="system"
-                                                      )
+                                                      role="system")
             session.add(agent_execution_feed)
+            session.commit()
+            session.flush()
+            self.add_to_ltm(assistant_reply, tool_response["result"])
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
         elif workflow_step.output_type == "replace_tasks":
@@ -227,11 +239,13 @@ class SuperAgi:
             current_tasks = task_queue.get_tasks()
             if len(current_tasks) > 0 and final_response["result"] == "COMPLETE":
                 final_response["result"] = "PENDING"
-        session.commit()
 
-        logger.info("Iteration completed moving to next iteration!")
-        session.close()
         return final_response
+
+    def add_to_ltm(self, assistant_reply, tool_response):
+        text_content = "ASSISTANT: " + assistant_reply + "\n TOOL RESPONSE: " + tool_response
+        metadata = {"agent_id": self.agent_config["agent_id"]}
+        self.memory.add_documents(documents=[Document(text_content=text_content, metadata=metadata)])
 
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
@@ -279,13 +293,16 @@ class SuperAgi:
         agent_execution.num_of_tokens += total_tokens
         session.commit()
 
-    def build_agent_prompt(self, prompt: str, task_queue: TaskQueue, max_token_limit: int):
+    def build_agent_prompt(self, prompt: str, task_queue: TaskQueue, max_token_limit: int,
+                           agent_feeds: List[AgentExecutionFeed]):
         pending_tasks = task_queue.get_tasks()
         completed_tasks = task_queue.get_completed_tasks()
         add_finish_tool = True
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
 
+        # get matching text based on previous output/task
+        prompt = self.process_ltm(prompt, task_queue, agent_feeds)
         prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"], self.agent_config["instruction"],
                                                            self.agent_config["constraints"], self.tools, add_finish_tool)
 
@@ -323,3 +340,31 @@ class SuperAgi:
             session.commit()
             return True, {"result": "WAITING_FOR_PERMISSION", "permission_id": new_agent_execution_permission.id}
         return False, None
+
+    def process_ltm(self, prompt: str, task_queue: TaskQueue, agent_feeds: List[AgentExecutionFeed]):
+        current_task = task_queue.get_first_task()
+        documents = []
+        if current_task:
+            documents = self.memory.get_matching_text(current_task)
+            print(documents)
+        else:
+            query_str = ""
+            for agent_feed in reversed(agent_feeds[-10:-1]):
+                try:
+                    if agent_feed.role == "assistant":
+                        response = json.loads(agent_feed.feed)
+                        query_str = response["thoughts"]["plan"]
+                        break
+                except Exception as e:
+                    continue
+
+            if query_str != "":
+                documents = self.memory.get_matching_text(query_str)
+        print("LTM:", documents)
+        if len(documents) > 0:
+            ltm = '----'.join([document.text_content for document in documents])
+            prompt = AgentPromptBuilder.replace_ltm_variables(prompt, ltm)
+        else:
+            prompt = AgentPromptBuilder.replace_ltm_variables(prompt, "")
+
+        return prompt

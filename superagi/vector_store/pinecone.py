@@ -17,13 +17,23 @@ class Pinecone(VectorStore):
         text_field : The text field is the name of the field where the corresponding text for an embedding is stored.
         namespace : The namespace.
     """
+
     def __init__(
             self,
             index: Any,
             embedding_model: BaseEmbedding,
             text_field: str,
             namespace: Optional[str] = '',
-    ):
+            vector_group_id: Optional[str] = None):
+        """
+            Create a vector store using Pinecone.
+            Args:
+            index: An instance of a Pinecone index.
+            embedding_model: An instance of a BaseEmbedding model.
+            text_field: The name of the field in the metadata that contains the text.
+            namespace: The namespace to use for the Pinecone index.
+            vector_group_id: Vector group id used to index similar vectors.
+        """
         try:
             import pinecone
         except ImportError:
@@ -36,6 +46,30 @@ class Pinecone(VectorStore):
         self.embedding_model = embedding_model
         self.text_field = text_field
         self.namespace = namespace
+        self.vector_group_id = vector_group_id
+
+    @classmethod
+    def create_index(cls, index_name, embedding_model):
+        """Create a Pinecone index.
+        Args:
+        index_name: The name of the index to create.
+        embedding_model: An instance of a BaseEmbedding model.
+        """
+        try:
+            import pinecone
+        except ImportError:
+            raise ValueError("Please install pinecone to use this vector store.")
+        if index_name not in pinecone.list_indexes():
+            sample_embedding = embedding_model.get_embedding("sample")
+
+            # if does not exist, create index
+            pinecone.create_index(
+                index_name,
+                dimension=len(sample_embedding),
+                metric='dotproduct'
+            )
+        index = pinecone.Index(index_name)
+        return index
 
     def add_texts(
             self,
@@ -69,14 +103,16 @@ class Pinecone(VectorStore):
             raise ValueError("Number of ids must match number of texts.")
 
         for text, id in zip(texts, ids):
-            metadata = metadatas.pop(0) if metadatas else {}
+            metadata = metadatas.pop() if metadatas else {}
             metadata[self.text_field] = text
+            metadata["vector_group_id"] = self.vector_group_id
             vectors.append((id, self.embedding_model.get_embedding(text), metadata))
 
         self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = None, **kwargs: Any) -> List[
+        Document]:
         """
         Return docs most similar to query using specified search type.
 
@@ -90,8 +126,12 @@ class Pinecone(VectorStore):
         """
         namespace = kwargs.get("namespace", self.namespace)
 
+        filter = {
+            "vector_group_id": {"$eq": self.vector_group_id}
+        } if self.vector_group_id else None
+
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, top_k=top_k, namespace=namespace, include_metadata=True)
+        res = self.index.query(embed_text, filter=filter, top_k=top_k, namespace=namespace, include_metadata=True)
 
         documents = []
 
@@ -102,5 +142,4 @@ class Pinecone(VectorStore):
                     metadata=doc.metadata,
                 )
             )
-
         return documents

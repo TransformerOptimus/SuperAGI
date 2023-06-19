@@ -178,7 +178,10 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
 
     output_json = []
     if template_source == "local":
-        templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
+        page_size = 30
+
+        templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id)\
+            .offset(page * page_size).limit(page_size)
         for template in templates:
             template.updated_at = template.updated_at.strftime('%d-%b-%Y').upper()
             output_json.append(template)
@@ -214,7 +217,7 @@ def list_marketplace_templates(page=0):
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     page_size = 30
     templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id).offset(
-        page * page_size).limit(page_size).all()
+        page * page_size).limit(page_size)
     output_json = []
     for template in templates:
         template.updated_at = template.updated_at.strftime('%d-%b-%Y').upper()

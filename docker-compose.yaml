@@ -32,9 +32,11 @@ services:
       - /app/node_modules
       - /app/.next
   super__redis:
-    image: "docker.io/library/redis:latest"
+    image: "redis/redis-stack-server:latest"
     networks:
       - super_network
+    ports:
+      - "6379:6379"
   super__postgres:
     image: "docker.io/library/postgres:latest"
     environment:

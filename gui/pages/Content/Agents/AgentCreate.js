@@ -40,7 +40,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue"]
+  const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Maintain Task Queue - Action Based"]
   const [agentType, setAgentType] = useState(agentTypes[0]);
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
@@ -57,7 +57,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
-  const databases = ["Pinecone"]
+  const databases = ["Pinecone", "Redis"]
   const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);

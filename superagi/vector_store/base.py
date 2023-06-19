@@ -15,7 +15,8 @@ class VectorStore(ABC):
         """Add texts to the vector store."""
 
     @abstractmethod
-    def get_matching_text(self, query: str, top_k: int, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int, metadatas: Optional[List[dict]] = None,
+                          **kwargs: Any) -> List[Document]:
         """Return docs most similar to query using specified search type."""
 
     def add_documents(self, documents: List[Document], **kwargs: Any) -> List[str]:
