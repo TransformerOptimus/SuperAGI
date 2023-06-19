@@ -68,6 +68,7 @@ class Agent(DBBaseModel):
             "project_id": agent.project_id,
             "description": agent.description,
             "goal": [],
+            "instruction": [],
             "agent_type": None,
             "constraints": [],
             "tools": [],
@@ -103,7 +104,7 @@ class Agent(DBBaseModel):
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
-        elif key == "goal" or key == "constraints":
+        elif key == "goal" or key == "constraints" or key == "instruction":
             return eval(value)
         elif key == "tools":
             return [int(x) for x in json.loads(value)]
@@ -141,6 +142,7 @@ class Agent(DBBaseModel):
         # Create Agent Configuration
         agent_config_values = {
             "goal": agent_with_config.goal,
+            "instruction": agent_with_config.instruction,
             "agent_type": agent_with_config.agent_type,
             "constraints": agent_with_config.constraints,
             "tools": agent_with_config.tools,

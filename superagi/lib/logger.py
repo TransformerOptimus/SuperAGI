@@ -1,6 +1,7 @@
 import logging
 import inspect
 
+
 class CustomLogRecord(logging.LogRecord):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,6 +19,7 @@ class CustomLogRecord(logging.LogRecord):
             self.filename = "unknown"
             self.lineno = 0
 
+
 class SingletonMeta(type):
     _instances = {}
 
@@ -26,6 +28,7 @@ class SingletonMeta(type):
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
+
 
 class Logger(metaclass=SingletonMeta):
     def __init__(self, logger_name='Super AGI', log_level=logging.DEBUG):
@@ -37,8 +40,9 @@ class Logger(metaclass=SingletonMeta):
             console_handler = logging.StreamHandler()
             console_handler.setLevel(log_level)
 
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
-                                          datefmt='%Y-%m-%d %H:%M:%S %Z')
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S %Z')
 
             console_handler.setFormatter(formatter)
             self.logger.addHandler(console_handler)
@@ -46,19 +50,30 @@ class Logger(metaclass=SingletonMeta):
     def _make_custom_log_record(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
         return CustomLogRecord(name, level, fn, lno, msg, args, exc_info, func=func, extra=extra, sinfo=sinfo)
 
-    def debug(self, message):
+    def debug(self, message, *args):
         self.logger.debug(message)
+        if len(args) > 0:
+            self.logger.debug(*args)
 
-    def info(self, message):
+    def info(self, message, *args):
         self.logger.info(message)
+        if len(args) > 0:
+            self.logger.info(*args)
 
-    def warning(self, message):
+    def warning(self, message, *args):
         self.logger.warning(message)
+        if len(args) > 0:
+            self.logger.warning(*args)
 
-    def error(self, message):
+    def error(self, message, *args):
         self.logger.error(message)
+        if len(args) > 0:
+            self.logger.error(*args)
 
-    def critical(self, message):
+    def critical(self, message, *args):
         self.logger.critical(message)
+        if len(args) > 0:
+            self.logger.critical(*args)
+
 
 logger = Logger('Super AGI')

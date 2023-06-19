@@ -22,6 +22,7 @@ class AgentPromptBuilder:
     @classmethod
     def add_tools_to_prompt(cls, tools: List[BaseTool], add_finish: bool = True) -> str:
         final_string = ""
+        print(tools)
         for i, item in enumerate(tools):
             final_string += f"{i + 1}. {cls._generate_command_string(item)}\n"
         finish_description = (
@@ -48,10 +49,12 @@ class AgentPromptBuilder:
         # print(tool.args)
         output += f", args json schema: {json.dumps(tool.args)}"
         return output
+    
     @classmethod
     def clean_prompt(cls, prompt):
-        prompt = re.sub(' +', ' ', prompt)
-        return prompt
+        prompt = re.sub('[ \t]+', ' ', prompt)
+        return prompt.strip()
+    
 
     @classmethod
     def get_super_agi_single_prompt(cls):
@@ -74,6 +77,8 @@ class AgentPromptBuilder:
     
           GOALS:
           {goals}
+
+          {instructions}
     
           CONSTRAINTS:
           {constraints}
@@ -82,7 +87,8 @@ class AgentPromptBuilder:
           {tools}
           
           PERFORMANCE EVALUATION:
-          1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities. 
+          1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
+          2. Use instruction to decide the flow of execution and decide the next steps for achieving the task.
           2. Constructively self-criticize your big-picture behavior constantly.
           3. Reflect on past decisions and strategies to refine your approach.
           4. Every tool has a cost, so be smart and efficient.
@@ -97,23 +103,28 @@ class AgentPromptBuilder:
 
         super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt).replace("{response_format}",
                                                                                      formatted_response_format)
-        return {"prompt": super_agi_prompt, "variables": ["goals", "constraints", "tools"]}
+        return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "constraints", "tools"]}
 
     @classmethod
     def start_task_based(cls):
-        super_agi_prompt = """You are a task-generating AI known as SuperAGI. You are not a part of any system or device. Your role is to understand the goals presented to you, identify important components, and construct a thorough execution plan.
+        super_agi_prompt = """You are a task-generating AI known as SuperAGI. You are not a part of any system or device. Your role is to understand the goals presented to you, identify important components, Go through the instruction provided by the user and construct a thorough execution plan.
         
         GOALS:
         {goals}
-        
+
+        {task_instructions}
+
         Construct a sequence of actions, not exceeding 3 steps, to achieve this goal.
         
         Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
         
         Example: ["{{TASK-1}}", "{{TASK-2}}"].
+
+
+
         """
 
-        return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt), "variables": ["goals"]}
+        return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt), "variables": ["goals", "instructions"]}
         # super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
 
     @classmethod
@@ -124,6 +135,8 @@ class AgentPromptBuilder:
         super_agi_prompt = """
         High level goal: 
         {goals}
+
+        {task_instructions}
         
         Your Current Task: `{current_task}`
         
@@ -150,7 +163,7 @@ class AgentPromptBuilder:
 
         super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt) \
             .replace("{constraints}", AgentPromptBuilder.add_list_items_to_string(constraints))
-        return {"prompt": super_agi_prompt, "variables": ["goals", "tools", "current_task"]}
+        return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "tools", "current_task"]}
 
     @classmethod
     def create_tasks(cls):
@@ -160,6 +173,8 @@ class AgentPromptBuilder:
         
         High level goal:
         {goals}
+
+        {task_instructions}
         
         You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
         
@@ -173,7 +188,7 @@ class AgentPromptBuilder:
         Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.
         """
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
-                "variables": ["goals", "last_task", "last_task_result", "pending_tasks"]}
+                "variables": ["goals", "instructions", "last_task", "last_task_result", "pending_tasks"]}
 
     @classmethod
     def prioritize_tasks(cls):
@@ -184,6 +199,8 @@ class AgentPromptBuilder:
             High level goal:
             {goals}
 
+            {task_instructions}
+
             You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
 
             Based on this, evaluate the incomplete tasks and sort them in the order of execution. In output first task will be executed first and so on.
@@ -193,14 +210,23 @@ class AgentPromptBuilder:
             Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE.
             """
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
-                "variables": ["goals", "last_task", "last_task_result", "pending_tasks"]}
+                "variables": ["goals", "instructions", "last_task", "last_task_result", "pending_tasks"]}
 
     @classmethod
-    def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], constraints: List[str],
+    def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
                                tools: List[BaseTool], add_finish_tool: bool = True):
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
+        if len(instructions) > 0 and len(instructions[0]) > 0:
+            task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
+            super_agi_prompt = super_agi_prompt.replace("{instructions}", "INSTRUCTION: " + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
+            super_agi_prompt = super_agi_prompt.replace("{task_instructions}", task_str + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
+        else:
+            super_agi_prompt = super_agi_prompt.replace("{instructions}", '')
         super_agi_prompt = super_agi_prompt.replace("{constraints}",
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
+        
+    
+        print(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt

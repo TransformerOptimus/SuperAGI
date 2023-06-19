@@ -16,10 +16,10 @@ class CodingSchema(BaseModel):
 
 class CodingTool(BaseTool):
     """
-    The CodingTool class.
+    Used to generate code.
 
     Attributes:
-        llm : The LLM.
+        llm: LLM used for code generation.
         name : The name of tool.
         description : The description of tool.
         args_schema : The args schema.
