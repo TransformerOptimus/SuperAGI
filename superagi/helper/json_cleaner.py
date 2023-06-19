@@ -99,10 +99,10 @@ class JsonCleaner:
 
     @classmethod
     def remove_trailing_newline_spaces(cls, json_string):
-        json_string = re.sub(r'\n+\s+"', '"', json_string)
-        json_string = re.sub(r'}\n+\s+}', '}}', json_string)
-        json_string = re.sub(r'"\n+\s+}', '"}', json_string)
-        json_string = re.sub(r'\n+}', '}', json_string)
+        json_string = re.sub(r'\n+\s*"', '"', json_string)
+        json_string = re.sub(r'}\n+\s*}', '}}', json_string)
+        json_string = re.sub(r'"\n+\s*}', '"}', json_string)
+        json_string = re.sub(r'\n+\s*}', '}', json_string)
         return json_string.strip()
     @classmethod
     def clean_newline_characters(cls, string):
