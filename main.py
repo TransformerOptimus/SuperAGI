@@ -1,10 +1,11 @@
 import os
 from datetime import timedelta
-
+import pickle
 import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import json
 from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -13,6 +14,15 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# from apiclient import discovery
+# import httplib2
+# from oauth2client import client
+# from oauth2client.client import OAuth2WebServerFlow
+# from oauth2client.tools import run_flow
+# from oauth2client.file import Storage
+import http.client
+from  datetime import datetime, timedelta
+import time
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
@@ -293,6 +303,40 @@ def github_login():
     github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
+@app.get('/oauth-calendar')
+async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    token_uri = 'https://oauth2.googleapis.com/token'
+    scope = 'https://www.googleapis.com/auth/calendar'
+    params = {
+        'client_id': superagi.config.config.get_config('GOOGLE_CLIENT_ID'),
+        'client_secret': superagi.config.config.get_config('GOOGLE_CLIENT_SECRET'),
+        'redirect_uri': "http://localhost:8001/oauth-calendar",
+        'scope': scope,
+        'grant_type': 'authorization_code',
+        'code': code,
+        'access_type': 'offline'
+    }
+    response = requests.post(token_uri, data=params)
+    response = response.json()
+    expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
+    expire_time = expire_time - timedelta(minutes=5)
+    response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
+    file_name = "credential_token.pickle"
+    final_path = file_name
+    if root_dir is not None:
+        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        final_path = root_dir + file_name
+    else:
+        final_path = os.getcwd() + "/" + file_name
+    try:
+        with open(final_path, mode="wb") as file:
+            pickle.dump(response, file)
+    except Exception as err:
+        return f"Error: {err}"
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    return RedirectResponse(frontend_url)
 
 @app.get('/github-auth')
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
