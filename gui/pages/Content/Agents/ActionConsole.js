@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import { updatePermissions } from '@/pages/api/DashboardService';
+import CustomRange from './CustomRange';
 
 export default function ActionConsole({ actions }) {
     const [hiddenActions, setHiddenActions] = useState([]);
@@ -74,6 +75,7 @@ export default function ActionConsole({ actions }) {
 
     return (
         <>
+            <CustomRange />
             {actions.some(action => action.status === null) ? (<div className={styles.detail_body} style={{ height: "auto" }}>
                 {actions.map((action, index) => action.status === null && !hiddenActions.includes(index) && (
                     <div key={index} className={styles.history_box} style={{ background: "#272335", padding: "16px", cursor: "default" }}>
