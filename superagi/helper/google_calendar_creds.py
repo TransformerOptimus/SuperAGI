@@ -31,20 +31,20 @@ class GoogleCalendarCreds:
             if isinstance(creds, str):
                 creds = json.loads(creds)
             expire_time = datetime.strptime(creds["expiry"], "%Y-%m-%dT%H:%M:%S.%fZ")
+            toolkit_id = 14
             google_creds = session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id).all()
-            for creds in google_creds:
-                if creds["key"] == "GOOGLE_CLIENT_ID":
-                    client_id = creds["value"]
+            client_id = ""
+            client_secret = ""
+            for credentials in google_creds:
+                credentials = credentials.__dict__
+                if credentials["key"] == "GOOGLE_CLIENT_ID":
+                    client_id = credentials["value"]
                 else:
-                    client_secret = creds["value"]
+                    client_secret = credentials["value"]
             
-            print("/////////////////////////////")
-            print(client_id)
-            print("-----------------------------")
-            print(client_secret)
             creds = Credentials.from_authorized_user_info(info={
                 "client_id": client_id,
-                "client_secret": get_config("GOOGLE_CLIENT_SECRET"),
+                "client_secret": client_secret,
                 "refresh_token": creds["refresh_token"],
                 "scopes": "https://www.googleapis.com/auth/calendar"
             })
