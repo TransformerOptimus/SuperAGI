@@ -7,6 +7,7 @@ from sqlalchemy.sql import asc
 
 from superagi.agent.task_queue import TaskQueue
 from superagi.helper.auth import check_auth
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
@@ -131,10 +132,27 @@ def get_agent_execution_feed(agent_execution_id: int,
     # # parse json
     final_feeds = []
     for feed in feeds:
-        final_feeds.append(parse_feed(feed))
+        if feed.feed != "":
+            final_feeds.append(parse_feed(feed))
+
+    # get all permissions
+    execution_permissions = db.session.query(AgentExecutionPermission).\
+        filter_by(agent_execution_id=agent_execution_id, status="PENDING"). \
+        order_by(asc(AgentExecutionPermission.created_at)).all()
+
+    permissions = [
+        {
+                "id": permission.id,
+                "created_at": permission.created_at,
+                "response": permission.user_feedback,
+                "status": permission.status,
+                "tool_name": permission.tool_name
+        } for permission in execution_permissions
+    ]
     return {
         "status": agent_execution.status,
-        "feeds": final_feeds
+        "feeds": final_feeds,
+        "permissions": permissions
     }
 
 
@@ -150,7 +168,6 @@ def get_execution_tasks(agent_execution_id: int,
     Returns:
         dict: The tasks and completed tasks for the agent execution.
     """
-
     task_queue = TaskQueue(str(agent_execution_id))
     tasks = []
     for task in task_queue.get_tasks():

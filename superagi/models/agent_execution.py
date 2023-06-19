@@ -32,6 +32,7 @@ class AgentExecution(DBBaseModel):
     num_of_calls = Column(Integer, default=0)
     num_of_tokens = Column(Integer, default=0)
     current_step_id = Column(Integer)
+    permission_id = Column(Integer)
 
     def __repr__(self):
         """

@@ -37,5 +37,5 @@ def connect_db():
         logger.info("Connected to the database! @ " + db_url)
         connection.close()
     except Exception as e:
-        logger.error("Unable to connect to the database:", e)
+        logger.error(f"Unable to connect to the database:{e}")
     return engine

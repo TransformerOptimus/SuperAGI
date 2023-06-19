@@ -23,6 +23,7 @@ from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
 from superagi.controllers.budget import router as budget_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
@@ -83,8 +84,9 @@ app.include_router(agent_router, prefix="/agents")
 app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
+app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
 app.include_router(resources_router, prefix="/resources")
-app.include_router(config_router,prefix="/configs")
+app.include_router(config_router, prefix="/configs")
 app.include_router(agent_template_router,prefix="/agent_templates")
 app.include_router(agent_workflow_router,prefix="/agent_workflows")
 

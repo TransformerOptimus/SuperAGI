@@ -24,6 +24,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
   const [dropdown, setDropdown] = useState(false);
+  const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
 
   const addInstruction = () => {
@@ -216,18 +217,24 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0}/></div>}
+          {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
+            <ActivityFeed
+              selectedView={selectedView}
+              selectedRunId={selectedRun?.id || 0}
+              setFetchedData={setFetchedData} // Pass the setFetchedData function as a prop
+          />
+          </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
       <div style={{width:'40%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
-            {/*<div>*/}
-            {/*  <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>*/}
-            {/*    Action Console*/}
-            {/*  </button>*/}
-            {/*</div>*/}
+            <div>
+              <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
+                Action Console
+              </button>
+            </div>
             {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Feedback*/}
@@ -251,7 +258,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
-          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && <div className={styles.detail_content}><ActionConsole/></div>}
+          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
+              <div className={styles.detail_content}>
+                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} />
+              </div>
+          )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>

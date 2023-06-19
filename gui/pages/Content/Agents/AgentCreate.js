@@ -61,7 +61,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
-  const permissions = ["God Mode"]
+  const permissions = ["God Mode","RESTRICTED (Will ask for permission before using any tool)"]
   const [permission, setPermission] = useState(permissions[0]);
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
@@ -339,6 +339,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
+    // if permission has word restricted change the permission to 
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
+
     const agentData = {
       "name": agentName,
       "project_id": selectedProjectId,
@@ -352,7 +358,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "iteration_interval": stepTime,
       "model": model,
       "max_iterations": maxIterations,
-      "permission_type": permission,
+      "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
       "memory_window": rollingWindow
     };

@@ -35,6 +35,7 @@ class ThinkingTool(BaseTool):
     )
     args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
+    permission_required: bool = False
 
     class Config:
         arbitrary_types_allowed = True
