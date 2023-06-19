@@ -1,16 +1,17 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
+import ToolWorkspace from '../Content/Tools/ToolWorkspace';
+import AgentCreate from '../Content/Agents/AgentCreate';
 import Tools from '../Content/Tools/Tools';
 import ToolCreate from '../Content/Tools/ToolCreate';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
+import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
-import AgentCreate from "@/pages/Content/Agents/AgentCreate";
+import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([])
@@ -18,7 +19,8 @@ export default function Content({selectedView, selectedProjectId, organisationId
   const [agents, setAgents] = useState(null);
   const [tools, setTools] = useState(null);
   const tabContainerRef = useRef(null);
-
+  const [toolDetails, setToolDetails] = useState({})
+ 
   function fetchAgents() {
     getAgents(selectedProjectId)
       .then((response) => {
@@ -34,7 +36,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   }
 
   function fetchTools() {
-    getTools()
+    getToolKit()
       .then((response) => {
         const data = response.data || [];
         const updatedData = data.map(item => {
@@ -80,11 +82,15 @@ export default function Content({selectedView, selectedProjectId, organisationId
   };
 
   const addTab = (element) => {
+    setToolDetails(element)
+    console.log("hello:: "+Object.values(element))
     if (!tabs.some(item => item.id === element.id)) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
     }
     setSelectedTab(element.id);
+    if (element.contentType === 'Tools' || element.contentType === 'Create_Tool') {
+    }
   };
 
   useEffect(() => {
@@ -173,6 +179,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
               <div key={tab.id}>
                 {selectedTab === tab.id && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
+                  {tab.contentType === 'Tools' && <ToolWorkspace tool={tab.id} toolDetails={toolDetails}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
 
                   {tab.contentType === 'Marketplace' && (
@@ -186,11 +193,12 @@ export default function Content({selectedView, selectedProjectId, organisationId
                     <div className="row">
                       <div className="col-3"></div>
                       <div className="col-6" style={{overflowY:'scroll'}}>
-                        <ToolCreate/>
+                        <ToolCreate sendToolData={addTab}/>
                       </div>
                       <div className="col-3"></div>
                     </div>
                   </div>}
+
                 </div>}
               </div>
             ))}

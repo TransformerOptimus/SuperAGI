@@ -92,6 +92,7 @@
     display: flex;
     align-items: center;
     color: white;
+    margin-bottom: 25px;
 }
 
 .tool_text {

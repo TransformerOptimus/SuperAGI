@@ -5,9 +5,6 @@ import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import EachToolOverview from "./EachToolOverview"
-import {fetchAgentTemplateConfig, fetchAgentTemplateList, installAgentTemplate} from "@/pages/api/DashboardService";
-import {EventBus} from "@/utils/eventBus";
 
 export default function AgentTemplate({template}) {
     const [tools, setTools] = useState([])
