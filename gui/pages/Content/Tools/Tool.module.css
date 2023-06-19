@@ -136,7 +136,7 @@
     background: rgba(255, 255, 255, 0.2);
 }
 .button_class{
-    margin-top:15px;
+    margin-top:20px;
     float: right;
     display: flex;
     gap: 5px;
@@ -171,10 +171,11 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    height: 350px; /* Replace with your desired height */
+    max-height: 88vh; /* Replace with your desired height */
     width: 650px; 
     text-align: center;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .search_box {/**/
@@ -252,3 +253,4 @@
     padding:10px;
     margin-bottom: 6px;
 }
+

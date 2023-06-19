@@ -16,9 +16,11 @@ export default function ToolCreate({sendToolData}) {
   const [argument, setArguments] = useState('Integer');
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
+  const [urlError, setUrlError] = useState("");
 
   const handleNameChange = (event) => {
     setToolName(event.target.value);
+    setUrlError("");
   };
   const handleDescriptionChange = (event) => {
     setToolDescription(event.target.value);
@@ -54,9 +56,21 @@ export default function ToolCreate({sendToolData}) {
     setModelDropdown(false);
   };
 
-  const handleToolCreate = (index) => {
-    toast.success('Tool created successfully', {autoClose: 1800});
+  const handleToolCreate = () => {
+    if (!isValidUrl(toolName)) {
+      toast.error('Invalid URL! Please provide a valid URL'); // Display the toast for an invalid URL
+      return;
+    }
+
+    toast.success('Tool will be installed in a while', { autoClose: 1800 });
   };
+
+  const isValidUrl = (url) => {
+    // Add your URL validation logic here
+    const pattern = /^(https?:\/\/)/;
+    return pattern.test(url);
+  };
+
 
 
   return (<>
@@ -64,27 +78,31 @@ export default function ToolCreate({sendToolData}) {
       <div className="row" style={{padding: '10px'}}>
         <div className="col-12">
         <div>
-            <div className={styles1.page_title} style={{marginTop:'10px'}}>Create new tool</div>
+            <div className={styles1.page_title} style={{marginTop:'10px'}}>Add a new tool</div>
           </div>
           <div style={{marginTop:'10px'}}>
-            <div>
-              <label className={styles1.form_label}>Name</label>
-              <input className="input_medium" type="text" value={toolName} onChange={handleNameChange} />
+            <div >
+              <label className={styles1.form_label}>
+                <div>Github Repository URL</div>
+                <div>Paste your toolkit's Github repo url here and we will sync & install</div>
+              </label>
+              <input style={{marginTop:'10px'}}className="input_medium" type="text" value={toolName} placeholder='Enter URL here' onChange={handleNameChange} />
             </div>
-            <div style={{marginTop: '15px'}}>
+            
+            {/* <div style={{marginTop: '15px'}}>
               <label className={styles1.form_label}>Description</label>
               <textarea className="textarea_medium" rows={3} value={toolDescription} onChange={handleDescriptionChange} />
             </div>
             <div style={{marginTop:'10px'}}>
               <label className={styles1.form_label}>Class Name</label>
               <input className="input_medium" type="text" value={toolClass} onChange={handleClassChange} />
-            </div>
-            <div style={{marginTop: '15px'}}>
-              <label className={styles1.form_label}>Input values</label>
-              {goals.map((goal, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            </div> */}
+            <div>
+              {/* <label className={styles1.form_label}>Input values</label> */}
+              {goals.map((goal, index) => (<div key={index} style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div style={{flex:'1'}}>
-                  <input className="input_medium" placeholder="Enter parameter" style={{width:'49%',float:'left'}} type="text" value={goal.paramater} onChange={(event) => handleGoalValue1Change(index, event)} />
-                  <div className="dropdown_container_search" style={{marginLeft:'4%'}}>
+                  {/* <input className="input_medium" placeholder="Enter parameter" style={{width:'49%',float:'left'}} type="text" value={goal.paramater} onChange={(event) => handleGoalValue1Change(index, event)} /> */}
+                  {/* <div className="dropdown_container_search" style={{marginLeft:'4%'}}>
                     <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{alignItems:'normal'}}>
                       {argument}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                     </div>
@@ -95,7 +113,7 @@ export default function ToolCreate({sendToolData}) {
                         </div>))}
                       </div>}
                     </transition>
-                  </div>
+                  </div> */}
                   {/*<select className="input_medium" style={{ width: '49%', float: 'right' }} value={goal.argument} onChange={(event) => handleGoalValue2Change(index, event)}>*/}
                   {/*  {argumentArray.map((argument, argumentIndex) => (*/}
                   {/*      <option key={argumentIndex} value={argument}>*/}
@@ -105,17 +123,17 @@ export default function ToolCreate({sendToolData}) {
                   {/*</select>*/}
                 </div>
                 <div>
-                  <button className={styles1.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={handleRemoveGoal} >
+                  {/* <button className={styles1.agent_button} style={{marginLeft:'4px',padding:'5px'}} onClick={handleRemoveGoal} >
                     <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
-                  </button>
+                  </button> */}
                 </div>
               </div>))}
-              <button className={styles1.agent_button} onClick={handleAddGoal}>
+              {/* <button className={styles1.agent_button} onClick={handleAddGoal}>
                 Add
-              </button>
+              </button> */}
             </div>
-            <div style={{marginTop:'10px'}}>
-              <div className={styles.code_head}> &nbsp;&nbsp;Python 3 </div>
+            <div >
+              {/* <div className={styles.code_head}> &nbsp;&nbsp;Python 3 </div> */}
               {/*<CodeEditor*/}
               {/*  value={code}*/}
               {/*  options={{*/}
@@ -130,10 +148,10 @@ export default function ToolCreate({sendToolData}) {
               {/*  onChange={(editor, data, value) => { setCode(value)}}*/}
               {/*/>*/}
             </div>
-          </div>
+          </div>   
           <div className={styles.button_class}>
-            <button className={styles1.agent_button} >Cancel</button>
-            <button className={styles1.agent_button} onClick={handleToolCreate}>Add</button>
+            <button className={styles.secondary_button} >Cancel</button>
+            <button className={styles.primary_button} onClick={handleToolCreate}>Add</button>
           </div>
         </div>
       </div>
