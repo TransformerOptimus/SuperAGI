@@ -195,7 +195,7 @@ class AgentExecutor:
             db_agent_execution.permission_id = response.get("permission_id", None)
             session.commit()
         else:
-            logger.info("Starting next job for agent execution id: ", agent_execution_id)
+            logger.info(f"Starting next job for agent execution id: {agent_execution_id}")
             superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()

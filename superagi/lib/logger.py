@@ -51,19 +51,24 @@ class Logger(metaclass=SingletonMeta):
         return CustomLogRecord(name, level, fn, lno, msg, args, exc_info, func=func, extra=extra, sinfo=sinfo)
 
     def debug(self, message, *args):
-        self.logger.debug(message, *args)
+        self.logger.debug(message)
+        self.logger.debug(*args)
 
     def info(self, message, *args):
-        self.logger.info(message, *args)
+        self.logger.info(message)
+        self.logger.info(*args)
 
     def warning(self, message, *args):
-        self.logger.warning(message, *args)
+        self.logger.warning(message)
+        self.logger.warning(*args)
 
     def error(self, message, *args):
-        self.logger.error(message, *args)
+        self.logger.error(message)
+        self.logger.error(*args)
 
     def critical(self, message, *args):
-        self.logger.critical(message, *args)
+        self.logger.critical(message)
+        self.logger.critical(*args)
 
 
 logger = Logger('Super AGI')
