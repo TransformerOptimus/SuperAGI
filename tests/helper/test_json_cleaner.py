@@ -29,4 +29,15 @@ def test_balance_braces():
 def test_check_and_clean_json():
     test_str = r'{key: "value"\n}'
     result = JsonCleaner.check_and_clean_json(test_str)
-    assert result == '{"key": "value"}'
+    assert result == '{key: "value"}'
+
+
+def test_clean_newline_spaces_json():
+    test_str = r'{key: "value"\n    \n}'
+    result = JsonCleaner.check_and_clean_json(test_str)
+    assert result == '{key: "value"}'
+
+def test_has_newline_in_string():
+    test_str = r'{key: "value\n"\n    \n}'
+    result = JsonCleaner.check_and_clean_json(test_str)
+    assert result == '{key: "value\\n"}'
