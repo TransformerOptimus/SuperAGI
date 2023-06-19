@@ -19,6 +19,14 @@ class ThinkingSchema(BaseModel):
     )
 
 class ThinkingTool(BaseTool):
+    """
+    Thinking tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     llm: Optional[BaseLlm] = None
     name = "ThinkingTool"
     description = (
@@ -33,6 +41,15 @@ class ThinkingTool(BaseTool):
 
 
     def _execute(self, task_description: str):
+        """
+        Execute the Thinking tool.
+
+        Args:
+            task_description : The task description.
+
+        Returns:
+            response from the Thinking tool. or error message.
+        """
         try:
             prompt = """Given the following overall objective
             Objective:

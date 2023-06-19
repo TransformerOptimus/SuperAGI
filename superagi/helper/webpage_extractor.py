@@ -30,9 +30,21 @@ USER_AGENTS = [
 class WebpageExtractor:
 
     def __init__(self, num_extracts=3):
+        """
+        Initialize the WebpageExtractor class.
+        """
         self.num_extracts = num_extracts
 
     def extract_with_3k(self, url):
+        """
+        Extract the text from a webpage using the 3k method.
+
+        Args:
+            url (str): The URL of the webpage to extract from.
+
+        Returns:
+            str: The extracted text.
+        """
         try:
             if url.lower().endswith(".pdf"):
                 response = requests.get(url)
@@ -72,6 +84,15 @@ class WebpageExtractor:
             return ""
 
     def extract_with_bs4(self, url):
+        """
+        Extract the text from a webpage using the BeautifulSoup4 method.
+
+        Args:
+            url (str): The URL of the webpage to extract from.
+
+        Returns:
+            str: The extracted text.
+        """
         headers = {
             "User-Agent": random.choice(USER_AGENTS)
         }
@@ -105,6 +126,15 @@ class WebpageExtractor:
             return ""
 
     def extract_with_lxml(self, url):
+        """
+        Extract the text from a webpage using the lxml method.
+
+        Args:
+            url (str): The URL of the webpage to extract from.
+
+        Returns:
+            str: The extracted text.
+        """
         try:
             config = Config()
             config.browser_user_agent = random.choice(USER_AGENTS)

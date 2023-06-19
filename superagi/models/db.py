@@ -11,6 +11,13 @@ engine = None
 
 
 def connect_db():
+    """
+    Connects to the PostgreSQL database using SQLAlchemy.
+
+    Returns:
+        engine: The SQLAlchemy engine object representing the database connection.
+    """
+
     global engine
     if engine is not None:
         return engine

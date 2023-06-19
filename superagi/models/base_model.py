@@ -32,7 +32,7 @@ class DBBaseModel(Base):
         Converts the current SQLAlchemy ORM object to a dictionary representation.
 
         Returns:
-            dict: A dictionary mapping column names to their corresponding values.
+            A dictionary mapping column names to their corresponding values.
         """
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
 
@@ -41,7 +41,7 @@ class DBBaseModel(Base):
             Converts the current SQLAlchemy ORM object to a JSON string representation.
 
             Returns:
-                str: A JSON string representing the object with column names as keys and their corresponding values.
+                A JSON string representing the object with column names as keys and their corresponding values.
         """
         return json.dumps(self.to_dict())
 
@@ -54,7 +54,7 @@ class DBBaseModel(Base):
             corresponding values.
 
             Returns:
-                DBBaseModel: A new SQLAlchemy ORM object of the class.
+                A new SQLAlchemy ORM object of the class.
         """
         return cls(**json.loads(json_data))
 
@@ -63,6 +63,6 @@ class DBBaseModel(Base):
             Returns a string representation of the current SQLAlchemy ORM object.
 
             Returns:
-                str: A string with the format "<Class Name> (<dictionary representation of the object>)".
+                A string with the format "<Class Name> (<dictionary representation of the object>)".
         """
         return f"{self.__class__.__name__} ({self.to_dict()})"

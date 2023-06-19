@@ -8,6 +8,15 @@ from superagi.models.user import User
 
 
 def check_auth(Authorize: AuthJWT = Depends()):
+    """
+    Function to check if the user is authenticated or not based on the environment.
+
+    Args:
+        Authorize (AuthJWT, optional): Instance of AuthJWT class to authorize the user. Defaults to Depends().
+
+    Returns:
+        AuthJWT: Instance of AuthJWT class if the user is authenticated.
+    """
     env = get_config("ENV", "DEV")
     if env == "PROD":
         Authorize.jwt_required()
@@ -15,6 +24,15 @@ def check_auth(Authorize: AuthJWT = Depends()):
 
 
 def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Function to get the organisation of the authenticated user based on the environment.
+
+    Args:
+        Authorize (AuthJWT, optional): Instance of AuthJWT class to authorize the user. Defaults to Depends on check_auth().
+
+    Returns:
+        Organisation: Instance of Organisation class to which the authenticated user belongs.
+    """
     env = get_config("ENV", "DEV")
 
     if env == "DEV":
