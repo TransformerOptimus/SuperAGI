@@ -74,7 +74,7 @@ export default function Market() {
     </div>             
     </div>
     </div>}
-        {Itemclicked && <AgentTemplate template={agentTemplateData} />}
+        {Itemclicked && <div style={{padding: '0 3px'}}><AgentTemplate template={agentTemplateData} /></div>}
     </div>
   );
 };
