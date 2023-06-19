@@ -9,7 +9,7 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
+import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
@@ -35,7 +35,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   }
 
   function fetchTools() {
-    getTools()
+    getToolKit()
       .then((response) => {
         const data = response.data || [];
         const updatedData = data.map(item => {

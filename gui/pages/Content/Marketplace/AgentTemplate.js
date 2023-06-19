@@ -5,7 +5,7 @@ import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import EachToolOverview from "./EachToolOverview"
+
 
 export default function AgentTemplate({}) {
     const [tools, setTools] = useState(['Gmailer','jira','openai','super agi','langchain','zapier','whatsapp'])

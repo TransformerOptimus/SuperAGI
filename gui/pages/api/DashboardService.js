@@ -16,6 +16,10 @@ export const getAgents = (projectId) => {
   return api.get(`/agents/get/project/${projectId}`);
 };
 
+export const getToolKit = () => {
+  return api.get(`/tool_kits/get/local/list`);
+};
+
 export const getTools = () => {
   return api.get(`/tools/get`);
 };
@@ -86,4 +90,12 @@ export const fetchAgentTemplateList = () => {
 
 export const fetchAgentTemplateDetails = (templateId) => {
   return api.get(`/agent_templates/get/${templateId}`);
+}
+
+export const getToolConfig = (toolKitName) => {
+  return api.get(`/tool_configs/get/toolkit/${toolKitName}`);
+}
+
+export const updateToolConfig = (toolKitName, configData) => {
+  return api.post(`/tool_configs/add/${toolKitName}`, configData);
 }

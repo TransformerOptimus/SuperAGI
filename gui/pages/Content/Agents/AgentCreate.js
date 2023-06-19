@@ -66,7 +66,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [myTools, setMyTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
+  const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
@@ -303,7 +303,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "goal": goals,
       "agent_type": agentType,
       "constraints": constraints,
-      "tools": myTools,
+      "tool_kits": myTools,
+      "tools": [],
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,

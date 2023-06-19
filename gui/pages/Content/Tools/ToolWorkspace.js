@@ -2,152 +2,68 @@ import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {EventBus} from "@/utils/eventBus";
+import {updateToolConfig, getToolConfig} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
 import axios from 'axios';
-
 
 export default function ToolWorkspace({tool,toolDetails}){
     const [activeTab,setActiveTab] = useState('Configuration')
     const [showDescription,setShowDescription] = useState(false)
+    const [apiConfigs, setApiConfigs] = useState([]);
     const defaultDescription = "Shifting timeline accross multiple time strings. Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.";
+    const [toolsIncluded, setToolsIncluded] = useState([]);
 
-    const [apiKeys, setApiKeys] = useState([
-      {
-          "key": "EMAIL_ADDRESS",
-          "created_at": "2023-06-16T08:13:26.381501",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.381521",
-          "id": 601,
-          "value": null
-      },
-      {
-          "key": "EMAIL_PASSWORD",
-          "created_at": "2023-06-16T08:13:26.412588",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.412604",
-          "id": 602,
-          "value": null
-      },
-      {
-          "key": "EMAIL_SIGNATURE",
-          "created_at": "2023-06-16T08:13:26.447339",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.447352",
-          "id": 603,
-          "value": null
-      },
-      {
-          "key": "EMAIL_DRAFT_MODE_WITH_FOLDER",
-          "created_at": "2023-06-16T08:13:26.483898",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.483914",
-          "id": 604,
-          "value": null
-      },
-      {
-          "key": "EMAIL_SMTP_HOST",
-          "created_at": "2023-06-16T08:13:26.521261",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.521281",
-          "id": 605,
-          "value": null
-      },
-      {
-          "key": "EMAIL_SMTP_PORT",
-          "created_at": "2023-06-16T08:13:26.555442",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.555458",
-          "id": 606,
-          "value": null
-      },
-      {
-          "key": "EMAIL_ATTACHMENT_BASE_PATH",
-          "created_at": "2023-06-16T08:13:26.590804",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.590815",
-          "id": 607,
-          "value": null
-      },
-      {
-          "key": "EMAIL_IMAP_SERVER",
-          "created_at": "2023-06-16T08:13:26.627172",
-          "tool_kit_id": 266,
-          "updated_at": "2023-06-16T08:13:26.627188",
-          "id": 608,
-          "value": null
-      }
-  ]);
-  
-    const handleApiKeyChange = (index, event) => {
-      const updatedApiKeys = [...apiKeys];
-      updatedApiKeys[index].value = event.target.value;
-      setApiKeys(updatedApiKeys);
+    const handleKeyChange = (event, index) => {
+      const updatedData = [...apiConfigs];
+      updatedData[index].value = event.target.value;
+      setApiConfigs(updatedData);
     };
-  
+    
+
+    useEffect(() => {
+      if (toolDetails && toolDetails.tools) {
+        setToolsIncluded(toolDetails.tools);
+      }
+    }, [toolDetails]);
 
     if (!tool || !tool.description) {
       tool = { ...tool, description: defaultDescription };
     }
 
+    useEffect(() => {
+      if(toolDetails !== null) {
+        getToolConfig(toolDetails.name)
+        .then((response) => {
+          const apiConfigs = response.data || [];
+          setApiConfigs(apiConfigs);
+        })
+        .catch((error) => {
+          console.log('Error fetching API data:', error);
+        });
+      }
+    }, []);
 
-    const ConfigurationSection = () => {
+    const handleUpdateChanges = async () => {
+      const updatedConfigData = apiConfigs.map((config) => ({
+        key: config.key,
+        value: config.value,
+      }));
 
-        return (
-            <div>
-            {apiKeys.map((apiKey, index) => (
-            <div key={apiKey.id} >
-              <div style={{color:' #666666',display:'flex',flexDirection: 'column', alignItems: 'flex-start',marginBottom:'20px'}}>
-              <label style={{ marginBottom: '6px' }}>API Key</label>
-              <div className={styles.search_box}>
-              <input type="text" placeholder="Enter here" style={{color:'white'}} value={apiKey.key || ""} onChange={(event) => handleApiKeyChange(index, event)}/>
-              </div>
-              </div>
-              
-              <div style={{color:' #666666',display:'flex',flexDirection: 'column', alignItems: 'flex-start',marginBottom:'20px'}}>
-              <label style={{ marginBottom: '6px' }}>Organization ID</label>
-              <div className={styles.search_box}>
-              <input type="text" placeholder="Enter here" style={{color:'white'}} value={apiKey.id || ""} onChange={(event) => handleApiKeyChange(index, event)}/>
-              </div>
-              </div>
-            </div>))}
-    
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button style={{marginRight:'7px'}} className={styles.secondary_button} >Cancel</button>
-            <button className={styles.primary_button} >Update Changes</button>
-            </div>
-            </div>
-        );
-
-      };
-      
-      const ToolsIncludedSection = () => {
-        const [toolsIncluded, setToolsIncluded] = useState([]);
-        useEffect(() => {
-          if (toolDetails && toolDetails.tools) {
-            setToolsIncluded(toolDetails.tools);
-          }
-        }, [toolDetails]);
-
-        return (
-            <div>
-            {toolsIncluded.map((tool, index) => (
-            <div className={styles.tools_included}>
-            <div key={index}>
-                <div style={{color:'white'}}>{tool.name}</div>
-                <div style={{color:'#888888'}}>{tool.description}</div>
-            </div>
-            </div>
-            ))}   
-            </div>
-        );
-      };
+      updateToolConfig(toolDetails.name, updatedConfigData)
+      .then((response) => {
+          console.log(response);
+      })
+      .catch((error) => {
+        console.error('Error updating tool config:', error);
+      });
+    };
 
     return (
         <>
         <div className={styles.tools_container}>
             <div style={{display: 'flex',justifyContent:'space-between',marginBottom:'20px', width:'600px'}}>
                 <div> 
-                <Image src="/images/custom_tool.svg" alt={tool.name} width={40} height={40}/>
+                <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={40} height={40}/>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
@@ -182,8 +98,38 @@ export default function ToolWorkspace({tool,toolDetails}){
             </div>
             </div>
 
-            {activeTab === 'Configuration' && <ConfigurationSection />}
-            {activeTab === 'Tools_Included' && <ToolsIncludedSection />}
+            {activeTab === 'Configuration' && <div>
+              {apiConfigs && apiConfigs.map((config, index) => (
+                <div key={index}>
+                  <div style={{ color: '#666666', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
+                    <label style={{ marginBottom: '6px' }}>{config.key}</label>
+                    <div className={styles.search_box}>
+                      <input
+                        type="text"
+                        style={{ color: 'white' }}
+                        value={config.value || ''}
+                        onChange={(event) => handleKeyChange(event, index)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+      
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
+              <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
+              </div>
+            </div>}
+            {activeTab === 'Tools_Included' && <div>
+            {toolsIncluded.map((tool, index) => (
+            <div className={styles.tools_included}>
+            <div key={index}>
+                <div style={{color:'white'}}>{tool.name}</div>
+                <div style={{color:'#888888'}}>{tool.description}</div>
+            </div>
+            </div>
+            ))}   
+            </div>}
 
         </div>
         </>
