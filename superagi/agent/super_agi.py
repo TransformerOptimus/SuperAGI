@@ -114,7 +114,6 @@ class SuperAgi:
         return [], history
 
     def execute(self, workflow_step: AgentWorkflowStep):
-        print(self.tools)
 
         session = Session()
         agent_execution_id = self.agent_config["agent_execution_id"]
