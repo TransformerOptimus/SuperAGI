@@ -255,9 +255,10 @@ class AgentExecutor:
             raise ValueError("Permission is still pending")
         if agent_execution_permission.status == "APPROVED":
             result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
+        elif agent_execution_permission.user_feedback is None:
+            return
         else:
-            result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
-                     f"{' and has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
+            result = f"{' User has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                   agent_id=agent_execution_permission.agent_id,
