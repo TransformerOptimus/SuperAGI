@@ -5,7 +5,7 @@ import Image from "next/image";
 import {formatTime} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function ActivityFeed({selectedRunId, selectedView}) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -65,6 +65,7 @@ export default function ActivityFeed({selectedRunId, selectedView}) {
         const data = response.data;
         setFeeds(data.feeds);
         setRunStatus(data.status);
+        setFetchedData(data.permissions);
       })
       .catch((error) => {
         console.error('Error fetching execution feeds:', error);

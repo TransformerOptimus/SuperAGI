@@ -20,6 +20,14 @@ class GoogleSerpSchema(BaseModel):
 
 '''Google search using serper.dev. Use server.dev api keys'''
 class GoogleSerpTool(BaseTool):
+    """
+    Google Search tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     llm: Optional[BaseLlm] = None
     name = "GoogleSerp"
     description = (
@@ -32,6 +40,15 @@ class GoogleSerpTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, query: str) -> tuple:
+        """
+        Execute the Google search tool.
+
+        Args:
+            query : The query to search for.
+
+        Returns:
+            A tuple of (snippets, webpages, links)
+        """
         api_key = get_config("SERP_API_KEY")
         serp_api = GoogleSerpApiWrap(api_key)
         response = serp_api.search_run(query)

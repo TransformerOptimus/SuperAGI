@@ -28,7 +28,23 @@ router = APIRouter()
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
 def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
                  Authorize: AuthJWT = Depends(check_auth)):
-    """Create agent new agent"""
+    """
+        Creates a new Agent
+
+        Args:
+            agent (Agent): An object representing the Agent to be created.
+                Contains the following attributes:
+                - name (str): Name of the Agent
+                - project_id (int): Identifier of the associated project
+                - description (str): Description of the Agent
+                - agent_workflow_id (int): Identifier of the Agent Workflow in use
+
+        Returns:
+            Agent: An object of Agent representing the created Agent.
+
+        Raises:
+            HTTPException (Status Code=404): If the associated project is not found.
+    """
 
     project = db.session.query(Project).get(agent.project_id)
 
@@ -44,7 +60,18 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
 @router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
 def get_agent(agent_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
-    """Get particular agent by agent_id"""
+    """
+        Get an Agent by ID
+
+        Args:
+            agent_id (int): Identifier of the Agent to retrieve
+
+        Returns:
+            Agent: An object of Agent representing the retrieved Agent.
+
+        Raises:
+            HTTPException (Status Code=404): If the Agent is not found.
+    """
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if not db_agent:
@@ -55,7 +82,24 @@ def get_agent(agent_id: int,
 @router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
 def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
                  Authorize: AuthJWT = Depends(check_auth)):
-    """Update agent by agent_id"""
+    """
+        Update an existing Agent
+
+        Args:
+            agent_id (int): Identifier of the Agent to update
+            agent (Agent):  Updated Agent data
+                Contains the following attributes:
+                - name (str): Name of the Agent
+                - project_id (int): Identifier of the associated project
+                - description (str): Description of the Agent
+                - agent_workflow_id (int): Identifier of the Agent Workflow in use
+
+        Returns:
+            Agent: An object of Agent representing the updated Agent.
+
+        Raises:
+            HTTPException (Status Code=404): If the Agent or associated Project is not found.
+    """
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if not db_agent:
@@ -76,7 +120,32 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentWithConfig,
                              Authorize: AuthJWT = Depends(check_auth)):
-    """Create new agent with configurations"""
+    """
+    Create a new agent with configurations.
+
+    Args:
+        agent_with_config (AgentWithConfig): Data for creating a new agent with configurations.
+            - name (str): Name of the agent.
+            - project_id (int): Identifier of the associated project.
+            - description (str): Description of the agent.
+            - goal (List[str]): List of goals for the agent.
+            - agent_type (str): Type of the agent.
+            - constraints (List[str]): List of constraints for the agent.
+            - tools (List[int]): List of tool identifiers associated with the agent.
+            - exit (str): Exit condition for the agent.
+            - iteration_interval (int): Interval between iterations for the agent.
+            - model (str): Model information for the agent.
+            - permission_type (str): Permission type for the agent.
+            - LTM_DB (str): LTM database for the agent.
+            - memory_window (int): Memory window size for the agent.
+            - max_iterations (int): Maximum number of iterations for the agent.
+
+    Returns:
+        dict: Dictionary containing the created agent's ID, execution ID, name, and content type.
+
+    Raises:
+        HTTPException (status_code=404): If the associated project or any of the tools is not found.
+    """
 
     # Checking for project
     project = db.session.query(Project).get(agent_with_config.project_id)
@@ -105,10 +174,23 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         "contentType": "Agents"
     }
 
+
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
-    """Get all agents by project_id"""
+    """
+    Get all agents by project ID.
+
+    Args:
+        project_id (int): Identifier of the project.
+        Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
+
+    Returns:
+        list: List of agents associated with the project, including their status.
+
+    Raises:
+        HTTPException (status_code=404): If the project is not found.
+    """
 
     # Checking for project
     project = db.session.query(Project).get(project_id)
@@ -140,14 +222,26 @@ def get_agents_by_project_id(project_id: int,
 @router.get("/get/details/{agent_id}")
 def get_agent_configuration(agent_id: int,
                             Authorize: AuthJWT = Depends(check_auth)):
-    """Get agent using agent_id with all its configuration"""
+    """
+    Get the agent configuration using the agent ID.
+
+    Args:
+        agent_id (int): Identifier of the agent.
+        Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
+
+    Returns:
+        dict: Agent configuration including its details.
+
+    Raises:
+        HTTPException (status_code=404): If the agent is not found.
+    """
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
     agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
 
     if not agent:
-        raise HTTPException(status_code=400, detail="Agent not found")
+        raise HTTPException(status_code=404, detail="Agent not found")
 
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
@@ -157,19 +251,19 @@ def get_agent_configuration(agent_id: int,
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
+
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
+    # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
+                                "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,
                                 "tokens": total_tokens,
-                                "constraints": eval(response["constraints"]),
+                                "constraints": eval(response.get("constraints")),
                                 "tools": [int(x) for x in json.loads(response["tools"])]})
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
-    # print(tools)
     response["tools"] = tools
-    # executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
-    # response["executions"] = executions
 
     # Close the session
     db.session.close()

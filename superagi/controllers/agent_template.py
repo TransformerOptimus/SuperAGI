@@ -11,14 +11,26 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.tool import Tool
-from datetime import datetime
+
 router = APIRouter()
 
 
 @router.post("/create", status_code=201, response_model=sqlalchemy_to_pydantic(AgentTemplate))
 def create_agent_template(agent_template: sqlalchemy_to_pydantic(AgentTemplate, exclude=["id"]),
                           organisation=Depends(get_user_organisation)):
-    """Creates an agent template"""
+    """
+    Create an agent template.
+
+    Args:
+        agent_template (AgentTemplate): Data for creating an agent template.
+        organisation (Depends): Dependency to get the user organisation.
+
+    Returns:
+        AgentTemplate: The created agent template.
+
+    Raises:
+        HTTPException (status_code=404): If the associated agent workflow is not found.
+    """
 
     agent_workflow = db.session.query(AgentWorkflow).get(agent_template.agent_workflow_id)
 
@@ -36,7 +48,20 @@ def create_agent_template(agent_template: sqlalchemy_to_pydantic(AgentTemplate, 
 
 @router.get("/get/{agent_template_id}")
 def get_agent_template(template_source, agent_template_id: int, organisation=Depends(get_user_organisation)):
-    """Get particular agent_template details. All major configs goals, constraints, evaluation are shown in the frontend."""
+    """
+        Get the details of a specific agent template.
+
+        Args:
+            template_source (str): The source of the agent template ("local" or "marketplace").
+            agent_template_id (int): The ID of the agent template.
+            organisation (Depends): Dependency to get the user organisation.
+
+        Returns:
+            dict: The details of the agent template.
+
+        Raises:
+            HTTPException (status_code=404): If the agent template is not found.
+    """
     if template_source == "local":
         db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
                                                                    AgentTemplate.id == agent_template_id).first()
@@ -60,7 +85,21 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
 def update_agent_template(agent_template_id: int,
                           agent_configs: dict,
                           organisation=Depends(get_user_organisation)):
-    """Update agent template"""
+    """
+    Update the details of an agent template.
+
+    Args:
+        agent_template_id (int): The ID of the agent template to update.
+        agent_configs (dict): The updated agent configurations.
+        organisation (Depends): Dependency to get the user organisation.
+
+    Returns:
+        dict: The updated agent template.
+
+    Raises:
+        HTTPException (status_code=404): If the agent template is not found.
+    """
+
     db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
                                                                AgentTemplate.id == agent_template_id).first()
     if db_agent_template is None:
@@ -82,7 +121,20 @@ def update_agent_template(agent_template_id: int,
 @router.post("/save_agent_as_template/{agent_id}")
 def save_agent_as_template(agent_id: str,
                            organisation=Depends(get_user_organisation)):
-    """Save agent as template"""
+    """
+    Save an agent as a template.
+
+    Args:
+        agent_id (str): The ID of the agent to save as a template.
+        organisation (Depends): Dependency to get the user organisation.
+
+    Returns:
+        dict: The saved agent template.
+
+    Raises:
+        HTTPException (status_code=404): If the agent or agent configurations are not found.
+    """
+
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -111,7 +163,19 @@ def save_agent_as_template(agent_id: str,
 
 @router.get("/list")
 def list_agent_templates(template_source="local", search_str="", page=0, organisation=Depends(get_user_organisation)):
-    """List agent templates"""
+    """
+        List agent templates.
+
+        Args:
+            template_source (str, optional): The source of the templates ("local" or "marketplace"). Defaults to "local".
+            search_str (str, optional): The search string to filter templates. Defaults to "".
+            page (int, optional): The page number for paginated results. Defaults to 0.
+            organisation (Depends): Dependency to get the user organisation.
+
+        Returns:
+            list: A list of agent templates.
+    """
+
     output_json = []
     if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
@@ -136,7 +200,17 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
 
 @router.get("/marketplace/list")
 def list_marketplace_templates(page=0):
-    """Get all marketplace agent templates"""
+    """
+    Get all marketplace agent templates.
+
+    Args:
+        page (int, optional): The page number for paginated results. Defaults to 0.
+
+    Returns:
+        list: A list of marketplace agent templates.
+
+    """
+
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     page_size = 30
     templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id).offset(
@@ -150,7 +224,17 @@ def list_marketplace_templates(page=0):
 
 @router.get("/marketplace/template_details/{agent_template_id}")
 def marketplace_template_detail(agent_template_id):
-    """Get marketplace template details"""
+    """
+    Get marketplace template details.
+
+    Args:
+        agent_template_id (int): The ID of the marketplace agent template.
+
+    Returns:
+        dict: A dictionary containing the marketplace template details.
+
+    """
+
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation_id,
                                                       AgentTemplate.id == agent_template_id).first()
@@ -175,11 +259,16 @@ def marketplace_template_detail(agent_template_id):
 
 @router.post("/download", status_code=201)
 def download_template(agent_template_id: int,
-                             organisation=Depends(get_user_organisation)):
-    """Create new agent with configurations
+                      organisation=Depends(get_user_organisation)):
+    """
+    Create a new agent with configurations.
 
-    Parameters:
-        agent_template_id: agent template id
+    Args:
+        agent_template_id (int): The ID of the agent template.
+        organisation: User's organisation.
+
+    Returns:
+        dict: A dictionary containing the details of the downloaded template.
     """
     template = AgentTemplate.clone_agent_template_from_marketplace(db, organisation.id, agent_template_id)
     return template.to_dict()
@@ -188,11 +277,20 @@ def download_template(agent_template_id: int,
 @router.get("/agent_config", status_code=201)
 def fetch_agent_config_from_template(agent_template_id: int,
                                      organisation=Depends(get_user_organisation)):
-    """Fetch agent config from template
-
-    Parameters:
-     agent_template_id: agent template id
     """
+    Fetches agent configuration from a template.
+
+    Args:
+        agent_template_id (int): The ID of the agent template.
+        organisation: User's organisation.
+
+    Returns:
+        dict: A dictionary containing the agent configuration fetched from the template.
+
+    Raises:
+        HTTPException: If the template is not found.
+    """
+
     agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id == agent_template_id,
                                                             AgentTemplate.organisation_id == organisation.id).first()
     if not agent_template:
@@ -205,8 +303,8 @@ def fetch_agent_config_from_template(agent_template_id: int,
     for config in template_config:
         if config.key in main_keys:
             template_config_dict[config.key] = AgentTemplate.eval_agent_config(config.key, config.value)
-
+    if "instruction" not in template_config_dict:
+        template_config_dict["instruction"] = []
     template_config_dict["agent_template_id"] = agent_template.id
+
     return template_config_dict
-
-

@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfig, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -27,11 +27,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
     "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the commands listed in double quotes e.g. "command name"'
+    'Exclusively use the tools listed in double quotes e.g. "tool name"',
+    "REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."
   ];
   const [constraints, setConstraints] = useState(constraintsArray);
 
   const [goals, setGoals] = useState(['Describe the agent goals here']);
+  const [instructions, setInstructions] = useState(['']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k']
   const [model, setModel] = useState(models[1]);
@@ -60,7 +62,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
-  const permissions = ["God Mode"]
+  const permissions = ["God Mode","RESTRICTED (Will ask for permission before using any tool)"]
   const [permission, setPermission] = useState(permissions[0]);
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
@@ -101,12 +103,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [toolNames]);
 
   useEffect(() => {
-    if(template===null)
-      return
-    else{
+    if(template !== null) {
       setAgentName(template.name)
       setAgentDescription(template.description)
       setAdvancedOptions(true)
+
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
@@ -117,6 +118,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setRollingWindow(data.memory_window)
             setPermission(data.permission_type)
             setStepTime(data.iteration_interval)
+            setInstructions(data.instruction)
             setDatabase(data.LTM_DB)
             setModel(data.model)
             setToolNames(data.tools)
@@ -224,6 +226,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     updatedGoals[index] = newValue;
     setGoals(updatedGoals);
   };
+  const handleInstructionChange = (index, newValue) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions[index] = newValue;
+    setInstructions(updatedInstructions);
+  };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
@@ -237,6 +244,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setGoals(updatedGoals);
   };
 
+  const handleInstructionDelete = (index) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions.splice(index, 1);
+    setInstructions(updatedInstructions);
+  };
+
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
@@ -245,6 +258,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
+  };
+  const addInstruction = () => {
+    setInstructions((prevArray) => [...prevArray, 'new instructions']);
   };
 
   const addConstraint = () => {
@@ -323,11 +339,18 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
+    // if permission has word restricted change the permission to 
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
+
     const agentData = {
       "name": agentName,
       "project_id": selectedProjectId,
       "description": agentDescription,
       "goal": goals,
+      "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
       "tools": myTools,
@@ -335,7 +358,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "iteration_interval": stepTime,
       "model": model,
       "max_iterations": maxIterations,
-      "permission_type": permission,
+      "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
       "memory_window": rollingWindow
     };
@@ -475,6 +498,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>))}
             <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>
+
+          <div style={{marginTop: '15px'}}>
+            <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
+              {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+                </div>{instructions.length > 1 && <div>
+                  <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  </button>
+                </div>}
+              </div>))}
+              <div>
+                <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+              </div>
+          </div>
+
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
             <div className="dropdown_container_search" style={{width:'100%'}}>

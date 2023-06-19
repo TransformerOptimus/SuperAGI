@@ -20,8 +20,22 @@ class JiraIssueSchema(BaseModel):
 
 
 class JiraTool(BaseTool):
+    """
+    Jira tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     @classmethod
     def build_jira_instance(self) -> dict:
+        """
+        Build a Jira instance.
+
+        Returns:
+            The Jira instance.
+        """
         jira_instance_url = get_config("JIRA_INSTANCE_URL")
         jira_username = get_config("JIRA_USERNAME")
         jira_api_token = get_config("JIRA_API_TOKEN")
