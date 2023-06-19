@@ -16,6 +16,10 @@ export const getAgents = (projectId) => {
   return api.get(`/agents/get/project/${projectId}`);
 };
 
+export const getToolKit = () => {
+  return api.get(`/tool_kits/get/local/list`);
+};
+
 export const getTools = () => {
   return api.get(`/tools/get`);
 };
@@ -84,26 +88,14 @@ export const fetchAgentTemplateList = () => {
   return api.get('/agent_templates/list?template_source=marketplace');
 }
 
-export const fetchAgentTemplateListLocal = () => {
-  return api.get('/agent_templates/list?template_source=local');
+export const fetchAgentTemplateDetails = (templateId) => {
+  return api.get(`/agent_templates/get/${templateId}`);
 }
 
-export const saveAgentAsTemplate = (agentId) => {
-  return api.post(`agent_templates/save_agent_as_template/${agentId}`);
+export const getToolConfig = (toolKitName) => {
+  return api.get(`/tool_configs/get/toolkit/${toolKitName}`);
 }
 
-export const fetchAgentTemplateConfig = (templateId) => {
-  return api.get(`agent_templates/get/${templateId}?template_source=marketplace`);
-}
-
-export const fetchAgentTemplateConfigLocal = (templateId) => {
-  return api.get(`agent_templates/agent_config?agent_template_id=${templateId}`);
-}
-
-export const installAgentTemplate = (templateId) => {
-  return api.post(`agent_templates/download?agent_template_id=${templateId}`);
-}
-
-export const getGoogleCreds = (toolkit_id) => {
-  return api.get(`google/get_google_creds/toolkit_id/${toolkit_id}`)
+export const updateToolConfig = (toolKitName, configData) => {
+  return api.post(`/tool_configs/add/${toolKitName}`, configData);
 }
