@@ -30,7 +30,7 @@ export default function MarketAgent(){
                   <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                     <div style={{display: 'inline',overflow:'auto'}}>
                       <div>{item.name}</div>
-                      <div style={{marginTop: '5px', color: 'rgb(96, 96, 96)'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
+                      <div style={{marginTop: '5px', color: '#888888'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
                       <div className={styles.tool_description}>{item.description}</div>
                     </div>
                   </div>

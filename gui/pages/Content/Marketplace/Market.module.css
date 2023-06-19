@@ -382,7 +382,7 @@
 
 .tool_description {
     margin-top: 2px;
-    color: rgb(96, 96, 96);
+    color: #888888;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;

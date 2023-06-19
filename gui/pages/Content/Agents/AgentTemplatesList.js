@@ -3,6 +3,7 @@ import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateList, fetchAgentTemplateListLocal, getAgentDetails, getAgents} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
+import {EventBus} from "@/utils/eventBus";
 
 export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}){
     const [agentTemplates, setAgentTemplates] = useState([])
@@ -24,6 +25,10 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
         setCreateAgentClicked(true);
     }
 
+    function openMarketplace() {
+        EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
+    }
+
     function handleTemplateClick(item) {
         setSendTemplate(item);
         setCreateAgentClicked(true);
@@ -31,7 +36,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
 
     return (
         <div>
-            {!createAgentClicked &&
+            {!createAgentClicked ?
                 <div>
                 <div className='row' style={{marginTop: '1%'}}>
                     <div className='col-12'>
@@ -43,20 +48,33 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                     </div>
                 </div>
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
-                    <div className={styles.resources}>
+                    {agentTemplates.length > 0 ? <div className={styles.resources}>
                         {agentTemplates.map((item, index) => (
-                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'100px'}}
+                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'90px'}}
                                  onClick={() => handleTemplateClick(item)}>
                                 <div style={{display: 'inline',overflow:'auto'}}>
                                     <div>{item.name}</div>
-                                    <div className={styles.tool_description} style={{marginTop:'10px'}}>{item.description}</div>
+                                    <div className={styles.tool_description}>{item.description}</div>
                                 </div>
                             </div>
                         ))}
-                    </div>
+                        <div className={styles.market_tool} style={{cursor: 'pointer',height:'90px',background:'#413C4F'}}
+                             onClick={openMarketplace}>
+                            <div style={{display: 'inline',overflow:'auto'}}>
+                                <div style={{display:'flex',justifyContent:'space-between'}}>
+                                    <div style={{order:'0'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/marketplace.svg" alt="arrow-outward"/>&nbsp;&nbsp;Browse templates from marketplace</div>
+                                    <div style={{order:'1'}}><Image width={16} height={16} src="/images/arrow_outward.svg" alt="arrow-outward"/></div>
+                                </div>
+                                <div className={styles.tool_description}>
+                                    SuperAGI marketplace offers a large selection of templates to choose from, so you are sure to find one that is right for you!
+                                </div>
+                            </div>
+                        </div>
+                    </div> : <div>
+                        
+                    </div>}
                 </div>
-            </div>}
-            {createAgentClicked && <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} template={sendTemplate} />}
+            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} template={sendTemplate} />}
         </div>
     )
 };
