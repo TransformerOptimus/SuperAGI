@@ -25,7 +25,7 @@ export default function MarketAgent(){
     return (
         <div style={{marginLeft:'3px'}}>
            <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
-             <div className={styles.resources}>
+             <div className={styles.resources} style={agentTemplates.length === 2 ? {justifyContent:'flex-start',gap:'7px'} : {}}>
                 {agentTemplates.map((item, index) => (
                   <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                     <div style={{display: 'inline',overflow:'auto'}}>

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
-import {fetchAgentTemplateList, fetchAgentTemplateListLocal, getAgentDetails, getAgents} from "@/pages/api/DashboardService";
+import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 import {EventBus} from "@/utils/eventBus";
 
@@ -14,7 +14,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
         fetchAgentTemplateListLocal()
             .then((response) => {
                 const data = response.data || [];
-                setAgentTemplates(data)
+                setAgentTemplates(data);
             })
             .catch((error) => {
                 console.error('Error fetching agent templates:', error);
@@ -48,7 +48,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                     </div>
                 </div>
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
-                    {agentTemplates.length > 0 ? <div className={styles.resources}>
+                    {agentTemplates.length > 0 ? <div className={styles.resources} style={agentTemplates.length === 1 ? {justifyContent:'flex-start',gap:'7px'} : {}}>
                         {agentTemplates.map((item, index) => (
                             <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'90px'}}
                                  onClick={() => handleTemplateClick(item)}>
@@ -63,7 +63,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                             <div style={{display: 'inline',overflow:'auto'}}>
                                 <div style={{display:'flex',justifyContent:'space-between'}}>
                                     <div style={{order:'0'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/marketplace.svg" alt="arrow-outward"/>&nbsp;&nbsp;Browse templates from marketplace</div>
-                                    <div style={{order:'1'}}><Image width={16} height={16} src="/images/arrow_outward.svg" alt="arrow-outward"/></div>
+                                    <div style={{order:'1'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/arrow_outward.svg" alt="arrow-outward"/></div>
                                 </div>
                                 <div className={styles.tool_description}>
                                     SuperAGI marketplace offers a large selection of templates to choose from, so you are sure to find one that is right for you!
