@@ -57,19 +57,22 @@ export default function AgentTemplate({template}) {
         <>
             <div>
                 <div className="row" style={{marginLeft:'auto'}}>
-                    <div className={styles2.back_button} onClick={() => handleBackClick()}>
-                        {'\u2190'} Back
+                    <div className={styles2.back_button} style={{margin: '8px 0',padding: '2px'}} onClick={() => handleBackClick()}>
+                        <Image src="/images/arrow_back.svg" alt="back_button" width={10} height={8}/>
+                        <span className={styles2.back_button_text}>Back</span>
                     </div>
-                    <div className="col-3" style={{maxHeight:'84vh',overflowY:'auto'}}>
+                    <div className="col-3" style={{maxHeight:'84vh',overflowY:'auto',padding:'0 8px 0 0',marginBottom:'20px;'}}>
                         <div className={styles2.left_container}>
                             <span className={styles2.top_heading}>{template.name}</span>
                             <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/>&nbsp;{'\u00B7'}&nbsp;<Image width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/></span>
                             <button className="primary_button" style={{marginTop:'15px',width:'100%'}} onClick={() => handleInstallClick()}><Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}</button>
-                        </div>
-                        <div className={styles2.left_container} style={{marginTop:'0.7%'}}>
+
+                            <hr className={styles2.horizontal_line} />
+
                             <span className={styles2.description_text}>{template.description}</span>
-                        </div>
-                        <div className={styles2.left_container} style={{marginTop:'0.7%'}}>
+
+                            <hr className={styles2.horizontal_line} />
+
                             <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Tools</span>
                             <div className={styles1.agent_info_tools} style={{marginTop:'10px'}}>
                                 {tools.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0',marginBottom:'5px'}}>
@@ -84,13 +87,14 @@ export default function AgentTemplate({template}) {
                             <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
                                 <div className={styles1.tool_text}>{templateModel}</div>
                             </div>
-                        </div>
-                        <div className={styles2.left_container} style={{marginTop:'0.7%'}}>
+
+                            <hr className={styles2.horizontal_line} />
+
                             <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Last updated</span>
                             <span className={styles2.description_text}>{template.updated_at}</span>
                         </div>
                     </div>
-                    <div className="col-9">
+                    <div className="col-9" style={{paddingLeft:'0'}}>
                         {/*<div className={styles2.left_container} style={{marginBottom:'5px'}}>*/}
                         {/*    <div className="row">*/}
                         {/*        <div className="col-4">*/}
@@ -104,30 +108,30 @@ export default function AgentTemplate({template}) {
                         {/*    </div>*/}
                         {/*</div>*/}
                         <div style={{maxHeight:'84vh',overflowY:'auto'}}>
-                           <div className={styles2.left_container} style={{marginBottom:'5px'}}>
-                            <div>
-                                <span className={styles2.description_heading} style={{fontWeight:'400'}}>{goals.length}&nbsp;Goals</span><br /><br />
-                                {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
-                                    <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}
-                                </div>))}
+                            <div className={styles2.left_container} style={{marginBottom:'8px'}}>
+                                <div>
+                                    <span className={styles2.description_heading} style={{fontWeight:'400'}}>{goals.length}&nbsp;Goals</span><br /><br />
+                                    {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
+                                        <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== goals.length - 1}
+                                    </div>))}
+                                </div>
                             </div>
-                        </div>
-                        {/*   <div className={styles2.left_container} style={{marginBottom:'5px'}}>*/}
-                        {/*    <div>*/}
-                        {/*        <span className={styles2.description_heading} style={{fontWeight:'400'}}>4 Instructions</span><br /><br />*/}
-                        {/*        {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>*/}
-                        {/*            <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}*/}
-                        {/*        </div>))}*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
-                           <div className={styles2.left_container} style={{marginBottom:'5px'}}>
-                            <div>
-                                <span className={styles2.description_heading} style={{fontWeight:'400'}}>{constraints.length}&nbsp;Constraints</span><br /><br />
-                                {constraints.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
-                                    <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== constraints.length - 1 && <br/>}
-                                </div>))}
+                            {/*   <div className={styles2.left_container} style={{marginBottom:'5px'}}>*/}
+                            {/*    <div>*/}
+                            {/*        <span className={styles2.description_heading} style={{fontWeight:'400'}}>4 Instructions</span><br /><br />*/}
+                            {/*        {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>*/}
+                            {/*            <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}*/}
+                            {/*        </div>))}*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
+                            <div className={styles2.left_container} style={{marginBottom:'8px'}}>
+                                <div>
+                                    <span className={styles2.description_heading} style={{fontWeight:'400'}}>{constraints.length}&nbsp;Constraints</span><br /><br />
+                                    {constraints.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
+                                        <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>{index !== constraints.length - 1}
+                                    </div>))}
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>

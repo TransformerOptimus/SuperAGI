@@ -112,12 +112,12 @@ export default function TopBar({selectedProject, organisationId, userName, env})
         </div>
       </div>
       <div className={styles.top_right}>
-        {/* <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div> */}
-        {/* <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div> */}
+         <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
+         {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}
         <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
           <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
         </div>
-        {dropdown && <div style={{marginTop:'13vh',marginRight:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+        {dropdown && <div style={{marginTop:'3vh',marginRight:'74px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
           <ul className="dropdown_container" style={{width:'120px'}}>
             <li className="dropdown_item" onClick={() => setDropdown(false)}>Username</li>
             <li className="dropdown_item" onClick={logoutUser}>Logout</li>
