@@ -229,7 +229,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
       <div style={{width:'40%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
-            {agentDetails && !agentDetails.permission_type.includes('RESTRICTED') && <div>
+            {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
                 <Image width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console
               </button>
