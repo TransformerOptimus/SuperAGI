@@ -412,6 +412,7 @@
     font-size: 12px;
     line-height: 14px;
     color: #FFFFFF;
+    margin-bottom: 16px;
 }
 
 .left_container {
@@ -421,21 +422,37 @@
 }
 
 .description_heading {
-    font-size: 20px;
+    font-size: 16px;
     color: #FFFFFF;
     font-weight: 600;
 }
 
 .back_button {
-    font-weight: 500;
-    font-size: 12px;
-    color: #888888;
     cursor: pointer;
-    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
 }
 
 .sub_text {
     font-weight: 400;
     font-size: 12px;
     color: #888888;
+}
+
+.horizontal_line{
+    margin: 20px 0 20px -20px;
+    border: 1px solid #ffffff20;
+    width: calc(100% + 40px);
+    display: flex;
+    height: 0;
+}
+
+.back_button_text {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 14px;
+    color: #888888;
+    margin-left: 4px;
 }
