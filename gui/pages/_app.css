@@ -231,6 +231,9 @@ input[type="range"]::-moz-range-track {
     border-radius: 8px;
     list-style: none;
     cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .dropdown_item:hover {
