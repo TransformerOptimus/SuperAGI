@@ -1,13 +1,10 @@
 import pytest
 from unittest.mock import MagicMock, Mock
-from typing import List, Any, Union, Dict
-
 from superagi.agent.output_parser import AgentOutputParser
 from superagi.agent.super_agi import SuperAgi
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
 from superagi.vector_store.base import VectorStore
-from superagi.agent.super_agi import session as OriginalSession, engine
 
 
 class MockTool(BaseTool):
@@ -50,14 +47,14 @@ def test_check_permission_in_restricted_mode_permission_required(super_agi, monk
     super_agi.output_parser.parse = MagicMock(
         return_value=mock_tool_requiring_permission)
 
-    class MockSession(OriginalSession):
+    class MockSession:
         def add(self, instance):
             pass
 
         def commit(self):
             pass
 
-    monkeypatch.setattr("superagi.agent.super_agi", MockSession)
+    monkeypatch.setattr("superagi.agent.super_agi.session", MockSession())
 
     result, output = super_agi.check_permission_in_restricted_mode(assistant_reply)
     assert result
