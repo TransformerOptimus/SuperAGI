@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfig, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -27,7 +27,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
     "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the commands listed in double quotes e.g. "command name"'
+    'Exclusively use the tools listed in double quotes e.g. "tool name"'
   ];
   const [constraints, setConstraints] = useState(constraintsArray);
 
@@ -102,12 +102,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [toolNames]);
 
   useEffect(() => {
-    if(template===null)
-      return
-    else{
+    if(template !== null) {
       setAgentName(template.name)
       setAgentDescription(template.description)
       setAdvancedOptions(true)
+
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
