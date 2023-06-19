@@ -67,7 +67,7 @@ class StableDiffusionImageGenTool(BaseTool):
             try:
                 self.upload_to_s3(final_img, final_path, image_format, image_name[i], session)
 
-                logger(f"Image {image} saved successfully")
+                logger.info(f"Image {image} saved successfully")
             except Exception as err:
                 session.close()
                 print(f"Error in _execute: {err}")
