@@ -27,6 +27,14 @@ class GithubSearchRepoSchema(BaseModel):
 
 
 class GithubRepoSearchTool(BaseTool):
+    """
+    Search File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name = "GithubRepo Search"
     description = (
         "Search for a file inside a Github repository"
@@ -34,6 +42,18 @@ class GithubRepoSearchTool(BaseTool):
     args_schema: Type[GithubSearchRepoSchema] = GithubSearchRepoSchema
 
     def _execute(self, repository_owner: str, repository_name: str, file_name: str, folder_path=None) -> str:
+        """
+        Execute the search file tool.
+
+        Args:
+            repository_owner : The owner of the repository to search file in.
+            repository_name : The name of the repository to search file in.
+            file_name : The name of the file to search.
+            folder_path : The path of the folder to search the file in.
+
+        Returns:
+            The content of the file.
+        """
         github_access_token = get_config("GITHUB_ACCESS_TOKEN")
         github_username = get_config("GITHUB_USERNAME")
         github_repo_search = GithubHelper(github_access_token, github_username)

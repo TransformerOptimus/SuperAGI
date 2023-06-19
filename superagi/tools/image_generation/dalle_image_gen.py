@@ -9,6 +9,7 @@ from superagi.models.db import connect_db
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from sqlalchemy.orm import sessionmaker
+from superagi.lib.logger import logger
 
 
 
@@ -20,6 +21,14 @@ class ImageGenInput(BaseModel):
 
 
 class ImageGenTool(BaseTool):
+    """
+    Dalle Image Generation tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Dalle Image Generation"
     args_schema: Type[BaseModel] = ImageGenInput
     description: str = "Generate Images using Dalle"
@@ -30,6 +39,18 @@ class ImageGenTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, prompt: str, image_name: list, size: int = 512, num: int = 2):
+        """
+        Execute the Dalle Image Generation tool.
+
+        Args:
+            prompt : The prompt for image generation.
+            size : The size of the image to be generated.
+            num : The number of images to be generated.
+            image_name (list): The name of the image to be generated.
+
+        Returns:
+            Image generated successfully. or error message.
+        """
         engine = connect_db()
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -64,7 +85,7 @@ class ImageGenTool(BaseTool):
                             s3_helper = S3Helper()
                             s3_helper.upload_file(img, path=resource.path)
                     session.close()
-                print(f"Image {image} saved successfully")
+                logger.info(f"Image {image} saved successfully")
             except Exception as err:
                 return f"Error: {err}"
         return "Images downloaded successfully"
