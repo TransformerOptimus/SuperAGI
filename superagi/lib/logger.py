@@ -52,23 +52,28 @@ class Logger(metaclass=SingletonMeta):
 
     def debug(self, message, *args):
         self.logger.debug(message)
-        self.logger.debug(*args)
+        if len(args) > 0:
+            self.logger.debug(*args)
 
     def info(self, message, *args):
         self.logger.info(message)
-        self.logger.info(*args)
+        if len(args) > 0:
+            self.logger.info(*args)
 
     def warning(self, message, *args):
         self.logger.warning(message)
-        self.logger.warning(*args)
+        if len(args) > 0:
+            self.logger.warning(*args)
 
     def error(self, message, *args):
         self.logger.error(message)
-        self.logger.error(*args)
+        if len(args) > 0:
+            self.logger.error(*args)
 
     def critical(self, message, *args):
         self.logger.critical(message)
-        self.logger.critical(*args)
+        if len(args) > 0:
+            self.logger.critical(*args)
 
 
 logger = Logger('Super AGI')
