@@ -6,6 +6,12 @@ if [ ! -f "config.yaml" ]; then
     exit 1
 fi
 
+if [ ! -f "tgwui/text-generation-webui" ]; then
+    echo "Downloading tgwui src"
+    git clone https://github.com/oobabooga/text-generation-webui
+    mv text-generation-webui tgwui
+fi
+
 # Function to check if virtual environment is activated
 is_venv_activated() {
     [[ -n "$VIRTUAL_ENV" ]]

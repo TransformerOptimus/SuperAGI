@@ -24,10 +24,10 @@ def run_npm_commands(shell=False):
 
 
 def run_server(shell=False,a_name=None,a_description=None,goals=None):
+    tgwui_process = Process(target=subprocess.run, args=(["python", "test.py","--name",a_name,"--description",a_description,"--goals"]+goals,), kwargs={"shell": shell})
     api_process = Process(target=subprocess.run, args=(["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],), kwargs={"shell": shell})
     celery_process = Process(target=subprocess.run, args=(["celery", "-A", "celery_app", "worker", "--loglevel=info"],), kwargs={"shell": shell})
     ui_process = Process(target=subprocess.run, args=(["python", "test.py","--name",a_name,"--description",a_description,"--goals"]+goals,), kwargs={"shell": shell})
-
     api_process.start()
     celery_process.start()
     ui_process.start()
