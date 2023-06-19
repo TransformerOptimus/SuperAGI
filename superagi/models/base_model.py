@@ -20,7 +20,7 @@ class DBBaseModel(Base):
         to_dict: Converts the current object to a dictionary.
         to_json: Converts the current object to a JSON string.
         from_json: Creates a new object of the class using the provided JSON data.
-
+        __repr__: Returns a string representation of the current object.
     """
     __abstract__ = True
     # id  = Column(INTEGER,primary_key=True,autoincrement=True)
