@@ -120,9 +120,15 @@ export default function ResourceManager({agentId}) {
 
   const ResourceList = ({ files }) => (
     <div className={styles.resources}>
-      {files.map((file, index) => (
-        <ResourceItem key={index} file={file} />
-      ))}
+      {files.length <= 0 && channel === 'output' ? <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
+        <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+        <span className={styles.feed_title} style={{marginTop: '8px'}}>No Output files!</span>
+      </div> : <div>
+        {files.map((file, index) => (
+          <ResourceItem key={index} file={file} />
+        ))}
+      </div>
+      }
     </div>
   );
 
