@@ -15,7 +15,7 @@ export default function SideBar({onSelectEvent}) {
   //   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
   //   window.location.href = authUrl;
   // }
-  
+
   const handleClick = (value) => {
     setSelection(value);
     onSelectEvent(value);
@@ -36,12 +36,12 @@ export default function SideBar({onSelectEvent}) {
           <div>Tool Kit</div>
         </div>
       </div>
-      {/* <div className={styles.selection_section}>
-        <div onClick={getToken} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>
-          <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>
-          <div>Google Calendar</div>
-        </div>
-      </div> */}
+      {/*<div className={styles.selection_section}>*/}
+      {/*  <div onClick={getToken} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>*/}
+      {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>*/}
+      {/*    <div>Google Calendar</div>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
       {/*<div className={styles.selection_section}>*/}
       {/*  <div onClick={() => handleClick(sectionSelected !== 'apm' ? 'apm' : '')} className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>*/}
       {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm_light.svg" alt="apm-icon"/></div>*/}

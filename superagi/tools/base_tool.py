@@ -7,6 +7,10 @@ from inspect import signature
 
 from superagi.config.config import get_config
 from typing import List
+from sqlalchemy.orm import Session
+
+from superagi.models.tool_config import ToolConfig
+import yaml
 
 
 class SchemaSettings:
@@ -53,6 +57,13 @@ def create_function_schema(
     return _construct_model_subset(
         f"{schema_name}Schema", inferred_type, list(valid_parameters)
     )
+def default_tool_config_func(key: str,tool_kit_id:int,session:Session):
+    # Default implementation of the tool configuration retrieval logic
+    with open("config.yaml") as file:
+        config = yaml.safe_load(file)
+
+    # Retrieve the value associated with the given key
+    return config.get(key)
 
 
 class BaseTool(BaseModel):
@@ -60,7 +71,24 @@ class BaseTool(BaseModel):
     description: str
     args_schema: Type[BaseModel] = None
     tool_kit_id: int = None
-    # session  = None
+    session: Session = None
+    tool_config_func : Callable = default_tool_config_func
+    class Config:
+        arbitrary_types_allowed = True
+
+    def set_tool_config_func(self, func: Callable[[str, int, Optional[Session]], Any]):
+        """Set the function for retrieving tool configuration."""
+        self.tool_config_func = func
+
+    def get_tool_config(self, key: str):
+        """Retrieve tool configuration using the provided function."""
+        if self.tool_config_func:
+            return self.tool_config_func(key, self.tool_kit_id, self.session)
+        else:
+            # Raise an exception or return a default value
+            # when _tool_config_func is not set
+            raise Exception("Tool configuration function not set.")
+
     @property
     def args(self):
         # print("args_schema", self.args_schema)

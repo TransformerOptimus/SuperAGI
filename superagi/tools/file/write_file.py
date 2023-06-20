@@ -44,12 +44,9 @@ class WriteFileTool(BaseTool):
         Returns:
             file written to successfully. or error message.
         """
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
-
         final_path = file_name
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        # root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        root_dir = self.get_tool_config(key="RESOURCES_OUTPUT_ROOT_DIR")
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
@@ -66,14 +63,14 @@ class WriteFileTool(BaseTool):
                                                                      agent_id=self.agent_id, file=file,
                                                                      channel="OUTPUT")
                 if resource is not None:
-                    session.add(resource)
-                    session.commit()
-                    session.flush()
+                    self.session.add(resource)
+                    self.session.commit()
+                    self.session.flush()
                     if resource.storage_type == "S3":
                         s3_helper = S3Helper()
                         s3_helper.upload_file(file, path=resource.path)
                         logger.info("Resource Uploaded to S3!")
-                session.close()
+                self.session.close()
             return f"File written to successfully - {file_name}"
         except Exception as err:
             return f"Error: {err}"

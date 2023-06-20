@@ -12,7 +12,7 @@ export default function ToolWorkspace({tool,toolDetails}){
     const [apiConfigs, setApiConfigs] = useState([]);
     const defaultDescription = "Shifting timeline accross multiple time strings. Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.";
     const [toolsIncluded, setToolsIncluded] = useState([]);
-    const [getID,setgetID] = useState([]);
+    // const [getID,setgetID] = useState([]);
 
     let handleKeyChange = (event, index) => {
       
@@ -22,13 +22,14 @@ export default function ToolWorkspace({tool,toolDetails}){
       
     };
     
-    // function getToken(getID){
-    //   // const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
-    //   const scope = 'https://www.googleapis.com/auth/calendar';
-    //   const redirect_uri = 'http://localhost:8001/oauth-calendar';
-    //   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${getID}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
-    //   window.location.href = authUrl;
-    // }
+    function getToken(client_id){
+      // const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
+      const scope = 'https://www.googleapis.com/auth/calendar';
+      const redirect_uri = 'http://localhost:8001/oauth-calendar';
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+      console.log("AUTH URL : ",authUrl)
+      window.location.href = authUrl;
+    }
     
     useEffect(() => {
       if (toolDetails && toolDetails.tools) {
@@ -72,8 +73,10 @@ export default function ToolWorkspace({tool,toolDetails}){
     const handleAuthenticateClick = async () => {
       try {
         const response = await axios.get(`http://localhost:8001/google/get_google_creds/toolkit_id/${toolDetails.id}`);
-        setgetID(response.data);
-        console.log(getID);
+        // setgetID(response.data);
+
+        console.log(response.data);
+        getToken(response.data)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
