@@ -28,7 +28,7 @@ class CodingTool(BaseTool):
     llm: Optional[BaseLlm] = None
     name = "CodingTool"
     description = (
-        "Useful for writing, reviewing, and refactoring code. Can also fix bugs and explain programming concepts."
+        "Useful for writing, reviewing, and refactoring code. Can also fix bugs and explain programming concepts.Follow the specs from write_spec to write the code more efficiently"
     )
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
