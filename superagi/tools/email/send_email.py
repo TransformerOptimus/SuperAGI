@@ -5,8 +5,6 @@ from email.message import EmailMessage
 from typing import Type
 
 from pydantic import BaseModel, Field
-
-from superagi.config.config import get_config
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
 
@@ -42,8 +40,8 @@ class SendEmailTool(BaseTool):
         Returns:
             
         """
-        email_sender = get_config('EMAIL_ADDRESS')
-        email_password = get_config('EMAIL_PASSWORD')
+        email_sender = self.get_tool_config('EMAIL_ADDRESS')
+        email_password = self.get_tool_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "" or email_password.isspace():
@@ -52,13 +50,15 @@ class SendEmailTool(BaseTool):
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
-        signature = get_config('EMAIL_SIGNATURE')
+        signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
         message.set_content(body)
-        draft_folder = get_config('EMAIL_DRAFT_MODE_WITH_FOLDER')
-        if message["To"] == "example@example.com" or draft_folder:
-            conn = ImapEmail().imap_open(draft_folder, email_sender, email_password)
+        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE')
+        if message["To"] == "example@example.com" or send_to_draft:
+            draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER')
+            imap_server= self.get_tool_config('EMAIL_IMAP_SERVER')
+            conn = ImapEmail().imap_open(draft_folder, email_sender, email_password, imap_server)
             conn.append(
                 draft_folder,
                 "",
@@ -67,8 +67,8 @@ class SendEmailTool(BaseTool):
             )
             return f"Email went to {draft_folder}"
         else:
-            smtp_host = get_config('EMAIL_SMTP_HOST')
-            smtp_port = get_config('EMAIL_SMTP_PORT')
+            smtp_host = self.get_tool_config('EMAIL_SMTP_HOST')
+            smtp_port = self.get_tool_config('EMAIL_SMTP_PORT')
             with smtplib.SMTP(smtp_host, smtp_port) as smtp:
                 smtp.ehlo()
                 smtp.starttls()

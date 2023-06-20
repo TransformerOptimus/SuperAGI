@@ -14,4 +14,4 @@ class ImageGenToolKit(BaseToolKit, ABC):
         return [ImageGenTool(), StableDiffusionImageGenTool()]
 
     def get_env_keys(self) -> List[str]:
-        return ["RESOURCES_OUTPUT_ROOT_DIR", "STABILITY_API_KEY", "ENGINE_ID"]
+        return ["STABILITY_API_KEY", "ENGINE_ID"]
