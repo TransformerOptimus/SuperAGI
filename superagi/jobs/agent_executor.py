@@ -166,12 +166,12 @@ class AgentExecutor:
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
 
-        try:
-            memory = VectorFactory.get_vector_storage(parsed_config["LTM_DB"], "super-agent-index1",
-                                                      OpenAiEmbedding(api_key=model_api_key), str(agent.id))
-        except:
-            logger.info("Unable to setup the pinecone connection...")
-            memory = None
+        # try:
+        memory = VectorFactory.get_vector_storage("Redis", "super-agent-index1",
+                                                  OpenAiEmbedding(api_key=model_api_key), str(agent.id))
+        # except:
+        #     logger.info("Unable to setup the pinecone connection...")
+        #     memory = None
 
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()

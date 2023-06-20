@@ -97,7 +97,7 @@ class SuperAgi:
             AgentConfiguration.agent_id == agent_id
         ).order_by(desc(AgentConfiguration.updated_at)).first().value
 
-        agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
+        agent_feeds = session.query(AgentExecutionFeed.id, AgentExecutionFeed.role, AgentExecutionFeed.feed) \
             .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
             .order_by(asc(AgentExecutionFeed.created_at)) \
             .limit(memory_window) \
@@ -131,15 +131,24 @@ class SuperAgi:
         messages = []
         max_token_limit = 600
         # adding history to the messages
+        ltm_memory = self.process_ltm(task_queue, agent_feeds)
         if workflow_step.history_enabled:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_token_limit, agent_feeds=agent_feeds)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
+            full_message_history = [{'role': agent_feed.role, 'content': agent_feed.feed} for agent_feed in agent_feeds]
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-            full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
+
+            # adding ltm to the messages
+            ltm_max_tokens = (token_limit - base_token_limit - max_token_limit) * 0.3
+            ltm_content = "PAST MEMORY from previous actions: ```" + ltm_memory + "```"
+            ltm_tokens = TokenCounter.count_message_tokens(ltm_content, self.llm.get_model())
             past_messages, current_messages = self.split_history(full_message_history,
-                                                                 token_limit - base_token_limit - max_token_limit)
+                                                                 token_limit - base_token_limit - max_token_limit - ltm_tokens)
+            if ltm_tokens < ltm_max_tokens:
+                messages.append({"role": "system", "content": ltm_content})
+
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": workflow_step.completion_prompt})
@@ -152,9 +161,11 @@ class SuperAgi:
             #                                           role="user")
 
         logger.info(prompt)
-        # print(messages)
+
         if len(agent_feeds) <= 0:
             for message in messages:
+                if "PAST MEMORY" in message["content"]:
+                    continue
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
                                                           feed=message["content"],
@@ -201,7 +212,7 @@ class SuperAgi:
             session.add(agent_execution_feed)
             session.commit()
             session.flush()
-            self.add_to_ltm(assistant_reply, tool_response["result"])
+            self.add_to_ltm(assistant_reply, tool_response["result"], agent_execution_feed.id)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
         elif workflow_step.output_type == "replace_tasks":
@@ -242,9 +253,9 @@ class SuperAgi:
 
         return final_response
 
-    def add_to_ltm(self, assistant_reply, tool_response):
+    def add_to_ltm(self, assistant_reply, tool_response, agent_feed_id):
         text_content = "ASSISTANT: " + assistant_reply + "\n TOOL RESPONSE: " + tool_response
-        metadata = {"agent_id": self.agent_config["agent_id"]}
+        metadata = {"agent_id": self.agent_config["agent_id"], "agent_feed_id": agent_feed_id}
         self.memory.add_documents(documents=[Document(text_content=text_content, metadata=metadata)])
 
     def handle_tool_response(self, assistant_reply):
@@ -302,7 +313,6 @@ class SuperAgi:
             add_finish_tool = False
 
         # get matching text based on previous output/task
-        prompt = self.process_ltm(prompt, task_queue, agent_feeds)
         prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"], self.agent_config["instruction"],
                                                            self.agent_config["constraints"], self.tools, add_finish_tool)
 
@@ -341,7 +351,7 @@ class SuperAgi:
             return True, {"result": "WAITING_FOR_PERMISSION", "permission_id": new_agent_execution_permission.id}
         return False, None
 
-    def process_ltm(self, prompt: str, task_queue: TaskQueue, agent_feeds: List[AgentExecutionFeed]):
+    def process_ltm(self, task_queue: TaskQueue, agent_feeds: List[AgentExecutionFeed]):
         current_task = task_queue.get_first_task()
         documents = []
         if current_task:
@@ -360,11 +370,15 @@ class SuperAgi:
 
             if query_str != "":
                 documents = self.memory.get_matching_text(query_str)
-        print("LTM:", documents)
-        if len(documents) > 0:
-            ltm = '----'.join([document.text_content for document in documents])
-            prompt = AgentPromptBuilder.replace_ltm_variables(prompt, ltm)
-        else:
-            prompt = AgentPromptBuilder.replace_ltm_variables(prompt, "")
+        ltm_documents = documents
+        feed_ids = [int(agent_feed.id) for agent_feed in reversed(agent_feeds[-10:-1])]
+        for document in documents:
+            if int(document.metadata["agent_feed_id"]) not in feed_ids:
+                ltm_documents.add(document)
 
-        return prompt
+        logger.info("LTM:", ltm_documents)
+        if len(documents) > 0:
+            ltm = '----'.join([document.text_content for document in ltm_documents])
+            return ltm
+        else:
+            return ""
