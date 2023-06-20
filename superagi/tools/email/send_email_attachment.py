@@ -11,6 +11,7 @@ from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 
+
 class SendEmailAttachmentInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
@@ -76,8 +77,8 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             
         """
-        email_sender = self.get_tool_config('EMAIL_ADDRESS')
-        email_password = self.get_tool_config('EMAIL_PASSWORD')
+        email_sender = self.tool_kit_config.default_tool_config_func('EMAIL_ADDRESS')
+        email_password = self.tool_kit_config.default_tool_config_func('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "" or email_password.isspace():
@@ -86,7 +87,7 @@ class SendEmailAttachmentTool(BaseTool):
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
-        signature = self.get_tool_config('EMAIL_SIGNATURE')
+        signature = self.tool_kit_config.default_tool_config_func('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
         message.set_content(body)
@@ -97,12 +98,12 @@ class SendEmailAttachmentTool(BaseTool):
             maintype, subtype = ctype.split("/", 1)
             with open(attachment_path, "rb") as file:
                 message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
-        
-        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE')
-        
+
+        send_to_draft = self.tool_kit_config.default_tool_config_func('EMAIL_DRAFT_MODE')
+
         if message["To"] == "example@example.com" or send_to_draft:
-            draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER')
-            imap_server= self.get_tool_config('EMAIL_IMAP_SERVER')
+            draft_folder = self.tool_kit_config.default_tool_config_func('EMAIL_DRAFT_FOLDER')
+            imap_server = self.tool_kit_config.default_tool_config_func('EMAIL_IMAP_SERVER')
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password, imap_server)
             conn.append(
                 draft_folder,
@@ -112,8 +113,8 @@ class SendEmailAttachmentTool(BaseTool):
             )
             return f"Email went to {draft_folder}"
         else:
-            smtp_host = self.get_tool_config('EMAIL_SMTP_HOST')
-            smtp_port = self.get_tool_config('EMAIL_SMTP_PORT')
+            smtp_host = self.tool_kit_config.default_tool_config_func('EMAIL_SMTP_HOST')
+            smtp_port = self.tool_kit_config.default_tool_config_func('EMAIL_SMTP_PORT')
             with smtplib.SMTP(smtp_host, smtp_port) as smtp:
                 smtp.ehlo()
                 smtp.starttls()

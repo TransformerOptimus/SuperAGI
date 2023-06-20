@@ -36,9 +36,9 @@ class JiraTool(BaseTool):
         Returns:
             The Jira instance.
         """
-        jira_instance_url = self.get_tool_config("JIRA_INSTANCE_URL")
-        jira_username = self.get_tool_config("JIRA_USERNAME")
-        jira_api_token = self.get_tool_config("JIRA_API_TOKEN")
+        jira_instance_url = self.tool_kit_config.default_tool_config_func("JIRA_INSTANCE_URL")
+        jira_username = self.tool_kit_config.default_tool_config_func("JIRA_USERNAME")
+        jira_api_token = self.tool_kit_config.default_tool_config_func("JIRA_API_TOKEN")
         jira = JIRA(
             server=jira_instance_url,
             basic_auth=(jira_username, jira_api_token)

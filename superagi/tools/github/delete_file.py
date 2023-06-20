@@ -65,8 +65,8 @@ class GithubDeleteFileTool(BaseTool):
         """
 
         try:
-            github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
-            github_username = self.get_tool_config("GITHUB_USERNAME")
+            github_access_token = self.tool_kit_config.default_tool_config_func("GITHUB_ACCESS_TOKEN")
+            github_username = self.tool_kit_config.default_tool_config_func("GITHUB_USERNAME")
             github_helper = GithubHelper(github_access_token, github_username)
             head_branch = 'new-file'
             headers = {

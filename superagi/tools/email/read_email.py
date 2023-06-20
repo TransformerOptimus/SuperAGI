@@ -42,13 +42,13 @@ class ReadEmailTool(BaseTool):
         Returns:
             email content or error message
         """
-        email_sender = self.get_tool_config('EMAIL_ADDRESS')
-        email_password = self.get_tool_config('EMAIL_PASSWORD')
+        email_sender = self.tool_kit_config.default_tool_config_func('EMAIL_ADDRESS')
+        email_password = self.tool_kit_config.default_tool_config_func('EMAIL_PASSWORD')
         if email_sender == "":
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "":
             return "Error: Email Not Sent. Enter a valid Email Password."
-        imap_server= self.get_tool_config('EMAIL_IMAP_SERVER')
+        imap_server= self.tool_kit_config.default_tool_config_func('EMAIL_IMAP_SERVER')
         conn = ImapEmail().imap_open(imap_folder, email_sender, email_password, imap_server)
         status, messages = conn.select("INBOX")
         num_of_messages = int(messages[0])

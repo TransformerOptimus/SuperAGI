@@ -47,7 +47,7 @@ class GoogleSerpTool(BaseTool):
         Returns:
             A tuple of (snippets, webpages, links)
         """
-        api_key = self.get_tool_config("SERP_API_KEY")
+        api_key = self.tool_kit_config.default_tool_config_func("SERP_API_KEY")
         serp_api = GoogleSerpApiWrap(api_key)
         response = serp_api.search_run(query)
         summary = self.summarise_result(query, response["snippets"])
