@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Agents.module.css';
 import Image from 'next/image';
-
 import { updatePermissions } from '@/pages/api/DashboardService';
 import { formatTime } from '@/utils/utils';
 
-function ActionBox({ action, index, denied, reasons, handleDeny, handleSelection }) {
+function ActionBox({ action, index, denied, reasons, handleDeny, handleSelection, setReasons }) {
     const isDenied = denied[index];
 
     return (
@@ -98,7 +97,7 @@ export default function ActionConsole({ actions }) {
             <div className={styles.detail_body} style={{ height: 'auto' }}>
                 {actions.map((action, index) => {
                     if (action.status === 'PENDING' && !hiddenActions.includes(index)) {
-                        return (<ActionBox key={action.id} action={action} index={index} denied={denied}
+                        return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
                             reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}/>);
                     }
                     return null;
