@@ -3,12 +3,12 @@ import Image from "next/image";
 import styles from './Market.module.css';
 import Market from './Market';
 
-export default function MarketplacePublic() {
+export default function MarketplacePublic({env}) {
   const handleSignupClick = () => {
-    if (window.location.href.toLowerCase().includes('localhost')) {
-      window.location.href = '/';
-    } else {
+    if (env === 'PROD') {
       window.open(`https://app.superagi.com/`, '_self');
+    } else {
+      window.location.href = '/';
     }
   };
 
@@ -24,7 +24,7 @@ export default function MarketplacePublic() {
          </div>
      </div>
       <div className={styles.marketplace_public_content}>
-        <Market />
+        <Market/>
       </div>
     </div>
   );
