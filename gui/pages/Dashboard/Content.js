@@ -10,7 +10,6 @@ import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
-import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 
 export default function Content({selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
