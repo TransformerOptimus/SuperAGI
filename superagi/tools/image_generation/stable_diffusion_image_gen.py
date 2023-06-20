@@ -43,6 +43,8 @@ class StableDiffusionImageGenTool(BaseTool):
 
         response = self.call_stable_diffusion(api_key, width, height, num, prompt, steps)
 
+        print("/////////",response)
+
         if response.status_code != 200:
             return f"Non-200 response: {str(response.text)}"
 
@@ -64,8 +66,11 @@ class StableDiffusionImageGenTool(BaseTool):
 
             final_path = self.build_file_path(image, root_dir)
 
+            print(final_path)
+
             try:
                 self.upload_to_s3(final_img, final_path, image_format, image_name[i], session)
+                print("///////////end")
 
                 logger.info(f"Image {image} saved successfully")
             except Exception as err:
@@ -106,9 +111,11 @@ class StableDiffusionImageGenTool(BaseTool):
     def upload_to_s3(self, final_img, final_path, image_format, file_name, session):
         with open(final_path, mode="wb") as img:
             final_img.save(img, format=image_format)
+            print("path////",final_path)
         with open(final_path, 'rb') as img:
             resource = ResourceHelper.make_written_file_resource(file_name=file_name,
                                                                  agent_id=self.agent_id, file=img, channel="OUTPUT")
+            print(resource)
             logger.info(resource)
             if resource is not None:
                 session.add(resource)
