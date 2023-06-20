@@ -14,4 +14,4 @@ class EmailToolKit(BaseToolKit, ABC):
         return [ReadEmailTool(), SendEmailTool(),SendEmailAttachmentTool()]
 
     def get_env_keys(self) -> List[str]:
-        return ["EMAIL_ADDRESS", "EMAIL_PASSWORD", "EMAIL_SIGNATURE", "EMAIL_DRAFT_MODE", "EMAIL_DRAFT_FOLDER" "EMAIL_SMTP_HOST", "EMAIL_SMTP_PORT","EMAIL_IMAP_SERVER"]
+        return ["EMAIL_ADDRESS", "EMAIL_PASSWORD", "EMAIL_SIGNATURE", "EMAIL_DRAFT_MODE", "EMAIL_DRAFT_FOLDER", "EMAIL_SMTP_HOST", "EMAIL_SMTP_PORT","EMAIL_IMAP_SERVER"]
