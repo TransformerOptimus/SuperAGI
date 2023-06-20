@@ -1,16 +1,13 @@
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 from functools import wraps
+from inspect import signature
+from typing import List
 from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 
-from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
-from inspect import signature
+import yaml
+from pydantic import BaseModel, create_model, validate_arguments, Extra
 
 from superagi.config.config import get_config
-from typing import List
-from sqlalchemy.orm import Session
-
-from superagi.models.tool_config import ToolConfig
-import yaml
 
 
 class SchemaSettings:
@@ -62,7 +59,6 @@ def create_function_schema(
 class BaseToolKitConfiguration:
 
     def default_tool_config_func(key: str):
-        print("Default Tool Config")
         # Default implementation of the tool configuration retrieval logic
         with open("config.yaml") as file:
             config = yaml.safe_load(file)
@@ -75,6 +71,7 @@ class BaseTool(BaseModel):
     name: str = None
     description: str
     args_schema: Type[BaseModel] = None
+    permission_required: bool = True
     tool_kit_config: BaseToolKitConfiguration = BaseToolKitConfiguration()
 
     class Config:

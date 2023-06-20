@@ -35,4 +35,4 @@ class AgentExecutionFeed(DBBaseModel):
 
         return f"AgentExecutionFeed(id={self.id}, " \
                f"agent_execution_id={self.agent_execution_id}, " \
-               f"feed='{self.feed}', type='{self.type}', extra_info={self.extra_info})"
+               f"feed='{self.feed}', role='{self.role}', extra_info={self.extra_info})"

@@ -109,7 +109,6 @@ def load_module_from_file(file_path):
 
 
 def init_tools(folder_path, session, tool_name_to_tool_kit):
-    print("__________________________________INIT TOOLS______________________________________")
     print(tool_name_to_tool_kit)
     # Iterate over all subfolders
     for folder_name in os.listdir(folder_path):
@@ -133,13 +132,10 @@ def init_tools(folder_path, session, tool_name_to_tool_kit):
                                                               class_name=clazz['class_name'], file_name=file_name,
                                                               tool_kit_id=tool_name_to_tool_kit[(tool_name,folder_name)],
                                                               description=tool_description)
-                                print("Updated Tool path details for tool : ", new_tool)
-                            else:
-                                print("Tool Kit Not Found for tool : ", tool_name)
+
 
 
 def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, session):
-    print("__________________________________INIT TOOL KITS______________________________________")
     tool_name_to_tool_kit = {}
     new_toolkits = []
     # Iterate over all subfolders
@@ -205,8 +201,6 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
 
 
 def process_files(folder_path, session, organisation, code_link=None):
-    print("GETTING TOOLKITS OF : ")
-    print(organisation)
     existing_toolkits = session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
 
     # tool_name_to_tool_kit = []
@@ -217,7 +211,6 @@ def process_files(folder_path, session, organisation, code_link=None):
 def get_readme_content_from_code_link(tool_code_link):
     parsed_url = urlparse(tool_code_link)
     path_parts = parsed_url.path.split("/")
-    print(path_parts)
 
     # Extract username, repository, and branch from the URL
     username = path_parts[1]
@@ -225,7 +218,6 @@ def get_readme_content_from_code_link(tool_code_link):
     branch = path_parts[4] if len(path_parts) > 4 else "main"
 
     readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.MD"
-    print("README ", readme_url)
     response = requests.get(readme_url)
     if response.status_code == 404:
         readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.md"
@@ -240,8 +232,6 @@ def register_tool_kits(session, organisation):
         folder_path = "superagi/tools"
     if organisation is not None:
         process_files(folder_path, session, organisation)
-        # print("__________________________INPUT TOOL PARSING__________________")
-        # process_files("superagi/.input_tools", session, organisation)
 
 
 def extract_repo_name(repo_link):

@@ -12,6 +12,8 @@ from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
@@ -39,7 +41,6 @@ class DBToolKitConfiguration(BaseToolKitConfiguration):
         self.tool_kit_id = tool_kit_id
 
     def default_tool_config_func(self, key: str):
-        print("DB implementation!")
         tool_config = self.session.query(ToolConfig).filter_by(key=key, tool_kit_id=self.tool_kit_id).first()
         if tool_config:
             return tool_config.value
@@ -146,7 +147,7 @@ class AgentExecutor:
         agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
         # if agent_execution.status == "PAUSED" or agent_execution.status == "TERMINATED" or agent_execution == "COMPLETED":
         #     return
-        if agent_execution.status != "RUNNING":
+        if agent_execution.status != "RUNNING" and agent_execution.status != "WAITING_FOR_PERMISSION":
             return
 
         if not agent:
@@ -189,15 +190,17 @@ class AgentExecutor:
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key)
-        # print("final tools ________________")
-        # print(tools)
-        # for tool in tools:
-        #     print(tool)
-        #     print("It belongs to ",tool.tool_kit_id)
+
+
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,
                                  agent_config=parsed_config)
+
+        try:
+            self.handle_wait_for_permission(agent_execution, spawned_agent, session)
+        except ValueError:
+            return
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
@@ -209,10 +212,14 @@ class AgentExecutor:
         if response["result"] == "COMPLETE":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "COMPLETED"
-
+            session.commit()
+        elif response["result"] == "WAITING_FOR_PERMISSION":
+            db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+            db_agent_execution.status = "WAITING_FOR_PERMISSION"
+            db_agent_execution.permission_id = response.get("permission_id", None)
             session.commit()
         else:
-            logger.info("Starting next job for agent execution id: ", agent_execution_id)
+            logger.info(f"Starting next job for agent execution id: {agent_execution_id}")
             superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()
@@ -239,6 +246,8 @@ class AgentExecutor:
         for tool in tools:
             if hasattr(tool, 'goals'):
                 tool.goals = parsed_config["goal"]
+            if hasattr(tool, 'instructions'):
+                tool.instructions = parsed_config["instruction"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
                 tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):
@@ -249,3 +258,36 @@ class AgentExecutor:
                 tool.agent_id = agent_id
             new_tools.append(tool)
         return tools
+
+    def handle_wait_for_permission(self, agent_execution, spawned_agent, session):
+        """
+        Handles the wait for permission when the agent execution is waiting for permission.
+
+        Args:
+            agent_execution (AgentExecution): The agent execution.
+            spawned_agent (SuperAgi): The spawned agent.
+            session (Session): The database session object.
+
+        Raises:
+            ValueError: If the permission is still pending.
+        """
+        if agent_execution.status != "WAITING_FOR_PERMISSION":
+            return
+        agent_execution_permission = session.query(AgentExecutionPermission).filter(
+            AgentExecutionPermission.id == agent_execution.permission_id).first()
+        if agent_execution_permission.status == "PENDING":
+            raise ValueError("Permission is still pending")
+        if agent_execution_permission.status == "APPROVED":
+            result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
+        else:
+            result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
+                     f"{' and has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
+
+        agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
+                                                  agent_id=agent_execution_permission.agent_id,
+                                                  feed=result,
+                                                  role="user"
+                                                  )
+        session.add(agent_execution_feed)
+        agent_execution.status = "RUNNING"
+        session.commit()

@@ -61,7 +61,6 @@ def download_tool(tool_url, target_folder):
                     outfile.write(infile.read())
 
     os.remove(tool_zip_file_path)
-    print("INSTALLED SUCESSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
 
 
 def load_tools_config():

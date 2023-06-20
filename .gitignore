@@ -14,3 +14,4 @@ gui/.next
 venv
 workspace/output
 workspace/input
+../bfg-report*

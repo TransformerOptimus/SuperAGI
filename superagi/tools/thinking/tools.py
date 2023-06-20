@@ -26,6 +26,7 @@ class ThinkingTool(BaseTool):
         name : The name.
         description : The description.
         args_schema : The args schema.
+        llm: LLM used for thinking.
     """
     llm: Optional[BaseLlm] = None
     name = "ThinkingTool"
@@ -34,6 +35,7 @@ class ThinkingTool(BaseTool):
     )
     args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
+    permission_required: bool = False
 
     class Config:
         arbitrary_types_allowed = True
