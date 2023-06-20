@@ -35,6 +35,10 @@ export default function App() {
   }
 
   useEffect(() => {
+    if(window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true);
+    }
+
     loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
 
     checkEnvironment()
@@ -104,12 +108,6 @@ export default function App() {
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
-
-  useEffect(() => {
-      if(window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true)
-    }
-  }, []);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -129,7 +127,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {showMarketplace && <div className="projectStyle"> <MarketplacePublic /> </div>}
+      {showMarketplace && <div className="projectStyle"> <MarketplacePublic env={env} /> </div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? ( <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
