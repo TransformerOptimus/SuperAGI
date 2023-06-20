@@ -83,12 +83,11 @@ export default function ToolWorkspace({tool,toolDetails}){
     return (
         <>
         <div className={styles.tools_container}>
-            <div style={{display: 'flex',justifyContent:'space-between',marginBottom:'20px', width:'600px'}}>
+            <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
                 <div> 
                 <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={40} height={40}/>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-
                 <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
                     <div>{toolDetails.name}</div>
                     <div style={{marginRight:'40px'}}>
@@ -102,9 +101,6 @@ export default function ToolWorkspace({tool,toolDetails}){
                     )}
                     </div>
                 </div>
-                </div>
-                <div style={{ marginLeft: 'auto' }}>
-                <button style={{width:'200px'}}className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>
                 </div>
             </div>
 
@@ -136,11 +132,18 @@ export default function ToolWorkspace({tool,toolDetails}){
                   </div>
                 </div>
               ))}
+              <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'  }}>
+              <div > 
+                {toolDetails.name === 'Google Calendar Toolkit' 
+                && <button style={{width:'200px'}}className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button> }
+              </div>
       
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
               <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
               </div>
+              </div>
+
             </div>}
             {activeTab === 'Tools_Included' && <div>
             {toolsIncluded.map((tool, index) => (
