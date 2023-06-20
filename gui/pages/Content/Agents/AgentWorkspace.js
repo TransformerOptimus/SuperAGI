@@ -225,11 +225,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed
-              selectedView={selectedView}
-              selectedRunId={selectedRun?.id || 0}
-              setFetchedData={setFetchedData} // Pass the setFetchedData function as a prop
-          />
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
           </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
