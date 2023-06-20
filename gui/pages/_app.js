@@ -10,7 +10,7 @@ import { getOrganisation, getProject, validateAccessToken, checkEnvironment, add
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 
 export default function App() {
@@ -24,18 +24,6 @@ export default function App() {
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
 
-  useEffect(() => {
-    const text = 'Initializing SuperAGI';
-    let dots = '';
-
-    const interval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setLoadingText(`${text}${dots}`);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
   function fetchOrganisation(userId) {
     getOrganisation(userId)
       .then((response) => {
@@ -47,6 +35,8 @@ export default function App() {
   }
 
   useEffect(() => {
+    loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
+
     checkEnvironment()
       .then((response) => {
         const env = response.data.env;
