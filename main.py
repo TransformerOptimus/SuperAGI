@@ -300,11 +300,15 @@ def github_login():
 
 @app.get('/oauth-calendar')
 async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    client_id = client_id.value
+    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET").first()
+    client_secret = client_secret.value
     token_uri = 'https://oauth2.googleapis.com/token'
     scope = 'https://www.googleapis.com/auth/calendar'
     params = {
-        'client_id': superagi.config.config.get_config('GOOGLE_CLIENT_ID'),
-        'client_secret': superagi.config.config.get_config('GOOGLE_CLIENT_SECRET'),
+        'client_id': client_id,
+        'client_secret': client_secret,
         'redirect_uri': "http://localhost:8001/oauth-calendar",
         'scope': scope,
         'grant_type': 'authorization_code',
@@ -421,10 +425,7 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
 
 @app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
 def get_google_calendar_tool_configs(toolkit_id: int):
-    print(toolkit_id)
     google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
-    print(google_calendar_config)
-    print(google_calendar_config.value)
     return {
         "client_id":google_calendar_config.value
     }
