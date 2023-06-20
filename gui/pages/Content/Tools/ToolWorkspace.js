@@ -12,21 +12,21 @@ export default function ToolWorkspace({tool,toolDetails}){
     const [apiConfigs, setApiConfigs] = useState([]);
     const defaultDescription = "Shifting timeline accross multiple time strings. Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.";
     const [toolsIncluded, setToolsIncluded] = useState([]);
-    // const [getID,setgetID] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [getID,setgetID] = useState([]);
 
     let handleKeyChange = (event, index) => {
-      
       const updatedData = [...apiConfigs];
       updatedData[index].value = event.target.value;
       setApiConfigs(updatedData);
       
     };
     
-    function getToken(client_id){
+    function getToken(getID){
       // const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
       const scope = 'https://www.googleapis.com/auth/calendar';
       const redirect_uri = 'http://localhost:8001/oauth-calendar';
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${getID}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
       console.log("AUTH URL : ",authUrl)
       window.location.href = authUrl;
     }
@@ -50,6 +50,9 @@ export default function ToolWorkspace({tool,toolDetails}){
         })
         .catch((error) => {
           console.log('Error fetching API data:', error);
+        })
+        .finally(() => {
+          setLoading(false); 
         });
       }
     }, []);
@@ -64,6 +67,7 @@ export default function ToolWorkspace({tool,toolDetails}){
       updateToolConfig(toolDetails.name, updatedConfigData)
       .then((response) => {
           console.log(response);
+          toast.success('Updated successfully');
       })
       .catch((error) => {
         console.error('Error updating tool config:', error);
@@ -73,9 +77,8 @@ export default function ToolWorkspace({tool,toolDetails}){
     const handleAuthenticateClick = async () => {
       try {
         const response = await axios.get(`http://localhost:8001/google/get_google_creds/toolkit_id/${toolDetails.id}`);
-        // setgetID(response.data);
-
-        console.log(response.data);
+        setgetID(response.data);
+        // console.log(setgetID);
         getToken(response.data)
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -118,9 +121,14 @@ export default function ToolWorkspace({tool,toolDetails}){
             <div className={styles.tab_text}>Tools Included</div>
             </div>
             </div>
+            
 
-            {activeTab === 'Configuration' && <div>
-              {apiConfigs && apiConfigs.map((config, index) => (
+            {/* {loading && <div>Loading...</div>} */}
+
+            {!loading && activeTab === 'Configuration' && 
+            <div>
+            {apiConfigs.length > 0 ? (
+              apiConfigs.map((config, index) => (
                 <div key={index}>
                   <div style={{ color: '#666666', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
                     <label style={{ marginBottom: '6px' }}>{config.key}</label>
@@ -134,20 +142,27 @@ export default function ToolWorkspace({tool,toolDetails}){
                     </div>
                   </div>
                 </div>
-              ))}
-              <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'  }}>
-              <div > 
-                {toolDetails.name === 'Google Calendar Toolkit' 
-                && <button style={{width:'200px'}}className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button> }
-              </div>
-      
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
-              <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
-              </div>
-              </div>
+              ))
+            ) : (
+              <div>No keys found</div>
+            )}
 
-            </div>}
+              {apiConfigs.length > 0 && (
+                  <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'  }}>
+                    <div > 
+                    {toolDetails.name === 'Google Calendar Toolkit' 
+                    && <button style={{width:'200px'}}className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button> }
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
+                    <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
+                    </div>
+                  </div>
+
+              )}
+            </div>
+            }
+
             {activeTab === 'Tools_Included' && <div>
             {toolsIncluded.map((tool, index) => (
             <div className={styles.tools_included}>
@@ -158,6 +173,7 @@ export default function ToolWorkspace({tool,toolDetails}){
             </div>
             ))}   
             </div>}
+          
 
         </div>
         </>
