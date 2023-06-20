@@ -33,8 +33,8 @@ class StableDiffusionImageGenTool(BaseTool):
         Session = sessionmaker(bind=engine)
         session = Session()
 
-        api_key = get_config("STABILITY_API_KEY")
-        engine_id = get_config("ENGINE_ID")
+        api_key = self.get_tool_config("STABILITY_API_KEY")
+        engine_id = self.get_tool_config("ENGINE_ID")
 
         if api_key is None:
             return "Error: Missing Stability API key."
