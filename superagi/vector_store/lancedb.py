@@ -80,7 +80,7 @@ class LanceDB(VectorStore):
 
         documents = []
 
-        for doc in res['matches']:
+        for doc in res['vector']:
             documents.append(
                 Document(
                     text_content=doc.metadata[self.text_field],
@@ -89,4 +89,3 @@ class LanceDB(VectorStore):
             )
 
         return documents
-
