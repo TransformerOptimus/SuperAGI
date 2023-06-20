@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-bullseye
 WORKDIR /app
 COPY requirements.txt .
 
@@ -6,7 +6,7 @@ COPY requirements.txt .
 # RUN pip install --upgrade pip
 
 RUN pip install --no-cache-dir -r requirements.txt
-RUN playwright install --with-deps chromium
+#RUN playwright install --with-deps chromium
 
 WORKDIR /app
 COPY . .
