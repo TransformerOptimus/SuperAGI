@@ -48,7 +48,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                     </div>
                 </div>
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
-                    {agentTemplates.length > 0 ? <div className={styles.resources} style={agentTemplates.length === 1 ? {justifyContent:'flex-start',gap:'0.3vw'} : {}}>
+                    {agentTemplates.length > 0 ? <div className={styles.resources}>
                         {agentTemplates.map((item) => (
                             <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'90px'}}
                                  onClick={() => handleTemplateClick(item)}>
