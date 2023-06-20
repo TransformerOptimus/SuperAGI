@@ -16,8 +16,4 @@ class FileToolKit(BaseToolKit, ABC):
         return [AppendFileTool(), DeleteFileTool(), ListFileTool(), ReadFileTool(), WriteFileTool()]
 
     def get_env_keys(self) -> List[str]:
-        return [
-            "RESOURCES_INPUT_ROOT_DIR",
-            "RESOURCES_OUTPUT_ROOT_DIR"
-            # Add more file related config keys here
-        ]
+        return []

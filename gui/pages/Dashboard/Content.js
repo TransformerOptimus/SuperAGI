@@ -83,7 +83,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
 
   const addTab = (element) => {
     setToolDetails(element)
-    console.log("hello:: "+Object.values(element))
+    console.log(Object.values(element))
     if (!tabs.some(item => item.id === element.id)) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);

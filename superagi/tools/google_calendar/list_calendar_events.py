@@ -7,7 +7,10 @@ from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 from superagi.helper.calendar_date import CalendarDate
+from superagi.helper.resource_helper import ResourceHelper
+from superagi.helper.s3_helper import S3Helper
 from urllib.parse import urlparse, parse_qs
+from superagi.lib.logger import logger
 
 class ListCalendarEventsInput(BaseModel):
     start_time: str = Field(..., description="A string variable storing the start time to return events from the calendar in format 'HH:MM:SS'. if no value is given keep default value as 'None'")
@@ -19,6 +22,7 @@ class ListCalendarEventsTool(BaseTool):
     name: str = "List Google Calendar Events"
     args_schema: Type[BaseModel] = ListCalendarEventsInput
     description: str = "Get the list of all the events from Google Calendar"
+    agent_id: int  = None
 
     def _execute(self, start_time: str = 'None', start_date: str = 'None', end_date: str = 'None', end_time: str = 'None'):
         toolkit_id = self.tool_kit_config.tool_kit_id
@@ -80,5 +84,18 @@ class ListCalendarEventsTool(BaseTool):
             writer = csv.writer(file, lineterminator="\n")
             for row in csv_data:
                 writer.writerow(row)
+        with open(final_path, 'rb') as file:
+            resource = ResourceHelper.make_written_file_resource(file_name=file_name,
+                                                                     agent_id=self.agent_id, file=file,
+                                                                     channel="OUTPUT")
+            if resource is not None:
+                self.session.add(resource)
+                self.session.commit()
+                self.session.flush()
+                if resource.storage_type == "S3":
+                    s3_helper = S3Helper()
+                    s3_helper.upload_file(file, path=resource.path)
+                    logger.info("Resource Uploaded to S3!")
+            self.session.close()
         
         return f"List of Google Calendar Events month successfully stored in {file_name}."

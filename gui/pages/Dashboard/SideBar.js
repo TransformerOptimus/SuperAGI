@@ -8,13 +8,14 @@ export default function SideBar({onSelectEvent}) {
   const [sectionSelected, setSelection] = useState('');
   const [env, setEnv] = useState('DEV');
 
-  function getToken(){
-    const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
-    const scope = 'https://www.googleapis.com/auth/calendar';
-    const redirect_uri = 'http://localhost:8001/oauth-calendar';
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
-    window.location.href = authUrl;
-  }
+  // function getToken(){
+  //   const client_id = '854220347677-61mrt85gqss7egbmhm79dfumqj1dlrto.apps.googleusercontent.com';
+  //   const scope = 'https://www.googleapis.com/auth/calendar';
+  //   const redirect_uri = 'http://localhost:8001/oauth-calendar';
+  //   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+  //   window.location.href = authUrl;
+  // }
+
   const handleClick = (value) => {
     setSelection(value);
     onSelectEvent(value);
@@ -32,7 +33,7 @@ export default function SideBar({onSelectEvent}) {
       <div className={styles.selection_section}>
         <div onClick={() => handleClick(sectionSelected !== 'tools' ? 'tools' : '')} className={`${styles.section} ${sectionSelected === 'tools' ? styles.selected : ''}`}>
           <div className={styles.button_icon}><Image width={17} height={17} src="/images/tools_light.svg" alt="tools-icon"/></div>
-          <div>Tools</div>
+          <div>Tool Kit</div>
         </div>
       </div>
       {/*<div className={styles.selection_section}>*/}
