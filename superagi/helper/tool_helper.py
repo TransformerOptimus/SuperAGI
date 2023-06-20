@@ -150,10 +150,8 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
-                    print("FILE : ",file_path)
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseToolKit)
                     for clazz in classes:
-                        # print("FInal", clazz["tool_kit_description"])
                         if clazz["class_name"] is not None:
                             toolkit_name = clazz["tool_kit_name"]
                             toolkit_description = clazz["tool_kit_description"]
@@ -184,16 +182,10 @@ def init_tool_kits(code_link, existing_toolkits, folder_path, organisation, sess
                                 new_config = ToolConfig.add_or_update(session, tool_kit_id=new_toolkit.id,
                                                                       key=tool_config_key)
     # Delete toolkits that are not present in the updated toolkits
-    # print("EXISTING TOOLS : ___________")
-    # print(existing_toolkits)
-    # print("NEW FINAL TOOLS : ___________")
-    # print(new_toolkits)
     for toolkit in existing_toolkits:
         if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
             session.query(Tool).filter(Tool.tool_kit_id == toolkit.id).delete()
             session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit.id).delete()
-            # print("_______________DELETEING________________")
-            # print(toolkit)
             session.delete(toolkit)
     # Commit the changes to the database
     session.commit()
