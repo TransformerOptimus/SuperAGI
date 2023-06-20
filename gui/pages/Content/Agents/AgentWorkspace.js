@@ -24,7 +24,22 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
   const [dropdown, setDropdown] = useState(false);
+  const [fetchedData, setFetchedData] = useState(null);
+  const [instructions, setInstructions] = useState(['']);
 
+  const addInstruction = () => {
+    setInstructions((prevArray) => [...prevArray, 'new instructions']);
+  };
+  const handleInstructionDelete = (index) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions.splice(index, 1);
+    setInstructions(updatedInstructions);
+  };
+  const handleInstructionChange = (index, newValue) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions[index] = newValue;
+    setInstructions(updatedInstructions);
+  };
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
   };
@@ -58,6 +73,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
     const executionData = { "agent_id": agentId, "name": runName }
     const agentData = { "agent_id": agentId, "key": "goal", "value": goals}
+    const agentData1 = { "agent_id": agentId, "key": "instruction", "value": instructions}
 
     addExecution(executionData)
       .then((response) => {
@@ -79,6 +95,13 @@ export default function AgentWorkspace({agentId, selectedView}) {
       .catch((error) => {
         console.error('Error updating agent:', error);
       });
+    updateAgents(agentData1)
+        .then((response) => {
+          EventBus.emit('reFetchAgents', {});
+        })
+        .catch((error) => {
+          console.error('Error updating agent:', error);
+        });
   };
 
   const closeRunModal = () => {
@@ -121,6 +144,8 @@ export default function AgentWorkspace({agentId, selectedView}) {
         setAgentDetails(response.data);
         setTools(response.data.tools);
         setGoals(response.data.goal);
+        setInstructions(response.data.instruction);
+        console.log(response.data)
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -141,13 +166,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
   }
 
   function saveAgentTemplate() {
-    console.log('in saving agent')
     saveAgentAsTemplate(agentId)
         .then((response) => {
-          toast.success("Agent saved as template Successfully", {autoClose: 1800});
+          toast.success("Agent saved as template successfully", {autoClose: 1800});
         })
         .catch((error) => {
-          console.error('Error fetching agent executions:', error);
+          console.error('Error saving agent as template:', error);
         });
   }
 
@@ -158,7 +182,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
             {!history && selectedRun !== null && <div style={{display:'flex',alignItems:'center',cursor:'pointer',marginRight:'7px'}} onClick={() => setHistory(true)}>
-              <div className={styles.run_history_button}><Image width={16} height={16} src="/images/update.svg" alt="update-icon"/><span>&nbsp;Show run history</span>
+              <div className={styles.run_history_button}><Image style={{marginTop:'-2px'}} width={16} height={16} src="/images/update.svg" alt="update-icon"/><span>&nbsp;Show run history</span>
               </div>
             </div>}
             <div style={{display:'flex',alignItems:'center',marginLeft:'2px'}} className={styles.tab_text}>
@@ -192,18 +216,24 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
         <div className={styles.detail_body}>
-          {leftPanel === 'activity_feed' && <div className={styles.detail_content}><ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0}/></div>}
+          {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
+            <ActivityFeed
+              selectedView={selectedView}
+              selectedRunId={selectedRun?.id || 0}
+              setFetchedData={setFetchedData} // Pass the setFetchedData function as a prop
+          />
+          </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
       <div style={{width:'40%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex',overflowX:'scroll'}}>
-            {/*<div>*/}
-            {/*  <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>*/}
-            {/*    Action Console*/}
-            {/*  </button>*/}
-            {/*</div>*/}
+            {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
+              <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
+                <Image width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console
+              </button>
+            </div>}
             {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('feedback')} className={styles.tab_button} style={rightPanel === 'feedback' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Feedback*/}
@@ -211,12 +241,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
             {/*</div>*/}
             <div>
               <button onClick={() => setRightPanel('details')} className={styles.tab_button} style={rightPanel === 'details' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
-                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Details
+                <Image width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Details
               </button>
             </div>
             <div>
               <button onClick={() => setRightPanel('resource_manager')} className={styles.tab_button} style={rightPanel === 'resource_manager' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
-                <Image style={{marginTop:'-2px'}} width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
+                <Image width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
               </button>
             </div>
             {/*<div>*/}
@@ -227,7 +257,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
-          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && <div className={styles.detail_content}><ActionConsole/></div>}
+          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
+              <div className={styles.detail_content}>
+                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} />
+              </div>
+          )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>
@@ -253,6 +287,20 @@ export default function AgentWorkspace({agentId, selectedView}) {
             </div>))}
             <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>}
+          <div style={{marginTop: '15px'}}>
+            <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
+            {instructions.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+              <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+              </div>{instructions.length > 1 && <div>
+              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+              </button>
+            </div>}
+            </div>))}
+            <div>
+              <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+            </div>
+          </div>
           <div style={{display: 'flex', justifyContent: 'flex-end'}}>
             <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeRunModal}>
               Cancel
