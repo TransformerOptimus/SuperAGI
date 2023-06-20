@@ -35,6 +35,10 @@ export default function App() {
   }
 
   useEffect(() => {
+    if(window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true);
+    }
+
     loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
 
     checkEnvironment()
@@ -104,12 +108,6 @@ export default function App() {
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
-
-  useEffect(() => {
-      if(window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true)
-    }
-  }, []);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
