@@ -266,7 +266,3 @@ def add_tool_to_json(repo_link):
     # Write the updated JSON object back to tools.json
     with open('tools.json', 'w') as file:
         json.dump(tools_data, file, indent=2)
-
-# # Example usage
-# repo_link = "https://github.com/Autocop-Agent/discord"
-# add_tool_to_json(repo_link)

@@ -18,6 +18,7 @@ from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
+from superagi.models.tool_config import ToolConfig
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
@@ -43,7 +44,7 @@ class AgentExecutor:
         return filename
 
     @staticmethod
-    def create_object(tool):
+    def create_object(tool,session):
         """
         Create an object of a agent usable tool dynamically.
 
@@ -68,8 +69,9 @@ class AgentExecutor:
 
         # Create an instance of the class
         new_object = obj_class()
-        if hasattr(new_object,'tool_kit_id'):
-            new_object.tool_kit_id = tool.tool_kit_id
+        new_object.tool_kit_id = tool.tool_kit_id
+        new_object.session = session
+        new_object.set_tool_config_func(ToolConfig.get_tool_config_by_key)
         return new_object
 
     @staticmethod
@@ -160,7 +162,7 @@ class AgentExecutor:
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
         for tool in user_tools:
-            tool = AgentExecutor.create_object(tool)
+            tool = AgentExecutor.create_object(tool,session)
             tools.append(tool)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
