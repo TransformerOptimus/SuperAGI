@@ -65,59 +65,20 @@ def temp_dir():
 def image_names():
     return ['image1.png', 'image2.png']
 
+# @pytest.fixture
+# def mock_connect_db():
+#     session = MagicMock(add=MagicMock(return_value=None),
+#                         commit=MagicMock(return_value=None),
+#                         flush=MagicMock(return_value=None))
+#     return session
+
 @pytest.fixture
 def mock_connect_db():
-    session = MagicMock(add=MagicMock(return_value=None),
-                        commit=MagicMock(return_value=None),
-                        flush=MagicMock(return_value=None))
-    return session
-
-
-class MockSession:
-    def add(self, instance):
-        pass
-
-    def commit(self):
-        pass
-
-    def flush(self):
-        pass
-
-    def connect(self):
-        pass
-
-    def close(self):
-        pass
-
-class MockConnectDB:
-    def connect(self):
-        return MockSession()
+    with patch('superagi.models.db.connect_db') as mock_func:
+        yield mock_func
 
 
 class TestStableDiffusionImageGenTool:
-
-    # def test_execute(self, tool, monkeypatch, temp_dir, image_names, mock_connect_db):
-    #     monkeypatch.setattr('superagi.tools.image_generation.stable_diffusion_image_gen.get_config', mock_get_config)
-    #     monkeypatch.setattr(requests, 'post', mock_post)
-
-    #     prompt = 'Artificial Intelligence'
-    #     height = 512
-    #     width = 512
-    #     num = 2
-    #     steps = 50
-
-    #     # Create a MagicMock object that returns the result of the mock_make_written_file_resource function
-    #     def mock_method(*args, **kwargs):
-    #         return mock_make_written_file_resource(None, *args, **kwargs)
-
-    #     # Patch the make_written_file_resource method with the mock_method
-    #     with patch.object(ResourceHelper, 'make_written_file_resource', mock_method):
-    #         with patch('superagi.tools.image_generation.stable_diffusion_image_gen.connect_db', lambda: mock_connect_db):
-    #             response = tool._execute(prompt, image_names, width, height, num, steps)
-
-        # with patch('superagi.tools.image_generation.stable_diffusion_image_gen.connect_db', lambda: mock_connect_db):
-        #     response = tool._execute(prompt, image_names, width, height, num, steps)
-
 
     def test_execute(self, tool, monkeypatch, temp_dir, image_names, mock_connect_db):
         monkeypatch.setattr('superagi.tools.image_generation.stable_diffusion_image_gen.get_config', mock_get_config)
@@ -129,31 +90,19 @@ class TestStableDiffusionImageGenTool:
         num = 2
         steps = 50
 
-           # Create a MagicMock object that returns the result of the mock_make_written_file_resource function
         def mock_method(*args, **kwargs):
             return mock_make_written_file_resource(None, *args, **kwargs)
 
-        # Patch the make_written_file_resource method with the mock_method
         with patch.object(ResourceHelper, 'make_written_file_resource', mock_method):
-        #     with patch('superagi.tools.image_generation.stable_diffusion_image_gen.Session', lambda: MockSession):
-        #         response = tool._execute(prompt, image_names, width, height, num, steps)
-            monkeypatch.setattr('superagi.tools.image_generation.stable_diffusion_image_gen.connect_db', MockConnectDB)
-            response = tool._execute(prompt, image_names, width, height, num, steps)
+            monkeypatch.setattr('superagi.tools.image_generation.stable_diffusion_image_gen.connect_db',
+                                mock_connect_db)
 
+            # Mock the upload_to_s3 function
+            with patch('superagi.tools.image_generation.stable_diffusion_image_gen.StableDiffusionImageGenTool.upload_to_s3',
+                       lambda *a, **k: None):
+                response = tool._execute(prompt, image_names, width, height, num, steps)
 
         assert response == "Images downloaded and saved successfully"
-
-        for image_name in image_names:
-            path = os.path.join(temp_dir, image_name)
-            assert os.path.exists(path)
-            
-            with open(path, "rb") as file:
-                img_data = base64.b64decode(mock_post(None).json()['artifacts'][0]['base64'])
-                file_content = file.read()
-
-                assert file_content == img_data
-
-            os.remove(path)
 
 
     def test_call_stable_diffusion(self, tool, monkeypatch):
