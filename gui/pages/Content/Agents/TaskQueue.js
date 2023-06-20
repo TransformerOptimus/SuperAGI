@@ -25,7 +25,11 @@ export default function TaskQueue({ selectedRunId }) {
   }
 
   return (
-    <div>
+    <>
+    {tasks.pending.length <= 0 && tasks.completed.length <= 0 ? <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
+      <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+      <span className={styles.feed_title} style={{marginTop: '8px'}}>No Tasks found!</span>
+    </div> : <div>
       {tasks.pending.length > 0 && <div className={styles.task_header}>Pending Tasks</div>}
       {tasks.pending.map((task, index) => (
         <div key={index} className={styles.history_box} style={{ background: '#272335', padding: '20px', cursor: 'default' }}>
@@ -49,6 +53,7 @@ export default function TaskQueue({ selectedRunId }) {
           </div>
         </div>
       ))}
-    </div>
+    </div>}
+    </>
   );
 }
