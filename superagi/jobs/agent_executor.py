@@ -19,13 +19,37 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
+from superagi.tools.base_tool import BaseToolKitConfiguration
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
+import yaml
+# from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
 
+
+class DBToolKitConfiguration(BaseToolKitConfiguration):
+    session: Session
+    tool_kit_id: int
+
+    def __init__(self, session=None, tool_kit_id=None):
+        self.session = session
+        self.tool_kit_id = tool_kit_id
+
+    def default_tool_config_func(self, key: str):
+        print("DB implementation!")
+        tool_config = self.session.query(ToolConfig).filter_by(key=key, tool_kit_id=self.tool_kit_id).first()
+        if tool_config:
+            return tool_config.value
+        # Read the config.yaml file
+        with open("config.yaml") as file:
+            config = yaml.safe_load(file)
+            value = config.get(key)
+            if value is not None:
+                return value
+        return super().default_tool_config_func(key=key)
 
 class AgentExecutor:
     @staticmethod
@@ -69,9 +93,7 @@ class AgentExecutor:
 
         # Create an instance of the class
         new_object = obj_class()
-        new_object.tool_kit_id = tool.tool_kit_id
-        new_object.session = session
-        new_object.set_tool_config_func(ToolConfig.get_tool_config_by_key)
+        new_object.tool_kit_config = DBToolKitConfiguration(session=session,tool_kit_id=tool.tool_kit_id)
         return new_object
 
     @staticmethod

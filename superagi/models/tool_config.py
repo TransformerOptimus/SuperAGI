@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from superagi.models.base_model import DBBaseModel
 import json
@@ -61,13 +61,3 @@ class ToolConfig(DBBaseModel):
             session.add(tool_config)
 
         session.commit()
-
-    @staticmethod
-    def get_tool_config_by_key(key: str, tool_kit_id: int,session: Session):
-        tool_config = session.query(ToolConfig).filter_by(key=key, tool_kit_id=tool_kit_id).first()
-        if tool_config:
-            return tool_config.value
-        # Read the config.yaml file
-        with open("config.yaml") as file:
-            config = yaml.safe_load(file)
-        return config.get(key)
