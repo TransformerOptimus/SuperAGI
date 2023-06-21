@@ -1,13 +1,3 @@
-from unittest.mock import MagicMock
-
-import pytest
-import imaplib
-import time
-from email.message import EmailMessage
-
-from superagi.config.config import get_config
-from superagi.helper.imap_email import ImapEmail
-from superagi.tools.email import send_email
 from superagi.tools.email.send_email import SendEmailTool
 
 def test_send_to_draft(mocker):
