@@ -89,7 +89,6 @@ class TestStableDiffusionImageGenTool:
             monkeypatch.setattr('superagi.tools.image_generation.stable_diffusion_image_gen.connect_db',
                                 mock_connect_db)
 
-            # Mock the upload_to_s3 function
             with patch('superagi.tools.image_generation.stable_diffusion_image_gen.StableDiffusionImageGenTool.upload_to_s3',
                        lambda *a, **k: None):
                 response = tool._execute(prompt, image_names, width, height, num, steps)
@@ -121,11 +120,9 @@ class TestStableDiffusionImageGenTool:
 
         mock_session = MagicMock()
 
-        # Create a MagicMock object that returns the result of the mock_make_written_file_resource function
         def mock_method(*args, **kwargs):
             return mock_make_written_file_resource(None, *args, **kwargs)
 
-        # Patch the make_written_file_resource method with the mock_method
         with patch.object(ResourceHelper, 'make_written_file_resource', mock_method):
             tool.upload_to_s3(final_img, final_path, image_format, file_name, mock_session)
 
