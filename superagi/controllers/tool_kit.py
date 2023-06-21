@@ -88,7 +88,7 @@ def get_marketplace_tool_kit_readme(tool_kit_name: str):
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name,
-                                                Organisation.id == organisation_id).first()
+                                                ToolKit.organisation_id == organisation_id).first()
     if not tool_kit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
     return get_readme_content_from_code_link(tool_kit.tool_code_link)
