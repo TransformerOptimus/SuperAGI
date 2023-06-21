@@ -15,9 +15,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import http.client
 from  datetime import datetime, timedelta
-import time
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
@@ -298,45 +296,6 @@ def github_login():
     github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
-@app.get('/oauth-calendar')
-async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
-    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID").first()
-    client_id = client_id.value
-    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET").first()
-    client_secret = client_secret.value
-    token_uri = 'https://oauth2.googleapis.com/token'
-    scope = 'https://www.googleapis.com/auth/calendar'
-    params = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': "http://localhost:3000/api/oauth-calendar",
-        'scope': scope,
-        'grant_type': 'authorization_code',
-        'code': code,
-        'access_type': 'offline'
-    }
-    response = requests.post(token_uri, data=params)
-    response = response.json()
-    expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
-    expire_time = expire_time - timedelta(minutes=5)
-    response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
-    file_name = "credential_token.pickle"
-    final_path = file_name
-    if root_dir is not None:
-        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-        final_path = root_dir + file_name
-    else:
-        final_path = os.getcwd() + "/" + file_name
-    try:
-        with open(final_path, mode="wb") as file:
-            pickle.dump(response, file)
-    except Exception as err:
-        return f"Error: {err}"
-    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
-    return RedirectResponse(frontend_url)
-
 @app.get('/github-auth')
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
@@ -423,12 +382,6 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
 
-@app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
-def get_google_calendar_tool_configs(toolkit_id: int):
-    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
-    return {
-        "client_id": google_calendar_config.value
-    }
 # #Unprotected route
 @app.get("/hello/{name}")
 async def say_hello(name: str, Authorize: AuthJWT = Depends()):
