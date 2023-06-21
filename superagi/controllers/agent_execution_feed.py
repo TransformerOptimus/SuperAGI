@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
 from sqlalchemy.sql import asc
 
 from superagi.agent.task_queue import TaskQueue

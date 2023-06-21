@@ -4,7 +4,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from superagi.models.budget import Budget
 from fastapi import APIRouter, UploadFile
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
 import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
 
 from superagi.helper.auth import check_auth
 from superagi.models.organisation import Organisation

@@ -8,7 +8,6 @@ from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 from superagi.types.db import AgentExecutionOut, AgentExecutionIn

@@ -6,7 +6,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
 from superagi.helper.auth import check_auth
 from superagi.lib.logger import logger
 from superagi.types.db import UserBase, UserIn, UserOut

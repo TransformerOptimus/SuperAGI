@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from fastapi_sqlalchemy import db
