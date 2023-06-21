@@ -79,20 +79,17 @@ def create_or_update_tool_config(tool_kit_name: str, tool_configs,
 
     # Iterate over the tool_configs list
     for tool_config_data in tool_configs:
-        key = tool_config_data.key
-        value = tool_config_data.value
-
         existing_tool_config = db.session.query(ToolConfig).filter(
             ToolConfig.tool_kit_id == toolkit.id,
-            ToolConfig.key == key
+            ToolConfig.key == tool_config_data.key
         ).first()
 
         if existing_tool_config:
             # Update the existing tool config
-            existing_tool_config.value = value
+            existing_tool_config.value = tool_config_data.value
         else:
             # Create a new tool config
-            new_tool_config = ToolConfig(key=key, value=value, tool_kit_id=toolkit.id)
+            new_tool_config = ToolConfig(key=tool_config_data.key, value=tool_config_data.value, tool_kit_id=toolkit.id)
             db.session.add(new_tool_config)
 
     db.session.commit()
