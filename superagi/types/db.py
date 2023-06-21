@@ -378,7 +378,7 @@ class UserOut(UserBase, DBModel):
 
 
 class UserIn(UserBase):
-    organisation_id: int
+    organisation_id: Optional[int]
 
     class Config:
         orm_mode = True
