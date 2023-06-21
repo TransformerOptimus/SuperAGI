@@ -366,8 +366,9 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    width: 14px;
-    height: 14px;
+    width: fit-content;
+    padding: 2px 5px;
+    height: fit-content;
     background: #DC6161;
     border-radius: 16px;
 
