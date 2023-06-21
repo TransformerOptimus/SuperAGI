@@ -53,31 +53,28 @@ export default function Content({selectedView, selectedProjectId, organisationId
     fetchTools();
   }, [selectedProjectId])
 
-  const closeTab = (e, tabId) => {
+  const closeTab = (e, index) => {
     e.stopPropagation();
-    cancelTab(tabId);
+    cancelTab(index);
   };
 
-  const cancelTab = (tabId) => {
-    const updatedTabs = tabs.filter((tab) => tabs.indexOf(tab) !== tabId);
-    setTabs(updatedTabs);
+  const cancelTab = (index) => {
+    let updatedTabs = [...tabs];
+    const isCurrentTabSelected = selectedTab === index;
 
-    if (selectedTab !== tabId) {
-      return;
-    }
-
-    let nextSelectedTabId = null;
-    const indexToRemove = tabs.findIndex((tab) => tabs.indexOf(tab) === tabId);
-
-    if (indexToRemove === 0) {
-      nextSelectedTabId = tabs[1]?.id || null;
-    } else if (indexToRemove === tabs.length - 1) {
-      nextSelectedTabId = tabs[indexToRemove - 1]?.id || null;
+    if (isCurrentTabSelected) {
+      if (index === 0 && tabs.length === 1) {
+        setSelectedTab(null);
+      } else {
+        updatedTabs.splice(index, 1);
+        const newIndex = index === tabs.length - 1 ? index - 1 : index;
+        setSelectedTab(newIndex);
+      }
     } else {
-      nextSelectedTabId = tabs[indexToRemove + 1]?.id || null;
+      updatedTabs.splice(index, 1);
     }
 
-    setSelectedTab(nextSelectedTabId);
+    setTabs(updatedTabs);
   };
 
   const addTab = (element) => {
@@ -121,18 +118,21 @@ export default function Content({selectedView, selectedProjectId, organisationId
       addTab(eventData);
     };
 
-    const cancelAgentCreate = (eventData) => {
-      cancelTab(-1, "Create_Agent");
+    const removeTab = (eventData) => {
+      const newAgentTabIndex = tabs.findIndex(
+        (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
+      );
+      cancelTab(newAgentTabIndex);
     };
 
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', fetchAgents);
-    EventBus.on('cancelAgentCreate', cancelAgentCreate);
+    EventBus.on('removeTab', removeTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', fetchAgents);
-      EventBus.off('cancelAgentCreate', cancelAgentCreate);
+      EventBus.off('removeTab', removeTab);
     };
   });
 

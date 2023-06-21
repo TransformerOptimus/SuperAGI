@@ -391,7 +391,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   function cancelCreate() {
-    EventBus.emit('cancelAgentCreate', {});
+    EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
   }
 
   const handleFileInputChange = (event) => {
