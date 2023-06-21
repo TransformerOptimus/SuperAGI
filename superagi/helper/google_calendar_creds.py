@@ -39,7 +39,7 @@ class GoogleCalendarCreds:
                 credentials = credentials.__dict__
                 if credentials["key"] == "GOOGLE_CLIENT_ID":
                     client_id = credentials["value"]
-                else:
+                if credentials["key"] == "GOOGLE_CLIENT_SECRET":
                     client_secret = credentials["value"]
             creds = Credentials.from_authorized_user_info(info={
                 "client_id": client_id,
@@ -52,6 +52,10 @@ class GoogleCalendarCreds:
                 creds_json = creds.to_json()
                 with open(file_path,'wb') as file:
                     pickle.dump(creds_json,file)
+                with open(file_path, 'rb') as file:
+                    resource = ResourceHelper.make_written_file_resource(file_name=file_name,
+                                                                 agent_id=self.agent_id, file=file,
+                                                                 channel="OUTPUT")
         else:
             return {"success": False}
         service = build('calendar','v3',credentials=creds)
