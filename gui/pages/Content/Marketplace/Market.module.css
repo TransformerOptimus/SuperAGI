@@ -371,14 +371,14 @@
 
 .market_tool {
     display: flex;
-    color:white;
+    height: 110px;
+    color: white;
     font-size: small;
-    height: 14vh;
-    background-color: rgb(39,35,53);
     padding: 12px;
     width: 33% !important;
+    background-color: rgb(39, 35, 53);
     border-radius: 8px;
-    margin: 4px 0 4px 0;
+    /*margin: 4px 0 4px 0;*/
 }
 
 .tool_description {
@@ -437,12 +437,6 @@
     font-size: 12px;
     color: #888888;
 }
-
-.marketContainer {
-    max-height: 94vh; /* Set the maximum height for scrolling */
-    overflow-y: auto; /* Enable vertical scrolling */
-  }
-
 
 .vertical_line{
     width: 0;
@@ -504,4 +498,17 @@
     height:6.5vh;
     display:flex;
     width:100%;
+}
+
+.markdown_style{
+    color:white;
+}
+.markdown_style img {
+    max-width: 100%;
+    height: auto;
+}
+.markdown_container{
+    height:68vh;
+    overflow-y:scroll;
+    overflow-x:hidden;
 }
