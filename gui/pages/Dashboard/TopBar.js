@@ -19,10 +19,10 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   const handleMarketplaceClick = () => {
     EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
   };
-  const settingsTab = () => {
-    // EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
-    setSettingsModal(true)
-  }
+
+  // const settingsTab = () => {
+  //   EventBus.emit('openNewTab', { id: -3, name: "Settings", contentType: "Settings" });
+  // }
 
   function getKey(key) {
     getOrganisationConfig(organisationId, key)
