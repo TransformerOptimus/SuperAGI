@@ -111,7 +111,7 @@ def get_marketplace_tool_kit_tools(tool_kit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name).first()
+    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name,ToolKit.organisation_id == organisation_id).first()
     if not tool_kit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
     tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit.id).first()
@@ -136,8 +136,11 @@ def install_tool_kit_from_marketplace(tool_kit_name: str,
     # Check if the tool kit exists
     tool_kit = ToolKit.fetch_marketplace_detail(search_str="details",
                                                 tool_kit_name=tool_kit_name)
-    download_and_install_tool(GitHubLinkRequest(github_link=tool_kit['tool_code_link']),
-                              organisation=organisation)
+    # download_and_install_tool(GitHubLinkRequest(github_link=tool_kit['tool_code_link']),
+    #                           organisation=organisation)
+    if not validate_github_link(tool_kit.tool_code_link):
+        raise HTTPException(status_code=400, detail="Invalid Github link")
+    add_tool_to_json(tool_kit.tool_code_link)
     return {"message": "ToolKit installed successfully"}
 
 
