@@ -1,9 +1,10 @@
 import base64
+from io import BytesIO
 from typing import Type, Optional
 
 import requests
+from PIL import Image
 from pydantic import BaseModel, Field
-
 from superagi.config.config import get_config
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
@@ -15,8 +16,8 @@ class StableDiffusionImageGenInput(BaseModel):
     width: int = Field(..., description="Width of the image to be Generated. default width is 512")
     num: int = Field(..., description="Number of Images to be generated. default num is 2")
     steps: int = Field(..., description="Number of diffusion steps to run. default steps are 50")
-    image_name: list = Field(...,
-                             description="Image Names for the generated images, example 'image_1.png'. Only include the image name. Don't include path.")
+    image_names: list = Field(...,
+                              description="Image Names for the generated images, example 'image_1.png'. Only include the image name. Don't include path.")
 
 
 class StableDiffusionImageGenTool(BaseTool):
@@ -39,7 +40,7 @@ class StableDiffusionImageGenTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, prompt: str, image_name: list, width: int = 512, height: int = 512, num: int = 2,
+    def _execute(self, prompt: str, image_names: list, width: int = 512, height: int = 512, num: int = 2,
                  steps: int = 50):
         api_key = get_config("STABILITY_API_KEY")
 
@@ -61,11 +62,12 @@ class StableDiffusionImageGenTool(BaseTool):
         for i in range(num):
             image_base64 = base64_strings[i]
             img_data = base64.b64decode(image_base64)
-            # final_img = Image.open(BytesIO(img_data))
-            # image_format = final_img.format
+            final_img = Image.open(BytesIO(img_data))
+            image_format = final_img.format
+            img_byte_arr = BytesIO()
+            final_img.save(img_byte_arr, format=image_format)
 
-            image = image_name[i]
-            self.resource_manager.write_binary_file(image_name[i], img_data)
+            self.resource_manager.write_binary_file(image_names[i], img_byte_arr.getvalue())
 
         return "Images downloaded and saved successfully"
 
@@ -84,11 +86,7 @@ class StableDiffusionImageGenTool(BaseTool):
                 "Authorization": f"Bearer {api_key}"
             },
             json={
-                "text_prompts": [
-                    {
-                        "text": prompt
-                    }
-                ],
+                "text_prompts": [{"text": prompt}],
                 "height": height,
                 "width": width,
                 "samples": num,

@@ -36,6 +36,9 @@ class WriteFileTool(BaseTool):
     agent_id: int = None
     resource_manager: Optional[ResourceManager] = None
 
+    class Config:
+        arbitrary_types_allowed = True
+
     def _execute(self, file_name: str, content: str):
         """
         Execute the write file tool.
