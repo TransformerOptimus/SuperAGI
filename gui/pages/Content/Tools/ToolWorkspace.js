@@ -21,9 +21,7 @@ export default function ToolWorkspace({toolDetails}){
       const client_id = client_data.client_id 
       const scope = 'https://www.googleapis.com/auth/calendar';
       const redirect_uri = 'http://localhost:3000/api/oauth-calendar';
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
-      console.log("AUTH URL : ",authUrl)
-      window.location.href = authUrl;
+      window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
     }
     
     useEffect(() => {
