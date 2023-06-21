@@ -1,33 +1,29 @@
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
+from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.agent import Agent
 from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.project import Project
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.tool import Tool
 from jsonmerge import merge
 from superagi.worker import execute_agent
 from datetime import datetime
 import json
 from sqlalchemy import func
-from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.helper.auth import check_auth
 from superagi.types import db as db_types
 
 router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=db_types.Agent, status_code=201)
-def create_agent(agent: db_types.Agent,
+@router.post("/add", response_model=db_types.AgentOut, status_code=201)
+def create_agent(agent: db_types.AgentIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
@@ -58,7 +54,7 @@ def create_agent(agent: db_types.Agent,
     return db_agent
 
 
-@router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
+@router.get("/get/{agent_id}", response_model=db_types.AgentOut)
 def get_agent(agent_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -80,8 +76,8 @@ def get_agent(agent_id: int,
     return db_agent
 
 
-@router.put("/update/{agent_id}", response_model=db_types.Agent)
-def update_agent(agent_id: int, agent: db_types.AgentWithoutID,
+@router.put("/update/{agent_id}", response_model=db_types.AgentOut)
+def update_agent(agent_id: int, agent: db_types.AgentIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent
