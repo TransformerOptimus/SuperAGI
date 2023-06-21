@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {formatTime} from "@/utils/utils";
+import {formatTime, loadingTextEffect} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
@@ -13,15 +13,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
 
   useEffect(() => {
-    const text = 'Thinking';
-    let dots = '';
-
-    const interval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setLoadingText(`${text}${dots}`);
-    }, 250);
-
-    return () => clearInterval(interval);
+    loadingTextEffect('Thinking', setLoadingText, 250);
   }, []);
 
   useEffect(() => {
@@ -61,15 +53,16 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        const data = response.data;
-        setFeeds(data.feeds);
-        setRunStatus(data.status);
-        setFetchedData(data.permissions);
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
+        .then((response) => {
+          const data = response.data;
+          setFeeds(data.feeds);
+          setRunStatus(data.status);
+          console.log(data.permissions)
+          setFetchedData(data.permissions);
+        })
+        .catch((error) => {
+          console.error('Error fetching execution feeds:', error);
+        });
   }
 
   useEffect(() => {
@@ -129,9 +122,9 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         </div>}
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
-        <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
-        <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
-      </div>}
+          <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
+            <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
+          </div>}
     </div>
   </>)
 }
