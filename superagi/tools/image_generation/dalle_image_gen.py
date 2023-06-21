@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
+from superagi.tools.image_generation.stable_diffusion_image_gen import StableDiffusionImageGenTool
 
 
 class ImageGenInput(BaseModel):
@@ -32,7 +33,7 @@ class ImageGenTool(BaseTool):
     description: str = "Generate Images using Dalle"
     llm: Optional[BaseLlm] = None
     agent_id: int = None
-    resource_manager: ResourceManager = None
+    resource_manager: Optional[ResourceManager] = None
 
     class Config:
         arbitrary_types_allowed = True

@@ -1,5 +1,5 @@
 import os
-from typing import Type
+from typing import Type, Optional
 from pydantic import BaseModel, Field
 
 from superagi.resource_manager.manager import ResourceManager
@@ -34,7 +34,7 @@ class WriteFileTool(BaseTool):
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"
     agent_id: int = None
-    resource_manager: ResourceManager = None
+    resource_manager: Optional[ResourceManager] = None
 
     def _execute(self, file_name: str, content: str):
         """

@@ -1,5 +1,5 @@
 import base64
-from typing import Type
+from typing import Type, Optional
 
 import requests
 from pydantic import BaseModel, Field
@@ -34,7 +34,10 @@ class StableDiffusionImageGenTool(BaseTool):
     args_schema: Type[BaseModel] = StableDiffusionImageGenInput
     description: str = "Generate Images using Stable Diffusion"
     agent_id: int = None
-    resource_manager: ResourceManager = None
+    resource_manager: Optional[ResourceManager] = None
+
+    class Config:
+        arbitrary_types_allowed = True
 
     def _execute(self, prompt: str, image_name: list, width: int = 512, height: int = 512, num: int = 2,
                  steps: int = 50):
