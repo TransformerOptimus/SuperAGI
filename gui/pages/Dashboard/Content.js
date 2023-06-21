@@ -82,8 +82,10 @@ export default function Content({selectedView, selectedProjectId, organisationId
   };
 
   const addTab = (element) => {
-    setToolDetails(element);
     let addedTabIndex = null;
+    if(element.contentType === "Tools") {
+      setToolDetails(element);
+    }
 
     const isExistingTab = tabs.some(
       (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType

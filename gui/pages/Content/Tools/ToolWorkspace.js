@@ -3,6 +3,7 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
+import {EventBus} from "@/utils/eventBus";
 
 export default function ToolWorkspace({toolDetails}){
     const [activeTab,setActiveTab] = useState('Configuration')
@@ -52,9 +53,10 @@ export default function ToolWorkspace({toolDetails}){
       
       updateToolConfig(toolDetails.name, updatedConfigData)
         .then((response) => {
-            toast.success('Updated successfully');
+            toast.success('Tool kit configuration updated', {autoClose: 1800});
         })
         .catch((error) => {
+          toast.error('Unable to update Tool kit configuration', {autoClose: 1800});
           console.error('Error updating tool config:', error);
         });
     };
@@ -120,7 +122,6 @@ export default function ToolWorkspace({toolDetails}){
                 {toolDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
                 <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
               </div>
             </div>)}
