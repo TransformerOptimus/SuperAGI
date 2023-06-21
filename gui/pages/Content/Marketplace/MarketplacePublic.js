@@ -14,8 +14,8 @@ export default function MarketplacePublic() {
 
     return (
         <div style={{height:'100vh',width:'100%'}}>
-            <div className={styles.marketplace_public_container}>
-                <div className="superAgiLogo" style={{paddingLeft:'24px'}}><Image width={132} height={24} src="/images/sign-in-logo.svg" alt="super-agi-logo"/>
+             <div className={styles.marketplace_public_container}>
+                 <div className="superAgiLogo" style={{paddingLeft:'24px'}}><Image width={132} height={24} src="/images/sign-in-logo.svg" alt="super-agi-logo"/>
                     <div className={styles.vertical_line} />
                     <div className={styles.topbar_heading}>&nbsp;marketplace</div>
                 </div>
