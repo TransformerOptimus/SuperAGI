@@ -100,7 +100,10 @@ class SendEmailAttachmentTool(BaseTool):
                 message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
 
         send_to_draft = self.tool_kit_config.default_tool_config_func('EMAIL_DRAFT_MODE')
-
+        if send_to_draft.upper() == "TRUE":
+            send_to_draft = True
+        else:
+            send_to_draft = False
         if message["To"] == "example@example.com" or send_to_draft:
             draft_folder = self.tool_kit_config.default_tool_config_func('EMAIL_DRAFT_FOLDER')
             imap_server = self.tool_kit_config.default_tool_config_func('EMAIL_IMAP_SERVER')

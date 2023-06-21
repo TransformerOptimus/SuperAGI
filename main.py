@@ -309,7 +309,7 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     params = {
         'client_id': client_id,
         'client_secret': client_secret,
-        'redirect_uri': "http://localhost:8001/oauth-calendar",
+        'redirect_uri': "http://localhost:3000/api/oauth-calendar",
         'scope': scope,
         'grant_type': 'authorization_code',
         'code': code,
@@ -427,7 +427,7 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
 def get_google_calendar_tool_configs(toolkit_id: int):
     google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
     return {
-        "client_id":google_calendar_config.value
+        "client_id": google_calendar_config.value
     }
 # #Unprotected route
 @app.get("/hello/{name}")
