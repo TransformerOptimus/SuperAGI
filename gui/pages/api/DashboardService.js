@@ -102,26 +102,28 @@ export const updateToolConfig = (toolKitName, configData) => {
 
 export const fetchAgentTemplateListLocal = () => {	
   return api.get('/agent_templates/list?template_source=local');	
-}	
-export const saveAgentAsTemplate = (agentId) => {	
-  return api.post(`agent_templates/save_agent_as_template/${agentId}`);	
-}	
-export const fetchAgentTemplateConfig = (templateId) => {	
-  return api.get(`agent_templates/get/${templateId}?template_source=marketplace`);	
 }
-export const installAgentTemplate = (templateId) => {	
-  return api.post(`agent_templates/download?agent_template_id=${templateId}`);	
-}	
 
-export const getGoogleCreds = (toolkit_id) => {
-  return api.get(`google/get_google_creds/toolkit_id/${toolkit_id}`)
+export const saveAgentAsTemplate = (agentId) => {	
+  return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
+}
+
+export const fetchAgentTemplateConfig = (templateId) => {	
+  return api.get(`/agent_templates/get/${templateId}?template_source=marketplace`);
+}
+
+export const installAgentTemplate = (templateId) => {	
+  return api.post(`/agent_templates/download?agent_template_id=${templateId}`);
 }
 
 export const fetchAgentTemplateConfigLocal = (templateId) => {
-  return api.get(`agent_templates/agent_config?agent_template_id=${templateId}`);
+  return api.get(`/agent_templates/agent_config?agent_template_id=${templateId}`);
 }
-
 
 export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
+}
+
+export const authenticateGoogleCred = (toolKitId) => {
+  return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
 }

@@ -22,7 +22,7 @@ export default function Tools({ sendToolData, tools }) {
     <>
       <div className={styles1.container}>
         <div className={styles1.title_box}>
-          <p className={styles1.title_text}>Tools</p>
+          <p className={styles1.title_text}>Tool Kits</p>
         </div>
 
         {/* <div className={styles.wrapper} style={{ marginBottom: '10px', marginTop: '4px' }}>

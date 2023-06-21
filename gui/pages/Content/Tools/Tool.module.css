@@ -143,7 +143,6 @@
 }
 
 .tool1_box {
-    width:125px;
     height: 30px;
     font-size: 12px;
     text-align: center;
@@ -171,26 +170,37 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    max-height: 88vh; /* Replace with your desired height */
+    max-height: 88vh;
     width: 650px; 
-    text-align: center;
     padding: 20px;
     overflow-y: auto;
 }
 
-.search_box {/**/
+.feed_title {
+    font-family: 'Source Code Pro';
+    margin-left: 10px;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    color: white;
+    white-space: pre-line;
+    word-wrap: break-word;
+    max-width: 95%;
+}
+
+.search_box {
+    width: 100%;
 }
 
 .search_box input {
-  /* Styles for the input element */
   width: 600px;
-  height:25px;
+  height: 25px;
   font-size: x-small;
   padding: 5px;
-  border: 0.5px solid rgb(96, 96, 96);
+  border: 1px solid rgb(96, 96, 96);
   border-radius: 6px;
-  background-color:#454254;
-  /* Add more custom styles as needed */
+  background-color: #454254;
 }
 
 .primary_button {
