@@ -3,101 +3,46 @@ import pytz
 from dateutil import tz
 
 class CalendarDate():
-    def get_date_utc(self,start_date,end_date,start_time,end_time,service):
-        local_tz = self.get_time_zone(service)
-        local_tz = pytz.timezone(local_tz)
-        gmt_tz = pytz.timezone("GMT")
-        if start_date == 'None':
-            start_date = datetime.now(timezone.utc)
-            start_datetime = start_date.replace(day=1,hour=0, minute=0, second=0, microsecond=0)
-        else:
-            start_date = str(start_date)
-            start_date = datetime.strptime(start_date, "%Y-%m-%d")
-            if start_time == 'None':
-                start_datetime = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
-            else:
-                start_time = str(start_time)
-                time_obj = datetime.strptime(start_time, "%H:%M:%S")
-                start_datetime = start_date.replace(hour=time_obj.hour, minute=time_obj.minute, second=time_obj.second)
-            
-            local_start_date = local_tz.localize(start_datetime)
-            start_datetime = local_start_date.astimezone(gmt_tz)
-        if end_date == 'None':
-            end_datetime = start_date + timedelta(days=30) - timedelta(microseconds=1)
-        else:
-            end_date = str(end_date)
-            end_date = datetime.strptime(end_date, "%Y-%m-%d")
-            if end_time == 'None':
-                end_datetime = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
-            else:
-                end_time = str(end_time)
-                time_obj = datetime.strptime(end_time, "%H:%M:%S")
-                end_datetime = end_date.replace(hour=time_obj.hour, minute=time_obj.minute, second=time_obj.second)
-
-            local_end_date = local_tz.localize(end_datetime)
-            end_datetime = local_end_date.astimezone(gmt_tz)
-       
-        start_datetime_utc = start_datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        end_datetime_utc = end_datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        date_utc = {
-            "start_datetime_utc": start_datetime_utc,
-            "end_datetime_utc": end_datetime_utc
-        }
-
-        return date_utc
-    
-    def get_time_zone(self,service):
+    def get_time_zone(self, service):
         calendar = service.calendars().get(calendarId='primary').execute()
-        timedetail = calendar['timeZone']
-        return timedetail
+        time_detail = calendar['timeZone']
+        return time_detail
+
+    def convert_to_utc(self, date_time, local_tz):
+        local_datetime = local_tz.localize(date_time)
+        gmt_tz = pytz.timezone("GMT")
+        return local_datetime.astimezone(gmt_tz)
+
+    def string_to_datetime(self, date_str, date_format):
+        return datetime.strptime(date_str, date_format) if date_str else None
+
+    def localize_daterange(self, start_date, end_date, start_time, end_time, local_tz):
+        start_datetime = self.string_to_datetime(start_date, "%Y-%m-%d") if start_date != 'None' else datetime.now(timezone.utc)
+        end_datetime = self.string_to_datetime(end_date, "%Y-%m-%d") if end_date != 'None' else start_datetime + timedelta(days=30) - timedelta(microseconds=1)
+        time_obj_start = self.string_to_datetime(start_time, "%H:%M:%S")
+        time_obj_end = self.string_to_datetime(end_time, "%H:%M:%S")
+        start_datetime = start_datetime.replace(hour=time_obj_start.hour, minute=time_obj_start.minute, second=time_obj_start.second, microsecond=0) if time_obj_start else start_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_datetime = end_datetime.replace(hour=time_obj_end.hour, minute=time_obj_end.minute, second=time_obj_end.second) if time_obj_end else end_datetime.replace(hour=23, minute=59, second=59, microsecond=999999)
+        return self.convert_to_utc(start_datetime, local_tz), self.convert_to_utc(end_datetime, local_tz)
     
-    def create_event_dates(self, service, start_date, start_time, end_date, end_time):
-        timeZone = self.get_time_zone(service)
-        local_tz = pytz.timezone(timeZone)
-        gmt_tz = pytz.timezone('GMT')
-        if start_date == 'None' and start_time == 'None':
-            start_datetime = datetime.now(timezone.utc)
-        else:
-            if start_date == 'None':
-                date = datetime.now().date()
-                given_time = datetime.strptime(start_time,"%H:%M:%S")
-                given_time = given_time.time()
-                start_datetime = datetime.combine(date,given_time)
-            elif start_time == 'None':
-                given_date = datetime.strptime(start_date, "%Y-%m-%d")
-                time_obj = datetime.now(timezone.utc).time()
-                start_date = given_date.replace(hour=time_obj.hour, minute=time_obj.minute, second=time_obj.second)
-                local_start_date = gmt_tz.localize(start_date)
-                start_datetime = local_start_date.astimezone(local_tz)
-            else:
-                given_date = datetime.strptime(start_date, "%Y-%m-%d")
-                given_time = datetime.strptime(start_time, "%H:%M:%S")
-                start_datetime = given_date.replace(hour=given_time.hour, minute=given_time.minute, second=given_time.second)
-            
-        if end_date == 'None' and end_time == 'None':
-            end_datetime = start_datetime + timedelta(hours=1)
-        else:
-            if end_date == 'None':
-                date = datetime.now().date()
-                given_time = datetime.strptime(start_time,"%H:%M:%S")
-                given_time = given_time.time()
-                end_datetime = datetime.combine(date,given_time)
-            elif end_time == 'None':
-                given_date = datetime.strptime(end_date, "%Y-%m-%d")
-                time_obj = datetime.now(timezone.utc).time()
-                end_date = given_date.replace(hour=time_obj.hour, minute=time_obj.minute, second=time_obj.second)
-                local_end_date = gmt_tz.localize(end_date)
-                end_datetime = local_end_date.astimezone(local_tz)
-            else:
-                given_date = datetime.strptime(end_date, "%Y-%m-%d")
-                given_time = datetime.strptime(end_time, "%H:%M:%S")
-                end_datetime = given_date.replace(hour=given_time.hour, minute=given_time.minute, second=given_time.second)
-        
-        start_datetime_utc = start_datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        end_datetime_utc = end_datetime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    def datetime_to_string(self, date_time, date_format):
+        return date_time.strftime(date_format) if date_time else None
+
+    def get_date_utc(self, start_date, end_date, start_time, end_time, service):
+        local_tz = pytz.timezone(self.get_time_zone(service))
+        start_datetime, end_datetime = self.localize_daterange(start_date, end_date, start_time, end_time, local_tz)
         date_utc = {
-            "start_datetime_utc": start_datetime_utc,
-            "end_datetime_utc": end_datetime_utc,
-            "timeZone": timeZone
+            "start_datetime_utc": self.datetime_to_string(start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_datetime_utc": self.datetime_to_string(end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ")
+        }
+        return date_utc
+
+    def create_event_dates(self, service, start_date, start_time, end_date, end_time):
+        local_tz = pytz.timezone(self.get_time_zone(service))
+        start_datetime, end_datetime = self.localize_daterange(start_date, end_date, start_time, end_time, local_tz)
+        date_utc = {
+            "start_datetime_utc": self.datetime_to_string(start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_datetime_utc": self.datetime_to_string(end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
+            "timeZone": self.get_time_zone(service)
         }
         return date_utc
