@@ -322,4 +322,3 @@ class SuperAgi:
             session.commit()
             return True, {"result": "WAITING_FOR_PERMISSION", "permission_id": new_agent_execution_permission.id}
         return False, None
-
