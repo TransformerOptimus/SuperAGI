@@ -127,3 +127,11 @@ export const updatePermissions = (permissionId, data) => {
 export const authenticateGoogleCred = (toolKitId) => {
   return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
 }
+
+export const fetchToolTemplateList = () => {
+  return api.get(`/tool_kits/get/list?page=0`);
+}
+
+export const fetchToolTemplateOverview = (toolTemplateName) => {
+  return api.get(`/tool_kits/marketplace/readme/${toolTemplateName}`);
+}

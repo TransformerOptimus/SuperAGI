@@ -19,27 +19,15 @@ export default function MarketTools(){
       setShowMarketplace(true)
     }
 
-      const fetchToolTemplateList = async () => {
-          try {
-              const response = await axios.get('http://192.168.1.26:3000/api/tool_kits/get/list?page=0');
-              setToolTemplates(response.data || []);
-              setIsLoading(false);
-          } catch (error) {
-              console.error('Error fetching tools included:', error);
-          }
-      };
       fetchToolTemplateList()
-
-      // fetchToolTemplateList()
-      //   .then((response) => {
-      //     const data = response.data || [];
-      //     console.log(data)
-      //     setToolTemplates(data);
-      //     setIsLoading(false);
-      //   })
-      //   .catch((error) => {
-      //     console.error('Error fetching agent templates:', error);
-      //   });
+        .then((response) => {
+          const data = response.data || [];
+          setToolTemplates(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent templates:', error);
+        });
   }, []);
 
   function handleTemplateClick(item) {

@@ -5,61 +5,29 @@ import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import {fetchAgentTemplateConfig, installAgentTemplate} from "@/pages/api/DashboardService";
+import {installAgentTemplate,fetchToolTemplateOverview} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
 
 export default function EachTool({template}) {
-    const [tools, setTools] = useState([])
-    const [agentType, setAgentType] = useState('')
-    const [templateModel, setTemplateModel] = useState('')
     const [rightPanel, setRightPanel] = useState('overview')
-    const [goals, setGoals] = useState([])
-    const [instructions, setInstructions] = useState([])
     const [installed, setInstalled] = useState('')
-    const [constraints, setConstraints] = useState([])
     const [markdownContent, setMarkdownContent] = useState('');
 
     useEffect(() => {
-        setInstalled(template && template.is_installed? 'Installed' : 'Install');
+        setInstalled(template && template.is_installed? 'Install' : 'Install');
         if(window.location.href.toLowerCase().includes('marketplace')) {
             setInstalled('Sign in to install')
         }
-        const fetchToolTemplateOverview = async () => {
-            try {
-                const response = await axios.get('http://192.168.1.26:3000/api/tool_kits/marketplace/readme/Email Toolkit');
-                console.log(response)
-                setMarkdownContent(response.data);
-            } catch (error) {
-                console.error('Error fetching tools included:', error);
-            }
-        };
-        fetchToolTemplateOverview();
-        // const fetchToolTemplateOverview = async () => {
-        //     try {
-        //         const response = await axios.get('http://192.168.1.26:3000/api/tool_kits/marketplace/readme/Email Toolkit');
-        //         console.log(response)
-        //         setMarkdownContent(response.data);
-        //     } catch (error) {
-        //         console.error('Error fetching tools included:', error);
-        //     }
-        // };
-        // fetchToolTemplateOverview()
-
-        // fetchAgentTemplateConfig(template.id)
-        //     .then((response) => {
-        //         const data = response.data || [];
-        //         setAgentType(data.configs.agent_type.value)
-        //         setTemplateModel(data.configs.model.value)
-        //         setGoals(data.configs.goal.value)
-        //         setConstraints(data.configs.constraints.value)
-        //         setTools(data.configs.tools.value)
-        //         setInstructions(data.configs.instructions.value)
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error fetching template details:', error);
-        //     });
+        fetchToolTemplateOverview(template.name)
+            .then((response) => {
+                const data = response.data || [];
+                setMarkdownContent(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching template details:', error);
+            });
     }, []);
 
 
@@ -107,7 +75,9 @@ export default function EachTool({template}) {
                             </div>
                             <span className={styles2.top_heading}>{template.name}</span>
                             <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/>&nbsp;{'\u00B7'}&nbsp;<Image width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/></span>
-                            <button className="primary_button" style={{marginTop:'15px',width:'100%'}} onClick={() => handleInstallClick()}><Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}</button>
+                            <button className="primary_button" style={{marginTop:'15px',width:'100%', pointerEvents:!(window.location.href.toLowerCase().includes('marketplace')) ? 'none':'',}} onClick={() => handleInstallClick()}><Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}
+                                {!(window.location.href.toLowerCase().includes('marketplace')) && <span style={{fontWeight:'400',fontSize:'12px',color: '#888888',}}>(coming soon)</span>}
+                            </button>
                             <hr className={styles2.horizontal_line} />
                             <span className={styles2.description_text}>{template.description}</span>
                             <hr className={styles2.horizontal_line} />
