@@ -2,24 +2,21 @@ import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {EventBus} from "@/utils/eventBus";
-import {updateToolConfig, getToolConfig,getGoogleCreds} from "@/pages/api/DashboardService";
+import {updateToolConfig, getToolConfig, getGoogleCreds, authenticateGoogleCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
 import axios from 'axios';
 
-export default function ToolWorkspace({tool,toolDetails}){
+export default function ToolWorkspace({toolDetails}){
     const [activeTab,setActiveTab] = useState('Configuration')
     const [showDescription,setShowDescription] = useState(false)
     const [apiConfigs, setApiConfigs] = useState([]);
-    const defaultDescription = "Shifting timeline accross multiple time strings. Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.Shifting timeline accross multiple time strings.";
     const [toolsIncluded, setToolsIncluded] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [getID,setgetID] = useState([]);
 
     let handleKeyChange = (event, index) => {
       const updatedData = [...apiConfigs];
       updatedData[index].value = event.target.value;
       setApiConfigs(updatedData);
-      
     };
     
     function getToken(client_data){
@@ -36,10 +33,6 @@ export default function ToolWorkspace({tool,toolDetails}){
         setToolsIncluded(toolDetails.tools);
       }
     }, [toolDetails]);
-
-    if (!tool || !tool.description) {
-      tool = { ...tool, description: defaultDescription };
-    }
 
     useEffect(() => {
       if(toolDetails !== null) {
@@ -58,7 +51,6 @@ export default function ToolWorkspace({tool,toolDetails}){
     }, []);
 
     const handleUpdateChanges = async () => {
-      
       const updatedConfigData = apiConfigs.map((config) => ({
         key: config.key,
         value: config.value,
@@ -66,7 +58,6 @@ export default function ToolWorkspace({tool,toolDetails}){
       
       updateToolConfig(toolDetails.name, updatedConfigData)
       .then((response) => {
-          console.log(response);
           toast.success('Updated successfully');
       })
       .catch((error) => {
@@ -75,112 +66,80 @@ export default function ToolWorkspace({tool,toolDetails}){
     };
 
     const handleAuthenticateClick = async () => {
-      try {
-        getGoogleCreds(toolDetails.id).then((response) => {
-          console.log(response.data)
-          getToken(response.data)
+      authenticateGoogleCred(toolDetails.id)
+        .then((response) => {
+          getToken(response.data);
         })
-        // const response = await axios.get(`http://localhost:8001/google/get_google_creds/toolkit_id/${toolDetails.id}`);
-        // // setgetID(response.data);
-        // console.log(setgetID);
-        getToken(response.data)
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
     };
-    return (
-        <>
+
+    return (<>
         <div className={styles.tools_container}>
-            <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
-                <div> 
-                <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={40} height={40}/>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
-                    <div>{toolDetails.name}</div>
-                    <div style={{marginRight:'40px'}}>
-                    <div className={styles.description} style={!showDescription ? { maxHeight: '1.5em', overflow: 'hidden' } : {}}>
-                    {toolDetails.description}
-                    </div>
-                    {tool.description.length > 0 && (
-                    <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                        {showDescription ? 'Show Less' : '...Show More'}
-                    </div>
-                    )}
-                    </div>
-                </div>
-                </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center',marginBottom:'20px' }}>
-            <div className={styles.tool1_box} onClick={() => setActiveTab('Configuration')}
-            style={activeTab === 'Configuration' ? { background: '#454254', paddingRight: '15px'} : { background: 'transparent', paddingRight: '15px'}}>
-            <div className={styles.tab_text}>Configuration</div>
-            </div>
-            
-            <div className={styles.tool1_box} onClick={() => setActiveTab('Tools_Included')}
-            style={activeTab === 'Tools_Included' ? { background: '#454254', paddingRight: '15px' } : { background: 'transparent', paddingRight: '15px' }}>
-            <div className={styles.tab_text}>Tools Included</div>
-            </div>
-            </div>
-            
-
-            {/* {loading && <div>Loading...</div>} */}
-
-            {!loading && activeTab === 'Configuration' && 
+          <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
             <div>
-            {apiConfigs.length > 0 ? (
-              apiConfigs.map((config, index) => (
-                <div key={index}>
-                  <div style={{ color: '#666666', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
-                    <label style={{ marginBottom: '6px' }}>{config.key}</label>
-                    <div className={styles.search_box}>
-                      <input
-                        type="text"
-                        style={{ color: 'white' }}
-                        value={config.value || ''}
-                        onChange={(event) => handleKeyChange(event, index)}
-                      />
-                    </div>
+              <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={50} height={50}/>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
+                  <div>{toolDetails.name}</div>
+                  <div style={{marginRight:'40px'}}>
+                  <div className={styles.description} style={!showDescription ? { maxHeight: '1.5em', overflow: 'hidden' } : {}}>
+                  {toolDetails.description}
+                  </div>
+                  {toolDetails.description?.length > 0 && (
+                  <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                      {showDescription ? 'Show Less' : '...Show More'}
+                  </div>
+                  )}
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center',marginBottom:'20px' }}>
+            <div className={styles.tool1_box} onClick={() => setActiveTab('Configuration')} style={activeTab === 'Configuration' ? { background: '#454254'} : { background: 'transparent'}}>
+              <div className={styles.tab_text}>Configuration</div>
+            </div>
+            <div className={styles.tool1_box} onClick={() => setActiveTab('Tools_Included')} style={activeTab === 'Tools_Included' ? { background: '#454254' } : { background: 'transparent' }}>
+              <div className={styles.tab_text}>Tools Included</div>
+            </div>
+          </div>
+          {!loading && activeTab === 'Configuration' && <div>
+          {apiConfigs.length > 0 ? (apiConfigs.map((config, index) => (
+              <div key={index}>
+                <div style={{ color: '#888888', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
+                  <label style={{ marginBottom: '6px' }}>{config.key}</label>
+                  <div className={styles.search_box}>
+                    <input type="text" style={{ color: 'white',width:'100%' }} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div>No keys found</div>
-            )}
+              </div>
+            ))) : (<div>No keys found</div>)}
 
-              {apiConfigs.length > 0 && (
-                  <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'  }}>
-                    <div > 
-                    {toolDetails.name === 'Google Calendar Toolkit' 
-                    && <button style={{width:'200px'}}className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button> }
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
-                    <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
-                    </div>
-                  </div>
-
-              )}
-            </div>
-            }
-
-            {activeTab === 'Tools_Included' && <div>
+          {apiConfigs.length > 0 && (
+            <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
+              <div>
+                {toolDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button style={{marginRight:'7px'}} className={styles.secondary_button}>Cancel</button>
+                <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
+              </div>
+            </div>)}
+          </div>}
+          {activeTab === 'Tools_Included' && <div>
             {toolsIncluded.map((tool, index) => (
-            <div className={styles.tools_included}>
-            <div key={index}>
-                <div style={{color:'white'}}>{tool.name}</div>
-                <div style={{color:'#888888'}}>{tool.description}</div>
-            </div>
-            </div>
-            ))}   
-            </div>}
-          
-
-        </div>
-        </>
-    );
-
+              <div key={index} className={styles.tools_included}>
+                <div>
+                    <div style={{color:'white'}}>{tool.name}</div>
+                    <div style={{color:'#888888'}}>{tool.description}</div>
+                </div>
+              </div>
+            ))}
+          </div>}
+      </div>
+    </>);
 }
 
 

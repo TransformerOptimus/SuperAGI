@@ -87,7 +87,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
   };
 
   const addTab = (element) => {
-    setToolDetails(element)
+    setToolDetails(element);
     if (!tabs.some(item => item.id === element.id && item.contentType === element.contentType)) {
       const updatedTabs = [...tabs, element];
       setTabs(updatedTabs);
@@ -183,7 +183,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
               <div key={tab.id}>
                 {selectedTab === tab.id && selectedContentType === tab.contentType && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
-                  {tab.contentType === 'Tools' && <ToolWorkspace tool={tab.id} toolDetails={toolDetails}/>}
+                  {tab.contentType === 'Tools' && <ToolWorkspace toolDetails={toolDetails}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
                   {tab.contentType === 'Marketplace' && <Market tools={tools} selectedView={selectedView}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>}
