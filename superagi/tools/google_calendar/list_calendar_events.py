@@ -10,6 +10,8 @@ from superagi.helper.calendar_date import CalendarDate
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from urllib.parse import urlparse, parse_qs
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
 from superagi.lib.logger import logger
 
 class ListCalendarEventsInput(BaseModel):
@@ -25,6 +27,9 @@ class ListCalendarEventsTool(BaseTool):
     agent_id: int  = None
 
     def _execute(self, start_time: str = 'None', start_date: str = 'None', end_date: str = 'None', end_time: str = 'None'):
+        engine = connect_db()
+        Session = sessionmaker(bind=engine)
+        session = Session()
         toolkit_id = self.tool_kit_config.tool_kit_id
         service = GoogleCalendarCreds().get_credentials(toolkit_id)
         if service["success"]:
@@ -89,13 +94,13 @@ class ListCalendarEventsTool(BaseTool):
                                                                      agent_id=self.agent_id, file=file,
                                                                      channel="OUTPUT")
             if resource is not None:
-                self.session.add(resource)
-                self.session.commit()
-                self.session.flush()
+                session.add(resource)
+                session.commit()
+                session.flush()
                 if resource.storage_type == "S3":
                     s3_helper = S3Helper()
                     s3_helper.upload_file(file, path=resource.path)
                     logger.info("Resource Uploaded to S3!")
-            self.session.close()
+            session.close()
         
         return f"List of Google Calendar Events month successfully stored in {file_name}."
