@@ -9,7 +9,7 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
 from superagi.lib.logger import logger
-from superagi.types.db import UserIn, UserOut
+from superagi.types.db import UserBase, UserIn, UserOut
 
 router = APIRouter()
 
@@ -71,7 +71,7 @@ def get_user(user_id: int,
 
 @router.put("/update/{user_id}", response_model=UserOut)
 def update_user(user_id: int,
-                user: UserIn,
+                user: UserBase,
                 Authorize: AuthJWT = Depends(check_auth)):
     """
     Update a particular user.

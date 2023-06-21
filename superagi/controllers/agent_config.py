@@ -62,7 +62,7 @@ def get_agent(agent_config_id: int,
 
 
 @router.put("/update", response_model=AgentConfigurationOut)
-def update_agent(agent_config: AgentConfig,
+def update_agent(agent_config: AgentConfigurationIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Update a particular agent configuration value for the given agent_id and agent_config key.

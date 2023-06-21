@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic.main import BaseModel
 
@@ -58,7 +59,7 @@ class AgentExecutionOut(DBModel):
     num_of_calls: int
     num_of_tokens: int
     current_step_id: int
-    permission_id: int
+    permission_id: Optional[int]
 
     class Config:
         orm_mode = True
@@ -77,13 +78,14 @@ class AgentExecutionIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 class AgentExecutionFeedOut(DBModel):
     id: int
     agent_execution_id: int
     agent_id: int
     feed: str
     role: str
-    extra_info: str
+    extra_info: Optional[str]
 
     class Config:
         orm_mode = True
@@ -203,7 +205,6 @@ class AgentWorkflowStepOut(DBModel):
 
 
 class AgentWorkflowStepIn(BaseModel):
-    id: int
     agent_workflow_id: int
     unique_id: str
     prompt: str
@@ -217,6 +218,7 @@ class AgentWorkflowStepIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 class BudgetOut(DBModel):
     id: int
     budget: float
@@ -225,13 +227,13 @@ class BudgetOut(DBModel):
     class Config:
         orm_mode = True
 
+
 class BudgetIn(BaseModel):
     budget: float
     cycle: str
 
     class Config:
         orm_mode = True
-
 
 
 class ConfigurationOut(DBModel):
@@ -245,13 +247,13 @@ class ConfigurationOut(DBModel):
 
 
 class ConfigurationIn(BaseModel):
-    id: int
     organisation_id: int
     key: str
     value: str
 
     class Config:
         orm_mode = True
+
 
 class OrganisationOut(DBModel):
     id: int
@@ -268,6 +270,7 @@ class OrganisationIn(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class ProjectOut(DBModel):
     id: int
@@ -287,6 +290,7 @@ class ProjectIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 class ResourceOut(DBModel):
     id: int
     name: str
@@ -299,6 +303,7 @@ class ResourceOut(DBModel):
 
     class Config:
         orm_mode = True
+
 
 class ResourceIn(BaseModel):
     name: str
@@ -355,21 +360,24 @@ class ToolConfigIn(BaseModel):
         orm_mode = True
 
 
-class UserOut(DBModel):
-    id: int
+class UserBase(BaseModel):
     name: str
     email: str
     password: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserOut(UserBase, DBModel):
+    id: int
     organisation_id: int
 
     class Config:
         orm_mode = True
 
 
-class UserIn(BaseModel):
-    name: str
-    email: str
-    password: str
+class UserIn(UserBase):
     organisation_id: int
 
     class Config:
