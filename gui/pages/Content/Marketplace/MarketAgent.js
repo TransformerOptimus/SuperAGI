@@ -36,7 +36,7 @@ export default function MarketAgent(){
     return (
         <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
            <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
-             {!isLoading ? <div className={styles.resources} style={agentTemplates.length === 2 ? {justifyContent:'flex-start',gap:'7px'} : {}}>
+             {!isLoading ? <div className={styles.resources}>
                 {agentTemplates.map((item, index) => (
                   <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                     <div style={{display: 'inline',overflow:'auto'}}>
