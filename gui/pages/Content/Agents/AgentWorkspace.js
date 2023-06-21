@@ -14,7 +14,7 @@ import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId, selectedView}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('')
+  const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)

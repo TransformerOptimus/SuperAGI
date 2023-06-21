@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {formatTime, loadingTextEffect} from "@/utils/utils";
+import {formatTime} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
@@ -13,7 +13,15 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
 
   useEffect(() => {
-    loadingTextEffect('Thinking', setLoadingText, 250);
+    const text = 'Thinking';
+    let dots = '';
+
+    const interval = setInterval(() => {
+      dots = dots.length < 3 ? dots + '.' : '';
+      setLoadingText(`${text}${dots}`);
+    }, 250);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
