@@ -12,7 +12,7 @@ import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
 import {arEG} from "date-fns/locale";
 
 export default function Market() {
-    const [activeTab, setActiveTab] = useState('market_agents');
+    const [activeTab, setActiveTab] = useState('market_tools');
     const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
     const [templateData, setTemplateData] = useState([]);
