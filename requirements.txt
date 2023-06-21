@@ -133,3 +133,4 @@ psycopg2==2.9.6
 slack-sdk==3.21.3
 pytest==7.3.2
 pytest-cov==4.1.0
+pytest-mock==3.11.1
