@@ -137,7 +137,7 @@ def get_agent_execution_feed(agent_execution_id: int,
 
     # get all permissions
     execution_permissions = db.session.query(AgentExecutionPermission).\
-        filter_by(agent_execution_id=agent_execution_id, status="PENDING"). \
+        filter_by(agent_execution_id=agent_execution_id). \
         order_by(asc(AgentExecutionPermission.created_at)).all()
 
     permissions = [
@@ -146,7 +146,8 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "created_at": permission.created_at,
                 "response": permission.user_feedback,
                 "status": permission.status,
-                "tool_name": permission.tool_name
+                "tool_name": permission.tool_name,
+                "user_feedback": permission.user_feedback
         } for permission in execution_permissions
     ]
     return {

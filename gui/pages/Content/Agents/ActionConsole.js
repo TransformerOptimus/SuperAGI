@@ -23,23 +23,23 @@ function ActionBox({ action, index, denied, reasons, handleDeny, handleSelection
                 </div>
               )}
               {isDenied ? (
-                <div style={{ display: 'inline-flex', marginTop: '16px', gap: '8px' }}>
-                    <button onClick={() => handleDeny(index)} className="secondary_button" style={{ paddingLeft: '10px', paddingTop: '2px' }}>
-                        <Image style={{ marginTop: '2px' }} width={12} height={12} src="/images/undo.svg" alt="check-icon" />
+                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                    <button onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{ paddingLeft: '10px' }}>
+                        <Image width={12} height={12} src="/images/undo.svg" alt="check-icon" />
                         <span className={styles.text_12_n}>Go Back</span>
                     </button>
-                    <button onClick={() => handleSelection(index, false, action.id)} className="secondary_button" style={{ paddingLeft: '10px', paddingTop: '2px', background: 'transparent', border: 'none' }}>
+                    <button onClick={() => handleSelection(index, false, action.id)} className="secondary_button mt_16" style={{ background: 'transparent', border: 'none' }}>
                         <span className={styles.text_12_n}>Proceed to Deny</span>
                     </button>
                 </div>
               ) : (
-                <div style={{ display: 'inline-flex', marginTop: '16px', gap: '8px' }}>
-                    <button onClick={() => handleSelection(index, true, action.id)} className="secondary_button" style={{ paddingLeft: '10px', paddingTop: '2px' }}>
-                        <Image style={{ marginTop: '4px' }} width={12} height={12} src="/images/check.svg" alt="check-icon" />
+                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                    <button onClick={() => handleSelection(index, true, action.id)} className="secondary_button mt_16" style={{ paddingLeft: '10px' }}>
+                        <Image width={12} height={12} src="/images/check.svg" alt="check-icon" />
                         <span className={styles.text_12_n}>Approve</span>
                     </button>
-                    <button onClick={() => handleDeny(index)} className="secondary_button" style={{ paddingLeft: '10px', paddingTop: '2px', background: 'transparent', border: 'none' }}>
-                        <Image style={{ marginTop: '4px' }} width={16} height={16} src="/images/close.svg" alt="close-icon" />
+                    <button onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{ background: 'transparent', border: 'none' }}>
+                        <Image width={16} height={16} src="/images/close.svg" alt="close-icon" />
                         <span className={styles.text_12_n}>Deny</span>
                     </button>
                 </div>
@@ -53,6 +53,39 @@ function ActionBox({ action, index, denied, reasons, handleDeny, handleSelection
           </div>
       </div>
     );
+}
+
+function HistoryBox({ action }){
+    return (
+        <div key={action.id} className={styles.history_box} style={{ background: '#272335', padding: '16px', cursor: 'default' }}>
+            <div style={{display:'flex',flexDirection:'column'}}>
+                <div>Permissions for <b>{action.tool_name}</b> was:: </div>
+                {action.status && action.status === 'APPROVED' ? (
+                    <button className="history_permission mt_16">
+                        <Image width={12} height={12} src="/images/check.svg" alt="check-icon" />
+                        <span className={styles.text_12_n}>Approved</span>
+                    </button>
+                ):(
+                    <button className="history_permission mt_16">
+                        <Image width={14} height={14} src="/images/close.svg" alt="close-icon" />
+                        <span className={styles.text_12_n}>Denied</span>
+                    </button>
+                )}
+                {action.user_feedback != null &&
+                    <div style={{display:'flex',flexDirection:'column'}}>
+                        <div className="mt_16" style={{color: '#888888'}}>FeedBack</div>
+                        <div className="mt_6 mb_8">{action.user_feedback}</div>
+                    </div>
+                }
+                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '0', paddingBottom: '0' }} className={styles.tab_text}>
+                    <div>
+                        <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" />
+                    </div>
+                    <div className={styles.history_info}>{formatTime(action.created_at)}</div>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default function ActionConsole({ actions }) {
@@ -93,12 +126,15 @@ export default function ActionConsole({ actions }) {
 
     return (
       <>
-          {actions?.some((action) => action.status === 'PENDING') ? (
+          {actions && actions.length > 0 ? (
             <div className={styles.detail_body} style={{ height: 'auto' }}>
                 {actions.map((action, index) => {
                     if (action.status === 'PENDING' && !hiddenActions.includes(index)) {
                         return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
                             reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}/>);
+                    }
+                    else {
+                        return (<HistoryBox key={action.id} action={action} />);
                     }
                     return null;
                 })}

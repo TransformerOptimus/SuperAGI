@@ -57,6 +57,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         const data = response.data;
         setFeeds(data.feeds);
         setRunStatus(data.status);
+        console.log(data.permissions)
         setFetchedData(data.permissions);
       })
       .catch((error) => {

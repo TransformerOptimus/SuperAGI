@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -26,6 +26,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [dropdown, setDropdown] = useState(false);
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
+
+  const pendingPermissions = useMemo(() => {
+    if (!fetchedData) return 0;
+    return fetchedData.filter(permission => permission.status === "PENDING").length;
+  }, [fetchedData]);
 
   const addInstruction = () => {
     setInstructions((prevArray) => [...prevArray, 'new instructions']);
@@ -235,7 +240,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
           <div style={{display:'flex',overflowX:'scroll'}}>
             {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
-                <Image width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console
+                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console &nbsp; {pendingPermissions>0 && <span className={styles.notification_circle}>{pendingPermissions}</span>}
               </button>
             </div>}
             {/*<div>*/}
