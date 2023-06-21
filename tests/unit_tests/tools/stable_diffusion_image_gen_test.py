@@ -18,8 +18,7 @@ class TestStableDiffusionImageGenTool(unittest.TestCase):
         tool = StableDiffusionImageGenTool()
         prompt = 'Artificial Intelligence'
         image_names = ['image1.png', 'image2.png']
-        height = 512
-        width = 512
+        height, width = 512, 512
         num = 2
         steps = 50
 
