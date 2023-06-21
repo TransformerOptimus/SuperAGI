@@ -11,13 +11,14 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
+from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 
 router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
-def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+@router.post("/add", response_model=AgentExecutionOut, status_code=201)
+def create_agent_execution(agent_execution: AgentExecutionIn,
                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution/run.
@@ -49,7 +50,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
     return db_agent_execution
 
 
-@router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
+@router.get("/get/{agent_execution_id}", response_model=AgentExecutionOut)
 def get_agent_execution(agent_execution_id: int,
                         Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -71,9 +72,9 @@ def get_agent_execution(agent_execution_id: int,
     return db_agent_execution
 
 
-@router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
+@router.put("/update/{agent_execution_id}", response_model=AgentExecutionOut)
 def update_agent_execution(agent_execution_id: int,
-                           agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+                           agent_execution: AgentExecutionIn,
                            Authorize: AuthJWT = Depends(check_auth)):
     """Update details of particular agent_execution by agent_execution_id"""
 

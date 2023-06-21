@@ -10,6 +10,7 @@ from superagi.worker import execute_agent
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
+from superagi.types.db import AgentExecutionPermissionOut, AgentExecutionPermissionIn
 
 router = APIRouter()
 
@@ -37,9 +38,9 @@ def get_agent_execution_permission(agent_execution_permission_id: int,
     return db_agent_execution_permission
 
 
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecutionPermission))
+@router.post("/add", response_model=AgentExecutionPermissionOut)
 def create_agent_execution_permission(
-        agent_execution_permission: sqlalchemy_to_pydantic(AgentExecutionPermission, exclude=["id"])
+        agent_execution_permission: AgentExecutionPermissionIn
         , Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution permission.
@@ -58,10 +59,9 @@ def create_agent_execution_permission(
 
 
 @router.patch("/update/{agent_execution_permission_id}",
-              response_model=sqlalchemy_to_pydantic(AgentExecutionPermission, exclude=["id"]))
+              response_model=AgentExecutionPermissionIn)
 def update_agent_execution_permission(agent_execution_permission_id: int,
-                                      agent_execution_permission: sqlalchemy_to_pydantic(AgentExecutionPermission,
-                                                                                         exclude=["id"]),
+                                      agent_execution_permission: AgentExecutionPermissionIn,
                                       Authorize: AuthJWT = Depends(check_auth)):
     """
     Update an AgentExecutionPermission in the database.

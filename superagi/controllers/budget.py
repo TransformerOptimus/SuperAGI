@@ -6,12 +6,13 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 from superagi.helper.auth import check_auth
 from superagi.models.budget import Budget
+from superagi.types.db import BudgetIn, BudgetOut
 
 router = APIRouter()
 
 
-@router.post("/add", response_model=sqlalchemy_to_pydantic(Budget), status_code=201)
-def create_budget(budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]),
+@router.post("/add", response_model=BudgetOut, status_code=201)
+def create_budget(budget: BudgetIn,
                   Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new budget.
@@ -34,7 +35,7 @@ def create_budget(budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]),
     return new_budget
 
 
-@router.get("/get/{budget_id}", response_model=sqlalchemy_to_pydantic(Budget))
+@router.get("/get/{budget_id}", response_model=BudgetOut)
 def get_budget(budget_id: int,
                Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -54,8 +55,8 @@ def get_budget(budget_id: int,
     return db_budget
 
 
-@router.put("/update/{budget_id}", response_model=sqlalchemy_to_pydantic(Budget))
-def update_budget(budget_id: int, budget: sqlalchemy_to_pydantic(Budget, exclude=["id"]),
+@router.put("/update/{budget_id}", response_model=BudgetOut)
+def update_budget(budget_id: int, budget: BudgetIn,
                   Authorize: AuthJWT = Depends(check_auth)):
     """
     Update budget details by budget_id.

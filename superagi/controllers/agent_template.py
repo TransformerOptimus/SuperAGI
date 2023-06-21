@@ -1,8 +1,6 @@
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
 from main import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.models.agent import Agent
@@ -11,12 +9,13 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.tool import Tool
+from superagi.types.db import AgentTemplateIn, AgentTemplateOut
 
 router = APIRouter()
 
 
-@router.post("/create", status_code=201, response_model=sqlalchemy_to_pydantic(AgentTemplate))
-def create_agent_template(agent_template: sqlalchemy_to_pydantic(AgentTemplate, exclude=["id"]),
+@router.post("/create", status_code=201, response_model=AgentTemplateOut)
+def create_agent_template(agent_template: AgentTemplateIn,
                           organisation=Depends(get_user_organisation)):
     """
     Create an agent template.
@@ -81,7 +80,7 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
     return template
 
 
-@router.post("/update_details/{agent_template_id}", response_model=sqlalchemy_to_pydantic(AgentTemplate))
+@router.post("/update_details/{agent_template_id}", response_model=AgentTemplateOut)
 def update_agent_template(agent_template_id: int,
                           agent_configs: dict,
                           organisation=Depends(get_user_organisation)):

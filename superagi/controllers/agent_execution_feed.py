@@ -11,13 +11,14 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
 
 router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed), status_code=201)
-def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+@router.post("/add", response_model=AgentExecutionFeedOut, status_code=201)
+def create_agent_execution_feed(agent_execution_feed: AgentExecutionFeedIn,
                                 Authorize: AuthJWT = Depends(check_auth)):
     """
     Add a new agent execution feed.
@@ -45,7 +46,7 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
     return db_agent_execution_feed
 
 
-@router.get("/get/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
+@router.get("/get/{agent_execution_feed_id}", response_model=AgentExecutionFeedOut)
 def get_agent_execution_feed(agent_execution_feed_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -68,9 +69,9 @@ def get_agent_execution_feed(agent_execution_feed_id: int,
     return db_agent_execution_feed
 
 
-@router.put("/update/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
+@router.put("/update/{agent_execution_feed_id}", response_model=AgentExecutionFeedOut)
 def update_agent_execution_feed(agent_execution_feed_id: int,
-                                agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+                                agent_execution_feed: AgentExecutionFeedIn,
                                 Authorize: AuthJWT = Depends(check_auth)):
     """
     Update a particular agent execution feed.

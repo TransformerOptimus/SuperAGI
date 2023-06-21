@@ -9,14 +9,15 @@ from superagi.helper.auth import check_auth
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.encyption_helper import encrypt_data,decrypt_data
 from superagi.lib.logger import logger
+from superagi.types.db import ConfigurationIn, ConfigurationOut
 
 router = APIRouter()
 
 
 # CRUD Operations
 @router.post("/add/organisation/{organisation_id}", status_code=201,
-             response_model=sqlalchemy_to_pydantic(Configuration))
-def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]), organisation_id: int,
+             response_model=ConfigurationOut)
+def create_config(config: ConfigurationIn, organisation_id: int,
                   Authorize: AuthJWT = Depends(check_auth)):
     """
     Creates a new Organisation level config.

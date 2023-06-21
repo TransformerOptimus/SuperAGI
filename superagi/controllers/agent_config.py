@@ -2,18 +2,18 @@ from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.types.agent_config import AgentConfig
+from superagi.types.db import AgentConfigurationIn, AgentConfigurationOut
 
 router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentConfiguration), status_code=201)
-def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"], ),
+@router.post("/add", response_model=AgentConfigurationOut, status_code=201)
+def create_agent_config(agent_config: AgentConfigurationIn,
                         Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent configuration by setting a new key and value related to the agent.
@@ -39,7 +39,7 @@ def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,
     return db_agent_config
 
 
-@router.get("/get/{agent_config_id}", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
+@router.get("/get/{agent_config_id}", response_model=AgentConfigurationOut)
 def get_agent(agent_config_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -61,7 +61,7 @@ def get_agent(agent_config_id: int,
     return db_agent_config
 
 
-@router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
+@router.put("/update", response_model=AgentConfigurationOut)
 def update_agent(agent_config: AgentConfig,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
