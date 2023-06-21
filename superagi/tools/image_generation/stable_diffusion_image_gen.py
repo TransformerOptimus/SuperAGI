@@ -126,4 +126,3 @@ class StableDiffusionImageGenTool(BaseTool):
         else:
             final_path = os.getcwd() + "/" + image
         return final_path
-
