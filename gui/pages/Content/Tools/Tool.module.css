@@ -109,10 +109,11 @@
     border-radius: 8px;
     cursor: pointer;
 }
+
 .tool_box:hover{
     background-color: #494856;
-    transition: 0.4s;
 }
+
 .image_class{
     background: #FFFFFF80;
     border-radius: 20px;
@@ -122,6 +123,7 @@
     background-color: #291A66 !important;
     border: 1px solid #4A4A55 !important;
 }
+
 .code_head{
     display: flex;
     flex-direction: column;
@@ -131,10 +133,10 @@
     font-weight: 400;
     font-size: 12px;
     line-height: 18px;
-    /* identical to box height */
     color: #FFFFFF;
     background: rgba(255, 255, 255, 0.2);
 }
+
 .button_class{
     margin-top:20px;
     float: right;
