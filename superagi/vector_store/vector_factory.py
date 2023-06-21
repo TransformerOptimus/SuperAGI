@@ -50,16 +50,10 @@ class VectorFactory:
         if vector_store == "LanceDB":
             try:
                 # connect lancedb to local directory /lancedb/
-                uri = "/lancedb"
+                uri = "/lancedb/" + index_name
                 db = lancedb.connect(uri)
 
-                # create table if does not exist
-                try:
-                    tbl = db.createTable(index_name)
-                except:
-                    tbl = db.openTable(index_name)
-
-                return LanceDB(tbl, embedding_model, 'text', index_name)
+                return LanceDB(db, embedding_model, 'text')
             except:
                 raise ValueError("VectorStore setup for LanceDB failed")
 
