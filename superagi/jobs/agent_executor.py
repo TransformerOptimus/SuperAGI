@@ -234,7 +234,7 @@ class AgentExecutor:
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             if hasattr(tool, 'resource_manager'):
-                tool.resource_manager = ResourceManager(session=session)
+                tool.resource_manager = ResourceManager(session=session, agent_id=agent_id)
 
             new_tools.append(tool)
         return tools

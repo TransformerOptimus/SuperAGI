@@ -45,54 +45,7 @@ class CodingTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-        
-    def write_codes_to_file(self, codes_content: str, code_file_name: str) -> str:
-        """
-        Write the generated codes to the specified file.
 
-        Args:
-            codes_content: The content (code) of the code.
-            code_file_name: Name of the file where the code will be written.
-
-        Returns:
-            A string indicating if the codes were saved successfully or an error message.
-        """
-        try:
-            engine = connect_db()
-            Session = sessionmaker(bind=engine)
-            session = Session()
-
-            final_path = code_file_name
-            root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-            if root_dir is not None:
-                root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-                root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-                final_path = root_dir + code_file_name
-            else:
-                final_path = os.getcwd() + "/" + code_file_name
-
-            with open(final_path, mode="w") as code_file:
-                code_file.write(codes_content)
-
-            with open(final_path, 'r') as code_file:
-                resource = ResourceHelper.make_written_file_resource(file_name=code_file_name,
-                                                                    agent_id=self.agent_id, file=code_file, channel="OUTPUT")
-
-            if resource is not None:
-                session.add(resource)
-                session.commit()
-                session.flush()
-                if resource.storage_type == "S3":
-                    s3_helper = S3Helper()
-                    s3_helper.upload_file(code_file, path=resource.path)
-                    
-            logger.info(f"Code {code_file_name} saved successfully")
-            session.close()
-            return "Codes saved successfully"
-        except Exception as e:
-            session.close()
-            return f"Error saving codes to file: {e}"
-    
     def _execute(self, spec_description: str) -> str:
         """
         Execute the write_code tool.
@@ -159,7 +112,7 @@ class CodingTool(BaseTool):
 
                 # Ensure file_name is not empty
                 if file_name.strip():
-                    save_result = self.write_codes_to_file(code, file_name)
+                    save_result = self.resource_manager.write_file(file_name, code)
                     if save_result.startswith("Error"):
                         return save_result
 
@@ -167,11 +120,11 @@ class CodingTool(BaseTool):
             split_result = result["content"].split("```")
             if len(split_result) > 0:
                 readme = split_result[0]
-                save_readme_result = self.write_codes_to_file(readme, "README.md")
+                save_readme_result = self.resource_manager.write_file("README.md", readme)
                 if save_readme_result.startswith("Error"):
                     return save_readme_result
 
-            return "codes generated and saved successfully"
+            return "Codes generated and saved successfully"
         except Exception as e:
             logger.error(e)
             return f"Error generating codes: {e}"

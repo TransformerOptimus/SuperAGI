@@ -6,8 +6,9 @@ from superagi.lib.logger import logger
 
 
 class ResourceManager:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, agent_id: int = None):
         self.session = session
+        self.agent_id = agent_id
 
     def write_binary_file(self, file_name: str, data):
         final_path = ResourceHelper.get_resource_path(file_name)
@@ -18,6 +19,7 @@ class ResourceManager:
                 img.close()
             self.write_to_s3(file_name, final_path)
             logger.info(f"Binary {file_name} saved successfully")
+            return f"Binary {file_name} saved successfully"
         except Exception as err:
             return f"Error: {err}"
 
@@ -42,5 +44,6 @@ class ResourceManager:
                 file.close()
             self.write_to_s3(file_name, final_path)
             logger.info(f"{file_name} saved successfully")
+            return f"{file_name} saved successfully"
         except Exception as err:
             return f"Error: {err}"

@@ -46,47 +46,6 @@ class WriteSpecTool(BaseTool):
 
     class Config:
         arbitrary_types_allowed = True
-    
-    def _write_spec_to_file(self, spec_content: str, spec_file_name: str) -> str:
-        try:
-            engine = connect_db()
-            Session = sessionmaker(bind=engine)
-            session = Session()
-
-            final_path = spec_file_name
-            root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-            if root_dir is not None:
-                root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-                root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-                final_path = root_dir + spec_file_name
-            else:
-                final_path = os.getcwd() + "/" + spec_file_name
-
-            try:
-                with open(final_path, mode="w") as spec_file:
-                    spec_file.write(spec_content)
-                    
-                with open(final_path, 'r') as spec_file:
-                    resource = ResourceHelper.make_written_file_resource(file_name=spec_file_name,
-                                                                          agent_id=self.agent_id, file=spec_file, channel="OUTPUT")
-                    
-                if resource is not None:
-                    session.add(resource)
-                    session.commit()
-                    session.flush()
-                    if resource.storage_type == "S3":
-                        s3_helper = S3Helper()
-                        s3_helper.upload_file(spec_file, path=resource.path)
-                logger.info(f"Specification {spec_file_name} saved successfully")
-            except Exception as err:
-                session.close()
-                return f"Error: {err}"
-            session.close()
-
-            return "Specification saved successfully"
-
-        except Exception as e:
-            return f"Error saving specification to file: {e}"
 
     def _execute(self, task_description: str, spec_file_name: str) -> str:
         """
@@ -120,7 +79,7 @@ class WriteSpecTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             
             # Save the specification to a file
-            write_result = self._write_spec_to_file(result["content"], spec_file_name)
+            write_result = self.resource_manager.write_file(spec_file_name, result["content"])
             if not write_result.startswith("Error"):
                 return result["content"] + "Specification generated and saved successfully"
             else:
