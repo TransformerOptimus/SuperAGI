@@ -53,10 +53,10 @@ export default function ToolWorkspace({toolDetails}){
       
       updateToolConfig(toolDetails.name, updatedConfigData)
         .then((response) => {
-            toast.success('Tool kit configuration updated', {autoClose: 1800});
+            toast.success('Toolkit configuration updated', {autoClose: 1800});
         })
         .catch((error) => {
-          toast.error('Unable to update Tool kit configuration', {autoClose: 1800});
+          toast.error('Unable to update Toolkit configuration', {autoClose: 1800});
           console.error('Error updating tool config:', error);
         });
     };
