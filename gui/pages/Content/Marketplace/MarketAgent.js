@@ -30,7 +30,8 @@ export default function MarketAgent(){
     }, []);
 
     function handleTemplateClick(item) {
-        EventBus.emit('openTemplateDetails', item);
+        const contentType = 'agent_template';
+        EventBus.emit('openTemplateDetails', { item, contentType });
     }
 
     return (

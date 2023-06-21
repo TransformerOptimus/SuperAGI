@@ -1,66 +1,57 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import styles from './Market.module.css';
+import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
+import {EventBus} from "@/utils/eventBus";
+import {loadingTextEffect} from "@/utils/utils";
 
+export default function MarketTools(){
+  const [toolTemplates, setToolTemplates] = useState([])
+  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadingText, setLoadingText] = useState("Loading Templates");
 
-export default function MarketTools({onToolClick}) {
-  const dummyData = [];
-  const numIterations = 6;
-  const itemsPerRow = 3;
-  for (let i = 0; i < numIterations; i++) {
-    const dummyItem = {
-      id: i,
-      toolName: `Tool ${i + 1}`,
-      author: 'Google',
-      imageSrc: '/images/gmail.png',
-      altText: 'empty-state',
-    };
-    dummyData.push(dummyItem);
-  };
-  const handleToolClick = () => {
-    onToolClick(true);
-  };
+  useEffect(() => {
+    loadingTextEffect('Loading Templates', setLoadingText, 500);
+
+    if(window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true)
+    }
+
+    fetchAgentTemplateList()
+        .then((response) => {
+          const data = response.data || [];
+          setToolTemplates(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent templates:', error);
+        });
+  }, []);
+
+  function handleTemplateClick(item) {
+    const contentType = 'tool_template';
+    EventBus.emit('openTemplateDetails', { item, contentType });
+    // EventBus.emit('openTemplateDetails', item);
+  }
 
   return (
-    <div>
-    <div className={styles.history_box}>Tools</div>
-    <div className={styles.featured_text}>Top featured</div>
-
-    <div className={styles.rowContainer}>
-      {dummyData.map((item, index) => (
-        <div className={styles.market_tool} key={item.id} onClick={handleToolClick}>
-          <div style={{ padding: '12px' }}>
-            <Image width={35} height={35} src={item.imageSrc} alt={item.altText} />
-          </div>
-          <div style={{ display: 'inline' }}>
-            <div style={{ paddingTop: '12px', paddingLeft: '6px', paddingRight: '8px' }}>{item.toolName}</div>
-            <div style={{ paddingLeft: '6px', fontSize: 'x-small', color: 'rgb(96, 96, 96)' }}>by {item.author}</div>
-          </div>
-          {/* Add a line break after each row */}
-          {(index + 1) % itemsPerRow === 0 && <br />}
+      <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
+        <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
+          {!isLoading ? <div className={styles.resources}>
+            {toolTemplates.map((item, index) => (
+                <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
+                  <div style={{display: 'inline',overflow:'auto'}}>
+                    <div>{item.name}</div>
+                    <div style={{color: '#888888',lineHeight:'16px'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
+                    <div className={styles.tool_description}>{item.description}</div>
+                  </div>
+                </div>
+            ))}
+          </div> : <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'75vh'}}>
+            <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
+          </div>}
         </div>
-      ))}
-    </div>
-
-    <div className={styles.featured_text}>New Tools</div>
-
-    <div className={styles.rowContainer}>
-      {dummyData.map((item, index) => (
-        <div className={styles.market_tool} key={item.id} onClick={handleToolClick}>
-          <div style={{ padding: '12px' }}>
-            <Image width={35} height={35} src={item.imageSrc} alt={item.altText} />
-          </div>
-          <div style={{ display: 'inline' }}>
-            <div style={{ paddingTop: '12px', paddingLeft: '6px' , paddingRight: '8px'}}>{item.toolName}</div>
-            <div style={{ paddingLeft: '6px', fontSize: 'x-small', color: 'rgb(96, 96, 96)' }}>by {item.author}</div>
-          </div>
-          {/* Add a line break after each row */}
-          {(index + 1) % itemsPerRow === 0 && <br />}
-        </div>
-      ))}
-    </div>
-    </div>
-  );
+      </div>
+  )
 };
-
-
