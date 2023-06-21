@@ -5,6 +5,7 @@ from superagi.config.config import get_config
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 import os
 from superagi.llms.base_llm import BaseLlm
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
 from superagi.lib.logger import logger
 from superagi.models.db import connect_db
@@ -28,6 +29,7 @@ class CodingTool(BaseTool):
         description : The description of tool.
         args_schema : The args schema.
         goals : The goals.
+        resource_manager: Manages the file resources
     """
     llm: Optional[BaseLlm] = None
     agent_id: int = None
@@ -41,6 +43,7 @@ class CodingTool(BaseTool):
     )
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
+    resource_manager: Optional[ResourceManager] = None
 
     class Config:
         arbitrary_types_allowed = True
