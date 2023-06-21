@@ -15,7 +15,6 @@ class LanceDB(VectorStore):
         db : The LanceDB connected database.
         embedding_model : The embedding model.
         text_field : The text field is the name of the field where the corresponding text for an embedding is stored.
-        table_name : Name for the table in the vector database
     """
     def __init__(
             self,
