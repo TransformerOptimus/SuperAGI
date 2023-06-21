@@ -24,7 +24,6 @@ def mock_make_written_file_resource(self, *args, **kwargs):
     resource = Resource()
     resource.id = 1
     resource.path = "workspace/output"
-    # resource_helper = ResourceHelper()
     resource.channel = 'OUTPUT'
     resource.storage_type = 'FILE'
     return resource
@@ -64,13 +63,6 @@ def temp_dir():
 @pytest.fixture
 def image_names():
     return ['image1.png', 'image2.png']
-
-# @pytest.fixture
-# def mock_connect_db():
-#     session = MagicMock(add=MagicMock(return_value=None),
-#                         commit=MagicMock(return_value=None),
-#                         flush=MagicMock(return_value=None))
-#     return session
 
 @pytest.fixture
 def mock_connect_db():
