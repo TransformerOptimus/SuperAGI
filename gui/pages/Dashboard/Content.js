@@ -60,17 +60,21 @@ export default function Content({selectedView, selectedProjectId, organisationId
 
   const cancelTab = (index) => {
     let updatedTabs = [...tabs];
-    const isCurrentTabSelected = selectedTab === index;
 
-    if (isCurrentTabSelected) {
+    if (selectedTab === index) {
+      updatedTabs.splice(index, 1);
+      
       if (index === 0 && tabs.length === 1) {
         setSelectedTab(null);
       } else {
-        updatedTabs.splice(index, 1);
         const newIndex = index === tabs.length - 1 ? index - 1 : index;
         setSelectedTab(newIndex);
       }
     } else {
+      if (selectedTab > index) {
+        setSelectedTab(selectedTab - 1);
+      }
+
       updatedTabs.splice(index, 1);
     }
 
