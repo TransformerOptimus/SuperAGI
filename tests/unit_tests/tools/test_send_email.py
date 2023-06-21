@@ -1,4 +1,5 @@
 from superagi.tools.email.send_email import SendEmailTool
+import pytest
 
 def test_send_to_draft(mocker):
 
