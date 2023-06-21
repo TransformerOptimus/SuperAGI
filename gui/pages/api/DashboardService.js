@@ -107,3 +107,8 @@ export const installAgentTemplate = (templateId) => {
 export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
 }
+
+
+export const authenticateGoogleCred = (toolKitId) => {
+  return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
+}
