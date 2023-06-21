@@ -27,26 +27,24 @@ export default function ToolWorkspace({toolDetails}){
     }
     
     useEffect(() => {
-      if (toolDetails && toolDetails.tools) {
-        setToolsIncluded(toolDetails.tools);
+      if(toolDetails !== null) {
+        if (toolDetails.tools) {
+          setToolsIncluded(toolDetails.tools);
+        }
+
+        getToolConfig(toolDetails.name)
+          .then((response) => {
+            const apiConfigs = response.data || [];
+            setApiConfigs(apiConfigs);
+          })
+          .catch((error) => {
+            console.log('Error fetching API data:', error);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       }
     }, [toolDetails]);
-
-    useEffect(() => {
-      if(toolDetails !== null) {
-        getToolConfig(toolDetails.name)
-        .then((response) => {
-          const apiConfigs = response.data || [];
-          setApiConfigs(apiConfigs);
-        })
-        .catch((error) => {
-          console.log('Error fetching API data:', error);
-        })
-        .finally(() => {
-          setLoading(false); 
-        });
-      }
-    }, []);
 
     const handleUpdateChanges = async () => {
       const updatedConfigData = apiConfigs.map((config) => ({

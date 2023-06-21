@@ -102,6 +102,13 @@ export default function Content({selectedView, selectedProjectId, organisationId
     }
   };
 
+  const selectTab = (element, index) => {
+    setSelectedTab(index);
+    if(element.contentType === "Tools") {
+      setToolDetails(element);
+    }
+  };
+
   useEffect(() => {
     if (tabContainerRef.current) {
       const tabElement = tabContainerRef.current.querySelector(`[data-tab-id="${selectedTab}"]`);
@@ -173,7 +180,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className={styles.tabs} ref={tabContainerRef}>
             {tabs.map((tab, index) => (
-              <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {setSelectedTab(index)}}>
+              <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {selectTab(tab, index)}}>
                 <div style={{display:'flex', order:'0'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
                   {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
