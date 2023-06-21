@@ -8,7 +8,7 @@ from superagi.tools.image_generation.stable_diffusion_image_gen import StableDif
 
 class ImageGenToolKit(BaseToolKit, ABC):
     name: str = "Image Generation Toolkit"
-    description: str = "Toolkit containing a tool for generating images using Dalle"
+    description: str = "Toolkit containing a tool for generating images"
 
     def get_tools(self) -> List[BaseTool]:
         return [ImageGenTool(), StableDiffusionImageGenTool()]
