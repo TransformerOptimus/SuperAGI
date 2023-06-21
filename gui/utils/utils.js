@@ -59,14 +59,14 @@ export const downloadFile = (fileId) => {
     };
 
     fetch(url, { headers })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const fileUrl = window.URL.createObjectURL(blob);
-        window.open(fileUrl, "_blank");
-      })
-      .catch((error) => {
-        console.error("Error downloading file:", error);
-      });
+        .then((response) => response.blob())
+        .then((blob) => {
+          const fileUrl = window.URL.createObjectURL(blob);
+          window.open(fileUrl, "_blank");
+        })
+        .catch((error) => {
+          console.error("Error downloading file:", error);
+        });
   } else {
     window.open(url, "_blank");
   }

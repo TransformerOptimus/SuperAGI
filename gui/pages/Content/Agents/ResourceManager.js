@@ -73,28 +73,28 @@ export default function ResourceManager({agentId}) {
     formData.append('type', fileData.type);
 
     uploadFile(agentId, formData)
-      .then((response) => {
-        fetchResources();
-        toast.success('Resource added successfully', { autoClose: 1800 });
-      })
-      .catch((error) => {
-        toast.error(error, { autoClose: 1800 });
-        console.error('Error uploading resource:', error);
-      });
+        .then((response) => {
+          fetchResources();
+          toast.success('Resource added successfully', { autoClose: 1800 });
+        })
+        .catch((error) => {
+          toast.error(error, { autoClose: 1800 });
+          console.error('Error uploading resource:', error);
+        });
   }
 
   function fetchResources() {
     getResources(agentId)
-      .then((response) => {
-        const resources = response.data;
-        const inputFiles = resources.filter((resource) => resource.channel === 'INPUT');
-        const outputFiles = resources.filter((resource) => resource.channel === 'OUTPUT');
-        setInput(inputFiles);
-        setOutput(outputFiles);
-      })
-      .catch((error) => {
-        console.error('Error fetching resources:', error);
-      });
+        .then((response) => {
+          const resources = response.data;
+          const inputFiles = resources.filter((resource) => resource.channel === 'INPUT');
+          const outputFiles = resources.filter((resource) => resource.channel === 'OUTPUT');
+          setInput(inputFiles);
+          setOutput(outputFiles);
+        })
+        .catch((error) => {
+          console.error('Error fetching resources:', error);
+        });
   }
 
   const ResourceItem = ({ file }) => {
@@ -103,33 +103,33 @@ export default function ResourceManager({agentId}) {
     const isIMG = file.type.includes('image');
 
     return (
-      <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
-          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
-          {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px', width:'100%' }}>
-            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
-            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+        <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+            {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
+            {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
+            {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+            {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+            <div style={{ marginLeft: '5px', width:'100%' }}>
+              <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
+              <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+            </div>
           </div>
         </div>
-      </div>
     );
   };
 
   const ResourceList = ({ files }) => (
-    <div>
-      {files.length <= 0 && channel === 'output' ? <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
-        <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
-        <span className={styles.feed_title} style={{marginTop: '8px'}}>No Output files!</span>
-      </div> : <div className={styles.resources}>
-        {files.map((file, index) => (
-          <ResourceItem key={index} file={file} />
-        ))}
+      <div>
+        {files.length <= 0 && channel === 'output' ? <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
+          <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+          <span className={styles.feed_title} style={{marginTop: '8px'}}>No Output files!</span>
+        </div> : <div className={styles.resources}>
+          {files.map((file, index) => (
+              <ResourceItem key={index} file={file} />
+          ))}
+        </div>
+        }
       </div>
-      }
-    </div>
   );
 
   return (<>
@@ -151,7 +151,7 @@ export default function ResourceManager({agentId}) {
       {channel === 'input' && <div style={{paddingBottom:'10px'}}>
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-          <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
+            <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
