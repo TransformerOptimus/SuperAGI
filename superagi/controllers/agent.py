@@ -20,14 +20,14 @@ from datetime import datetime
 import json
 from sqlalchemy import func
 from superagi.helper.auth import check_auth, get_user_organisation
-from superagi.types import db
+from superagi.types import db as db_types
 
 router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=db.Agent, status_code=201)
-def create_agent(agent: db.Agent,
+@router.post("/add", response_model=db_types.Agent, status_code=201)
+def create_agent(agent: db_types.Agent,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
@@ -80,8 +80,8 @@ def get_agent(agent_id: int,
     return db_agent
 
 
-@router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
-def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+@router.put("/update/{agent_id}", response_model=db_types.Agent)
+def update_agent(agent_id: int, agent: db_types.AgentWithoutID,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent

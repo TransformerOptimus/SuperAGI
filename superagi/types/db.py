@@ -3,7 +3,16 @@ from datetime import datetime
 from pydantic.main import BaseModel
 
 
-class Agent(BaseModel):
+class DBModel(BaseModel):
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class Agent(DBModel):
+    id: int
     name: str
     project_id: int
     description: str
@@ -12,7 +21,13 @@ class Agent(BaseModel):
         orm_mode = True
 
 
-class AgentConfiguration(BaseModel):
+class AgentWithoutID(Agent):
+    class Config:
+        orm_mode = True
+        exclude = ['id', 'created_at', 'updated_at']
+
+
+class AgentConfiguration(DBModel):
     id: int
     agent_id: int
     key: str
@@ -22,7 +37,7 @@ class AgentConfiguration(BaseModel):
         orm_mode = True
 
 
-class AgentExecution(BaseModel):
+class AgentExecution(DBModel):
     id: int
     status: str
     name: str
@@ -37,7 +52,7 @@ class AgentExecution(BaseModel):
         orm_mode = True
 
 
-class AgentExecutionFeed(BaseModel):
+class AgentExecutionFeed(DBModel):
     id: int
     agent_execution_id: int
     agent_id: int
@@ -49,7 +64,7 @@ class AgentExecutionFeed(BaseModel):
         orm_mode = True
 
 
-class AgentExecutionPermission(BaseModel):
+class AgentExecutionPermission(DBModel):
     id: int
     agent_execution_id: int
     agent_id: int
@@ -62,7 +77,7 @@ class AgentExecutionPermission(BaseModel):
         orm_mode = True
 
 
-class AgentTemplate(BaseModel):
+class AgentTemplate(DBModel):
     id: int
     organisation_id: int
     agent_workflow_id: int
@@ -74,7 +89,7 @@ class AgentTemplate(BaseModel):
         orm_mode = True
 
 
-class AgentTemplateConfig(BaseModel):
+class AgentTemplateConfig(DBModel):
     id: int
     agent_template_id: int
     key: str
@@ -84,7 +99,7 @@ class AgentTemplateConfig(BaseModel):
         orm_mode = True
 
 
-class AgentWorkflow(BaseModel):
+class AgentWorkflow(DBModel):
     id: int
     name: str
     description: str
@@ -93,7 +108,7 @@ class AgentWorkflow(BaseModel):
         orm_mode = True
 
 
-class AgentWorkflowStep(BaseModel):
+class AgentWorkflowStep(DBModel):
     id: int
     agent_workflow_id: int
     unique_id: str
@@ -109,7 +124,7 @@ class AgentWorkflowStep(BaseModel):
         orm_mode = True
 
 
-class Budget(BaseModel):
+class Budget(DBModel):
     id: int
     budget: float
     cycle: str
@@ -118,7 +133,7 @@ class Budget(BaseModel):
         orm_mode = True
 
 
-class Configuration(BaseModel):
+class Configuration(DBModel):
     id: int
     organisation_id: int
     key: str
@@ -128,7 +143,7 @@ class Configuration(BaseModel):
         orm_mode = True
 
 
-class Organisation(BaseModel):
+class Organisation(DBModel):
     id: int
     name: str
     description: str
@@ -137,7 +152,7 @@ class Organisation(BaseModel):
         orm_mode = True
 
 
-class Project(BaseModel):
+class Project(DBModel):
     id: int
     name: str
     organisation_id: int
@@ -147,7 +162,7 @@ class Project(BaseModel):
         orm_mode = True
 
 
-class Resource(BaseModel):
+class Resource(DBModel):
     id: int
     name: str
     storage_type: str
@@ -161,7 +176,7 @@ class Resource(BaseModel):
         orm_mode = True
 
 
-class Tool(BaseModel):
+class Tool(DBModel):
     id: int
     name: str
     folder_name: str
@@ -172,7 +187,7 @@ class Tool(BaseModel):
         orm_mode = True
 
 
-class ToolConfig(BaseModel):
+class ToolConfig(DBModel):
     id: int
     name: str
     key: str
@@ -183,7 +198,7 @@ class ToolConfig(BaseModel):
         orm_mode = True
 
 
-class User(BaseModel):
+class User(DBModel):
     id: int
     name: str
     email: str
