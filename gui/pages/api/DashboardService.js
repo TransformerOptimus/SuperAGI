@@ -135,3 +135,6 @@ export const fetchToolTemplateList = () => {
 export const fetchToolTemplateOverview = (toolTemplateName) => {
   return api.get(`/tool_kits/marketplace/readme/${toolTemplateName}`);
 }
+export const installToolkitTemplate = (templateName) => {
+  return api.get(`/tool_kits/get/install/${templateName}`);
+}

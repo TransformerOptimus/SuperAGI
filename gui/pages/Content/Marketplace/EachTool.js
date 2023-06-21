@@ -5,7 +5,7 @@ import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import {installAgentTemplate,fetchToolTemplateOverview} from "@/pages/api/DashboardService";
+import {installAgentTemplate, fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
@@ -46,7 +46,7 @@ export default function EachTool({template}) {
             return;
         }
 
-        installAgentTemplate(template.id)
+        installToolkitTemplate(template.name)
             .then((response) => {
                 toast.success("Template installed", {autoClose: 1800});
                 setInstalled('Installed');
