@@ -138,9 +138,9 @@ def install_tool_kit_from_marketplace(tool_kit_name: str,
                                                 tool_kit_name=tool_kit_name)
     # download_and_install_tool(GitHubLinkRequest(github_link=tool_kit['tool_code_link']),
     #                           organisation=organisation)
-    if not validate_github_link(tool_kit.tool_code_link):
+    if not validate_github_link(tool_kit['tool_code_link']):
         raise HTTPException(status_code=400, detail="Invalid Github link")
-    add_tool_to_json(tool_kit.tool_code_link)
+    add_tool_to_json(tool_kit['tool_code_link'])
     return {"message": "ToolKit installed successfully"}
 
 
