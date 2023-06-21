@@ -57,7 +57,7 @@ class SendEmailTool(BaseTool):
             body += f"\n{signature}"
         message.set_content(body)
         draft_folder = get_config('EMAIL_DRAFT_MODE_WITH_FOLDER')
-        send_to_draft = draft_folder is not None or draft_folder != "YOUR_DRAFTS_FOLDER"
+        send_to_draft = draft_folder is not None and draft_folder != "YOUR_DRAFTS_FOLDER"
         if message["To"] == "example@example.com" or send_to_draft:
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password)
             conn.append(

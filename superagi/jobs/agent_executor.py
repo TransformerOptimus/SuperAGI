@@ -17,6 +17,7 @@ from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
@@ -164,7 +165,7 @@ class AgentExecutor:
         print(user_tools)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
-                                              model_api_key=model_api_key)
+                                              model_api_key=model_api_key, session=session)
         
 
 
@@ -205,7 +206,7 @@ class AgentExecutor:
         # finally:
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):
+    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key, session):
         """
         Set the default parameters for the tools.
 
@@ -232,6 +233,9 @@ class AgentExecutor:
                 tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
+            if hasattr(tool, 'resource_manager'):
+                tool.resource_manager = ResourceManager(session=session)
+
             new_tools.append(tool)
         return tools
 
