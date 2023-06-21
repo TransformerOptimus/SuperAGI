@@ -26,10 +26,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [dropdown, setDropdown] = useState(false);
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
+  const [pendingPermission, setPendingPermissions] = useState(0)
 
   const pendingPermissions = useMemo(() => {
     if (!fetchedData) return 0;
-    return fetchedData.filter(permission => permission.status === "PENDING").length;
+    setPendingPermissions(fetchedData.filter(permission => permission.status === "PENDING").length);
   }, [fetchedData]);
 
   const addInstruction = () => {
@@ -240,7 +241,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
           <div style={{display:'flex',overflowX:'scroll'}}>
             {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
-                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console &nbsp; {pendingPermissions>0 && <span className={styles.notification_circle}>{pendingPermissions}</span>}
+                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console &nbsp; {pendingPermission>0 && <span className={styles.notification_circle}>{pendingPermission}</span>}
               </button>
             </div>}
             {/*<div>*/}
@@ -268,7 +269,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
               <div className={styles.detail_content}>
-                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} />
+                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
               </div>
           )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
