@@ -27,14 +27,17 @@ export default function Market() {
 
     useEffect(() => {
         const handleOpenTemplateDetails = (item) => {
-            setAgentTemplateData(item)
-            setItemClicked(true)
+            setAgentTemplateData(item);
+            setItemClicked(true);
         };
+
         const handleBackClick = ()=>{
-            setItemClicked(false)
+            setItemClicked(false);
         }
+
         EventBus.on('openTemplateDetails', handleOpenTemplateDetails);
         EventBus.on('goToMarketplace', handleBackClick);
+
         return () => {
             EventBus.off('openTemplateDetails', handleOpenTemplateDetails);
             EventBus.off('goToMarketplace', handleBackClick);

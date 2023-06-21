@@ -210,14 +210,14 @@ input[type="range"]::-moz-range-track {
 .dropdown_container {
     width: 150px;
     height: fit-content;
-    background: #1B192C;
+    background: #2E293F;
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: absolute;
     border-radius: 8px;
-    box-shadow: -3px 3px 8px rgba(0, 0, 0, 0.3);
-    padding: 4px 5px;
+    box-shadow: -2px 2px 24px rgba(0, 0, 0, 0.4);
+    padding: 5px;
 }
 
 .dropdown_item {
