@@ -9,7 +9,7 @@ import axios from 'axios';
 export default function Tools({ sendToolData, tools }) {
   const [filterSelected, setFilter] = useState('all');
   const [toolsArray, setTools] = useState(tools);
-  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
+  const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
   
   
   const handleFilter = (value) => {
