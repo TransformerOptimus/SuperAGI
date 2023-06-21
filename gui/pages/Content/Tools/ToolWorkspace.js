@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
-import {EventBus} from "@/utils/eventBus";
-import {updateToolConfig, getToolConfig, getGoogleCreds, authenticateGoogleCred} from "@/pages/api/DashboardService";
+import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
-import axios from 'axios';
 
 export default function ToolWorkspace({toolDetails}){
     const [activeTab,setActiveTab] = useState('Configuration')
@@ -57,12 +55,12 @@ export default function ToolWorkspace({toolDetails}){
       }));
       
       updateToolConfig(toolDetails.name, updatedConfigData)
-      .then((response) => {
-          toast.success('Updated successfully');
-      })
-      .catch((error) => {
-        console.error('Error updating tool config:', error);
-      });
+        .then((response) => {
+            toast.success('Updated successfully');
+        })
+        .catch((error) => {
+          console.error('Error updating tool config:', error);
+        });
     };
 
     const handleAuthenticateClick = async () => {
@@ -86,12 +84,12 @@ export default function ToolWorkspace({toolDetails}){
                   <div>{toolDetails.name}</div>
                   <div style={{marginRight:'40px'}}>
                   <div className={styles.description} style={!showDescription ? { maxHeight: '1.5em', overflow: 'hidden' } : {}}>
-                  {toolDetails.description}
+                    {toolDetails.description}
                   </div>
                   {toolDetails.description?.length > 0 && (
-                  <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                      {showDescription ? 'Show Less' : 'Show More'}
-                  </div>
+                    <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                        {showDescription ? 'Show Less' : 'Show More'}
+                    </div>
                   )}
                   </div>
               </div>
@@ -142,6 +140,7 @@ export default function ToolWorkspace({toolDetails}){
             ))}
           </div>}
       </div>
+      <ToastContainer/>
     </>);
 }
 
