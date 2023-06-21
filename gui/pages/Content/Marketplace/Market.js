@@ -82,7 +82,7 @@ export default function Market() {
         </div>
         </div> : <div style={{padding:'0 3px'}}>
             {detailType === 'agent_template' && <AgentTemplate template={templateData}/>}
-            {detailType === 'tool_template' && <EachTool />}
+            {detailType === 'tool_template' && <EachTool template={templateData} />}
         </div>}
     </div>
   );

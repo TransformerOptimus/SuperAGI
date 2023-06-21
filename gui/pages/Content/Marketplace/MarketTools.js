@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import styles from './Market.module.css';
-import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
+import {fetchAgentTemplateList, fetchToolTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {loadingTextEffect} from "@/utils/utils";
+import axios from 'axios';
 
 export default function MarketTools(){
   const [toolTemplates, setToolTemplates] = useState([])
@@ -18,21 +19,32 @@ export default function MarketTools(){
       setShowMarketplace(true)
     }
 
-    fetchAgentTemplateList()
-        .then((response) => {
-          const data = response.data || [];
-          setToolTemplates(data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent templates:', error);
-        });
+      const fetchToolTemplateList = async () => {
+          try {
+              const response = await axios.get('http://192.168.1.26:3000/api/tool_kits/get/list?page=0');
+              setToolTemplates(response.data || []);
+              setIsLoading(false);
+          } catch (error) {
+              console.error('Error fetching tools included:', error);
+          }
+      };
+      fetchToolTemplateList()
+
+      // fetchToolTemplateList()
+      //   .then((response) => {
+      //     const data = response.data || [];
+      //     console.log(data)
+      //     setToolTemplates(data);
+      //     setIsLoading(false);
+      //   })
+      //   .catch((error) => {
+      //     console.error('Error fetching agent templates:', error);
+      //   });
   }, []);
 
   function handleTemplateClick(item) {
     const contentType = 'tool_template';
     EventBus.emit('openTemplateDetails', { item, contentType });
-    // EventBus.emit('openTemplateDetails', item);
   }
 
   return (
@@ -42,7 +54,8 @@ export default function MarketTools(){
             {toolTemplates.map((item, index) => (
                 <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                   <div style={{display: 'inline',overflow:'auto'}}>
-                    <div>{item.name}</div>
+                      {/*<Image style={{borderRadius: '25px',background:'black',position:'absolute'}} width={40} height={40} src="/images/app-logo-light.png" alt="tool-icon"/>*/}
+                      <div>{item.name}</div>
                     <div style={{color: '#888888',lineHeight:'16px'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
                     <div className={styles.tool_description}>{item.description}</div>
                   </div>
