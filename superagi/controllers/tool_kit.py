@@ -66,7 +66,7 @@ def get_marketplace_tool_kit_detail(tool_kit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id).first()
+    tool_kit = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id,ToolKit.name == tool_kit_name).first()
     return tool_kit
 
 #For internal use
