@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import { updatePermissions } from '@/pages/api/DashboardService';
+import TypingText from './TypingText';
 
 export default function ActionConsole({ actions }) {
     const [hiddenActions, setHiddenActions] = useState([]);
@@ -9,6 +10,7 @@ export default function ActionConsole({ actions }) {
     const [localActions, setLocalActions] = useState(actions);
     const [denied, setDenied] = useState([]);
     const [localActionIds, setLocalActionIds] = useState([]);
+    const text = 'My Name is Pratika and I am a student at Christ University My Name is Pratika and I am a student at Christ University My Name is Pratika and I am a student at Christ University My Name is Pratika and I am a student at Christ University'; // Your text content
 
     useEffect(() => {
         const updatedActions = actions.filter(
@@ -74,6 +76,12 @@ export default function ActionConsole({ actions }) {
 
     return (
         <>
+            <div className="App">
+                <h1>Typing Text Animation</h1>
+                <p>
+                    <TypingText text={text} />
+                </p>
+            </div>
             {actions.some(action => action.status === "PENDING") ? (<div className={styles.detail_body} style={{ height: "auto" }}>
                 {actions.map((action, index) => action.status === "PENDING" && !hiddenActions.includes(index) && (
                     <div key={index} className={styles.history_box} style={{ background: "#272335", padding: "16px", cursor: "default" }}>

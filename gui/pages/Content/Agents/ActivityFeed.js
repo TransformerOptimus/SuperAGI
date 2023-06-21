@@ -4,6 +4,7 @@ import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {formatTime} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import TypingText from './TypingText';
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
   const [loadingText, setLoadingText] = useState("Thinking");
@@ -65,6 +66,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         const data = response.data;
         setFeeds(data.feeds);
         setRunStatus(data.status);
+        console.log(data)
         setFetchedData(data.permissions);
       })
       .catch((error) => {
@@ -89,26 +91,30 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   return (<>
     <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom:'55px'}}>
-        {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
-          <div style={{display:'flex'}}>
-            {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
-            {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
-            {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
-            <div className={styles.feed_title}>{f?.feed || ''}</div>
-          </div>
-          <div className={styles.more_details_wrapper}>
-            {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
-              <div style={{display: 'flex', alignItems: 'center'}}>
-                <div>
-                  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+        {
+            feeds && feeds.map((f, index) => (
+                <div key={index} className={styles.history_box} style={{ background: '#272335', padding: '20px', cursor: 'default' }}>
+                  <div style={{ display: 'flex' }}>
+                    {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
+                    {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
+                    {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
+                    <TypingText text={f?.feed || ''} minWords={2} maxWords={4} speed={200} startTyping={index === feeds.length - 1} />
+                  </div>
+                  <div className={styles.more_details_wrapper}>
+                    {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <div>
+                          <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" />
+                        </div>
+                        <div className={styles.history_info}>
+                          {formatTime(f.updated_at)}
+                        </div>
+                      </div>
+                    </div>}
+                  </div>
                 </div>
-                <div className={styles.history_info}>
-                  {formatTime(f.updated_at)}
-                </div>
-              </div>
-            </div>}
-          </div>
-        </div>))}
+            ))
+        }
         {runStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
           <div style={{display: 'flex'}}>
             <div style={{fontSize: '20px'}}>🧠</div>
