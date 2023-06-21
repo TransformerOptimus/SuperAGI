@@ -47,5 +47,6 @@ class TaskQueueTests(unittest.TestCase):
         self.queue.get_last_task_details()
         mock_get_last_task_details.assert_called()
 
+
 if __name__ == '__main__':
     unittest.main()
