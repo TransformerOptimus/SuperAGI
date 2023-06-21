@@ -122,8 +122,7 @@ class WriteSpecTool(BaseTool):
             # Save the specification to a file
             write_result = self._write_spec_to_file(result["content"], spec_file_name)
             if not write_result.startswith("Error"):
-                result["specification"] = "Specification generated and saved successfully"
-                return result
+                return result["content"] + "Specification generated and saved successfully"
             else:
                 return write_result
                 
