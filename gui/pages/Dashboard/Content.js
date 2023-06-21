@@ -85,16 +85,20 @@ export default function Content({selectedView, selectedProjectId, organisationId
     let addedTabIndex = null;
 
     const isExistingTab = tabs.some(
-      (tab) => tab.id === element.id && tab.name === element.name && tab.content === element.contentType
+      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType
     );
 
     if (!isExistingTab) {
       const updatedTabs= [...tabs, element];
       setTabs(updatedTabs);
       addedTabIndex = updatedTabs.length - 1;
+      setSelectedTab(addedTabIndex);
+    } else {
+      const existingTabIndex = tabs.findIndex(
+        (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType
+      );
+      setSelectedTab(existingTabIndex);
     }
-
-    setSelectedTab(addedTabIndex);
   };
 
   useEffect(() => {

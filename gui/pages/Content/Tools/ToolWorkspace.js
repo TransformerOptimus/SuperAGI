@@ -90,7 +90,7 @@ export default function ToolWorkspace({toolDetails}){
                   </div>
                   {toolDetails.description?.length > 0 && (
                   <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                      {showDescription ? 'Show Less' : '...Show More'}
+                      {showDescription ? 'Show Less' : 'Show More'}
                   </div>
                   )}
                   </div>
@@ -115,7 +115,10 @@ export default function ToolWorkspace({toolDetails}){
                   </div>
                 </div>
               </div>
-            ))) : (<div>No keys found</div>)}
+            ))) : (<div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
+            <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+            <span className={styles.feed_title} style={{marginTop: '8px'}}>No Keys found!</span>
+          </div>)}
 
           {apiConfigs.length > 0 && (
             <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>

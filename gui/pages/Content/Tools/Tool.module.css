@@ -176,6 +176,19 @@
     overflow-y: auto;
 }
 
+.feed_title {
+    font-family: 'Source Code Pro';
+    margin-left: 10px;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    color: white;
+    white-space: pre-line;
+    word-wrap: break-word;
+    max-width: 95%;
+}
+
 .search_box {
     width: 100%;
 }
