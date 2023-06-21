@@ -39,7 +39,7 @@ def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclu
     db.session.add(new_organisation)
     db.session.commit()
     db.session.flush()
-    register_tool_kits(session=db.session, organisation=organisation)
+    register_tool_kits(session=db.session, organisation=new_organisation)
     logger.info(new_organisation)
 
     return new_organisation
