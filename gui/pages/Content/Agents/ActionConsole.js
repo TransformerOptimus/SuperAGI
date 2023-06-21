@@ -136,7 +136,7 @@ export default function ActionConsole({ actions, pendingPermission, setPendingPe
                             return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
                                                reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}/>);
                         }
-                        else {
+                        else if(action.status === 'APPROVED' || action.status === 'REJECTED') {
                             return (<HistoryBox key={action.id} action={action} />);
                         }
                         return null;
