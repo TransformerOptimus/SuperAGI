@@ -89,10 +89,14 @@ class LanceDB(VectorStore):
         """
         namespace = kwargs.get("namespace", self.namespace)
 
+        for table in self.db.table_names():
+            if table == namespace:
+                tbl = self.db.open_table(table)
+
         try:
-            tbl = self.db.open_table(namespace)
+            tbl
         except:
-            raise ValueError("Table name was not found in LanceDB")
+            raise ValueError(namespace + " Table not found in LanceDB.")
 
         embed_text = self.embedding_model.get_embedding(query)
         res = tbl.search(embed_text).limit(top_k).to_df()

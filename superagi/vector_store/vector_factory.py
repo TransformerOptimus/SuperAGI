@@ -49,7 +49,7 @@ class VectorFactory:
 
         if vector_store == "LanceDB":
             try:
-                # connect lancedb to local directory /lancedb/
+                # connect lancedb to local directory /lancedb/index_name
                 uri = "/lancedb/" + index_name
                 db = lancedb.connect(uri)
 

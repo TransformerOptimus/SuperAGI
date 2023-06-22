@@ -58,7 +58,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
   const databases = ["Pinecone", "LanceDB"]
-  const [database, setDatabase] = useState(databases[1]);
+  const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
