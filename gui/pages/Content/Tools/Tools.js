@@ -1,16 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import Image from "next/image";
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
-import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
 
 export default function Tools({ sendToolData, tools }) {
   const [filterSelected, setFilter] = useState('all');
   const [toolsArray, setTools] = useState(tools);
   const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
-  
   
   const handleFilter = (value) => {
     setFilter(value);
@@ -79,8 +76,6 @@ export default function Tools({ sendToolData, tools }) {
           )}
         </div>
       </div>
-
-      <ToastContainer />
     </>
   );
 }
