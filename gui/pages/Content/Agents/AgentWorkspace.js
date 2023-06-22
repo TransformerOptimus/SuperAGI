@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +14,7 @@ import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId, selectedView}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('details')
+  const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
@@ -155,15 +155,15 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   function fetchAgentDetails(agentId) {
     getAgentDetails(agentId)
-        .then((response) => {
-          setAgentDetails(response.data);
-          setTools(response.data.tools);
-          setGoals(response.data.goal);
-          setInstructions(response.data.instruction);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent details:', error);
-        });
+      .then((response) => {
+        setAgentDetails(response.data);
+        setTools(response.data.tools);
+        setGoals(response.data.goal);
+        setInstructions(response.data.instruction);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent details:', error);
+      });
   }
 
   function fetchExecutions(agentId, currentRun = null) {
