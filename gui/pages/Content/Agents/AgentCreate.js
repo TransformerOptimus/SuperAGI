@@ -57,7 +57,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
-  const databases = ["Pinecone"]
+  const databases = ["Pinecone", "LanceDB"]
   const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
@@ -172,7 +172,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setToolNames((prevArray) => [...prevArray, tool.name]);
     }
   };
-  
+
   const removeTool = (indexToDelete) => {
     setMyTools((prevArray) => {
       const newArray = [...prevArray];
@@ -339,7 +339,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
-    // if permission has word restricted change the permission to 
+    // if permission has word restricted change the permission to
     let permission_type = permission;
     if (permission.includes("RESTRICTED")) {
       permission_type = "RESTRICTED";
