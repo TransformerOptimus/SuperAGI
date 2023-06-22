@@ -1,33 +1,39 @@
 import pytest
 from unittest.mock import patch
-from superagi.helper.resource_helper import ResourceHelper  # Replace with actual import
-@pytest.fixture
-def resource_helper():
-    with patch('superagi.helper.resource_helper.get_config') as get_config_mock, \
-         patch('superagi.helper.resource_helper.os.getcwd') as get_cwd_mock, \
-         patch('superagi.helper.resource_helper.os.path.getsize') as getsize_mock:
+from superagi.helper.resource_helper import ResourceHelper
 
-        get_config_mock.return_value = '/fake/path'
-        get_cwd_mock.return_value = '/fake/cwd'
-        getsize_mock.return_value = 100
+def test_make_written_file_resource(mocker):
+    mocker.patch('os.getcwd', return_value='/')
+    # mocker.patch('os.getcwd', return_value='/')
+    mocker.patch('os.makedirs', return_value=None)
+    mocker.patch('os.path.getsize', return_value=1000)
+    mocker.patch('os.path.splitext', return_value=("", ".txt"))
+    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/', 'local', None])
 
-        yield
+    with patch('superagi.helper.resource_helper.logger') as logger_mock:
+        result = ResourceHelper.make_written_file_resource('test.txt', 1, 'INPUT')
 
-def test_make_written_file_resource(resource_helper):
-    file_name = 'test.png'
-    agent_id = 1
-    channel = 'INPUT'
-    result = ResourceHelper.make_written_file_resource(file_name, agent_id, channel)
-
-    assert result.name == file_name
-    assert result.path == '/fake/path/' + file_name
-    assert result.size == 100
-    assert result.type == 'image/png'
+    assert result.name == 'test.txt'
+    assert result.path == '/1/test.txt'
+    assert result.storage_type == 'local'
+    assert result.size == 1000
+    assert result.type == 'application/txt'
     assert result.channel == 'OUTPUT'
-    assert result.agent_id == agent_id
+    assert result.agent_id == 1
 
-def test_get_resource_path(resource_helper):
-    file_name = 'test.png'
-    result = ResourceHelper.get_resource_path(file_name)
+def test_get_resource_path(mocker):
+    mocker.patch('os.getcwd', return_value='/')
+    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/'])
 
-    assert result == '/fake/path/test.png'
+    result = ResourceHelper.get_resource_path('test.txt')
+
+    assert result == '/test.txt'
+
+def test_get_agent_resource_path(mocker):
+    mocker.patch('os.getcwd', return_value='/')
+    mocker.patch('os.makedirs')
+    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/'])
+
+    result = ResourceHelper.get_agent_resource_path('test.txt', 1)
+
+    assert result == '/1/test.txt'

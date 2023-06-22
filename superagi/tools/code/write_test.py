@@ -5,6 +5,7 @@ from superagi.config.config import get_config
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 import os
 from superagi.llms.base_llm import BaseLlm
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
 from superagi.lib.logger import logger
 from superagi.models.db import connect_db
@@ -35,6 +36,7 @@ class WriteTestTool(BaseTool):
         description : The description of tool.
         args_schema : The args schema.
         goals : The goals.
+        resource_manager: Manages the file resources
     """
     llm: Optional[BaseLlm] = None
     agent_id: int = None
@@ -47,53 +49,11 @@ class WriteTestTool(BaseTool):
     )
     args_schema: Type[WriteTestSchema] = WriteTestSchema
     goals: List[str] = []
+    resource_manager: Optional[ResourceManager] = None
 
     class Config:
         arbitrary_types_allowed = True
 
-
-    def write_tests_to_file(self, tests_content: str, test_file_name: str) -> str:
-        try:
-            engine = connect_db()
-            Session = sessionmaker(bind=engine)
-            session = Session()
-
-            final_path = test_file_name
-            root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-            if root_dir is not None:
-                root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-                root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-                final_path = root_dir + test_file_name
-            else:
-                final_path = os.getcwd() + "/" + test_file_name
-
-            try:
-                with open(final_path, mode="w") as test_file:
-                    test_file.write(tests_content)
-
-                with open(final_path, 'r') as test_file:
-                    resource = ResourceHelper.make_written_file_resource(file_name=test_file_name,
-                                                                        agent_id=self.agent_id, file=test_file, channel="OUTPUT")
-
-                if resource is not None:
-                    session.add(resource)
-                    session.commit()
-                    session.flush()
-                    if resource.storage_type == "S3":
-                        s3_helper = S3Helper()
-                        s3_helper.upload_file(test_file, path=resource.path)
-                logger.info(f"Tests {test_file_name} saved successfully")
-            except Exception as err:
-                session.close()
-                return f"Error: {err}"
-            session.close()
-
-            return "Tests saved successfully"
-            
-        except Exception as e:
-            return f"Error saving tests to file: {e}"
-
-    
     def _execute(self, spec_description: str, test_file_name: str) -> str:
         """
         Execute the write_test tool.
@@ -119,9 +79,9 @@ class WriteTestTool(BaseTool):
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
             prompt = prompt.replace("{spec}", spec_description)
             messages = [{"role": "system", "content": prompt}]
-            
+
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
-            
+
             # Extract the code part using regular expression
             code = re.search(r'(?<=```python).*?(?=```)', result["content"], re.DOTALL)
             if code:
@@ -130,12 +90,12 @@ class WriteTestTool(BaseTool):
                 return "Unable to extract code from the response"
 
             # Save the tests to a file
-            save_result = self.write_tests_to_file(code_content, test_file_name)
+            save_result = self.resource_manager.write_file(test_file_name, code_content)
             if not save_result.startswith("Error"):
-                return "Tests generated and saved successfully"
+                return result["content"] + " \n Tests generated and saved successfully in " + test_file_name
             else:
                 return save_result
-                    
+
         except Exception as e:
             logger.error(e)
             return f"Error generating tests: {e}"
