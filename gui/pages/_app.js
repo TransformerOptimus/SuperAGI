@@ -10,7 +10,7 @@ import { getOrganisation, getProject, validateAccessToken, checkEnvironment, add
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 
 export default function App() {
@@ -24,18 +24,6 @@ export default function App() {
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
 
-  useEffect(() => {
-    const text = 'Initializing SuperAGI';
-    let dots = '';
-
-    const interval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setLoadingText(`${text}${dots}`);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
   function fetchOrganisation(userId) {
     getOrganisation(userId)
       .then((response) => {
@@ -47,6 +35,12 @@ export default function App() {
   }
 
   useEffect(() => {
+    if(window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true);
+    }
+
+    loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
+
     checkEnvironment()
       .then((response) => {
         const env = response.data.env;
@@ -114,12 +108,6 @@ export default function App() {
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
-
-  useEffect(() => {
-      if(window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true)
-    }
-  }, []);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -139,7 +127,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {showMarketplace && <div className="projectStyle"> <MarketplacePublic /> </div>}
+      {showMarketplace && <div className="projectStyle"> <MarketplacePublic env={env} /> </div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? ( <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
