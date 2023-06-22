@@ -17,9 +17,9 @@ class ResourceManager:
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
-        if self.agent_id is not None:
-            directory = os.path.dirname(final_path + "/" + str(self.agent_id))
-            os.makedirs(directory, exist_ok=True)
+        # if self.agent_id is not None:
+        #     directory = os.path.dirname(final_path + "/" + str(self.agent_id) + "/")
+        #     os.makedirs(directory, exist_ok=True)
         try:
             with open(final_path, mode="wb") as img:
                 img.write(data)
