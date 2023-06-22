@@ -18,11 +18,30 @@ class SendEmailInput(BaseModel):
 
 
 class SendEmailTool(BaseTool):
+    """
+    Send an Email tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Send Email"
     args_schema: Type[BaseModel] = SendEmailInput
     description: str = "Send an Email"
 
     def _execute(self, to: str, subject: str, body: str) -> str:
+        """
+        Execute the send email tool.
+
+        Args:
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+
+        Returns:
+            
+        """
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
@@ -38,7 +57,8 @@ class SendEmailTool(BaseTool):
             body += f"\n{signature}"
         message.set_content(body)
         draft_folder = get_config('EMAIL_DRAFT_MODE_WITH_FOLDER')
-        if message["To"] == "example@example.com" or draft_folder:
+        send_to_draft = draft_folder is not None and draft_folder != "YOUR_DRAFTS_FOLDER"
+        if message["To"] == "example@example.com" or send_to_draft:
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password)
             conn.append(
                 draft_folder,

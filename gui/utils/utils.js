@@ -48,9 +48,29 @@ export const formatBytes = (bytes, decimals = 2) => {
   return `${formattedValue} ${sizes[i]}`;
 }
 
-export const  downloadFile = (fileId) => {
-  window.open(`${baseUrl()}/resources/get/${fileId}`, '_blank');
-}
+export const downloadFile = (fileId) => {
+  const authToken = localStorage.getItem('accessToken');
+  const url = `${baseUrl()}/resources/get/${fileId}`;
+  const env = localStorage.getItem('applicationEnvironment');
+
+  if(env === 'PROD') {
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+    };
+
+    fetch(url, { headers })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const fileUrl = window.URL.createObjectURL(blob);
+        window.open(fileUrl, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error downloading file:", error);
+      });
+  } else {
+    window.open(url, "_blank");
+  }
+};
 
 export const refreshUrl = () => {
   if (typeof window === 'undefined') {
@@ -60,3 +80,15 @@ export const refreshUrl = () => {
   const urlWithoutToken = window.location.origin + window.location.pathname;
   window.history.replaceState({}, document.title, urlWithoutToken);
 };
+
+export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
+  const text = loadingText;
+  let dots = '';
+
+  const interval = setInterval(() => {
+    dots = dots.length < 3 ? dots + '.' : '';
+    setLoadingText(`${text}${dots}`);
+  }, timer);
+
+  return () => clearInterval(interval)
+}

@@ -19,11 +19,30 @@ class ReadEmailInput(BaseModel):
 
 
 class ReadEmailTool(BaseTool):
+    """
+    Read emails from an IMAP mailbox
+
+    Attributes:
+        name : The name of the tool.
+        description : The description of the tool.
+        args_schema : The args schema.
+    """
     name: str = "Read Email"
     args_schema: Type[BaseModel] = ReadEmailInput
     description: str = "Read emails from an IMAP mailbox"
 
     def _execute(self, imap_folder: str = "INBOX", page: int = 0, limit: int = 5) -> str:
+        """
+        Execute the read email tool.
+
+        Args:
+            imap_folder : The email folder to read from. Defaults to "INBOX".
+            page : The index of the page result the function should return. Defaults to 0, the first page.
+            limit : Number of emails to fetch in one cycle. Defaults to 5.
+
+        Returns:
+            email content or error message
+        """
         email_sender = get_config('EMAIL_ADDRESS')
         email_password = get_config('EMAIL_PASSWORD')
         if email_sender == "":

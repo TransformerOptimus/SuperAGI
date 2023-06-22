@@ -3,11 +3,11 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId,template}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -19,19 +19,23 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [isDragging, setIsDragging] = useState(false);
   const [createClickable, setCreateClickable] = useState(true);
   const fileInputRef = useRef(null);
-  const pdf_icon = '/images/pdf_file.svg'
-  const txt_icon = '/images/txt_file.svg'
+  const pdf_icon = '/images/pdf_file.svg';
+  const txt_icon = '/images/txt_file.svg';
+  const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
 
-  const constraintsArray = ["~4000 word limit for short term memory. Your short term memory is short, so immediately save important information to files.",
+  const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-    "No user assistance", "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the commands listed in double quotes e.g. "command name"']
+    "Ensure the command and args are as per current plan and reasoning",
+    'Exclusively use the tools listed in double quotes e.g. "tool name"',
+    "REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."
+  ];
   const [constraints, setConstraints] = useState(constraintsArray);
 
-  const [goals, setGoals] = useState(['agent goal 1']);
+  const [goals, setGoals] = useState(['Describe the agent goals here']);
+  const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo']
+  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -58,7 +62,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
 
-  const permissions = ["God Mode"]
+  const permissions = ["God Mode","RESTRICTED (Will ask for permission before using any tool)"]
   const [permission, setPermission] = useState(permissions[0]);
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
@@ -68,6 +72,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
+  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -96,6 +101,33 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   useEffect(() => {
     filterToolsByNames();
   }, [toolNames]);
+
+  useEffect(() => {
+    if(template !== null) {
+      setAgentName(template.name)
+      setAgentDescription(template.description)
+      setAdvancedOptions(true)
+
+      fetchAgentTemplateConfigLocal(template.id)
+          .then((response) => {
+            const data = response.data || [];
+            setGoals(data.goal)
+            setAgentType(data.agent_type)
+            setConstraints(data.constraints)
+            setIterations(data.max_iterations)
+            setRollingWindow(data.memory_window)
+            setPermission(data.permission_type)
+            setStepTime(data.iteration_interval)
+            setInstructions(data.instruction)
+            setDatabase(data.LTM_DB)
+            setModel(data.model)
+            setToolNames(data.tools)
+          })
+          .catch((error) => {
+            console.error('Error fetching template details:', error);
+          });
+    }
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -194,6 +226,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     updatedGoals[index] = newValue;
     setGoals(updatedGoals);
   };
+  const handleInstructionChange = (index, newValue) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions[index] = newValue;
+    setInstructions(updatedInstructions);
+  };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
@@ -207,6 +244,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setGoals(updatedGoals);
   };
 
+  const handleInstructionDelete = (index) => {
+    const updatedInstructions = [...instructions];
+    updatedInstructions.splice(index, 1);
+    setInstructions(updatedInstructions);
+  };
+
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
@@ -215,6 +258,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
+  };
+  const addInstruction = () => {
+    setInstructions((prevArray) => [...prevArray, 'new instructions']);
   };
 
   const addConstraint = () => {
@@ -293,11 +339,18 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
+    // if permission has word restricted change the permission to 
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
+
     const agentData = {
       "name": agentName,
       "project_id": selectedProjectId,
       "description": agentDescription,
       "goal": goals,
+      "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
       "tools": myTools,
@@ -305,7 +358,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "iteration_interval": stepTime,
       "model": model,
       "max_iterations": maxIterations,
-      "permission_type": permission,
+      "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
       "memory_window": rollingWindow
     };
@@ -389,13 +442,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const ResourceItem = ({ file, index }) => {
     const isPDF = file.type === 'application/pdf';
     const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
+    const isIMG = file.type.includes('image');
 
     return (
       <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="file-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="file-icon" /></div>}
-          {!isTXT && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
+          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
+          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+          {!isTXT && !isIMG && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
           <div style={{ marginLeft: '5px', width:'100%' }}>
             <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
             <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
@@ -443,6 +498,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>))}
             <div><button className="secondary_button" onClick={addGoal}>+ Add</button></div>
           </div>
+
+          <div style={{marginTop: '15px'}}>
+            <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
+              {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+                </div>{instructions.length > 1 && <div>
+                  <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  </button>
+                </div>}
+              </div>))}
+              <div>
+                <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+              </div>
+          </div>
+
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
             <div className="dropdown_container_search" style={{width:'100%'}}>
@@ -473,7 +544,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div>
                 {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
                   {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
+                    {tool.name !== null && !excludedTools.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
                           style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
                     </div>}
@@ -527,7 +598,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
                     <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
                       <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-                      <input type="file" ref={fileInputRef} accept=".pdf,.txt" style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+                      <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
                   </div>
                   <ResourceList files={input}/>
                 </div>}
@@ -614,7 +685,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
                     {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                   </div>
-                  <div>
+                  <div style={{marginBottom: '20px'}}>
                     {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>
                       {permissions.map((permit, index) => (<div key={index} className="custom_select_option" onClick={() => handlePermissionSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                         {permit}
