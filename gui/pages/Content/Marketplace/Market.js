@@ -11,7 +11,7 @@ import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
 import {arEG} from "date-fns/locale";
 
-export default function Market({source}) {
+export default function Market({source, env}) {
     const [activeTab, setActiveTab] = useState(source || 'market_tools');
     const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
@@ -82,7 +82,7 @@ export default function Market({source}) {
         </div>
         </div> : <div style={{padding:'0 3px'}}>
             {detailType === 'agent_template' && <AgentTemplate template={templateData}/>}
-            {detailType === 'tool_template' && <EachTool template={templateData} />}
+            {detailType === 'tool_template' && <EachTool env={env} template={templateData} />}
         </div>}
     </div>
   );

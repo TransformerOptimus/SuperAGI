@@ -10,10 +10,10 @@ import {EventBus} from "@/utils/eventBus";
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
 
-export default function EachTool({template}) {
+export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
     const [installed, setInstalled] = useState('')
-    const [markdownContent, setMarkdownContent] = useState('');
+    const [markdownContent, setMarkdownContent] = useState(null);
 
     useEffect(() => {
         setInstalled(template && template.is_installed? 'Installed' : 'Install');
@@ -33,11 +33,11 @@ export default function EachTool({template}) {
 
     function handleInstallClick(){
         if(window.location.href.toLowerCase().includes('marketplace')) {
-            if (window.location.href.toLowerCase().includes('localhost')) {
+            if (env === 'PROD') {
+                window.open(`https://app.superagi.com/`, '_self');
+            } else {
                 window.location.href = '/';
             }
-            else
-                window.open(`https://app.superagi.com/`, '_self')
             return;
         }
 
