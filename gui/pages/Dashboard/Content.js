@@ -34,7 +34,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
       });
   }
 
-  function fetchTools() {
+  function fetchToolkits() {
     getToolKit()
       .then((response) => {
         const data = response.data || [];
@@ -44,13 +44,13 @@ export default function Content({selectedView, selectedProjectId, organisationId
         setTools(updatedData);
       })
       .catch((error) => {
-        console.error('Error fetching tools:', error);
+        console.error('Error fetching toolkits:', error);
       });
   }
 
   useEffect(() => {
     fetchAgents();
-    fetchTools();
+    fetchToolkits();
   }, [selectedProjectId])
 
   const closeTab = (e, index) => {
