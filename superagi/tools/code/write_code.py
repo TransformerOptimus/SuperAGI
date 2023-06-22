@@ -1,18 +1,15 @@
+import re
 from typing import Type, Optional, List
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
+
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-import os
+from superagi.helper.token_counter import TokenCounter
+from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
-from superagi.lib.logger import logger
-from superagi.models.db import connect_db
-from superagi.helper.resource_helper import ResourceHelper
-from superagi.helper.s3_helper import S3Helper
-from sqlalchemy.orm import sessionmaker
-import re
+
 
 class CodingSchema(BaseModel):
     spec_description: str = Field(
@@ -98,8 +95,10 @@ class CodingTool(BaseTool):
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
             prompt = prompt.replace("{spec}", spec_description)
             messages = [{"role": "system", "content": prompt}]
-            
-            result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+
+            total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            token_limit = TokenCounter.token_limit(self.llm.get_model())
+            result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
             # Get all filenames and corresponding code blocks
             regex = r"(\S+?)\n```\S+\n(.+?)```"
@@ -120,7 +119,6 @@ class CodingTool(BaseTool):
                     continue
 
                 file_names.append(file_name)
-                print(code + "RAMRAM1")
                 save_result = self.resource_manager.write_file(file_name, code)
                 if save_result.startswith("Error"):
                     return save_result

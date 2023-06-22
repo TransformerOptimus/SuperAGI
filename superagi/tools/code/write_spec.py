@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 from superagi.config.config import get_config
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 import os
+
+from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
@@ -78,8 +80,10 @@ class WriteSpecTool(BaseTool):
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
             prompt = prompt.replace("{task}", task_description)
             messages = [{"role": "system", "content": prompt}]
-            
-            result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+
+            total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            token_limit = TokenCounter.token_limit(self.llm.get_model())
+            result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
             
             # Save the specification to a file
             write_result = self.resource_manager.write_file(spec_file_name, result["content"])

@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 from superagi.config.config import get_config
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 import os
+
+from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
@@ -80,7 +82,9 @@ class WriteTestTool(BaseTool):
             prompt = prompt.replace("{spec}", spec_description)
             messages = [{"role": "system", "content": prompt}]
 
-            result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+            total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            token_limit = TokenCounter.token_limit(self.llm.get_model())
+            result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
             # Extract the code part using regular expression
             code = re.search(r'(?<=```python).*?(?=```)', result["content"], re.DOTALL)
