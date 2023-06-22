@@ -11,7 +11,7 @@ from superagi.resource_manager.manager import ResourceManager
 def resource_manager():
     session_mock = Mock()
     resource_manager = ResourceManager(session_mock)
-    resource_manager.agent_id = 1  # replace with actual value
+    #resource_manager.agent_id = 1  # replace with actual value
     return resource_manager
 
 
@@ -22,7 +22,7 @@ def test_write_binary_file(resource_manager):
             patch.object(S3Helper, 'upload_file'), \
             patch.object(logger, 'info') as logger_mock:
         result = resource_manager.write_binary_file('test.png', b'data')
-        assert result is None
+        assert result == "Binary test.png saved successfully"
         logger_mock.assert_called_once_with("Binary test.png saved successfully")
 
 
@@ -33,5 +33,5 @@ def test_write_file(resource_manager):
             patch.object(S3Helper, 'upload_file'), \
             patch.object(logger, 'info') as logger_mock:
         result = resource_manager.write_file('test.txt', 'content')
-        assert result is None
+        assert result == "test.txt saved successfully"
         logger_mock.assert_called_once_with("test.txt saved successfully")
