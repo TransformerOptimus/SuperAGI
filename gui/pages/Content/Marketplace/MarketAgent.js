@@ -3,6 +3,7 @@ import Image from "next/image";
 import styles from './Market.module.css';
 import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import {loadingTextEffect} from "@/utils/utils";
 
 export default function MarketAgent(){
     const [agentTemplates, setAgentTemplates] = useState([])
@@ -10,31 +11,22 @@ export default function MarketAgent(){
     const [isLoading, setIsLoading] = useState(true)
     const [loadingText, setLoadingText] = useState("Loading Templates");
 
-  useEffect(() => {
-    const text = 'Loading Templates';
-    let dots = '';
-
-    const interval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setLoadingText(`${text}${dots}`);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
     useEffect(() => {
-        if(window.location.href.toLowerCase().includes('marketplace')) {
-            setShowMarketplace(true)
-        }
-        fetchAgentTemplateList()
-            .then((response) => {
-                const data = response.data || [];
-                setAgentTemplates(data);
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching agent templates:', error);
-            });
+      loadingTextEffect('Loading Templates', setLoadingText, 500);
+
+      if(window.location.href.toLowerCase().includes('marketplace')) {
+          setShowMarketplace(true)
+      }
+
+      fetchAgentTemplateList()
+        .then((response) => {
+            const data = response.data || [];
+            setAgentTemplates(data);
+            setIsLoading(false);
+        })
+        .catch((error) => {
+            console.error('Error fetching agent templates:', error);
+        });
     }, []);
 
     function handleTemplateClick(item) {
@@ -44,7 +36,7 @@ export default function MarketAgent(){
     return (
         <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
            <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
-             {!isLoading ? <div className={styles.resources} style={agentTemplates.length === 2 ? {justifyContent:'flex-start',gap:'7px'} : {}}>
+             {!isLoading ? <div className={styles.resources}>
                 {agentTemplates.map((item, index) => (
                   <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                     <div style={{display: 'inline',overflow:'auto'}}>

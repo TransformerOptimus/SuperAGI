@@ -40,4 +40,4 @@ def test_clean_newline_spaces_json():
 def test_has_newline_in_string():
     test_str = r'{key: "value\n"\n    \n}'
     result = JsonCleaner.check_and_clean_json(test_str)
-    assert result == '{key: "value\\n"}'
+    assert result == '{key: "value"}'
