@@ -127,7 +127,7 @@ export default function ToolWorkspace({toolDetails}){
               <div key={index} className={styles.tools_included}>
                 <div>
                     <div style={{color:'white'}}>{tool.name}</div>
-                    <div style={{color:'#888888'}}>{tool.description}</div>
+                    <div style={{color:'#888888',marginTop:'5px'}}>{tool.description}</div>
                 </div>
               </div>
             ))}
