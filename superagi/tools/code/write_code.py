@@ -13,7 +13,10 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
 
 class CodingSchema(BaseModel):
-    pass
+    spec_description: str = Field(
+        ...,
+        description="Description of the coding task",
+    )
 
 class CodingTool(BaseTool):
     """
