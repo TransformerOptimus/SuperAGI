@@ -75,7 +75,7 @@ class ResourceHelper:
 
     @staticmethod
     def get_agent_resource_path(file_name: str, agent_id: int):
-        """Get final path of the resource.
+        """Get agent resource path
 
         Args:
             file_name (str): The name of the file.
