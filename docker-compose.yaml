@@ -1,18 +1,14 @@
 version: '3.8'
-
 services:
   backend:
     volumes:
       - "./:/app"
     build: .
-    ports:
-      - "8001:8001"
     depends_on:
       - super__redis
       - super__postgres
     networks:
       - super_network
-
   celery:
     volumes:
       - "./:/app"
@@ -24,25 +20,20 @@ services:
       - super__postgres
     networks:
       - super_network
-
   gui:
     build: ./gui
-    ports:
-      - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
+      - NEXT_PUBLIC_API_BASE_URL=/api
     networks:
       - super_network
     volumes:
       - ./gui:/app
       - /app/node_modules
       - /app/.next
-
   super__redis:
     image: "docker.io/library/redis:latest"
     networks:
       - super_network
-
   super__postgres:
     image: "docker.io/library/postgres:latest"
     environment:
@@ -53,12 +44,22 @@ services:
       - superagi_postgres_data:/var/lib/postgresql/data/
     networks:
       - super_network
+  
+  proxy:
+    image: nginx:stable-alpine
     ports:
-      - "5432:5432"
+      - "3000:80"
+    networks:
+      - super_network
+    depends_on:
+      - backend
+      - gui
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
 
 networks:
   super_network:
     driver: bridge
-
 volumes:
   superagi_postgres_data:

@@ -3,24 +3,50 @@ from typing import List
 import tiktoken
 
 from superagi.types.common import BaseMessage
+from superagi.lib.logger import logger
 
 class TokenCounter:
     @staticmethod
     def token_limit(model: str = "gpt-3.5-turbo-0301") -> int:
+        """
+        Function to return the token limit for a given model.
+
+        Args:
+            model (str): The model to return the token limit for.
+
+        Raises:
+            KeyError: If the model is not found.
+
+        Returns:
+            int: The token limit.
+        """
         try:
-            model_token_limit_dict = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092}
+            model_token_limit_dict = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092,"gpt-3.5-turbo-16k": 16184}
             return model_token_limit_dict[model]
         except KeyError:
-            print("Warning: model not found. Using cl100k_base encoding.")
+            logger.warning("Warning: model not found. Using cl100k_base encoding.")
             return 8092
 
     @staticmethod
     def count_message_tokens(messages: List[BaseMessage], model: str = "gpt-3.5-turbo-0301") -> int:
+        """
+        Function to count the number of tokens in a list of messages.
+
+        Args:
+            messages (List[BaseMessage]): The list of messages to count the tokens for.
+            model (str): The model to count the tokens for.
+
+        Raises:
+            KeyError: If the model is not found.
+
+        Returns:
+            int: The number of tokens in the messages.
+        """
         try:
-            model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3}
+            model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3,"gpt-3.5-turbo-16k":4}
             encoding = tiktoken.encoding_for_model(model)
         except KeyError:
-            print("Warning: model not found. Using cl100k_base encoding.")
+            logger.warning("Warning: model not found. Using cl100k_base encoding.")
             encoding = tiktoken.get_encoding("cl100k_base")
 
         tokens_per_message = model_token_per_message_dict[model]
@@ -43,6 +69,15 @@ class TokenCounter:
 
     @staticmethod
     def count_text_tokens(message: str) -> int:
+        """
+        Function to count the number of tokens in a text.
+
+        Args:
+            message (str): The text to count the tokens for.
+
+        Returns:
+            int: The number of tokens in the text.
+        """
         encoding = tiktoken.get_encoding("cl100k_base")
         num_tokens = len(encoding.encode(message)) + 4
         return num_tokens

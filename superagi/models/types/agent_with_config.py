@@ -7,6 +7,7 @@ class AgentWithConfig(BaseModel):
     project_id: int
     description: str
     goal: List[str]
+    instruction: List[str]
     agent_type: str
     constraints: List[str]
     tools: List[int]

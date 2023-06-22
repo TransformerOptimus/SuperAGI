@@ -19,6 +19,14 @@ class GoogleSearchSchema(BaseModel):
     )
 
 class GoogleSearchTool(BaseTool):
+    """
+    Google Search tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     llm: Optional[BaseLlm] = None
     name = "GoogleSearch"
     description = (
@@ -31,6 +39,15 @@ class GoogleSearchTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, query: str) -> tuple:
+        """
+        Execute the Google search tool.
+
+        Args:
+            query : The query to search for.
+
+        Returns:
+            A tuple of (snippets, webpages, links)
+        """
         api_key = get_config("GOOGLE_API_KEY")
         search_engine_id = get_config("SEARCH_ENGINE_ID")
         num_results = 10
@@ -55,6 +72,16 @@ class GoogleSearchTool(BaseTool):
         return summary
 
     def summarise_result(self, query, snippets):
+        """
+        Summarise the result of a Google search.
+
+        Args:
+            query : The query to search for.
+            snippets (list): A list of snippets from the search.
+
+        Returns:
+            A summary of the search result.
+        """
         summarize_prompt ="""Summarize the following text `{snippets}`
             Write a concise or as descriptive as necessary and attempt to
             answer the query: `{query}` as best as possible. Use markdown formatting for

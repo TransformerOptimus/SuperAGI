@@ -17,10 +17,13 @@ from sqlalchemy.orm import sessionmaker
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
+from superagi.controllers.agent_template import router as agent_template_router
+from superagi.controllers.agent_workflow import router as agent_workflow_router
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
 from superagi.controllers.budget import router as budget_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
@@ -28,8 +31,8 @@ from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.config import router as config_router
-from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_template_step import AgentTemplateStep
+from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
 from superagi.models.types.login_request import LoginRequest
@@ -56,15 +59,13 @@ app.add_middleware(DBSessionMiddleware, db_url=db_url)
 
 # Configure CORS middleware
 origins = [
-    "http://localhost:3001",
-    "http://localhost:3000",
     # Add more origins if needed
+    "*",  # Allow all origins
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -83,10 +84,11 @@ app.include_router(agent_router, prefix="/agents")
 app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
+app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
 app.include_router(resources_router, prefix="/resources")
-app.include_router(config_router,prefix="/configs")
-
-
+app.include_router(config_router, prefix="/configs")
+app.include_router(agent_template_router,prefix="/agent_templates")
+app.include_router(agent_workflow_router,prefix="/agent_workflows")
 
 
 
@@ -209,21 +211,21 @@ def process_files(folder_path):
                            class_name=tool.class_name)
 
 def build_single_step_agent():
-    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Goal Based Agent").first()
+    agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
 
-    if agent_template is None:
-        agent_template = AgentTemplate(name="Goal Based Agent", description="Goal based agent")
-        session.add(agent_template)
+    if agent_workflow is None:
+        agent_workflow = AgentWorkflow(name="Goal Based Agent", description="Goal based agent")
+        session.add(agent_workflow)
         session.commit()
 
     # step will have a prompt
     # output of step is either tasks or set commands
-    first_step = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "gb1").first()
+    first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
     output = AgentPromptBuilder.get_super_agi_single_prompt()
     if first_step is None:
-        first_step = AgentTemplateStep(unique_id="gb1",
+        first_step = AgentWorkflowStep(unique_id="gb1",
                                        prompt=output["prompt"], variables=str(output["variables"]),
-                                       agent_template_id=agent_template.id, output_type="tools",
+                                       agent_workflow_id=agent_workflow.id, output_type="tools",
                                        step_type="TRIGGER",
                                        history_enabled=True,
                                        completion_prompt= "Determine which next tool to use, and respond using the format specified above:")
@@ -239,63 +241,78 @@ def build_single_step_agent():
     session.commit()
 
 def build_task_based_agents():
-    agent_template = session.query(AgentTemplate).filter(AgentTemplate.name == "Task Queue Agent With Seed").first()
-    if agent_template is None:
-        agent_template = AgentTemplate(name="Task Queue Agent With Seed", description="Task queue based agent")
-        session.add(agent_template)
+    agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Task Queue Agent With Seed").first()
+    if agent_workflow is None:
+        agent_workflow = AgentWorkflow(name="Task Queue Agent With Seed", description="Task queue based agent")
+        session.add(agent_workflow)
         session.commit()
 
     output = AgentPromptBuilder.start_task_based()
 
-    template_step1 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb1").first()
-    if template_step1 is None:
-        template_step1 = AgentTemplateStep(unique_id="tb1",
-                                prompt=output["prompt"], variables=str(output["variables"]),
-                                step_type="TRIGGER",
-                                agent_template_id=agent_template.id, next_step_id=-1,
-                                output_type="tasks")
-        session.add(template_step1)
+    workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb1").first()
+    if workflow_step1 is None:
+        workflow_step1 = AgentWorkflowStep(unique_id="tb1",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="TRIGGER",
+                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                           output_type="tasks")
+        session.add(workflow_step1)
     else:
-        template_step1.prompt=output["prompt"]
-        template_step1.variables=str(output["variables"])
-        template_step1.output_type="tasks"
+        workflow_step1.prompt=output["prompt"]
+        workflow_step1.variables=str(output["variables"])
+        workflow_step1.output_type="tasks"
         session.commit()
 
-    template_step2 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb2").first()
+    workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb2").first()
     output = AgentPromptBuilder.create_tasks()
-    if template_step2 is None:
-        template_step2 = AgentTemplateStep(unique_id="tb2",
+    if workflow_step2 is None:
+        workflow_step2 = AgentWorkflowStep(unique_id="tb2",
                                            prompt=output["prompt"], variables=str(output["variables"]),
                                            step_type="NORMAL",
-                                           agent_template_id=agent_template.id, next_step_id=-1,
+                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
                                            output_type="tasks")
-        session.add(template_step2)
+        session.add(workflow_step2)
     else:
-        template_step2.prompt=output["prompt"]
-        template_step2.variables=str(output["variables"])
-        template_step2.output_type="tasks"
+        workflow_step2.prompt=output["prompt"]
+        workflow_step2.variables=str(output["variables"])
+        workflow_step2.output_type="tasks"
         session.commit()
 
-    template_step3 = session.query(AgentTemplateStep).filter(AgentTemplateStep.unique_id == "tb3").first()
+    workflow_step3 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb3").first()
 
     output = AgentPromptBuilder.analyse_task()
-    if template_step3 is None:
-        template_step3 = AgentTemplateStep(unique_id="tb3",
+    if workflow_step3 is None:
+        workflow_step3 = AgentWorkflowStep(unique_id="tb3",
                                            prompt=output["prompt"], variables=str(output["variables"]),
                                            step_type="NORMAL",
-                                           agent_template_id=agent_template.id, next_step_id=-1, output_type="tools")
+                                           agent_workflow_id=agent_workflow.id, next_step_id=-1, output_type="tools")
 
-        session.add(template_step3)
+        session.add(workflow_step3)
     else:
-        template_step3.prompt=output["prompt"]
-        template_step3.variables=str(output["variables"])
-        template_step3.output_type="tools"
+        workflow_step3.prompt=output["prompt"]
+        workflow_step3.variables=str(output["variables"])
+        workflow_step3.output_type="tools"
         session.commit()
 
+    workflow_step4 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb4").first()
+    output = AgentPromptBuilder.prioritize_tasks()
+    if workflow_step4 is None:
+        workflow_step4 = AgentWorkflowStep(unique_id="tb4",
+                                           prompt=output["prompt"], variables=str(output["variables"]),
+                                           step_type="NORMAL",
+                                           agent_workflow_id=agent_workflow.id, next_step_id=-1, output_type="replace_tasks")
+
+        session.add(workflow_step4)
+    else:
+        workflow_step4.prompt=output["prompt"]
+        workflow_step4.variables=str(output["variables"])
+        workflow_step4.output_type="replace_tasks"
+        session.commit()
     session.commit()
-    template_step1.next_step_id = template_step3.id
-    template_step3.next_step_id = template_step2.id
-    template_step2.next_step_id = template_step3.id
+    workflow_step1.next_step_id = workflow_step3.id
+    workflow_step3.next_step_id = workflow_step2.id
+    workflow_step2.next_step_id = workflow_step4.id
+    workflow_step4.next_step_id = workflow_step3.id
     session.commit()
 
 build_single_step_agent()

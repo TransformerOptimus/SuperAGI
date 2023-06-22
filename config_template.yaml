@@ -4,9 +4,23 @@ PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
 OPENAI_API_KEY: YOUR_OPEN_API_KEY
 
-#DATABASE INFO
-MAX_TOOL_TOKEN_LIMIT: 800
+# For locally hosted LLMs comment out the next line and uncomment the one after
+# to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
+OPENAI_API_BASE: https://api.openai.com/v1
+#OPENAI_API_BASE: "http://super__tgwui:5001/v1"
 
+# "gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092, "llama":2048, "mpt-7b-storywriter":45000
+MODEL_NAME: "gpt-3.5-turbo-0301"
+MAX_TOOL_TOKEN_LIMIT: 800
+MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
+
+# For running stable diffusion
+STABILITY_API_KEY: YOUR_STABILITY_API_KEY
+#Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
+ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
+
+
+#DATABASE INFO
 # redis details
 DB_NAME: super_agi_main
 POSTGRES_URL: super__postgres
@@ -43,6 +57,14 @@ FRONTEND_URL: "http://localhost:3000"
 ENCRYPTION_KEY: secret
 
 
+#WEAVIATE
+
+# If you are using docker or web hosted uncomment the next two lines and comment the third one
+# WEAVIATE_URL: YOUR_WEAVIATE_URL
+# WEAVIATE_API_KEY: YOUR_WEAVIATE_API_KEY
+WEAVIATE_USE_EMBEDDED: true
+
+
 #####################------------------TOOLS KEY-------------------------########################
 #If you have google api key and CSE key, use this
 GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
@@ -60,6 +82,10 @@ EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
 EMAIL_SIGNATURE: Email sent by SuperAGI
 EMAIL_DRAFT_MODE_WITH_FOLDER: YOUR_DRAFTS_FOLDER
 EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
+
+# GITHUB
+GITHUB_USERNAME: YOUR_GITHUB_USERNAME
+GITHUB_ACCESS_TOKEN: YOUR_GITHUB_ACCESS_TOKEN
 
 #JIRA
 JIRA_INSTANCE_URL: YOUR_JIRA_INSTANCE_URL

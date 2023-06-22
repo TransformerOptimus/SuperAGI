@@ -16,8 +16,12 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   const [openAIKey, setKey] = useState('');
   const [temperature, setTemperature] = useState(0.5);
 
+  const handleMarketplaceClick = () => {
+    EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
+  };
   const settingsTab = () => {
-    EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
+    // EventBus.emit('settingsTab', { id: -3, name: "Settings", contentType: "Settings" });
+    setSettingsModal(true)
   }
 
   function getKey(key) {
@@ -94,35 +98,32 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   });
 
   return (
-    <>
-      <div className={styles.top_bar}>
-        <div className={styles.top_left}>
-          <div className={styles.top_bar_section} style={{border: '1px solid rgba(255, 255, 255, 0.14)',width:'140px'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
-              <div style={{marginTop:'-1px'}}><Image width={14} height={14} src="/images/project.svg" alt="project-icon"/></div>
-              <div className={styles.top_bar_font}><p>{selectedProject?.name || ''}</p></div>
-            </div>
-            {/*<div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
+    <div className={styles.top_bar}>
+      <div className={styles.top_left}>
+        <div className={styles.top_bar_section} style={{border: '1px solid rgba(255, 255, 255, 0.14)',width:'150px'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+            <div style={{marginTop:'-2px'}}><Image width={14} height={14} src="/images/project.svg" alt="project-icon"/></div>
+            <div className={styles.top_bar_font}><p>{selectedProject?.name || ''}</p></div>
           </div>
-          <div className={styles.top_bar_section} style={{marginLeft:'10px',cursor:'default'}}>
-            <div style={{marginTop:'-2px'}}><Image width={14} height={14} src="/images/widgets.svg" alt="widgets-icon"/></div>
-            <div className={styles.top_bar_font}><p>Marketplace (coming soon)</p></div>
-            {/*<div style={{flexGrow:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
-          </div>
+          {/*<div style={{order:'1'}}><Image width={16} height={16} src="/images/dropdown_down.svg" alt="dropdown-icon"/></div>*/}
         </div>
-        <div className={styles.top_right} onMouseLeave={() => setDropdown(false)}>
-          <div onClick={() => setSettingsModal(true)} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
-          {/*<div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div>*/}
-          <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}>
-            <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
-          </div>
-          {dropdown && env === 'PROD' && <div style={{marginTop:'4vh',marginRight:'70px'}}>
-            <ul className="dropdown_container" style={{width:'fit-content'}}>
-              <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
-              <li className="dropdown_item" onClick={logoutUser}>Logout</li>
-            </ul>
-          </div>}
+        <div className={styles.top_bar_section} style={{ marginLeft: '7px', cursor: 'pointer' }}>
+        <div style={{ marginTop: '-3px' }}><Image width={14} height={14} src="/images/widgets.svg" alt="widgets-icon" /></div>
+        <div className={styles.top_bar_font} style={{marginLeft:'-1px'}} onClick={handleMarketplaceClick}><p>Marketplace</p></div>
         </div>
+      </div>
+      <div className={styles.top_right}>
+         <div onClick={() => setSettingsModal(true)} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
+        {/* <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div> */}
+        <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
+        </div>
+        {dropdown && env === 'PROD' && <div style={{marginTop:'3vh',marginRight:'74px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+          <ul className="dropdown_container" style={{width:'120px'}}>
+            <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
+            <li className="dropdown_item" onClick={logoutUser}>Logout</li>
+          </ul>
+        </div>}
       </div>
       {settingsModal && (<div className="modal" onClick={() => setSettingsModal(false)}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
@@ -149,6 +150,6 @@ export default function TopBar({selectedProject, organisationId, userName, env})
         </div>
       </div>)}
       <ToastContainer/>
-    </>
+    </div>
   )
 }

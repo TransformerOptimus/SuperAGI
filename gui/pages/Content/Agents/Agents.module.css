@@ -132,6 +132,9 @@
     color: #FFFFFF;
     border-radius: 8px;
     padding: 8px 10px;
+    display: -webkit-inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tab_text {
@@ -146,7 +149,17 @@
 .tab_button:hover {
     background: #454254;
 }
-
+.run_history_button{
+    background: rgba(255, 255, 255, 0.14);
+    border: none;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 12px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px 8px 5px;
+}
 .run_button {
     background: #62A168;
     border: none;
@@ -334,4 +347,14 @@
     font-size: 13px;
     font-weight: 500;
     font-family: 'Source Code Pro';
+}
+
+.text_12_n
+{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    color: #FFFFFF;
+    margin-top: 2px;
 }
