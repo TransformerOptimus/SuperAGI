@@ -76,7 +76,9 @@ def get_classes_in_file(file_path, clazz):
     # Iterate over all members of the module
     for name, member in inspect.getmembers(module):
         # Check if the member is a class and extends BaseTool
+        print("Outside!")
         if inspect.isclass(member) and issubclass(member, clazz) and member != clazz:
+            print("Inside1")
             class_dict = {}
             class_dict['class_name'] = member.__name__
 
@@ -90,11 +92,9 @@ def get_classes_in_file(file_path, clazz):
                     class_dict['tool_kit_keys'] = obj.get_env_keys()
                     classes.append(class_dict)
                 elif clazz == BaseTool:
-                    # print("FOUND BASE TOOL__________")
                     class_dict['tool_name'] = obj.name
                     class_dict['tool_description'] = obj.description
                     classes.append(class_dict)
-                    # print(obj.name)
             except:
                 class_dict = None
     return classes

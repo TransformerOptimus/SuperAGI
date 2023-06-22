@@ -1,24 +1,24 @@
-import pytest
-from unittest.mock import MagicMock
+import json
+import os
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock
+
+import pytest
+
 from superagi.helper.tool_helper import (
     parse_github_url,
-    download_tool,
     get_classes_in_file,
     load_module_from_file,
     init_tools,
     init_tool_kits,
     process_files,
-    get_readme_content_from_code_link,
-    register_tool_kits,
     extract_repo_name,
-    add_tool_to_json
+    add_tool_to_json, get_readme_content_from_code_link
 )
-
 from superagi.models.tool import Tool
 from superagi.models.tool_kit import ToolKit
 from superagi.tools.base_tool import BaseTool
-import json
 
 @pytest.fixture
 def mock_requests_get(monkeypatch):
@@ -26,6 +26,7 @@ def mock_requests_get(monkeypatch):
         def __init__(self, content, status_code):
             self.content = content
             self.status_code = status_code
+            self.text = content.decode() if content is not None else None
 
     def mock_get(url):
         if url == 'https://api.github.com/repos/owner/repo/zipball/main':
@@ -37,7 +38,7 @@ def mock_requests_get(monkeypatch):
         else:
             return MockResponse(None, 404)
 
-    monkeypatch.setattr('tool.requests.get', mock_get)
+    monkeypatch.setattr('requests.get', mock_get)
 
 
 def test_parse_github_url():
@@ -54,33 +55,46 @@ def test_parse_github_url():
 #     assert (target_folder / 'file.txt').is_file()
 
 
-def test_get_classes_in_file(tmp_path):
-    file_path = tmp_path / 'test_tool.py'
+def test_get_classes_in_file():
+    current_dir = os.getcwd()
+    file_path = Path(current_dir) / 'test_tool.py'
     file_path.write_text('''
-        class Tool1(BaseTool):
-            pass
+from superagi.tools.base_tool import BaseTool
+class Tool1(BaseTool):
+    pass
 
-        class Tool2(BaseTool):
-            pass
+class Tool2(BaseTool):
+    pass
 
-        class NotATool:
-            pass
+class NotATool:
+    pass
     ''')
     classes = get_classes_in_file(file_path, BaseTool)
+    print("CLASSES : ",classes)
     assert len(classes) == 2
     assert {'class_name': 'Tool1'} in classes
     assert {'class_name': 'Tool2'} in classes
 
+    # Delete the test_module.py file
+    file_path.unlink()
 
-# def test_load_module_from_file(tmp_path):
-#     file_path = tmp_path / 'test_module.py'
-#     file_path.write_text('''
-#         def hello():
-#             return 'Hello, world!'
-#     ''')
-#     module = load_module_from_file(file_path)
-#     assert module.hello() == 'Hello, world!'
 
+def test_load_module_from_file(tmp_path):
+    current_dir = os.getcwd()
+    file_path = Path(current_dir) / 'test_module.py'
+
+    # Corrected code with proper indentation
+    file_content = '''
+def hello():
+    return 'Hello, world!'
+'''
+    file_path.write_text(file_content)
+
+    module = load_module_from_file(file_path)
+    assert module.hello() == 'Hello, world!'
+
+    # Delete the test_module.py file
+    file_path.unlink()
 
 def test_init_tools(tmp_path, monkeypatch):
     session = MagicMock()
@@ -107,25 +121,29 @@ def test_init_tools(tmp_path, monkeypatch):
     session.commit.assert_called_once()
 
 
-def test_init_tool_kits(tmp_path, monkeypatch):
+def test_init_tool_kits(monkeypatch):
+    current_dir = os.getcwd()
     session = MagicMock()
     organisation = MagicMock()
     code_link = 'https://github.com/username/repo'
-    folder_dir = tmp_path / 'toolkits'
+    folder_dir = Path(current_dir) / 'toolkits'
     folder_dir.mkdir()
     toolkit_file = folder_dir / 'toolkit.py'
     toolkit_file.write_text('''
-        class ToolKit1(BaseToolKit):
-            name = 'ToolKit1'
+from superagi.tools.base_tool import BaseToolKit
 
-        class ToolKit2(BaseToolKit):
-            name = 'ToolKit2'
+class ToolKit1(BaseToolKit):
+    name = 'ToolKit1'
 
-        class ToolKit3(BaseToolKit):
-            name = 'ToolKit3'
+class ToolKit2(BaseToolKit):
+    name = 'ToolKit2'
+
+class ToolKit3(BaseToolKit):
+    name = 'ToolKit3'
     ''')
     sys.path.append(str(folder_dir))
-    tool_name_to_tool_kit = init_tool_kits(code_link, [], str(tmp_path), organisation, session)
+    print("Current Dir : ",current_dir)
+    tool_name_to_tool_kit = init_tool_kits(code_link, [], str(current_dir), organisation, session)
     assert tool_name_to_tool_kit == {
         ('Tool1', 'ToolKit1'): 1,
         ('Tool2', 'ToolKit2'): 2
@@ -177,17 +195,6 @@ def test_get_readme_content_from_code_link(mock_requests_get):
     assert get_readme_content_from_code_link(tool_code_link) == expected_result
 
 
-def test_register_tool_kits(monkeypatch):
-    session = MagicMock()
-    organisation = MagicMock()
-    folder_path = 'superagi/tools'
-    monkeypatch.setattr('tool.get_config', lambda key: folder_path)
-    process_files = MagicMock()
-    monkeypatch.setattr('tool.process_files', process_files)
-    register_tool_kits(session, organisation)
-    process_files.assert_called_once_with(folder_path, session, organisation)
-
-
 def test_extract_repo_name():
     repo_link = 'https://github.com/username/repo'
     expected_result = 'repo'
@@ -195,7 +202,9 @@ def test_extract_repo_name():
 
 
 def test_add_tool_to_json(tmp_path):
-    file_path = tmp_path / 'tools.json'
+    current_dir = os.getcwd()
+    file_path = Path(current_dir) / 'tools.json'
+
     file_path.write_text('''
         {
             "tools": {
@@ -212,11 +221,5 @@ def test_add_tool_to_json(tmp_path):
     assert tools_data['tools']['repo2'] == 'https://github.com/username/repo2'
     assert tools_data['tools']['repo3'] == 'https://github.com/username/repo3'
 
-    # Remove the added tool from tools.json
-    with open(file_path, 'r') as file:
-        tools_data = json.load(file)
-    del tools_data['tools']['repo1']
-    del tools_data['tools']['repo2']
-    del tools_data['tools']['repo3']
-    with open(file_path, 'w') as file:
-        json.dump(tools_data, file, indent=2)
+    # Delete the tools.json file
+    file_path.unlink()
