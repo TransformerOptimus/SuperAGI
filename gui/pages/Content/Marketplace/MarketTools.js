@@ -19,15 +19,15 @@ export default function MarketTools(){
       setShowMarketplace(true)
     }
 
-      fetchToolTemplateList()
-        .then((response) => {
-          const data = response.data || [];
-          setToolTemplates(data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent templates:', error);
-        });
+    fetchToolTemplateList()
+      .then((response) => {
+        const data = response.data || [];
+        setToolTemplates(data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching tool templates:', error);
+      });
   }, []);
 
   function handleTemplateClick(item) {
@@ -38,8 +38,8 @@ export default function MarketTools(){
   return (
       <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
         <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
-          {!isLoading ? <div className={styles.resources}>
-            {toolTemplates.map((item, index) => (
+          {!isLoading ? <div>
+            {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item, index) => (
                 <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}  onClick={() => handleTemplateClick(item)}>
                   <div style={{display: 'inline',overflow:'auto'}}>
                       {/*<Image style={{borderRadius: '25px',background:'black',position:'absolute'}} width={40} height={40} src="/images/app-logo-light.png" alt="tool-icon"/>*/}
@@ -48,7 +48,10 @@ export default function MarketTools(){
                     <div className={styles.tool_description}>{item.description}</div>
                   </div>
                 </div>
-            ))}
+            ))}</div> : <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
+              <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+              <span className={styles.feed_title} style={{marginTop: '8px'}}>No Tools found!</span>
+            </div>}
           </div> : <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'75vh'}}>
             <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
           </div>}
