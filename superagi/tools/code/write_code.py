@@ -72,17 +72,14 @@ class CodingTool(BaseTool):
             {spec}
 
             You will get instructions for code to write.
-            You will write a very long answer. Make sure that every detail of the architecture is, in the end, implemented as code.
-            Make sure that every detail of the architecture is, in the end, implemented as code.
-
-            Think step by step and reason yourself to the right decisions to make sure we get it right.
-            You will first lay out the names of the core classes, functions, methods that will be necessary, as well as a quick comment on their purpose.
+            You need to write a detailed answer. Make sure all parts of the architecture are turned into code.
+            Think carefully about each step and make good choices to get it right. First, list the main classes, 
+            functions, methods you'll use and a quick comment on their purpose.
 
             Then you will output the content of each file including ALL code.
             Each file must strictly follow a markdown code block format, where the following tokens must be replaced such that
             [FILENAME] is the lowercase file name including the file extension,
-            [LANG] is the markup code block language for the code's language, and [CODE] is the code:
-
+            [LANG] is the markup code block language for the code's language, and [CODE] is the code: 
             [FILENAME]
             ```[LANG]
             [CODE]
