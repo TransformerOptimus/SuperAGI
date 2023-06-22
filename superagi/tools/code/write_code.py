@@ -110,7 +110,7 @@ class CodingTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
             # Get all filenames and corresponding code blocks
-            regex = r"(\S+?)\n```\S+\n(.+?)```"
+            regex = r"(\S+?)\n```\S*\n(.+?)```"
             matches = re.finditer(regex, result["content"], re.DOTALL)
 
             file_names = []
