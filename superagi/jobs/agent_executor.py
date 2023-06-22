@@ -19,6 +19,7 @@ from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.helper.encyption_helper import decrypt_data
@@ -235,6 +236,9 @@ class AgentExecutor:
                 tool.agent_id = agent_id
             if hasattr(tool, 'resource_manager'):
                 tool.resource_manager = ResourceManager(session=session, agent_id=agent_id)
+            if hasattr(tool, 'tool_response_manager'):
+                tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
+                    "agent_execution_id"])
 
             new_tools.append(tool)
         return tools

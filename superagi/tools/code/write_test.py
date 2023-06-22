@@ -16,6 +16,8 @@ from superagi.helper.s3_helper import S3Helper
 from sqlalchemy.orm import sessionmaker
 import re
 
+from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
+
 
 class WriteTestSchema(BaseModel):
     spec_description: str = Field(
@@ -52,6 +54,8 @@ class WriteTestTool(BaseTool):
     args_schema: Type[WriteTestSchema] = WriteTestSchema
     goals: List[str] = []
     resource_manager: Optional[ResourceManager] = None
+    tool_response_manager: Optional[ToolResponseQueryManager] = None
+
 
     class Config:
         arbitrary_types_allowed = True
@@ -75,12 +79,17 @@ class WriteTestTool(BaseTool):
 
             Please generate pytest unit tests based on the following specification description:
             {spec}
+            
+            Use the below response to generate the code:
+            {last_tool_response}
 
             The tests should be as simple as possible, but still cover all the functionality described in the specification.
             """
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
-            prompt = prompt.replace("{spec}", spec_description)
+            spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
+            prompt = prompt.replace("{spec}", spec_response)
             messages = [{"role": "system", "content": prompt}]
+            logger.info(prompt)
 
             total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             token_limit = TokenCounter.token_limit(self.llm.get_model())

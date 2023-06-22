@@ -9,6 +9,7 @@ from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
+from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
 
 class CodingSchema(BaseModel):
@@ -41,6 +42,8 @@ class CodingTool(BaseTool):
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
     resource_manager: Optional[ResourceManager] = None
+    last_tool_response: str = ""
+    tool_response_manager: Optional[ToolResponseQueryManager] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -93,7 +96,9 @@ class CodingTool(BaseTool):
             Before you finish, double check that all parts of the architecture is present in the files.
             """
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
-            prompt = prompt.replace("{spec}", spec_description)
+            spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
+            prompt = prompt.replace("{spec}", spec_response)
+            logger.info(prompt)
             messages = [{"role": "system", "content": prompt}]
 
             total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
