@@ -4,7 +4,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from superagi.models.budget import Budget
 from fastapi import APIRouter, UploadFile
-
+from superagi.helper.file_to_index_parser import create_document_index
 import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated
@@ -90,6 +90,8 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
+    create_document_index(file_path)
+
     logger.info(resource)
     return resource
 
