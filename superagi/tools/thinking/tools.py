@@ -56,7 +56,7 @@ class ThinkingTool(BaseTool):
             
             and the following task, `{task_description}`.
             
-            Below is last too response: 
+            Below is last tool response: 
             `{last_tool_response}`
             
             Perform the task by understanding the problem, extracting variables, and being smart
