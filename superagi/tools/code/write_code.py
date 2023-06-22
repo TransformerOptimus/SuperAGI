@@ -107,6 +107,7 @@ class CodingTool(BaseTool):
 
             file_names = []
             # Save each file
+
             for match in matches:
                 # Get the filename
                 file_name = re.sub(r'[<>"|?*]', "", match.group(1))
@@ -115,11 +116,14 @@ class CodingTool(BaseTool):
                 code = match.group(2)
 
                 # Ensure file_name is not empty
-                if file_name.strip():
-                    file_names.append(file_name)
-                    save_result = self.resource_manager.write_file(file_name, code)
-                    if save_result.startswith("Error"):
-                        return save_result
+                if not file_name.strip():
+                    continue
+
+                file_names.append(file_name)
+                print(code + "RAMRAM1")
+                save_result = self.resource_manager.write_file(file_name, code)
+                if save_result.startswith("Error"):
+                    return save_result
 
             # Get README contents and save
             split_result = result["content"].split("```")

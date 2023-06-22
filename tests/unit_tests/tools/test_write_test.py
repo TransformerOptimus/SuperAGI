@@ -23,7 +23,7 @@ def test_write_test_tool_execute(mock_write_file, mock_logger):
     mock_llm = Mock(spec=BaseLlm)
     llm_response = {"content": "```python\nsample_code\n```"}
     mock_llm.chat_completion.return_value = llm_response
-    mock_write_file.return_value = "Tests generated and saved successfully"
+    mock_write_file.return_value = "Tests generated and saved successfully in test_file"
 
     tool = WriteTestTool()
     tool.llm = mock_llm
@@ -35,7 +35,7 @@ def test_write_test_tool_execute(mock_write_file, mock_logger):
     # Then
     mock_llm.chat_completion.assert_called_once()
     mock_write_file.assert_called_once_with("test_file", "sample_code")
-    assert result == "Tests generated and saved successfully"
+    assert ("Tests generated and saved successfully in test_file" in result) == True
 
 
 def test_write_test_tool_execute_with_exception():

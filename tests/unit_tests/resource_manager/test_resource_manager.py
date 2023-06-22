@@ -11,7 +11,7 @@ from superagi.resource_manager.manager import ResourceManager
 def resource_manager():
     session_mock = Mock()
     resource_manager = ResourceManager(session_mock)
-    resource_manager.agent_id = 1  # replace with actual value
+    #resource_manager.agent_id = 1  # replace with actual value
     return resource_manager
 
 
