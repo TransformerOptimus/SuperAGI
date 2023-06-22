@@ -288,8 +288,9 @@
 
 .resources {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 0.2vw;
 }
 
 .agent_resources {
@@ -393,12 +394,6 @@
 
 .rowContainer {
     height: 100%;
-}
-
-.resources {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
 }
 
 .top_heading {
