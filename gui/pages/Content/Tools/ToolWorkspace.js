@@ -75,21 +75,19 @@ export default function ToolWorkspace({toolDetails}){
         <div className={styles.tools_container}>
           <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
             <div>
-              <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={50} height={50}/>
+              <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={45} height={45}/>
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
-                  <div>{toolDetails.name}</div>
-                  <div style={{marginRight:'40px'}}>
-                  <div className={styles.description} style={!showDescription ? { maxHeight: '1.5em', overflow: 'hidden' } : {}}>
-                    {toolDetails.description}
+                <div style={{fontSize:'17px',marginTop:'-3px'}}>{toolDetails.name}</div>
+                <div style={{ marginRight: '40px' }}>
+                  <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
+                    {`${showDescription ? toolDetails.description : toolDetails.description.slice(0, toolDetails.description.indexOf(' ', 75))}`}...
+                    <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                      {showDescription ? 'less' : 'more'}
+                    </span>
                   </div>
-                  {toolDetails.description?.length > 0 && (
-                    <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                        {showDescription ? 'Show Less' : 'Show More'}
-                    </div>
-                  )}
-                  </div>
+                </div>
               </div>
             </div>
           </div>

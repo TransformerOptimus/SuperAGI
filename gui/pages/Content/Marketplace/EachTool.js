@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import Image from "next/image";
 import styles from '../Tools/Tool.module.css';
-import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import {installAgentTemplate, fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
+import {fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import axios from "axios";
 import ReactMarkdown from 'react-markdown';
 
 export default function EachTool({template, env}) {

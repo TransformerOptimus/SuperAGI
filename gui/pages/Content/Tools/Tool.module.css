@@ -69,17 +69,23 @@
 }
 
 .tool_description {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 14px;
-    color: #666666;
-    margin-top: 10px;
+    line-height:16px;
+    margin-top: 5px;
+    color: #888888;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.toolkit_description {
+    line-height:16px;
+    margin-top: 5px;
+    color: #888888;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
 }
 
 .tool_box {
@@ -249,10 +255,8 @@
 }
 
 .show_more_button {
-    margin-top: 1px;
     cursor: pointer;
-    width: fit-content;
-    color: #888888;
+    color: white;
 }
 
 .tools_included{
