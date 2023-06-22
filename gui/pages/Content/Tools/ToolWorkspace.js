@@ -80,13 +80,11 @@ export default function ToolWorkspace({toolDetails}){
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
                 <div style={{fontSize:'17px',marginTop:'-3px'}}>{toolDetails.name}</div>
-                <div style={{ marginRight: '40px' }}>
-                  <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
-                    {`${showDescription ? toolDetails.description : toolDetails.description.slice(0, toolDetails.description.indexOf(' ', 75))}`}...
-                    <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                      {showDescription ? 'less' : 'more'}
-                    </span>
-                  </div>
+                <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
+                  {`${showDescription ? toolDetails.description : toolDetails.description.slice(0, 80)}`}
+                  {toolDetails.description.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                      {showDescription ? '...less' : '...more'}
+                  </span>}
                 </div>
               </div>
             </div>
