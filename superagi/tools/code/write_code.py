@@ -13,7 +13,7 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
 
 class CodingSchema(BaseModel):
-    spec_description: str = Field(
+    code_description: str = Field(
         ...,
         description="Description of the coding task",
     )
@@ -43,19 +43,18 @@ class CodingTool(BaseTool):
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
     resource_manager: Optional[ResourceManager] = None
-    last_tool_response: str = ""
     tool_response_manager: Optional[ToolResponseQueryManager] = None
 
     class Config:
         arbitrary_types_allowed = True
 
 
-    def _execute(self, spec_description: str) -> str:
+    def _execute(self, code_description: str) -> str:
         """
         Execute the write_code tool.
 
         Args:
-            spec_description : The specification description.
+            code_description : The coding task description.
             code_file_name: The name of the file where the generated codes will be saved.
 
         Returns:
@@ -66,8 +65,10 @@ class CodingTool(BaseTool):
 
             Your high-level goal is:
             {goals}
+            
+            Coding task description:
+            {code_description}
 
-            Use this specs for generating the code:
             {spec}
 
             You will get instructions for code to write.
@@ -97,8 +98,10 @@ class CodingTool(BaseTool):
             Before you finish, double check that all parts of the architecture is present in the files.
             """
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+            prompt = prompt.replace("{code_description}", code_description)
             spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
-            prompt = prompt.replace("{spec}", spec_response)
+            if spec_response != "":
+                prompt = prompt.replace("{spec}", "Use this specs for generating the code:\n" + spec_response)
             logger.info(prompt)
             messages = [{"role": "system", "content": prompt}]
 

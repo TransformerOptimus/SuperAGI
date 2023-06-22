@@ -1,26 +1,19 @@
+import re
 from typing import Type, Optional, List
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
-from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-import os
 
+from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.helper.token_counter import TokenCounter
+from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
-from superagi.lib.logger import logger
-from superagi.models.db import connect_db
-from superagi.helper.resource_helper import ResourceHelper
-from superagi.helper.s3_helper import S3Helper
-from sqlalchemy.orm import sessionmaker
-import re
-
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
 
 class WriteTestSchema(BaseModel):
-    spec_description: str = Field(
+    test_description: str = Field(
         ...,
         description="Description of the testing task",
     )
@@ -60,12 +53,12 @@ class WriteTestTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, spec_description: str, test_file_name: str) -> str:
+    def _execute(self, test_description: str, test_file_name: str) -> str:
         """
         Execute the write_test tool.
 
         Args:
-            spec_description : The specification description.
+            test_description : The specification description.
             test_file_name: The name of the file where the generated tests will be saved.
 
         Returns:
@@ -76,18 +69,21 @@ class WriteTestTool(BaseTool):
 
             Your high-level goal is:
             {goals}
+            
+            Test Description:
+            {test_description}
 
-            Please generate pytest unit tests based on the following specification description:
             {spec}
             
-            Use the below response to generate the code:
-            {last_tool_response}
-
             The tests should be as simple as possible, but still cover all the functionality described in the specification.
             """
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+            prompt = prompt.replace("{test_description}", test_description)
+
             spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
-            prompt = prompt.replace("{spec}", spec_response)
+            if spec_response != "":
+                prompt = prompt.replace("{spec}", "Please generate unit tests based on the following specification description:\n" + spec_response)
+
             messages = [{"role": "system", "content": prompt}]
             logger.info(prompt)
 
@@ -96,7 +92,7 @@ class WriteTestTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
             # Extract the code part using regular expression
-            code = re.search(r'(?<=```python).*?(?=```)', result["content"], re.DOTALL)
+            code = re.search(r'(?<=```).*?(?=```)', result["content"], re.DOTALL)
             if code:
                 code_content = code.group(0).strip()
             else:

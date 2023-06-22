@@ -9,6 +9,9 @@ class MockBaseLlm:
     def chat_completion(self, messages, max_tokens):
         return {"content": "Generated specification"}
 
+    def get_model(self):
+        return "gpt-3.5-turbo"
+
 class TestWriteSpecTool:
 
     @pytest.fixture
