@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
+import os
 
 
 class ResourceManager:
@@ -11,8 +12,14 @@ class ResourceManager:
         self.agent_id = agent_id
 
     def write_binary_file(self, file_name: str, data):
-        final_path = ResourceHelper.get_resource_path(file_name)
+        if self.agent_id is not None:
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+        else:
+            final_path = ResourceHelper.get_resource_path(file_name)
 
+        if self.agent_id is not None:
+            directory = os.path.dirname(final_path + "/" + str(self.agent_id))
+            os.makedirs(directory, exist_ok=True)
         try:
             with open(final_path, mode="wb") as img:
                 img.write(data)
@@ -36,7 +43,10 @@ class ResourceManager:
                     s3_helper.upload_file(img, path=resource.path)
 
     def write_file(self, file_name: str, content):
-        final_path = ResourceHelper.get_resource_path(file_name)
+        if self.agent_id is not None:
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+        else:
+            final_path = ResourceHelper.get_resource_path(file_name)
 
         try:
             with open(final_path, mode="w") as file:

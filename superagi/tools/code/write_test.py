@@ -92,7 +92,7 @@ class WriteTestTool(BaseTool):
             # Save the tests to a file
             save_result = self.resource_manager.write_file(test_file_name, code_content)
             if not save_result.startswith("Error"):
-                return "Tests generated and saved successfully"
+                return result["content"] + " \n Tests generated and saved successfully in " + test_file_name
             else:
                 return save_result
 

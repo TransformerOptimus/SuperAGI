@@ -105,6 +105,7 @@ class CodingTool(BaseTool):
             regex = r"(\S+?)\n```\S+\n(.+?)```"
             matches = re.finditer(regex, result["content"], re.DOTALL)
 
+            file_names = []
             # Save each file
             for match in matches:
                 # Get the filename
@@ -115,6 +116,7 @@ class CodingTool(BaseTool):
 
                 # Ensure file_name is not empty
                 if file_name.strip():
+                    file_names.append(file_name)
                     save_result = self.resource_manager.write_file(file_name, code)
                     if save_result.startswith("Error"):
                         return save_result
@@ -127,7 +129,7 @@ class CodingTool(BaseTool):
                 if save_readme_result.startswith("Error"):
                     return save_readme_result
 
-            return "Codes generated and saved successfully"
+            return result["content"] + "\n Codes generated and saved successfully in " + ", ".join(file_names)
         except Exception as e:
             logger.error(e)
             return f"Error generating codes: {e}"

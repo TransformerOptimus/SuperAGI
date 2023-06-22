@@ -31,7 +31,10 @@ class ResourceHelper:
         else:
             file_type = "application/misc"
 
-        final_path = ResourceHelper.get_resource_path(file_name)
+        if agent_id is not None:
+            final_path = ResourceHelper.get_agent_resource_path(file_name, agent_id)
+        else:
+            final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
 
         if storage_type == "S3":
@@ -62,4 +65,26 @@ class ResourceHelper:
             final_path = root_dir + file_name
         else:
             final_path = os.getcwd() + "/" + file_name
+        return final_path
+
+    @staticmethod
+    def get_agent_resource_path(file_name: str, agent_id: int):
+        """Get final path of the resource.
+
+        Args:
+            file_name (str): The name of the file.
+        """
+        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+
+        if root_dir is not None:
+            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        else:
+            root_dir = os.getcwd() + "/"
+
+        if agent_id is not None:
+            directory = os.path.dirname(root_dir + str(agent_id) + "/")
+            os.makedirs(directory, exist_ok=True)
+            root_dir = root_dir + str(agent_id) + "/"
+        final_path = root_dir + file_name
         return final_path
