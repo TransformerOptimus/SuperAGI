@@ -4,7 +4,6 @@ from typing import Type
 from pydantic import BaseModel, Field
 
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
 
 
 class ReadFileSchema(BaseModel):
@@ -35,8 +34,8 @@ class ReadFileTool(BaseTool):
         Returns:
             The file content
         """
-        input_root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
-        output_root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        input_root_dir = self.get_tool_config('RESOURCES_INPUT_ROOT_DIR')
+        output_root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')
         final_path = None
 
         if input_root_dir is not None:

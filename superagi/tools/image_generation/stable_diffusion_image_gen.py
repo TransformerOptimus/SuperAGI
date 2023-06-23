@@ -5,7 +5,7 @@ from typing import Type, Optional
 import requests
 from PIL import Image
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
+
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
 
@@ -42,7 +42,7 @@ class StableDiffusionImageGenTool(BaseTool):
 
     def _execute(self, prompt: str, image_names: list, width: int = 512, height: int = 512, num: int = 2,
                  steps: int = 50):
-        api_key = get_config("STABILITY_API_KEY")
+        api_key = self.get_tool_config("STABILITY_API_KEY")
 
         if api_key is None:
             return "Error: Missing Stability API key."
@@ -72,7 +72,7 @@ class StableDiffusionImageGenTool(BaseTool):
         return "Images downloaded and saved successfully"
 
     def call_stable_diffusion(self, api_key, width, height, num, prompt, steps):
-        engine_id = get_config("ENGINE_ID")
+        engine_id = self.get_tool_config("ENGINE_ID")
         if "768" in engine_id:
             if height < 768:
                 height = 768
