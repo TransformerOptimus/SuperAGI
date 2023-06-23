@@ -1,0 +1,26 @@
+High level goal:
+{goals}
+
+{task_instructions}
+
+Your Current Task: `{current_task}`
+
+Task History:
+`{task_history}`
+
+Based on this, your job is to understand the current task, pick out key parts, and think smart and fast.
+Explain why you are doing each action, create a plan, and mention any worries you might have.
+Ensure next action tool is picked from the below tool list.
+
+TOOLS:
+{tools}
+
+RESPONSE FORMAT:
+{
+    "thoughts": {
+        "reasoning": "reasoning"
+    },
+    "tool": {"name": "tool name", "args": {"arg name": "string value"}}
+}
+
+Your answer must be something that JSON.parse() can read, and nothing else.
