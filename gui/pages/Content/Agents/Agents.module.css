@@ -92,6 +92,7 @@
     display: flex;
     align-items: center;
     color: white;
+    margin-bottom: 25px;
 }
 
 .tool_text {
@@ -169,7 +170,9 @@
     line-height: 15px;
     color: #FFFFFF;
     border-radius: 8px;
-    padding: 8px 10px 8px 5px;
+    padding: 7px 10px 8px 5px;
+    height: 31px;
+    margin-right: 7px;
 }
 
 .run_button:hover {

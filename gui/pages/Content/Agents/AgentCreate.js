@@ -26,8 +26,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-    "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the tools listed in double quotes e.g. "tool name"',
+    "Ensure the tool and args are as per current plan and reasoning",
+    'Exclusively use the tools listed under "TOOLS"',
     "REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."
   ];
   const [constraints, setConstraints] = useState(constraintsArray);
@@ -68,11 +68,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [myTools, setMyTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
+  const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
+  const [toolkitIdForTemplate, setToolkitIdForTemplate] = useState([]);
 
-  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
+  const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -121,6 +122,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setInstructions(data.instruction)
             setDatabase(data.LTM_DB)
             setModel(data.model)
+            data.tools.forEach((item) => {
+              tools.forEach((tool) => {
+                tool.tools.forEach((name) => {
+                  if (name.name === item) {
+                    setToolkitIdForTemplate((prevArray) => [...prevArray, name.id]);
+                  }
+                });
+              });
+            });
             setToolNames(data.tools)
           })
           .catch((error) => {
@@ -168,8 +178,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addTool = (tool) => {
     if (!myTools.includes(tool.id)) {
-      setMyTools((prevArray) => [...prevArray, tool.id]);
-      setToolNames((prevArray) => [...prevArray, tool.name]);
+      setMyTools((prevArray) => [...prevArray, tool.id]); //storing toolkit id
+      setToolNames((prevArray) => [...prevArray, tool.name]); //storing toolkit name
     }
   };
   
@@ -332,7 +342,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return;
     }
 
-    if (myTools.length <= 0) {
+    if (myTools.length <= 0 && toolkitIdForTemplate.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
@@ -353,7 +363,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "tools": myTools,
+      "toolkits": myTools,
+      "tools": toolkitIdForTemplate,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
@@ -390,7 +401,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   function cancelCreate() {
-    EventBus.emit('cancelAgentCreate', {});
+    EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
   }
 
   const handleFileInputChange = (event) => {
