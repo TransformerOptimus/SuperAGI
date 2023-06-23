@@ -10,6 +10,7 @@ from googleapiclient.discovery import build
 from sqlalchemy.orm import sessionmaker
 from superagi.models.db import connect_db
 from superagi.models.tools_config import ToolConfig
+from superagi.resource_manager.manager import ResourceManager
 
 class GoogleCalendarCreds:
 
@@ -27,6 +28,7 @@ class GoogleCalendarCreds:
             engine = connect_db()
             Session = sessionmaker(bind=engine)
             session = Session()
+            resource_manager: ResourceManager = None
             with open(file_path,'rb') as file:
                 creds = pickle.load(file)
             if isinstance(creds, str):
@@ -50,12 +52,7 @@ class GoogleCalendarCreds:
             if expire_time < datetime.utcnow():
                 creds.refresh(Request())
                 creds_json = creds.to_json()
-                with open(file_path,'wb') as file:
-                    pickle.dump(creds_json,file)
-                with open(file_path, 'rb') as file:
-                    resource = ResourceHelper.make_written_file_resource(file_name=file_name,
-                                                                 agent_id=self.agent_id, file=file,
-                                                                 channel="OUTPUT")
+                resource_manager.write_file(file_name, creds_json)
         else:
             return {"success": False}
         service = build('calendar','v3',credentials=creds)
