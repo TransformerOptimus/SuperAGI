@@ -21,7 +21,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
           </div>
         </div>
       </div>
-      <div className={styles.detail_body}>
+      <div className={styles.detail_body} style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}}>
         {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRunId === run.id ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div style={{display:'flex',order:'0'}}>

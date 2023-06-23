@@ -26,8 +26,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-    "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the tools listed in double quotes e.g. "tool name"',
+    "Ensure the tool and args are as per current plan and reasoning",
+    'Exclusively use the tools listed under "TOOLS"',
     "REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."
   ];
   const [constraints, setConstraints] = useState(constraintsArray);
@@ -68,11 +68,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [myTools, setMyTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
+  const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
-  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
+  const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -353,7 +353,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "tools": myTools,
+      "toolkits": myTools,
+      "tools": [],
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
@@ -390,7 +391,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   function cancelCreate() {
-    EventBus.emit('cancelAgentCreate', {});
+    EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
   }
 
   const handleFileInputChange = (event) => {

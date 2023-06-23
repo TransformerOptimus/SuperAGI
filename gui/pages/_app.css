@@ -211,13 +211,14 @@ input[type="range"]::-moz-range-track {
     width: 150px;
     height: fit-content;
     background: #2E293F;
-    display: flex;
     flex-direction: column;
     justify-content: center;
     position: absolute;
     border-radius: 8px;
     box-shadow: -2px 2px 24px rgba(0, 0, 0, 0.4);
     padding: 5px;
+    display: inline-block;
+    z-index: 99999;
 }
 
 .dropdown_item {
@@ -335,11 +336,6 @@ input[type="range"]::-moz-range-track {
     order: 0;
     align-self: stretch;
     transition:0.2s;
-}
-
-.dropdown_container {
-    position: absolute;
-    display: inline-block;
 }
 
 .custom_select_container {
