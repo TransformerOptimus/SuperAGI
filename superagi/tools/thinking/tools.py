@@ -1,15 +1,11 @@
-import os
-import openai
 from typing import Type, Optional, List
 
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
-from superagi.llms.base_llm import BaseLlm
-from pydantic import BaseModel, Field, PrivateAttr
 from superagi.lib.logger import logger
+from superagi.llms.base_llm import BaseLlm
+from superagi.tools.base_tool import BaseTool
 
 
 class ThinkingSchema(BaseModel):
