@@ -7,7 +7,7 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from superagi.models.toolkit import ToolKit
+from superagi.models.toolkit import Toolkit
 
 router = APIRouter()
 
@@ -72,10 +72,10 @@ def get_tool(
 def get_tools(
         organisation: Organisation = Depends(get_user_organisation)):
     """Get all tools"""
-    toolkits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id)
+    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id)
     tools = []
     for toolkit in toolkits:
-        db_tools = db.session.query(Tool).filter(ToolKit.id == toolkit.id).all()
+        db_tools = db.session.query(Tool).filter(Toolkit.id == toolkit.id).all()
         tools.extend(db_tools)
     return tools
 

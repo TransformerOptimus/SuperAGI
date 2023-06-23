@@ -9,7 +9,7 @@ from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "http://localhost:8001"
 
-class ToolKit(DBBaseModel):
+class Toolkit(DBBaseModel):
     """ToolKit - used to store tool kits"""
     __tablename__ = 'toolkits'
 
@@ -58,7 +58,7 @@ class ToolKit(DBBaseModel):
     @staticmethod
     def add_or_update(session, name, description, show_toolkit, organisation_id, tool_code_link):
         # Check if the toolkit exists
-        toolkit = session.query(ToolKit).filter(ToolKit.name == name, ToolKit.organisation_id == organisation_id).first()
+        toolkit = session.query(Toolkit).filter(Toolkit.name == name, Toolkit.organisation_id == organisation_id).first()
 
         if toolkit:
             # Update the existing toolkit
@@ -69,7 +69,7 @@ class ToolKit(DBBaseModel):
             toolkit.tool_code_link = tool_code_link
         else:
             # Create a new toolkit
-            toolkit = ToolKit(
+            toolkit = Toolkit(
                 name=name,
                 description=description,
                 show_toolkit=show_toolkit,
@@ -109,7 +109,7 @@ class ToolKit(DBBaseModel):
 
     @staticmethod
     def get_toolkit_from_name(session, toolkit_name):
-        toolkit = session.query(ToolKit).filter_by(name=toolkit_name).first()
+        toolkit = session.query(Toolkit).filter_by(name=toolkit_name).first()
         if toolkit:
             return toolkit
         return None

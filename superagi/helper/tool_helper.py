@@ -12,7 +12,7 @@ from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
-from superagi.models.toolkit import ToolKit
+from superagi.models.toolkit import Toolkit
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolkit
 
@@ -189,7 +189,7 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
             tools = clazz["toolkit_tools"]
             tool_config_keys = clazz["toolkit_keys"]
             # Create a new ToolKit object
-            new_toolkit = ToolKit.add_or_update(
+            new_toolkit = Toolkit.add_or_update(
                 session,
                 name=toolkit_name,
                 description=toolkit_description,
@@ -215,7 +215,7 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
 
 
 def process_files(folder_path, session, organisation, code_link=None):
-    existing_toolkits = session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
+    existing_toolkits = session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
 
     tool_name_to_toolkit = init_toolkits(code_link, existing_toolkits, folder_path, organisation, session)
     init_tools(folder_path, session, tool_name_to_toolkit)

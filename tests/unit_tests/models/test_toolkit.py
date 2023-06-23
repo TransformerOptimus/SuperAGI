@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from superagi.models.toolkit import ToolKit
+from superagi.models.toolkit import Toolkit
 @pytest.fixture
 def mock_session():
     return MagicMock()
@@ -18,7 +18,7 @@ def test_add_or_update_existing_toolkit(mock_session):
     organisation_id = 1
     tool_code_link = "https://example.com/toolkit"
 
-    existing_toolkit = ToolKit(
+    existing_toolkit = Toolkit(
         name=name,
         description="Old description",
         show_toolkit=False,
@@ -29,7 +29,7 @@ def test_add_or_update_existing_toolkit(mock_session):
     mock_session.query.return_value.filter.return_value.first.return_value = existing_toolkit
 
     # Act
-    result = ToolKit.add_or_update(mock_session, name, description, show_toolkit, organisation_id, tool_code_link)
+    result = Toolkit.add_or_update(mock_session, name, description, show_toolkit, organisation_id, tool_code_link)
 
     # Assert
     assert result == existing_toolkit
@@ -54,10 +54,10 @@ def test_add_or_update_new_toolkit(mock_session):
     mock_session.query.return_value.filter.return_value.first.return_value = None
 
     # Act
-    result = ToolKit.add_or_update(mock_session, name, description, show_toolkit, organisation_id, tool_code_link)
+    result = Toolkit.add_or_update(mock_session, name, description, show_toolkit, organisation_id, tool_code_link)
 
     # Assert
-    assert isinstance(result, ToolKit)
+    assert isinstance(result, Toolkit)
     assert result.name == name
     assert result.description == description
     assert result.show_toolkit == show_toolkit
@@ -91,7 +91,7 @@ def test_fetch_marketplace_list_success():
         mock_get.return_value.json.return_value = expected_response
 
         # Act
-        result = ToolKit.fetch_marketplace_list(page)
+        result = Toolkit.fetch_marketplace_list(page)
 
         # Assert
         assert result == expected_response
@@ -117,7 +117,7 @@ def test_fetch_marketplace_detail_success():
         mock_get.return_value.json.return_value = expected_response
 
         # Act
-        result = ToolKit.fetch_marketplace_detail(search_str, toolkit_name)
+        result = Toolkit.fetch_marketplace_detail(search_str, toolkit_name)
 
         # Assert
         assert result == expected_response
@@ -137,7 +137,7 @@ def test_fetch_marketplace_detail_error():
         mock_get.return_value.status_code = 500
 
         # Act
-        result = ToolKit.fetch_marketplace_detail(search_str, toolkit_name)
+        result = Toolkit.fetch_marketplace_detail(search_str, toolkit_name)
 
         # Assert
         assert result is None
@@ -152,17 +152,17 @@ def test_fetch_marketplace_detail_error():
 def test_get_toolkit_from_name_existing_toolkit(mock_session):
     # Arrange
     toolkit_name = "example_toolkit"
-    expected_toolkit = ToolKit(name=toolkit_name)
+    expected_toolkit = Toolkit(name=toolkit_name)
 
     # Mock the session.query method
     mock_session.query.return_value.filter_by.return_value.first.return_value = expected_toolkit
 
     # Act
-    result = ToolKit.get_toolkit_from_name(mock_session, toolkit_name)
+    result = Toolkit.get_toolkit_from_name(mock_session, toolkit_name)
 
     # Assert
     assert result == expected_toolkit
-    mock_session.query.assert_called_once_with(ToolKit)
+    mock_session.query.assert_called_once_with(Toolkit)
     mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name)
     mock_session.query.return_value.filter_by.return_value.first.assert_called_once()
 
@@ -174,10 +174,10 @@ def test_get_toolkit_from_name_nonexistent_toolkit(mock_session):
     mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
     # Act
-    result = ToolKit.get_toolkit_from_name(mock_session, toolkit_name)
+    result = Toolkit.get_toolkit_from_name(mock_session, toolkit_name)
 
     # Assert
     assert result is None
-    mock_session.query.assert_called_once_with(ToolKit)
+    mock_session.query.assert_called_once_with(Toolkit)
     mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name)
     mock_session.query.return_value.filter_by.return_value.first.assert_called_once()

@@ -10,7 +10,7 @@ from superagi.helper.tool_helper import get_readme_content_from_code_link, downl
 from superagi.helper.validator_helper import validate_github_link
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from superagi.models.toolkit import ToolKit
+from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
 
 router = APIRouter()
@@ -40,7 +40,7 @@ def get_marketplace_toolkits(
     page_size = 30
 
     # Apply search filter if provided
-    query = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id)
+    query = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation_id)
 
     # Paginate the results
     toolkits = query.offset(page * page_size).limit(page_size).all()
@@ -61,12 +61,12 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
         toolkit_name (str): The name of the tool kit.
 
     Returns:
-        ToolKit: The tool kit details from the marketplace.
+        Toolkit: The tool kit details from the marketplace.
 
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id, ToolKit.name == toolkit_name).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation_id, Toolkit.name == toolkit_name).first()
     return toolkit
 
 #For internal use
@@ -87,8 +87,8 @@ def get_marketplace_toolkit_readme(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name,
-                                                ToolKit.organisation_id == organisation_id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
+                                               Toolkit.organisation_id == organisation_id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
     return get_readme_content_from_code_link(toolkit.tool_code_link)
@@ -111,7 +111,7 @@ def get_marketplace_toolkit_tools(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name, ToolKit.organisation_id == organisation_id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name, Toolkit.organisation_id == organisation_id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
     tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).first()
@@ -134,8 +134,8 @@ def install_toolkit_from_marketplace(toolkit_name: str,
     """
 
     # Check if the tool kit exists
-    toolkit = ToolKit.fetch_marketplace_detail(search_str="details",
-                                                toolkit_name=toolkit_name)
+    toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
+                                               toolkit_name=toolkit_name)
     # download_and_install_tool(GitHubLinkRequest(github_link=toolkit['tool_code_link']),
     #                           organisation=organisation)
     if not validate_github_link(toolkit['tool_code_link']):
@@ -155,7 +155,7 @@ def get_installed_toolkit_details(toolkit_name: str,
         organisation (Organisation): The user's organisation.
 
     Returns:
-        ToolKit: The tool kit object with its associated tools.
+        Toolkit: The tool kit object with its associated tools.
 
     Raises:
         HTTPException (status_code=404): If the specified tool kit is not found.
@@ -163,8 +163,8 @@ def get_installed_toolkit_details(toolkit_name: str,
     """
 
     # Fetch the tool kit by its ID
-    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name,
-                                                Organisation.id == organisation.id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
+                                               Organisation.id == organisation.id).first()
 
     if not toolkit:
         # Return an appropriate response if the tool kit doesn't exist
@@ -220,8 +220,8 @@ def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation =
 
     """
 
-    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name,
-                                                Organisation.id == organisation.id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
+                                               Organisation.id == organisation.id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
     readme_content = get_readme_content_from_code_link(toolkit.tool_code_link)
@@ -244,7 +244,7 @@ def handle_marketplace_operations(
         dict: The response containing the marketplace details.
 
     """
-    response = ToolKit.fetch_marketplace_detail(search_str, toolkit_name)
+    response = Toolkit.fetch_marketplace_detail(search_str, toolkit_name)
     return response
 
 
@@ -263,7 +263,7 @@ def handle_marketplace_operations_list(
 
     """
 
-    response = ToolKit.fetch_marketplace_list(page=page)
+    response = Toolkit.fetch_marketplace_list(page=page)
     return response
 
 
@@ -280,7 +280,7 @@ def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_org
 
     """
 
-    toolkits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
+    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
     for toolkit in toolkits:
         toolkit_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
         toolkit.tools = toolkit_tools
