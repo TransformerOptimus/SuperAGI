@@ -34,6 +34,7 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
         Organisation: Instance of Organisation class to which the authenticated user belongs.
     """
     env = get_config("ENV", "DEV")
+
     if env == "DEV":
         email = "super6@agi.com"
     else:
