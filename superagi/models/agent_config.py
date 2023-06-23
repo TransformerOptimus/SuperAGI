@@ -33,7 +33,8 @@ class AgentConfiguration(DBBaseModel):
         """
         return f"AgentConfiguration(id={self.id}, key={self.key}, value={self.value})"
 
-    def get_tools_from_agent_config(session, agent_with_config):
+    @classmethod
+    def get_tools_from_agent_config(cls, session, agent_with_config):
         agent_toolkit_tools = []
         for toolkit_id in agent_with_config.toolkits:
             toolkit_tools = session.query(Tool).filter(Tool.toolkit_id == toolkit_id).all()
