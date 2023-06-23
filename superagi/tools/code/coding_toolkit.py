@@ -1,7 +1,10 @@
 from abc import ABC
+from typing import List
+
 from superagi.tools.base_tool import BaseToolkit, BaseTool
-from typing import Type, List
-from superagi.tools.code.tools import CodingTool
+from superagi.tools.code.write_code import CodingTool
+from superagi.tools.code.write_spec import WriteSpecTool
+from superagi.tools.code.write_test import WriteTestTool
 
 
 class CodingToolkit(BaseToolkit, ABC):
@@ -9,7 +12,7 @@ class CodingToolkit(BaseToolkit, ABC):
     description: str = "Coding Tool kit contains all tools related to coding tasks"
 
     def get_tools(self) -> List[BaseTool]:
-        return [CodingTool()]
+        return [CodingTool(), WriteSpecTool(), WriteTestTool()]
 
     def get_env_keys(self) -> List[str]:
         return []
