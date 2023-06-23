@@ -685,7 +685,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
                     {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                   </div>
-                  <div>
+                  <div style={{marginBottom: '20px'}}>
                     {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>
                       {permissions.map((permit, index) => (<div key={index} className="custom_select_option" onClick={() => handlePermissionSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                         {permit}
