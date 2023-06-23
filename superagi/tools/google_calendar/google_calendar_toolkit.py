@@ -1,5 +1,5 @@
 from abc import ABC
-from superagi.tools.base_tool import BaseToolKit, BaseTool
+from superagi.tools.base_tool import BaseToolkit, BaseTool
 from typing import Type, List
 from superagi.tools.google_calendar.create_calendar_event import CreateEventCalendarTool
 from superagi.tools.google_calendar.delete_calendar_event import DeleteCalendarEventTool
@@ -7,7 +7,7 @@ from superagi.tools.google_calendar.list_calendar_events import ListCalendarEven
 from superagi.tools.google_calendar.event_details_calendar import EventDetailsCalendarTool
 
 
-class GoogleCalendarToolKit(BaseToolKit, ABC):
+class GoogleCalendarToolKit(BaseToolkit, ABC):
     name: str = "Google Calendar Toolkit"
     description: str = "Google Calendar Tool kit contains all tools related to Google Calendar"
 

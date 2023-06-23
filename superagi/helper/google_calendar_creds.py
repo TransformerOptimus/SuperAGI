@@ -9,7 +9,7 @@ from superagi.config.config import get_config
 from googleapiclient.discovery import build
 from sqlalchemy.orm import sessionmaker
 from superagi.models.db import connect_db
-from superagi.models.tools_config import ToolConfig
+from superagi.models.tool_config import ToolConfig
 from superagi.resource_manager.manager import ResourceManager
 
 class GoogleCalendarCreds:

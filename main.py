@@ -46,7 +46,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 from superagi.tools.base_tool import BaseTool
-from superagi.models.tools_config import ToolConfig
+from superagi.models.tool_config import ToolConfig
 
 app = FastAPI()
 
