@@ -7,7 +7,7 @@ from fastapi_sqlalchemy import db
 from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.helper.tool_helper import get_readme_content_from_code_link, download_tool,process_files,add_tool_to_json
-from superagi.helper.validator_helper import validate_github_link
+from superagi.helper.github_helper import GithubHelper
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
 from superagi.models.toolkit import Toolkit
@@ -138,7 +138,7 @@ def install_toolkit_from_marketplace(toolkit_name: str,
                                                toolkit_name=toolkit_name)
     # download_and_install_tool(GitHubLinkRequest(github_link=toolkit['tool_code_link']),
     #                           organisation=organisation)
-    if not validate_github_link(toolkit['tool_code_link']):
+    if not GithubHelper.validate_github_link(toolkit['tool_code_link']):
         raise HTTPException(status_code=400, detail="Invalid Github link")
     add_tool_to_json(toolkit['tool_code_link'])
     return {"message": "ToolKit installed successfully"}
