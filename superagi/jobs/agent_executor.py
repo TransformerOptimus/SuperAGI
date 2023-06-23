@@ -21,7 +21,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
-from superagi.tools.base_tool import BaseToolKitConfiguration
+from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
@@ -32,7 +32,7 @@ engine = connect_db()
 Session = sessionmaker(bind=engine)
 
 
-class DBToolKitConfiguration(BaseToolKitConfiguration):
+class DBToolkitConfiguration(BaseToolkitConfiguration):
     session: Session
     toolkit_id: int
 
@@ -88,7 +88,7 @@ class AgentExecutor:
 
         # Create an instance of the class
         new_object = obj_class()
-        new_object.toolkit_config = DBToolKitConfiguration(session=session, toolkit_id=tool.toolkit_id)
+        new_object.toolkit_config = DBToolkitConfiguration(session=session, toolkit_id=tool.toolkit_id)
         return new_object
 
     @staticmethod

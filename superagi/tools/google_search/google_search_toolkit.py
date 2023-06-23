@@ -1,10 +1,10 @@
 from abc import ABC
 from typing import List
-from superagi.tools.base_tool import BaseTool, BaseToolKit
+from superagi.tools.base_tool import BaseTool, BaseToolkit
 from superagi.tools.google_search.google_search import GoogleSearchTool
 
 
-class GoogleSearchToolKit(BaseToolKit, ABC):
+class GoogleSearchToolkit(BaseToolkit, ABC):
     name: str = "Google Search Toolkit"
     description: str = "Toolkit containing tools for performing Google search and extracting snippets and webpages"
 
