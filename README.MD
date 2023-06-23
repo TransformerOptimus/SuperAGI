@@ -74,7 +74,7 @@
 
 
 ## 📽 Installation Video
-[Installation Video](https://github.com/Akki-jain/test/assets/92881074/6080ace1-b5d9-4cb3-882a-32b3f8ff121f)
+[Installation Video](https://github.com/Akki-jain/test/assets/92881074/bb18407a-b6b2-4a9f-9419-ec73ffacd2f8)
 
 
 <p align="center">
