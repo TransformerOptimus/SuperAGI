@@ -26,8 +26,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-    "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the tools listed in double quotes e.g. "tool name"',
+    "Ensure the tool and args are as per current plan and reasoning",
+    'Exclusively use the tools listed under "TOOLS"',
     "REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."
   ];
   const [constraints, setConstraints] = useState(constraintsArray);
