@@ -68,11 +68,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [myTools, setMyTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
+  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
 
-  const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
+  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -353,8 +353,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "toolkits": myTools,
-      "tools": [],
+      "tools": myTools,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
@@ -391,7 +390,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   function cancelCreate() {
-    EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
+    EventBus.emit('cancelAgentCreate', {});
   }
 
   const handleFileInputChange = (event) => {

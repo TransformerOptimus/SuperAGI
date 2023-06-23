@@ -11,12 +11,11 @@ import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
 import {arEG} from "date-fns/locale";
 
-export default function Market({source, env}) {
-    const [activeTab, setActiveTab] = useState(source || 'market_tools');
+export default function Market() {
+    const [activeTab, setActiveTab] = useState('market_agents');
     const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
-    const [templateData, setTemplateData] = useState([]);
-    const [detailType, setDetailType] = useState('');
+    const [agentTemplateData, setAgentTemplateData] = useState([]);
 
     const handleSearch = (term) => {
       setSearchTerm(term);

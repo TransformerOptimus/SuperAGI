@@ -371,13 +371,14 @@
 
 .market_tool {
     display: flex;
-    height: 105px;
+    height: 110px;
     color: white;
     font-size: small;
     padding: 12px;
     width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
+    margin: 4px 0 4px 0;
 }
 
 .tool_description {
