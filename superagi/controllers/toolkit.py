@@ -196,7 +196,7 @@ def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...)
 
     """
     github_link = github_link_request.github_link
-    if not validate_github_link(github_link):
+    if not GithubHelper.validate_github_link(github_link):
         raise HTTPException(status_code=400, detail="Invalid Github link")
     # download_folder = get_config("TOOLS_DIR")
     # download_tool(github_link, download_folder)
