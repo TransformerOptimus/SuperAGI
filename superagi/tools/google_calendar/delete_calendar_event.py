@@ -12,7 +12,7 @@ class DeleteCalendarEventTool(BaseTool):
     description: str = "Delete an event from Google Calendar"
 
     def _execute(self, event_id: str):
-        toolkit_id = self.tool_kit_config.tool_kit_id
+        toolkit_id = self.toolkit_config.toolkit_id
         service = GoogleCalendarCreds().get_credentials(toolkit_id)
         if service["success"]:
             service = service["service"]
