@@ -9,7 +9,6 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 from superagi.models.agent_workflow import AgentWorkflow
-from superagi.models.toolkit import ToolKit
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
@@ -173,7 +172,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    # Creating an execution with RUNNING status
+    # Creating an execution with CREATED status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 

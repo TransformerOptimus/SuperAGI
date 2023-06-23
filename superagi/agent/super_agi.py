@@ -39,6 +39,9 @@ FINISH = "finish"
 WRITE_FILE = "Write File"
 FILE = "FILE"
 S3 = "S3"
+# print("\033[91m\033[1m"
+#         + "\nA bit about me...."
+#         + "\033[0m\033[0m")
 
 
 engine = connect_db()
@@ -64,6 +67,8 @@ class SuperAgi:
         self.output_parser = output_parser
         self.tools = tools
         self.agent_config = agent_config
+        # Init Log
+        # print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 
     @classmethod
     def from_llm_and_tools(

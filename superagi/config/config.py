@@ -3,8 +3,6 @@ from pydantic import BaseSettings
 from pathlib import Path
 import yaml
 from superagi.lib.logger import logger
-from sqlalchemy.orm import Session
-from superagi.models.tool_config import ToolConfig
 
 CONFIG_FILE = "config.yaml"
 
@@ -27,17 +25,7 @@ class Config(BaseSettings):
             logger.info("\033[91m\033[1m"
         + "\nConfig file not found. Enter required keys and values."
         + "\033[0m\033[0m")
-            config_data = {
-                "PINECONE_API_KEY": input("Pinecone API Key: "),
-                "PINECONE_ENVIRONMENT": input("Pinecone Environment: "),
-                # "OPENAI_API_KEY": input("OpenAI API Key: "),
-                "GOOGLE_API_KEY": input("Google API Key: "),
-                "SEARCH_ENGINE_ID": input("Search Engine ID: "),
-                "RESOURCES_ROOT_DIR": input(
-                    "Resources Root Directory (default: /tmp/): "
-                )
-                or "/tmp/",
-            }
+            config_data = {}
             with open(config_file, "w") as file:
                 yaml.dump(config_data, file, default_flow_style=False)
 
@@ -61,5 +49,3 @@ _config_instance = Config(ROOT_DIR + "/" + CONFIG_FILE)
 
 def get_config(key: str, default: str = None) -> str:
     return _config_instance.get_config(key, default)
-
-
