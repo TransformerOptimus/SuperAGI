@@ -74,7 +74,7 @@
 
 
 ## 📽 Installation Video
-[Installation Video](https://github.com/Akki-jain/SuperAGI/assets/92881074/d217f5de-f218-4b3c-9fe4-8f6c6718c86d)
+[Installation Video](https://github.com/Akki-jain/test/assets/92881074/6080ace1-b5d9-4cb3-882a-32b3f8ff121f)
 
 
 <p align="center">
