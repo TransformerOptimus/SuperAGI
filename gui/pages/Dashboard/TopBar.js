@@ -17,12 +17,24 @@ export default function TopBar({selectedProject, organisationId, userName, env})
   const [temperature, setTemperature] = useState(0.5);
 
   const handleMarketplaceClick = () => {
-    EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
+    EventBus.emit('openNewTab', {
+      element: {
+        id: -4,
+        name: "Marketplace",
+        contentType: "Marketplace"
+      }
+    });
   };
 
-  // const settingsTab = () => {
-  //   EventBus.emit('openNewTab', { id: -3, name: "Settings", contentType: "Settings" });
-  // }
+  const settingsTab = () => {
+    EventBus.emit('openNewTab', {
+      element: {
+        id: -3,
+        name: "Settings",
+        contentType: "Settings"
+      }
+    });
+  }
 
   function getKey(key) {
     getOrganisationConfig(organisationId, key)

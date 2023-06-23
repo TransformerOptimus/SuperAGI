@@ -75,21 +75,17 @@ export default function ToolWorkspace({toolDetails}){
         <div className={styles.tools_container}>
           <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
             <div>
-              <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={50} height={50}/>
+              <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={45} height={45}/>
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
-                  <div>{toolDetails.name}</div>
-                  <div style={{marginRight:'40px'}}>
-                  <div className={styles.description} style={!showDescription ? { maxHeight: '1.5em', overflow: 'hidden' } : {}}>
-                    {toolDetails.description}
-                  </div>
-                  {toolDetails.description?.length > 0 && (
-                    <div className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                        {showDescription ? 'Show Less' : 'Show More'}
-                    </div>
-                  )}
-                  </div>
+                <div style={{fontSize:'17px',marginTop:'-3px'}}>{toolDetails.name}</div>
+                <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
+                  {`${showDescription ? toolDetails.description : toolDetails.description.slice(0, 80)}`}
+                  {toolDetails.description.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                      {showDescription ? '...less' : '...more'}
+                  </span>}
+                </div>
               </div>
             </div>
           </div>
@@ -131,7 +127,7 @@ export default function ToolWorkspace({toolDetails}){
               <div key={index} className={styles.tools_included}>
                 <div>
                     <div style={{color:'white'}}>{tool.name}</div>
-                    <div style={{color:'#888888'}}>{tool.description}</div>
+                    <div style={{color:'#888888',marginTop:'5px'}}>{tool.description}</div>
                 </div>
               </div>
             ))}

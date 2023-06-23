@@ -12,8 +12,9 @@ import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardSe
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 
-export default function Content({selectedView, selectedProjectId, organisationId}) {
+export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
+  const [source, setSource] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
   const [tools, setTools] = useState(null);
@@ -34,7 +35,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
       });
   }
 
-  function fetchTools() {
+  function fetchToolkits() {
     getToolKit()
       .then((response) => {
         const data = response.data || [];
@@ -44,13 +45,13 @@ export default function Content({selectedView, selectedProjectId, organisationId
         setTools(updatedData);
       })
       .catch((error) => {
-        console.error('Error fetching tools:', error);
+        console.error('Error fetching toolkits:', error);
       });
   }
 
   useEffect(() => {
     fetchAgents();
-    fetchTools();
+    fetchToolkits();
   }, [selectedProjectId])
 
   const closeTab = (e, index) => {
@@ -128,7 +129,8 @@ export default function Content({selectedView, selectedProjectId, organisationId
 
   useEffect(() => {
     const openNewTab = (eventData) => {
-      addTab(eventData);
+      addTab(eventData.element);
+      setSource(eventData.source || null);
     };
 
     const removeTab = (eventData) => {
@@ -203,7 +205,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Tools' && <ToolWorkspace toolDetails={toolDetails}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
-                  {tab.contentType === 'Marketplace' && <Market tools={tools} selectedView={selectedView}/>}
+                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} tools={tools} selectedView={selectedView}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>}
                   {tab.contentType === 'Create_Tool' &&
                     <div className="row">

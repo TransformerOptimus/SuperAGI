@@ -1,19 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import Image from "next/image";
 import styles from '../Tools/Tool.module.css';
-import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import {installAgentTemplate, fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
+import {fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import axios from "axios";
 import ReactMarkdown from 'react-markdown';
 
-export default function EachTool({template}) {
+export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
     const [installed, setInstalled] = useState('')
-    const [markdownContent, setMarkdownContent] = useState('');
+    const [markdownContent, setMarkdownContent] = useState(null);
 
     useEffect(() => {
         setInstalled(template && template.is_installed? 'Installed' : 'Install');
@@ -33,11 +31,11 @@ export default function EachTool({template}) {
 
     function handleInstallClick(){
         if(window.location.href.toLowerCase().includes('marketplace')) {
-            if (window.location.href.toLowerCase().includes('localhost')) {
+            if (env === 'PROD') {
+                window.open(`https://app.superagi.com/`, '_self');
+            } else {
                 window.location.href = '/';
             }
-            else
-                window.open(`https://app.superagi.com/`, '_self')
             return;
         }
 
