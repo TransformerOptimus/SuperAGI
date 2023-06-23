@@ -4,7 +4,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, downloadFile} from "@/utils/utils";
+import {formatBytes, downloadFile,deleteFile} from "@/utils/utils";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -105,6 +105,8 @@ export default function ResourceManager({agentId}) {
     return (
       <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+        <button type="button" className="deletebtn" onClick={() => deleteFile(file.id)}>Delete</button>
+
           {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
           {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
           {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}

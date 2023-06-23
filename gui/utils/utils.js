@@ -72,6 +72,37 @@ export const downloadFile = (fileId) => {
   }
 };
 
+
+export const deleteFile = (fileId) => {
+  const authToken = localStorage.getItem('accessToken');
+  const url = `${baseUrl()}/resources/delete/${fileId}`;
+  const env = localStorage.getItem('applicationEnvironment');
+
+  if (env === 'PROD') {
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+    };
+
+    fetch(url, { method: 'DELETE', headers })
+      .then((response) => {
+        if (response.ok) {
+          console.log('File deleted');
+          // Perform any additional actions after successful deletion
+        } else {
+          console.error('Error deleting file:', response.status);
+        }
+      })
+
+
+      .catch((error) => {
+        console.error('Error deleting file:', error);
+      });
+  } 
+  else {
+    console.warn('Deleting files is not supported in the non-production environment.');
+  }
+};
+
 export const refreshUrl = () => {
   if (typeof window === 'undefined') {
     return;
