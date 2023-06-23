@@ -144,7 +144,7 @@ class BaseTool(BaseModel):
             return cls(description=func.__doc__)
 
     def get_tool_config(self, key):
-        self.toolkit_config.get_tool_config(key=key)
+        return self.toolkit_config.get_tool_config(key=key)
 
 
 class FunctionalTool(BaseTool):
