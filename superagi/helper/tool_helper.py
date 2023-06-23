@@ -82,7 +82,7 @@ def get_classes_in_file(file_path, clazz):
             try:
                 obj = class_obj()
                 if clazz == BaseToolKit:
-                    get_tool_kit_info(class_dict, classes, obj)
+                    get_toolkit_info(class_dict, classes, obj)
                 elif clazz == BaseTool:
                     get_tool_info(class_dict, classes, obj)
             except:
@@ -99,7 +99,7 @@ def get_tool_info(class_dict, classes, obj):
     classes.append(class_dict)
 
 
-def get_tool_kit_info(class_dict, classes, obj):
+def get_toolkit_info(class_dict, classes, obj):
     """
         Get toolkit information from an object.
     """
