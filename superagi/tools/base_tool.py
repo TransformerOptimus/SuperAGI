@@ -56,7 +56,7 @@ def create_function_schema(
     )
 
 
-class BaseToolKitConfiguration:
+class BaseToolkitConfiguration:
 
     def get_tool_config(key: str):
         # Default implementation of the tool configuration retrieval logic
@@ -72,7 +72,7 @@ class BaseTool(BaseModel):
     description: str
     args_schema: Type[BaseModel] = None
     permission_required: bool = True
-    toolkit_config: BaseToolKitConfiguration = BaseToolKitConfiguration()
+    toolkit_config: BaseToolkitConfiguration = BaseToolkitConfiguration()
 
     class Config:
         arbitrary_types_allowed = True
@@ -199,7 +199,7 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator
 
 
-class BaseToolKit(BaseModel):
+class BaseToolkit(BaseModel):
     name: str
     description: str
 

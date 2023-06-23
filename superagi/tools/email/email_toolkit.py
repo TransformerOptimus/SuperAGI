@@ -1,12 +1,12 @@
 from abc import ABC
-from superagi.tools.base_tool import BaseToolKit, BaseTool
+from superagi.tools.base_tool import BaseToolkit, BaseTool
 from typing import Type, List
 from read_email import ReadEmailTool
 from send_email import SendEmailTool
 from send_email_attachment import SendEmailAttachmentTool
 
 
-class EmailToolKit(BaseToolKit, ABC):
+class EmailToolkit(BaseToolkit, ABC):
     name: str = "Email Toolkit"
     description: str = "Email Tool kit contains all tools related to sending email"
 

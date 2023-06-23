@@ -14,7 +14,7 @@ from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import ToolKit
 from superagi.tools.base_tool import BaseTool
-from superagi.tools.base_tool import BaseToolKit
+from superagi.tools.base_tool import BaseToolkit
 
 
 def parse_github_url(github_url):
@@ -81,7 +81,7 @@ def get_classes_in_file(file_path, clazz):
             class_obj = getattr(module, member.__name__)
             try:
                 obj = class_obj()
-                if clazz == BaseToolKit:
+                if clazz == BaseToolkit:
                     get_toolkit_info(class_dict, classes, obj)
                 elif clazz == BaseTool:
                     get_tool_info(class_dict, classes, obj)
@@ -162,7 +162,7 @@ def init_toolkits(code_link, existing_toolkits, folder_path, organisation, sessi
                 file_path = os.path.join(folder_dir, file_name)
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
-                    classes = get_classes_in_file(file_path=file_path, clazz=BaseToolKit)
+                    classes = get_classes_in_file(file_path=file_path, clazz=BaseToolkit)
                     tool_name_to_toolkit = update_base_toolkit_info(classes, code_link, folder_name, new_toolkits,
                                                                     organisation, session, tool_name_to_toolkit)
     # Delete toolkits that are not present in the updated toolkits

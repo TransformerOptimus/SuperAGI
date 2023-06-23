@@ -1,10 +1,10 @@
 from abc import ABC
 from typing import List
-from superagi.tools.base_tool import BaseTool, BaseToolKit
+from superagi.tools.base_tool import BaseTool, BaseToolkit
 from superagi.tools.slack.send_message import SlackMessageTool
 
 
-class SlackToolkit(BaseToolKit, ABC):
+class SlackToolkit(BaseToolkit, ABC):
     name: str = "Slack Toolkit"
     description: str = "Toolkit containing tools for Slack integration"
 
