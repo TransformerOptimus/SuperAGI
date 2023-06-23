@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 from superagi.helper.calendar_date import CalendarDate
-from superagi.helper.resource_helper import ResourceHelper
+from superagi.resource_manager.manager import ResourceManager
 from superagi.helper.s3_helper import S3Helper
 from urllib.parse import urlparse, parse_qs
 from sqlalchemy.orm import sessionmaker
@@ -27,6 +27,7 @@ class ListCalendarEventsTool(BaseTool):
     args_schema: Type[BaseModel] = ListCalendarEventsInput
     description: str = "Get the list of all the events from Google Calendar"
     agent_id: int  = None
+    resource_manager: ResourceManager = None
 
     def _execute(self, start_time: str = 'None', start_date: str = 'None', end_date: str = 'None', end_time: str = 'None'):
         service = self.get_google_calendar_service()
@@ -39,17 +40,16 @@ class ListCalendarEventsTool(BaseTool):
             return f"No events found for the given date and time range."
         
         csv_data = self.generate_csv_data(event_results)
-        file_name = self.create_output_file(csv_data)
-        resource = self.create_resource(file_name)
-        if resource is not None:
-            self.upload_resource_to_s3_and_commit(resource)
+        file_name = self.create_output_file()
+        if file_name is not None:
+            self.resource_manager.write_csv_file(file_name, csv_data)
         return f"List of Google Calendar Events month successfully stored in {file_name}."
 
     def get_google_calendar_service(self):
         engine = connect_db()
         Session = sessionmaker(bind=engine)
         session = Session()
-        toolkit_id = self.tool_kit_config.tool_kit_id
+        toolkit_id = self.toolkit_config.toolkit_id
         return GoogleCalendarCreds().get_credentials(toolkit_id)
 
     def get_event_results(self, service, date_utc):
@@ -82,44 +82,8 @@ class ListCalendarEventsTool(BaseTool):
         attendees_str = ','.join(attendees)
         return event_id, summary, start_date, end_date, attendees_str
 
-    def create_output_file(self, csv_data):
+    def create_output_file(self):
         file = datetime.now()
         file = file.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         file_name = "Google_Calendar_" + file + ".csv"
-        final_path = self.get_output_path(file_name)
-        with open(final_path, "w") as file:
-            writer = csv.writer(file, lineterminator="\n")
-            for row in csv_data:
-                writer.writerow(row)
         return file_name
-
-    def get_output_path(self, file_name):
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-        if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-            final_path = root_dir + file_name
-        else:
-            final_path = os.getcwd() + "/" + file_name
-        return final_path
-
-    def create_resource(self, file_name):
-        with open(self.get_output_path(file_name), 'rb') as file:
-            resource = ResourceHelper.make_written_file_resource(file_name=file_name,
-                                                                 agent_id=self.agent_id, file=file,
-                                                                 channel="OUTPUT")
-        return resource
-
-    def upload_resource_to_s3_and_commit(self, resource):
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        session.add(resource)
-        session.commit()
-        session.flush()
-        if resource.storage_type == "S3":
-            s3_helper = S3Helper()
-            with open(self.get_output_path(resource.file_name), 'rb') as file:
-                s3_helper.upload_file(file, path=resource.path)
-            logger.info("Resource Uploaded to S3!")
-        session.close()
