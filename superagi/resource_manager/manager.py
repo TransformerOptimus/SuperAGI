@@ -65,7 +65,8 @@ class ResourceManager:
             final_path = ResourceHelper.get_resource_path(file_name)
 
         try:
-            with open(final_path, mode="w") as writer:
+            with open(final_path, mode="w") as file:
+                writer = csv.writer(file, lineterminator="\n")
                 for row in csv_data:
                     writer.writerows(row)
             self.write_to_s3(file_name, final_path)
