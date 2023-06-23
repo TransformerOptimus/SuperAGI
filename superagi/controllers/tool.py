@@ -69,8 +69,8 @@ def get_tool(
 
 
 @router.get("/get")
-def get_tools(Authorize: AuthJWT = Depends(check_auth),
-              organisation: Organisation = Depends(get_user_organisation)):
+def get_tools(
+        organisation: Organisation = Depends(get_user_organisation)):
     """Get all tools"""
     toolkits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id)
     tools = []

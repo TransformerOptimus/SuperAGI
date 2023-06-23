@@ -47,14 +47,6 @@ def test_parse_github_url():
     assert parse_github_url(github_url) == expected_result
 
 
-# def test_download_tool(mock_requests_get, tmp_path):
-#     tool_url = 'https://github.com/owner/repo'
-#     target_folder = tmp_path
-#     download_tool(tool_url, target_folder)
-#     assert (target_folder / 'tool.zip').is_file()
-#     assert (target_folder / 'file.txt').is_file()
-
-
 def test_get_classes_in_file():
     current_dir = os.getcwd()
     file_path = Path(current_dir) / 'test_tool.py'
@@ -105,14 +97,15 @@ def test_init_tools(tmp_path, monkeypatch):
     folder_dir.mkdir()
     tool_file = folder_dir / 'tool.py'
     tool_file.write_text('''
-        class Tool1(BaseTool):
-            name = 'Tool1'
+from superagi.tools.base_tool import BaseTool    
+class Tool1(BaseTool):
+    name = 'Tool1'
 
-        class Tool2(BaseTool):
-            name = 'Tool2'
+class Tool2(BaseTool):
+    name = 'Tool2'
 
-        class Tool3(BaseTool):
-            name = 'Tool3'
+class Tool3(BaseTool):
+    name = 'Tool3'
     ''')
     sys.path.append(str(folder_dir))
     init_tools(str(tmp_path), session, tool_name_to_toolkit)

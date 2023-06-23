@@ -71,12 +71,9 @@ def download_tool(tool_url, target_folder):
 def get_classes_in_file(file_path, clazz):
     classes = []
 
-    # Load the module from the file
     module = load_module_from_file(file_path)
 
-    # Iterate over all members of the module
     for name, member in inspect.getmembers(module):
-        # Check if the member is a class and extends BaseTool
         if inspect.isclass(member) and issubclass(member, clazz) and member != clazz:
             class_dict = {}
             class_dict['class_name'] = member.__name__
@@ -85,18 +82,32 @@ def get_classes_in_file(file_path, clazz):
             try:
                 obj = class_obj()
                 if clazz == BaseToolKit:
-                    class_dict['toolkit_name'] = obj.name
-                    class_dict['toolkit_description'] = obj.description
-                    class_dict['toolkit_tools'] = obj.get_tools()
-                    class_dict['toolkit_keys'] = obj.get_env_keys()
-                    classes.append(class_dict)
+                    get_tool_kit_info(class_dict, classes, obj)
                 elif clazz == BaseTool:
-                    class_dict['tool_name'] = obj.name
-                    class_dict['tool_description'] = obj.description
-                    classes.append(class_dict)
+                    get_tool_info(class_dict, classes, obj)
             except:
                 class_dict = None
     return classes
+
+
+def get_tool_info(class_dict, classes, obj):
+    """
+        Get tool information from an object.
+    """
+    class_dict['tool_name'] = obj.name
+    class_dict['tool_description'] = obj.description
+    classes.append(class_dict)
+
+
+def get_tool_kit_info(class_dict, classes, obj):
+    """
+        Get toolkit information from an object.
+    """
+    class_dict['toolkit_name'] = obj.name
+    class_dict['toolkit_description'] = obj.description
+    class_dict['toolkit_tools'] = obj.get_tools()
+    class_dict['toolkit_keys'] = obj.get_env_keys()
+    classes.append(class_dict)
 
 
 def load_module_from_file(file_path):
@@ -120,17 +131,20 @@ def init_tools(folder_path, session, tool_name_to_toolkit):
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)
-                    for clazz in classes:
-                        if clazz["class_name"] is not None:
-                            tool_name = clazz['tool_name']
-                            tool_description = clazz['tool_description']
-                            toolkit_id = tool_name_to_toolkit.get((tool_name, folder_name), None)
-                            if toolkit_id is not None:
-                                new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
-                                                              class_name=clazz['class_name'], file_name=file_name,
-                                                              toolkit_id=tool_name_to_toolkit[(tool_name, folder_name)],
-                                                              description=tool_description)
+                    update_base_tool_class_info(classes, file_name, folder_name, session, tool_name_to_toolkit)
 
+
+def update_base_tool_class_info(classes, file_name, folder_name, session, tool_name_to_toolkit):
+    for clazz in classes:
+        if clazz["class_name"] is not None:
+            tool_name = clazz['tool_name']
+            tool_description = clazz['tool_description']
+            toolkit_id = tool_name_to_toolkit.get((tool_name, folder_name), None)
+            if toolkit_id is not None:
+                new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
+                                              class_name=clazz['class_name'], file_name=file_name,
+                                              toolkit_id=tool_name_to_toolkit[(tool_name, folder_name)],
+                                              description=tool_description)
 
 
 def init_toolkits(code_link, existing_toolkits, folder_path, organisation, session):
@@ -149,36 +163,14 @@ def init_toolkits(code_link, existing_toolkits, folder_path, organisation, sessi
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseToolKit)
-                    for clazz in classes:
-                        if clazz["class_name"] is not None:
-                            toolkit_name = clazz["toolkit_name"]
-                            toolkit_description = clazz["toolkit_description"]
-                            tools = clazz["toolkit_tools"]
-                            tool_config_keys = clazz["toolkit_keys"]
-                            # Create a new ToolKit object
-                            new_toolkit = ToolKit.add_or_update(
-                                session,
-                                name=toolkit_name,
-                                description=toolkit_description,
-                                show_toolkit=True if len(tools) > 1 else False,
-                                organisation_id=organisation.id,
-                                tool_code_link=code_link
-                            )
-                            new_toolkits.append(new_toolkit)
-                            tool_mapping = {}
-                            # Store the tools in the database
-                            for tool in tools:
-                                new_tool = Tool.add_or_update(session, tool_name=tool.name, folder_name=folder_name,
-                                                              class_name=None, file_name=None,
-                                                              toolkit_id=new_toolkit.id, description=tool.description)
-                                tool_mapping[tool.name,folder_name] = new_toolkit.id
-                            tool_name_to_toolkit = {**tool_mapping, **tool_name_to_toolkit}
-
-                            # Store the tools config in the database
-                            for tool_config_key in tool_config_keys:
-                                new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
-                                                                      key=tool_config_key)
+                    tool_name_to_toolkit = update_base_toolkit_info(classes, code_link, folder_name, new_toolkits,
+                                                                    organisation, session, tool_name_to_toolkit)
     # Delete toolkits that are not present in the updated toolkits
+    delete_extra_toolkit(existing_toolkits, new_toolkits, session)
+    return tool_name_to_toolkit
+
+
+def delete_extra_toolkit(existing_toolkits, new_toolkits, session):
     for toolkit in existing_toolkits:
         if toolkit.name not in [new_toolkit.name for new_toolkit in new_toolkits]:
             session.query(Tool).filter(Tool.toolkit_id == toolkit.id).delete()
@@ -186,6 +178,39 @@ def init_toolkits(code_link, existing_toolkits, folder_path, organisation, sessi
             session.delete(toolkit)
     # Commit the changes to the database
     session.commit()
+
+
+def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, organisation, session,
+                             tool_name_to_toolkit):
+    for clazz in classes:
+        if clazz["class_name"] is not None:
+            toolkit_name = clazz["toolkit_name"]
+            toolkit_description = clazz["toolkit_description"]
+            tools = clazz["toolkit_tools"]
+            tool_config_keys = clazz["toolkit_keys"]
+            # Create a new ToolKit object
+            new_toolkit = ToolKit.add_or_update(
+                session,
+                name=toolkit_name,
+                description=toolkit_description,
+                show_toolkit=True if len(tools) > 1 else False,
+                organisation_id=organisation.id,
+                tool_code_link=code_link
+            )
+            new_toolkits.append(new_toolkit)
+            tool_mapping = {}
+            # Store the tools in the database
+            for tool in tools:
+                new_tool = Tool.add_or_update(session, tool_name=tool.name, folder_name=folder_name,
+                                              class_name=None, file_name=None,
+                                              toolkit_id=new_toolkit.id, description=tool.description)
+                tool_mapping[tool.name, folder_name] = new_toolkit.id
+            tool_name_to_toolkit = {**tool_mapping, **tool_name_to_toolkit}
+
+            # Store the tools config in the database
+            for tool_config_key in tool_config_keys:
+                new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                      key=tool_config_key)
     return tool_name_to_toolkit
 
 
