@@ -12,7 +12,7 @@ export default function EachToolOverview({}) {
     useEffect(() => {
         const fetchReadme = async () => {
           try {
-            const response = await axios.get('http://192.168.211.48:8001/tool_kits/marketplace/readme/Changed');
+            const response = await axios.get('http://192.168.211.48:8001/toolkits/marketplace/readme/Changed');
             setReadmeContent(response.data);
           } catch (error) {
             console.error('Error fetching README:', error);

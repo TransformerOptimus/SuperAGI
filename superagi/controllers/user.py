@@ -2,7 +2,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 
-from superagi.helper.tool_helper import register_tool_kits
+from superagi.helper.tool_helper import register_toolkits
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
@@ -41,8 +41,6 @@ def create_user(user: sqlalchemy_to_pydantic(User, exclude=["id"]),
     db.session.flush()
     organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
-    print("User created",db_user)
-    # logger.info("User created", db_user)
     return db_user
 
 

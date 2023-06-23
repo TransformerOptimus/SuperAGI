@@ -14,7 +14,6 @@ class TaskQueue:
 
     def add_task(self, task: str):
         self.db.lpush(self.queue_name, task)
-        # print("Added task. New tasks:", str(self.get_tasks()))
 
     def complete_task(self, response):
         task = self.db.lpop(self.queue_name)

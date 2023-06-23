@@ -353,7 +353,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "tool_kits": myTools,
+      "toolkits": myTools,
       "tools": [],
       "exit": exitCriterion,
       "iteration_interval": stepTime,

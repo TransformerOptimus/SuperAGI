@@ -34,14 +34,14 @@ Session = sessionmaker(bind=engine)
 
 class DBToolKitConfiguration(BaseToolKitConfiguration):
     session: Session
-    tool_kit_id: int
+    toolkit_id: int
 
-    def __init__(self, session=None, tool_kit_id=None):
+    def __init__(self, session=None, toolkit_id=None):
         self.session = session
-        self.tool_kit_id = tool_kit_id
+        self.toolkit_id = toolkit_id
 
     def default_tool_config_func(self, key: str):
-        tool_config = self.session.query(ToolConfig).filter_by(key=key, tool_kit_id=self.tool_kit_id).first()
+        tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
         if tool_config:
             return tool_config.value
         # Read the config.yaml file
@@ -94,7 +94,7 @@ class AgentExecutor:
 
         # Create an instance of the class
         new_object = obj_class()
-        new_object.tool_kit_config = DBToolKitConfiguration(session=session,tool_kit_id=tool.tool_kit_id)
+        new_object.toolkit_config = DBToolKitConfiguration(session=session, toolkit_id=tool.toolkit_id)
         return new_object
 
     @staticmethod
@@ -223,10 +223,6 @@ class AgentExecutor:
             superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()
-        # except Exception as exception:
-        #      print("Exception Occured in celery job", exception)
-        #      print(str(exception))
-        # finally:
         engine.dispose()
 
     def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):

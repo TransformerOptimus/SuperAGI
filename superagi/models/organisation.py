@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 
-from superagi.helper.tool_helper import register_tool_kits
+from superagi.helper.tool_helper import register_toolkits
 from superagi.models.base_model import DBBaseModel
 
 
@@ -64,5 +64,5 @@ class Organisation(DBBaseModel):
         session.flush()
         user.organisation_id = new_organisation.id
         session.commit()
-        register_tool_kits(session=session, organisation=new_organisation)
+        register_toolkits(session=session, organisation=new_organisation)
         return new_organisation

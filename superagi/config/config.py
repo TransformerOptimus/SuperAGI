@@ -63,5 +63,3 @@ def get_config(key: str, default: str = None) -> str:
     return _config_instance.get_config(key, default)
 
 
-# def get_tool_config(key: str, default: str = None, tool_kit_id: int = None, session=None) -> str:
-#     return _config_instance.get_tool_config(key, default, tool_kit_id, session)

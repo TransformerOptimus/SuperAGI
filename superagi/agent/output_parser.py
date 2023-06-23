@@ -54,7 +54,6 @@ class AgentOutputParser(BaseOutputParser):
                 logger.info(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
 
             logger.info(format_prefix_green + "Action : " + format_suffix_green)
-            # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["tool"]["args"] + "\n")
             if parsed["tool"] is None or not parsed["tool"]:
                 return AgentGPTAction(name="", args="")
             if "name" in parsed["tool"]:

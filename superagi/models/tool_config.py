@@ -14,7 +14,7 @@ class ToolConfig(DBBaseModel):
             id (Integer): The primary key of the tool configuration.
             key (String): The key of the tool configuration.
             value (String): The value of the tool configuration.
-            tool_kit_id (Integer): The identifier of the associated toolkit.
+            toolkit_id (Integer): The identifier of the associated toolkit.
     """
     __tablename__ = 'tool_configs'
 
@@ -22,17 +22,17 @@ class ToolConfig(DBBaseModel):
     id = Column(Integer, primary_key=True)
     key = Column(String)
     value = Column(String)
-    tool_kit_id = Column(Integer)
+    toolkit_id = Column(Integer)
 
     def __repr__(self):
-        return f"ToolConfig(id={self.id}, key='{self.key}', value='{self.value}, tool_kit_id={self.tool_kit_id}')"
+        return f"ToolConfig(id={self.id}, key='{self.key}', value='{self.value}, toolkit_id={self.toolkit_id}')"
 
     def to_dict(self):
         return {
             'id': self.id,
             'key': self.key,
             'value': self.value,
-            'tool_kit_id': {self.tool_kit_id},
+            'toolkit_id': {self.toolkit_id},
         }
 
     def to_json(self):
@@ -45,19 +45,19 @@ class ToolConfig(DBBaseModel):
             id=data['id'],
             key=data['key'],
             value=data['value'],
-            tool_kit_id=data['tool_kit_id'],
+            toolkit_id=data['toolkit_id'],
         )
 
     @staticmethod
-    def add_or_update(session: Session, tool_kit_id: int, key: str, value: str = None):
-        tool_config = session.query(ToolConfig).filter_by(tool_kit_id=tool_kit_id, key=key).first()
+    def add_or_update(session: Session, toolkit_id: int, key: str, value: str = None):
+        tool_config = session.query(ToolConfig).filter_by(toolkit_id=toolkit_id, key=key).first()
         if tool_config:
             # Update existing tool config
             if value is not None:
                 tool_config.value = value
         else:
             # Create new tool config
-            tool_config = ToolConfig(tool_kit_id=tool_kit_id, key=key, value=value)
+            tool_config = ToolConfig(toolkit_id=toolkit_id, key=key, value=value)
             session.add(tool_config)
 
         session.commit()

@@ -11,7 +11,7 @@ marketplace_url = "http://localhost:8001"
 
 class ToolKit(DBBaseModel):
     """ToolKit - used to store tool kits"""
-    __tablename__ = 'tool_kits'
+    __tablename__ = 'toolkits'
 
     id = Column(Integer, primary_key=True)
     """id - id of the tool kit"""
@@ -19,8 +19,8 @@ class ToolKit(DBBaseModel):
     """name - name of the tool kit"""
     description = Column(String)
     """description - description of the tool kit"""
-    show_tool_kit = Column(Boolean)
-    """show_tool_kit - indicates whether the tool kit should be shown"""
+    show_toolkit = Column(Boolean)
+    """show_toolkit - indicates whether the tool kit should be shown"""
     organisation_id = Column(Integer)
     """organisation_id - org id of the to which tool config is related"""
 
@@ -29,7 +29,7 @@ class ToolKit(DBBaseModel):
 
     def __repr__(self):
         return f"ToolKit(id={self.id}, name='{self.name}', description='{self.description}', " \
-               f"show_tool_kit={self.show_tool_kit}," \
+               f"show_toolkit={self.show_toolkit}," \
                f"organisation_id = {self.organisation_id}"
 
     def to_dict(self):
@@ -37,7 +37,7 @@ class ToolKit(DBBaseModel):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'show_tool_kit': self.show_tool_kit,
+            'show_toolkit': self.show_toolkit,
             'organisation_id': self.organisation_id
         }
 
@@ -51,12 +51,12 @@ class ToolKit(DBBaseModel):
             id=data['id'],
             name=data['name'],
             description=data['description'],
-            show_tool_kit=data['show_tool_kit'],
+            show_toolkit=data['show_toolkit'],
             organisation_id=data['organisation_id']
         )
 
     @staticmethod
-    def add_or_update(session, name, description, show_tool_kit, organisation_id, tool_code_link):
+    def add_or_update(session, name, description, show_toolkit, organisation_id, tool_code_link):
         # Check if the toolkit exists
         toolkit = session.query(ToolKit).filter(ToolKit.name == name, ToolKit.organisation_id == organisation_id).first()
 
@@ -64,7 +64,7 @@ class ToolKit(DBBaseModel):
             # Update the existing toolkit
             toolkit.name = name
             toolkit.description = description
-            toolkit.show_tool_kit = show_tool_kit
+            toolkit.show_toolkit = show_toolkit
             toolkit.organisation_id = organisation_id
             toolkit.tool_code_link = tool_code_link
         else:
@@ -72,7 +72,7 @@ class ToolKit(DBBaseModel):
             toolkit = ToolKit(
                 name=name,
                 description=description,
-                show_tool_kit=show_tool_kit,
+                show_toolkit=show_toolkit,
                 organisation_id=organisation_id,
                 tool_code_link=tool_code_link
             )
@@ -87,7 +87,7 @@ class ToolKit(DBBaseModel):
     def fetch_marketplace_list(cls, page):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
-            marketplace_url + f"/tool_kits/marketplace/list/{str(page)}",
+            marketplace_url + f"/toolkits/marketplace/list/{str(page)}",
             headers=headers, timeout=10)
         if response.status_code == 200:
             return response.json()
@@ -95,12 +95,12 @@ class ToolKit(DBBaseModel):
             return []
 
     @classmethod
-    def fetch_marketplace_detail(cls, search_str, tool_kit_name):
+    def fetch_marketplace_detail(cls, search_str, toolkit_name):
         headers = {'Content-Type': 'application/json'}
         search_str = search_str.replace(' ', '%20')
-        tool_kit_name = tool_kit_name.replace(' ', '%20')
+        toolkit_name = toolkit_name.replace(' ', '%20')
         response = requests.get(
-            marketplace_url + f"/tool_kits/marketplace/{search_str}/{tool_kit_name}",
+            marketplace_url + f"/toolkits/marketplace/{search_str}/{toolkit_name}",
             headers=headers, timeout=10)
         if response.status_code == 200:
             return response.json()
@@ -108,8 +108,8 @@ class ToolKit(DBBaseModel):
             return None
 
     @staticmethod
-    def get_tool_kit_from_name(session, tool_kit_name):
-        tool_kit = session.query(ToolKit).filter_by(name=tool_kit_name).first()
-        if tool_kit:
-            return tool_kit
+    def get_toolkit_from_name(session, toolkit_name):
+        toolkit = session.query(ToolKit).filter_by(name=toolkit_name).first()
+        if toolkit:
+            return toolkit
         return None

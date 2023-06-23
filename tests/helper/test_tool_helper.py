@@ -11,13 +11,13 @@ from superagi.helper.tool_helper import (
     get_classes_in_file,
     load_module_from_file,
     init_tools,
-    init_tool_kits,
+    init_toolkits,
     process_files,
     extract_repo_name,
     add_tool_to_json, get_readme_content_from_code_link
 )
 from superagi.models.tool import Tool
-from superagi.models.tool_kit import ToolKit
+from superagi.models.toolkit import ToolKit
 from superagi.tools.base_tool import BaseTool
 
 @pytest.fixture
@@ -70,7 +70,6 @@ class NotATool:
     pass
     ''')
     classes = get_classes_in_file(file_path, BaseTool)
-    print("CLASSES : ",classes)
     assert len(classes) == 2
     assert {'class_name': 'Tool1'} in classes
     assert {'class_name': 'Tool2'} in classes
@@ -98,7 +97,7 @@ def hello():
 
 def test_init_tools(tmp_path, monkeypatch):
     session = MagicMock()
-    tool_name_to_tool_kit = {
+    tool_name_to_toolkit = {
         ('Tool1', 'ToolKit1'): 1,
         ('Tool2', 'ToolKit2'): 2
     }
@@ -116,12 +115,12 @@ def test_init_tools(tmp_path, monkeypatch):
             name = 'Tool3'
     ''')
     sys.path.append(str(folder_dir))
-    init_tools(str(tmp_path), session, tool_name_to_tool_kit)
+    init_tools(str(tmp_path), session, tool_name_to_toolkit)
     session.query.assert_called_once_with(Tool)
     session.commit.assert_called_once()
 
 
-def test_init_tool_kits(monkeypatch):
+def test_init_toolkits(monkeypatch):
     current_dir = os.getcwd()
     session = MagicMock()
     organisation = MagicMock()
@@ -142,9 +141,8 @@ class ToolKit3(BaseToolKit):
     name = 'ToolKit3'
     ''')
     sys.path.append(str(folder_dir))
-    print("Current Dir : ",current_dir)
-    tool_name_to_tool_kit = init_tool_kits(code_link, [], str(current_dir), organisation, session)
-    assert tool_name_to_tool_kit == {
+    tool_name_to_toolkit = init_toolkits(code_link, [], str(current_dir), organisation, session)
+    assert tool_name_to_toolkit == {
         ('Tool1', 'ToolKit1'): 1,
         ('Tool2', 'ToolKit2'): 2
     }

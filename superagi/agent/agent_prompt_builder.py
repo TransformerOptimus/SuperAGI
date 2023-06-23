@@ -22,7 +22,6 @@ class AgentPromptBuilder:
     @classmethod
     def add_tools_to_prompt(cls, tools: List[BaseTool], add_finish: bool = True) -> str:
         final_string = ""
-        print(tools)
         for i, item in enumerate(tools):
             final_string += f"{i + 1}. {cls._generate_command_string(item)}\n"
         finish_description = (
@@ -46,7 +45,6 @@ class AgentPromptBuilder:
     @classmethod
     def _generate_command_string(cls, tool: BaseTool) -> str:
         output = f"{tool.name}: {tool.description}"
-        # print(tool.args)
         output += f", args json schema: {json.dumps(tool.args)}"
         return output
     
@@ -226,7 +224,6 @@ class AgentPromptBuilder:
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
         
     
-        print(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt

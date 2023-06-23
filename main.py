@@ -1,12 +1,9 @@
-import inspect
-import os
 from datetime import timedelta
-import pickle
+
 import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import json
 from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -15,54 +12,33 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from  datetime import datetime, timedelta
 import superagi
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
-from superagi.controllers.agent_template import router as agent_template_router
-from superagi.controllers.agent_workflow import router as agent_workflow_router
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
 from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
+from superagi.controllers.agent_template import router as agent_template_router
+from superagi.controllers.agent_workflow import router as agent_workflow_router
 from superagi.controllers.budget import router as budget_router
+from superagi.controllers.config import router as config_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
-from superagi.controllers.user import router as user_router
-from superagi.controllers.config import router as config_router
-from superagi.controllers.tool_kit import router as tool_kit_router
 from superagi.controllers.tool_config import router as tool_config_router
+from superagi.controllers.toolkit import router as toolkit_router
+from superagi.controllers.user import router as user_router
+from superagi.helper.tool_helper import register_toolkits
+from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
-
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
-from superagi.models.tool import Tool
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
-from superagi.tools.base_tool import BaseTool
-from superagi.helper.tool_helper import process_files, register_tool_kits
-from superagi.models.tool_config import ToolConfig
-
-import sys
-import os
-
-# print("CURRENT : ",os.getcwd())
-# Get the absolute path of the 'superagi/tools/email' directory
-# tools_email_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'superagi','tools'))
-
-# Add the 'superagi/tools/email' directory to the system path
-# sys.path.append(tools_email_path)
-# print("PATH : ",tools_email_path)
-# # Now you can import the classes using the simplified relative import
-# from read_email import ReadEmailTool
-# from send_email import SendEmailTool
-
-# Rest of your code...
-
 
 app = FastAPI()
 
@@ -112,7 +88,7 @@ app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
 app.include_router(resources_router, prefix="/resources")
 app.include_router(config_router, prefix="/configs")
-app.include_router(tool_kit_router, prefix="/tool_kits")
+app.include_router(toolkit_router, prefix="/toolkits")
 app.include_router(tool_config_router, prefix="/tool_configs")
 app.include_router(config_router, prefix="/configs")
 app.include_router(agent_template_router, prefix="/agent_templates")
@@ -133,6 +109,7 @@ def create_access_token(email, Authorize: AuthJWT = Depends()):
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
 
+
 # callback to get your configuration
 @AuthJWT.load_config
 def get_config():
@@ -152,11 +129,13 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 Session = sessionmaker(bind=engine)
 session = Session()
 default_user = session.query(User).filter(User.email == "super6@agi.com").first()
-print(default_user)
+logger.info(default_user)
 if default_user is not None:
     organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
-    print(organisation)
-    register_tool_kits(session,organisation)
+    logger.info(organisation)
+    register_toolkits(session, organisation)
+
+
 def build_single_step_agent():
     agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
 
@@ -296,6 +275,7 @@ def github_login():
     github_client_id = ""
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
+
 @app.get('/github-auth')
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
@@ -377,10 +357,9 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
     try:
         llm = OpenAi(api_key=open_ai_key)
         response = llm.chat_completion([{"role": "system", "content": "Hey!"}])
-        print(response)
-        # if response.get('content')
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
+
 
 # #Unprotected route
 @app.get("/hello/{name}")

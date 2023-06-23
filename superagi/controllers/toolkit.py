@@ -10,7 +10,7 @@ from superagi.helper.tool_helper import get_readme_content_from_code_link, downl
 from superagi.helper.validator_helper import validate_github_link
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from superagi.models.tool_kit import ToolKit
+from superagi.models.toolkit import ToolKit
 from superagi.types.common import GitHubLinkRequest
 
 router = APIRouter()
@@ -22,7 +22,7 @@ router = APIRouter()
 
 #For internal use
 @router.get("/marketplace/list/{page}")
-def get_marketplace_tool_kits(
+def get_marketplace_toolkits(
         page: int = 0,
 ):
     """
@@ -43,22 +43,22 @@ def get_marketplace_tool_kits(
     query = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id)
 
     # Paginate the results
-    tool_kits = query.offset(page * page_size).limit(page_size).all()
+    toolkits = query.offset(page * page_size).limit(page_size).all()
 
     # Fetch tools for each tool kit
-    for tool_kit in tool_kits:
-        tool_kit.tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit.id).all()
+    for toolkit in toolkits:
+        toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
 
-    return tool_kits
+    return toolkits
 
 #For internal use
-@router.get("/marketplace/details/{tool_kit_name}")
-def get_marketplace_tool_kit_detail(tool_kit_name: str):
+@router.get("/marketplace/details/{toolkit_name}")
+def get_marketplace_toolkit_detail(toolkit_name: str):
     """
     Get tool kit details from the marketplace.
 
     Args:
-        tool_kit_name (str): The name of the tool kit.
+        toolkit_name (str): The name of the tool kit.
 
     Returns:
         ToolKit: The tool kit details from the marketplace.
@@ -66,17 +66,17 @@ def get_marketplace_tool_kit_detail(tool_kit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id,ToolKit.name == tool_kit_name).first()
-    return tool_kit
+    toolkit = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation_id, ToolKit.name == toolkit_name).first()
+    return toolkit
 
 #For internal use
-@router.get("/marketplace/readme/{tool_kit_name}")
-def get_marketplace_tool_kit_readme(tool_kit_name: str):
+@router.get("/marketplace/readme/{toolkit_name}")
+def get_marketplace_toolkit_readme(toolkit_name: str):
     """
     Get tool kit readme from the marketplace.
 
     Args:
-        tool_kit_name (str): The name of the tool kit.
+        toolkit_name (str): The name of the tool kit.
 
     Returns:
         str: The content of the tool kit's readme file.
@@ -87,20 +87,20 @@ def get_marketplace_tool_kit_readme(tool_kit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name,
+    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name,
                                                 ToolKit.organisation_id == organisation_id).first()
-    if not tool_kit:
+    if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
-    return get_readme_content_from_code_link(tool_kit.tool_code_link)
+    return get_readme_content_from_code_link(toolkit.tool_code_link)
 
 #For internal use
-@router.get("/marketplace/tools/{tool_kit_name}")
-def get_marketplace_tool_kit_tools(tool_kit_name: str):
+@router.get("/marketplace/tools/{toolkit_name}")
+def get_marketplace_toolkit_tools(toolkit_name: str):
     """
     Get tools of a specific tool kit from the marketplace.
 
     Args:
-        tool_kit_name (str): The name of the tool kit.
+        toolkit_name (str): The name of the tool kit.
 
     Returns:
         Tool: The tools associated with the tool kit.
@@ -111,21 +111,21 @@ def get_marketplace_tool_kit_tools(tool_kit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name,ToolKit.organisation_id == organisation_id).first()
-    if not tool_kit:
+    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name, ToolKit.organisation_id == organisation_id).first()
+    if not toolkit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
-    tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit.id).first()
+    tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).first()
     return tools
 
 
-@router.get("/get/install/{tool_kit_name}")
-def install_tool_kit_from_marketplace(tool_kit_name: str,
-                                      organisation: Organisation = Depends(get_user_organisation)):
+@router.get("/get/install/{toolkit_name}")
+def install_toolkit_from_marketplace(toolkit_name: str,
+                                     organisation: Organisation = Depends(get_user_organisation)):
     """
     Download and install a tool kit from the marketplace.
 
     Args:
-        tool_kit_name (str): The name of the tool kit.
+        toolkit_name (str): The name of the tool kit.
         organisation (Organisation): The user's organisation.
 
     Returns:
@@ -134,24 +134,24 @@ def install_tool_kit_from_marketplace(tool_kit_name: str,
     """
 
     # Check if the tool kit exists
-    tool_kit = ToolKit.fetch_marketplace_detail(search_str="details",
-                                                tool_kit_name=tool_kit_name)
-    # download_and_install_tool(GitHubLinkRequest(github_link=tool_kit['tool_code_link']),
+    toolkit = ToolKit.fetch_marketplace_detail(search_str="details",
+                                                toolkit_name=toolkit_name)
+    # download_and_install_tool(GitHubLinkRequest(github_link=toolkit['tool_code_link']),
     #                           organisation=organisation)
-    if not validate_github_link(tool_kit['tool_code_link']):
+    if not validate_github_link(toolkit['tool_code_link']):
         raise HTTPException(status_code=400, detail="Invalid Github link")
-    add_tool_to_json(tool_kit['tool_code_link'])
+    add_tool_to_json(toolkit['tool_code_link'])
     return {"message": "ToolKit installed successfully"}
 
 
-@router.get("/get/toolkit_name/{tool_kit_name}")
-def get_installed_toolkit_details(tool_kit_name: str,
+@router.get("/get/toolkit_name/{toolkit_name}")
+def get_installed_toolkit_details(toolkit_name: str,
                                   organisation: Organisation = Depends(get_user_organisation)):
     """
     Get details of a locally installed tool kit by its name, including the details of its tools.
 
     Args:
-        tool_kit_name (str): The name of the tool kit.
+        toolkit_name (str): The name of the tool kit.
         organisation (Organisation): The user's organisation.
 
     Returns:
@@ -163,19 +163,19 @@ def get_installed_toolkit_details(tool_kit_name: str,
     """
 
     # Fetch the tool kit by its ID
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name,
+    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name,
                                                 Organisation.id == organisation.id).first()
 
-    if not tool_kit:
+    if not toolkit:
         # Return an appropriate response if the tool kit doesn't exist
         raise HTTPException(status_code=404, detail='ToolKit not found')
 
     # Fetch the tools associated with the tool kit
-    tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit.id).all()
+    tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
     # Add the tools to the tool kit object
-    tool_kit.tools = tools
-    # readme_content = get_readme(tool_kit.tool_code_link)
-    return tool_kit
+    toolkit.tools = tools
+    # readme_content = get_readme(toolkit.tool_code_link)
+    return toolkit
 
 
 @router.post("/get/local/install", status_code=200)
@@ -203,13 +203,13 @@ def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...)
     # process_files(download_folder, db.session, organisation, code_link=github_link)
     add_tool_to_json(github_link)
 
-@router.get("/get/readme/{tool_kit_name}")
-def get_installed_toolkit_readme(tool_kit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+@router.get("/get/readme/{toolkit_name}")
+def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
     """
     Get the readme content of a toolkit.
 
     Args:
-        tool_kit_name (str): The name of the toolkit.
+        toolkit_name (str): The name of the toolkit.
         organisation (Organisation): The user's organisation.
 
     Returns:
@@ -220,31 +220,31 @@ def get_installed_toolkit_readme(tool_kit_name: str, organisation: Organisation 
 
     """
 
-    tool_kit = db.session.query(ToolKit).filter(ToolKit.name == tool_kit_name,
+    toolkit = db.session.query(ToolKit).filter(ToolKit.name == toolkit_name,
                                                 Organisation.id == organisation.id).first()
-    if not tool_kit:
+    if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
-    readme_content = get_readme_content_from_code_link(tool_kit.tool_code_link)
+    readme_content = get_readme_content_from_code_link(toolkit.tool_code_link)
     return readme_content
 
 # Following APIs will be used to get marketplace related information
 @router.get("/get")
 def handle_marketplace_operations(
         search_str: str = Query(None, title="Search String"),
-        tool_kit_name: str = Query(None, title="Tool Kit Name")
+        toolkit_name: str = Query(None, title="Tool Kit Name")
 ):
     """
     Handle marketplace operations.
 
     Args:
         search_str (str, optional): The search string to filter toolkits. Defaults to None.
-        tool_kit_name (str, optional): The name of the toolkit. Defaults to None.
+        toolkit_name (str, optional): The name of the toolkit. Defaults to None.
 
     Returns:
         dict: The response containing the marketplace details.
 
     """
-    response = ToolKit.fetch_marketplace_detail(search_str, tool_kit_name)
+    response = ToolKit.fetch_marketplace_detail(search_str, toolkit_name)
     return response
 
 
@@ -268,7 +268,7 @@ def handle_marketplace_operations_list(
 
 
 @router.get("/get/local/list")
-def get_installed_tool_kit_list(organisation: Organisation = Depends(get_user_organisation)):
+def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_organisation)):
     """
     Get the list of installed tool kits.
 
@@ -280,9 +280,9 @@ def get_installed_tool_kit_list(organisation: Organisation = Depends(get_user_or
 
     """
 
-    tool_kits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
-    for tool_kit in tool_kits:
-        tool_kit_tools = db.session.query(Tool).filter(Tool.tool_kit_id == tool_kit.id).all()
-        tool_kit.tools = tool_kit_tools
+    toolkits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
+    for toolkit in toolkits:
+        toolkit_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
+        toolkit.tools = toolkit_tools
 
-    return tool_kits
+    return toolkits

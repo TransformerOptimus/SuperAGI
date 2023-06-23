@@ -54,7 +54,6 @@ class GoogleSearchTool(BaseTool):
         num_pages = 1
         num_extracts = 3
 
-        #print("query: ", query)
         google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
         snippets, webpages, links = google_search.get_result(query)
 

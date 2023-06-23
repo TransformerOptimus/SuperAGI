@@ -72,20 +72,18 @@ class BaseTool(BaseModel):
     description: str
     args_schema: Type[BaseModel] = None
     permission_required: bool = True
-    tool_kit_config: BaseToolKitConfiguration = BaseToolKitConfiguration()
+    toolkit_config: BaseToolKitConfiguration = BaseToolKitConfiguration()
 
     class Config:
         arbitrary_types_allowed = True
 
     @property
     def args(self):
-        # print("args_schema", self.args_schema)
         if self.args_schema is not None:
             return self.args_schema.schema()["properties"]
         else:
             name = self.name
             args_schema = create_function_schema(f"{name}Schema", self.execute)
-            # print("args:", args_schema.schema()["properties"])
             return args_schema.schema()["properties"]
 
     @abstractmethod
@@ -159,7 +157,6 @@ class FunctionalTool(BaseTool):
         else:
             name = self.name
             args_schema = create_function_schema(f"{name}Schema", self.execute)
-            # print("args:", args_schema.schema()["properties"])
             return args_schema.schema()["properties"]
 
     def _execute(self, *args: Any, **kwargs: Any):

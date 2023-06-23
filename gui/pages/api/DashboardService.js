@@ -17,7 +17,7 @@ export const getAgents = (projectId) => {
 };
 
 export const getToolKit = () => {
-  return api.get(`/tool_kits/get/local/list`);
+  return api.get(`/toolkits/get/local/list`);
 };
 
 export const getTools = () => {
@@ -129,12 +129,12 @@ export const authenticateGoogleCred = (toolKitId) => {
 }
 
 export const fetchToolTemplateList = () => {
-  return api.get(`/tool_kits/get/list?page=0`);
+  return api.get(`/toolkits/get/list?page=0`);
 }
 
 export const fetchToolTemplateOverview = (toolTemplateName) => {
-  return api.get(`/tool_kits/marketplace/readme/${toolTemplateName}`);
+  return api.get(`/toolkits/marketplace/readme/${toolTemplateName}`);
 }
 export const installToolkitTemplate = (templateName) => {
-  return api.get(`/tool_kits/get/install/${templateName}`);
+  return api.get(`/toolkits/get/install/${templateName}`);
 }
