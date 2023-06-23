@@ -115,6 +115,7 @@ def update_agent_execution_permission_status(agent_execution_permission_id: int,
     """
 
     agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
+    print(agent_execution_permission)
     if agent_execution_permission is None:
         raise HTTPException(status_code=400, detail="Invalid Request")
     if status is None:
