@@ -3,18 +3,6 @@ import requests
 import zipfile
 import json
 
-# def parse_github_url(github_url):
-#     parts = github_url.split('/')
-#
-#     if len(parts) >= 7:
-#         owner = parts[3]
-#         repo = parts[4]
-#         branch = parts[6]
-#         path = '/'.join(parts[7:])
-#
-#         return f"{owner}/{repo}/{branch}/{path}"
-#     else:
-#         raise ValueError("Invalid GitHub URL")
 def parse_github_url(github_url):
     parts = github_url.split('/')
     owner = parts[3]
@@ -64,7 +52,7 @@ def download_tool(tool_url, target_folder):
 
 
 def load_tools_config():
-    with open("tools.json", "r") as f:
+    with open("../tools.json", "r") as f:
         config = json.load(f)
         return config["tools"]
 
@@ -73,7 +61,7 @@ def download_and_extract_tools():
     tools_config = load_tools_config()
 
     for tool_name, tool_url in tools_config.items():
-        tool_folder = os.path.join("superagi", "tools", tool_name)
+        tool_folder = os.path.join("", "tools", tool_name)
         if not os.path.exists(tool_folder):
             os.makedirs(tool_folder)
         download_tool(tool_url, tool_folder)
