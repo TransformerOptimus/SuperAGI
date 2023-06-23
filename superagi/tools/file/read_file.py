@@ -58,7 +58,7 @@ class ReadFileTool(BaseTool):
 
         with open(final_path, 'r') as file:
             file_content = file.read()
-        max_length = len(' '.join(file_content.split(" ")[:1200]))
-        return file_content[:max_length]
+        max_length = len(' '.join(file_content.split(" ")[:1000]))
+        return file_content[:max_length] + "\n File " + file_name + "read successfully."
 
 
