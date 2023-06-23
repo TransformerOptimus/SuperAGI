@@ -499,16 +499,3 @@
     display:flex;
     width:100%;
 }
-
-.markdown_style{
-    color:white;
-}
-.markdown_style img {
-    max-width: 100%;
-    height: auto;
-}
-.markdown_container{
-    height:68vh;
-    overflow-y:scroll;
-    overflow-x:hidden;
-}

@@ -57,6 +57,7 @@ export default function Embeddings(){
               </div>
             ))}
           </div>
+
         </div>
     )
 };
