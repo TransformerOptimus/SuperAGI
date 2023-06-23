@@ -5,8 +5,6 @@ from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
-
 
 
 class DeleteFileInput(BaseModel):

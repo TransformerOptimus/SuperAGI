@@ -7,6 +7,13 @@ from PIL import Image
 
 from superagi.tools.image_generation.stable_diffusion_image_gen import StableDiffusionImageGenTool
 
+def mock_get_tool_config(key):
+    configs = {
+        'STABILITY_API_KEY': 'fake_api_key',
+        'ENGINE_ID': 'engine_id_1',
+    }
+    return configs.get(key)
+
 
 def create_sample_image_base64():
     image = Image.new('RGBA', size=(50, 50), color=(73, 109, 137))
@@ -18,10 +25,9 @@ def create_sample_image_base64():
 
 @pytest.fixture
 def stable_diffusion_tool():
-    with patch('superagi.tools.image_generation.stable_diffusion_image_gen.get_config') as get_config_mock, \
-         patch('superagi.tools.image_generation.stable_diffusion_image_gen.requests.post') as post_mock, \
-         patch('superagi.tools.image_generation.stable_diffusion_image_gen.ResourceManager') as resource_manager_mock:
-        get_config_mock.return_value = 'fake_api_key'
+    with patch('superagi.tools.image_generation.stable_diffusion_image_gen.requests.post') as post_mock, \
+            patch(
+                'superagi.tools.image_generation.stable_diffusion_image_gen.ResourceManager') as resource_manager_mock:
 
         # Create a mock response object
         response_mock = Mock()
@@ -38,6 +44,9 @@ def stable_diffusion_tool():
 def test_execute(stable_diffusion_tool):
     tool = StableDiffusionImageGenTool()
     tool.resource_manager = Mock()
+    tool.toolkit_config.get_tool_config = mock_get_tool_config
+
+
     result = tool._execute('prompt', ['img1.png', 'img2.png'])
 
     assert result == 'Images downloaded and saved successfully'
@@ -45,6 +54,7 @@ def test_execute(stable_diffusion_tool):
 
 def test_call_stable_diffusion(stable_diffusion_tool):
     tool = StableDiffusionImageGenTool()
+    tool.toolkit_config.get_tool_config = mock_get_tool_config
     response = tool.call_stable_diffusion('fake_api_key', 512, 512, 2, 'prompt', 50)
 
     assert response.status_code == 200

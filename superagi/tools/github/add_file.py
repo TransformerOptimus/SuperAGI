@@ -1,17 +1,9 @@
-import string
-import re
-import base64
-
-import requests
-import os
 from typing import Type
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
-
-from superagi.tools.base_tool import BaseTool
 
 from superagi.helper.github_helper import GithubHelper
+from superagi.tools.base_tool import BaseTool
 
 
 class GithubAddFileSchema(BaseModel):
@@ -77,8 +69,8 @@ class GithubAddFileTool(BaseTool):
             Pull request to add file/folder has been created. or error message.
         """
         try:
-            github_access_token = get_config("GITHUB_ACCESS_TOKEN")
-            github_username = get_config("GITHUB_USERNAME")
+            github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
+            github_username = self.get_tool_config("GITHUB_USERNAME")
             github_helper = GithubHelper(github_access_token, github_username)
             head_branch = 'new-file'
             headers = {

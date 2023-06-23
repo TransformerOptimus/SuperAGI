@@ -4,6 +4,7 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
@@ -65,18 +66,7 @@ class WriteTestTool(BaseTool):
             Generated pytest unit tests or error message.
         """
         try:
-            prompt = """You are a super smart developer who practices Test Driven Development for writing tests according to a specification.
-
-            Your high-level goal is:
-            {goals}
-            
-            Test Description:
-            {test_description}
-
-            {spec}
-            
-            The tests should be as simple as possible, but still cover all the functionality described in the specification.
-            """
+            prompt = PromptReader.read_tools_prompt(__file__, "write_test.txt")
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
             prompt = prompt.replace("{test_description}", test_description)
 
