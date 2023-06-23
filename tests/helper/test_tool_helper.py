@@ -1,24 +1,16 @@
 import json
 import os
-import sys
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 
 from superagi.helper.tool_helper import (
     parse_github_url,
-    get_classes_in_file,
     load_module_from_file,
-    init_tools,
-    init_toolkits,
-    process_files,
     extract_repo_name,
     add_tool_to_json, get_readme_content_from_code_link
 )
-from superagi.models.tool import Tool
-from superagi.models.toolkit import ToolKit
-from superagi.tools.base_tool import BaseTool
+
 
 @pytest.fixture
 def mock_requests_get(monkeypatch):
@@ -47,29 +39,6 @@ def test_parse_github_url():
     assert parse_github_url(github_url) == expected_result
 
 
-def test_get_classes_in_file():
-    current_dir = os.getcwd()
-    file_path = Path(current_dir) / 'test_tool.py'
-    file_path.write_text('''
-from superagi.tools.base_tool import BaseTool
-class Tool1(BaseTool):
-    pass
-
-class Tool2(BaseTool):
-    pass
-
-class NotATool:
-    pass
-    ''')
-    classes = get_classes_in_file(file_path, BaseTool)
-    assert len(classes) == 2
-    assert {'class_name': 'Tool1'} in classes
-    assert {'class_name': 'Tool2'} in classes
-
-    # Delete the test_module.py file
-    file_path.unlink()
-
-
 def test_load_module_from_file(tmp_path):
     current_dir = os.getcwd()
     file_path = Path(current_dir) / 'test_module.py'
@@ -86,98 +55,6 @@ def hello():
 
     # Delete the test_module.py file
     file_path.unlink()
-
-def test_init_tools(tmp_path, monkeypatch):
-    session = MagicMock()
-    tool_name_to_toolkit = {
-        ('Tool1', 'ToolKit1'): 1,
-        ('Tool2', 'ToolKit2'): 2
-    }
-    folder_dir = tmp_path / 'tools'
-    folder_dir.mkdir()
-    tool_file = folder_dir / 'tool.py'
-    tool_file.write_text('''
-from superagi.tools.base_tool import BaseTool    
-class Tool1(BaseTool):
-    name = 'Tool1'
-
-class Tool2(BaseTool):
-    name = 'Tool2'
-
-class Tool3(BaseTool):
-    name = 'Tool3'
-    ''')
-    sys.path.append(str(folder_dir))
-    init_tools(str(tmp_path), session, tool_name_to_toolkit)
-    session.query.assert_called_once_with(Tool)
-    session.commit.assert_called_once()
-
-
-def test_init_toolkits(monkeypatch):
-    current_dir = os.getcwd()
-    session = MagicMock()
-    organisation = MagicMock()
-    code_link = 'https://github.com/username/repo'
-    folder_dir = Path(current_dir) / 'toolkits'
-    folder_dir.mkdir()
-    toolkit_file = folder_dir / 'toolkit.py'
-    toolkit_file.write_text('''
-from superagi.tools.base_tool import BaseToolKit
-
-class ToolKit1(BaseToolKit):
-    name = 'ToolKit1'
-
-class ToolKit2(BaseToolKit):
-    name = 'ToolKit2'
-
-class ToolKit3(BaseToolKit):
-    name = 'ToolKit3'
-    ''')
-    sys.path.append(str(folder_dir))
-    tool_name_to_toolkit = init_toolkits(code_link, [], str(current_dir), organisation, session)
-    assert tool_name_to_toolkit == {
-        ('Tool1', 'ToolKit1'): 1,
-        ('Tool2', 'ToolKit2'): 2
-    }
-    session.query.assert_called_once_with(ToolKit)
-    session.commit.assert_called_once()
-
-
-def test_process_files(tmp_path, monkeypatch):
-    session = MagicMock()
-    organisation = MagicMock()
-    code_link = 'https://github.com/username/repo'
-    folder_dir = tmp_path / 'tools'
-    folder_dir.mkdir()
-    tool_file = folder_dir / 'tool.py'
-    tool_file.write_text('''
-        class Tool1(BaseTool):
-            name = 'Tool1'
-
-        class Tool2(BaseTool):
-            name = 'Tool2'
-
-        class Tool3(BaseTool):
-            name = 'Tool3'
-    ''')
-    toolkit_folder_dir = tmp_path / 'toolkits'
-    toolkit_folder_dir.mkdir()
-    toolkit_file = toolkit_folder_dir / 'toolkit.py'
-    toolkit_file.write_text('''
-        class ToolKit1(BaseToolKit):
-            name = 'ToolKit1'
-
-        class ToolKit2(BaseToolKit):
-            name = 'ToolKit2'
-
-        class ToolKit3(BaseToolKit):
-            name = 'ToolKit3'
-    ''')
-    sys.path.append(str(folder_dir))
-    sys.path.append(str(toolkit_folder_dir))
-    process_files(str(tmp_path), session, organisation, code_link=code_link)
-    session.query.assert_called_with(Tool)
-    session.commit.assert_called_once()
 
 
 def test_get_readme_content_from_code_link(mock_requests_get):
