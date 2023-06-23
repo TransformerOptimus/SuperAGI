@@ -2,10 +2,8 @@ import os
 from typing import Type
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
 
 from superagi.tools.base_tool import BaseTool
-
 
 
 class AppendFileInput(BaseModel):
@@ -39,7 +37,7 @@ class AppendFileTool(BaseTool):
             file written to successfully. or error message.
         """
         final_path = file_name
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')
         if root_dir is not None:
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
             final_path = root_dir + file_name

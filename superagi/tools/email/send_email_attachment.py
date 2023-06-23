@@ -9,7 +9,6 @@ from typing import Type
 from pydantic import BaseModel, Field
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
 
 
 class SendEmailAttachmentInput(BaseModel):
@@ -45,8 +44,8 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
 
         """
-        input_root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
-        output_root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        input_root_dir = self.get_tool_config('RESOURCES_INPUT_ROOT_DIR')
+        output_root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')
         final_path = None
 
         if input_root_dir is not None:
