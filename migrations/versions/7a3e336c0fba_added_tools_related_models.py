@@ -29,15 +29,7 @@ def upgrade() -> None:
     sa.Column('tool_code_link', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('tool_statistics',
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('toolkit_id', sa.Integer(), nullable=True),
-    sa.Column('key', sa.String(), nullable=True),
-    sa.Column('value', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
+
     op.add_column('tool_configs', sa.Column('toolkit_id', sa.Integer(), nullable=True))
     op.drop_column('tool_configs', 'name')
     op.drop_column('tool_configs', 'agent_id')
@@ -53,6 +45,5 @@ def downgrade() -> None:
     op.add_column('tool_configs', sa.Column('agent_id', sa.INTEGER(), autoincrement=False, nullable=True))
     op.add_column('tool_configs', sa.Column('name', sa.VARCHAR(), autoincrement=False, nullable=True))
     op.drop_column('tool_configs', 'toolkit_id')
-    op.drop_table('tool_statistics')
     op.drop_table('toolkits')
     # ### end Alembic commands ###

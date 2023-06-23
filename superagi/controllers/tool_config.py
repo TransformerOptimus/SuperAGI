@@ -3,7 +3,7 @@ from fastapi_sqlalchemy import db
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
-from superagi.models.toolkit import ToolKit
+from superagi.models.toolkit import Toolkit
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.auth import check_auth
 from superagi.helper.auth import get_user_organisation
@@ -34,7 +34,7 @@ def update_tool_config(toolkit_name: str, configs: list):
 
     try:
         # Check if the tool kit exists
-        toolkit = ToolKit.get_toolkit_from_name(db.session, toolkit_name)
+        toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name)
         if toolkit is None:
             raise HTTPException(status_code=404, detail="Tool kit not found")
 
@@ -67,13 +67,13 @@ def create_or_update_tool_config(toolkit_name: str, tool_configs,
         tool_configs (list): A list of tool configuration objects.
 
     Returns:
-        ToolKit: The updated tool kit object.
+        Toolkit: The updated tool kit object.
 
     Raises:
         HTTPException (status_code=404): If the specified tool kit is not found.
     """
 
-    toolkit = db.session.query(ToolKit).filter_by(name=toolkit_name).first()
+    toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
 
@@ -114,8 +114,8 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
         HTTPException (status_code=404): If the specified tool kit is not found.
         HTTPException (status_code=403): If the user is not authorized to access the tool kit.
     """
-    user_toolkits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
-    toolkit = db.session.query(ToolKit).filter_by(name=toolkit_name).first()
+    user_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
+    toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
     if toolkit.name not in [user_toolkit.name for user_toolkit in user_toolkits]:
@@ -143,9 +143,9 @@ def get_tool_config(toolkit: str, key: str, organisation: Organisation = Depends
         HTTPException (status_code=404): If the specified tool kit or tool configuration is not found.
     """
 
-    user_toolkits = db.session.query(ToolKit).filter(ToolKit.organisation_id == organisation.id).all()
+    user_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
 
-    toolkit = db.session.query(ToolKit).filter_by(name=toolkit)
+    toolkit = db.session.query(Toolkit).filter_by(name=toolkit)
     if toolkit not in user_toolkits:
         raise HTTPException(status_code=403, detail='Unauthorized')
 
