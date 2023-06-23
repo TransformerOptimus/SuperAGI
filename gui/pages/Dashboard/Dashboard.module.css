@@ -103,6 +103,7 @@
     width: 100%;
     border-radius: 8px;
     overflow-y: hidden;
+    position: relative;
 }
 
 .tabs {
