@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 import requests
 import zipfile
 import json
@@ -52,7 +54,8 @@ def download_tool(tool_url, target_folder):
 
 
 def load_tools_config():
-    with open("../tools.json", "r") as f:
+    tool_config_path = str(Path(__file__).parent.parent)
+    with open(tool_config_path + "/tools.json", "r") as f:
         config = json.load(f)
         return config["tools"]
 
