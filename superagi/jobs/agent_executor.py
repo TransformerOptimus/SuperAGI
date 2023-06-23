@@ -22,7 +22,9 @@ from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.tools.base_tool import BaseToolkitConfiguration
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 import yaml
@@ -183,7 +185,7 @@ class AgentExecutor:
             tools.append(tool)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
-                                              model_api_key=model_api_key)
+                                              model_api_key=model_api_key, session=session)
 
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
@@ -219,7 +221,7 @@ class AgentExecutor:
         session.close()
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):
+    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key, session):
         """
         Set the default parameters for the tools.
 
@@ -246,6 +248,12 @@ class AgentExecutor:
                 tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
+            if hasattr(tool, 'resource_manager'):
+                tool.resource_manager = ResourceManager(session=session, agent_id=agent_id)
+            if hasattr(tool, 'tool_response_manager'):
+                tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
+                    "agent_execution_id"])
+
             new_tools.append(tool)
         return tools
 
