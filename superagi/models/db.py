@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
 
 database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')
@@ -10,6 +11,13 @@ engine = None
 
 
 def connect_db():
+    """
+    Connects to the PostgreSQL database using SQLAlchemy.
+
+    Returns:
+        engine: The SQLAlchemy engine object representing the database connection.
+    """
+
     global engine
     if engine is not None:
         return engine
@@ -26,8 +34,8 @@ def connect_db():
     # Test the connection
     try:
         connection = engine.connect()
-        print("Connected to the database! @ " + db_url)
+        logger.info("Connected to the database! @ " + db_url)
         connection.close()
     except Exception as e:
-        print("Unable to connect to the database:", e)
+        logger.error(f"Unable to connect to the database:{e}")
     return engine

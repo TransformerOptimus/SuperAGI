@@ -10,7 +10,17 @@ router = APIRouter()
 
 @router.get("/list", status_code=201)
 def list_workflows(organisation=Depends(get_user_organisation)):
-    """List agent workflows"""
+    """
+    Lists agent workflows.
+
+    Args:
+        organisation: User's organisation.
+
+    Returns:
+        list: A list of dictionaries representing the agent workflows.
+
+    """
+
     workflows = db.session.query(AgentWorkflow).all()
 
     output_json = []

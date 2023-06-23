@@ -1,6 +1,6 @@
 import os
 from confluent_kafka import Producer, Consumer, KafkaError
-
+from superagi.lib.logger import logger
 import redis
 
 from superagi.config.config import get_config
@@ -36,7 +36,7 @@ class KafkaBroker:
     # Subscribe to the topic
     consumer.subscribe([topic])
 
-    print("Waiting for messages. To exit, press CTRL+C")
+    logger.info("Waiting for messages. To exit, press CTRL+C")
 
     # Start consuming messages
     try:
@@ -50,7 +50,7 @@ class KafkaBroker:
             continue
           else:
             # Log error and continue to next message
-            print("Error occurred:", message.error())
+            logger.error("Error occurred:", message.error())
             continue
 
         # Process the received message

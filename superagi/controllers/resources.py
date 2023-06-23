@@ -20,7 +20,7 @@ import datetime
 from botocore.exceptions import NoCredentialsError
 import tempfile
 import requests
-
+from superagi.lib.logger import logger
 
 router = APIRouter()
 
@@ -35,8 +35,25 @@ s3 = boto3.client(
 @router.post("/add/{agent_id}", status_code=201)
 async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...),
                  Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Upload a file as a resource for an agent.
 
-    """Upload a file as resource for agent"""
+    Args:
+        agent_id (int): ID of the agent.
+        file (UploadFile): Uploaded file.
+        name (str): Name of the resource.
+        size (str): Size of the resource.
+        type (str): Type of the resource.
+
+    Returns:
+        Resource: Uploaded resource.
+
+    Raises:
+        HTTPException (status_code=400): If the agent with the specified ID does not exist.
+        HTTPException (status_code=400): If the file type is not supported.
+        HTTPException (status_code=500): If AWS credentials are not found or if there is an issue uploading to S3.
+
+    """
 
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
@@ -60,10 +77,11 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     elif storage_type == "S3":
         bucket_name = get_config("BUCKET_NAME")
         file_name = file.filename.split('.')
-        path = 'input/'+file_name[0]+ '_'+str(datetime.datetime.now()).replace(' ','').replace('.','').replace(':','')+'.'+file_name[1]
+        path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
+            ':', '') + '.' + file_name[1]
         try:
             s3.upload_fileobj(file.file, bucket_name, path)
-            print("File uploaded successfully!")
+            logger.info("File uploaded successfully!")
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
@@ -72,15 +90,23 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    print(resource)
+    logger.info(resource)
     return resource
 
 
 @router.get("/get/all/{agent_id}", status_code=200)
 def get_all_resources(agent_id: int,
                       Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get all resources for an agent.
 
-    """Get all resources for an agent"""
+    Args:
+        agent_id (int): ID of the agent.
+
+    Returns:
+        List[Resource]: List of resources belonging to the agent.
+
+    """
 
     resources = db.session.query(Resource).filter(Resource.agent_id == agent_id).all()
     return resources
@@ -89,8 +115,21 @@ def get_all_resources(agent_id: int,
 @router.get("/get/{resource_id}", status_code=200)
 def download_file_by_id(resource_id: int,
                         Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Download a particular resource by resource_id.
 
-    """Download a particular resource by resource_id"""
+    Args:
+        resource_id (int): ID of the resource.
+        Authorize (AuthJWT, optional): Authorization dependency.
+
+    Returns:
+        StreamingResponse: Streaming response for downloading the resource.
+
+    Raises:
+        HTTPException (status_code=400): If the resource with the specified ID is not found.
+        HTTPException (status_code=404): If the file is not found.
+
+    """
 
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     download_file_path = resource.path

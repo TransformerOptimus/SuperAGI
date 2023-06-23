@@ -3,6 +3,7 @@ from typing import Type
 
 from pydantic import BaseModel, Field
 from superagi.config.config import get_config
+from superagi.helper.resource_helper import ResourceHelper
 
 from superagi.tools.base_tool import BaseTool
 
@@ -15,18 +16,30 @@ class AppendFileInput(BaseModel):
 
 
 class AppendFileTool(BaseTool):
+    """
+    Append File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Append File"
     args_schema: Type[BaseModel] = AppendFileInput
     description: str = "Append text to a file"
 
     def _execute(self, file_name: str, content: str):
-        final_path = file_name
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-        if root_dir is not None:
-            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-            final_path = root_dir + file_name
-        else:
-            final_path = os.getcwd() + "/" + file_name
+        """
+        Execute the append file tool.
+
+        Args:
+            file_name : The name of the file to write.
+            content : The text to append to the file.
+
+        Returns:
+            file written to successfully. or error message.
+        """
+        final_path = ResourceHelper.get_resource_path(file_name)
         try:
             directory = os.path.dirname(final_path)
             os.makedirs(directory, exist_ok=True)
