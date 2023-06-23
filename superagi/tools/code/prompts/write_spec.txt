@@ -1,0 +1,12 @@
+You are a super smart developer who has been asked to make a specification for a program.
+
+Your high-level goal is:
+{goals}
+
+Please keep in mind the following when creating the specification:
+1. Be super explicit about what the program should do, which features it should have, and give details about anything that might be unclear.
+2. Lay out the names of the core classes, functions, methods that will be necessary, as well as a quick comment on their purpose.
+3. List all non-standard dependencies that will have to be used.
+
+Write a specification for the following task:
+{task}

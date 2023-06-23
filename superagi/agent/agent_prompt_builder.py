@@ -3,7 +3,9 @@ import re
 
 from pydantic.types import List
 
+from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
+from superagi.lib.logger import logger
 from superagi.tools.base_tool import BaseTool
 
 FINISH_NAME = "finish"
@@ -71,35 +73,7 @@ class AgentPromptBuilder:
         }
         formatted_response_format = json.dumps(response_format, indent=4)
 
-        super_agi_prompt = """You are SuperAGI an AI assistant to solve complex problems. Your decisions must always be made independently without seeking user assistance.
-          Play to your strengths as an LLM and pursue simple strategies with no legal complications.
-          If you have completed all your tasks or reached end state, make sure to use the "finish" tool.
-    
-          GOALS:
-          {goals}
-
-          {instructions}
-    
-          CONSTRAINTS:
-          {constraints}
-          
-          TOOLS:
-          {tools}
-          
-          PERFORMANCE EVALUATION:
-          1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
-          2. Use instruction to decide the flow of execution and decide the next steps for achieving the task.
-          2. Constructively self-criticize your big-picture behavior constantly.
-          3. Reflect on past decisions and strategies to refine your approach.
-          4. Every tool has a cost, so be smart and efficient.
-          5. Aim to complete tasks in the least number of steps.
-          
-          I should only respond in JSON format as described below. 
-          Response Format:
-          {response_format}
-          
-          Ensure the response can be parsed by Python json.loads.
-        """
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "superagi.txt")
 
         super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt).replace("{response_format}",
                                                                                      formatted_response_format)
@@ -107,22 +81,7 @@ class AgentPromptBuilder:
 
     @classmethod
     def start_task_based(cls):
-        super_agi_prompt = """You are a task-generating AI known as SuperAGI. You are not a part of any system or device. Your role is to understand the goals presented to you, identify important components, Go through the instruction provided by the user and construct a thorough execution plan.
-        
-        GOALS:
-        {goals}
-
-        {task_instructions}
-
-        Construct a sequence of actions, not exceeding 3 steps, to achieve this goal.
-        
-        Submit your response as a formatted ARRAY of strings, suitable for utilization with JSON.parse().
-        
-        Example: ["{{TASK-1}}", "{{TASK-2}}"].
-
-
-
-        """
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "initialize_tasks.txt")
 
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt), "variables": ["goals", "instructions"]}
         # super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
@@ -132,35 +91,7 @@ class AgentPromptBuilder:
         constraints = [
             'Exclusively use the tools listed in double quotes e.g. "tool name"'
         ]
-        super_agi_prompt = """
-        High level goal: 
-        {goals}
-
-        {task_instructions}
-        
-        Your Current Task: `{current_task}`
-        
-        Task History:
-        `{task_history}`
-        
-        Based on this, your job is to understand the current task, pick out key parts, and think smart and fast. 
-        Explain why you are doing each action, create a plan, and mention any worries you might have. 
-        Ensure next action tool is picked from the below tool list. 
-        
-        TOOLS:
-        {tools}
-        
-        RESPONSE FORMAT:
-        {
-            "thoughts": {
-                "reasoning": "reasoning"
-            },
-            "tool": {"name": "tool name", "args": {"arg name": "string value"}}
-        }
-        
-        Your answer must be something that JSON.parse() can read, and nothing else.
-        """
-
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "analyse_task.txt")
         super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt) \
             .replace("{constraints}", AgentPromptBuilder.add_list_items_to_string(constraints))
         return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "tools", "current_task"]}
@@ -168,47 +99,14 @@ class AgentPromptBuilder:
     @classmethod
     def create_tasks(cls):
         # just executed task `{last_task}` and got the result `{last_task_result}`
-        super_agi_prompt = """
-        You are an AI assistant to create task.
-        
-        High level goal:
-        {goals}
-
-        {task_instructions}
-        
-        You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
-        
-        Task History:
-        `{task_history}`
-         
-        Based on this, create a single task to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your high level goal.
-        Don't create any task if it is already covered in incomplete or completed tasks.
-        Ensure your new task are not deviated from completing the goal.
-         
-        Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.
-        """
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "create_tasks.txt")
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
                 "variables": ["goals", "instructions", "last_task", "last_task_result", "pending_tasks"]}
 
     @classmethod
     def prioritize_tasks(cls):
         # just executed task `{last_task}` and got the result `{last_task_result}`
-        super_agi_prompt = """
-            You are a task prioritization AI assistant. 
-
-            High level goal:
-            {goals}
-
-            {task_instructions}
-
-            You have following incomplete tasks `{pending_tasks}`. You have following completed tasks `{completed_tasks}`.
-
-            Based on this, evaluate the incomplete tasks and sort them in the order of execution. In output first task will be executed first and so on.
-            Remove if any tasks are unnecessary or duplicate incomplete tasks. Remove tasks if they are already covered in completed tasks.
-            Remove tasks if it does not help in achieving the main goal.
-
-            Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE.
-            """
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "prioritize_tasks.txt")
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt),
                 "variables": ["goals", "instructions", "last_task", "last_task_result", "pending_tasks"]}
 
@@ -226,7 +124,7 @@ class AgentPromptBuilder:
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
         
     
-        print(tools)
+        logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt
