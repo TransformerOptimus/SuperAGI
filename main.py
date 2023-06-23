@@ -23,6 +23,7 @@ from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
+from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
 from superagi.controllers.budget import router as budget_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
@@ -58,16 +59,13 @@ app.add_middleware(DBSessionMiddleware, db_url=db_url)
 
 # Configure CORS middleware
 origins = [
-    "http://localhost:3001",
-    "http://localhost:3000",
-    "https://app.superagi.com",
     # Add more origins if needed
+    "*",  # Allow all origins
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -90,6 +88,7 @@ app.include_router(resources_router, prefix="/api/resources")
 app.include_router(config_router,prefix="/api/configs")
 app.include_router(agent_template_router,prefix="/api/agent_templates")
 app.include_router(agent_workflow_router,prefix="/api/agent_workflows")
+app.include_router(agent_execution_permission_router, prefix="/api/agentexecutionpermissions")
 
 # add a health route to check if the server is up and return 200
 @app.get("/health")
@@ -104,13 +103,8 @@ async def health():
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
     # jwt_secret = get_config("JWT_SECRET_KEY")
-    authjwt_secret_key: str = os.getenv("JWT_SECRET_KEY",superagi.config.config.get_config("JWT_SECRET_KEY"))
+    authjwt_secret_key: str = superagi.config.config.get_config("JWT_SECRET_KEY")
 
-def create_access_token(email,Authorize: AuthJWT = Depends()):
-    expiry_time_hours = os.getenv("JWT_EXPIRY",get_config("JWT_EXPIRY"))
-    expires = timedelta(hours=expiry_time_hours)
-    access_token = Authorize.create_access_token(subject=user.email,expires_time=expires)
-    return access_token
 
 def create_access_token(email, Authorize: AuthJWT = Depends()):
     # expiry_time_hours = get_config("JWT_EXPIRY")

@@ -15,6 +15,14 @@ class WebScraperSchema(BaseModel):
 
 
 class WebScraperTool(BaseTool):
+    """
+    Web Scraper tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     llm: Optional[BaseLlm] = None
     name = "WebScraperTool"
     description = (
@@ -26,6 +34,15 @@ class WebScraperTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, website_url: str) -> tuple:
+        """
+        Execute the Web Scraper tool.
+
+        Args:
+            website_url : The website url to scrape.
+
+        Returns:
+            The text content of the website.
+        """
         content = WebpageExtractor().extract_with_bs4(website_url)
         max_length = len(' '.join(content.split(" ")[:600]))
         return content[:max_length]

@@ -2,6 +2,7 @@ import os
 from pydantic import BaseSettings
 from pathlib import Path
 import yaml
+from superagi.lib.logger import logger
 
 CONFIG_FILE = "config.yaml"
 
@@ -41,7 +42,7 @@ class Config(BaseSettings):
 
         # Merge environment variables and config data
         env_vars = dict(os.environ)
-        print(env_vars)
+        logger.info(env_vars)
         config_data = {**config_data, **env_vars}
 
         return config_data

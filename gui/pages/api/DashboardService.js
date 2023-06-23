@@ -103,3 +103,7 @@ export const fetchAgentTemplateConfigLocal = (templateId) => {
 export const installAgentTemplate = (templateId) => {
   return api.post(`agent_templates/download?agent_template_id=${templateId}`);
 }
+
+export const updatePermissions = (permissionId, data) => {
+  return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
+}
