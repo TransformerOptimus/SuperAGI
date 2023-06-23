@@ -49,7 +49,7 @@ class WriteFileTool(BaseTool):
         session = Session()
 
         final_path = file_name
-        root_dir = self.toolkit_config.default_tool_config_func(key="RESOURCES_OUTPUT_ROOT_DIR")
+        root_dir = self.get_tool_config(key="RESOURCES_OUTPUT_ROOT_DIR")
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"

@@ -52,8 +52,8 @@ class GithubRepoSearchTool(BaseTool):
         Returns:
             The content of the file.
         """
-        github_access_token = self.toolkit_config.default_tool_config_func("GITHUB_ACCESS_TOKEN")
-        github_username = self.toolkit_config.default_tool_config_func("GITHUB_USERNAME")
+        github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
+        github_username = self.get_tool_config("GITHUB_USERNAME")
         github_repo_search = GithubHelper(github_access_token, github_username)
         content = github_repo_search.get_content_in_file(repository_owner, repository_name, file_name, folder_path)
 

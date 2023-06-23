@@ -40,17 +40,11 @@ class DBToolKitConfiguration(BaseToolKitConfiguration):
         self.session = session
         self.toolkit_id = toolkit_id
 
-    def default_tool_config_func(self, key: str):
+    def get_tool_config(self, key: str):
         tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
         if tool_config:
             return tool_config.value
-        # Read the config.yaml file
-        with open("config.yaml") as file:
-            config = yaml.safe_load(file)
-            value = config.get(key)
-            if value is not None:
-                return value
-        return super().default_tool_config_func(key=key)
+        return super().get_tool_config(key=key)
 
 class AgentExecutor:
     @staticmethod

@@ -58,7 +58,7 @@ def create_function_schema(
 
 class BaseToolKitConfiguration:
 
-    def default_tool_config_func(key: str):
+    def get_tool_config(key: str):
         # Default implementation of the tool configuration retrieval logic
         with open("config.yaml") as file:
             config = yaml.safe_load(file)
@@ -142,6 +142,9 @@ class BaseTool(BaseModel):
             return cls(description=func.__doc__, args_schema=args_schema)
         else:
             return cls(description=func.__doc__)
+
+    def get_tool_config(self, key):
+        self.toolkit_config.get_tool_config(key=key)
 
 
 class FunctionalTool(BaseTool):

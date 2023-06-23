@@ -40,8 +40,8 @@ class SendEmailTool(BaseTool):
         Returns:
             
         """
-        email_sender = self.toolkit_config.default_tool_config_func('EMAIL_ADDRESS')
-        email_password = self.toolkit_config.default_tool_config_func('EMAIL_PASSWORD')
+        email_sender = self.get_tool_config('EMAIL_ADDRESS')
+        email_password = self.get_tool_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "" or email_password.isspace():
@@ -50,18 +50,18 @@ class SendEmailTool(BaseTool):
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
-        signature = self.toolkit_config.default_tool_config_func('EMAIL_SIGNATURE')
+        signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
         message.set_content(body)
-        send_to_draft = self.toolkit_config.default_tool_config_func('EMAIL_DRAFT_MODE')
+        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE')
         if send_to_draft.upper() == "TRUE":
             send_to_draft = True
         else:
             send_to_draft = False
         if message["To"] == "example@example.com" or send_to_draft:
-            draft_folder = self.toolkit_config.default_tool_config_func('EMAIL_DRAFT_FOLDER')
-            imap_server= self.toolkit_config.default_tool_config_func('EMAIL_IMAP_SERVER')
+            draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER')
+            imap_server= self.get_tool_config('EMAIL_IMAP_SERVER')
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password, imap_server)
             conn.append(
                 draft_folder,
@@ -71,8 +71,8 @@ class SendEmailTool(BaseTool):
             )
             return f"Email went to {draft_folder}"
         else:
-            smtp_host = self.toolkit_config.default_tool_config_func('EMAIL_SMTP_HOST')
-            smtp_port = self.toolkit_config.default_tool_config_func('EMAIL_SMTP_PORT')
+            smtp_host = self.get_tool_config('EMAIL_SMTP_HOST')
+            smtp_port = self.get_tool_config('EMAIL_SMTP_PORT')
             with smtplib.SMTP(smtp_host, smtp_port) as smtp:
                 smtp.ehlo()
                 smtp.starttls()
