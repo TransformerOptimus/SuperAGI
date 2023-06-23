@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Downloads the tools
-python tool_manager.py
+python superagi/tool_manager.py
 
 # Set executable permissions for install_tool_dependencies.sh
 chmod +x install_tool_dependencies.sh
