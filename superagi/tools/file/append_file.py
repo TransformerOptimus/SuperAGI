@@ -39,7 +39,9 @@ class AppendFileTool(BaseTool):
         Returns:
             file written to successfully. or error message.
         """
-        final_path = ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/" + file_name
+        final_path = ResourceHelper.get_root_output_dir() + file_name
+        if "{agent_id}" in final_path:
+            final_path = final_path.replace("{agent_id}", str(self.agent_id))
         try:
             directory = os.path.dirname(final_path)
             os.makedirs(directory, exist_ok=True)

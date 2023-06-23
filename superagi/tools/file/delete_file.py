@@ -37,7 +37,9 @@ class DeleteFileTool(BaseTool):
         Returns:
             file deleted successfully. or error message.
         """
-        final_path = ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/"
+        final_path = ResourceHelper.get_root_output_dir()
+        if "{agent_id}" in final_path:
+            final_path = final_path.replace("{agent_id}", str(self.agent_id))
         try:
             os.remove(final_path + file_name)
             return "File deleted successfully."

@@ -40,11 +40,15 @@ class ReadFileTool(BaseTool):
         """
         output_root_dir = ResourceHelper.get_root_output_dir()
 
-        final_path = ResourceHelper.get_root_input_dir() + str(self.agent_id) + "/" + file_name
+        final_path = ResourceHelper.get_root_input_dir() + file_name
+        if "{agent_id}" in final_path:
+            final_path = final_path.replace("{agent_id}", str(self.agent_id))
 
         if final_path is None or not os.path.exists(final_path):
             if output_root_dir is not None:
-                final_path = ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/" + file_name
+                final_path = ResourceHelper.get_root_output_dir() + file_name
+                if "{agent_id}" in final_path:
+                    final_path = final_path.replace("{agent_id}", str(self.agent_id))
 
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")
@@ -54,4 +58,7 @@ class ReadFileTool(BaseTool):
 
         with open(final_path, 'r') as file:
             file_content = file.read()
-        return file_content[:1500]
+        max_length = len(' '.join(file_content.split(" ")[:1200]))
+        return file_content[:max_length]
+
+

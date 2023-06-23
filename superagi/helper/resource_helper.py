@@ -33,7 +33,7 @@ class ResourceHelper:
 
         if agent_id is not None:
             final_path = ResourceHelper.get_agent_resource_path(file_name, agent_id)
-            path = path + str(agent_id) + "/"
+            path = path.replace("{agent_id}", str(agent_id))
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
@@ -94,9 +94,9 @@ class ResourceHelper:
             file_name (str): The name of the file.
         """
         root_dir = ResourceHelper.get_root_output_dir()
-        if agent_id is not None:
-            directory = os.path.dirname(root_dir + str(agent_id) + "/")
+        if agent_id is not None and "{agent_id}" in root_dir:
+            root_dir = root_dir.replace("{agent_id}", str(agent_id))
+            directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
-            root_dir = root_dir + str(agent_id) + "/"
         final_path = root_dir + file_name
         return final_path

@@ -36,8 +36,14 @@ class ListFileTool(BaseTool):
         Returns:
             list of files in directory.
         """
-        input_files = self.list_files(ResourceHelper.get_root_input_dir() + str(self.agent_id) + "/")
-        output_files = self.list_files(ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/")
+        input_directory = ResourceHelper.get_root_input_dir() + str(self.agent_id) + "/"
+        output_directory = ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/"
+        if "{agent_id}" in input_directory:
+            input_directory = input_directory.replace("{agent_id}", str(self.agent_id))
+        if "{agent_id}" in output_directory:
+            output_directory = output_directory.replace("{agent_id}", str(self.agent_id))
+        input_files = self.list_files(input_directory)
+        output_files = self.list_files(output_directory)
         return input_files + output_files
 
     def list_files(self, directory):
