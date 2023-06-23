@@ -71,6 +71,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
   const toolRef = useRef(null);
   const [toolDropdown, setToolDropdown] = useState(false);
+  const [toolkitIdForTemplate, setToolkitIdForTemplate] = useState([]);
 
   const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
@@ -121,6 +122,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setInstructions(data.instruction)
             setDatabase(data.LTM_DB)
             setModel(data.model)
+            data.tools.forEach((item) => {
+              tools.forEach((tool) => {
+                tool.tools.forEach((name) => {
+                  if (name.name === item) {
+                    setToolkitIdForTemplate((prevArray) => [...prevArray, name.id]);
+                  }
+                });
+              });
+            });
             setToolNames(data.tools)
           })
           .catch((error) => {
@@ -168,8 +178,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addTool = (tool) => {
     if (!myTools.includes(tool.id)) {
-      setMyTools((prevArray) => [...prevArray, tool.id]);
-      setToolNames((prevArray) => [...prevArray, tool.name]);
+      setMyTools((prevArray) => [...prevArray, tool.id]); //storing toolkit id
+      setToolNames((prevArray) => [...prevArray, tool.name]); //storing toolkit name
     }
   };
   
@@ -332,7 +342,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return;
     }
 
-    if (myTools.length <= 0) {
+    if (myTools.length <= 0 && toolkitIdForTemplate.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
@@ -354,7 +364,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "agent_type": agentType,
       "constraints": constraints,
       "toolkits": myTools,
-      "tools": [],
+      "tools": toolkitIdForTemplate,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
