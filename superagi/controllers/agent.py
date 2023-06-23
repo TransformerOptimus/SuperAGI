@@ -158,16 +158,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
             # Tool does not exist, throw 404 or handle as desired
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
 
-    agent_toolkit_tools = []
-    for toolkit_id in agent_with_config.toolkits:
-        toolkit_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit_id).all()
-        for tool in toolkit_tools:
-            tool = db.session.query(Tool).filter(Tool.id == tool.id).first()
-            if tool is None:
-                # Tool does not exist, throw 404
-                raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
-            else:
-                agent_toolkit_tools.append(tool.id)
+    agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,agent_with_config=agent_with_config)
 
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
