@@ -1,8 +1,10 @@
 import os
-from typing import Type
+from typing import Type, Optional
 
 from pydantic import BaseModel, Field
 
+from superagi.helper.resource_helper import ResourceHelper
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
 
 
@@ -21,8 +23,10 @@ class ReadFileTool(BaseTool):
         args_schema : The args schema.
     """
     name: str = "Read File"
+    agent_id: int = None
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"
+    resource_manager: Optional[ResourceManager] = None
 
     def _execute(self, file_name: str):
         """
@@ -34,21 +38,13 @@ class ReadFileTool(BaseTool):
         Returns:
             The file content
         """
-        input_root_dir = self.get_tool_config('RESOURCES_INPUT_ROOT_DIR')
-        output_root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')
-        final_path = None
+        output_root_dir = ResourceHelper.get_root_output_dir()
 
-        if input_root_dir is not None:
-            input_root_dir = input_root_dir if input_root_dir.startswith("/") else os.getcwd() + "/" + input_root_dir
-            input_root_dir = input_root_dir if input_root_dir.endswith("/") else input_root_dir + "/"
-            final_path = input_root_dir + file_name
+        final_path = ResourceHelper.get_root_input_dir() + str(self.agent_id) + "/" + file_name
 
         if final_path is None or not os.path.exists(final_path):
             if output_root_dir is not None:
-                output_root_dir = output_root_dir if output_root_dir.startswith(
-                    "/") else os.getcwd() + "/" + output_root_dir
-                output_root_dir = output_root_dir if output_root_dir.endswith("/") else output_root_dir + "/"
-                final_path = output_root_dir + file_name
+                final_path = ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/" + file_name
 
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")

@@ -20,7 +20,7 @@ class ResourceHelper:
         Returns:
             Resource: The Resource object.
         """
-        path = ResourceHelper.get_root_dir()
+        path = ResourceHelper.get_root_output_dir()
         storage_type = get_config("STORAGE_TYPE")
         file_extension = os.path.splitext(file_name)[1][1:]
 
@@ -58,13 +58,26 @@ class ResourceHelper:
         Args:
             file_name (str): The name of the file.
         """
-        return ResourceHelper.get_root_dir() + file_name
+        return ResourceHelper.get_root_output_dir() + file_name
 
     @staticmethod
-    def get_root_dir():
+    def get_root_output_dir():
         """Get root dir of the resource.
         """
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+
+        if root_dir is not None:
+            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        else:
+            root_dir = os.getcwd() + "/"
+        return root_dir
+
+    @staticmethod
+    def get_root_input_dir():
+        """Get root dir of the resource.
+        """
+        root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
 
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
@@ -80,7 +93,7 @@ class ResourceHelper:
         Args:
             file_name (str): The name of the file.
         """
-        root_dir = ResourceHelper.get_root_dir()
+        root_dir = ResourceHelper.get_root_output_dir()
         if agent_id is not None:
             directory = os.path.dirname(root_dir + str(agent_id) + "/")
             os.makedirs(directory, exist_ok=True)

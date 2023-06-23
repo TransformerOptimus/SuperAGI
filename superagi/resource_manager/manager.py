@@ -57,3 +57,6 @@ class ResourceManager:
             return f"{file_name} - File written successfully"
         except Exception as err:
             return f"Error: {err}"
+
+    def get_agent_resource_path(self, file_name: str):
+        return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
