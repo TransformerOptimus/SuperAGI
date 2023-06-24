@@ -1,20 +1,13 @@
-import sys
-from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
+from main import app
+from superagi.controllers.tool_config import update_tool_config
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
-
-# Add the project directory to the Python module path
-# project_directory = Path('/home/abhijeet/AMAN/code/NewSuperAgi1/SuperAGI')
-# sys.path.insert(0, str(project_directory))
-
-from unittest.mock import MagicMock, patch
-from superagi.controllers.tool_config import update_tool_config
-from main import app
 
 client = TestClient(app)
 
