@@ -210,11 +210,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {<button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            {<button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className="dropdown_container" style={{marginTop:'31px',marginLeft:'-32px'}}>
+              <ul className="dropdown_container" style={{marginTop:'1%'}}>
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}

@@ -3,7 +3,6 @@ import Image from "next/image";
 import styles from './Market.module.css';
 
 export default function Embeddings(){
-
     const dummyData = [];
     const numIterations = 6;
     const itemsPerRow = 3;
@@ -58,6 +57,7 @@ export default function Embeddings(){
               </div>
             ))}
           </div>
+
         </div>
     )
 };
