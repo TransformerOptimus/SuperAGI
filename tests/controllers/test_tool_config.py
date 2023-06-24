@@ -129,34 +129,6 @@ def test_get_all_tool_configs_unauthorized_access(mock_toolkits):
         assert response.status_code == 403
         assert response.json() == {'detail': 'Unauthorized'}
 
-def test_get_tool_config_success(mock_toolkits):
-    # Unpack the fixture data
-    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
-
-
-    # Mock the database session and query functions
-    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
-            patch('superagi.controllers.tool_config.db') as mock_db, \
-            patch('superagi.helper.auth.db') as mock_auth_db:
-
-        # Mock the toolkit filtering
-        mock_db.session.query.return_value.filter.return_value.first.return_value = toolkit_1
-
-        # Mock the tool configuration filtering
-        mock_db.session.query.return_valuefilter.return_value.first.side_effect = tool_config
-
-        # Call the function
-        # result = get_tool_config(toolkit_1.name, tool_config.key, user_organisation.id)
-        response = client.get(f"/tool_configs/get/toolkit/{toolkit_1.name}/key/{tool_config.key}")
-
-        # Assertions
-        assert response == tool_config
-
-        # Verify that the session and query were called correctly
-        mock_db.session.query.assert_called_once_with(Toolkit)
-        mock_db.session.filter.assert_called_once_with(Toolkit.name == toolkit_1.name)
-        mock_db.session.filter.return_value.first.assert_called_once()
-
 
 def test_get_tool_config_success(mock_toolkits):
     # Unpack the fixture data
@@ -166,7 +138,6 @@ def test_get_tool_config_success(mock_toolkits):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
-
         mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
 
         mock_db.session.query.return_value.filter_by.return_value = toolkit_1
@@ -184,3 +155,22 @@ def test_get_tool_config_success(mock_toolkits):
             "value": tool_config.value,
             "toolkit_id": tool_config.toolkit_id
         }
+
+
+def test_get_tool_config_unauthorized(mock_toolkits):
+    # Unpack the fixture data
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+
+    # Mock the database session and query functions
+    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
+            patch('superagi.controllers.tool_config.db') as mock_db, \
+            patch('superagi.helper.auth.db') as mock_auth_db:
+        # Mock the toolkit filtering
+        mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
+
+        # Call the function with an unauthorized toolkit
+        response = client.get(f"/tool_configs/get/toolkit/{toolkit_2.name}/key/{tool_config.key}")
+
+        # Assertions
+        assert response.status_code == 403
+        assert response.json() == {"detail": "Unauthorized"}
