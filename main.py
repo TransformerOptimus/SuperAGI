@@ -133,127 +133,127 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
     )
 
 
-Session = sessionmaker(bind=engine)
-session = Session()
-default_user = session.query(User).filter(User.email == "super6@agi.com").first()
-logger.info(default_user)
-if default_user is not None:
-    organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
-    logger.info(organisation)
-    register_toolkits(session, organisation)
+# Session = sessionmaker(bind=engine)
+# session = Session()
+# default_user = session.query(User).filter(User.email == "super6@agi.com").first()
+# logger.info(default_user)
+# if default_user is not None:
+#     organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
+#     logger.info(organisation)
+#     register_toolkits(session, organisation)
 
 
-def build_single_step_agent():
-    agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
-
-    if agent_workflow is None:
-        agent_workflow = AgentWorkflow(name="Goal Based Agent", description="Goal based agent")
-        session.add(agent_workflow)
-        session.commit()
-
-    # step will have a prompt
-    # output of step is either tasks or set commands
-    first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
-    output = AgentPromptBuilder.get_super_agi_single_prompt()
-    if first_step is None:
-        first_step = AgentWorkflowStep(unique_id="gb1",
-                                       prompt=output["prompt"], variables=str(output["variables"]),
-                                       agent_workflow_id=agent_workflow.id, output_type="tools",
-                                       step_type="TRIGGER",
-                                       history_enabled=True,
-                                       completion_prompt="Determine which next tool to use, and respond using the format specified above:")
-        session.add(first_step)
-        session.commit()
-    else:
-        first_step.prompt = output["prompt"]
-        first_step.variables = str(output["variables"])
-        first_step.output_type = "tools"
-        first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
-        session.commit()
-    first_step.next_step_id = first_step.id
-    session.commit()
-
-
-def build_task_based_agents():
-    agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Task Queue Agent With Seed").first()
-    if agent_workflow is None:
-        agent_workflow = AgentWorkflow(name="Task Queue Agent With Seed", description="Task queue based agent")
-        session.add(agent_workflow)
-        session.commit()
-
-    output = AgentPromptBuilder.start_task_based()
-
-    workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb1").first()
-    if workflow_step1 is None:
-        workflow_step1 = AgentWorkflowStep(unique_id="tb1",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="TRIGGER",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
-                                           output_type="tasks")
-        session.add(workflow_step1)
-    else:
-        workflow_step1.prompt = output["prompt"]
-        workflow_step1.variables = str(output["variables"])
-        workflow_step1.output_type = "tasks"
-        session.commit()
-
-    workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb2").first()
-    output = AgentPromptBuilder.create_tasks()
-    if workflow_step2 is None:
-        workflow_step2 = AgentWorkflowStep(unique_id="tb2",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="NORMAL",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
-                                           output_type="tasks")
-        session.add(workflow_step2)
-    else:
-        workflow_step2.prompt = output["prompt"]
-        workflow_step2.variables = str(output["variables"])
-        workflow_step2.output_type = "tasks"
-        session.commit()
-
-    workflow_step3 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb3").first()
-
-    output = AgentPromptBuilder.analyse_task()
-    if workflow_step3 is None:
-        workflow_step3 = AgentWorkflowStep(unique_id="tb3",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="NORMAL",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1, output_type="tools")
-
-        session.add(workflow_step3)
-    else:
-        workflow_step3.prompt = output["prompt"]
-        workflow_step3.variables = str(output["variables"])
-        workflow_step3.output_type = "tools"
-        session.commit()
-
-    workflow_step4 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb4").first()
-    output = AgentPromptBuilder.prioritize_tasks()
-    if workflow_step4 is None:
-        workflow_step4 = AgentWorkflowStep(unique_id="tb4",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="NORMAL",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
-                                           output_type="replace_tasks")
-
-        session.add(workflow_step4)
-    else:
-        workflow_step4.prompt = output["prompt"]
-        workflow_step4.variables = str(output["variables"])
-        workflow_step4.output_type = "replace_tasks"
-        session.commit()
-    session.commit()
-    workflow_step1.next_step_id = workflow_step3.id
-    workflow_step3.next_step_id = workflow_step2.id
-    workflow_step2.next_step_id = workflow_step4.id
-    workflow_step4.next_step_id = workflow_step3.id
-    session.commit()
-
-
-build_single_step_agent()
-build_task_based_agents()
-session.close()
+# def build_single_step_agent():
+#     agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
+#
+#     if agent_workflow is None:
+#         agent_workflow = AgentWorkflow(name="Goal Based Agent", description="Goal based agent")
+#         session.add(agent_workflow)
+#         session.commit()
+#
+#     # step will have a prompt
+#     # output of step is either tasks or set commands
+#     first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
+#     output = AgentPromptBuilder.get_super_agi_single_prompt()
+#     if first_step is None:
+#         first_step = AgentWorkflowStep(unique_id="gb1",
+#                                        prompt=output["prompt"], variables=str(output["variables"]),
+#                                        agent_workflow_id=agent_workflow.id, output_type="tools",
+#                                        step_type="TRIGGER",
+#                                        history_enabled=True,
+#                                        completion_prompt="Determine which next tool to use, and respond using the format specified above:")
+#         session.add(first_step)
+#         session.commit()
+#     else:
+#         first_step.prompt = output["prompt"]
+#         first_step.variables = str(output["variables"])
+#         first_step.output_type = "tools"
+#         first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
+#         session.commit()
+#     first_step.next_step_id = first_step.id
+#     session.commit()
+#
+#
+# def build_task_based_agents():
+#     agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Task Queue Agent With Seed").first()
+#     if agent_workflow is None:
+#         agent_workflow = AgentWorkflow(name="Task Queue Agent With Seed", description="Task queue based agent")
+#         session.add(agent_workflow)
+#         session.commit()
+#
+#     output = AgentPromptBuilder.start_task_based()
+#
+#     workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb1").first()
+#     if workflow_step1 is None:
+#         workflow_step1 = AgentWorkflowStep(unique_id="tb1",
+#                                            prompt=output["prompt"], variables=str(output["variables"]),
+#                                            step_type="TRIGGER",
+#                                            agent_workflow_id=agent_workflow.id, next_step_id=-1,
+#                                            output_type="tasks")
+#         session.add(workflow_step1)
+#     else:
+#         workflow_step1.prompt = output["prompt"]
+#         workflow_step1.variables = str(output["variables"])
+#         workflow_step1.output_type = "tasks"
+#         session.commit()
+#
+#     workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb2").first()
+#     output = AgentPromptBuilder.create_tasks()
+#     if workflow_step2 is None:
+#         workflow_step2 = AgentWorkflowStep(unique_id="tb2",
+#                                            prompt=output["prompt"], variables=str(output["variables"]),
+#                                            step_type="NORMAL",
+#                                            agent_workflow_id=agent_workflow.id, next_step_id=-1,
+#                                            output_type="tasks")
+#         session.add(workflow_step2)
+#     else:
+#         workflow_step2.prompt = output["prompt"]
+#         workflow_step2.variables = str(output["variables"])
+#         workflow_step2.output_type = "tasks"
+#         session.commit()
+#
+#     workflow_step3 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb3").first()
+#
+#     output = AgentPromptBuilder.analyse_task()
+#     if workflow_step3 is None:
+#         workflow_step3 = AgentWorkflowStep(unique_id="tb3",
+#                                            prompt=output["prompt"], variables=str(output["variables"]),
+#                                            step_type="NORMAL",
+#                                            agent_workflow_id=agent_workflow.id, next_step_id=-1, output_type="tools")
+#
+#         session.add(workflow_step3)
+#     else:
+#         workflow_step3.prompt = output["prompt"]
+#         workflow_step3.variables = str(output["variables"])
+#         workflow_step3.output_type = "tools"
+#         session.commit()
+#
+#     workflow_step4 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb4").first()
+#     output = AgentPromptBuilder.prioritize_tasks()
+#     if workflow_step4 is None:
+#         workflow_step4 = AgentWorkflowStep(unique_id="tb4",
+#                                            prompt=output["prompt"], variables=str(output["variables"]),
+#                                            step_type="NORMAL",
+#                                            agent_workflow_id=agent_workflow.id, next_step_id=-1,
+#                                            output_type="replace_tasks")
+#
+#         session.add(workflow_step4)
+#     else:
+#         workflow_step4.prompt = output["prompt"]
+#         workflow_step4.variables = str(output["variables"])
+#         workflow_step4.output_type = "replace_tasks"
+#         session.commit()
+#     session.commit()
+#     workflow_step1.next_step_id = workflow_step3.id
+#     workflow_step3.next_step_id = workflow_step2.id
+#     workflow_step2.next_step_id = workflow_step4.id
+#     workflow_step4.next_step_id = workflow_step3.id
+#     session.commit()
+#
+#
+# build_single_step_agent()
+# build_task_based_agents()
+# session.close()
 
 
 @app.post('/login')
