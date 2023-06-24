@@ -1,4 +1,5 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 import pytest
 
 from superagi.tools.file.list_files import ListFileTool
@@ -20,11 +21,11 @@ def test_list_files(list_file_tool):
 
         files = list_file_tool.list_files('/path/to')
 
-    assert files == ['/path/to/file1.txt', '/path/to/subdir/file3.txt', '/path/to/subdir/file4.txt']
+    assert files == ['file1.txt', 'file3.txt', 'file4.txt']
 
 
 def test_execute(list_file_tool):
     with patch.object(ListFileTool, 'list_files', return_value=['file1.txt', 'file2.txt']):
         files = list_file_tool._execute()
 
-    assert files == ['file1.txt', 'file2.txt', 'file1.txt', 'file2.txt']
+    assert files == ['file1.txt', 'file2.txt']

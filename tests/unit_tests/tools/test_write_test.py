@@ -1,10 +1,6 @@
-import pytest
 from unittest.mock import Mock, patch
-from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import ResourceManager
-from superagi.lib.logger import logger
+
 from superagi.tools.code.write_test import WriteTestTool
-from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
 
 def test_write_test_tool_init():
@@ -16,32 +12,39 @@ def test_write_test_tool_init():
     assert tool.goals == []
     assert tool.resource_manager is None
 
-
-@patch('superagi.tools.code.write_test.logger')
+@patch('superagi.tools.code.write_test.PromptReader')
+@patch('superagi.tools.code.write_test.AgentPromptBuilder')
 @patch('superagi.tools.code.write_test.TokenCounter')
-def test_write_test_tool_execute(mock_token_counter, mock_logger):
-    # Given
-    mock_llm = Mock(spec=BaseLlm)
-    mock_llm.get_model.return_value = None
-    mock_llm.chat_completion.return_value = {"content": "```python\nsample_code\n```"}
-    mock_token_counter.count_message_tokens.return_value = 0
-    mock_token_counter.token_limit.return_value = 100
+def test_execute(mock_token_counter, mock_agent_prompt_builder, mock_prompt_reader):
+    test_tool = WriteTestTool()
+    test_tool.tool_response_manager = Mock()
+    test_tool.resource_manager = Mock()
+    test_tool.llm = Mock()
 
-    mock_resource_manager = Mock(spec=ResourceManager)
-    mock_resource_manager.write_file.return_value = "No error"
+    test_tool.tool_response_manager.get_last_response.return_value = 'WriteSpecTool response'
+    mock_prompt_reader.read_tools_prompt.return_value = 'Prompt template {goals} {test_description} {spec}'
+    mock_agent_prompt_builder.add_list_items_to_string.return_value = 'Goals string'
+    test_tool.llm.get_model.return_value = 'Model'
+    mock_token_counter.count_message_tokens.return_value = 100
+    mock_token_counter.token_limit.return_value = 1000
+    test_tool.llm.chat_completion.return_value = {
+        'content': 'File1\n```\nCode1```File2\n```\nCode2```',
+    }
+    test_tool.resource_manager.write_file.return_value = 'Success'
 
-    mock_tool_response_manager = Mock(spec=ToolResponseQueryManager)
-    mock_tool_response_manager.get_last_response.return_value = ""
+    result = test_tool._execute('Test description', 'test_file.py')
 
-    tool = WriteTestTool()
-    tool.llm = mock_llm
-    tool.resource_manager = mock_resource_manager
-    tool.tool_response_manager = mock_tool_response_manager
+    assert 'File1' in result
+    assert 'Code1' in result
+    assert 'File2' in result
+    assert 'Code2' in result
+    assert 'Tests generated and saved successfully in test_file.py' in result
 
-    # When
-    result = tool._execute("spec", "test_file")
-
-    # Then
-    mock_llm.chat_completion.assert_called_once()
-    mock_resource_manager.write_file.assert_called_once_with("test_file", "python\nsample_code")
-    assert "Tests generated and saved successfully in test_file" in result
+    mock_prompt_reader.read_tools_prompt.assert_called_once()
+    mock_agent_prompt_builder.add_list_items_to_string.assert_called_once_with(test_tool.goals)
+    test_tool.tool_response_manager.get_last_response.assert_called()
+    test_tool.llm.get_model.assert_called()
+    mock_token_counter.count_message_tokens.assert_called()
+    mock_token_counter.token_limit.assert_called()
+    test_tool.llm.chat_completion.assert_called()
+    assert test_tool.resource_manager.write_file.call_count == 2

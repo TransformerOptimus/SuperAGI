@@ -36,22 +36,24 @@ class ListFileTool(BaseTool):
         Returns:
             list of files in directory.
         """
-        input_directory = ResourceHelper.get_root_input_dir() + str(self.agent_id) + "/"
-        output_directory = ResourceHelper.get_root_output_dir() + str(self.agent_id) + "/"
+        input_directory = ResourceHelper.get_root_input_dir()
+        #output_directory = ResourceHelper.get_root_output_dir()
         if "{agent_id}" in input_directory:
             input_directory = input_directory.replace("{agent_id}", str(self.agent_id))
-        if "{agent_id}" in output_directory:
-            output_directory = output_directory.replace("{agent_id}", str(self.agent_id))
+        # if "{agent_id}" in output_directory:
+        #     output_directory = output_directory.replace("{agent_id}", str(self.agent_id))
         input_files = self.list_files(input_directory)
-        output_files = self.list_files(output_directory)
-        return input_files + output_files
+        # output_files = self.list_files(output_directory)
+        return input_files #+ output_files
 
     def list_files(self, directory):
         found_files = []
         for root, dirs, files in os.walk(directory):
             for file in files:
-                if file.startswith("."):
+                if file.startswith(".") or "__pycache__" in root:
                     continue
-                relative_path = os.path.join(root, file)
-                found_files.append(relative_path)
+                # relative_path = os.path.join(root, file)
+                # input_directory = ResourceHelper.get_root_input_dir()
+                # relative_path = relative_path.split(input_directory)[1]
+                found_files.append(file)
         return found_files
