@@ -13,7 +13,7 @@ client = TestClient(app)
 
 
 @pytest.fixture
-def mock_toolkits():
+def mocks():
     # Mock tool kit data for testing
     user_organisation = Organisation(id=1)
     toolkit_1 = Toolkit(
@@ -67,8 +67,8 @@ def test_update_tool_configs_success():
         assert result == {"message": "Tool configs updated successfully"}
 
 
-def test_get_all_tool_configs_success(mock_toolkits):
-    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+def test_get_all_tool_configs_success(mocks):
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mocks
 
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
@@ -92,8 +92,8 @@ def test_get_all_tool_configs_success(mock_toolkits):
         ]
 
 
-def test_get_all_tool_configs_toolkit_not_found(mock_toolkits):
-    user_organisation, _, _, _, _ = mock_toolkits
+def test_get_all_tool_configs_toolkit_not_found(mocks):
+    user_organisation, _, _, _, _ = mocks
 
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
@@ -106,8 +106,8 @@ def test_get_all_tool_configs_toolkit_not_found(mock_toolkits):
         assert response.json() == {'detail': 'ToolKit not found'}
 
 
-def test_get_all_tool_configs_unauthorized_access(mock_toolkits):
-    user_organisation, _, _, toolkit_1, toolkit_2 = mock_toolkits
+def test_get_all_tool_configs_unauthorized_access(mocks):
+    user_organisation, _, _, toolkit_1, toolkit_2 = mocks
 
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
@@ -120,9 +120,9 @@ def test_get_all_tool_configs_unauthorized_access(mock_toolkits):
         assert response.json() == {'detail': 'Unauthorized'}
 
 
-def test_get_tool_config_success(mock_toolkits):
+def test_get_tool_config_success(mocks):
     # Unpack the fixture data
-    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mocks
 
     # Mock the database session and query functions
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
@@ -145,9 +145,9 @@ def test_get_tool_config_success(mock_toolkits):
         }
 
 
-def test_get_tool_config_unauthorized(mock_toolkits):
+def test_get_tool_config_unauthorized(mocks):
     # Unpack the fixture data
-    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mocks
 
     # Mock the database session and query functions
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
@@ -163,9 +163,9 @@ def test_get_tool_config_unauthorized(mock_toolkits):
         assert response.json() == {"detail": "Unauthorized"}
 
 
-def test_get_tool_config_not_found(mock_toolkits):
+def test_get_tool_config_not_found(mocks):
     # Unpack the fixture data
-    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mocks
 
     # Mock the database session and query functions
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
