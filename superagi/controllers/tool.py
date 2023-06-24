@@ -72,8 +72,9 @@ def get_tool(
 def get_tools(
         organisation: Organisation = Depends(get_user_organisation)):
     """Get all tools"""
-    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id)
+    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
     tools = []
+    print("TOOLKITS: ",toolkits)
     for toolkit in toolkits:
         db_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
         tools.extend(db_tools)
