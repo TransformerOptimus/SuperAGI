@@ -12,16 +12,6 @@ from superagi.models.toolkit import Toolkit
 client = TestClient(app)
 
 
-# def mock_db_query(*args, **kwargs):
-#     magic_query = MagicMock()
-#     magic_query.filter.return_value = magic_query
-#     magic_query.filter_by.return_value = magic_query
-#     magic_query.first.return_value = magic_query
-#     magic_query.all.return_value = magic_query
-#
-#     return magic_query
-
-
 @pytest.fixture
 def mock_toolkits():
     # Mock tool kit data for testing
@@ -138,7 +128,6 @@ def test_get_tool_config_success(mock_toolkits):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
-
         mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
         mock_db.session.query.return_value.filter_by.return_value = toolkit_1
         mock_db.session.query.return_value.filter.return_value.first.return_value = tool_config
@@ -164,7 +153,6 @@ def test_get_tool_config_unauthorized(mock_toolkits):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
-
         # Mock the toolkit filtering
         mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
 
@@ -183,7 +171,6 @@ def test_get_tool_config_not_found(mock_toolkits):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
-
         # Mock the toolkit filtering
         mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
         mock_db.session.query.return_value.filter_by.return_value = toolkit_1

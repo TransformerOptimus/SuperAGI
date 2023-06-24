@@ -75,7 +75,7 @@ def get_tools(
     toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id)
     tools = []
     for toolkit in toolkits:
-        db_tools = db.session.query(Tool).filter(Toolkit.id == toolkit.id).all()
+        db_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
         tools.extend(db_tools)
     return tools
 
