@@ -13,7 +13,7 @@ class TestCalendarDate(unittest.TestCase):
         self.service.calendars().get().execute.return_value = {'timeZone': 'Asia/Kolkata'}
 
     def test_get_time_zone(self):
-        time_zone = self.cd.get_time_zone(self.service)
+        time_zone = self.cd._get_time_zone(self.service)
         self.assertEqual(time_zone, 'Asia/Kolkata')
 
     def test_convert_to_utc(self):
@@ -24,7 +24,7 @@ class TestCalendarDate(unittest.TestCase):
         local_tz = pytz.timezone('US/Pacific')
 
         # Call the function to convert the local datetime to UTC.
-        utc_datetime = self.cd.convert_to_utc(local_datetime, local_tz)
+        utc_datetime = self.cd._convert_to_utc(local_datetime, local_tz)
 
         # Check that the converted datetime is correct.
         # Note: The 'US/Pacific' timezone is 8 hours behind UTC during standard time.
@@ -36,14 +36,14 @@ class TestCalendarDate(unittest.TestCase):
         date_str = '2022-01-01'
         date_format = '%Y-%m-%d'
         date_obj = datetime.strptime(date_str, date_format)
-        self.assertEqual(date_obj, self.cd.string_to_datetime(date_str, date_format))
+        self.assertEqual(date_obj, self.cd._string_to_datetime(date_str, date_format))
 
     def test_localize_daterange(self):
         start_date, end_date = '2022-01-01', '2022-01-02'
         start_time, end_time = '10:00:00', '12:00:00'
         local_tz = pytz.timezone('Asia/Kolkata')
-        start_datetime_utc, end_datetime_utc = self.cd.localize_daterange(start_date, end_date, start_time, end_time,
-                                                                          local_tz)
+        start_datetime_utc, end_datetime_utc = self.cd._localize_daterange(start_date, end_date, start_time, end_time,
+                                                                           local_tz)
 
         self.assertEqual(start_datetime_utc, datetime(2022, 1, 1, 4, 30, tzinfo=timezone.utc))
         self.assertEqual(end_datetime_utc, datetime(2022, 1, 2, 6, 30, tzinfo=timezone.utc))
@@ -52,7 +52,7 @@ class TestCalendarDate(unittest.TestCase):
         date_time = datetime(2022, 1, 1, 0, 0, 0)
         date_format = '%Y-%m-%d'
         date_str = '2022-01-01'
-        self.assertEqual(date_str, self.cd.datetime_to_string(date_time, date_format))
+        self.assertEqual(date_str, self.cd._datetime_to_string(date_time, date_format))
 
     def test_get_date_utc(self):
         start_date, end_date = '2022-01-01', '2022-01-02'
