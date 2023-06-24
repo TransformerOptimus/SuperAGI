@@ -9,8 +9,8 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 
 # Add the project directory to the Python module path
-project_directory = Path('/home/abhijeet/AMAN/code/NewSuperAgi1/SuperAGI')
-sys.path.insert(0, str(project_directory))
+# project_directory = Path('/home/abhijeet/AMAN/code/NewSuperAgi1/SuperAGI')
+# sys.path.insert(0, str(project_directory))
 
 from unittest.mock import MagicMock, patch
 from superagi.controllers.tool_config import update_tool_config
@@ -19,33 +19,12 @@ from main import app
 client = TestClient(app)
 
 
-class MockFastAPISQLAlchemy:
-    query = MagicMock()
-
-    def __init__(self):
-        self.session = self
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        pass
-
-    def commit(self):
-        pass
-
-
 class MockToolKit:
     id = 1
 
     @staticmethod
     def get_toolkit_from_name(session, toolkit_name):
         return MockToolKit()
-
-
-# Patch db object of the tool_config module
-def mock_tool_config_db(target):
-    return patch(target, MockFastAPISQLAlchemy())
 
 
 def mock_db_query(*args, **kwargs):
@@ -96,7 +75,7 @@ def test_update_tool_configs_success():
     ]
 
     with patch('superagi.models.toolkit.Toolkit.get_toolkit_from_name', new=MockToolKit.get_toolkit_from_name), \
-            mock_tool_config_db('superagi.controllers.tool_config.db') as mock_db:
+            patch('superagi.controllers.tool_config.db') as mock_db:
         mock_db.query.return_value.filter_by.return_value.first.side_effect = [
             # First call to query
             MagicMock(
