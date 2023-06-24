@@ -1,3 +1,5 @@
+import inspect
+import os
 from datetime import timedelta
 
 import requests
@@ -12,9 +14,13 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import pickle
 import superagi
+from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
+from superagi.controllers.agent_template import router as agent_template_router
+from superagi.controllers.agent_workflow import router as agent_workflow_router
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
@@ -39,6 +45,8 @@ from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
+from superagi.tools.base_tool import BaseTool
+from superagi.models.tool_config import ToolConfig
 
 app = FastAPI()
 
@@ -108,7 +116,6 @@ def create_access_token(email, Authorize: AuthJWT = Depends()):
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
-
 
 # callback to get your configuration
 @AuthJWT.load_config
@@ -268,6 +275,45 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 #     access_token = Authorize.create_access_token(subject=user_email)
 #     return access_token
 
+@app.get('/oauth-calendar')
+async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    client_id = client_id.value
+    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET").first()
+    client_secret = client_secret.value
+    token_uri = 'https://oauth2.googleapis.com/token'
+    scope = 'https://www.googleapis.com/auth/calendar'
+    params = {
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': "http://localhost:3000/api/oauth-calendar",
+        'scope': scope,
+        'grant_type': 'authorization_code',
+        'code': code,
+        'access_type': 'offline'
+    }
+    response = requests.post(token_uri, data=params)
+    response = response.json()
+    expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
+    expire_time = expire_time - timedelta(minutes=5)
+    response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
+    file_name = "credential_token.pickle"
+    final_path = file_name
+    if root_dir is not None:
+        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        final_path = root_dir + file_name
+    else:
+        final_path = os.getcwd() + "/" + file_name
+    try:
+        with open(final_path, mode="wb") as file:
+            pickle.dump(response, file)
+    except Exception as err:
+        return f"Error: {err}"
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    return RedirectResponse(frontend_url)
+
 @app.get('/github-login')
 def github_login():
     """GitHub login"""
@@ -349,6 +395,12 @@ async def root(Authorize: AuthJWT = Depends()):
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
+@app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
+def get_google_calendar_tool_configs(toolkit_id: int):
+    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    return {
+        "client_id": google_calendar_config.value
+    }
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
