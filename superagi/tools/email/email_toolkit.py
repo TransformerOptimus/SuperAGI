@@ -1,9 +1,9 @@
 from abc import ABC
 from superagi.tools.base_tool import BaseToolkit, BaseTool
 from typing import Type, List
-from read_email import ReadEmailTool
-from send_email import SendEmailTool
-from send_email_attachment import SendEmailAttachmentTool
+from superagi.tools.email.read_email import ReadEmailTool
+from superagi.tools.email.send_email import SendEmailTool
+from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
 
 
 class EmailToolkit(BaseToolkit, ABC):

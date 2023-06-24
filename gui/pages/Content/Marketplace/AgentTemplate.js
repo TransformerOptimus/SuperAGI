@@ -80,7 +80,8 @@ export default function AgentTemplate({template}) {
                       <div className={styles2.left_container}>
                           <span className={styles2.top_heading}>{template.name}</span>
                           <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/>&nbsp;{'\u00B7'}&nbsp;<Image width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/></span>
-                          <button className="primary_button" style={{marginTop:'15px',width:'100%'}} onClick={() => handleInstallClick()}><Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}</button>
+                          <button className="primary_button" style={{marginTop:'15px',width:'100%',background:template && template.is_installed ? 'rgba(255, 255, 255, 0.14)':'#FFF',color:template && template.is_installed ? '#FFFFFF':'#000'}} onClick={() => handleInstallClick()}>
+                              {(template && template.is_installed) ? <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> : <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>}&nbsp;{installed}</button>
 
                           <hr className={styles2.horizontal_line} />
 
