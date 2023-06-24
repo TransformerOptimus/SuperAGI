@@ -12,22 +12,14 @@ from superagi.models.toolkit import Toolkit
 client = TestClient(app)
 
 
-class MockToolKit:
-    id = 1
-
-    @staticmethod
-    def get_toolkit_from_name(session, toolkit_name):
-        return MockToolKit()
-
-
-def mock_db_query(*args, **kwargs):
-    magic_query = MagicMock()
-    magic_query.filter.return_value = magic_query
-    magic_query.filter_by.return_value = magic_query
-    magic_query.first.return_value = magic_query
-    magic_query.all.return_value = magic_query
-
-    return magic_query
+# def mock_db_query(*args, **kwargs):
+#     magic_query = MagicMock()
+#     magic_query.filter.return_value = magic_query
+#     magic_query.filter_by.return_value = magic_query
+#     magic_query.first.return_value = magic_query
+#     magic_query.all.return_value = magic_query
+#
+#     return magic_query
 
 
 @pytest.fixture
@@ -36,14 +28,14 @@ def mock_toolkits():
     user_organisation = Organisation(id=1)
     toolkit_1 = Toolkit(
         id=1,
-        name="tool_kit_1",
+        name="toolkit_1",
         description="None",
         show_toolkit=None,
         organisation_id=1
     )
     toolkit_2 = Toolkit(
         id=1,
-        name="tool_kit_2",
+        name="toolkit_2",
         description="None",
         show_toolkit=None,
         organisation_id=1
@@ -67,7 +59,7 @@ def test_update_tool_configs_success():
         {"key": "config_2", "value": "value_2"},
     ]
 
-    with patch('superagi.models.toolkit.Toolkit.get_toolkit_from_name', new=MockToolKit.get_toolkit_from_name), \
+    with patch('superagi.models.toolkit.Toolkit.get_toolkit_from_name') as get_toolkit_from_name, \
             patch('superagi.controllers.tool_config.db') as mock_db:
         mock_db.query.return_value.filter_by.return_value.first.side_effect = [
             # First call to query
@@ -86,14 +78,14 @@ def test_update_tool_configs_success():
 
 
 def test_get_all_tool_configs_success(mock_toolkits):
-    user_organisation, user_toolkits, tool_config, tool_kit_1, tool_kit_2 = mock_toolkits
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
 
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
-        mock_db.session.query.return_value.filter_by.return_value.first.return_value = tool_kit_1
+        mock_db.session.query.return_value.filter_by.return_value.first.return_value = toolkit_1
         mock_db.session.query.return_value.filter.return_value.all.side_effect = [
-            [tool_kit_1, tool_kit_2],
+            [toolkit_1, toolkit_2],
             [tool_config]
         ]
         response = client.get(f"/tool_configs/get/toolkit/test_toolkit_1")
@@ -125,14 +117,70 @@ def test_get_all_tool_configs_toolkit_not_found(mock_toolkits):
 
 
 def test_get_all_tool_configs_unauthorized_access(mock_toolkits):
-    user_organisation, _, _, tool_kit_1, tool_kit_2 = mock_toolkits
+    user_organisation, _, _, toolkit_1, toolkit_2 = mock_toolkits
 
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
-        mock_db.session.query.return_value.filter_by.return_value.first.return_value = tool_kit_1
+        mock_db.session.query.return_value.filter_by.return_value.first.return_value = toolkit_1
         response = client.get(f"/tool_configs/get/toolkit/test_toolkit_3")
 
         # Assertions
         assert response.status_code == 403
         assert response.json() == {'detail': 'Unauthorized'}
+
+def test_get_tool_config_success(mock_toolkits):
+    # Unpack the fixture data
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+
+
+    # Mock the database session and query functions
+    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
+            patch('superagi.controllers.tool_config.db') as mock_db, \
+            patch('superagi.helper.auth.db') as mock_auth_db:
+
+        # Mock the toolkit filtering
+        mock_db.session.query.return_value.filter.return_value.first.return_value = toolkit_1
+
+        # Mock the tool configuration filtering
+        mock_db.session.query.return_valuefilter.return_value.first.side_effect = tool_config
+
+        # Call the function
+        # result = get_tool_config(toolkit_1.name, tool_config.key, user_organisation.id)
+        response = client.get(f"/tool_configs/get/toolkit/{toolkit_1.name}/key/{tool_config.key}")
+
+        # Assertions
+        assert response == tool_config
+
+        # Verify that the session and query were called correctly
+        mock_db.session.query.assert_called_once_with(Toolkit)
+        mock_db.session.filter.assert_called_once_with(Toolkit.name == toolkit_1.name)
+        mock_db.session.filter.return_value.first.assert_called_once()
+
+
+def test_get_tool_config_success(mock_toolkits):
+    # Unpack the fixture data
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+
+    # Mock the database session and query functions
+    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
+            patch('superagi.controllers.tool_config.db') as mock_db, \
+            patch('superagi.helper.auth.db') as mock_auth_db:
+
+        mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
+
+        mock_db.session.query.return_value.filter_by.return_value = toolkit_1
+
+        mock_db.session.query.return_value.filter.return_value.first.return_value = tool_config
+
+        # Call the function
+        response = client.get(f"/tool_configs/get/toolkit/{toolkit_1.name}/key/{tool_config.key}")
+
+        # Assertions
+        assert response.status_code == 200
+        assert response.json() == {
+            "id": tool_config.id,
+            "key": tool_config.key,
+            "value": tool_config.value,
+            "toolkit_id": tool_config.toolkit_id
+        }
