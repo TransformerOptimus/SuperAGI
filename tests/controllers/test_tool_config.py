@@ -150,3 +150,17 @@ def test_get_all_tool_configs_toolkit_not_found(mock_toolkits):
         # Assertions
         assert response.status_code == 404
         assert response.json() == {'detail': 'ToolKit not found'}
+
+
+def test_get_all_tool_configs_unauthorized_access(mock_toolkits):
+    user_organisation, _, _, tool_kit_1, tool_kit_2 = mock_toolkits
+
+    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
+            patch('superagi.controllers.tool_config.db') as mock_db, \
+            patch('superagi.helper.auth.db') as mock_auth_db:
+        mock_db.session.query.return_value.filter_by.return_value.first.return_value = tool_kit_1
+        response = client.get(f"/tool_configs/get/toolkit/test_toolkit_3")
+
+        # Assertions
+        assert response.status_code == 403
+        assert response.json() == {'detail': 'Unauthorized'}
