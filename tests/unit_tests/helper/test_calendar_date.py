@@ -2,8 +2,9 @@ import unittest
 from unittest.mock import MagicMock
 from datetime import datetime, timezone
 import pytz
-from dateutil import tz
-from superagi.helper import CalendarDate
+
+from superagi.helper.calendar_date import CalendarDate
+
 
 class TestCalendarDate(unittest.TestCase):
     def setUp(self):
@@ -16,10 +17,20 @@ class TestCalendarDate(unittest.TestCase):
         self.assertEqual(time_zone, 'Asia/Kolkata')
 
     def test_convert_to_utc(self):
-        date_time = datetime(2022, 1, 1, 0, 0, 0)
-        local_tz = pytz.timezone('Asia/Kolkata')
-        utc_datetime = self.cd.convert_to_utc(date_time, local_tz)
-        self.assertEqual(utc_datetime, datetime(2022, 1, 1, 5, 0, tzinfo=timezone.utc))
+        # Create a datetime object for midnight of January 1st, 2023.
+        local_datetime = datetime(2023, 1, 1)
+
+        # Use the 'US/Pacific' timezone for this example.
+        local_tz = pytz.timezone('US/Pacific')
+
+        # Call the function to convert the local datetime to UTC.
+        utc_datetime = self.cd.convert_to_utc(local_datetime, local_tz)
+
+        # Check that the converted datetime is correct.
+        # Note: The 'US/Pacific' timezone is 8 hours behind UTC during standard time.
+        expected_utc_datetime = datetime(2023, 1, 1, 8, 0)
+        expected_utc_datetime = pytz.timezone('GMT').localize(expected_utc_datetime)
+        assert utc_datetime == expected_utc_datetime
 
     def test_string_to_datetime(self):
         date_str = '2022-01-01'
@@ -31,10 +42,11 @@ class TestCalendarDate(unittest.TestCase):
         start_date, end_date = '2022-01-01', '2022-01-02'
         start_time, end_time = '10:00:00', '12:00:00'
         local_tz = pytz.timezone('Asia/Kolkata')
-        start_datetime_utc, end_datetime_utc = self.cd.localize_daterange(start_date, end_date, start_time, end_time, local_tz)
+        start_datetime_utc, end_datetime_utc = self.cd.localize_daterange(start_date, end_date, start_time, end_time,
+                                                                          local_tz)
 
-        self.assertEqual(start_datetime_utc, datetime(2022, 1, 1, 15, 0, tzinfo=timezone.utc))
-        self.assertEqual(end_datetime_utc, datetime(2022, 1, 2, 17, 0, tzinfo=timezone.utc))
+        self.assertEqual(start_datetime_utc, datetime(2022, 1, 1, 4, 30, tzinfo=timezone.utc))
+        self.assertEqual(end_datetime_utc, datetime(2022, 1, 2, 6, 30, tzinfo=timezone.utc))
 
     def test_datetime_to_string(self):
         date_time = datetime(2022, 1, 1, 0, 0, 0)
@@ -46,8 +58,8 @@ class TestCalendarDate(unittest.TestCase):
         start_date, end_date = '2022-01-01', '2022-01-02'
         start_time, end_time = '10:00:00', '12:00:00'
         date_utc = {
-            "start_datetime_utc": "2022-01-01T15:00:00.000000Z",
-            "end_datetime_utc": "2022-01-02T17:00:00.000000Z"
+            "start_datetime_utc": "2022-01-01T04:30:00.000000Z",
+            "end_datetime_utc": "2022-01-02T06:30:00.000000Z"
         }
         result = self.cd.get_date_utc(start_date, end_date, start_time, end_time, self.service)
         self.assertEqual(date_utc, result)
@@ -56,12 +68,13 @@ class TestCalendarDate(unittest.TestCase):
         start_date, end_date = '2022-01-01', '2022-01-02'
         start_time, end_time = '10:00:00', '12:00:00'
         date_utc = {
-            "start_datetime_utc": "2022-01-01T15:00:00.000000Z",
-            "end_datetime_utc": "2022-01-02T17:00:00.000000Z",
+            "start_datetime_utc": "2022-01-01T04:30:00.000000Z",
+            "end_datetime_utc": "2022-01-02T06:30:00.000000Z",
             "timeZone": "Asia/Kolkata"
         }
         result = self.cd.create_event_dates(self.service, start_date, start_time, end_date, end_time)
         self.assertEqual(date_utc, result)
+
 
 if __name__ == '__main__':
     unittest.main()
