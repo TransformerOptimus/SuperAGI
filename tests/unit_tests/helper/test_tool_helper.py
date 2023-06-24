@@ -1,6 +1,8 @@
 import json
 import os
+import shutil
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 import pytest
 
@@ -8,9 +10,15 @@ from superagi.helper.tool_helper import (
     parse_github_url,
     load_module_from_file,
     extract_repo_name,
-    add_tool_to_json, get_readme_content_from_code_link
+    add_tool_to_json, get_readme_content_from_code_link, download_tool
 )
 
+def setup_function():
+    os.makedirs('target_folder', exist_ok=True)
+
+# Teardown function to remove the directory
+def teardown_function():
+    shutil.rmtree('target_folder')
 
 @pytest.fixture
 def mock_requests_get(monkeypatch):
@@ -68,3 +76,21 @@ def test_extract_repo_name():
     expected_result = 'repo'
     assert extract_repo_name(repo_link) == expected_result
 
+
+@patch('requests.get')
+@patch('zipfile.ZipFile')
+def test_download_tool(mock_zip, mock_get):
+    mock_response = Mock()
+    mock_response.content = b'file content'
+    mock_get.return_value = mock_response
+
+    # Mock zipfile to return a list of files
+    mock_zip.return_value.__enter__.return_value.namelist.return_value = ['owner-repo/somefile.txt']
+
+    download_tool('https://github.com/owner/repo', 'target_folder')
+
+    # Assert that the function made the correct HTTP request
+    mock_get.assert_called_once_with('https://api.github.com/repos/owner/repo/zipball/main')
+
+    # Assert zipfile was opened correctly
+    mock_zip.assert_called_once_with('target_folder/tool.zip', 'r')
