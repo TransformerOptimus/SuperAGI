@@ -18,6 +18,7 @@
 <!-- It's better if we elaborate -->
 
 ### Test Plan
+<!-- Describe how you tested this functionality. Include steps to reproduce, relevant test cases, and any other pertinent information. -->
 
 ### Type of change
 - [ ] Bug fix (non-breaking change which fixes an issue)
