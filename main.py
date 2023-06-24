@@ -393,7 +393,7 @@ async def root(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
         current_user_email = Authorize.get_jwt_subject()
-        current_user = session.query(User).filter(User.email == current_user_email).first()
+        current_user = db.session.query(User).filter(User.email == current_user_email).first()
         return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
