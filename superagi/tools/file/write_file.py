@@ -23,7 +23,9 @@ class WriteFileTool(BaseTool):
     Attributes:
         name : The name.
         description : The description.
+        agent_id: The agent id.
         args_schema : The args schema.
+        resource_manager: File resource manager.
     """
     name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput

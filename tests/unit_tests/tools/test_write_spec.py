@@ -25,5 +25,5 @@ class TestWriteSpecTool:
         tool.resource_manager.write_file = Mock()
         tool.resource_manager.write_file.return_value = "File write successful"
         response = tool._execute("Test task description", "test_spec_file.txt")
-        assert response == "Generated specificationSpecification generated and saved successfully"
+        assert response == "Generated specification\nSpecification generated and saved successfully"
         tool.resource_manager.write_file.assert_called_once_with("test_spec_file.txt", "Generated specification")

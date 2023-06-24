@@ -19,10 +19,12 @@ class AppendFileTool(BaseTool):
 
     Attributes:
         name : The name.
+        agent_id: The agent id.
         description : The description.
         args_schema : The args schema.
     """
     name: str = "Append File"
+    agent_id: int = None
     args_schema: Type[BaseModel] = AppendFileInput
     description: str = "Append text to a file"
 
@@ -37,7 +39,9 @@ class AppendFileTool(BaseTool):
         Returns:
             file written to successfully. or error message.
         """
-        final_path = ResourceHelper.get_resource_path(file_name)
+        final_path = ResourceHelper.get_root_output_dir() + file_name
+        if "{agent_id}" in final_path:
+            final_path = final_path.replace("{agent_id}", str(self.agent_id))
         try:
             directory = os.path.dirname(final_path)
             os.makedirs(directory, exist_ok=True)

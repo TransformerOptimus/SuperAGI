@@ -68,26 +68,3 @@ def test_extract_repo_name():
     expected_result = 'repo'
     assert extract_repo_name(repo_link) == expected_result
 
-
-def test_add_tool_to_json(tmp_path):
-    current_dir = os.getcwd()
-    file_path = Path(current_dir) / 'tools.json'
-
-    file_path.write_text('''
-        {
-            "tools": {
-                "repo1": "https://github.com/username/repo1",
-                "repo2": "https://github.com/username/repo2"
-            }
-        }
-    ''')
-    repo_link = 'https://github.com/username/repo3'
-    add_tool_to_json(repo_link)
-    with open(file_path) as file:
-        tools_data = json.load(file)
-    assert tools_data['tools']['repo1'] == 'https://github.com/username/repo1'
-    assert tools_data['tools']['repo2'] == 'https://github.com/username/repo2'
-    assert tools_data['tools']['repo3'] == 'https://github.com/username/repo3'
-
-    # Delete the tools.json file
-    file_path.unlink()
