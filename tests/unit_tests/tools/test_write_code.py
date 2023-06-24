@@ -1,7 +1,7 @@
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+
 import pytest
 
-from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.code.write_code import CodingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager

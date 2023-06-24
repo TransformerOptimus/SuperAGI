@@ -73,6 +73,11 @@ class WriteTestTool(BaseTool):
             spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
             if spec_response != "":
                 prompt = prompt.replace("{spec}", "Please generate unit tests based on the following specification description:\n" + spec_response)
+            else:
+                spec_response = self.tool_response_manager.get_last_response()
+                if spec_response != "":
+                    prompt = prompt.replace("{spec}",
+                                            "Please generate unit tests based on the following specification description:\n" + spec_response)
 
             messages = [{"role": "system", "content": prompt}]
             logger.info(prompt)
@@ -81,16 +86,27 @@ class WriteTestTool(BaseTool):
             token_limit = TokenCounter.token_limit(self.llm.get_model())
             result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
-            # Extract the code part using regular expression
-            code = re.search(r'(?<=```).*?(?=```)', result["content"], re.DOTALL)
-            if code:
-                code_content = code.group(0).strip()
-            else:
-                return "Unable to extract code from the response"
+            regex = r"(\S+?)\n```\S*\n(.+?)```"
+            matches = re.finditer(regex, result["content"], re.DOTALL)
+
+            file_names = []
+            # Save each file
+
+            for match in matches:
+                # Get the filename
+                file_name = re.sub(r'[<>"|?*]', "", match.group(1))
+                code = match.group(2)
+                if not file_name.strip():
+                    continue
+
+                file_names.append(file_name)
+                save_result = self.resource_manager.write_file(file_name, code)
+                if save_result.startswith("Error"):
+                    return save_result
 
             # Save the tests to a file
-            save_result = self.resource_manager.write_file(test_file_name, code_content)
-            if not save_result.startswith("Error"):
+            # save_result = self.resource_manager.write_file(test_file_name, code_content)
+            if not result["content"].startswith("Error"):
                 return result["content"] + " \n Tests generated and saved successfully in " + test_file_name
             else:
                 return save_result

@@ -1,8 +1,7 @@
-from unittest.mock import patch, Mock, MagicMock
-
-# from torch.testing._internal.distributed.rpc.jit.rpc_test import return_value
+from unittest.mock import patch, MagicMock
 
 from superagi.tools.email.send_email import SendEmailTool
+
 
 def mock_get_tool_config(key):
     configs = {
