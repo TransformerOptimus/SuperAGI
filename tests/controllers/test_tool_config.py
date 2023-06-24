@@ -138,10 +138,9 @@ def test_get_tool_config_success(mock_toolkits):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
+
         mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
-
         mock_db.session.query.return_value.filter_by.return_value = toolkit_1
-
         mock_db.session.query.return_value.filter.return_value.first.return_value = tool_config
 
         # Call the function
@@ -165,12 +164,34 @@ def test_get_tool_config_unauthorized(mock_toolkits):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
             patch('superagi.controllers.tool_config.db') as mock_db, \
             patch('superagi.helper.auth.db') as mock_auth_db:
+
         # Mock the toolkit filtering
         mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
 
-        # Call the function with an unauthorized toolkit
         response = client.get(f"/tool_configs/get/toolkit/{toolkit_2.name}/key/{tool_config.key}")
 
         # Assertions
         assert response.status_code == 403
         assert response.json() == {"detail": "Unauthorized"}
+
+
+def test_get_tool_config_not_found(mock_toolkits):
+    # Unpack the fixture data
+    user_organisation, user_toolkits, tool_config, toolkit_1, toolkit_2 = mock_toolkits
+
+    # Mock the database session and query functions
+    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
+            patch('superagi.controllers.tool_config.db') as mock_db, \
+            patch('superagi.helper.auth.db') as mock_auth_db:
+
+        # Mock the toolkit filtering
+        mock_db.session.query.return_value.filter.return_value.all.return_value = user_toolkits
+        mock_db.session.query.return_value.filter_by.return_value = toolkit_1
+        mock_db.session.query.return_value.filter.return_value.first.return_value = None
+
+        # Call the function with a non-existent toolkit
+        response = client.get(f"/tool_configs/get/toolkit/{toolkit_1.name}/key/{tool_config.key}")
+
+        # Assertions
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Tool configuration not found"}
