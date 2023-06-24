@@ -3,11 +3,9 @@ import json
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
-from superagi.models.tool import Tool
 
 marketplace_url = "https://app.superagi.com/api/"
 # marketplace_url = "http://localhost:8001/"
