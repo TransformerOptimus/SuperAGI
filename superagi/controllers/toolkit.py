@@ -203,6 +203,7 @@ def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...)
     # process_files(download_folder, db.session, organisation, code_link=github_link)
     add_tool_to_json(github_link)
 
+
 @router.get("/get/readme/{toolkit_name}")
 def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
     """
@@ -251,6 +252,7 @@ def handle_marketplace_operations(
 @router.get("/get/list")
 def handle_marketplace_operations_list(
         page: int = Query(None, title="Page Number"),
+        organisation: Organisation = Depends(get_user_organisation)
 ):
     """
     Handle marketplace operation list.
@@ -263,8 +265,10 @@ def handle_marketplace_operations_list(
 
     """
 
-    response = Toolkit.fetch_marketplace_list(page=page)
-    return response
+    marketplace_toolkits = Toolkit.fetch_marketplace_list(page=page)
+    marketplace_toolkits_with_install = Toolkit.get_toolkit_installed_details(db.session, marketplace_toolkits,
+                                                                              organisation)
+    return marketplace_toolkits_with_install
 
 
 @router.get("/get/local/list")

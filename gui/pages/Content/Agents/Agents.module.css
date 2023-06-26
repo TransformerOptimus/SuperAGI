@@ -92,6 +92,7 @@
     display: flex;
     align-items: center;
     color: white;
+    margin-bottom: 25px;
 }
 
 .tool_text {
@@ -114,6 +115,7 @@
 .detail_body {
     width: 100%;
     padding-right: 10px;
+    margin-bottom: 20px;
 }
 
 .detail_content {
@@ -169,7 +171,9 @@
     line-height: 15px;
     color: #FFFFFF;
     border-radius: 8px;
-    padding: 8px 10px 8px 5px;
+    padding: 7px 10px 8px 5px;
+    height: 31px;
+    margin-right: 7px;
 }
 
 .run_button:hover {
@@ -356,5 +360,24 @@
     font-size: 12px;
     line-height: 14px;
     color: #FFFFFF;
-    margin-top: 2px;
+}
+
+.notification_circle
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: fit-content;
+    padding: 2px 5px;
+    height: fit-content;
+    background: #DC6161;
+    border-radius: 16px;
+
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 12px;
+    color: #FFFFFF;
 }
