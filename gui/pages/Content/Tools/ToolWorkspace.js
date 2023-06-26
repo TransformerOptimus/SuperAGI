@@ -31,23 +31,12 @@ export default function ToolWorkspace({toolDetails}){
       const signature = new Uint8Array(await crypto.subtle.sign({name: 'HMAC', hash: 'SHA-1'},))
     }
 
-    // function getTwitterToken(api_data){
-    //   // console.log(client_data)
-    //   // const client_id = client_data.clien_id
-    //   // const scope = "tweet.read%20tweet.write%20users.read%20offline.access";
-    //   // const redirect_uri = "http://localhost:3000/api/oauth-twitter";
-    //   // window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&state=state&code_challenge=challenge&code_challenge_method=plain`;
-    //   const api_key = encodeURIComponent(api_data.api_key);
-    //   const api_secret = encodeURIComponent(api_data.api_secret);
-    //   const callback_url = encodeURIComponent("http://localhost:3000/api/oauth-twitter");
-    //   const authUrl = "https://api.twitter.com/oauth/request_token";
-    //   const oauthTimeStamp = Math.floor(Date.now()/1000);
-    //   const oauthNonce = encodeURIComponent(((Math.random() * (1 << 30)) | 0).toString(36));
-    //   const paramString = 'oauth_callback='+callback_url+'&oauth_consumer_key='+api_key+'&oauth_nonce='+oauthNonce+'&oauth_signature_method=HMAC-SHA1'+'&oauth_timestamp='+oauthTimeStamp+'&oauth_version=1.0';
-    //   const baseString = method + '&' + encodeURIComponent(authUrl) + '&' + encodeURIComponent(paramString);
-    //   const signingKey = api_secret + '&';
-    //   const oauth_signature = getSignature(baseString, signingKey)
-    // }
+    function getTwitterToken(oauth_data){
+      const oauth_token = oauth_data.oauth_token
+      const oauth_token_secret = oauth_data.oauth_token_secret
+      const authUrl = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`
+      window.location.href = authUrl
+    }
 
     useEffect(() => {
       if(toolDetails !== null) {

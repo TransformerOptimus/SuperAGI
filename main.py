@@ -16,6 +16,8 @@ from sqlalchemy.orm import sessionmaker
 
 import pickle
 import superagi
+import urllib.parse
+import http.client as http_client
 from superagi.helper.twitter_request_token import TwitterRequestToken
 from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
@@ -316,28 +318,17 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     return RedirectResponse(frontend_url)
 
 @app.get('/oauth-twitter')
-async def twitter_oauth(code: str = Query(...), Authorize: AuthJWT = Depends()):
-    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_CLIENT_ID").first()
-    client_id = client_id.value
-    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_CLIENT_SECRET").first()
-    client_secret = client_secret.value
-    token_uri = "https://api.twitter.com/2/oauth2/token"
-    creds = f"{client_id}:{client_secret}"
-    encoded_creds = base64.b64encode(creds.encode("utf-8")).decode("utf-8")
-    params = {
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "redirect_uri": "http://localhost:3000/api/oauth-twitter",
-        "grant_type": "authorization_code",
-        "code": code,
-        "code_verifier": "challenge"
-    }
-    headers = {
-        'Authorization': f"Basic {encoded_creds}",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    response = requests.post(token_uri,data=params,headers=headers)
-    response = response.json()
+async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Query(...), Authorize: AuthJWT = Depends()):
+    token_uri = f'https://api.twitter.com/oauth/access_token?oauth_verifier={oauth_verifier}&oauth_token={oauth_token}'
+    conn = http_client.HTTPSConnection("api.twitter.com")
+    conn.request("POST", token_uri, "")
+    res = conn.getresponse()
+    response_data = res.read().decode('utf-8')
+    conn.close()
+    response = dict(urllib.parse.parse_qsl(response_data))
+    print("///////////////////")
+    print(response)
+    print(type(response))
     root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
     file_name = "twitter_credentials.pickle"
     final_path = file_name
