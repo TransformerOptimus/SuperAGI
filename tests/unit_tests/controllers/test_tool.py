@@ -72,7 +72,7 @@ def test_get_tools_success(mocks):
                                                                                   [tool_3]]
 
         # Call the function
-        response = client.get("/tools/get")
+        response = client.get("/tools/list")
 
         # Assertions
         assert response.status_code == 200

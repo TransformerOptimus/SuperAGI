@@ -68,7 +68,7 @@ def get_tool(
     return db_tool
 
 
-@router.get("/get")
+@router.get("/list")
 def get_tools(
         organisation: Organisation = Depends(get_user_organisation)):
     """Get all tools"""
