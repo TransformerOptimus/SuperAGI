@@ -344,7 +344,7 @@ input[type="range"]::-moz-range-track {
     align-items: center;
     cursor: pointer;
     border: 1px solid #4A4A55;
-    height: 32px;
+    height: fit-content;
     border-radius: 8px;
     font-size: 12px;
     width: 221px;
@@ -446,6 +446,22 @@ input[type="range"]::-moz-range-track {
 .dropdown_container_search {
     display: inline-block;
     position: relative;
+}
+
+.dropdown_search_text
+{
+    background: transparent;
+    flex-grow: 1;
+    margin: 2px 0 0 4px;
+    border: none;
+    color: white;
+    outline: none;
+
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    transition: 0.4s ease-in-out;
 }
 
 p {
