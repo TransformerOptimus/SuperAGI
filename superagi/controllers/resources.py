@@ -1,26 +1,22 @@
-from fastapi_sqlalchemy import DBSessionMiddleware, db
-from fastapi import HTTPException, Depends, Request
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
-from superagi.models.budget import Budget
-from fastapi import APIRouter, UploadFile
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-import os
-from fastapi import FastAPI, File, Form, UploadFile
-from typing import Annotated
-from superagi.models.resource import Resource
-from superagi.config.config import get_config
-from superagi.models.agent import Agent
-from starlette.responses import FileResponse
-from pathlib import Path
-from fastapi.responses import StreamingResponse
-from superagi.helper.auth import check_auth
-import boto3
 import datetime
+import os
+from pathlib import Path
+
+import boto3
 from botocore.exceptions import NoCredentialsError
-import tempfile
-import requests
+from fastapi import APIRouter
+from fastapi import File, Form, UploadFile
+from fastapi import HTTPException, Depends
+from fastapi.responses import StreamingResponse
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+
+from superagi.config.config import get_config
+from superagi.helper.auth import check_auth
+from superagi.helper.resource_helper import ResourceHelper
 from superagi.lib.logger import logger
+from superagi.models.agent import Agent
+from superagi.models.resource import Resource
 
 router = APIRouter()
 
@@ -64,7 +60,9 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
 
     storage_type = get_config("STORAGE_TYPE")
     Resource.validate_resource_type(storage_type)
-    save_directory = get_config("RESOURCES_INPUT_ROOT_DIR")
+    save_directory = ResourceHelper.get_root_input_dir() + "/"
+    if "{agent_id}" in save_directory:
+        save_directory = save_directory.replace("{agent_id}", str(agent_id))
     path = ""
     os.makedirs(save_directory, exist_ok=True)
     file_path = os.path.join(save_directory, file.filename)

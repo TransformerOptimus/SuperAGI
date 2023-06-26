@@ -5,6 +5,7 @@ from fastapi_sqlalchemy import db
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 from superagi.helper.auth import check_auth
+from superagi.helper.tool_helper import register_toolkits
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
@@ -38,6 +39,7 @@ def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclu
     db.session.add(new_organisation)
     db.session.commit()
     db.session.flush()
+    register_toolkits(session=db.session, organisation=new_organisation)
     logger.info(new_organisation)
 
     return new_organisation
@@ -97,7 +99,7 @@ def update_organisation(organisation_id: int, organisation: sqlalchemy_to_pydant
 @router.get("/get/user/{user_id}", response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
 def get_organisations_by_user(user_id: int):
     """
-    Get organisations associated with a user.
+    Get organisations associated with a user.If Organisation does not exists a new organisation is created
 
     Args:
         user_id: ID of the user.
