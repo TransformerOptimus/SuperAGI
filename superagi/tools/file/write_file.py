@@ -44,5 +44,5 @@ class WriteFileTool(BaseTool):
         Returns:
             file written to successfully. or error message.
         """
-        self.resource_manager.write_file(file_name, content)
+        return self.resource_manager.write_file(file_name, content)
 

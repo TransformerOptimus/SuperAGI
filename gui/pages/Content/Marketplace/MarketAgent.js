@@ -4,6 +4,7 @@ import styles from './Market.module.css';
 import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {loadingTextEffect} from "@/utils/utils";
+import axios from 'axios';
 
 export default function MarketAgent(){
     const [agentTemplates, setAgentTemplates] = useState([])
@@ -15,18 +16,27 @@ export default function MarketAgent(){
       loadingTextEffect('Loading Templates', setLoadingText, 500);
 
       if(window.location.href.toLowerCase().includes('marketplace')) {
-          setShowMarketplace(true)
-      }
-
-      fetchAgentTemplateList()
-        .then((response) => {
+          setShowMarketplace(true);
+          axios.get('https://app.superagi.com/api/agent_templates/marketplace/list')
+            .then((response) => {
+              const data = response.data || [];
+              setAgentTemplates(data);
+              setIsLoading(false);
+            })
+            .catch((error) => {
+              console.error('Error fetching agent templates:', error);
+            });
+      } else {
+        fetchAgentTemplateList()
+          .then((response) => {
             const data = response.data || [];
             setAgentTemplates(data);
             setIsLoading(false);
-        })
-        .catch((error) => {
+          })
+          .catch((error) => {
             console.error('Error fetching agent templates:', error);
-        });
+          });
+      }
     }, []);
 
     function handleTemplateClick(item) {
@@ -34,7 +44,7 @@ export default function MarketAgent(){
     }
 
     return (
-        <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
+        <div style={showMarketplace ? { marginLeft:'8px' } : { marginLeft:'3px' }}>
            <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
              {!isLoading ? <div className={styles.resources}>
                 {agentTemplates.map((item, index) => (

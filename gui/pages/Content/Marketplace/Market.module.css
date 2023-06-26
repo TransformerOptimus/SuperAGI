@@ -378,7 +378,7 @@
     width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
-    margin: 4px 0 4px 0;
+    /*margin: 4px 0 4px 0;*/
 }
 
 .tool_description {

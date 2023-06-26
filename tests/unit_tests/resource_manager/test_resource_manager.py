@@ -33,5 +33,5 @@ def test_write_file(resource_manager):
             patch.object(S3Helper, 'upload_file'), \
             patch.object(logger, 'info') as logger_mock:
         result = resource_manager.write_file('test.txt', 'content')
-        assert result == "test.txt saved successfully"
-        logger_mock.assert_called_once_with("test.txt saved successfully")
+        assert result == "test.txt - File written successfully"
+        logger_mock.assert_called_once_with("test.txt - File written successfully")

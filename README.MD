@@ -73,9 +73,11 @@
 <hr>
 
 
-## 📽 Installation Video
-[Installation Video](https://github.com/Akki-jain/SuperAGI/assets/92881074/d217f5de-f218-4b3c-9fe4-8f6c6718c86d)
+## 📽 Demo Video Showcasing SuperCoder
 
+[Demo Video](https://github.com/Akki-jain/test/assets/92881074/bb18407a-b6b2-4a9f-9419-ec73ffacd2f8)
+
+This video demonstrates how SuperCoder can be used to create simple applications like a personal finance calculator.
 
 <p align="center">
 <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/iSPHZ1onQ44">Learn here</a>
@@ -169,7 +171,7 @@
 |Keys|Accessing the keys|
 |--|--|
 |**OpenAI API Key**| Sign up and create an API key at [OpenAI Developer](https://beta.openai.com/signup/)|
-|**Google API key**| Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: Google Custom Search JSON API). Then, create an API key in the "Credentials" section.|
+|**Google API key**| Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: [Google Custom Search JSON API](https://developers.google.com/custom-search/v1/introduction)).|
 |**Custom search engine ID**| Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.|
 
 4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 

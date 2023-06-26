@@ -1,19 +1,14 @@
 from typing import Type, Optional, List
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
-from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-import os
 
+from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
+from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
-from superagi.lib.logger import logger
-from superagi.models.db import connect_db
-from superagi.helper.resource_helper import ResourceHelper
-from superagi.helper.s3_helper import S3Helper
-from sqlalchemy.orm import sessionmaker
 
 
 class WriteSpecSchema(BaseModel):
@@ -64,19 +59,7 @@ class WriteSpecTool(BaseTool):
             Generated specification or error message.
         """
         try:
-            prompt = """You are a super smart developer who has been asked to make a specification for a program.
-        
-            Your high-level goal is:
-            {goals}
-        
-            Please keep in mind the following when creating the specification:
-            1. Be super explicit about what the program should do, which features it should have, and give details about anything that might be unclear.
-            2. Lay out the names of the core classes, functions, methods that will be necessary, as well as a quick comment on their purpose.
-            3. List all non-standard dependencies that will have to be used.
-        
-            Write a specification for the following task:
-            {task}
-            """
+            prompt = PromptReader.read_tools_prompt(__file__, "write_spec.txt")
             prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
             prompt = prompt.replace("{task}", task_description)
             messages = [{"role": "system", "content": prompt}]
