@@ -53,7 +53,7 @@ class ResourceManager:
                 file.write(content)
                 file.close()
             self.write_to_s3(file_name, final_path)
-            logger.info(f"{file_name} saved successfully")
-            return f"{file_name} saved successfully"
+            logger.info(f"{file_name} - File written successfully")
+            return f"{file_name} - File written successfully"
         except Exception as err:
             return f"Error: {err}"
