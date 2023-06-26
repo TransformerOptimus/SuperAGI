@@ -86,7 +86,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                         </div>
                     </div>}
                 </div>
-            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={toolkits} template={sendTemplate} />}
+            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
         </div>
     )
 };

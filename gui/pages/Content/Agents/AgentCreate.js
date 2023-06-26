@@ -7,7 +7,7 @@ import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploa
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId,template}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId,template}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -67,13 +67,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
-  const [myTools, setMyTools] = useState([]);
+  const [selectedTools, setSelectedTools] = useState([]);
   const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
-  const toolRef = useRef(null);
-  const [toolDropdown, setToolDropdown] = useState(false);
+  const toolkitRef = useRef(null);
+  const [toolkitDropdown, setToolkitDropdown] = useState(false);
   const [toolkitIdForTemplate, setToolkitIdForTemplate] = useState([]);
 
-  const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -88,10 +88,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [organisationId]);
 
   const filterToolsByNames = () => {
-    if(tools) {
-      const filteredTools = tools.filter((tool) => toolNames.includes(tool.name));
+    if(toolkits) {
+      const filteredTools = toolkits.filter((tool) => toolNames.includes(tool.name));
       const toolIds = filteredTools.map((tool) => tool.id);
-      setMyTools(toolIds);
+      setSelectedTools(toolIds);
     }
   };
 
@@ -123,10 +123,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setDatabase(data.LTM_DB)
             setModel(data.model)
             data.tools.forEach((item) => {
-              tools.forEach((tool) => {
-                tool.tools.forEach((name) => {
-                  if (name.name === item) {
-                    setToolkitIdForTemplate((prevArray) => [...prevArray, name.id]);
+              toolkits.forEach((toolkit) => {
+                toolkit.tools.forEach((tool) => {
+                  if (tool.name === item) {
+                    setToolkitIdForTemplate((prevArray) => [...prevArray, tool.id]);
                   }
                 });
               });
@@ -165,8 +165,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setPermissionDropdown(false)
       }
 
-      if (toolRef.current && !toolRef.current.contains(event.target)) {
-        setToolDropdown(false)
+      if (toolkitRef.current && !toolkitRef.current.contains(event.target)) {
+        setToolkitDropdown(false)
       }
     }
 
@@ -177,14 +177,14 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, []);
 
   const addTool = (tool) => {
-    if (!myTools.includes(tool.id)) {
-      setMyTools((prevArray) => [...prevArray, tool.id]); //storing toolkit id
-      setToolNames((prevArray) => [...prevArray, tool.name]); //storing toolkit name
+    if (!selectedTools.includes(tool.id)) {
+      setSelectedTools((prevArray) => [...prevArray, tool.id]);
+      setToolNames((prevArray) => [...prevArray, tool.name]);
     }
   };
   
   const removeTool = (indexToDelete) => {
-    setMyTools((prevArray) => {
+    setSelectedTools((prevArray) => {
       const newArray = [...prevArray];
       newArray.splice(indexToDelete, 1);
       return newArray;
@@ -342,7 +342,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return;
     }
 
-    if (myTools.length <= 0 && toolkitIdForTemplate.length <= 0) {
+    if (selectedTools.length <= 0 && toolkitIdForTemplate.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
@@ -363,7 +363,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "toolkits": myTools,
+      "toolkits": selectedTools,
       "tools": toolkitIdForTemplate,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
@@ -543,19 +543,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Tools</label>
             <div className="dropdown_container_search" style={{width:'100%'}}>
-              <div className="custom_select_container" onClick={() => setToolDropdown(!toolDropdown)} style={{width:'100%'}}>
+              <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)} style={{width:'100%'}}>
                 {toolNames && toolNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
                   {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
                     <div className={styles.tool_text}>{tool}</div>
                     <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                   </div>))}
                 </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                <Image width={20} height={21} src={!toolkitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
               </div>
               <div>
-                {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
-                  {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && !excludedTools.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
+                {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
+                  {toolkits && toolkits.map((tool, index) => (<div key={index}>
+                    {tool.name !== null && !excludedToolkits.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
                           style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
                     </div>}
