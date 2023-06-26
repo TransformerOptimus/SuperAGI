@@ -126,7 +126,7 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
 
 
 @router.get("/get/toolkit/{toolkit_name}/key/{key}", status_code=200)
-def get_tool_config(toolkit: str, key: str, organisation: Organisation = Depends(get_user_organisation)):
+def get_tool_config(toolkit_name: str, key: str, organisation: Organisation = Depends(get_user_organisation)):
     """
     Get a specific tool configuration by tool kit name and key.
 
@@ -145,7 +145,7 @@ def get_tool_config(toolkit: str, key: str, organisation: Organisation = Depends
 
     user_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
 
-    toolkit = db.session.query(Toolkit).filter_by(name=toolkit)
+    toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name)
     if toolkit not in user_toolkits:
         raise HTTPException(status_code=403, detail='Unauthorized')
 
