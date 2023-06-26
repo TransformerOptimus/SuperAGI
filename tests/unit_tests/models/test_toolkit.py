@@ -183,7 +183,7 @@ def test_get_toolkit_from_name_nonexistent_toolkit(mock_session):
     mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name)
     mock_session.query.return_value.filter_by.return_value.first.assert_called_once()
 
-def test_get_marketplace_toolkits_with_install(mock_session):
+def test_get_toolkit_installed_details(mock_session):
     # Arrange
     marketplace_toolkits = [
         {"name": "Toolkit 1"},
@@ -199,7 +199,7 @@ def test_get_marketplace_toolkits_with_install(mock_session):
     mock_session.query.return_value.filter.return_value.all.return_value = installed_toolkits
 
     # Act
-    result = Toolkit.get_marketplace_toolkits_with_install(mock_session, marketplace_toolkits, organisation)
+    result = Toolkit.get_toolkit_installed_details(mock_session, marketplace_toolkits, organisation)
 
     # Assert
     assert len(result) == 3

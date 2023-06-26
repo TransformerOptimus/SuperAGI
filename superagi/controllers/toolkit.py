@@ -266,8 +266,8 @@ def handle_marketplace_operations_list(
     """
 
     marketplace_toolkits = Toolkit.fetch_marketplace_list(page=page)
-    marketplace_toolkits_with_install = Toolkit.get_marketplace_toolkits_with_install(db.session,marketplace_toolkits,
-                                                                                      organisation)
+    marketplace_toolkits_with_install = Toolkit.get_toolkit_installed_details(db.session, marketplace_toolkits,
+                                                                              organisation)
     return marketplace_toolkits_with_install
 
 

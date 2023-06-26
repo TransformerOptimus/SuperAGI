@@ -115,7 +115,7 @@ class Toolkit(DBBaseModel):
         return None
 
     @classmethod
-    def get_marketplace_toolkits_with_install(cls,session,marketplace_toolkits, organisation):
+    def get_toolkit_installed_details(cls, session, marketplace_toolkits, organisation):
         installed_toolkits = session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
         for toolkit in marketplace_toolkits:
             if toolkit['name'] in [installed_toolkit.name for installed_toolkit in installed_toolkits]:
