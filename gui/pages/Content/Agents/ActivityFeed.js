@@ -53,15 +53,16 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        const data = response.data;
-        setFeeds(data.feeds);
-        setRunStatus(data.status);
-        setFetchedData(data.permissions);
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
+        .then((response) => {
+          const data = response.data;
+          setFeeds(data.feeds);
+          setRunStatus(data.status);
+          console.log(data.permissions)
+          setFetchedData(data.permissions);
+        })
+        .catch((error) => {
+          console.error('Error fetching execution feeds:', error);
+        });
   }
 
   useEffect(() => {
@@ -121,9 +122,9 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         </div>}
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
-        <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
-        <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
-      </div>}
+          <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
+            <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
+          </div>}
     </div>
   </>)
 }
