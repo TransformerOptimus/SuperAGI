@@ -89,9 +89,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const filterToolsByNames = () => {
     if(toolkitList) {
-      const filteredTools = toolkitList.filter((tool) => toolNames.includes(tool.name));
-      const toolIds = filteredTools.map((tool) => tool.id);
-      setSelectedTools(toolIds);
+      const selectedToolIds = toolkits
+        .flatMap(toolkit => toolkit.tools)
+        .filter(tool => toolNames.includes(tool.name))
+        .map(tool => tool.id);
+
+      setSelectedTools(selectedToolIds);
     }
   };
 
