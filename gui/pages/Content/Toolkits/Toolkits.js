@@ -4,16 +4,8 @@ import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function Tools({ sendToolData, tools }) {
-  const [filterSelected, setFilter] = useState('all');
-  const [toolsArray, setTools] = useState(tools);
-  const excludedTools = ["Thinking Toolkit", "Human Input Toolkit"];
-  
-  const handleFilter = (value) => {
-    setFilter(value);
-    const filteredTools = value === 'custom' ? toolsArray.filter(tool => tool.type === 'custom') : toolsArray;
-    setTools(filteredTools);
-  };
+export default function Toolkits({ sendToolkitData, toolkits }) {
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
 
   return (
     <>
@@ -21,32 +13,17 @@ export default function Tools({ sendToolData, tools }) {
         <div className={styles1.title_box}>
           <p className={styles1.title_text}>Toolkits</p>
         </div>
-
-        {/* <div className={styles.wrapper} style={{ marginBottom: '10px', marginTop: '4px' }}>
-          <button style={{ width: '100%' }} className="secondary_button" onClick={() => sendToolData({ id: -2, name: 'new tool', contentType: 'Create_Tool' })}>
-            + Create Tool
-          </button>
-        </div> */}
       </div>
 
       <div className="row" style={{ padding: '10px' }}>
         <div className="col-12" style={{ overflowY: 'scroll', height: '84vh' }}>
-          {toolsArray && toolsArray.length > 0 ? (
+          {toolkits && toolkits.length > 0 ? (
             <div>
-              {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', marginBottom: '10px' }}>
-                <button onClick={() => handleFilter('all')} className={styles.tab_button} style={filterSelected === 'all' ? { background: '#454254' } : { background: 'transparent' }}>
-                  All
-                </button>
-                <button onClick={() => handleFilter('custom')} className={styles.tab_button} style={filterSelected === 'custom' ? { background: '#454254' } : { background: 'transparent' }}>
-                  Custom
-                </button>
-              </div> */}
-
               <div className={styles.tool_container}>
-                {toolsArray.map((tool) => (
+                {toolkits.map((tool) => (
                   <div key={tool.id} style={{ width: '100%' }}>
-                    {tool.name !== null && !excludedTools.includes(tool.name) && (
-                      <div className={styles.tool_box} onClick={() => sendToolData(tool)}>
+                    {tool.name !== null && !excludedToolkits.includes(tool.name) && (
+                      <div className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
                         <div className="row">
                           <div className="col-12">
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
@@ -71,7 +48,7 @@ export default function Tools({ sendToolData, tools }) {
             <div style={{
               marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
             }} className="form_label">
-              No Tools found
+              No Toolkits found
             </div>
           )}
         </div>

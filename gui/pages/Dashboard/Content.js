@@ -1,9 +1,8 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import ToolWorkspace from '../Content/Tools/ToolWorkspace';
-import Tools from '../Content/Tools/Tools';
-import ToolCreate from '../Content/Tools/ToolCreate';
+import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
+import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
@@ -17,9 +16,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [source, setSource] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
-  const [tools, setTools] = useState(null);
+  const [toolkits, setToolkits] = useState(null);
   const tabContainerRef = useRef(null);
-  const [toolDetails, setToolDetails] = useState({})
+  const [toolkitDetails, setToolkitDetails] = useState({})
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -40,9 +39,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       .then((response) => {
         const data = response.data || [];
         const updatedData = data.map(item => {
-          return { ...item, contentType: "Tools" };
+          return { ...item, contentType: "Toolkits" };
         });
-        setTools(updatedData);
+        setToolkits(updatedData);
       })
       .catch((error) => {
         console.error('Error fetching toolkits:', error);
@@ -84,8 +83,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   const addTab = (element) => {
     let addedTabIndex = null;
-    if(element.contentType === "Tools") {
-      setToolDetails(element);
+    if(element.contentType === "Toolkits") {
+      setToolkitDetails(element);
     }
 
     const isExistingTab = tabs.some(
@@ -107,8 +106,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   const selectTab = (element, index) => {
     setSelectedTab(index);
-    if(element.contentType === "Tools") {
-      setToolDetails(element);
+    if(element.contentType === "Toolkits") {
+      setToolkitDetails(element);
     }
   };
 
@@ -165,7 +164,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-        {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools}/></div>}
+        {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
       </div>
 
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -187,7 +186,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {selectTab(tab, index)}}>
                 <div style={{display:'flex', order:'0'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
-                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
+                  {(tab.contentType === 'ToolKits' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
@@ -203,18 +202,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               <div key={index}>
                 {selectedTab === index && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
-                  {tab.contentType === 'Tools' && <ToolWorkspace toolDetails={toolDetails}/>}
+                  {tab.contentType === 'Toolkits' && <ToolkitWorkspace toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Settings' && <Settings/>}
-                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} tools={tools} selectedView={selectedView}/>}
-                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>}
-                  {tab.contentType === 'Create_Tool' &&
-                    <div className="row">
-                      <div className="col-3"></div>
-                      <div className="col-6" style={{overflowY:'scroll'}}>
-                        <ToolCreate/>
-                      </div>
-                      <div className="col-3"></div>
-                    </div>}
+                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
+                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
             ))}

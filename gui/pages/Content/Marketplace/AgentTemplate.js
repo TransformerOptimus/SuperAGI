@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Image from "next/image";
-import styles from '../Tools/Tool.module.css';
+import styles from '.././Toolkits/Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -118,7 +118,7 @@ export default function AgentTemplate({template}) {
                       {/*                &nbsp;Overview*/}
                       {/*            </button>*/}
                       {/*            <button onClick={() => setRightPanel('tool_view')} className={styles2.tab_button} style={rightPanel === 'tool_view' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
-                      {/*                &nbsp;Tools Included*/}
+                      {/*                &nbsp;Toolkits Included*/}
                       {/*            </button>*/}
                       {/*        </div>*/}
                       {/*    </div>*/}

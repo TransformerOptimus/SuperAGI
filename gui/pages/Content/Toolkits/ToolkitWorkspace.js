@@ -5,8 +5,8 @@ import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/a
 import styles from './Tool.module.css';
 import {EventBus} from "@/utils/eventBus";
 
-export default function ToolWorkspace({toolDetails}){
-    const [activeTab,setActiveTab] = useState('Configuration')
+export default function ToolkitWorkspace({toolkitDetails}){
+    const [activeTab,setActiveTab] = useState('configuration')
     const [showDescription,setShowDescription] = useState(false)
     const [apiConfigs, setApiConfigs] = useState([]);
     const [toolsIncluded, setToolsIncluded] = useState([]);
@@ -26,12 +26,12 @@ export default function ToolWorkspace({toolDetails}){
     }
     
     useEffect(() => {
-      if(toolDetails !== null) {
-        if (toolDetails.tools) {
-          setToolsIncluded(toolDetails.tools);
+      if(toolkitDetails !== null) {
+        if (toolkitDetails.tools) {
+          setToolsIncluded(toolkitDetails.tools);
         }
 
-        getToolConfig(toolDetails.name)
+        getToolConfig(toolkitDetails.name)
           .then((response) => {
             const apiConfigs = response.data || [];
             setApiConfigs(apiConfigs);
@@ -43,7 +43,7 @@ export default function ToolWorkspace({toolDetails}){
             setLoading(false);
           });
       }
-    }, [toolDetails]);
+    }, [toolkitDetails]);
 
     const handleUpdateChanges = async () => {
       const updatedConfigData = apiConfigs.map((config) => ({
@@ -51,7 +51,7 @@ export default function ToolWorkspace({toolDetails}){
         value: config.value,
       }));
       
-      updateToolConfig(toolDetails.name, updatedConfigData)
+      updateToolConfig(toolkitDetails.name, updatedConfigData)
         .then((response) => {
             toast.success('Toolkit configuration updated', {autoClose: 1800});
         })
@@ -62,7 +62,7 @@ export default function ToolWorkspace({toolDetails}){
     };
 
     const handleAuthenticateClick = async () => {
-      authenticateGoogleCred(toolDetails.id)
+      authenticateGoogleCred(toolkitDetails.id)
         .then((response) => {
           getToken(response.data);
         })
@@ -79,10 +79,10 @@ export default function ToolWorkspace({toolDetails}){
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
-                <div style={{fontSize:'17px',marginTop:'-3px'}}>{toolDetails.name}</div>
+                <div style={{fontSize:'17px',marginTop:'-3px'}}>{toolkitDetails.name}</div>
                 <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
-                  {`${showDescription ? toolDetails.description : toolDetails.description.slice(0, 80)}`}
-                  {toolDetails.description.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                  {`${showDescription ? toolkitDetails.description : toolkitDetails.description.slice(0, 80)}`}
+                  {toolkitDetails.description.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
                       {showDescription ? '...less' : '...more'}
                   </span>}
                 </div>
@@ -90,14 +90,14 @@ export default function ToolWorkspace({toolDetails}){
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center',marginBottom:'20px' }}>
-            <div className={styles.tool1_box} onClick={() => setActiveTab('Configuration')} style={activeTab === 'Configuration' ? { background: '#454254'} : { background: 'transparent'}}>
+            <div className={styles.tool1_box} onClick={() => setActiveTab('configuration')} style={activeTab === 'configuration' ? { background: '#454254'} : { background: 'transparent'}}>
               <div className={styles.tab_text}>Configuration</div>
             </div>
-            <div className={styles.tool1_box} onClick={() => setActiveTab('Tools_Included')} style={activeTab === 'Tools_Included' ? { background: '#454254' } : { background: 'transparent' }}>
+            <div className={styles.tool1_box} onClick={() => setActiveTab('tools_included')} style={activeTab === 'tools_included' ? { background: '#454254' } : { background: 'transparent' }}>
               <div className={styles.tab_text}>Tools Included</div>
             </div>
           </div>
-          {!loading && activeTab === 'Configuration' && <div>
+          {!loading && activeTab === 'configuration' && <div>
           {apiConfigs.length > 0 ? (apiConfigs.map((config, index) => (
               <div key={index}>
                 <div style={{ color: '#888888', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
@@ -115,14 +115,14 @@ export default function ToolWorkspace({toolDetails}){
           {apiConfigs.length > 0 && (
             <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
               <div>
-                {toolDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
+                {toolkitDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
               </div>
             </div>)}
           </div>}
-          {activeTab === 'Tools_Included' && <div>
+          {activeTab === 'tools_included' && <div>
             {toolsIncluded.map((tool, index) => (
               <div key={index} className={styles.tools_included}>
                 <div>

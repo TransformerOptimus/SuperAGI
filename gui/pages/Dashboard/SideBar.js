@@ -20,7 +20,7 @@ export default function SideBar({onSelectEvent}) {
         </div>
       </div>
       <div className={styles.selection_section}>
-        <div onClick={() => handleClick(sectionSelected !== 'tools' ? 'tools' : '')} className={`${styles.section} ${sectionSelected === 'tools' ? styles.selected : ''}`}>
+        <div onClick={() => handleClick(sectionSelected !== 'toolkits' ? 'toolkits' : '')} className={`${styles.section} ${sectionSelected === 'toolkits' ? styles.selected : ''}`}>
           <div className={styles.button_icon}><Image width={17} height={17} src="/images/tools_light.svg" alt="tools-icon"/></div>
           <div>Toolkits</div>
         </div>
