@@ -70,7 +70,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [selectedTools, setSelectedTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
+  const [toolNames, setToolNames] = useState(['SearxSearch', 'Read File', 'Write File']);
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
