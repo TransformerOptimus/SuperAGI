@@ -6,7 +6,8 @@ from fastapi import HTTPException, Depends, Query
 from fastapi_sqlalchemy import db
 from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
-from superagi.helper.tool_helper import get_readme_content_from_code_link, download_tool,process_files,add_tool_to_json
+from superagi.helper.tool_helper import get_readme_content_from_code_link, download_tool, process_files, \
+    add_tool_to_json
 from superagi.helper.github_helper import GithubHelper
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
@@ -20,7 +21,7 @@ router = APIRouter()
 # marketplace_url = "http://localhost:8001/"
 
 
-#For internal use
+# For internal use
 @router.get("/marketplace/list/{page}")
 def get_marketplace_toolkits(
         page: int = 0,
@@ -51,7 +52,8 @@ def get_marketplace_toolkits(
 
     return toolkits
 
-#For internal use
+
+# For internal use
 @router.get("/marketplace/details/{toolkit_name}")
 def get_marketplace_toolkit_detail(toolkit_name: str):
     """
@@ -66,10 +68,12 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation_id, Toolkit.name == toolkit_name).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation_id,
+                                               Toolkit.name == toolkit_name).first()
     return toolkit
 
-#For internal use
+
+# For internal use
 @router.get("/marketplace/readme/{toolkit_name}")
 def get_marketplace_toolkit_readme(toolkit_name: str):
     """
@@ -93,7 +97,8 @@ def get_marketplace_toolkit_readme(toolkit_name: str):
         raise HTTPException(status_code=404, detail='ToolKit not found')
     return get_readme_content_from_code_link(toolkit.tool_code_link)
 
-#For internal use
+
+# For internal use
 @router.get("/marketplace/tools/{toolkit_name}")
 def get_marketplace_toolkit_tools(toolkit_name: str):
     """
@@ -111,7 +116,8 @@ def get_marketplace_toolkit_tools(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name, Toolkit.organisation_id == organisation_id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
+                                               Toolkit.organisation_id == organisation_id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
     tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).first()
@@ -203,6 +209,7 @@ def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...)
     # process_files(download_folder, db.session, organisation, code_link=github_link)
     add_tool_to_json(github_link)
 
+
 @router.get("/get/readme/{toolkit_name}")
 def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
     """
@@ -226,6 +233,7 @@ def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation =
         raise HTTPException(status_code=404, detail='ToolKit not found')
     readme_content = get_readme_content_from_code_link(toolkit.tool_code_link)
     return readme_content
+
 
 # Following APIs will be used to get marketplace related information
 @router.get("/get")
@@ -251,6 +259,7 @@ def handle_marketplace_operations(
 @router.get("/get/list")
 def handle_marketplace_operations_list(
         page: int = Query(None, title="Page Number"),
+        organisation: Organisation = Depends(get_user_organisation)
 ):
     """
     Handle marketplace operation list.
@@ -263,8 +272,15 @@ def handle_marketplace_operations_list(
 
     """
 
-    response = Toolkit.fetch_marketplace_list(page=page)
-    return response
+    marketplace_toolkits = Toolkit.fetch_marketplace_list(page=page)
+    installed_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
+    for toolkit in marketplace_toolkits:
+        if toolkit['name'] in [installed_toolkit.name for installed_toolkit in installed_toolkits]:
+            toolkit["is_installed"] = True
+        else:
+            toolkit["is_installed"] = False
+
+    return marketplace_toolkits
 
 
 @router.get("/get/local/list")
