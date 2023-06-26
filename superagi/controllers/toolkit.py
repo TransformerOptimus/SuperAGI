@@ -266,14 +266,9 @@ def handle_marketplace_operations_list(
     """
 
     marketplace_toolkits = Toolkit.fetch_marketplace_list(page=page)
-    installed_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
-    for toolkit in marketplace_toolkits:
-        if toolkit['name'] in [installed_toolkit.name for installed_toolkit in installed_toolkits]:
-            toolkit["is_installed"] = True
-        else:
-            toolkit["is_installed"] = False
-
-    return marketplace_toolkits
+    marketplace_toolkits_with_install = Toolkit.get_marketplace_toolkits_with_install(db.session,marketplace_toolkits,
+                                                                                      organisation)
+    return marketplace_toolkits_with_install
 
 
 @router.get("/get/local/list")
