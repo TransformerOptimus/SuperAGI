@@ -14,7 +14,7 @@ def test_make_written_file_resource(mocker):
         result = ResourceHelper.make_written_file_resource('test.txt', 1, 'INPUT')
 
     assert result.name == 'test.txt'
-    assert result.path == '/1/test.txt'
+    assert result.path == '/test.txt'
     assert result.storage_type == 'local'
     assert result.size == 1000
     assert result.type == 'application/txt'
@@ -36,4 +36,4 @@ def test_get_agent_resource_path(mocker):
 
     result = ResourceHelper.get_agent_resource_path('test.txt', 1)
 
-    assert result == '/1/test.txt'
+    assert result == '/test.txt'

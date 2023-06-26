@@ -10,6 +10,7 @@ class AgentWithConfig(BaseModel):
     instruction: List[str]
     agent_type: str
     constraints: List[str]
+    toolkits: List[int]
     tools: List[int]
     exit: str
     iteration_interval: int
