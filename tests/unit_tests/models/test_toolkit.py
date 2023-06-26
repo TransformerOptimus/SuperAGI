@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from superagi.models.organisation import Organisation
 from superagi.models.toolkit import Toolkit
 @pytest.fixture
 def mock_session():
@@ -181,3 +182,32 @@ def test_get_toolkit_from_name_nonexistent_toolkit(mock_session):
     mock_session.query.assert_called_once_with(Toolkit)
     mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name)
     mock_session.query.return_value.filter_by.return_value.first.assert_called_once()
+
+def test_get_toolkit_installed_details(mock_session):
+    # Arrange
+    marketplace_toolkits = [
+        {"name": "Toolkit 1"},
+        {"name": "Toolkit 2"},
+        {"name": "Toolkit 3"}
+    ]
+    organisation = Organisation(id=1)
+
+    installed_toolkits = [
+        Toolkit(name="Toolkit 1"),
+        Toolkit(name="Toolkit 3")
+    ]
+    mock_session.query.return_value.filter.return_value.all.return_value = installed_toolkits
+
+    # Act
+    result = Toolkit.get_toolkit_installed_details(mock_session, marketplace_toolkits, organisation)
+
+    # Assert
+    assert len(result) == 3
+    assert result[0]["name"] == "Toolkit 1"
+    assert result[0]["is_installed"] is True
+    assert result[1]["name"] == "Toolkit 2"
+    assert result[1]["is_installed"] is False
+    assert result[2]["name"] == "Toolkit 3"
+    assert result[2]["is_installed"] is True
+    mock_session.query.assert_called_once()
+    mock_session.query.return_value.filter.return_value.all.assert_called_once()
