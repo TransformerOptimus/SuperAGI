@@ -44,7 +44,7 @@ export default function MarketAgent(){
     }
 
     return (
-        <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
+        <div style={showMarketplace ? { marginLeft:'8px' } : { marginLeft:'3px' }}>
            <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
              {!isLoading ? <div className={styles.resources}>
                 {agentTemplates.map((item, index) => (
