@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import styles from './Market.module.css';
-import {fetchAgentTemplateList, fetchToolTemplateList} from "@/pages/api/DashboardService";
+import {fetchToolTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {loadingTextEffect} from "@/utils/utils";
 import axios from 'axios';
@@ -16,18 +16,27 @@ export default function MarketTools(){
     loadingTextEffect('Loading Templates', setLoadingText, 500);
 
     if(window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true)
+      setShowMarketplace(true);
+      axios.get('https://app.superagi.com/api/toolkits/marketplace/list/0')
+        .then((response) => {
+          const data = response.data || [];
+          setToolTemplates(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching tool templates:', error);
+        });
+    } else {
+      fetchToolTemplateList()
+        .then((response) => {
+          const data = response.data || [];
+          setToolTemplates(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching tools:', error);
+        });
     }
-
-    fetchToolTemplateList()
-      .then((response) => {
-        const data = response.data || [];
-        setToolTemplates(data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching tool templates:', error);
-      });
   }, []);
 
   function handleTemplateClick(item) {
