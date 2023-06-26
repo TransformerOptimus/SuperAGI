@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
 import {fetchAgentTemplateConfig, installAgentTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import axios from 'axios';
 
 export default function AgentTemplate({template}) {
     const [tools, setTools] = useState([])
@@ -21,22 +22,35 @@ export default function AgentTemplate({template}) {
     useEffect(() => {
         setInstalled(template && template.is_installed? 'Installed' : 'Install');
         if(window.location.href.toLowerCase().includes('marketplace')) {
-            setInstalled('Sign in to install')
+            setInstalled('Sign in to install');
+            axios.get(`https://app.superagi.com/api/agent_templates/marketplace/template_details/${template.id}`)
+              .then((response) => {
+                  const data = response.data || [];
+                  setAgentType(data.configs.agent_type.value)
+                  setTemplateModel(data.configs.model.value)
+                  setGoals(data.configs.goal.value)
+                  setConstraints(data.configs.constraints.value)
+                  setTools(data.configs.tools.value)
+                  setInstructions(data.configs.instructions.value)
+              })
+              .catch((error) => {
+                  console.error('Error fetching template details:', error);
+              });
+        } else {
+            fetchAgentTemplateConfig(template.id)
+              .then((response) => {
+                  const data = response.data || [];
+                  setAgentType(data.configs.agent_type.value)
+                  setTemplateModel(data.configs.model.value)
+                  setGoals(data.configs.goal.value)
+                  setConstraints(data.configs.constraints.value)
+                  setTools(data.configs.tools.value)
+                  setInstructions(data.configs.instructions.value)
+              })
+              .catch((error) => {
+                  console.error('Error fetching template details:', error);
+              });
         }
-
-        fetchAgentTemplateConfig(template.id)
-          .then((response) => {
-              const data = response.data || [];
-              setAgentType(data.configs.agent_type.value)
-              setTemplateModel(data.configs.model.value)
-              setGoals(data.configs.goal.value)
-              setConstraints(data.configs.constraints.value)
-              setTools(data.configs.tools.value)
-              setInstructions(data.configs.instructions.value)
-          })
-          .catch((error) => {
-              console.error('Error fetching template details:', error);
-          });
     }, []);
 
     function handleInstallClick(){
