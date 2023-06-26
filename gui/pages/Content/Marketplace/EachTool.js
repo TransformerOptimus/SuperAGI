@@ -8,6 +8,7 @@ import styles2 from "./Market.module.css"
 import {fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
 
 export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
@@ -17,16 +18,26 @@ export default function EachTool({template, env}) {
     useEffect(() => {
         setInstalled(template && template.is_installed ? 'Installed' : 'Install');
         if (window.location.href.toLowerCase().includes('marketplace')) {
-            setInstalled('Sign in to install')
+            setInstalled('Sign in to install');
+            axios.get(`https://app.superagi.com/api/toolkits/marketplace/details/${template.name}`)
+              .then((response) => {
+                  const data = response.data || [];
+                  setMarkdownContent(data);
+              })
+              .catch((error) => {
+                  console.error('Error fetching template details:', error);
+              });
+        } else {
+            fetchToolTemplateOverview(template.name)
+              .then((response) => {
+                  const data = response.data || [];
+                  setMarkdownContent(data);
+              })
+              .catch((error) => {
+                  console.error('Error fetching template details:', error);
+              });
         }
-        fetchToolTemplateOverview(template.name)
-            .then((response) => {
-                const data = response.data || [];
-                setMarkdownContent(data);
-            })
-            .catch((error) => {
-                console.error('Error fetching template details:', error);
-            });
+
     }, []);
 
 

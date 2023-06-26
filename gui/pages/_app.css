@@ -498,7 +498,7 @@ p {
     border-radius: 8px;
     font-size: 14px;
     color: white;
-    height: fit-content;
+    height: 32px;
     background: #4D4A5A;
     border: 1px solid rgba(255, 255, 255, 0.14);
     text-align: center;
