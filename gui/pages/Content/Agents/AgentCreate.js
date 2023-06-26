@@ -183,6 +183,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setToolNames((prevArray) => [...prevArray, tool.name]);
     }
   };
+
+  const addToolkit = (toolkit) => {
+    toolkit.tools.map((tool) => {
+      if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
+        setSelectedTools((prevArray) => [...prevArray, tool.id]);
+        setToolNames((prevArray) => [...prevArray, tool.name]);
+      }
+    })
+  }
   
   const removeTool = (indexToDelete) => {
     setSelectedTools((prevArray) => {
@@ -405,7 +414,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
   }
 
-  const toggleToolkit = (id) => {
+  const toggleToolkit = (e, id) => {
+    e.stopPropagation();
     const toolkitToUpdate = toolkitList.find(toolkit => toolkit.id === id);
     if (toolkitToUpdate) {
       const newOpenValue = !toolkitToUpdate.isOpen;
@@ -572,14 +582,16 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
                   {toolkitList && toolkitList.map((toolkit, index) => (<div key={index}>
                     {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
-                        <div className="custom_select_option" onClick={() => toggleToolkit(toolkit.id)} style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
-                          <div></div><div>{toolkit.name}</div>
+                        <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+                          <div onClick={(e) => toggleToolkit(e, toolkit.id)} style={{marginLeft:'-8px',marginRight:'8px'}}>
+                            <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
+                          </div>
+                          <div style={{width:'100%'}}>{toolkit.name}</div>
                         </div>
                         {toolkit.isOpen && toolkit.tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
                           <div></div><div>{tool.name}</div>
                         </div>))}
-                      </div>
-                    }
+                      </div>}
                   </div>))}
                 </div>}
               </div>
