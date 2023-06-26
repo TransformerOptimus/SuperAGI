@@ -129,6 +129,10 @@ export const authenticateGoogleCred = (toolKitId) => {
   return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
 }
 
+export const authenticateTwitterCred = (toolKitId) => {
+  return api.get(`/twitter/get_twitter_creds/toolkit_id/${toolKitId}`);
+}
+
 export const fetchToolTemplateList = () => {
   return api.get(`/toolkits/get/list?page=0`);
 }
