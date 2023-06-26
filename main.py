@@ -249,9 +249,9 @@ async def startup_event():
         workflow_step4.next_step_id = workflow_step3.id
         session.commit()
 
-        build_single_step_agent()
-        build_task_based_agents()
-        session.close()
+    build_single_step_agent()
+    build_task_based_agents()
+    session.close()
 
 
 @app.post('/login')
