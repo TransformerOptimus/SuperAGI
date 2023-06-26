@@ -137,7 +137,7 @@ export default function App() {
             <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
-            <Content organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content env={env} organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
       </div> ) : !showMarketplace ? ( <div className="signInStyle">

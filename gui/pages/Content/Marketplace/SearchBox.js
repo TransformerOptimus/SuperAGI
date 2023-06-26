@@ -8,7 +8,7 @@ export default function SearchBox({onSearch}){
   };
   return (
     <div className={styles.search_box}>
-      <input type="text" placeholder="Search here" onChange={handleSearch} />
+      <input type="text" placeholder="Search here" />
     </div>
   );
 };

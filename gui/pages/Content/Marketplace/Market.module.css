@@ -371,14 +371,13 @@
 
 .market_tool {
     display: flex;
-    height: 110px;
+    height: 105px;
     color: white;
     font-size: small;
     padding: 12px;
     width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
-    margin: 4px 0 4px 0;
 }
 
 .tool_description {
@@ -498,4 +497,17 @@
     height:6.5vh;
     display:flex;
     width:100%;
+}
+
+.markdown_style{
+    color:white;
+}
+.markdown_style img {
+    max-width: 100%;
+    height: auto;
+}
+.markdown_container{
+    height:68vh;
+    overflow-y:scroll;
+    overflow-x:hidden;
 }
