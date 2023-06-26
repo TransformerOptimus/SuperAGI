@@ -1,4 +1,6 @@
 import base64
+import re
+
 import requests
 from superagi.lib.logger import logger
 
@@ -107,7 +109,8 @@ class GithubHelper:
         }
         response = requests.patch(head_branch_url, json=data, headers=headers)
         if response.status_code == 200:
-            logger.info(f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
+            logger.info(
+                f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
         else:
             logger.info('Failed to sync the branch. Check your inputs and permissions.')
 
@@ -299,3 +302,18 @@ class GithubHelper:
             file_content = base64.b64decode(file_content).decode()
 
         return file_content
+
+    @classmethod
+    def validate_github_link(cls, link: str) -> bool:
+        """
+        Validate a GitHub link.
+        Returns True if the link is valid, False otherwise.
+        """
+        # Regular expression pattern to match a GitHub link
+        pattern = r'^https?://(?:www\.)?github\.com/[\w\-]+/[\w\-]+$'
+
+        # Check if the link matches the pattern
+        if re.match(pattern, link):
+            return True
+
+        return False

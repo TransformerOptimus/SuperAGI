@@ -99,7 +99,7 @@ class SuperAgi:
             .order_by(asc(AgentExecutionFeed.created_at)) \
             .limit(memory_window) \
             .all()
-        return agent_feeds
+        return agent_feeds[2:]
 
     def split_history(self, history: List, pending_token_limit: int) -> Tuple[List[BaseMessage], List[BaseMessage]]:
         hist_token_count = 0
@@ -149,6 +149,7 @@ class SuperAgi:
             #                                           role="user")
 
         logger.info(prompt)
+        # print(messages)
         if len(agent_feeds) <= 0:
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],

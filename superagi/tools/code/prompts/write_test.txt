@@ -8,4 +8,11 @@ Test Description:
 
 {spec}
 
+Test should follow the following format:
+[FILENAME]
+```[LANG]
+[UNIT_TEST_CODE]
+```
+
 The tests should be as simple as possible, but still cover all the functionality described in the specification.
+

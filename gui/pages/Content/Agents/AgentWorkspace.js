@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -26,6 +26,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [dropdown, setDropdown] = useState(false);
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
+  const [pendingPermission, setPendingPermissions] = useState(0)
+
+  const pendingPermissions = useMemo(() => {
+    if (!fetchedData) return 0;
+    setPendingPermissions(fetchedData.filter(permission => permission.status === "PENDING").length);
+  }, [fetchedData]);
 
   const addInstruction = () => {
     setInstructions((prevArray) => [...prevArray, 'new instructions']);
@@ -79,25 +85,25 @@ export default function AgentWorkspace({agentId, selectedView}) {
     const agentData1 = { "agent_id": agentId, "key": "instruction", "value": instructions}
 
     addExecution(executionData)
-      .then((response) => {
-        setRunModal(false);
-        fetchExecutions(agentId, response.data);
-        fetchAgentDetails(agentId);
-        EventBus.emit('reFetchAgents', {});
-        toast.success("New run created", {autoClose: 1800});
-      })
-      .catch((error) => {
-        console.error('Error creating execution:', error);
-        toast.error("Could not create run", {autoClose: 1800});
-      });
+        .then((response) => {
+          setRunModal(false);
+          fetchExecutions(agentId, response.data);
+          fetchAgentDetails(agentId);
+          EventBus.emit('reFetchAgents', {});
+          toast.success("New run created", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error creating execution:', error);
+          toast.error("Could not create run", {autoClose: 1800});
+        });
 
     updateAgents(agentData)
-      .then((response) => {
-        EventBus.emit('reFetchAgents', {});
-      })
-      .catch((error) => {
-        console.error('Error updating agent:', error);
-      });
+        .then((response) => {
+          EventBus.emit('reFetchAgents', {});
+        })
+        .catch((error) => {
+          console.error('Error updating agent:', error);
+        });
     updateAgents(agentData1)
         .then((response) => {
           EventBus.emit('reFetchAgents', {});
@@ -116,18 +122,18 @@ export default function AgentWorkspace({agentId, selectedView}) {
     const executionData = {"status": status};
 
     updateExecution(selectedRun.id, executionData)
-      .then((response) => {
-        EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
-        if(status !== 'TERMINATED') {
-          fetchExecutions(agentId, response.data);
-        } else {
-          fetchExecutions(agentId);
-        }
-        EventBus.emit('reFetchAgents', {});
-      })
-      .catch((error) => {
-        console.error('Error updating execution:', error);
-      });
+        .then((response) => {
+          EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
+          if(status !== 'TERMINATED') {
+            fetchExecutions(agentId, response.data);
+          } else {
+            fetchExecutions(agentId);
+          }
+          EventBus.emit('reFetchAgents', {});
+        })
+        .catch((error) => {
+          console.error('Error updating execution:', error);
+        });
 
     setDropdown(false);
   };
@@ -162,15 +168,15 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
-      .then((response) => {
-        let data = response.data
-        data = data.filter((run) => run.status !== 'TERMINATED');
-        setAgentExecutions(data);
-        setSelectedRun(currentRun ? currentRun : data[0]);
-      })
-      .catch((error) => {
-        console.error('Error fetching agent executions:', error);
-      });
+        .then((response) => {
+          let data = response.data
+          data = data.filter((run) => run.status !== 'TERMINATED');
+          setAgentExecutions(data);
+          setSelectedRun(currentRun ? currentRun : data[0]);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent executions:', error);
+        });
   }
 
   function saveAgentTemplate() {
@@ -210,11 +216,11 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {<button className={styles.three_dots} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            {<button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className="dropdown_container" style={{marginTop:'1%'}}>
+              <ul className="dropdown_container" style={{marginTop:'31px',marginLeft:'-32px'}}>
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
@@ -235,7 +241,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
           <div style={{display:'flex',overflowX:'scroll'}}>
             {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button} style={rightPanel === 'action_console' ? {background:'#454254'} : {background:'transparent'}}>
-                <Image width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console
+                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/action_console.svg" alt="action-console-icon"/>&nbsp;Action Console &nbsp; {pendingPermission>0 && <span className={styles.notification_circle}>{pendingPermission}</span>}
               </button>
             </div>}
             {/*<div>*/}
@@ -263,7 +269,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
               <div className={styles.detail_content}>
-                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} />
+                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
               </div>
           )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}

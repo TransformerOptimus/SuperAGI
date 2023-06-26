@@ -157,9 +157,13 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         if tool is None:
             # Tool does not exist, throw 404 or handle as desired
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
+
+    agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
+                                                                         agent_with_config=agent_with_config)
+    agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    # Creating an execution with CREATED status
+    # Creating an execution with RUNNING status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
