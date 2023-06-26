@@ -80,13 +80,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
-      .then((response) => {
-        const apiKey = response.data.value
-        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
+        .then((response) => {
+          const apiKey = response.data.value
+          setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+        })
+        .catch((error) => {
+          console.error('Error fetching project:', error);
+        });
   }, [organisationId]);
 
   const filterToolsByNames = () => {
@@ -185,7 +185,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     }
     setSearchValue('')
   };
-  
+
   const removeTool = (indexToDelete) => {
     setSelectedTools((prevArray) => {
       const newArray = [...prevArray];
@@ -352,7 +352,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
-    // if permission has word restricted change the permission to 
+    // if permission has word restricted change the permission to
     let permission_type = permission;
     if (permission.includes("RESTRICTED")) {
       permission_type = "RESTRICTED";
@@ -378,29 +378,29 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     };
 
     createAgent(agentData)
-      .then((response) => {
-        const agent_id = response.data.id;
-        fetchAgents();
-        cancelCreate();
-        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
-        if(addResources) {
-          input.forEach((fileData) => {
-            input.forEach(fileData => {
-              uploadResource(agent_id, fileData)
-                .then(response => {})
-                .catch(error => {
-                  console.error('Error uploading resource:', error);
-                });
+        .then((response) => {
+          const agent_id = response.data.id;
+          fetchAgents();
+          cancelCreate();
+          sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
+          if(addResources) {
+            input.forEach((fileData) => {
+              input.forEach(fileData => {
+                uploadResource(agent_id, fileData)
+                    .then(response => {})
+                    .catch(error => {
+                      console.error('Error uploading resource:', error);
+                    });
+              });
             });
-          });
-        }
-        toast.success('Agent created successfully', {autoClose: 1800});
-        setCreateClickable(true);
-      })
-      .catch((error) => {
-        console.error('Error creating agent:', error);
-        setCreateClickable(true);
-      });
+          }
+          toast.success('Agent created successfully', {autoClose: 1800});
+          setCreateClickable(true);
+        })
+        .catch((error) => {
+          console.error('Error creating agent:', error);
+          setCreateClickable(true);
+        });
   };
 
   function cancelCreate() {
@@ -417,7 +417,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const setToolkitOpen = (id, isOpen) => {
     const updatedToolkits = toolkitList.map(toolkit =>
-      toolkit.id === id ? { ...toolkit, isOpen: isOpen } : { ...toolkit, isOpen: false }
+        toolkit.id === id ? { ...toolkit, isOpen: isOpen } : { ...toolkit, isOpen: false }
     );
     setToolkitList(updatedToolkits);
   };
@@ -474,28 +474,28 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     const isIMG = file.type.includes('image');
 
     return (
-      <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
-          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
-          {!isTXT && !isIMG && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px', width:'100%' }}>
-            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
-            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+        <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+            {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
+            {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
+            {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+            {!isTXT && !isIMG && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+            <div style={{ marginLeft: '5px', width:'100%' }}>
+              <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
+              <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+            </div>
+            <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
           </div>
-          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
         </div>
-      </div>
     );
   };
 
   const ResourceList = ({ files }) => (
-    <div className={styles.agent_resources}>
-      {files.map((file, index) => (
-        <ResourceItem key={index} file={file} index={index} />
-      ))}
-    </div>
+      <div className={styles.agent_resources}>
+        {files.map((file, index) => (
+            <ResourceItem key={index} file={file} index={index} />
+        ))}
+      </div>
   );
 
   return (<>
@@ -530,27 +530,27 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
           <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
-              {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
-                </div>{instructions.length > 1 && <div>
-                  <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
-                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
-                  </button>
-                </div>}
-              </div>))}
-              <div>
-                <button className="secondary_button" onClick={addInstruction}>+ Add</button>
-              </div>
+            {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+              <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+              </div>{instructions.length > 1 && <div>
+              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+              </button>
+            </div>}
+            </div>))}
+            <div>
+              <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+            </div>
           </div>
 
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
             <div className="dropdown_container_search" style={{width:'100%'}}>
-                <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
-                  {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                </div>
-                <div>
-                  {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
+              <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
+                {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+              </div>
+              <div>
+                {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
                   {models.map((model, index) => (<div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                     {model}
                   </div>))}
@@ -604,142 +604,142 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </button>
           </div>
           {advancedOptions &&
-            <div>
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Agent Type</label><br/>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>
-                    {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>
-                      {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {agent}
-                      </div>))}
-                    </div>}
+              <div>
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Agent Type</label><br/>
+                  <div className="dropdown_container_search" style={{width:'100%'}}>
+                    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>
+                      {agentType}<Image width={20} height={21} src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                    </div>
+                    <div>
+                      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width:'100%'}}>
+                        {agentTypes.map((agent, index) => (<div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                          {agent}
+                        </div>))}
+                      </div>}
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
-              {/*</div>*/}
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
-              {/*</div>*/}
-              <div style={{marginTop: '15px'}}>
-                <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
-                    Add Resources
-                  </label>
-                </div>
-              </div>
-              <div style={{width:'100%',height:'auto',marginTop:'10px'}}>
-                {addResources && <div style={{paddingBottom:'10px'}}>
-                  <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
-                    <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-                      <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-                      <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
+                {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
+                {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
+                {/*</div>*/}
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
+                {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
+                {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
+                {/*</div>*/}
+                <div style={{marginTop: '15px'}}>
+                  <div style={{display:'flex'}}>
+                    <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
+                    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
+                      Add Resources
+                    </label>
                   </div>
-                  <ResourceList files={input}/>
+                </div>
+                <div style={{width:'100%',height:'auto',marginTop:'10px'}}>
+                  {addResources && <div style={{paddingBottom:'10px'}}>
+                    <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
+                      <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
+                        <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
+                        <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+                    </div>
+                    <ResourceList files={input}/>
+                  </div>}
+                </div>
+                <div style={{marginTop: '5px'}}>
+                  <div><label className={styles.form_label}>Constraints</label></div>
+                  {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                    <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
+                    <div>
+                      <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
+                        <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                      </button>
+                    </div>
+                  </div>))}
+                  <div><button className="secondary_button" onClick={addConstraint}>+ Add</button></div>
+                </div>
+                <div style={{marginTop:'15px'}}>
+                  <label className={styles.form_label}>Max iterations</label>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                    <input style={{width:'90%'}} type="range" min={5} max={100} value={maxIterations} onChange={handleIterationChange}/>
+                    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
+                  </div>
+                </div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Exit criterion</label>*/}
+                {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+                {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
+                {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+                {/*    </div>*/}
+                {/*    <div>*/}
+                {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
+                {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+                {/*          {exit}*/}
+                {/*        </div>))}*/}
+                {/*      </div>}*/}
+                {/*    </div>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Time between steps (in milliseconds)</label>
+                  <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
+                </div>
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Short term memory - Rolling window</label>
+                  <div className="dropdown_container_search" style={{width:'100%'}}>
+                    <div className="custom_select_container" onClick={() => setRollingDropdown(!rollingDropdown)} style={{width:'100%'}}>
+                      {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                    </div>
+                    <div>
+                      {rollingDropdown && <div className="custom_select_options" ref={rollingRef} style={{width:'100%'}}>
+                        {rollingWindows.map((window, index) => (<div key={index} className="custom_select_option" onClick={() => handleWindowSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                          {window}
+                        </div>))}
+                      </div>}
+                    </div>
+                  </div>
+                </div>
+                <div style={{marginTop: '15px'}}>
+                  <div style={{display:'flex'}}>
+                    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLongTermMemory(!longTermMemory)} />
+                    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLongTermMemory(!longTermMemory)}>
+                      Long term memory
+                    </label>
+                  </div>
+                </div>
+                {longTermMemory === true && <div style={{marginTop: '10px'}}>
+                  <label className={styles.form_label}>Choose an LTM database</label>
+                  <div className="dropdown_container_search" style={{width:'100%'}}>
+                    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
+                      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                    </div>
+                    <div>
+                      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
+                        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                          {data}
+                        </div>))}
+                      </div>}
+                    </div>
+                  </div>
                 </div>}
-              </div>
-              <div style={{marginTop: '5px'}}>
-                <div><label className={styles.form_label}>Constraints</label></div>
-                {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
-                  <div>
-                    <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
-                      <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
-                    </button>
-                  </div>
-                </div>))}
-                <div><button className="secondary_button" onClick={addConstraint}>+ Add</button></div>
-              </div>
-              <div style={{marginTop:'15px'}}>
-                <label className={styles.form_label}>Max iterations</label>
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <input style={{width:'90%'}} type="range" min={5} max={100} value={maxIterations} onChange={handleIterationChange}/>
-                  <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
-                </div>
-              </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Exit criterion</label>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
-              {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
-              {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {exit}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Time between steps (in milliseconds)</label>
-                <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
-              </div>
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Short term memory - Rolling window</label>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setRollingDropdown(!rollingDropdown)} style={{width:'100%'}}>
-                    {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {rollingDropdown && <div className="custom_select_options" ref={rollingRef} style={{width:'100%'}}>
-                      {rollingWindows.map((window, index) => (<div key={index} className="custom_select_option" onClick={() => handleWindowSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {window}
-                      </div>))}
-                    </div>}
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Permission Type</label>
+                  <div className="dropdown_container_search" style={{width:'100%'}}>
+                    <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
+                      {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                    </div>
+                    <div style={{marginBottom: '20px'}}>
+                      {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>
+                        {permissions.map((permit, index) => (<div key={index} className="custom_select_option" onClick={() => handlePermissionSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                          {permit}
+                        </div>))}
+                      </div>}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div style={{marginTop: '15px'}}>
-                <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLongTermMemory(!longTermMemory)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLongTermMemory(!longTermMemory)}>
-                    Long term memory
-                  </label>
-                </div>
-              </div>
-              {longTermMemory === true && <div style={{marginTop: '10px'}}>
-                <label className={styles.form_label}>Choose an LTM database</label>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
-                    {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
-                      {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {data}
-                      </div>))}
-                    </div>}
-                  </div>
-                </div>
-              </div>}
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Permission Type</label>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)} style={{width:'100%'}}>
-                    {permission}<Image width={20} height={21} src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div style={{marginBottom: '20px'}}>
-                    {permissionDropdown && <div className="custom_select_options" ref={permissionRef} style={{width:'100%'}}>
-                      {permissions.map((permit, index) => (<div key={index} className="custom_select_option" onClick={() => handlePermissionSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {permit}
-                      </div>))}
-                    </div>}
-                  </div>
-                </div>
-              </div>
-            </div>
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
