@@ -24,6 +24,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
   const [toolkitList, setToolkitList] = useState(toolkits)
+  const [searchValue, setSearchValue] = useState('');
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -184,6 +185,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setSelectedTools((prevArray) => [...prevArray, tool.id]);
       setToolNames((prevArray) => [...prevArray, tool.name]);
     }
+    setSearchValue('');
   };
 
   const addToolkit = (toolkit) => {
@@ -192,7 +194,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setSelectedTools((prevArray) => [...prevArray, tool.id]);
         setToolNames((prevArray) => [...prevArray, tool.name]);
       }
-    })
+    });
+    setSearchValue('');
   }
   
   const removeTool = (indexToDelete) => {
@@ -432,6 +435,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setToolkitList(updatedToolkits);
   };
 
+  const clearTools = (e) => {
+    e.stopPropagation();
+    setSelectedTools([]);
+    setToolNames([]);
+  };
+
   const handleFileInputChange = (event) => {
     const files = event.target.files;
     setFileData(files);
@@ -577,18 +586,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Tools</label>
             <div className="dropdown_container_search" style={{width:'100%'}}>
-              <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)} style={{width:'100%'}}>
-                {toolNames && toolNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
-                  {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
+              <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)} style={{width:'100%',alignItems:'flex-start'}}>
+                {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
+                  {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{margin:'2px'}} onClick={preventDefault}>
                     <div className={styles.tool_text}>{tool}</div>
                     <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                   </div>))}
+                  <input type="text" className="dropdown_search_text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)} onClick={(e) => e.stopPropagation()}/>
                 </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                <Image width={20} height={21} src={!toolkitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                <div style={{display:'inline-flex'}}>
+                  <Image width={20} height={21} onClick={(e) => clearTools(e)} src='/images/clear_input.svg' alt="clear-input"/>
+                  <Image width={20} height={21} src={!toolkitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
               </div>
               <div>
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
-                  {toolkitList && toolkitList.map((toolkit, index) => (<div key={index}>
+                  {toolkitList && toolkitList.filter((toolkit) => toolkit.tools ? toolkit.tools.some((tool) => tool.name.toLowerCase().includes(searchValue.toLowerCase())) : false).map((toolkit, index) => (<div key={index}>
                     {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
                         <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
@@ -601,7 +614,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                             <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
                           </div>}
                         </div>
-                        {toolkit.isOpen && toolkit.tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 14px 10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                        {toolkit.isOpen && toolkit.tools.filter((tool) => tool.name ? tool.name.toLowerCase().includes(searchValue.toLowerCase()) : true).map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 14px 10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                           <div>{tool.name}</div>
                           {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) && <div style={{order:'1',marginLeft:'10px'}}>
                             <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
