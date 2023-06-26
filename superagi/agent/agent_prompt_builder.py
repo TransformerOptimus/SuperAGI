@@ -60,12 +60,6 @@ class AgentPromptBuilder:
 
     @classmethod
     def get_super_agi_single_prompt(cls):
-        # a = re.sub(r'}\n+\s+}', '}}', a)
-        # a = re.sub(r'"\n+\s+}', '"}', a)
-        # a = re.sub(r'\n+\s+"', '"', a)
-        # parts = a.split("\"args\": {")
-        # parts2 = parts[1].split("}}")
-
         response_format = {
             "thoughts": {
                 "text": "thought",
@@ -75,7 +69,7 @@ class AgentPromptBuilder:
                 "speak": "thoughts summary to say to user",
             },
             "tool": {"name": "tool name/task name",
-                     "args": {"arg name": "value(json escaped value for string type)"}}
+                     "args": {"arg name": "value"}}
         }
         formatted_response_format = json.dumps(response_format, indent=4)
 
