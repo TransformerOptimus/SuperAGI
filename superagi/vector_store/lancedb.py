@@ -100,7 +100,6 @@ class LanceDB(VectorStore):
 
         embed_text = self.embedding_model.get_embedding(query)
         res = tbl.search(embed_text).limit(top_k).to_df()
-        print(res)
 
         documents = []
 

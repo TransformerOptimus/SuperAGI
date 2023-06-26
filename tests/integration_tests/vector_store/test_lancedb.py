@@ -89,18 +89,19 @@ def test_add_texts(store, client, data, results, table_name, request):
 
 
 @pytest.mark.parametrize(
-    "data, search_text, table_name, index",
+    "data, search_text, table_name, meta_num",
     [
-        ("dataset", "The Great Gatsby", "test_table", 0),
-        ("dataset", "1984", "test_table2", 2),
+        ("dataset", "The Great Gatsby", "test_table", 3),
+        ("dataset", "1984", "test_table2", 3),
         ("dataset_no_metadata", "The Hobbit", "test_table_no_metadata", 1),
     ],
 )
-def test_get_matching_text(store, data, search_text, table_name, index, request):
-    print("SEARCHING FOR " + search_text)
+def test_get_matching_text(store, data, search_text, table_name, meta_num, request):
     dataset = request.getfixturevalue(data)
     store.add_documents(dataset, table_name=table_name)
     results = store.get_matching_text(search_text, top_k=2, namespace=table_name)
-    print(results[0])
+
     assert len(results) == 2
-    assert results[0] == dataset[index]
+    assert len(results[0].metadata) == meta_num
+    # Metadata for dataset with metadata should be 3 (author, desc, text_content)
+    # Metadata for dataset without metadata should be 1 (text_content)
