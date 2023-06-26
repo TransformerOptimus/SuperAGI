@@ -69,10 +69,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
   const [selectedTools, setSelectedTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['Google Search Toolkit', 'File Toolkit']);
+  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
-  const [toolkitIdForTemplate, setToolkitIdForTemplate] = useState([]);
 
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
@@ -127,7 +126,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               toolkitList.forEach((toolkit) => {
                 toolkit.tools.forEach((tool) => {
                   if (tool.name === item) {
-                    setToolkitIdForTemplate((prevArray) => [...prevArray, tool.id]);
+                    setSelectedTools((prevArray) => [...prevArray, tool.id]);
                   }
                 });
               });
@@ -352,7 +351,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return;
     }
 
-    if (selectedTools.length <= 0 && toolkitIdForTemplate.length <= 0) {
+    if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
@@ -462,6 +461,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       };
       setInput((prevArray) => [...prevArray, fileData]);
     }
+  }
+
+  function checkSelectedToolkit(toolkit) {
+    const toolIds = toolkit.tools.map((tool) => tool.id);
+    const toolNameList = toolkit.tools.map((tool) => tool.name);
+    return toolIds.every((toolId) => selectedTools.includes(toolId)) && toolNameList.every((toolName) => toolNames.includes(toolName));
   }
 
   const handleDrop = (event) => {
@@ -582,14 +587,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
                   {toolkitList && toolkitList.map((toolkit, index) => (<div key={index}>
                     {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
-                        <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
-                          <div onClick={(e) => toggleToolkit(e, toolkit.id)} style={{marginLeft:'-8px',marginRight:'8px'}}>
-                            <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
+                        <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+                            <div onClick={(e) => toggleToolkit(e, toolkit.id)} style={{marginLeft:'-8px',marginRight:'8px'}}>
+                              <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
+                            </div>
+                            <div style={{width:'100%'}}>{toolkit.name}</div>
                           </div>
-                          <div style={{width:'100%'}}>{toolkit.name}</div>
+                          {checkSelectedToolkit(toolkit) && <div style={{order:'1',marginLeft:'10px'}}>
+                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
+                          </div>}
                         </div>
-                        {toolkit.isOpen && toolkit.tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
-                          <div></div><div>{tool.name}</div>
+                        {toolkit.isOpen && toolkit.tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 14px 10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div>{tool.name}</div>
+                          {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) && <div style={{order:'1',marginLeft:'10px'}}>
+                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
+                          </div>}
                         </div>))}
                       </div>}
                   </div>))}
