@@ -39,7 +39,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       .then((response) => {
         const data = response.data || [];
         const updatedData = data.map(item => {
-          return { ...item, contentType: "Toolkits" };
+          return { ...item, contentType: "Toolkits", isOpen: false };
         });
         setToolkits(updatedData);
       })

@@ -7,7 +7,7 @@ import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploa
 import {formatBytes} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId,template}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -23,6 +23,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const txt_icon = '/images/txt_file.svg';
   const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
+  const [toolkitList, setToolkitList] = useState(toolkits)
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -35,7 +36,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k']
+  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -88,8 +89,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [organisationId]);
 
   const filterToolsByNames = () => {
-    if(toolkits) {
-      const filteredTools = toolkits.filter((tool) => toolNames.includes(tool.name));
+    if(toolkitList) {
+      const filteredTools = toolkitList.filter((tool) => toolNames.includes(tool.name));
       const toolIds = filteredTools.map((tool) => tool.id);
       setSelectedTools(toolIds);
     }
@@ -123,7 +124,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setDatabase(data.LTM_DB)
             setModel(data.model)
             data.tools.forEach((item) => {
-              toolkits.forEach((toolkit) => {
+              toolkitList.forEach((toolkit) => {
                 toolkit.tools.forEach((tool) => {
                   if (tool.name === item) {
                     setToolkitIdForTemplate((prevArray) => [...prevArray, tool.id]);
@@ -177,7 +178,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, []);
 
   const addTool = (tool) => {
-    if (!selectedTools.includes(tool.id)) {
+    if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
       setSelectedTools((prevArray) => [...prevArray, tool.id]);
       setToolNames((prevArray) => [...prevArray, tool.name]);
     }
@@ -363,8 +364,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "toolkits": selectedTools,
-      "tools": toolkitIdForTemplate,
+      "toolkits": [],
+      "tools": selectedTools,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
@@ -403,6 +404,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   function cancelCreate() {
     EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
   }
+
+  const toggleToolkit = (id) => {
+    const toolkitToUpdate = toolkitList.find(toolkit => toolkit.id === id);
+    if (toolkitToUpdate) {
+      const newOpenValue = !toolkitToUpdate.isOpen;
+      setToolkitOpen(id, newOpenValue);
+    }
+  };
+
+  const setToolkitOpen = (id, isOpen) => {
+    const updatedToolkits = toolkitList.map(toolkit =>
+      toolkit.id === id ? { ...toolkit, isOpen: isOpen } : { ...toolkit, isOpen: false }
+    );
+    setToolkitList(updatedToolkits);
+  };
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
@@ -554,11 +570,16 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div>
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
-                  {toolkits && toolkits.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && !excludedToolkits.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
-                          style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {tool.name}
-                    </div>}
+                  {toolkitList && toolkitList.map((toolkit, index) => (<div key={index}>
+                    {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
+                        <div className="custom_select_option" onClick={() => toggleToolkit(toolkit.id)} style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+                          <div></div><div>{toolkit.name}</div>
+                        </div>
+                        {toolkit.isOpen && toolkit.tools.map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+                          <div></div><div>{tool.name}</div>
+                        </div>))}
+                      </div>
+                    }
                   </div>))}
                 </div>}
               </div>
