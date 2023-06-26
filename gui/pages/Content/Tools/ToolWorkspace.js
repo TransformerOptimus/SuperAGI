@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
-import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/api/DashboardService";
+import {updateToolConfig, getToolConfig, authenticateGoogleCred, authenticateTwitterCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
 import {EventBus} from "@/utils/eventBus";
 
@@ -25,6 +25,14 @@ export default function ToolWorkspace({toolDetails}){
       window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
     }
     
+    function getTwitterToken(client_data){
+      console.log(client_data)
+      const client_id = client_data.client_id
+      const scope = "tweet.read%20tweet.write%20users.read%20offline.access";
+      const redirect_uri = "http://localhost:3000/api/oauth-twitter";
+      window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&state=state&code_challenge=challenge&code_challenge_method=plain`;
+    }
+
     useEffect(() => {
       if(toolDetails !== null) {
         if (toolDetails.tools) {
@@ -69,6 +77,16 @@ export default function ToolWorkspace({toolDetails}){
         .catch((error) => {
           console.error('Error fetching data:', error);
         });
+    };
+
+    const handleTwitterAuthClick = async () => {
+      authenticateTwitterCred(toolDetails.id)
+      .then((response) => {
+        getTwitterToken(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data: ', error);
+      });
     };
 
     return (<>
@@ -116,6 +134,7 @@ export default function ToolWorkspace({toolDetails}){
             <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
               <div>
                 {toolDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
+                {toolDetails.name === 'Twitter Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleTwitterAuthClick}>Authenticate Tool</button>}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
