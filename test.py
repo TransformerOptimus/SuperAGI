@@ -85,8 +85,6 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
         "memory_window": 10
     }
 
-    # print("Id is ")
-    # print(db_agent.id)
     agent_configurations = [
         AgentConfiguration(agent_id=agent.id, key=key, value=str(value))
         for key, value in agent_config_values.items()

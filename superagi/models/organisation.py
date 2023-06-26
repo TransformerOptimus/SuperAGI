@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String
+
+from superagi.helper.tool_helper import register_toolkits
 from superagi.models.base_model import DBBaseModel
 
 
@@ -52,7 +54,6 @@ class Organisation(DBBaseModel):
             user.organisation_id = existing_organisation.id
             session.commit()
             return existing_organisation
-
         new_organisation = Organisation(
             name="Default Organization - " + str(user.id),
             description="New default organiztaion",
@@ -63,4 +64,5 @@ class Organisation(DBBaseModel):
         session.flush()
         user.organisation_id = new_organisation.id
         session.commit()
+        register_toolkits(session=session, organisation=new_organisation)
         return new_organisation

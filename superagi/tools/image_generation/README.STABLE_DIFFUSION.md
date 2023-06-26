@@ -22,11 +22,19 @@ You can now get your API Key from Dream Studio to use Stable Diffusion by follow
 
 1. Create an Account/Login with [DreamStudio.ai](http://DreamStudio.ai)
 
+<<<<<<< HEAD
 ![SD_1](README/SD_1.png)
 
 1. Click on the Profile Icon at the top right which will take you to the settings page. Once you have reached the settings page, you can now get your API keys 
 
 ![SD_2](README/SD_2.png)
+=======
+![SD_1](README/SD_1.jpg)
+
+1. Click on the Profile Icon at the top right which will take you to the settings page. Once you have reached the settings page, you can now get your API keys 
+
+![SD_2](README/SD_2.jpg)
+>>>>>>> 20863a5d5067f8a1b6da4c357794f036167c691a
 
 1. Copy the API Key and save it in a separate file. 
 
@@ -36,11 +44,19 @@ You can configure SuperAGI with Stable Diffusion using the following steps:
 
 1. Navigate to the “****************Toolkit”**************** Page in SuperAGI’s Dashboard and select “****************Image Generation Toolkit”**************** 
 
+<<<<<<< HEAD
 ![SD_3](README/SD_3.png)
 
 1. Once you’ve clicked Image Generation Toolkit, it will open a page asking you for the API Key and the Model Engine. You can enter the generated API key from Dream Studio here. 
 
 ![SD_4](README/SD_4.png)
+=======
+![SD_3](README/SD_3.jpg)
+
+1. Once you’ve clicked Image Generation Toolkit, it will open a page asking you for the API Key and the Model Engine. You can enter the generated API key from Dream Studio here. 
+
+![SD_4](README/SD_4.jpg)
+>>>>>>> 20863a5d5067f8a1b6da4c357794f036167c691a
 3. If you would like to get more in-depth with the model of Stable Diffusion you’d like to use, you can choose between the following engine IDs: 
 
 - 'stable-diffusion-v1'

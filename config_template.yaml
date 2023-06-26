@@ -9,16 +9,10 @@ OPENAI_API_KEY: YOUR_OPEN_API_KEY
 OPENAI_API_BASE: https://api.openai.com/v1
 #OPENAI_API_BASE: "http://super__tgwui:5001/v1"
 
-# "gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092, "llama":2048, "mpt-7b-storywriter":45000
+# "gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-4-32k": 32768, "gpt-4-32k-0314": 32768, "llama":2048, "mpt-7b-storywriter":45000
 MODEL_NAME: "gpt-3.5-turbo-0301"
 MAX_TOOL_TOKEN_LIMIT: 800
 MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
-
-# For running stable diffusion
-STABILITY_API_KEY: YOUR_STABILITY_API_KEY
-#Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
-ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
-
 
 #DATABASE INFO
 # redis details
@@ -55,7 +49,6 @@ FRONTEND_URL: "http://localhost:3000"
 
 #ENCRPYTION KEY
 ENCRYPTION_KEY: secret
-
 
 #WEAVIATE
 
@@ -94,3 +87,8 @@ JIRA_API_TOKEN: YOUR_JIRA_API_TOKEN
 
 #SLACK
 SLACK_BOT_TOKEN: YOUR_SLACK_BOT_TOKEN
+
+# For running stable diffusion
+STABILITY_API_KEY: YOUR_STABILITY_API_KEY
+#Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
+ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"

@@ -12,6 +12,7 @@ services:
   celery:
     volumes:
       - "./:/app"
+      - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
     build:
       context: .
       dockerfile: DockerfileCelery
