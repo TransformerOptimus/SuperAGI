@@ -1,4 +1,5 @@
 import json
+
 import requests
 from sqlalchemy import Column, Integer, String, Boolean
 
@@ -9,23 +10,26 @@ from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "http://localhost:8001"
 
+
 class Toolkit(DBBaseModel):
-    """ToolKit - used to store tool kits"""
+    """
+        ToolKit - used to store tool kits
+        Attributes:
+            id(int) : id of the tool kit
+            name(str) : name of the tool kit
+            description(str) : description of the tool kit
+            show_toolkit(boolean) : indicates whether the tool kit should be shown based on the count of tools in the toolkit
+            organisation_id(int) : org id of the to which tool config is related
+            tool_code_link(str) : stores Github link for toolkit
+    """
     __tablename__ = 'toolkits'
 
     id = Column(Integer, primary_key=True)
-    """id - id of the tool kit"""
     name = Column(String)
-    """name - name of the tool kit"""
     description = Column(String)
-    """description - description of the tool kit"""
     show_toolkit = Column(Boolean)
-    """show_toolkit - indicates whether the tool kit should be shown"""
     organisation_id = Column(Integer)
-    """organisation_id - org id of the to which tool config is related"""
-
     tool_code_link = Column(String)
-    """tool_code_link stores the link to the code repo of the tool"""
 
     def __repr__(self):
         return f"ToolKit(id={self.id}, name='{self.name}', description='{self.description}', " \
@@ -58,7 +62,8 @@ class Toolkit(DBBaseModel):
     @staticmethod
     def add_or_update(session, name, description, show_toolkit, organisation_id, tool_code_link):
         # Check if the toolkit exists
-        toolkit = session.query(Toolkit).filter(Toolkit.name == name, Toolkit.organisation_id == organisation_id).first()
+        toolkit = session.query(Toolkit).filter(Toolkit.name == name,
+                                                Toolkit.organisation_id == organisation_id).first()
 
         if toolkit:
             # Update the existing toolkit
