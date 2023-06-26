@@ -16,6 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 import pickle
 import superagi
+from superagi.helper.twitter_request_token import TwitterRequestToken
 from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
@@ -314,6 +315,46 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     return RedirectResponse(frontend_url)
 
+@app.get('/oauth-twitter')
+async def twitter_oauth(code: str = Query(...), Authorize: AuthJWT = Depends()):
+    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_CLIENT_ID").first()
+    client_id = client_id.value
+    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_CLIENT_SECRET").first()
+    client_secret = client_secret.value
+    token_uri = "https://api.twitter.com/2/oauth2/token"
+    creds = f"{client_id}:{client_secret}"
+    encoded_creds = base64.b64encode(creds.encode("utf-8")).decode("utf-8")
+    params = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": "http://localhost:3000/api/oauth-twitter",
+        "grant_type": "authorization_code",
+        "code": code,
+        "code_verifier": "challenge"
+    }
+    headers = {
+        'Authorization': f"Basic {encoded_creds}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    response = requests.post(token_uri,data=params,headers=headers)
+    response = response.json()
+    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
+    file_name = "twitter_credentials.pickle"
+    final_path = file_name
+    if root_dir is not None:
+        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        final_path = root_dir + file_name
+    else:
+        final_path = os.getcwd() + "/" + file_name
+    try:
+        with open(final_path, mode="wb") as file:
+            pickle.dump(response, file)
+    except Exception as err:
+        return f"Error: {err}"
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    return RedirectResponse(frontend_url)
+
 @app.get('/github-login')
 def github_login():
     """GitHub login"""
@@ -397,10 +438,21 @@ async def root(Authorize: AuthJWT = Depends()):
 
 @app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
 def get_google_calendar_tool_configs(toolkit_id: int):
-    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
     return {
         "client_id": google_calendar_config.value
     }
+
+@app.get("/twitter/get_twitter_creds/toolkit_id/{toolkit_id}")
+def get_twitter_tool_configs(toolkit_id: int):
+    twitter_config_key = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,ToolConfig.key == "TWITTER_API_KEY").first()
+    twitter_config_secret = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,ToolConfig.key == "TWITTER_API_SECRET").first()
+    api_data =  {
+        "api_key": twitter_config_key.value,
+        "api_secret": twitter_config_secret.value
+    }
+    response = TwitterRequestToken().get_request_token(api_data)
+    return response
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
