@@ -397,7 +397,7 @@ async def root(Authorize: AuthJWT = Depends()):
 
 @app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
 def get_google_calendar_tool_configs(toolkit_id: int):
-    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,
+    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,
                                                                  ToolConfig.key == "GOOGLE_CLIENT_ID").first()
     return {
         "client_id": google_calendar_config.value
