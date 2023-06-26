@@ -23,6 +23,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const txt_icon = '/images/txt_file.svg';
   const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
+  const [createDropdown, setCreateDropdown] = useState(false);
+  const [createModal, setCreateModal] = useState(false);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -74,6 +76,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
+
+  const closeCreateModal = () => {
+    // setRunName("New Run");
+    setCreateModal(false);
+  };
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -696,10 +703,55 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           }
+
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight:'7px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
-            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+            <button style={{marginRight:'4px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
+              <div style={{display:'inline'}}>
+              <div className="primary_button" style={{backgroundColor:'white', marginBottom:'4px'}}>
+              <button disabled={!createClickable} style={{border:'none',backgroundColor:'white'}} onClick={handleAddAgent}>Create and Run</button>
+              <button onClick={() => setCreateDropdown(!createDropdown)} style={{border:'none',backgroundColor:'white'}}>
+                <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+              </button> 
+              </div>
+              <div>
+                {createDropdown && 
+                <div className="custom_select_option" style={{padding:'12px 14px', maxWidth:'100%', boxShadow:'0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)'}}
+                onClick={() => setCreateModal(true)}>
+                Create and Schedule Run
+                </div>}
+              </div>
+              </div>
           </div>
+
+        {createModal && (<div className="modal" onClick={closeCreateModal}>
+        <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+
+          <div className={styles.detail_name}>Schedule Run</div>
+          <div>
+            <label className={styles.form_label}>Select a date and time</label>
+            <div style={{display:'flex'}}>
+            <div style={{width:'52%', marginRight:'5px'}}><input className="input_medium" type="text" /></div>
+            <div style={{width:'52%'}}><input className="input_medium" type="text" /></div>
+            </div>
+          </div>
+          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
+              Cancel
+            </button>
+            <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}}>
+              Create and Schedule Run
+            </button>
+          </div>
+
+        </div>
+      </div>)}
+
+
+
+
+
+
+
         </div>
       </div>
       <div className="col-3"></div>

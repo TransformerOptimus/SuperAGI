@@ -30,6 +30,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
             </div>
             {/*{run.notification_count > 0 && <div className={styles.notification_bubble}>{run.notification_count}</div>}*/}
           </div>
+          
           <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
             <div style={{display:'flex',alignItems:'center'}}>
               <div>
@@ -48,6 +49,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
               </div>
             </div>
           </div>
+
         </div>))}
       </div>
     </div>

@@ -204,6 +204,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button} style={leftPanel === 'agent_type' ? {background:'#454254'} : {background:'transparent'}}>Task Queue</button>
             </div>}
           </div>
+
           <div style={{display:'flex'}}>
             <div>
               <button className={styles.run_button} onClick={() => setRunModal(true)}>
@@ -222,6 +223,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               </ul>
             </div>}
           </div>
+
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
@@ -271,6 +273,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
       </div>
 
+
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={styles.detail_name}>Run agent name</div>
@@ -315,6 +318,8 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
       </div>)}
+
+
     </div>
     <ToastContainer/>
   </>);

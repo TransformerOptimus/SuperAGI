@@ -7,15 +7,24 @@ export const formatTime = (lastExecutionTime) => {
     if (isNaN(parsedTime.getTime())) {
       throw new Error('Invalid time value');
     }
+
+    // Convert to Indian time
+    const indianTime = parsedTime.toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour12: true,
+    });
+
     return formatDistanceToNow(parsedTime, {
       addSuffix: true,
       includeSeconds: true,
-    }).replace(/about\s/, '');
+    }).replace(/about\s/, '') + ' (' + indianTime + ')';
   } catch (error) {
     console.error('Error formatting time:', error);
     return 'Invalid Time';
   }
 };
+
+
 
 export const formatNumber = (number) => {
   if (number === null || number === undefined || number === 0) {
