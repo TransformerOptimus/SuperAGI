@@ -87,7 +87,7 @@ class LanceDB(VectorStore):
         Returns:
             The list of documents most similar to the query
         """
-        namespace = kwargs.get("namespace", self.namespace)
+        namespace = kwargs.get("namespace", "None")
 
         for table in self.db.table_names():
             if table == namespace:
@@ -96,17 +96,18 @@ class LanceDB(VectorStore):
         try:
             tbl
         except:
-            raise ValueError(namespace + " Table not found in LanceDB.")
+            raise ValueError(namespace + " Table not found in LanceDB. Please call this function with a valid table name.")
 
         embed_text = self.embedding_model.get_embedding(query)
         res = tbl.search(embed_text).limit(top_k).to_df()
+        print(res)
 
         documents = []
 
         for i in range(len(res)):
             meta = {}
             for col in res:
-                if col != 'vector' and col != 'id':
+                if col != 'vector' and col != 'id' and col != 'score':
                     meta[col] = res[col][i]
 
             documents.append(
