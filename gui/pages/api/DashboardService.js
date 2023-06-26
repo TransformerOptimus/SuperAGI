@@ -21,7 +21,7 @@ export const getToolKit = () => {
 };
 
 export const getTools = () => {
-  return api.get(`/tools/get`);
+  return api.get(`/tools/list`);
 };
 
 export const getAgentDetails = (agentId) => {
