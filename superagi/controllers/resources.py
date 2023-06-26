@@ -94,6 +94,55 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     return resource
 
 
+@router.delete("/delete/{resource_id}", status_code=200)
+async def delete_resource(resource_id: int, Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Delete a resource.
+
+    Args:
+        resource_id (int): ID of the resource.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException (status_code=400): If the resource with the specified ID does not exist.
+        HTTPException (status_code=500): If there is an issue deleting the resource.
+
+    """
+
+    # Get the resource from the database
+    resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
+    if resource is None:
+        raise HTTPException(status_code=400, detail="Resource does not exist.")
+
+    # Delete the file or perform any cleanup logic based on the storage type (e.g., local file system, S3, etc.)
+    if resource.storage_type == "FILE":
+        try:
+            # Delete the file from the local file system
+            file_path = os.path.join(get_config("RESOURCES_INPUT_ROOT_DIR"), resource.path)
+            os.remove(file_path)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Error deleting file: " + str(e))
+    elif resource.storage_type == "S3":
+        try:
+            # Perform the deletion logic specific to the S3 storage
+            # For example, you can use the AWS SDK to delete the file from the S3 bucket
+            bucket_name = get_config("BUCKET_NAME")
+            s3.delete_object(Bucket=bucket_name, Key=resource.path)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Error deleting file: " + str(e))
+
+    # Remove the resource from the database
+    db.session.delete(resource)
+    db.session.commit()
+
+    return {"message": "Resource deleted successfully."}
+
+
+
+
+
 @router.get("/get/all/{agent_id}", status_code=200)
 def get_all_resources(agent_id: int,
                       Authorize: AuthJWT = Depends(check_auth)):
