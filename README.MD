@@ -9,7 +9,7 @@
   
 </p>
 
-<p align="center"><i>Open-source framework to build, manage and run useful Autonomous AI Agents</i></p>
+<p align="center"><i>Open-source framework to build, manage and run useful Autonomous AI Agent</i></p>
 
 <p align="center">
 <a href="https://github.com/TransformerOptimus/SuperAGI/fork" target="blank">
