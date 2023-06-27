@@ -34,7 +34,6 @@ export const formatNumber = (number) => {
   return scaledNumber.toFixed(1) + suffix;
 };
 
-
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
     return '0 Bytes';
