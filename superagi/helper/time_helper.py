@@ -15,11 +15,11 @@ def get_time_difference(timestamp1, timestamp2):
     total_seconds = int(time_difference.total_seconds())
 
     # Calculate years, months, days, hours, and minutes
-    years, seconds_remainder = divmod(total_seconds, 31536000)  # 1 year = 365 days * 24 hours * 60 minutes * 60 seconds
+    years, seconds_remainder = divmod(total_seconds, (365 * 24 * 60 * 60))  # 1 year = 365 days * 24 hours * 60 minutes * 60 seconds
     months, seconds_remainder = divmod(seconds_remainder,
-                                       2592000)  # 1 month = 30 days * 24 hours * 60 minutes * 60 seconds
-    days, seconds_remainder = divmod(seconds_remainder, 86400)  # 1 day = 24 hours * 60 minutes * 60 seconds
-    hours, seconds_remainder = divmod(seconds_remainder, 3600)  # 1 hour = 60 minutes * 60 seconds
+                                       (30 * 24 * 60 * 60))  # 1 month = 30 days * 24 hours * 60 minutes * 60 seconds
+    days, seconds_remainder = divmod(seconds_remainder, 24 * 60 * 60)  # 1 day = 24 hours * 60 minutes * 60 seconds
+    hours, seconds_remainder = divmod(seconds_remainder, 60 * 60)  # 1 hour = 60 minutes * 60 seconds
     minutes, _ = divmod(seconds_remainder, 60)  # 1 minute = 60 seconds
 
     # Create a dictionary to store the time difference
