@@ -131,3 +131,4 @@ tiktoken==0.4.0
 psycopg2==2.9.6
 slack-sdk==3.21.3
 pytest==7.3.2
+transformers==4.30.2

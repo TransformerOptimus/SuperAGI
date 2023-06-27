@@ -1,3 +1,6 @@
+import logging
+
+import llama_index
 from llama_index import SimpleDirectoryReader
 import os
 
@@ -6,28 +9,80 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.config.config import get_config
 
-def create_document_index(file_path: str, agent_id: int, session):
+
+def create_llama_document(file_path: str):
     """
     Creates a document index from a given directory.
     """
     documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
 
+
     return documents
 
 
-def llama_vector_store_factory(vector_store, index_name, embedding_model, session, agent_id):
+def llama_vector_store_factory(vector_store_name,index_name,embedding_model):
     """
     Creates a llama vector store.
     """
     model_api_key = get_config("OPENAI_API_KEY")
-    # agent_execution = AgentExecution(agent_id=agent_id)
-    # agent_executor = AgentExecutor()
-    # model_api_key = agent_executor.get_model_api_key_from_execution(agent_execution, session)
     from superagi.vector_store.vector_factory import VectorFactory
-    vector_store = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
-                                                    OpenAiEmbedding(model_api_key))
+    vector_store = VectorFactory.get_vector_storage(vector_store_name, index_name,
+                                                    embedding_model)
     if vector_store is None:
         raise ValueError("Vector store not found")
-    if vector_store == "PineCone":
+    if vector_store_name == "PineCone":
         from llama_index.vector_stores import PineconeVectorStore
-        return PineconeVectorStore(index_name, embedding_model, 'text')
+        return PineconeVectorStore(vector_store.index)
+    if vector_store_name == "Weaviate":
+        from llama_index.vector_stores import WeaviateVectorStore
+        return WeaviateVectorStore(vector_store.client)
+
+
+def save_file_to_vector_store(file_path: str, agent_id: int, resource_id: str):
+    from llama_index import VectorStoreIndex
+    import openai
+    from superagi.vector_store.embedding.openai import OpenAiEmbedding
+    from llama_index import StorageContext
+    from llama_index import SimpleDirectoryReader
+    model_api_key = get_config("OPENAI_API_KEY")
+    documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
+    for docs in documents:
+        if docs.extra_info is None:
+            docs.extra_info = {"agent_id": agent_id, "resource_id": resource_id}
+        else:
+            docs.extra_info["agent_id"] = agent_id
+            docs.extra_info["resource_id"] = resource_id
+    os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
+    vector_store = None
+    storage_context = None
+    try:
+        vector_store = llama_vector_store_factory('PineCone', 'super-agent-index1', OpenAiEmbedding(model_api_key))
+        storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    except ValueError:
+        logging.error("Vector store not found")
+        vector_store = None
+        # vector_store = llama_vector_store_factory('Weaviate', 'super-agent-index1', OpenAiEmbedding(model_api_key))
+        print(vector_store)
+        # storage_context = StorageContext.from_defaults(persist_dir="workspace/index")
+    openai.api_key = get_config("OPENAI_API_KEY")
+    index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+    index.set_index_id(f'Agent {agent_id}')
+    if vector_store is None:
+        index.storage_context.persist(persist_dir="workspace/index")
+
+
+def generate_summary_of_document(documents: list[llama_index.Document]):
+    from llama_index import LLMPredictor
+    from llama_index import ServiceContext
+    from langchain.chat_models import ChatOpenAI
+    from llama_index import ResponseSynthesizer
+    from llama_index import DocumentSummaryIndex
+    llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"))
+    service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt, chunk_size=1024)
+    response_synthesizer = ResponseSynthesizer.from_args(response_mode="tree_summarize", use_async=True)
+    doc_summary_index = DocumentSummaryIndex.from_documents(
+        documents=documents,
+        service_context=service_context,
+        response_synthesizer=response_synthesizer
+    )
+    return doc_summary_index.get_document_summary(documents[0].doc_id)

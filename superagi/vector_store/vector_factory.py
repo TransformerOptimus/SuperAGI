@@ -33,6 +33,8 @@ class VectorFactory:
 
                 if index_name not in pinecone.list_indexes():
                     sample_embedding = embedding_model.get_embedding("sample")
+                    if "error" in sample_embedding:
+                        print("Error in embedding model", sample_embedding)
 
                     # if does not exist, create index
                     pinecone.create_index(
@@ -58,5 +60,4 @@ class VectorFactory:
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
 
-        else:
-            raise Exception("Vector store not supported")
+        raise ValueError(f"Vector store {vector_store} not supported")

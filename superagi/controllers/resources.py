@@ -1,10 +1,13 @@
+import openai
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
+
 from superagi.models.budget import Budget
 from fastapi import APIRouter, UploadFile
-from superagi.helper.file_to_index_parser import create_document_index
+from superagi.helper.file_to_index_parser import create_llama_document, llama_vector_store_factory, \
+    save_file_to_vector_store
 import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated
@@ -21,6 +24,7 @@ from botocore.exceptions import NoCredentialsError
 import tempfile
 import requests
 from superagi.lib.logger import logger
+from superagi.vector_store.vector_factory import VectorFactory
 
 router = APIRouter()
 
@@ -87,11 +91,33 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
 
     resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
+
+    # from llama_index import VectorStoreIndex
+    # from superagi.vector_store.embedding.openai import OpenAiEmbedding
+    # from llama_index import StorageContext
+    # from llama_index import SimpleDirectoryReader
+    # model_api_key = get_config("OPENAI_API_KEY")
+    # documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
+    # for docs in documents:
+    #     if docs.extra_info is None:
+    #         docs.extra_info = {"agent_id": agent_id}
+    #     else:
+    #         docs.extra_info["agent_id"] = agent_id
+    # os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
+    # vector_store = llama_vector_store_factory('PineCone', 'super-agent-index1', OpenAiEmbedding(model_api_key))
+    # storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    # if vector_store is None:
+    #     storage_context = StorageContext.from_defaults(persist_dir="workspace/index")
+    # openai.api_key = get_config("OPENAI_API_KEY")
+    # index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+    # index.set_index_id(f'Agent {agent_id}')
+    # if vector_store is None:
+    #     index.storage_context.persist()
+
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    create_document_index(file_path)
-
+    save_file_to_vector_store(file_path, agent_id, resource.id)
     logger.info(resource)
     return resource
 
