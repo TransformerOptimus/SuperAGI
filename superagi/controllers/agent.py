@@ -12,7 +12,7 @@ from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.tool import Tool
 from jsonmerge import merge
 from superagi.worker import execute_agent
@@ -271,3 +271,42 @@ def get_agent_configuration(agent_id: int,
     db.session.close()
 
     return response
+
+@router.put("/delete/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
+def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+    """
+        Delete an existing Agent
+            - Updates the is_deleted flag: Executes a soft delete
+            - AgentExecution is updated to: "TERMINATED" if agentexecution is created
+            - AgentExecutionPermission is set to: "REJECTED" if agentexecutionpersmision is created
+            
+        Args:
+            agent_id (int): Identifier of the Agent to delete
+
+        Returns:
+            A dictionary containing a "success" key with the value True to indicate a successful delete.
+
+        Raises:
+            HTTPException (Status Code=404): If the Agent or associated Project is not found or deleted already.
+    """
+    
+    db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).first()
+    db_agent_execution_permission = db.session.query(AgentExecutionPermission).filter(AgentExecutionPermission.agent_id == agent_id).first()
+    
+    
+    if not db_agent or db_agent.is_deleted:
+        raise HTTPException(status_code=404, detail="agent not found")
+    
+    # Deletion Procedure 
+    db_agent.is_deleted = True
+    if db_agent_execution:
+        db_agent_execution.status = "TERMINATED"
+    if db_agent_execution_permission:
+        db_agent_execution_permission.status = "REJECTED"
+    
+    db.session.commit()
+    
+    return {"success": True}
+
+    
