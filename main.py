@@ -18,7 +18,7 @@ import pickle
 import superagi
 import urllib.parse
 import http.client as http_client
-from superagi.helper.twitter_request_token import TwitterRequestToken
+from superagi.helper.twitter_tokens import TwitterTokens
 from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
@@ -326,9 +326,6 @@ async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Quer
     response_data = res.read().decode('utf-8')
     conn.close()
     response = dict(urllib.parse.parse_qsl(response_data))
-    print("///////////////////")
-    print(response)
-    print(type(response))
     root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
     file_name = "twitter_credentials.pickle"
     final_path = file_name
@@ -442,7 +439,7 @@ def get_twitter_tool_configs(toolkit_id: int):
         "api_key": twitter_config_key.value,
         "api_secret": twitter_config_secret.value
     }
-    response = TwitterRequestToken().get_request_token(api_data)
+    response = TwitterTokens().get_request_token(api_data)
     return response
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
