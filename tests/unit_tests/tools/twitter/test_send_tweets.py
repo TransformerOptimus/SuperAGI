@@ -1,6 +1,6 @@
 import unittest
 import os
-from unittest.mock import MagicMock, patch,
+from unittest.mock import MagicMock, patch
 from superagi.tools.twitter.send_tweets import SendTweetsTool, SendTweetsInput
 from superagi.helper.twitter_tokens import TwitterTokens
 
