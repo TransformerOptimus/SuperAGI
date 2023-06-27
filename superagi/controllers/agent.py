@@ -2,6 +2,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
 from superagi.models.agent import Agent
+from superagi.models.agent_scheduler import AgentScheduler
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.project import Project
@@ -10,12 +11,14 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
+from superagi.models.types.agent_schedule import AgentScheduleCreate
+from superagi.models.types.agent_with_config_schedule import AgentWithConfigSchedule
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.tool import Tool
 from jsonmerge import merge
-from superagi.worker import execute_agent
+import superagi.worker 
 from datetime import datetime
 import json
 from sqlalchemy import func
@@ -119,6 +122,7 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentWithConfig,
+                             should_execute: bool = True,
                              Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations.
@@ -162,21 +166,80 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
                                                                          agent_with_config=agent_with_config)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    # Creating an execution with RUNNING status
-    execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step_id)
 
-    db.session.add(execution)
-    db.session.commit()
-    execute_agent.delay(execution.id, datetime.now())
+    # Only create AgentExecution if should_execute is True
+    if should_execute:
+        start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
+        execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
+                                   name="New Run", current_step_id=start_step_id)
 
+        db.session.add(execution)
+        db.session.commit()
+        superagi.worker.execute_agent.delay(execution.id, datetime.now())
+
+        return {
+            "id": db_agent.id,
+            "execution_id": execution.id,
+            "name": db_agent.name,
+            "contentType": "Agents"
+        }
+    
+    else:  # Return agent data without execution details
+        return {
+            "id": db_agent.id,
+            "name": db_agent.name,
+            "contentType": "Agents"
+        }
+    
+
+
+@router.post("/schedule", status_code=201)
+def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSchedule,
+                              exclude=["agent_id"], Authorize: AuthJWT = Depends(check_auth)):
+    agent = AgentWithConfig(
+        name=agent_with_config_and_schedule.name,
+        project_id=agent_with_config_and_schedule.project_id,
+        description=agent_with_config_and_schedule.description,
+        goal=agent_with_config_and_schedule.goal,
+        instruction=agent_with_config_and_schedule.instruction,
+        agent_type=agent_with_config_and_schedule.agent_type,
+        constraints=agent_with_config_and_schedule.constraints,
+        toolkits=agent_with_config_and_schedule.toolkits,
+        tools=agent_with_config_and_schedule.tools,
+        exit=agent_with_config_and_schedule.exit,
+        iteration_interval=agent_with_config_and_schedule.iteration_interval,
+        model=agent_with_config_and_schedule.model,
+        permission_type=agent_with_config_and_schedule.permission_type,
+        LTM_DB=agent_with_config_and_schedule.LTM_DB,
+        memory_window=agent_with_config_and_schedule.memory_window,
+        max_iterations=agent_with_config_and_schedule.max_iterations
+    )
+
+    # First, create the agent with config but do not execute it
+    agent_data = create_agent_with_config(agent, should_execute=False)
+    agent_id = agent_data["id"]
+
+    # Fit agent_id after we get it
+    agent_with_config_and_schedule.agent_id = agent_id
+    
+    schedule = AgentScheduleCreate(
+        agent_id=agent_with_config_and_schedule.agent_id,
+        start_time=agent_with_config_and_schedule.start_time,
+        recurrence_interval=agent_with_config_and_schedule.recurrence_interval,
+        expiry_date=agent_with_config_and_schedule.expiry_date,
+        expiry_runs=agent_with_config_and_schedule.expiry_runs
+    )
+
+    # Then, schedule the agent
+    schedule_id = AgentScheduler.schedule_agent(db.session, schedule)
+    
     return {
-        "id": db_agent.id,
-        "execution_id": execution.id,
-        "name": db_agent.name,
-        "contentType": "Agents"
+        "id": agent_id,
+        "name": agent_data["name"],
+        "contentType": "Agents",
+        "schedule_id": schedule_id
     }
+
 
 
 @router.get("/get/project/{project_id}")

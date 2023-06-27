@@ -4,6 +4,7 @@ from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 
 from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.agent_scheduler import AgentScheduler
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -11,6 +12,7 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
+from superagi.models.types.agent_schedule import AgentScheduleCreate
 
 router = APIRouter()
 
@@ -47,6 +49,18 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
         execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
+
+
+@router.post("/schedule", status_code=201)
+def create_and_schedule_agent(agent_with_config_schedule: AgentScheduleCreate,
+                              Authorize: AuthJWT = Depends(check_auth)):
+    
+    # Schedule the agent
+    schedule_id = AgentScheduler.schedule_agent(db.session, agent_with_config_schedule)
+    
+    return {
+        "schedule_id": schedule_id
+    }
 
 
 @router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
