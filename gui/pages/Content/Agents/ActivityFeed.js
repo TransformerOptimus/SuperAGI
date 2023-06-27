@@ -89,7 +89,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
             <div className={styles.feed_title}>{f?.feed || ''}</div>
           </div>
           <div className={styles.more_details_wrapper}>
-            {f.time_difference && formatTimeDifference(f.time_difference) !== 'Invalid Time' && <div className={styles.more_details}>
+            {f.time_difference && <div className={styles.more_details}>
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <div>
                   <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
