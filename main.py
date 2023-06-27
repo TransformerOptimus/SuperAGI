@@ -1,6 +1,6 @@
-import inspect
 import os
-from datetime import timedelta
+import pickle
+from datetime import datetime, timedelta
 
 import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
@@ -14,7 +14,6 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import pickle
 import superagi
 import urllib.parse
 import http.client as http_client
@@ -22,8 +21,6 @@ from superagi.helper.twitter_tokens import TwitterTokens
 from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
-from superagi.controllers.agent_template import router as agent_template_router
-from superagi.controllers.agent_workflow import router as agent_workflow_router
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
@@ -46,10 +43,9 @@ from superagi.llms.openai import OpenAi
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
+from superagi.models.tool_config import ToolConfig
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
-from superagi.tools.base_tool import BaseTool
-from superagi.models.tool_config import ToolConfig
 
 app = FastAPI()
 
@@ -120,6 +116,7 @@ def create_access_token(email, Authorize: AuthJWT = Depends()):
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
 
+
 # callback to get your configuration
 @AuthJWT.load_config
 def get_config():
@@ -136,127 +133,129 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
     )
 
 
-Session = sessionmaker(bind=engine)
-session = Session()
-default_user = session.query(User).filter(User.email == "super6@agi.com").first()
-logger.info(default_user)
-if default_user is not None:
-    organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
-    logger.info(organisation)
-    register_toolkits(session, organisation)
+@app.on_event("startup")
+async def startup_event():
+    # Perform startup tasks here
+    logger.info("Running Startup tasks")
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    default_user = session.query(User).filter(User.email == "super6@agi.com").first()
+    logger.info(default_user)
+    if default_user is not None:
+        organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
+        logger.info(organisation)
+        register_toolkits(session, organisation)
 
+    def build_single_step_agent():
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
 
-def build_single_step_agent():
-    agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
+        if agent_workflow is None:
+            agent_workflow = AgentWorkflow(name="Goal Based Agent", description="Goal based agent")
+            session.add(agent_workflow)
+            session.commit()
 
-    if agent_workflow is None:
-        agent_workflow = AgentWorkflow(name="Goal Based Agent", description="Goal based agent")
-        session.add(agent_workflow)
-        session.commit()
-
-    # step will have a prompt
-    # output of step is either tasks or set commands
-    first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
-    output = AgentPromptBuilder.get_super_agi_single_prompt()
-    if first_step is None:
-        first_step = AgentWorkflowStep(unique_id="gb1",
-                                       prompt=output["prompt"], variables=str(output["variables"]),
-                                       agent_workflow_id=agent_workflow.id, output_type="tools",
-                                       step_type="TRIGGER",
-                                       history_enabled=True,
-                                       completion_prompt="Determine which next tool to use, and respond using the format specified above:")
-        session.add(first_step)
-        session.commit()
-    else:
-        first_step.prompt = output["prompt"]
-        first_step.variables = str(output["variables"])
-        first_step.output_type = "tools"
-        first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
-        session.commit()
-    first_step.next_step_id = first_step.id
-    session.commit()
-
-
-def build_task_based_agents():
-    agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Task Queue Agent With Seed").first()
-    if agent_workflow is None:
-        agent_workflow = AgentWorkflow(name="Task Queue Agent With Seed", description="Task queue based agent")
-        session.add(agent_workflow)
-        session.commit()
-
-    output = AgentPromptBuilder.start_task_based()
-
-    workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb1").first()
-    if workflow_step1 is None:
-        workflow_step1 = AgentWorkflowStep(unique_id="tb1",
+        # step will have a prompt
+        # output of step is either tasks or set commands
+        first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
+        output = AgentPromptBuilder.get_super_agi_single_prompt()
+        if first_step is None:
+            first_step = AgentWorkflowStep(unique_id="gb1",
                                            prompt=output["prompt"], variables=str(output["variables"]),
+                                           agent_workflow_id=agent_workflow.id, output_type="tools",
                                            step_type="TRIGGER",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
-                                           output_type="tasks")
-        session.add(workflow_step1)
-    else:
-        workflow_step1.prompt = output["prompt"]
-        workflow_step1.variables = str(output["variables"])
-        workflow_step1.output_type = "tasks"
+                                           history_enabled=True,
+                                           completion_prompt="Determine which next tool to use, and respond using the format specified above:")
+            session.add(first_step)
+            session.commit()
+        else:
+            first_step.prompt = output["prompt"]
+            first_step.variables = str(output["variables"])
+            first_step.output_type = "tools"
+            first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
+            session.commit()
+        first_step.next_step_id = first_step.id
         session.commit()
 
-    workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb2").first()
-    output = AgentPromptBuilder.create_tasks()
-    if workflow_step2 is None:
-        workflow_step2 = AgentWorkflowStep(unique_id="tb2",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="NORMAL",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
-                                           output_type="tasks")
-        session.add(workflow_step2)
-    else:
-        workflow_step2.prompt = output["prompt"]
-        workflow_step2.variables = str(output["variables"])
-        workflow_step2.output_type = "tasks"
+    def build_task_based_agents():
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Task Queue Agent With Seed").first()
+        if agent_workflow is None:
+            agent_workflow = AgentWorkflow(name="Task Queue Agent With Seed", description="Task queue based agent")
+            session.add(agent_workflow)
+            session.commit()
+
+        output = AgentPromptBuilder.start_task_based()
+
+        workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb1").first()
+        if workflow_step1 is None:
+            workflow_step1 = AgentWorkflowStep(unique_id="tb1",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="TRIGGER",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tasks")
+            session.add(workflow_step1)
+        else:
+            workflow_step1.prompt = output["prompt"]
+            workflow_step1.variables = str(output["variables"])
+            workflow_step1.output_type = "tasks"
+            session.commit()
+
+        workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb2").first()
+        output = AgentPromptBuilder.create_tasks()
+        if workflow_step2 is None:
+            workflow_step2 = AgentWorkflowStep(unique_id="tb2",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="NORMAL",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tasks")
+            session.add(workflow_step2)
+        else:
+            workflow_step2.prompt = output["prompt"]
+            workflow_step2.variables = str(output["variables"])
+            workflow_step2.output_type = "tasks"
+            session.commit()
+
+        workflow_step3 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb3").first()
+
+        output = AgentPromptBuilder.analyse_task()
+        if workflow_step3 is None:
+            workflow_step3 = AgentWorkflowStep(unique_id="tb3",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="NORMAL",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tools")
+
+            session.add(workflow_step3)
+        else:
+            workflow_step3.prompt = output["prompt"]
+            workflow_step3.variables = str(output["variables"])
+            workflow_step3.output_type = "tools"
+            session.commit()
+
+        workflow_step4 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb4").first()
+        output = AgentPromptBuilder.prioritize_tasks()
+        if workflow_step4 is None:
+            workflow_step4 = AgentWorkflowStep(unique_id="tb4",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="NORMAL",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="replace_tasks")
+
+            session.add(workflow_step4)
+        else:
+            workflow_step4.prompt = output["prompt"]
+            workflow_step4.variables = str(output["variables"])
+            workflow_step4.output_type = "replace_tasks"
+            session.commit()
+        session.commit()
+        workflow_step1.next_step_id = workflow_step3.id
+        workflow_step3.next_step_id = workflow_step2.id
+        workflow_step2.next_step_id = workflow_step4.id
+        workflow_step4.next_step_id = workflow_step3.id
         session.commit()
 
-    workflow_step3 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb3").first()
-
-    output = AgentPromptBuilder.analyse_task()
-    if workflow_step3 is None:
-        workflow_step3 = AgentWorkflowStep(unique_id="tb3",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="NORMAL",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1, output_type="tools")
-
-        session.add(workflow_step3)
-    else:
-        workflow_step3.prompt = output["prompt"]
-        workflow_step3.variables = str(output["variables"])
-        workflow_step3.output_type = "tools"
-        session.commit()
-
-    workflow_step4 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "tb4").first()
-    output = AgentPromptBuilder.prioritize_tasks()
-    if workflow_step4 is None:
-        workflow_step4 = AgentWorkflowStep(unique_id="tb4",
-                                           prompt=output["prompt"], variables=str(output["variables"]),
-                                           step_type="NORMAL",
-                                           agent_workflow_id=agent_workflow.id, next_step_id=-1,
-                                           output_type="replace_tasks")
-
-        session.add(workflow_step4)
-    else:
-        workflow_step4.prompt = output["prompt"]
-        workflow_step4.variables = str(output["variables"])
-        workflow_step4.output_type = "replace_tasks"
-        session.commit()
-    session.commit()
-    workflow_step1.next_step_id = workflow_step3.id
-    workflow_step3.next_step_id = workflow_step2.id
-    workflow_step2.next_step_id = workflow_step4.id
-    workflow_step4.next_step_id = workflow_step3.id
-    session.commit()
-
-
-build_single_step_agent()
-build_task_based_agents()
-session.close()
+        build_single_step_agent()
+        build_task_based_agents()
+        session.close()
 
 
 @app.post('/login')
@@ -316,6 +315,7 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
         return f"Error: {err}"
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     return RedirectResponse(frontend_url)
+
 
 @app.get('/oauth-twitter')
 async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Query(...), Authorize: AuthJWT = Depends()):
@@ -419,14 +419,16 @@ async def root(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
         current_user_email = Authorize.get_jwt_subject()
-        current_user = session.query(User).filter(User.email == current_user_email).first()
+        current_user = db.session.query(User).filter(User.email == current_user_email).first()
         return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
+
 @app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
 def get_google_calendar_tool_configs(toolkit_id: int):
-    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,
+                                                                 ToolConfig.key == "GOOGLE_CLIENT_ID").first()
     return {
         "client_id": google_calendar_config.value
     }
@@ -441,6 +443,7 @@ def get_twitter_tool_configs(toolkit_id: int):
     }
     response = TwitterTokens().get_request_token(api_data)
     return response
+
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
