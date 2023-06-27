@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
-import {formatTime, formatNumber} from "@/utils/utils";
+import {formatNumber, formatTimeDifference} from "@/utils/utils";
 
 export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun}) {
   return (<>
@@ -44,7 +44,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
                 <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
               </div>
               <div className={styles.history_info}>
-                {formatTime(run.last_execution_time)}
+                {formatTimeDifference(run.time_difference)}
               </div>
             </div>
           </div>
