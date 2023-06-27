@@ -28,8 +28,10 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     if (feeds.length !== prevFeedsLength) {
       if (feedContainerRef.current) {
         setTimeout(() => {
-          feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
-          setPrevFeedsLength(feeds.length);
+          if(feedContainerRef.current !== null) {
+            feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
+            setPrevFeedsLength(feeds.length);
+          }
         }, 100);
       }
     }
