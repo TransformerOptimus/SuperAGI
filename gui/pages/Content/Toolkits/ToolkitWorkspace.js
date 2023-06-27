@@ -25,6 +25,13 @@ export default function ToolkitWorkspace({toolkitDetails}){
       window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
     }
     
+    function getTwitterToken(oauth_data){
+      const oauth_token = oauth_data.oauth_token
+      const oauth_token_secret = oauth_data.oauth_token_secret
+      const authUrl = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`
+      window.location.href = authUrl
+    }
+    
     useEffect(() => {
       if(toolkitDetails !== null) {
         if (toolkitDetails.tools) {
@@ -69,6 +76,16 @@ export default function ToolkitWorkspace({toolkitDetails}){
         .catch((error) => {
           console.error('Error fetching data:', error);
         });
+    };
+
+    const handleTwitterAuthClick = async () => {
+      authenticateTwitterCred(toolDetails.id)
+      .then((response) => {
+        getTwitterToken(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data: ', error);
+      });
     };
 
     return (<>
@@ -116,6 +133,7 @@ export default function ToolkitWorkspace({toolkitDetails}){
             <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
               <div>
                 {toolkitDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
+                {toolDetails.name === 'Twitter Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleTwitterAuthClick}>Authenticate Tool</button>}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
