@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi.models.agent_execution
+from superagi.lib.logger import logger
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.base_model import DBBaseModel as Base
@@ -50,7 +51,7 @@ def test_handle_wait_for_permission():
 
     agent_execution_feed = session.query(AgentExecutionFeed).filter(
         AgentExecutionFeed.agent_execution_id == agent_execution_id).first()
-    print(agent_execution_feed)
+    logger.info(agent_execution_feed)
     assert agent_execution_feed is not None
     assert agent_execution.status == "RUNNING"
     assert agent_execution_feed.feed == "Approved"

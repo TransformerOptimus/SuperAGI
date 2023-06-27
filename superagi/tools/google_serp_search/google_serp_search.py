@@ -4,8 +4,6 @@ import aiohttp
 from superagi.helper.google_serp import GoogleSerpApiWrap
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
-
 import os
 
 import json
@@ -49,7 +47,7 @@ class GoogleSerpTool(BaseTool):
         Returns:
             A tuple of (snippets, webpages, links)
         """
-        api_key = get_config("SERP_API_KEY")
+        api_key = self.get_tool_config("SERP_API_KEY")
         serp_api = GoogleSerpApiWrap(api_key)
         response = serp_api.search_run(query)
         summary = self.summarise_result(query, response["snippets"])

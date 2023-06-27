@@ -5,7 +5,7 @@ import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}){
+export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId}){
     const [agentTemplates, setAgentTemplates] = useState([])
     const [createAgentClicked, setCreateAgentClicked] = useState(false)
     const [sendTemplate, setSendTemplate] = useState(null)
@@ -26,7 +26,13 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
     }
 
     function openMarketplace() {
-        EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
+        EventBus.emit('openNewTab', {
+            element: {
+                id: -4,
+                name: "Marketplace",
+                contentType: "Marketplace"
+            },
+            source:"market_agents"});
     }
 
     function handleTemplateClick(item) {
@@ -50,7 +56,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
                     {agentTemplates.length > 0 ? <div className={styles.resources}>
                         {agentTemplates.map((item) => (
-                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'90px'}}
+                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'85px'}}
                                  onClick={() => handleTemplateClick(item)}>
                                 <div style={{display: 'inline',overflow:'auto'}}>
                                     <div>{item.name}</div>
@@ -58,10 +64,10 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                                 </div>
                             </div>
                         ))}
-                        <div className={styles.market_tool} style={{cursor: 'pointer',height:'90px',background:'#413C4F'}}
+                        <div className={styles.market_tool} style={{cursor: 'pointer',height:'85px',background:'#413C4F'}}
                              onClick={openMarketplace}>
                             <div style={{display: 'inline',overflow:'auto'}}>
-                                <div style={{display:'flex',justifyContent:'flex-start',gap:'0.3vw'}}>
+                                <div style={{display:'flex',justifyContent:'space-between',gap:'0.3vw'}}>
                                     <div style={{order:'0'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/marketplace.svg" alt="arrow-outward"/>&nbsp;&nbsp;Browse templates from marketplace</div>
                                     <div style={{order:'1'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/arrow_outward.svg" alt="arrow-outward"/></div>
                                 </div>
@@ -80,7 +86,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                         </div>
                     </div>}
                 </div>
-            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} template={sendTemplate} />}
+            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
         </div>
     )
 };

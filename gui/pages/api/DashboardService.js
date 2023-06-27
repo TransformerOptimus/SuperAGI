@@ -16,8 +16,12 @@ export const getAgents = (projectId) => {
   return api.get(`/agents/get/project/${projectId}`);
 };
 
+export const getToolKit = () => {
+  return api.get(`/toolkits/get/local/list`);
+};
+
 export const getTools = () => {
-  return api.get(`/tools/get`);
+  return api.get(`/tools/list`);
 };
 
 export const getAgentDetails = (agentId) => {
@@ -84,26 +88,53 @@ export const fetchAgentTemplateList = () => {
   return api.get('/agent_templates/list?template_source=marketplace');
 }
 
-export const fetchAgentTemplateListLocal = () => {
-  return api.get('/agent_templates/list?template_source=local');
+export const fetchAgentTemplateDetails = (templateId) => {
+  return api.get(`/agent_templates/get/${templateId}`);
 }
 
-export const saveAgentAsTemplate = (agentId) => {
-  return api.post(`agent_templates/save_agent_as_template/${agentId}`);
+export const getToolConfig = (toolKitName) => {
+  return api.get(`/tool_configs/get/toolkit/${toolKitName}`);
 }
 
-export const fetchAgentTemplateConfig = (templateId) => {
-  return api.get(`agent_templates/get/${templateId}?template_source=marketplace`);
+export const updateToolConfig = (toolKitName, configData) => {
+  return api.post(`/tool_configs/add/${toolKitName}`, configData);
+}
+
+export const fetchAgentTemplateListLocal = () => {	
+  return api.get('/agent_templates/list?template_source=local');	
+}
+
+export const saveAgentAsTemplate = (agentId) => {	
+  return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
+}
+
+export const fetchAgentTemplateConfig = (templateId) => {	
+  return api.get(`/agent_templates/get/${templateId}?template_source=marketplace`);
+}
+
+export const installAgentTemplate = (templateId) => {	
+  return api.post(`/agent_templates/download?agent_template_id=${templateId}`);
 }
 
 export const fetchAgentTemplateConfigLocal = (templateId) => {
-  return api.get(`agent_templates/agent_config?agent_template_id=${templateId}`);
-}
-
-export const installAgentTemplate = (templateId) => {
-  return api.post(`agent_templates/download?agent_template_id=${templateId}`);
+  return api.get(`/agent_templates/agent_config?agent_template_id=${templateId}`);
 }
 
 export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
+}
+
+export const authenticateGoogleCred = (toolKitId) => {
+  return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
+}
+
+export const fetchToolTemplateList = () => {
+  return api.get(`/toolkits/get/list?page=0`);
+}
+
+export const fetchToolTemplateOverview = (toolTemplateName) => {
+  return api.get(`/toolkits/marketplace/readme/${toolTemplateName}`);
+}
+export const installToolkitTemplate = (templateName) => {
+  return api.get(`/toolkits/get/install/${templateName}`);
 }
