@@ -2,12 +2,17 @@ FROM node:lts AS deps
 
 WORKDIR /app
 
-COPY package*.json ./
+# COPY package*.json .
+
+COPY ./gui .
 RUN npm ci
+RUN npm run build
 
-FROM node:lts AS builder
-WORKDIR /app
-COPY . .
-COPY --from=deps /app/node_modules ./node_modules
+EXPOSE 3000
+EXPOSE 80
+RUN chmod +x ./entrypoint*
 
-CMD ["npm", "run", "dev"]
+ENV NEXT_PUBLIC_GITHUB_CLIENT_ID="06b962774236a4a8448f"
+
+# CMD ["npm", "run", "start"]
+ENTRYPOINT [ "./entrypoint.sh" ]

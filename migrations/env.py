@@ -2,7 +2,7 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
+import os
 from alembic import context
 
 from superagi.config.config import get_config
@@ -73,6 +73,14 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    url_tokens = {
+        "DB_USER": os.getenv("DB_USERNAME", ""),
+        "DB_PASS": os.getenv("DB_PASSWORD", ""),
+        "DB_HOST": os.getenv("POSTGRES_URL", ""),
+        "DB_NAME": os.getenv("DB_NAME", "")
+    }
+    print("HERE ARE THE VARIABLES", url_tokens)
+    config.set_main_option('sqlalchemy.url', f"postgresql://{url_tokens['DB_USER']}:{url_tokens['DB_PASS']}@{url_tokens['DB_HOST']}:5432/{url_tokens['DB_NAME']}")
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

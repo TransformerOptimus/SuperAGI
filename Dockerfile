@@ -7,9 +7,9 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-COPY config.yaml ./config.yaml
-COPY entrypoint.sh ./entrypoint.sh
-COPY wait-for-it.sh ./wait-for-it.sh
-RUN chmod +x ./entrypoint.sh ./wait-for-it.sh
+RUN chmod +x ./entrypoint*
 
-CMD ["./wait-for-it.sh", "super__postgres:5432","-t","60","--","./entrypoint.sh"]
+EXPOSE 8000
+EXPOSE 80
+
+ENTRYPOINT ["entrypoint.sh"]
