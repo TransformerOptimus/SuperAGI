@@ -163,10 +163,12 @@ class AgentExecutor:
             tools.append(tool)
         print(user_tools)
 
+        print('////////////', model_api_key)
+        resource_summary = self.generate_resource_summary(agent.id, session, model_api_key)
+        resource_summary = resource_summary or parsed_config.get("resource_summary")
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
-                                              model_api_key=model_api_key)
-        
-
+                                              model_api_key=model_api_key,
+                                              resource_description=resource_summary)
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
@@ -205,7 +207,7 @@ class AgentExecutor:
         # finally:
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key):
+    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key, resource_description=None):
         """
         Set the default parameters for the tools.
 
@@ -214,6 +216,7 @@ class AgentExecutor:
             parsed_config (dict): The parsed configuration.
             agent_id (int): The ID of the agent.
             model_api_key (str): The API key of the model.
+            resource_description (str): The description of the resource.
 
         Returns:
             list: The list of tools with default parameters.
@@ -232,6 +235,8 @@ class AgentExecutor:
                 tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
+            if tool.name == "Query Resource" and resource_description:
+                tool.description = resource_description
             new_tools.append(tool)
         return tools
 
@@ -267,3 +272,24 @@ class AgentExecutor:
         session.add(agent_execution_feed)
         agent_execution.status = "RUNNING"
         session.commit()
+
+    def generate_resource_summary(self,agent_id: int, session: Session, openai_api_key: str):
+        from superagi.models.resource import Resource
+        from superagi.models.agent_config import AgentConfiguration
+        resources = session.query(Resource).filter(Resource.agent_id == agent_id).all()
+        # get last resource from agent config
+        last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
+                                                                 AgentConfiguration.key == "last_resource").first()
+        if last_resource is not None and last_resource.value == resources[-1].id:
+            return
+        texts = [resource.summary for resource in resources if resource.summary is not None]
+        if len(texts) == 0:
+            return
+        from superagi.helper.file_to_index_parser import generate_summary_of_texts
+        resource_summary = generate_summary_of_texts(texts, openai_api_key)
+        agent_resource_config = AgentConfiguration(agent_id=agent_id, key="resource_summary", value=resource_summary)
+        agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource", value=resources[-1].id)
+        session.add(agent_resource_config)
+        session.add(agent_last_resource)
+        session.commit()
+        return resource_summary

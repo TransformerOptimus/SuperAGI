@@ -59,7 +59,6 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
-
 networks:
   super_network:
     driver: bridge

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, List
 
 from pydantic.main import BaseModel
 
@@ -44,7 +44,7 @@ class AgentConfigurationOut(DBModel):
 class AgentConfigurationIn(BaseModel):
     agent_id: int
     key: str
-    value: str
+    value: Union[str, List[str]]
 
     class Config:
         orm_mode = True
@@ -66,14 +66,14 @@ class AgentExecutionOut(DBModel):
 
 
 class AgentExecutionIn(BaseModel):
-    status: str
-    name: str
-    agent_id: int
-    last_execution_time: datetime
-    num_of_calls: int
-    num_of_tokens: int
-    current_step_id: int
-    permission_id: int
+    status: Optional[str]
+    name: Optional[str]
+    agent_id: Optional[int]
+    last_execution_time: Optional[datetime]
+    num_of_calls: Optional[int]
+    num_of_tokens: Optional[int]
+    current_step_id: Optional[int]
+    permission_id: Optional[int]
 
     class Config:
         orm_mode = True

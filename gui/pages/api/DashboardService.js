@@ -41,7 +41,7 @@ export const createAgent = (agentData) => {
 };
 
 export const updateAgents = (agentData) => {
-  return api.put(`/agentconfigs/update/`, agentData);
+  return api.put(`/agentconfigs/update`, agentData);
 };
 
 export const updateExecution = (executionId, executionData) => {

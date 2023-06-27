@@ -71,13 +71,17 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
         index.storage_context.persist(persist_dir="workspace/index")
 
 
-def generate_summary_of_document(documents: list[llama_index.Document]):
+def generate_summary_of_document(documents: list[llama_index.Document], openai_api_key: str = None):
+    openai_api_key = openai_api_key or get_config("OPENAI_API_KEY")
     from llama_index import LLMPredictor
     from llama_index import ServiceContext
     from langchain.chat_models import ChatOpenAI
     from llama_index import ResponseSynthesizer
     from llama_index import DocumentSummaryIndex
-    llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"))
+    print('aaaaaaaaaaaaaaaaa', openai_api_key)
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+    llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
+                                                        openai_api_key=openai_api_key))
     service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt, chunk_size=1024)
     response_synthesizer = ResponseSynthesizer.from_args(response_mode="tree_summarize", use_async=True)
     doc_summary_index = DocumentSummaryIndex.from_documents(
@@ -86,3 +90,9 @@ def generate_summary_of_document(documents: list[llama_index.Document]):
         response_synthesizer=response_synthesizer
     )
     return doc_summary_index.get_document_summary(documents[0].doc_id)
+
+
+def generate_summary_of_texts(texts: list[str], openai_api_key: str):
+    from llama_index import Document
+    documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
+    return generate_summary_of_document(documents, openai_api_key)
