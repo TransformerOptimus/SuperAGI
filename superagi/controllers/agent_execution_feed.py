@@ -129,12 +129,7 @@ def get_agent_execution_feed(agent_execution_id: int,
         raise HTTPException(status_code=400, detail="Agent Run not found!")
     feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(
         asc(AgentExecutionFeed.created_at)).all()
-    # # parse json
-    final_feeds = []
-    for feed in feeds:
-        if feed.feed != "":
-            final_feeds.append(parse_feed(feed))
-
+    final_feeds = [parse_feed(feed) for feed in feeds if feed.feed != ""]
     # get all permissions
     execution_permissions = db.session.query(AgentExecutionPermission).\
         filter_by(agent_execution_id=agent_execution_id, status="PENDING"). \

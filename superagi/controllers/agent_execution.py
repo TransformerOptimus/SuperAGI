@@ -34,7 +34,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     agent = db.session.query(Agent).get(agent_execution.agent_id)
 
-    if not agent:
+    if not agent or agent.is_deleted:
         raise HTTPException(status_code=404, detail="Agent not found")
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
