@@ -411,6 +411,16 @@ def get_google_calendar_tool_configs(toolkit_id: int):
         "client_id": google_calendar_config.value
     }
 
+@app.get("/twitter/get_twitter_creds/toolkit_id/{toolkit_id}")
+def get_twitter_tool_configs(toolkit_id: int):
+    twitter_config_key = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,ToolConfig.key == "TWITTER_API_KEY").first()
+    twitter_config_secret = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,ToolConfig.key == "TWITTER_API_SECRET").first()
+    api_data =  {
+        "api_key": twitter_config_key.value,
+        "api_secret": twitter_config_secret.value
+    }
+    response = TwitterTokens().get_request_token(api_data)
+    return response
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
