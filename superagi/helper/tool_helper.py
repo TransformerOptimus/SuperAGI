@@ -245,7 +245,7 @@ def register_toolkits(session, organisation):
         folder_path = "superagi/tools"
     if organisation is not None:
         process_files(folder_path, session, organisation)
-    logger.info("Tools Registered Successfully!")
+    logger.info("Toolkits Registered Successfully!")
 
 
 def extract_repo_name(repo_link):
