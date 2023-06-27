@@ -1,0 +1,11 @@
+You typically always place distinct classes in separate files.
+Always create a run.sh file which act as the entrypoint of the program, create it intellligently after analyzing the file types
+For Python, always generate a suitable requirements.txt file.
+For NodeJS, consistently produce an appropriate package.json file.
+Always include a brief comment that describes the purpose of the function definition.
+Attempt to provide comments that explain complicated logic.
+Consistently adhere to best practices for the specified languages, ensuring code is defined as a package or project.
+
+Preferred Python toolbelt:
+- pytest
+- dataclasses
