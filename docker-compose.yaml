@@ -27,10 +27,10 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=/api
     networks:
       - super_network
-    volumes:
-      - ./gui:/app
-      - /app/node_modules
-      - /app/.next
+#    volumes:
+#      - ./gui:/app
+#      - /app/node_modules/
+#      - /app/.next/
   super__redis:
     image: "docker.io/library/redis:latest"
     networks:
