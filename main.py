@@ -254,6 +254,7 @@ async def startup_event():
         organizations = session.query(Organisation).all()
         for organization in organizations:
             register_toolkits(session, organization)
+        logger.info("Successfully registered local toolkits for all Organisations!")
 
     build_single_step_agent()
     build_task_based_agents()
