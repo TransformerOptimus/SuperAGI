@@ -162,12 +162,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
     <div style={{display:'flex',height:'100%'}}>
-      <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
+      {(selectedView === 'agents' || selectedView === 'toolkits') && <div className={styles.item_list} style={{width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
         {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
-      </div>
+      </div>}
 
-      {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
+      {tabs.length <= 0 ? <div className={styles.main_workspace} style={{paddingLeft:'10px'}}>
         <div className={styles.empty_state}>
           <div>
             <div><Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/></div>
@@ -179,7 +179,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>}
           </div>
         </div>
-      </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
+      </div> : <div className={styles.main_workspace} style={{paddingLeft:'10px'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className={styles.tabs} ref={tabContainerRef}>
             {tabs.map((tab, index) => (
