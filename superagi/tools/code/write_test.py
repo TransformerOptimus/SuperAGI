@@ -26,7 +26,7 @@ class WriteTestSchema(BaseModel):
 
 class WriteTestTool(BaseTool):
     """
-    Used to generate pytest unit tests based on the specification.
+    Used to generate unit tests based on the specification.
 
     Attributes:
         llm: LLM used for test generation.
@@ -62,7 +62,7 @@ class WriteTestTool(BaseTool):
             test_file_name: The name of the file where the generated tests will be saved.
 
         Returns:
-            Generated pytest unit tests or error message.
+            Generated unit tests or error message.
         """
         prompt = PromptReader.read_tools_prompt(__file__, "write_test.txt")
         prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
