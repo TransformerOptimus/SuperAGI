@@ -1,18 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import Image from "next/image";
-import styles from '../Dashboard.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {getOrganisationConfig, updateOrganisationConfig} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {refreshUrl} from "@/utils/utils";
 
-export default function Settings(organisationId) {
+export default function Settings({organisationId}) {
   const [openAIKey, setKey] = useState('');
+  const [temperature, setTemperature] = useState(0.5);
 
   function getKey(key) {
-    console.log(key)
     getOrganisationConfig(organisationId, key)
         .then((response) => {
           setKey(response.data.value);
@@ -23,7 +20,6 @@ export default function Settings(organisationId) {
   }
 
   useEffect(() => {
-    console.log(organisationId)
     getKey("model_api_key");
   }, [organisationId]);
 
@@ -61,9 +57,11 @@ export default function Settings(organisationId) {
     setTemperature(event.target.value);
   };
 
+  function cancelSettings() {
+    EventBus.emit('removeTab', {id: -3, name: "Settings", contentType: "Settings"});
+  }
 
   return (<>
-
     <div className="row">
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
@@ -82,7 +80,7 @@ export default function Settings(organisationId) {
         {/*  </div>*/}
         {/*</div>*/}
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button className="secondary_button" style={{marginRight: '10px'}}>
+          <button onClick={cancelSettings} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={saveSettings}>
