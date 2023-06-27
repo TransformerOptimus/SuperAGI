@@ -1,4 +1,5 @@
-
+import os
+import pickle
 import json
 import hmac
 import time
@@ -7,8 +8,10 @@ import base64
 import hashlib
 import urllib.parse
 import http.client as http_client
+from superagi.config.config import get_config
+from superagi.resource_manager.manager import ResourceManager
 
-class TwitterRequestToken:
+class TwitterTokens:
 
     def get_request_token(self,api_data):
         api_key = api_data["api_key"]
@@ -54,3 +57,20 @@ class TwitterRequestToken:
     def gen_nonce(self):
         nonce = ''.join([str(random.randint(0, 9)) for i in range(32)])
         return nonce
+    
+    def get_twitter_creds(self):
+        file_name = "twitter_credentials.pickle"
+        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        file_path = file_name
+        if root_dir is not None:
+            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+            file_path = root_dir + file_name
+        else:
+            file_path = os.getcwd() + "/" + file_name
+        if os.path.exists(file_path):
+            with open(file_path,'rb') as file:
+                creds = pickle.load(file)
+            if isinstance(creds, str):
+                creds = json.loads(creds)
+        return creds
