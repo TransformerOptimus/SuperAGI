@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
@@ -7,6 +9,7 @@ from sqlalchemy.sql import asc
 
 from superagi.agent.task_queue import TaskQueue
 from superagi.helper.auth import check_auth
+from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
@@ -147,7 +150,8 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "response": permission.user_feedback,
                 "status": permission.status,
                 "tool_name": permission.tool_name,
-                "user_feedback": permission.user_feedback
+                "user_feedback": permission.user_feedback,
+                "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
         } for permission in execution_permissions
     ]
     return {
