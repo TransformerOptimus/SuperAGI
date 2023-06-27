@@ -1,5 +1,6 @@
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import {baseUrl} from "@/pages/api/apiConfig";
+import {EventBus} from "@/utils/eventBus";
 
 export const formatTime = (lastExecutionTime) => {
   try {
@@ -91,4 +92,16 @@ export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
   }, timer);
 
   return () => clearInterval(interval)
+}
+
+export const openNewTab = (id, name, contentType) => {
+  EventBus.emit('openNewTab', {
+    element: {id: id, name: name, contentType: contentType}
+  });
+}
+
+export const removeTab = (id, name, contentType) => {
+  EventBus.emit('removeTab', {
+    element: {id: id, name: name, contentType: contentType}
+  });
 }
