@@ -1,23 +1,24 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
-import Tools from '../Content/Tools/Tools';
-import ToolCreate from '../Content/Tools/ToolCreate';
+import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
+import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getTools, getLastActiveAgent} from "@/pages/api/DashboardService";
+import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
-import AgentCreate from "@/pages/Content/Agents/AgentCreate";
+import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 
-export default function Content({selectedView, selectedProjectId, organisationId}) {
-  const [tabs, setTabs] = useState([])
-  const [selectedTab, setSelectedTab] = useState(null)
+export default function Content({env, selectedView, selectedProjectId, organisationId}) {
+  const [tabs, setTabs] = useState([]);
+  const [source, setSource] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
-  const [tools, setTools] = useState(null);
+  const [toolkits, setToolkits] = useState(null);
   const tabContainerRef = useRef(null);
+  const [toolkitDetails, setToolkitDetails] = useState({})
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -33,58 +34,81 @@ export default function Content({selectedView, selectedProjectId, organisationId
       });
   }
 
-  function fetchTools() {
-    getTools()
+  function fetchToolkits() {
+    getToolKit()
       .then((response) => {
         const data = response.data || [];
         const updatedData = data.map(item => {
-          return { ...item, contentType: "Tools" };
+          return { ...item, contentType: "Toolkits", isOpen: false };
         });
-        setTools(updatedData);
+        setToolkits(updatedData);
       })
       .catch((error) => {
-        console.error('Error fetching tools:', error);
+        console.error('Error fetching toolkits:', error);
       });
   }
 
   useEffect(() => {
     fetchAgents();
-    fetchTools();
+    fetchToolkits();
   }, [selectedProjectId])
 
-  const closeTab = (e, tabId) => {
+  const closeTab = (e, index) => {
     e.stopPropagation();
-    cancelTab(tabId);
+    cancelTab(index);
   };
 
-  const cancelTab = (tabId) => {
-    const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
-    setTabs(updatedTabs);
+  const cancelTab = (index) => {
+    let updatedTabs = [...tabs];
 
-    if (selectedTab !== tabId) {
-      return;
-    }
-
-    let nextSelectedTabId = null;
-    const indexToRemove = tabs.findIndex((tab) => tab.id === tabId);
-
-    if (indexToRemove === 0) {
-      nextSelectedTabId = tabs[1]?.id || null;
-    } else if (indexToRemove === tabs.length - 1) {
-      nextSelectedTabId = tabs[indexToRemove - 1]?.id || null;
+    if (selectedTab === index) {
+      updatedTabs.splice(index, 1);
+      
+      if (index === 0 && tabs.length === 1) {
+        setSelectedTab(null);
+      } else {
+        const newIndex = index === tabs.length - 1 ? index - 1 : index;
+        setSelectedTab(newIndex);
+      }
     } else {
-      nextSelectedTabId = tabs[indexToRemove + 1]?.id || null;
+      if (selectedTab > index) {
+        setSelectedTab(selectedTab - 1);
+      }
+
+      updatedTabs.splice(index, 1);
     }
 
-    setSelectedTab(nextSelectedTabId);
+    setTabs(updatedTabs);
   };
 
   const addTab = (element) => {
-    if (!tabs.some(item => item.id === element.id)) {
-      const updatedTabs = [...tabs, element];
-      setTabs(updatedTabs);
+    let addedTabIndex = null;
+    if(element.contentType === "Toolkits") {
+      setToolkitDetails(element);
     }
-    setSelectedTab(element.id);
+
+    const isExistingTab = tabs.some(
+      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && element.contentType !== 'Create_Agent'
+    );
+
+    if (!isExistingTab) {
+      const updatedTabs= [...tabs, element];
+      setTabs(updatedTabs);
+      addedTabIndex = updatedTabs.length - 1;
+      setSelectedTab(addedTabIndex);
+    } else {
+      const existingTabIndex = tabs.findIndex(
+        (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType
+      );
+      setSelectedTab(existingTabIndex);
+    }
+  };
+
+  const selectTab = (element, index) => {
+    setSelectedTab(index);
+    if(element.contentType === "Toolkits") {
+      setToolkitDetails(element);
+    }
   };
 
   useEffect(() => {
@@ -104,21 +128,25 @@ export default function Content({selectedView, selectedProjectId, organisationId
 
   useEffect(() => {
     const openNewTab = (eventData) => {
-      addTab(eventData);
+      addTab(eventData.element);
+      setSource(eventData.source || null);
     };
 
-    const cancelAgentCreate = (eventData) => {
-      cancelTab(-1);
+    const removeTab = (eventData) => {
+      const newAgentTabIndex = tabs.findIndex(
+        (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
+      );
+      cancelTab(newAgentTabIndex);
     };
 
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', fetchAgents);
-    EventBus.on('cancelAgentCreate', cancelAgentCreate);
+    EventBus.on('removeTab', removeTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', fetchAgents);
-      EventBus.off('cancelAgentCreate', cancelAgentCreate);
+      EventBus.off('removeTab', removeTab);
     };
   });
 
@@ -136,7 +164,7 @@ export default function Content({selectedView, selectedProjectId, organisationId
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-        {selectedView === 'tools' && <div><Tools sendToolData={addTab} tools={tools}/></div>}
+        {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
       </div>
 
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -154,37 +182,30 @@ export default function Content({selectedView, selectedProjectId, organisationId
       </div> : <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className={styles.tabs} ref={tabContainerRef}>
-            {tabs.map((tab) => (
-              <div data-tab-id={tab.id} key={tab.id} className={`${styles.tab_box} ${selectedTab === tab.id ? styles.tab_box_selected : ''}`} onClick={() => setSelectedTab(tab.id)}>
+            {tabs.map((tab, index) => (
+              <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {selectTab(tab, index)}}>
                 <div style={{display:'flex', order:'0'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
-                  {(tab.contentType === 'Tools' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
+                  {(tab.contentType === 'ToolKits' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, tab.id)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, index)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>
         </div>
         <div className={styles.tab_detail} style={tabs.length > 0 ? {backgroundColor:'#2F2C40',overflowX:'hidden'} : {}}>
           <div style={{padding:'0 5px 5px 5px'}}>
-            {tabs.map((tab) => (
-              <div key={tab.id}>
-                {selectedTab === tab.id && <div>
+            {tabs.map((tab, index) => (
+              <div key={index}>
+                {selectedTab === index && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
-                  {tab.contentType === 'Settings' && <Settings/>}
-                  {tab.contentType === 'Marketplace' && <Market tools={tools} selectedView={selectedView}/>}
-                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools}/>}
-                  {tab.contentType === 'Create_Tool' &&
-                    <div className="row">
-                      <div className="col-3"></div>
-                      <div className="col-6" style={{overflowY:'scroll'}}>
-                        <ToolCreate/>
-                      </div>
-                      <div className="col-3"></div>
-                    </div>}
+                  {tab.contentType === 'Toolkits' && <ToolkitWorkspace toolkitDetails={toolkitDetails}/>}
+                  {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
+                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
+                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
             ))}

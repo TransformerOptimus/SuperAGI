@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
-import {formatTime, formatNumber} from "@/utils/utils";
+import {formatNumber, formatTimeDifference} from "@/utils/utils";
 
 export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun}) {
   return (<>
@@ -21,7 +21,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
           </div>
         </div>
       </div>
-      <div className={styles.detail_body}>
+      <div className={styles.detail_body} style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}}>
         {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={styles.history_box} style={selectedRunId === run.id ? {background:'#474255'} : {background:'#272335'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
             <div style={{display:'flex',order:'0'}}>
@@ -44,7 +44,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
                 <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
               </div>
               <div className={styles.history_info}>
-                {formatTime(run.last_execution_time)}
+                {formatTimeDifference(run.time_difference)}
               </div>
             </div>
           </div>

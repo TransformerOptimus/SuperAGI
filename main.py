@@ -40,6 +40,7 @@ from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
+from superagi.models.toolkit import Toolkit
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 
@@ -293,9 +294,19 @@ async def startup_event():
         workflow_step2.next_step_id = workflow_step2.id
         session.commit()
 
+
+    def check_toolkit_registration():
+        organizations = session.query(Organisation).all()
+        for organization in organizations:
+            register_toolkits(session, organization)
+        logger.info("Successfully registered local toolkits for all Organisations!")
+
+
     build_single_step_agent()
     build_task_based_agents()
     build_action_based_agents()
+    check_toolkit_registration()
+
     session.close()
 
 
@@ -442,7 +453,7 @@ async def root(Authorize: AuthJWT = Depends()):
 
 @app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
 def get_google_calendar_tool_configs(toolkit_id: int):
-    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.tool_kit_id == toolkit_id,
+    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,
                                                                  ToolConfig.key == "GOOGLE_CLIENT_ID").first()
     return {
         "client_id": google_calendar_config.value

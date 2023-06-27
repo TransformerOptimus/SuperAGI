@@ -54,7 +54,6 @@ class SlackMessageTool(BaseTool):
         else:
             return 'Message sending failed!'
 
-    @classmethod
-    def build_slack_web_client(cls):
-        slack_bot_token = get_config("SLACK_BOT_TOKEN")
+    def build_slack_web_client(self):
+        slack_bot_token = self.get_tool_config("SLACK_BOT_TOKEN")
         return WebClient(token=slack_bot_token)
