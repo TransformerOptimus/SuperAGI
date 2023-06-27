@@ -156,7 +156,6 @@ class Agent(DBBaseModel):
             "LTM_DB": agent_with_config.LTM_DB,
             "memory_window": agent_with_config.memory_window,
             "max_iterations": agent_with_config.max_iterations,
-            "is_deleted": agent_with_config.is_deleted
         }
 
         agent_configurations = [

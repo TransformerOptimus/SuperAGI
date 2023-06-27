@@ -70,11 +70,11 @@ def get_agent(agent_id: int,
             Agent: An object of Agent representing the retrieved Agent.
 
         Raises:
-            HTTPException (Status Code=404): If the Agent is not found.
+            HTTPException (Status Code=404): If the Agent is not found or deleted.
     """
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if not db_agent:
+    if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
     return db_agent
 
@@ -102,14 +102,14 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
     """
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if not db_agent:
+    if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
 
     if agent.project_id:
-        project = db.session.query(Project).get(agent.project_id)
-        if not project:
+        if project := db.session.query(Project).get(agent.project_id):
+            db_agent.project_id = project.id
+        else:
             raise HTTPException(status_code=404, detail="Project not found")
-        db_agent.project_id = project.id
     db_agent.name = agent.name
     db_agent.description = agent.description
 
@@ -139,6 +139,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
             - LTM_DB (str): LTM database for the agent.
             - memory_window (int): Memory window size for the agent.
             - max_iterations (int): Maximum number of iterations for the agent.
+            - is_deleted (bool): Flag for soft deleting the agent
 
     Returns:
         dict: Dictionary containing the created agent's ID, execution ID, name, and content type.
@@ -202,15 +203,16 @@ def get_agents_by_project_id(project_id: int,
     new_agents = []
     for agent in agents:
         agent_dict = vars(agent)
+
+        # skipping if the agent is deleted
+        if agent.is_deleted:
+            continue
+
         agent_id = agent.id
 
         # Query the AgentExecution table using the agent ID
         executions = db.session.query(AgentExecution).filter_by(agent_id=agent_id).all()
-        isRunning = False
-        for execution in executions:
-            if execution.status == "RUNNING":
-                isRunning = True
-                break
+        isRunning = any(execution.status == "RUNNING" for execution in executions)
         new_agent = {
             **agent_dict,
             'status': isRunning
@@ -233,14 +235,14 @@ def get_agent_configuration(agent_id: int,
         dict: Agent configuration including its details.
 
     Raises:
-        HTTPException (status_code=404): If the agent is not found.
+        HTTPException (status_code=404): If the agent is not found or deleted.
     """
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
     agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
 
-    if not agent:
+    if not agent or agent.is_deleted:
         raise HTTPException(status_code=404, detail="Agent not found")
 
     # Query the AgentConfiguration table for the specified keys
