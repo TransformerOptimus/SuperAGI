@@ -1,21 +1,20 @@
-import { formatDistanceToNow, parseISO } from 'date-fns';
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 
-export const formatTime = (lastExecutionTime) => {
-  try {
-    const parsedTime = parseISO(lastExecutionTime);
-    if (isNaN(parsedTime.getTime())) {
-      throw new Error('Invalid time value');
+export const formatTimeDifference = (timeDifference) => {
+  const units = ['years', 'months', 'days', 'hours', 'minutes'];
+
+  for (const unit of units) {
+    if (timeDifference[unit] !== 0) {
+      if (unit === 'minutes') {
+        return `${timeDifference[unit]} minutes ago`;
+      } else {
+        return `${timeDifference[unit]} ${unit} ago`;
+      }
     }
-    return formatDistanceToNow(parsedTime, {
-      addSuffix: true,
-      includeSeconds: true,
-    }).replace(/about\s/, '');
-  } catch (error) {
-    console.error('Error formatting time:', error);
-    return 'Invalid Time';
   }
+
+  return 'Just now';
 };
 
 export const formatNumber = (number) => {
@@ -34,7 +33,6 @@ export const formatNumber = (number) => {
 
   return scaledNumber.toFixed(1) + suffix;
 };
-
 
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
