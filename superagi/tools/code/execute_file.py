@@ -16,7 +16,7 @@ class ExecuteFileTool(BaseTool):
     llm: Optional[BaseLlm] = None
     name = "ExecuteFileTool"
     description = (
-        "Useful for executing code files"
+        "Useful for executing python code files"
     )
     args_schema: Type[ExecuteFileSchema] = ExecuteFileSchema
     goals: List[str] = []
@@ -44,7 +44,6 @@ class ExecuteFileTool(BaseTool):
                     output_root_dir = output_root_dir if output_root_dir.endswith("/") else output_root_dir + "/"
                     final_path = output_root_dir + file_name
                     folder_path = output_root_dir
-
             if final_path is None or not os.path.exists(final_path):
                 raise FileNotFoundError(f"File '{file_name}' not found.")
             
