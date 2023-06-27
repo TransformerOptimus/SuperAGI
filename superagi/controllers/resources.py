@@ -7,7 +7,7 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from superagi.models.budget import Budget
 from fastapi import APIRouter, UploadFile
 from superagi.helper.file_to_index_parser import create_llama_document, llama_vector_store_factory, \
-    save_file_to_vector_store
+    save_file_to_vector_store, generate_summary_of_document
 import os
 from fastapi import FastAPI, File, Form, UploadFile
 from typing import Annotated
@@ -117,7 +117,12 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    save_file_to_vector_store(file_path, agent_id, resource.id)
+    save_file_to_vector_store(file_path, str(agent_id), resource.id)
+    documents = create_llama_document(file_path)
+    summary = generate_summary_of_document(documents)
+    resource.summary = summary
+    print(summary)
+    db.session.commit()
     logger.info(resource)
     return resource
 

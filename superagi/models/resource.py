@@ -28,6 +28,7 @@ class Resource(DBBaseModel):
     type = Column(String)  # application/pdf etc
     channel = Column(String)  # INPUT,OUTPUT
     agent_id = Column(Integer)
+    summary = Column(String)
 
     def __repr__(self):
         """

@@ -38,7 +38,7 @@ def llama_vector_store_factory(vector_store_name,index_name,embedding_model):
         return WeaviateVectorStore(vector_store.client)
 
 
-def save_file_to_vector_store(file_path: str, agent_id: int, resource_id: str):
+def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     from llama_index import VectorStoreIndex
     import openai
     from superagi.vector_store.embedding.openai import OpenAiEmbedding
@@ -60,9 +60,9 @@ def save_file_to_vector_store(file_path: str, agent_id: int, resource_id: str):
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
     except ValueError:
         logging.error("Vector store not found")
-        vector_store = None
+        # vector_store = None
         # vector_store = llama_vector_store_factory('Weaviate', 'super-agent-index1', OpenAiEmbedding(model_api_key))
-        print(vector_store)
+        # print(vector_store)
         # storage_context = StorageContext.from_defaults(persist_dir="workspace/index")
     openai.api_key = get_config("OPENAI_API_KEY")
     index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
