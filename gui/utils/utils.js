@@ -105,3 +105,40 @@ export const removeTab = (id, name, contentType) => {
     element: {id: id, name: name, contentType: contentType}
   });
 }
+
+export const removeInternalId = (internalId) => {
+  const internal_ids = localStorage.getItem("agi_internal_ids");
+  let idsArray = internal_ids ? internal_ids.split(",").map(Number) : [];
+
+  if(idsArray.length <= 0) {
+    return;
+  }
+
+  const internalIdIndex = idsArray.indexOf(internalId);
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', idsArray.join(','));
+  }
+}
+
+export const createInternalId = () => {
+  let newId = 1;
+
+  if (typeof window !== 'undefined') {
+    const internal_ids = localStorage.getItem("agi_internal_ids");
+    let idsArray = internal_ids ? internal_ids.split(",").map(Number) : [];
+    let found = false;
+
+    for (let i = 1; !found; i++) {
+      if (!idsArray.includes(i)) {
+        newId = i;
+        found = true;
+      }
+    }
+
+    idsArray.push(newId);
+    localStorage.setItem('agi_internal_ids', idsArray.join(','));
+  }
+
+  return newId;
+}
