@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {getOrganisationConfig, updateOrganisationConfig} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import {removeTab} from "@/utils/utils";
 
 export default function Settings({organisationId}) {
   const [openAIKey, setKey] = useState('');
@@ -57,10 +58,6 @@ export default function Settings({organisationId}) {
     setTemperature(event.target.value);
   };
 
-  function cancelSettings() {
-    EventBus.emit('removeTab', {id: -3, name: "Settings", contentType: "Settings"});
-  }
-
   return (<>
     <div className="row">
       <div className="col-3"></div>
@@ -80,7 +77,7 @@ export default function Settings({organisationId}) {
         {/*  </div>*/}
         {/*</div>*/}
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button onClick={cancelSettings} className="secondary_button" style={{marginRight: '10px'}}>
+          <button onClick={() => removeTab(-3, "Settings", "Settings")} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={saveSettings}>

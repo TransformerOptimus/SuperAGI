@@ -1,25 +1,14 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
-import { EventBus } from "@/utils/eventBus";
 import { useRouter } from 'next/router';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {refreshUrl} from "@/utils/utils";
+import {refreshUrl, openNewTab} from "@/utils/utils";
 
 export default function TopBar({selectedProject, userName, env}) {
   const [dropdown, setDropdown] = useState(false);
   const router = useRouter();
-
-  const openNewTab = (id, name, contentType) => {
-    EventBus.emit('openNewTab', {
-      element: {
-        id: id,
-        name: name,
-        contentType: contentType
-      }
-    });
-  }
 
   const logoutUser = () => {
     setDropdown(false);
