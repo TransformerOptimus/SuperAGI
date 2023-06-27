@@ -9,6 +9,9 @@ import hashlib
 import urllib.parse
 import http.client as http_client
 from superagi.config.config import get_config
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
+from superagi.models.tool_config import ToolConfig
 from superagi.resource_manager.manager import ResourceManager
 
 class TwitterTokens:
@@ -58,7 +61,7 @@ class TwitterTokens:
         nonce = ''.join([str(random.randint(0, 9)) for i in range(32)])
         return nonce
     
-    def get_twitter_creds(self):
+    def get_twitter_creds(self, toolkit_id):
         file_name = "twitter_credentials.pickle"
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
         file_path = file_name
@@ -73,4 +76,18 @@ class TwitterTokens:
                 creds = pickle.load(file)
             if isinstance(creds, str):
                 creds = json.loads(creds)
+        engine = connect_db()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        twitter_creds = session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id).all()
+        api_key = ""
+        api_key_secret = ""
+        for credentials in twitter_creds:
+            credentials = credentials.__dict__
+            if credentials["key"] == "TWITTER_API_KEY":
+                api_key = credentials["value"]
+            if credentials["key"] == "TWITTER_API_SECRET":
+                api_key_secret = credentials["value"]
+        creds["api_key"] = api_key
+        creds["api_key_secret"] = api_key_secret
         return creds
