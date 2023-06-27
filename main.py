@@ -15,6 +15,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi
+import urllib.parse
+import http.client as http_client
+from superagi.helper.twitter_tokens import TwitterTokens
+from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
@@ -320,6 +324,31 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     return RedirectResponse(frontend_url)
 
+@app.get('/oauth-twitter')
+async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Query(...), Authorize: AuthJWT = Depends()):
+    token_uri = f'https://api.twitter.com/oauth/access_token?oauth_verifier={oauth_verifier}&oauth_token={oauth_token}'
+    conn = http_client.HTTPSConnection("api.twitter.com")
+    conn.request("POST", token_uri, "")
+    res = conn.getresponse()
+    response_data = res.read().decode('utf-8')
+    conn.close()
+    response = dict(urllib.parse.parse_qsl(response_data))
+    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
+    file_name = "twitter_credentials.pickle"
+    final_path = file_name
+    if root_dir is not None:
+        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        final_path = root_dir + file_name
+    else:
+        final_path = os.getcwd() + "/" + file_name
+    try:
+        with open(final_path, mode="wb") as file:
+            pickle.dump(response, file)
+    except Exception as err:
+        return f"Error: {err}"
+    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    return RedirectResponse(frontend_url)
 
 @app.get('/github-login')
 def github_login():
