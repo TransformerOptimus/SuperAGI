@@ -113,7 +113,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
     <div className={styles.top_bar}>
       <div className={styles.top_left}>
         <div className={styles.top_bar_section} style={{border: '1px solid rgba(255, 255, 255, 0.14)',width:'150px'}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start',pointerEvents:'none'}}>
             <div style={{marginTop:'-2px'}}><Image width={14} height={14} src="/images/project.svg" alt="project-icon"/></div>
             <div className={styles.top_bar_font}><p>{selectedProject?.name || ''}</p></div>
           </div>
@@ -125,7 +125,7 @@ export default function TopBar({selectedProject, organisationId, userName, env})
         </div>
       </div>
       <div className={styles.top_right}>
-         <div onClick={()=>{setSettingsModal(true)}} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
+         <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
         {/* <div onClick={settingsTab} className={styles.top_right_icon}><Image width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div> */}
 
         {/* <div className={styles.top_right_icon}><Image width={16} height={16} src="/images/notifications.svg" alt="dropdown-icon"/></div> */}
