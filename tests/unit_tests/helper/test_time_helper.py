@@ -2,7 +2,6 @@ from superagi.helper.time_helper import get_time_difference
 
 
 def test_get_time_difference():
-    # Test case 1: Same timestamp, expect all time components to be zero
     timestamp1 = "2023-06-26 17:31:08.884322"
     timestamp2 = "2023-06-27 03:57:42.038497"
     expected_result = {
