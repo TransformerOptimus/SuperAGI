@@ -5,7 +5,7 @@ WORKDIR /app
 # COPY package*.json .
 
 COPY ./gui .
-RUN RUN npm ci
+RUN npm ci
 RUN npm run build
 
 EXPOSE 3000
