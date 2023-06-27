@@ -288,7 +288,7 @@ class AgentExecutor:
         from superagi.helper.file_to_index_parser import generate_summary_of_texts
         resource_summary = generate_summary_of_texts(texts, openai_api_key)
         agent_resource_config = AgentConfiguration(agent_id=agent_id, key="resource_summary", value=resource_summary)
-        agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource", value=resources[-1].id)
+        agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource", value=str(resources[-1].id))
         session.add(agent_resource_config)
         session.add(agent_last_resource)
         session.commit()
