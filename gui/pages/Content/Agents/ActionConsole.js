@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Agents.module.css';
 import Image from 'next/image';
 import { updatePermissions } from '@/pages/api/DashboardService';
-import { formatTime } from '@/utils/utils';
+import {formatTimeDifference} from '@/utils/utils';
 
 function ActionBox({ action, index, denied, reasons, handleDeny, handleSelection, setReasons }) {
     const isDenied = denied[index];
@@ -49,7 +49,7 @@ function ActionBox({ action, index, denied, reasons, handleDeny, handleSelection
                 <div>
                     <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" />
                 </div>
-                <div className={styles.history_info}>{formatTime(action.created_at)}</div>
+                <div className={styles.history_info}>{formatTimeDifference(action.time_difference)}</div>
             </div>
         </div>
     );
@@ -81,7 +81,7 @@ function HistoryBox({ action }){
                     <div>
                         <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" />
                     </div>
-                    <div className={styles.history_info}>{formatTime(action.created_at)}</div>
+                    <div className={styles.history_info}>{formatTimeDifference(action.time_difference)}</div>
                 </div>
             </div>
         </div>
