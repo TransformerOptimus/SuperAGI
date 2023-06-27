@@ -7,8 +7,6 @@ from email.message import EmailMessage
 from typing import Type
 
 from pydantic import BaseModel, Field
-
-from superagi.config.config import get_config
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
 
@@ -21,22 +19,65 @@ class SendEmailAttachmentInput(BaseModel):
 
 
 class SendEmailAttachmentTool(BaseTool):
+    """
+    Send an Email with Attachment tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
 
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
-        base_path = get_config('EMAIL_ATTACHMENT_BASE_PATH')
-        if not base_path:
-            base_path = ""
-        base_path = base_path + filename
-        attachmentpath = base_path
-        attachment = os.path.basename(attachmentpath)
-        return self.send_email_with_attachment(to, subject, body, attachmentpath, attachment)
+        """
+        Execute the send email tool with attachment.
+
+        Args:
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+            filename : The name of the file to be sent as an attachment with the email.
+
+        Returns:
+
+        """
+        input_root_dir = self.get_tool_config('RESOURCES_INPUT_ROOT_DIR')
+        output_root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')
+        final_path = None
+
+        if input_root_dir is not None:
+            input_root_dir = input_root_dir if input_root_dir.startswith("/") else os.getcwd() + "/" + input_root_dir
+            input_root_dir = input_root_dir if input_root_dir.endswith("/") else input_root_dir + "/"
+            final_path = input_root_dir + filename
+
+        if final_path is None or not os.path.exists(final_path):
+            if output_root_dir is not None:
+                output_root_dir = output_root_dir if output_root_dir.startswith(
+                    "/") else os.getcwd() + "/" + output_root_dir
+                output_root_dir = output_root_dir if output_root_dir.endswith("/") else output_root_dir + "/"
+                final_path = output_root_dir + filename
+        attachment = os.path.basename(final_path)
+        return self.send_email_with_attachment(to, subject, body, final_path, attachment)
 
     def send_email_with_attachment(self, to, subject, body, attachment_path, attachment) -> str:
-        email_sender = get_config('EMAIL_ADDRESS')
-        email_password = get_config('EMAIL_PASSWORD')
+        """
+        Send an email with attachment.
+
+        Args:
+            to : The email address of the receiver.
+            subject : The subject of the email.
+            body : The body of the email.
+            attachment_path : The path of the file to be sent as an attachment with the email.
+            attachment : The name of the file to be sent as an attachment with the email.
+
+        Returns:
+            
+        """
+        email_sender = self.get_tool_config('EMAIL_ADDRESS')
+        email_password = self.get_tool_config('EMAIL_PASSWORD')
         if email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "" or email_password.isspace():
@@ -45,7 +86,7 @@ class SendEmailAttachmentTool(BaseTool):
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
-        signature = get_config('EMAIL_SIGNATURE')
+        signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
         message.set_content(body)
@@ -56,10 +97,16 @@ class SendEmailAttachmentTool(BaseTool):
             maintype, subtype = ctype.split("/", 1)
             with open(attachment_path, "rb") as file:
                 message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
-        draft_folder = get_config('EMAIL_DRAFT_MODE_WITH_FOLDER')
-        
-        if message["To"] == "example@example.com" or draft_folder:
-            conn = ImapEmail().imap_open(draft_folder, email_sender, email_password)
+
+        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE')
+        if send_to_draft.upper() == "TRUE":
+            send_to_draft = True
+        else:
+            send_to_draft = False
+        if message["To"] == "example@example.com" or send_to_draft:
+            draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER')
+            imap_server = self.get_tool_config('EMAIL_IMAP_SERVER')
+            conn = ImapEmail().imap_open(draft_folder, email_sender, email_password, imap_server)
             conn.append(
                 draft_folder,
                 "",
@@ -68,8 +115,8 @@ class SendEmailAttachmentTool(BaseTool):
             )
             return f"Email went to {draft_folder}"
         else:
-            smtp_host = get_config('EMAIL_SMTP_HOST')
-            smtp_port = get_config('EMAIL_SMTP_PORT')
+            smtp_host = self.get_tool_config('EMAIL_SMTP_HOST')
+            smtp_port = self.get_tool_config('EMAIL_SMTP_PORT')
             with smtplib.SMTP(smtp_host, smtp_port) as smtp:
                 smtp.ehlo()
                 smtp.starttls()

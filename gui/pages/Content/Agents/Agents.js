@@ -16,6 +16,7 @@ export default function Agents({sendAgentData, agents}) {
             + Create Agent
           </button>
         </div>
+        
         {agents && agents.length > 0 ? <div className={styles.wrapper} style={{overflowY:'scroll',height:'80vh'}}>
           {agents.map((agent, index) => (
             <div key={index}>

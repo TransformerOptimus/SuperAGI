@@ -1,17 +1,9 @@
-import string
-import re
-import base64
-
-import requests
-import os
 from typing import Type
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
-
-from superagi.tools.base_tool import BaseTool
 
 from superagi.helper.github_helper import GithubHelper
+from superagi.tools.base_tool import BaseTool
 
 
 class GithubAddFileSchema(BaseModel):
@@ -47,15 +39,38 @@ class GithubAddFileSchema(BaseModel):
 
 
 class GithubAddFileTool(BaseTool):
+    """
+    Add File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     name: str = "Github Add File"
     args_schema: Type[BaseModel] = GithubAddFileSchema
     description: str = "Add a file or folder to a particular github repository"
 
     def _execute(self, repository_name: str, base_branch: str, body: str, commit_message: str, repository_owner: str,
                  file_name='.gitkeep', folder_path=None) -> str:
+        """
+        Execute the add file tool.
+
+        Args:
+            repository_name : The name of the repository to add file to.
+            base_branch : The branch to interact with.
+            body : The content to be stored.
+            commit_message : Clear description of the contents of file.
+            repository_owner : Owner of the GitHub repository.
+            file_name : The name of the file to add.
+            folder_path : The path of the folder to add the file to.
+
+        Returns:
+            Pull request to add file/folder has been created. or error message.
+        """
         try:
-            github_access_token = get_config("GITHUB_ACCESS_TOKEN")
-            github_username = get_config("GITHUB_USERNAME")
+            github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
+            github_username = self.get_tool_config("GITHUB_USERNAME")
             github_helper = GithubHelper(github_access_token, github_username)
             head_branch = 'new-file'
             headers = {
