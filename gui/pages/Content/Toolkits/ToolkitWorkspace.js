@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
-import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/api/DashboardService";
+import {updateToolConfig, getToolConfig, authenticateGoogleCred, authenticateTwitterCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
 import {EventBus} from "@/utils/eventBus";
 
@@ -31,7 +31,7 @@ export default function ToolkitWorkspace({toolkitDetails}){
       const authUrl = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`
       window.location.href = authUrl
     }
-    
+
     useEffect(() => {
       if(toolkitDetails !== null) {
         if (toolkitDetails.tools) {
@@ -43,7 +43,7 @@ export default function ToolkitWorkspace({toolkitDetails}){
             const apiConfigs = response.data || [];
             setApiConfigs(apiConfigs);
           })
-          .catch((error) => {
+          .catch((errPor) => {
             console.log('Error fetching API data:', error);
           })
           .finally(() => {
@@ -79,7 +79,7 @@ export default function ToolkitWorkspace({toolkitDetails}){
     };
 
     const handleTwitterAuthClick = async () => {
-      authenticateTwitterCred(toolDetails.id)
+      authenticateTwitterCred(toolkitDetails.id)
       .then((response) => {
         getTwitterToken(response.data);
       })
@@ -133,7 +133,7 @@ export default function ToolkitWorkspace({toolkitDetails}){
             <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
               <div>
                 {toolkitDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
-                {toolDetails.name === 'Twitter Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleTwitterAuthClick}>Authenticate Tool</button>}
+                {toolkitDetails.name === 'Twitter Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleTwitterAuthClick}>Authenticate Tool</button>}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
