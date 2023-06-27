@@ -5,9 +5,8 @@ from sqlalchemy import Column, Integer, String, Boolean
 
 from superagi.models.base_model import DBBaseModel
 
-# marketplace_url = "https://app.superagi.com/api/"
 
-
+# marketplace_url = "https://app.superagi.com/api"
 marketplace_url = "http://localhost:8001"
 
 
