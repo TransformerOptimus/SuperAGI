@@ -14,7 +14,7 @@ import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId, selectedView}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('details')
+  const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
@@ -30,16 +30,19 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const addInstruction = () => {
     setInstructions((prevArray) => [...prevArray, 'new instructions']);
   };
+
   const handleInstructionDelete = (index) => {
     const updatedInstructions = [...instructions];
     updatedInstructions.splice(index, 1);
     setInstructions(updatedInstructions);
   };
+
   const handleInstructionChange = (index, newValue) => {
     const updatedInstructions = [...instructions];
     updatedInstructions[index] = newValue;
     setInstructions(updatedInstructions);
   };
+
   const addGoal = () => {
     setGoals((prevArray) => [...prevArray, 'new goal']);
   };
@@ -138,6 +141,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
     fetchExecutions(agentId);
   }, [agentId])
 
+  useEffect(() => {
+    if(agentDetails) {
+      setRightPanel(agentDetails.permission_type.includes('RESTRICTED') ? 'action_console' : 'details');
+    }
+  }, [agentDetails])
+
   function fetchAgentDetails(agentId) {
     getAgentDetails(agentId)
       .then((response) => {
@@ -145,7 +154,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
         setTools(response.data.tools);
         setGoals(response.data.goal);
         setInstructions(response.data.instruction);
-        console.log(response.data)
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -217,11 +225,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed
-              selectedView={selectedView}
-              selectedRunId={selectedRun?.id || 0}
-              setFetchedData={setFetchedData} // Pass the setFetchedData function as a prop
-          />
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
           </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
