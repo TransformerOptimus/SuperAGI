@@ -277,6 +277,8 @@ class AgentExecutor:
         from superagi.models.resource import Resource
         from superagi.models.agent_config import AgentConfiguration
         resources = session.query(Resource).filter(Resource.agent_id == agent_id).all()
+        if len(resources) == 0:
+            return
         # get last resource from agent config
         last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
                                                                  AgentConfiguration.key == "last_resource").first()
@@ -286,7 +288,10 @@ class AgentExecutor:
         if len(texts) == 0:
             return
         from superagi.helper.file_to_index_parser import generate_summary_of_texts
-        resource_summary = generate_summary_of_texts(texts, openai_api_key)
+        if len(texts) > 1:
+            resource_summary = generate_summary_of_texts(texts, openai_api_key)
+        else:
+            resource_summary = texts[0]
         agent_resource_config = AgentConfiguration(agent_id=agent_id, key="resource_summary", value=resource_summary)
         agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource", value=str(resources[-1].id))
         session.add(agent_resource_config)

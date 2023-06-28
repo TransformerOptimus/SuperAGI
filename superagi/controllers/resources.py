@@ -1,6 +1,6 @@
 import openai
 from fastapi_sqlalchemy import DBSessionMiddleware, db
-from fastapi import HTTPException, Depends, Request
+from fastapi import HTTPException, Depends, Request, BackgroundTasks
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 
@@ -38,7 +38,8 @@ s3 = boto3.client(
 
 @router.post("/add/{agent_id}", status_code=201)
 async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...),
-                 Authorize: AuthJWT = Depends(check_auth)):
+                 background_tasks: BackgroundTasks = None,
+                Authorize: AuthJWT = Depends(check_auth)):
     """
     Upload a file as a resource for an agent.
 
@@ -117,12 +118,13 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    save_file_to_vector_store(file_path, str(agent_id), resource.id)
-    documents = create_llama_document(file_path)
-    summary = generate_summary_of_document(documents)
-    resource.summary = summary
-    print(summary)
-    db.session.commit()
+    background_tasks.add_task(add_to_vector_store_and_create_summary, file_path, agent_id, resource.id)
+    # save_file_to_vector_store(file_path, str(agent_id), resource.id)
+    # documents = create_llama_document(file_path)
+    # summary = generate_summary_of_document(documents)
+    # resource.summary = summary
+    # print(summary)
+    # db.session.commit()
     logger.info(resource)
     return resource
 
@@ -189,3 +191,22 @@ def download_file_by_id(resource_id: int,
             "Content-Disposition": f"attachment; filename={file_name}"
         }
     )
+
+
+def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resource_id: int):
+    """
+    Add a file to the vector store and generate a summary for it.
+
+    Args:
+        file_path (str): Path of the file.
+        agent_id (str): ID of the agent.
+        resource_id (int): ID of the resource.
+
+    """
+
+    save_file_to_vector_store(file_path, str(agent_id), str(resource_id))
+    documents = create_llama_document(file_path)
+    summary = generate_summary_of_document(documents)
+    resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
+    resource.summary = summary
+    db.session.commit()
