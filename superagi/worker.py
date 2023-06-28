@@ -44,79 +44,73 @@ def create_agent_name_with_timestamp() -> str:
     timestamp = datetime.now().strftime("_%Y-%m-%d_%H-%M-%S")
     return f"Run {timestamp}"
 
+def check_time_difference(agent, now):
+    next_scheduled_time = agent.next_scheduled_time
+    interval = agent.recurrence_interval
+    interval_in_seconds = max(parse_interval_to_seconds(interval), 300)
+    return (now - next_scheduled_time).total_seconds() > interval_in_seconds
+
+def update_next_schedule(agent, start_time, interval_in_seconds, now):
+    time_diff = now - start_time
+    num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  
+    updated_next_scheduled_time = start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
+    agent.next_scheduled_time = updated_next_scheduled_time
+    
 def update_next_scheduled_time():
     now = datetime.now()
-
+    
     session = Session()
     scheduled_agents = session.query(AgentScheduler).filter(
     (AgentScheduler.start_time < now) &
     (AgentScheduler.next_scheduled_time < now)).all()
-
-
     for agent in scheduled_agents:
-        start_time = agent.start_time
-        next_scheduled_time = agent.next_scheduled_time
-        interval = agent.recurrence_interval
-        interval_in_seconds = parse_interval_to_seconds(interval)
+        if check_time_difference(agent, now):
+            update_next_schedule(agent, agent.start_time, parse_interval_to_seconds(agent.recurrence_interval), now)
+    session.commit()
 
-        # Check if the difference between last_scheduled_time and time_now is greater than interval_time
-        if (next_scheduled_time - now).total_seconds() > interval_in_seconds:
-            
-            # Find the next_scheduled_time to time now and update the table accordingly
-            time_diff = now - start_time
-            num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  # Integer division to get the number of intervals passed
-            updated_next_scheduled_time = start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
+def should_execute_and_remove_agent(agent, interval, interval_in_seconds):
+    next_scheduled_time = agent.next_scheduled_time
+    expiry_date = agent.expiry_date
+    expiry_runs = agent.expiry_runs
+    current_runs = agent.current_runs
+    if not interval:
+        return True, True
+    if expiry_date is None and expiry_runs is None:
+        return True, False
+    elif expiry_date is not None and datetime.now() < expiry_date:
+        return True, False
+    elif expiry_runs != -1 and current_runs < expiry_runs:
+        return True, False
+    if (expiry_date is not None and datetime.now() >= expiry_date) or (expiry_runs != -1 and current_runs >= expiry_runs):
+        return False, True
+    return False, False
 
-            agent.next_scheduled_time = updated_next_scheduled_time
-            session.commit()
+def execute_agent(agent, agent_id):
+    agent_name = create_agent_name_with_timestamp()
+    agent.current_runs += 1
+    ScheduledAgentExecutor.execute_scheduled_agent(agent_id, agent_name)
+
+def update_next_schedule(agent, interval_in_seconds):
+    next_scheduled_time = agent.next_scheduled_time + timedelta(seconds=interval_in_seconds)
+    agent.next_scheduled_time = next_scheduled_time
 
 def get_scheduled_agents():
     now = datetime.now()
     last_5_minutes = now - timedelta(minutes=5)
-
     session = Session()
     scheduled_agents = session.query(AgentScheduler).filter(AgentScheduler.next_scheduled_time.between(last_5_minutes, now)).all()
     logger.info("////////////// SCHEDULED AGENTS")
     logger.info(scheduled_agents)
-
     agents_to_remove = []
 
     for agent in scheduled_agents:
-        next_scheduled_time = agent.next_scheduled_time
         interval = agent.recurrence_interval
-        expiry_date = agent.expiry_date
-        expiry_runs = agent.expiry_runs
-        current_runs = agent.current_runs
+        interval_in_seconds = parse_interval_to_seconds(interval)
         agent_id = agent.agent_id
         agent_name = create_agent_name_with_timestamp()
-        logger.info("//////////////")
-        logger.info(agent)
+        current_runs = agent.current_runs
 
-        should_execute_agent = False
-        should_remove_agent = False
-
-        if not interval:
-            should_execute_agent = True
-            should_remove_agent = True
-
-        else:
-            interval_in_seconds = parse_interval_to_seconds(interval)
-            logger.info("Seconds")
-            logger.info(interval_in_seconds)
-
-            if expiry_date is None and expiry_runs is None:
-                should_execute_agent = True
-
-            elif expiry_date is not None and datetime.now() < expiry_date:
-                should_execute_agent = True
-
-            elif expiry_runs != -1 and current_runs < expiry_runs:
-                should_execute_agent = True
-
-            # Check if agent should be removed
-            if (expiry_date is not None and datetime.now() >= expiry_date) or (expiry_runs != -1 and current_runs >= expiry_runs):
-                should_remove_agent = True
-        
+        should_execute_agent, should_remove_agent = should_execute_and_remove_agent(agent, interval, interval_in_seconds)
         if should_execute_agent:
             ScheduledAgentExecutor.execute_scheduled_agent(agent_id, agent_name)
             agent.current_runs = current_runs + 1

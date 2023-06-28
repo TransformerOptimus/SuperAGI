@@ -57,7 +57,6 @@ def create_and_schedule_agent(agent_with_config_schedule: AgentScheduleCreate,
 
     # Check if the agent is already scheduled
     scheduled_agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == agent_with_config_schedule.agent_id).first()
-    print(scheduled_agent)
 
     if scheduled_agent:
         # Update the old record with new data

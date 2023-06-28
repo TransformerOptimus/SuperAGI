@@ -169,6 +169,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
         .then((response) => {
+          console.log(response)
           let data = response.data
           data = data.filter((run) => run.status !== 'TERMINATED');
           setAgentExecutions(data);
@@ -191,7 +192,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
