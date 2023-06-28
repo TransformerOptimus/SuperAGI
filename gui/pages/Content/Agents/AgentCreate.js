@@ -109,21 +109,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     if(template !== null) {
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
-      setAdvancedOptions(true);
+      setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
 
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
             setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-            setAgentType(data.agent_type);
+            setLocalStorageArray("agent_type_" + String(internalId), data.agent_type, setAgentType);
             setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
             setIterations(data.max_iterations);
-            setRollingWindow(data.memory_window);
-            setPermission(data.permission_type);
+            setLocalStorageArray("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
+            setLocalStorageArray("agent_permission_" + String(internalId), data.permission_type, setPermission);
             setStepTime(data.iteration_interval);
             setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
-            setDatabase(data.LTM_DB);
-            setModel(data.model);
+            setLocalStorageArray("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+            setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
 
             data.tools.forEach((item) => {
               toolkitList.forEach((toolkit) => {
@@ -212,17 +212,17 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handlePermissionSelect = (index) => {
-    setPermission(permissions[index]);
+    setLocalStorageArray("agent_permission_" + String(internalId), permissions[index], setPermission);
     setPermissionDropdown(false);
   };
 
   const handleDatabaseSelect = (index) => {
-    setDatabase(databases[index]);
+    setLocalStorageArray("agent_database_" + String(internalId), databases[index], setDatabase);
     setDatabaseDropdown(false);
   };
 
   const handleWindowSelect = (index) => {
-    setRollingWindow(rollingWindows[index]);
+    setLocalStorageArray("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
     setRollingDropdown(false);
   };
 
@@ -236,12 +236,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handleAgentSelect = (index) => {
-    setAgentType(agentTypes[index]);
+    setLocalStorageArray("agent_type_" + String(internalId), agentTypes[index], setAgentType);
     setAgentDropdown(false);
   };
 
   const handleModelSelect = (index) => {
-    setModel(models[index]);
+    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
     setModelDropdown(false);
   };
 
@@ -282,15 +282,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const addGoal = () => {
-    setLocalStorageArray("agent_goals_" + String(internalId), (prevArray) => [...prevArray, 'new goal'], setGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), [...goals, 'new goal'], setGoals);
   };
 
   const addInstruction = () => {
-    setLocalStorageArray("agent_instructions_" + String(internalId), (prevArray) => [...prevArray, 'new instructions'], setInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), [...instructions, 'new instructions'], setInstructions);
   };
 
   const addConstraint = () => {
-    setLocalStorageArray("agent_constraints_" + String(internalId), (prevArray) => [...prevArray, 'new constraint'], setConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), [...constraints, 'new constraint'], setConstraints);
   };
 
   const handleNameChange = (event) => {
@@ -512,30 +512,69 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   );
 
   useEffect(() => {
-    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
-    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
-    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
-    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
-    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
+    const has_resource = localStorage.getItem("has_resource_" + String(internalId)) === 'true';
+    if(has_resource) {
+      setAddResources(has_resource);
+    }
 
+    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId)) === 'true';
+    if(has_LTM) {
+      setLongTermMemory(has_LTM);
+    }
+
+    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId)) === 'true';
+    if(advanced_options) {
+      setAdvancedOptions(advanced_options);
+    }
+
+    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
     if(agent_name) {
       setAgentName(agent_name);
     }
 
+    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
     if(agent_description) {
       setAgentDescription(agent_description);
     }
 
+    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
     if(agent_goals) {
       setGoals(JSON.parse(agent_goals));
     }
 
+    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
     if(agent_instructions) {
       setInstructions(JSON.parse(agent_instructions));
     }
 
+    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
     if(agent_constraints) {
       setConstraints(JSON.parse(agent_constraints));
+    }
+
+    const agent_model = localStorage.getItem("agent_model_" + String(internalId));
+    if(agent_model) {
+      setModel(agent_model);
+    }
+
+    const agent_type = localStorage.getItem("agent_type_" + String(internalId));
+    if(agent_type) {
+      setAgentType(agent_type);
+    }
+
+    const agent_rolling_window = localStorage.getItem("agent_rolling_window_" + String(internalId));
+    if(agent_rolling_window) {
+      setRollingWindow(agent_rolling_window);
+    }
+
+    const agent_database = localStorage.getItem("agent_database_" + String(internalId));
+    if(agent_database) {
+      setDatabase(agent_database);
+    }
+
+    const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
+    if(agent_permission) {
+      setPermission(agent_permission);
     }
   }, [internalId])
 
@@ -643,7 +682,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           </div>
           <div style={{marginTop: '15px'}}>
-            <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
+            <button className="medium_toggle" onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
               {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.svg" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.svg" alt="expand-icon"/>}
             </button>
           </div>
@@ -666,8 +705,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
+                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
                     Add Resources
                   </label>
                 </div>
@@ -737,8 +776,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLongTermMemory(!longTermMemory)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLongTermMemory(!longTermMemory)}>
+                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>
                     Long term memory
                   </label>
                 </div>
