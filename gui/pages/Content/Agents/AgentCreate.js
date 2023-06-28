@@ -454,7 +454,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         "size": files[0].size,
         "type": files[0].type,
       };
-      setInput((prevArray) => [...prevArray, fileData]);
+      const updatedFiles = [...input, fileData];
+      setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
     }
   }
 
@@ -473,7 +474,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const removeFile = (index) => {
     const updatedFiles = input.filter((file) => input.indexOf(file) !== index);
-    setInput(updatedFiles);
+    setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
   };
 
   const ResourceItem = ({ file, index }) => {
@@ -595,6 +596,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
     if(step_time) {
       setStepTime(Number(step_time));
+    }
+
+    const agent_files = localStorage.getItem("agent_files_" + String(internalId));
+    if(agent_files) {
+      setInput(JSON.parse(agent_files));
     }
   }, [internalId])
 
