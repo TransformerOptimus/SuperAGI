@@ -4,6 +4,7 @@ import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 import {EventBus} from "@/utils/eventBus";
+import {setLocalStorageValue} from "@/utils/utils";
 
 export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId}){
     const [agentTemplates, setAgentTemplates] = useState([])
@@ -21,8 +22,15 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
             });
     }, [])
 
+    useEffect(() => {
+        const agent_create_click = localStorage.getItem("agent_create_click_" + String(internalId));
+        if(agent_create_click) {
+            setCreateAgentClicked(JSON.parse(agent_create_click));
+        }
+    }, [internalId])
+
     function redirectToCreateAgent() {
-        setCreateAgentClicked(true);
+        setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
     }
 
     function openMarketplace() {
@@ -37,7 +45,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
 
     function handleTemplateClick(item) {
         setSendTemplate(item);
-        setCreateAgentClicked(true);
+        setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
     }
 
     return (
