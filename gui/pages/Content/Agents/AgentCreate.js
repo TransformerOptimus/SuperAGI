@@ -4,15 +4,13 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, openNewTab, removeTab} from "@/utils/utils";
+import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
-  const [selfEvaluation, setSelfEvaluation] = useState('');
-  const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
   const [input, setInput] = useState([]);
@@ -109,23 +107,24 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     if(template !== null) {
-      setAgentName(template.name)
-      setAgentDescription(template.description)
-      setAdvancedOptions(true)
+      setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
+      setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
+      setAdvancedOptions(true);
 
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
-            setGoals(data.goal)
-            setAgentType(data.agent_type)
-            setConstraints(data.constraints)
-            setIterations(data.max_iterations)
-            setRollingWindow(data.memory_window)
-            setPermission(data.permission_type)
-            setStepTime(data.iteration_interval)
-            setInstructions(data.instruction)
-            setDatabase(data.LTM_DB)
-            setModel(data.model)
+            setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+            setAgentType(data.agent_type);
+            setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+            setIterations(data.max_iterations);
+            setRollingWindow(data.memory_window);
+            setPermission(data.permission_type);
+            setStepTime(data.iteration_interval);
+            setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+            setDatabase(data.LTM_DB);
+            setModel(data.model);
+
             data.tools.forEach((item) => {
               toolkitList.forEach((toolkit) => {
                 toolkit.tools.forEach((tool) => {
@@ -249,63 +248,57 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleGoalChange = (index, newValue) => {
     const updatedGoals = [...goals];
     updatedGoals[index] = newValue;
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
+
   const handleInstructionChange = (index, newValue) => {
     const updatedInstructions = [...instructions];
     updatedInstructions[index] = newValue;
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
     updatedConstraints[index] = newValue;
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const handleGoalDelete = (index) => {
     const updatedGoals = [...goals];
     updatedGoals.splice(index, 1);
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
 
   const handleInstructionDelete = (index) => {
     const updatedInstructions = [...instructions];
     updatedInstructions.splice(index, 1);
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const addGoal = () => {
-    setGoals((prevArray) => [...prevArray, 'new goal']);
+    setLocalStorageArray("agent_goals_" + String(internalId), (prevArray) => [...prevArray, 'new goal'], setGoals);
   };
+
   const addInstruction = () => {
-    setInstructions((prevArray) => [...prevArray, 'new instructions']);
+    setLocalStorageArray("agent_instructions_" + String(internalId), (prevArray) => [...prevArray, 'new instructions'], setInstructions);
   };
 
   const addConstraint = () => {
-    setConstraints((prevArray) => [...prevArray, 'new constraint']);
+    setLocalStorageArray("agent_constraints_" + String(internalId), (prevArray) => [...prevArray, 'new constraint'], setConstraints);
   };
 
   const handleNameChange = (event) => {
-    setAgentName(event.target.value);
+    setLocalStorageValue("agent_name_" + String(internalId), event.target.value, setAgentName);
   };
 
   const handleDescriptionChange = (event) => {
-    setAgentDescription(event.target.value);
-  };
-
-  const handleSelfEvaluationChange = (event) => {
-    setSelfEvaluation(event.target.value);
-  };
-
-  const handleBasePromptChange = (event) => {
-    setBasePrompt(event.target.value);
+    setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
 
   const preventDefault = (e) => {
@@ -518,6 +511,34 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     </div>
   );
 
+  useEffect(() => {
+    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
+    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
+    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
+    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
+    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
+
+    if(agent_name) {
+      setAgentName(agent_name);
+    }
+
+    if(agent_description) {
+      setAgentDescription(agent_description);
+    }
+
+    if(agent_goals) {
+      setGoals(JSON.parse(agent_goals));
+    }
+
+    if(agent_instructions) {
+      setInstructions(JSON.parse(agent_instructions));
+    }
+
+    if(agent_constraints) {
+      setConstraints(JSON.parse(agent_constraints));
+    }
+  }, [internalId])
+
   return (<>
     <div className="row">
       <div className="col-3"></div>
@@ -643,16 +664,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
-              {/*</div>*/}
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
-              {/*</div>*/}
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
                   <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
