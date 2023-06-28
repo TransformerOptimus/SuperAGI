@@ -45,12 +45,12 @@ class TestSendTweets(unittest.TestCase):
         
         with patch('requests.post') as mock_request:
             mock_request.return_value.text = '{"media_id": "1234567890"}'
-            media_ids = self.send_tweets_instance.get_media_ids(["downloads.png"], test_creds)
+            media_ids = self.send_tweets_instance.get_media_ids(["testing.txt"], test_creds)
             self.assertEqual(media_ids, ["1234567890"])
 
         with patch('requests.post') as mock_request:
             mock_request.return_value.text = '{"media_id": "0987654321"}'
-            media_ids = self.send_tweets_instance.get_media_ids(["testing.png"], test_creds)
+            media_ids = self.send_tweets_instance.get_media_ids(["testing..txt"], test_creds)
             self.assertEqual(media_ids, ["0987654321"])
 
     def test_send_tweets(self):
