@@ -50,23 +50,23 @@ def check_time_difference(agent, now):
     interval_in_seconds = max(parse_interval_to_seconds(interval), 300)
     return (now - next_scheduled_time).total_seconds() > interval_in_seconds
 
-def update_next_schedule(agent, start_time, interval_in_seconds, now):
-    time_diff = now - start_time
-    num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  
-    updated_next_scheduled_time = start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
-    agent.next_scheduled_time = updated_next_scheduled_time
     
 def update_next_scheduled_time():
     now = datetime.now()
-    
     session = Session()
+
     scheduled_agents = session.query(AgentScheduler).filter(
     (AgentScheduler.start_time < now) &
     (AgentScheduler.next_scheduled_time < now)).all()
+    
     for agent in scheduled_agents:
+        interval_in_seconds = parse_interval_to_seconds(agent.recurrence_interval)
         if check_time_difference(agent, now):
-            update_next_schedule(agent, agent.start_time, parse_interval_to_seconds(agent.recurrence_interval), now)
-    session.commit()
+            time_diff = now - agent.start_time
+            num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  
+            updated_next_scheduled_time = agent.start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
+            agent.next_scheduled_time = updated_next_scheduled_time
+            session.commit()
 
 def should_execute_and_remove_agent(agent, interval, interval_in_seconds):
     next_scheduled_time = agent.next_scheduled_time
@@ -116,7 +116,7 @@ def get_scheduled_agents():
             agent.current_runs = current_runs + 1
 
             if interval and not should_remove_agent:
-                next_scheduled_time = next_scheduled_time + timedelta(seconds=interval_in_seconds)
+                next_scheduled_time = agent.next_scheduled_time + timedelta(seconds=interval_in_seconds)
                 agent.next_scheduled_time = next_scheduled_time
 
             session.commit()
