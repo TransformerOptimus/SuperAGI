@@ -139,7 +139,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
             - LTM_DB (str): LTM database for the agent.
             - memory_window (int): Memory window size for the agent.
             - max_iterations (int): Maximum number of iterations for the agent.
-            - is_deleted (bool): Flag for soft deleting the agent
 
     Returns:
         dict: Dictionary containing the created agent's ID, execution ID, name, and content type.
@@ -272,7 +271,7 @@ def get_agent_configuration(agent_id: int,
 
     return response
 
-@router.put("/delete/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
+@router.put("/delete/{agent_id}")
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
         Delete an existing Agent

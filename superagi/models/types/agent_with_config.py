@@ -18,4 +18,3 @@ class AgentWithConfig(BaseModel):
     LTM_DB: str
     memory_window: int
     max_iterations: int
-    is_deleted: bool

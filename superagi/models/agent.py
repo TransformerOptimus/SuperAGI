@@ -35,6 +35,7 @@ class Agent(DBBaseModel):
     description = Column(String)
     agent_workflow_id = Column(Integer)
     is_deleted = Column(Boolean, default = False)
+    
     def __repr__(self):
         """
         Returns a string representation of the Agent object.
