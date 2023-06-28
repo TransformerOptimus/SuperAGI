@@ -48,7 +48,6 @@ def get_marketplace_toolkits(
     # Fetch tools for each tool kit
     for toolkit in toolkits:
         toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
-        toolkit.updated_at = toolkit.updated_at.strftime('%d-%b-%Y').upper()
 
     return toolkits
 
