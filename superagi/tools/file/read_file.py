@@ -36,7 +36,7 @@ class ReadFileTool(BaseTool):
             file_name : The name of the file to read.
 
         Returns:
-            The file content
+            The file content and the file name
         """
         output_root_dir = ResourceHelper.get_root_output_dir()
 
