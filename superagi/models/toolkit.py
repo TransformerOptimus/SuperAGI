@@ -12,7 +12,7 @@ marketplace_url = "https://app.superagi.com/api"
 
 class Toolkit(DBBaseModel):
     """
-        ToolKit - used to store tool kits
+        ToolKit - Used to group tools together
         Attributes:
             id(int) : id of the tool kit
             name(str) : name of the tool kit
