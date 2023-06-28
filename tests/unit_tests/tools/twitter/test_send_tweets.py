@@ -1,6 +1,6 @@
 import unittest
 import os
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch, PropertyMock, Mock
 from superagi.tools.twitter.send_tweets import SendTweetsTool, SendTweetsInput
 from superagi.helper.twitter_tokens import TwitterTokens
 
@@ -17,9 +17,10 @@ class TestSendTweets(unittest.TestCase):
 
     def test_execute_success(self):
        with patch.object(SendTweetsTool, 'send_tweets', return_value=MagicMock(status_code=201)) as mock_send_tweets, \
-            patch.object(TwitterTokens, 'get_twitter_creds', return_value={}) as mock_get_twitter_creds, \
-            patch('send_tweets_tool.SendTweetsTool.toolkit_config', new_callable=PropertyMock, return_value=MagicMock(toolkit_id=1)):
+            patch.object(TwitterTokens, 'get_twitter_creds', return_value={}) as mock_get_twitter_creds:
             send_tweets_tool = SendTweetsTool()
+            send_tweets_tool.toolkit_config.toolkit_id = Mock()
+            send_tweets_tool.toolkit_config.toolkit_id.return_value = 97
             response = send_tweets_tool._execute(False, tweet_text='Test tweet')
             self.assertEqual(response, "Tweet posted successfully!!")
             mock_send_tweets.assert_called()
@@ -28,6 +29,8 @@ class TestSendTweets(unittest.TestCase):
         with patch.object(SendTweetsTool, 'send_tweets', return_value=MagicMock(status_code=400)) as mock_send_tweets, \
             patch.object(TwitterTokens, 'get_twitter_creds', return_value={}) as mock_get_twitter_creds:
             send_tweets_tool = SendTweetsTool()
+            send_tweets_tool.toolkit_config.toolkit_id = Mock()
+            send_tweets_tool.toolkit_config.toolkit_id.return_value = 97
             response = send_tweets_tool._execute(False, tweet_text='Test tweet')
             self.assertEqual(response, "Error posting tweet. (Status code: 400)")
             mock_send_tweets.assert_called()
