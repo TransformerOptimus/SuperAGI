@@ -232,6 +232,9 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
 
     # Then, schedule the agent
     schedule_id = AgentScheduler.schedule_agent(db.session, schedule)
+
+    if schedule_id is None:
+        raise HTTPException(status_code=500, detail="Failed to schedule agent")
     
     return {
         "id": agent_id,

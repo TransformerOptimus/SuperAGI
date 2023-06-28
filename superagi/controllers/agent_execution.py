@@ -54,10 +54,29 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 @router.post("/schedule", status_code=201)
 def create_and_schedule_agent(agent_with_config_schedule: AgentScheduleCreate,
                               Authorize: AuthJWT = Depends(check_auth)):
-    
-    # Schedule the agent
-    schedule_id = AgentScheduler.schedule_agent(db.session, agent_with_config_schedule)
-    
+
+    # Check if the agent is already scheduled
+    scheduled_agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == agent_with_config_schedule.agent_id).first()
+    print(scheduled_agent)
+
+    if scheduled_agent:
+        # Update the old record with new data
+        scheduled_agent.start_time = agent_with_config_schedule.start_time
+        scheduled_agent.next_scheduled_time =  agent_with_config_schedule.start_time
+        scheduled_agent.recurrence_interval = agent_with_config_schedule.recurrence_interval
+        scheduled_agent.expiry_date = agent_with_config_schedule.expiry_date
+        scheduled_agent.expiry_runs = agent_with_config_schedule.expiry_runs
+
+        schedule_id = scheduled_agent.id
+
+        db.session.commit()
+    else:                      
+         # Schedule the agent
+        schedule_id = AgentScheduler.schedule_agent(db.session, agent_with_config_schedule)
+
+    if schedule_id is None:
+        raise HTTPException(status_code=500, detail="Failed to schedule agent")
+        
     return {
         "schedule_id": schedule_id
     }
