@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
+import {refreshUrl, openNewTab} from "@/utils/utils";
 
 export default function SideBar({onSelectEvent}) {
   const [sectionSelected, setSelection] = useState('');
@@ -8,6 +9,8 @@ export default function SideBar({onSelectEvent}) {
   const handleClick = (value) => {
     setSelection(value);
     onSelectEvent(value);
+    if(value === 'apm')
+      openNewTab(-5, "APM", "APM")
   };
     return (
     <div className={styles.side_bar}>

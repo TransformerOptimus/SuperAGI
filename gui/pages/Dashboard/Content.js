@@ -4,6 +4,7 @@ import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
+import ApmDashboard from "../Content/APM/ApmDashboard";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
@@ -189,6 +190,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {(tab.contentType === 'ToolKits' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
+                  {tab.contentType === 'APM' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/apm.svg" alt="apm-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
                 <div onClick={(e) => closeTab(e, index)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
@@ -206,6 +208,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                  {tab.contentType === 'APM' && <ApmDashboard />}
                 </div>}
               </div>
             ))}
