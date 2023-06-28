@@ -126,15 +126,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setInstructions(data.instruction)
             setDatabase(data.LTM_DB)
             setModel(data.model)
-            data.tools.forEach((item) => {
-              toolkitList.forEach((toolkit) => {
-                toolkit.tools.forEach((tool) => {
-                  if (tool.name === item) {
-                    setSelectedTools((prevArray) => [...prevArray, tool.id]);
-                  }
-                });
-              });
-            });
+            const selectedTools = toolkitList
+                .flatMap(toolkit => toolkit.tools)
+                .filter(tool => data.tools.includes(tool.name))
+                .map(tool => tool.id);
+
+            setSelectedTools(prevArray => [...prevArray, ...selectedTools]);
             setToolNames(data.tools)
           })
           .catch((error) => {

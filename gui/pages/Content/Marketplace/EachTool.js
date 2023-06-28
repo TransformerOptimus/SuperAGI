@@ -22,7 +22,7 @@ export default function EachTool({template, env}) {
             axios.get(`https://app.superagi.com/api/toolkits/marketplace/details/${template.name}`)
               .then((response) => {
                   const data = response.data || [];
-                  setMarkdownContent(data);
+                  setMarkdownContent('');
               })
               .catch((error) => {
                   console.error('Error fetching template details:', error);
