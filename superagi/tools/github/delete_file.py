@@ -61,7 +61,7 @@ class GithubDeleteFileTool(BaseTool):
             folder_path : The path of the folder to delete the file from.
 
         Returns:
-            pull request deletion message. or error message
+            pull request deletion message or error message
         """
 
         try:

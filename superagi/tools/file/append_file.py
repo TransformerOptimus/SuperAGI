@@ -37,7 +37,7 @@ class AppendFileTool(BaseTool):
             content : The text to append to the file.
 
         Returns:
-            file written to successfully. or error message.
+            success or error message.
         """
         final_path = ResourceHelper.get_root_output_dir() + file_name
         if "{agent_id}" in final_path:
