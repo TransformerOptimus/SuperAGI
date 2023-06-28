@@ -31,7 +31,8 @@ class SendEmailAttachmentTool(BaseTool):
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
-
+    agent_id: int  = None
+    
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
         """
         Execute the send email tool with attachment.
