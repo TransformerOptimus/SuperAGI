@@ -138,6 +138,9 @@ export const removeInternalId = (internalId) => {
     localStorage.removeItem("agent_rolling_window_" + String(internalId));
     localStorage.removeItem("agent_database_" + String(internalId));
     localStorage.removeItem("agent_permission_" + String(internalId));
+    localStorage.removeItem("agent_exit_criterion_" + String(internalId));
+    localStorage.removeItem("agent_iterations_" + String(internalId));
+    localStorage.removeItem("agent_step_time_" + String(internalId));
     localStorage.removeItem("advanced_options_" + String(internalId));
     localStorage.removeItem("has_LTM_" + String(internalId));
     localStorage.removeItem("has_resource_" + String(internalId));

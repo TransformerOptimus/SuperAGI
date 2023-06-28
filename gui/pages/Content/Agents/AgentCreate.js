@@ -98,7 +98,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handleIterationChange = (event) => {
-    setIterations(parseInt(event.target.value));
+    setLocalStorageValue("agent_iterations_" + String(internalId), parseInt(event.target.value), setIterations);
   };
 
   useEffect(() => {
@@ -115,14 +115,14 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           .then((response) => {
             const data = response.data || [];
             setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-            setLocalStorageArray("agent_type_" + String(internalId), data.agent_type, setAgentType);
+            setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
             setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
-            setIterations(data.max_iterations);
-            setLocalStorageArray("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
-            setLocalStorageArray("agent_permission_" + String(internalId), data.permission_type, setPermission);
-            setStepTime(data.iteration_interval);
+            setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+            setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+            setLocalStorageValue("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
+            setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
             setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
-            setLocalStorageArray("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+            setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
             setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
 
             data.tools.forEach((item) => {
@@ -212,31 +212,31 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handlePermissionSelect = (index) => {
-    setLocalStorageArray("agent_permission_" + String(internalId), permissions[index], setPermission);
+    setLocalStorageValue("agent_permission_" + String(internalId), permissions[index], setPermission);
     setPermissionDropdown(false);
   };
 
   const handleDatabaseSelect = (index) => {
-    setLocalStorageArray("agent_database_" + String(internalId), databases[index], setDatabase);
+    setLocalStorageValue("agent_database_" + String(internalId), databases[index], setDatabase);
     setDatabaseDropdown(false);
   };
 
   const handleWindowSelect = (index) => {
-    setLocalStorageArray("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
+    setLocalStorageValue("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
     setRollingDropdown(false);
   };
 
   const handleStepChange = (event) => {
-    setStepTime(event.target.value)
+    setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
   };
 
   const handleExitSelect = (index) => {
-    setExitCriterion(exitCriteria[index]);
+    setLocalStorageValue("agent_exit_criterion_" + String(internalId), exitCriteria[index], setExitCriterion);
     setExitDropdown(false);
   };
 
   const handleAgentSelect = (index) => {
-    setLocalStorageArray("agent_type_" + String(internalId), agentTypes[index], setAgentType);
+    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
     setAgentDropdown(false);
   };
 
@@ -575,6 +575,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
     if(agent_permission) {
       setPermission(agent_permission);
+    }
+
+    const exit_criterion = localStorage.getItem("agent_exit_criterion_" + String(internalId));
+    if(exit_criterion) {
+      setExitCriterion(exit_criterion);
+    }
+
+    const iterations = localStorage.getItem("agent_iterations_" + String(internalId));
+    if(iterations) {
+      setIterations(Number(iterations));
+    }
+
+    const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
+    if(step_time) {
+      setStepTime(Number(step_time));
     }
   }, [internalId])
 
