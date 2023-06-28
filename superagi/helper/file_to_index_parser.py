@@ -20,7 +20,7 @@ def create_llama_document(file_path: str):
     return documents
 
 
-def llama_vector_store_factory(vector_store_name,index_name,embedding_model):
+def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
     """
     Creates a llama vector store.
     """
@@ -36,6 +36,8 @@ def llama_vector_store_factory(vector_store_name,index_name,embedding_model):
     if vector_store_name == "Weaviate":
         from llama_index.vector_stores import WeaviateVectorStore
         return WeaviateVectorStore(vector_store.client)
+    if vector_store_name == "Redis":
+        return vector_store
 
 
 def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
@@ -55,8 +57,10 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
     vector_store = None
     storage_context = None
+    vector_store_name = get_config("resource_vector_store") or "Redis"
+    vector_store_index_name = get_config("resource_vector_store_index_name") or "super-agent-index"
     try:
-        vector_store = llama_vector_store_factory('PineCone', 'super-agent-index1', OpenAiEmbedding(model_api_key))
+        vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
     except ValueError:
         logging.error("Vector store not found")
@@ -67,6 +71,8 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     openai.api_key = get_config("OPENAI_API_KEY")
     index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
     index.set_index_id(f'Agent {agent_id}')
+    if vector_store_name == "Redis":
+        vector_store.persist()
     if vector_store is None:
         index.storage_context.persist(persist_dir="workspace/index")
 

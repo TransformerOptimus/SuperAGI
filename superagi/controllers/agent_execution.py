@@ -78,7 +78,7 @@ def update_agent_execution(agent_execution_id: int,
     """Update details of particular agent_execution by agent_execution_id"""
 
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-    if agent_execution == "COMPLETED":
+    if agent_execution.status == "COMPLETED":
         raise HTTPException(status_code=400, detail="Invalid Request")
 
     if not db_agent_execution:

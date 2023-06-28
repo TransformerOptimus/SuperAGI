@@ -35,6 +35,11 @@ services:
 #    image: "docker.io/library/redis:latest"
     networks:
       - super_network
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./workspace/index:/data"
+
   super__postgres:
     image: "docker.io/library/postgres:latest"
     environment:

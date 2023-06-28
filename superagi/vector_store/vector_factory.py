@@ -60,4 +60,12 @@ class VectorFactory:
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
 
+        if vector_store == "Redis":
+            from llama_index.vector_stores import RedisVectorStore
+            return RedisVectorStore(
+                index_name=index_name,
+                redis_url="redis://super__redis:6379",
+                metadata_fields=["agent_id", "resource_id"]
+            )
+
         raise ValueError(f"Vector store {vector_store} not supported")

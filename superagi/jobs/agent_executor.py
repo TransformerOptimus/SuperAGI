@@ -282,7 +282,7 @@ class AgentExecutor:
         # get last resource from agent config
         last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
                                                                  AgentConfiguration.key == "last_resource").first()
-        if last_resource is not None and last_resource.value == resources[-1].id:
+        if last_resource is not None and last_resource.value == str(resources[-1].id):
             return
         texts = [resource.summary for resource in resources if resource.summary is not None]
         if len(texts) == 0:
