@@ -11,8 +11,8 @@ import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
 import {arEG} from "date-fns/locale";
 
-export default function Market({source, env}) {
-    const [activeTab, setActiveTab] = useState(source || 'market_tools');
+export default function Market({env}) {
+    const [activeTab, setActiveTab] = useState('market_tools');
     const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
     const [templateData, setTemplateData] = useState([]);
@@ -27,6 +27,11 @@ export default function Market({source, env}) {
     };
 
     useEffect(() => {
+        const marketplace_tab = localStorage.getItem('marketplace_tab');
+        if(marketplace_tab) {
+            setActiveTab(marketplace_tab);
+        }
+
         const handleOpenTemplateDetails = ({ item, contentType }) => {
             setDetailType(contentType)
             setTemplateData(item);
@@ -46,6 +51,11 @@ export default function Market({source, env}) {
         };
     }, []);
 
+    const switchTab = (tab) => {
+        setActiveTab(tab);
+        localStorage.setItem('marketplace_tab', tab);
+    };
+
   return (
     <div>
         {!itemClicked ? <div className={styles.empty_state}>
@@ -54,17 +64,17 @@ export default function Market({source, env}) {
 
               <div style={{display:'flex',overflowX:'scroll',marginLeft:'8px'}}>
                   <div>
-                      <button onClick={() => setActiveTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                      <button onClick={() => switchTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
                           <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>&nbsp;Tools
                       </button>
                   </div>
                   {/*<div>*/}
-                  {/*    <button onClick={() => setActiveTab('market_embeddings')} className={styles.tab_button} style={activeTab === 'market_embeddings' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
+                  {/*    <button onClick={() => switchTab('market_embeddings')} className={styles.tab_button} style={activeTab === 'market_embeddings' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
                   {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/embedding_light.svg" alt="embeddings-icon"/>&nbsp;Embeddings*/}
                   {/*    </button>*/}
                   {/*</div>*/}
                   <div>
-                      <button onClick={() => setActiveTab('market_agents')} className={styles.tab_button} style={activeTab === 'market_agents' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                      <button onClick={() => switchTab('market_agents')} className={styles.tab_button} style={activeTab === 'market_agents' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
                           <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/agents_light.svg" alt="agent-template-icon"/>&nbsp;Agent Templates
                       </button>
                   </div>

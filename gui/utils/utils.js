@@ -94,7 +94,7 @@ export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
 
 export const openNewTab = (id, name, contentType) => {
   EventBus.emit('openNewTab', {
-    element: {id: id, name: name, contentType: contentType}
+    element: {id: id, name: name, contentType: contentType, internalId: createInternalId()}
   });
 }
 
@@ -102,4 +102,73 @@ export const removeTab = (id, name, contentType) => {
   EventBus.emit('removeTab', {
     element: {id: id, name: name, contentType: contentType}
   });
+}
+
+export const setLocalStorageValue = (key, value, stateFunction) => {
+  stateFunction(value);
+  localStorage.setItem(key, value);
+  console.log(localStorage.getItem(key));
+}
+
+export const setLocalStorageArray = (key, value, stateFunction) => {
+  stateFunction(value);
+  const arrayString = JSON.stringify(value);
+  localStorage.setItem(key, arrayString);
+}
+
+export const removeInternalId = (internalId) => {
+  const internal_ids = localStorage.getItem("agi_internal_ids");
+  let idsArray = internal_ids ? internal_ids.split(",").map(Number) : [];
+
+  if(idsArray.length <= 0) {
+    return;
+  }
+
+  const internalIdIndex = idsArray.indexOf(internalId);
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', idsArray.join(','));
+    localStorage.removeItem("agent_create_click_" + String(internalId));
+    localStorage.removeItem("agent_name_" + String(internalId));
+    localStorage.removeItem("agent_description_" + String(internalId));
+    localStorage.removeItem("agent_goals_" + String(internalId));
+    localStorage.removeItem("agent_instructions_" + String(internalId));
+    localStorage.removeItem("agent_constraints_" + String(internalId));
+    localStorage.removeItem("agent_model_" + String(internalId));
+    localStorage.removeItem("agent_type_" + String(internalId));
+    localStorage.removeItem("tool_names_" + String(internalId));
+    localStorage.removeItem("tool_ids_" + String(internalId));
+    localStorage.removeItem("agent_rolling_window_" + String(internalId));
+    localStorage.removeItem("agent_database_" + String(internalId));
+    localStorage.removeItem("agent_permission_" + String(internalId));
+    localStorage.removeItem("agent_exit_criterion_" + String(internalId));
+    localStorage.removeItem("agent_iterations_" + String(internalId));
+    localStorage.removeItem("agent_step_time_" + String(internalId));
+    localStorage.removeItem("advanced_options_" + String(internalId));
+    localStorage.removeItem("has_LTM_" + String(internalId));
+    localStorage.removeItem("has_resource_" + String(internalId));
+    localStorage.removeItem("agent_files_" + String(internalId));
+  }
+}
+
+export const createInternalId = () => {
+  let newId = 1;
+
+  if (typeof window !== 'undefined') {
+    const internal_ids = localStorage.getItem("agi_internal_ids");
+    let idsArray = internal_ids ? internal_ids.split(",").map(Number) : [];
+    let found = false;
+
+    for (let i = 1; !found; i++) {
+      if (!idsArray.includes(i)) {
+        newId = i;
+        found = true;
+      }
+    }
+
+    idsArray.push(newId);
+    localStorage.setItem('agi_internal_ids', idsArray.join(','));
+  }
+
+  return newId;
 }
