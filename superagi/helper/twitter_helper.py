@@ -25,6 +25,7 @@ class TwitterHelper:
                              auth=oauth)
             ids = json.loads(response.text)['media_id']
             media_ids.append(str(ids))
+        return media_ids
 
     def get_file_path(self, file_name, agent_id):
         final_path = ResourceHelper().get_agent_resource_path(file_name, agent_id)

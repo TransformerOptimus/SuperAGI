@@ -96,5 +96,5 @@ class TwitterTokens:
                 api_key = credentials["value"]
             if credentials["key"] == "TWITTER_API_SECRET":
                 api_key_secret = credentials["value"]
-        final_creds = Creds(api_key, api_key_secret, oauth_token, oauth_token_secret)
+        final_creds = Creds(api_key, api_key_secret, creds["oauth_token"], creds["oauth_token_secret"])
         return final_creds
