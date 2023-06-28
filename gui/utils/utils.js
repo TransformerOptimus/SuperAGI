@@ -107,6 +107,7 @@ export const removeTab = (id, name, contentType) => {
 export const setLocalStorageValue = (key, value, stateFunction) => {
   stateFunction(value);
   localStorage.setItem(key, value);
+  console.log(localStorage.getItem(key));
 }
 
 export const setLocalStorageArray = (key, value, stateFunction) => {

@@ -512,19 +512,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   );
 
   useEffect(() => {
-    const has_resource = localStorage.getItem("has_resource_" + String(internalId)) === 'true';
+    const has_resource = localStorage.getItem("has_resource_" + String(internalId));
     if(has_resource) {
-      setAddResources(has_resource);
+      setAddResources(JSON.parse(has_resource));
     }
 
-    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId)) === 'true';
+    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId));
     if(has_LTM) {
-      setLongTermMemory(has_LTM);
+      setLongTermMemory(JSON.parse(has_LTM));
     }
 
-    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId)) === 'true';
+    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId));
     if(advanced_options) {
-      setAdvancedOptions(advanced_options);
+      setAdvancedOptions(JSON.parse(advanced_options));
     }
 
     const agent_name = localStorage.getItem("agent_name_" + String(internalId));

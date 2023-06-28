@@ -23,9 +23,9 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
     }, [])
 
     useEffect(() => {
-        const agent_create_click = localStorage.getItem("agent_create_click_" + String(internalId)) === 'true';
+        const agent_create_click = localStorage.getItem("agent_create_click_" + String(internalId));
         if(agent_create_click) {
-            setCreateAgentClicked(agent_create_click);
+            setCreateAgentClicked(JSON.parse(agent_create_click));
         }
     }, [internalId])
 
