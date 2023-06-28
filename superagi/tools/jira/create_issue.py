@@ -36,6 +36,6 @@ class CreateIssueTool(JiraTool):
         Returns:
             The key of the created issue.
         """
-        jira = JiraTool.build_jira_instance()
+        jira = self.build_jira_instance()
         new_issue = jira.create_issue(fields=fields)
         return f"Issue '{new_issue.key}' created successfully!"

@@ -34,7 +34,7 @@ class GetProjectsTool(JiraTool):
         Returns:
             The key of the created issue.
         """
-        jira = JiraTool.build_jira_instance()
+        jira = self.build_jira_instance()
         projects = jira.projects()
         parsed_projects = self.parse_projects(projects)
         parsed_projects_str = (
