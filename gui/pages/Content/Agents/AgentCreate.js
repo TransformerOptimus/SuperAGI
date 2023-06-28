@@ -169,11 +169,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     };
   }, []);
 
-  const toolHelper = (tool) => {
-    const updatedToolNames = [...toolNames, tool.name];
-    const updatedToolIds = [...selectedTools, tool.id];
-  }
-
   const addTool = (tool) => {
     if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
       const updatedToolIds = [...selectedTools, tool.id];
