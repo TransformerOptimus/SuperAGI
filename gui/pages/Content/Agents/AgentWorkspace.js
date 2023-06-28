@@ -273,7 +273,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               </div>
           )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
-          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
+          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager runs={agentExecutions} agentId={agentId}/></div>}
         </div>
       </div>
 

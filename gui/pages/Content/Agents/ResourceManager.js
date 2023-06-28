@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes, downloadFile} from "@/utils/utils";
 
-export default function ResourceManager({agentId}) {
+export default function ResourceManager({agentId, runs}) {
   const [output, setOutput] = useState([]);
   const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
@@ -15,6 +15,37 @@ export default function ResourceManager({agentId}) {
   const pdf_icon = '/images/pdf_file.svg'
   const txt_icon = '/images/txt_file.svg'
   const img_icon = '/images/img_file.svg'
+  const initialItems = [
+    { name: ["Item 1",'Item 5'], run: 1 },
+    { name: ["Item 2","Item 6"], run: 2 },
+    // Add more items here as needed
+  ];
+  const [items, setItems] = useState([]);
+
+  const handleClick = (index) => {
+    setItems(items.map((item, i) => {
+      if(i === index) {
+        return {...item, isOpen: !item.isOpen};
+      }
+      return item;
+    }));
+  };
+
+
+  useEffect(() => {
+    const updatedItems = runs.map(item => {
+      const initialItem = initialItems.find(initial => initial.run === item.id);
+      if (initialItem) {
+        return { ...item, file_name: initialItem.name };
+      }
+      return item;
+    });
+    setItems(updatedItems);
+  }, []);
+
+  useEffect(() => {
+    console.log('items:', items);
+  }, [items]);
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
@@ -155,7 +186,22 @@ export default function ResourceManager({agentId}) {
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
-      <ResourceList files={channel === 'output' ? output : input} />
+      <div>
+        {items.map((item, index) => (
+            <div key={index}>
+              <div onClick={() => handleClick(index)} className={styles.resource_runs}>
+                <Image src={item.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
+                {item.name}
+              </div>
+              {item.isOpen && item.file_name.map((subItem, subIndex) => (
+                  <div key={subIndex} style={{ marginLeft: '20px' }}>
+                    {subItem}
+                  </div>
+              ))}
+            </div>
+        ))}
+      </div>
+      {/*<ResourceList files={channel === 'output' ? output : input} />*/}
     </div>
     <ToastContainer/>
   </>)

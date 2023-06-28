@@ -381,3 +381,12 @@
     line-height: 12px;
     color: #FFFFFF;
 }
+.resource_runs{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0px 12px 6px 6px;
+    color: #FFF;
+    font-size: 12px;
+    curor:pointer;
+}
