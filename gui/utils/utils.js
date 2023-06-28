@@ -94,7 +94,7 @@ export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
 
 export const openNewTab = (id, name, contentType) => {
   EventBus.emit('openNewTab', {
-    element: {id: id, name: name, contentType: contentType}
+    element: {id: id, name: name, contentType: contentType, internalId: createInternalId()}
   });
 }
 

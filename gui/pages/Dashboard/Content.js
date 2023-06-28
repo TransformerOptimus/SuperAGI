@@ -14,7 +14,6 @@ import {createInternalId, removeInternalId} from "@/utils/utils";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
-  const [source, setSource] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
   const [toolkits, setToolkits] = useState(null);
@@ -134,7 +133,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   useEffect(() => {
     const openNewTab = (eventData) => {
       addTab(eventData.element);
-      setSource(eventData.source || null);
     };
 
     const removeTab = (eventData) => {
@@ -209,7 +207,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
-                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
+                  {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || tab.id} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>

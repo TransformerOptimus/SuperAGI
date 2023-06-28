@@ -4,7 +4,7 @@ import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 import {EventBus} from "@/utils/eventBus";
-import {setLocalStorageValue} from "@/utils/utils";
+import {setLocalStorageValue, openNewTab} from "@/utils/utils";
 
 export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId}){
     const [agentTemplates, setAgentTemplates] = useState([])
@@ -34,13 +34,8 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
     }
 
     function openMarketplace() {
-        EventBus.emit('openNewTab', {
-            element: {
-                id: -4,
-                name: "Marketplace",
-                contentType: "Marketplace"
-            },
-            source:"market_agents"});
+        openNewTab(-4, "Marketplace", "Marketplace");
+        localStorage.setItem('marketplace_tab', 'market_agents');
     }
 
     function handleTemplateClick(item) {
