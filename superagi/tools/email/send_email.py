@@ -38,7 +38,7 @@ class SendEmailTool(BaseTool):
             body : The body of the email.
 
         Returns:
-            
+            success or error message.
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')

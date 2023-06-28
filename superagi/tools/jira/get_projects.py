@@ -32,7 +32,7 @@ class GetProjectsTool(JiraTool):
         Execute the get projects tool.
 
         Returns:
-            The key of the created issue.
+            The project ids with project code.
         """
         jira = self.build_jira_instance()
         projects = jira.projects()
