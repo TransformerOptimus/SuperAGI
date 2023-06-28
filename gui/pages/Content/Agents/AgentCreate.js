@@ -93,7 +93,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         .filter(tool => toolNames.includes(tool.name))
         .map(tool => tool.id);
 
-      setSelectedTools(selectedToolIds);
+      setLocalStorageArray("tool_ids_" + String(internalId), selectedToolIds, setSelectedTools);
     }
   };
 
@@ -124,17 +124,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
             setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
             setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
-
-            data.tools.forEach((item) => {
-              toolkitList.forEach((toolkit) => {
-                toolkit.tools.forEach((tool) => {
-                  if (tool.name === item) {
-                    setSelectedTools((prevArray) => [...prevArray, tool.id]);
-                  }
-                });
-              });
-            });
-            setToolNames(data.tools)
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
           })
           .catch((error) => {
             console.error('Error fetching template details:', error);
@@ -179,36 +169,46 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     };
   }, []);
 
+  const toolHelper = (tool) => {
+    const updatedToolNames = [...toolNames, tool.name];
+    const updatedToolIds = [...selectedTools, tool.id];
+  }
+
   const addTool = (tool) => {
     if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
-      setSelectedTools((prevArray) => [...prevArray, tool.id]);
-      setToolNames((prevArray) => [...prevArray, tool.name]);
+      const updatedToolIds = [...selectedTools, tool.id];
+      setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+
+      const updatedToolNames = [...toolNames, tool.name];
+      setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     }
     setSearchValue('');
   };
 
   const addToolkit = (toolkit) => {
+    const updatedToolIds = [...selectedTools];
+    const updatedToolNames = [...toolNames];
+
     toolkit.tools.map((tool) => {
       if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
-        setSelectedTools((prevArray) => [...prevArray, tool.id]);
-        setToolNames((prevArray) => [...prevArray, tool.name]);
+        updatedToolIds.push(tool.id);
+        updatedToolNames.push(tool.name);
       }
     });
+
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     setSearchValue('');
   }
   
   const removeTool = (indexToDelete) => {
-    setSelectedTools((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    const updatedToolIds = [...selectedTools];
+    updatedToolIds.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
 
-    setToolNames((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    const updatedToolNames = [...toolNames];
+    updatedToolNames.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
   };
 
   const handlePermissionSelect = (index) => {
