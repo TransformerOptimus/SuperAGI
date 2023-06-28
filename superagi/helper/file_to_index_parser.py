@@ -89,6 +89,7 @@ def generate_summary_of_document(documents: list[llama_index.Document], openai_a
         service_context=service_context,
         response_synthesizer=response_synthesizer
     )
+
     return doc_summary_index.get_document_summary(documents[0].doc_id)
 
 

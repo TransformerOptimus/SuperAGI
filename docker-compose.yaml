@@ -31,7 +31,8 @@ services:
       - /app/node_modules
       - /app/.next
   super__redis:
-    image: "docker.io/library/redis:latest"
+    image: "redis/redis-stack-server:latest"
+#    image: "docker.io/library/redis:latest"
     networks:
       - super_network
   super__postgres:
