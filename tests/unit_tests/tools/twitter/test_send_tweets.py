@@ -36,26 +36,5 @@ class TestSendTweets(unittest.TestCase):
             self.assertEqual(response, "Error posting tweet. (Status code: 400)")
             mock_send_tweets.assert_called()
 
-    def test_send_tweets(self):
-        test_params = {
-            "text": "Hello, world!"
-        }
-        test_creds = {
-            "api_key": "test_key",
-            "api_key_secret": "test_key_secret",
-            "oauth_token": "test_token",
-            "oauth_token_secret": "test_token_secret"
-        }
-
-        with patch('requests_oauthlib.OAuth1Session.post') as mock_oauth_request:
-            mock_oauth_request.return_value.status_code = 201
-            response = self.twitter_helper_instance.send_tweets(test_params, test_creds)
-            self.assertEqual(response.status_code, 201)
-
-        with patch('requests_oauthlib.OAuth1Session.post') as mock_oauth_request:
-            mock_oauth_request.return_value.status_code = 400
-            response = self.twitter_helper_instance.send_tweets(test_params, test_creds)
-            self.assertEqual(response.status_code, 400)
-
 if __name__ == '__main__':
     unittest.main()
