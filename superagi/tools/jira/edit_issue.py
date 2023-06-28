@@ -42,7 +42,7 @@ class EditIssueTool(JiraTool):
         Returns:
             The key of the created issue. or Issue not found!
         """
-        jira = JiraTool.build_jira_instance()
+        jira = self.build_jira_instance()
         issues = jira.search_issues('key=')
         if len(issues) > 0:
             issues[0].update(fields=fields)

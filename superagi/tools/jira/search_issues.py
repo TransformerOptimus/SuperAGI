@@ -40,7 +40,7 @@ class SearchJiraTool(JiraTool):
         Returns:
             The key of the created issue.
         """
-        jira = JiraTool.build_jira_instance()
+        jira = self.build_jira_instance()
         issues = jira.search_issues(query)
         parsed_issues = self.parse_issues(issues)
         parsed_issues_str = (
