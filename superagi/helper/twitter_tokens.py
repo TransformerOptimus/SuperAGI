@@ -14,6 +14,14 @@ from superagi.models.db import connect_db
 from superagi.models.tool_config import ToolConfig
 from superagi.resource_manager.manager import ResourceManager
 
+class Creds:
+
+    def __init__(self,api_key, api_key_secret, oauth_token, oauth_token_secret):
+        self.api_key = api_key
+        self.api_key_secret = api_key_secret
+        self.oauth_token = oauth_token
+        self.oauth_token_secret = oauth_token_secret
+
 class TwitterTokens:
 
     def get_request_token(self,api_data):
@@ -88,6 +96,5 @@ class TwitterTokens:
                 api_key = credentials["value"]
             if credentials["key"] == "TWITTER_API_SECRET":
                 api_key_secret = credentials["value"]
-        creds["api_key"] = api_key
-        creds["api_key_secret"] = api_key_secret
-        return creds
+        final_creds = Creds(api_key, api_key_secret, oauth_token, oauth_token_secret)
+        return final_creds
