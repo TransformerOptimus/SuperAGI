@@ -425,8 +425,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const clearTools = (e) => {
     e.stopPropagation();
-    setSelectedTools([]);
-    setToolNames([]);
+    setLocalStorageArray("tool_names_" + String(internalId), [], setToolNames);
+    setLocalStorageArray("tool_ids_" + String(internalId), [], setSelectedTools);
   };
 
   const handleFileInputChange = (event) => {
@@ -540,6 +540,16 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
     if(agent_goals) {
       setGoals(JSON.parse(agent_goals));
+    }
+
+    const tool_ids = localStorage.getItem("tool_ids_" + String(internalId));
+    if(tool_ids) {
+      setSelectedTools(JSON.parse(tool_ids));
+    }
+
+    const tool_names = localStorage.getItem("tool_names_" + String(internalId));
+    if(tool_names) {
+      setToolNames(JSON.parse(tool_names));
     }
 
     const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
