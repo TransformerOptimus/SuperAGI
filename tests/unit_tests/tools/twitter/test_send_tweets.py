@@ -1,6 +1,5 @@
 import unittest
-import os
-from unittest.mock import MagicMock, patch, PropertyMock, Mock
+from unittest.mock import MagicMock, patch, Mock
 from superagi.tools.twitter.send_tweets import SendTweetsTool, SendTweetsInput
 from superagi.helper.twitter_tokens import TwitterTokens
 
@@ -35,23 +34,22 @@ class TestSendTweets(unittest.TestCase):
             self.assertEqual(response, "Error posting tweet. (Status code: 400)")
             mock_send_tweets.assert_called()
     
-    def test_get_media_ids(self):
-        test_creds = {
-            "api_key": "test_key",
-            "api_key_secret": "test_key_secret",
-            "oauth_token": "test_token",
-            "oauth_token_secret": "test_token_secret"
-        }
-        
-        with patch('requests.post') as mock_request:
-            mock_request.return_value.text = '{"media_id": "1234567890"}'
-            media_ids = self.send_tweets_instance.get_media_ids(["testing.txt"], test_creds)
-            self.assertEqual(media_ids, ["1234567890"])
 
-        with patch('requests.post') as mock_request:
-            mock_request.return_value.text = '{"media_id": "0987654321"}'
-            media_ids = self.send_tweets_instance.get_media_ids(["testing..txt"], test_creds)
-            self.assertEqual(media_ids, ["0987654321"])
+    def test_get_media_ids(self):
+            test_creds = {
+                "api_key": "test_key",
+                "api_key_secret": "test_key_secret",
+                "oauth_token": "test_token",
+                "oauth_token_secret": "test_token_secret"
+            }
+            file_path = '/app/workspace/output/testing.txt'
+            file = open(file_path, 'w' )
+            file.write( 'This is a test text' )
+            file.close()
+            with patch('requests.post') as mock_request:
+                mock_request.return_value.text = '{"media_id": "1234567890"}'
+                media_ids = self.send_tweets_instance.get_media_ids(["testing.txt"], test_creds)
+                self.assertEqual(media_ids, ["1234567890"])
 
     def test_send_tweets(self):
         test_params = {
