@@ -1,11 +1,13 @@
+from fastapi import HTTPException
 from sqlalchemy import Column, Integer, Text, String
 
 from superagi.models.base_model import DBBaseModel
+from superagi.models.tool import Tool
 
 
 class AgentConfiguration(DBBaseModel):
     """
-    Represents a configuration for an agent.
+    Agent related configurations like goals, instructions, constraints and tools are stored here
 
     Attributes:
         id (int): The unique identifier of the agent configuration.
@@ -30,3 +32,17 @@ class AgentConfiguration(DBBaseModel):
 
         """
         return f"AgentConfiguration(id={self.id}, key={self.key}, value={self.value})"
+
+    @classmethod
+    def get_tools_from_agent_config(cls, session, agent_with_config):
+        agent_toolkit_tools = []
+        for toolkit_id in agent_with_config.toolkits:
+            toolkit_tools = session.query(Tool).filter(Tool.toolkit_id == toolkit_id).all()
+            for tool in toolkit_tools:
+                tool = session.query(Tool).filter(Tool.id == tool.id).first()
+                if tool is None:
+                    # Tool does not exist, throw 404
+                    raise HTTPException(status_code=404, detail=f"Tool does not exist. 404 Not Found.")
+                else:
+                    agent_toolkit_tools.append(tool.id)
+        return agent_toolkit_tools

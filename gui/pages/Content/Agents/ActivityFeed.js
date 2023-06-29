@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {formatTime} from "@/utils/utils";
+import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
@@ -13,15 +13,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
 
   useEffect(() => {
-    const text = 'Thinking';
-    let dots = '';
-
-    const interval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setLoadingText(`${text}${dots}`);
-    }, 250);
-
-    return () => clearInterval(interval);
+    loadingTextEffect('Thinking', setLoadingText, 250);
   }, []);
 
   useEffect(() => {
@@ -36,8 +28,10 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     if (feeds.length !== prevFeedsLength) {
       if (feedContainerRef.current) {
         setTimeout(() => {
-          feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
-          setPrevFeedsLength(feeds.length);
+          if(feedContainerRef.current !== null) {
+            feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
+            setPrevFeedsLength(feeds.length);
+          }
         }, 100);
       }
     }
@@ -61,15 +55,15 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        const data = response.data;
-        setFeeds(data.feeds);
-        setRunStatus(data.status);
-        setFetchedData(data.permissions);
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
+        .then((response) => {
+          const data = response.data;
+          setFeeds(data.feeds);
+          setRunStatus(data.status);
+          setFetchedData(data.permissions);
+        })
+        .catch((error) => {
+          console.error('Error fetching execution feeds:', error);
+        });
   }
 
   useEffect(() => {
@@ -97,13 +91,13 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
             <div className={styles.feed_title}>{f?.feed || ''}</div>
           </div>
           <div className={styles.more_details_wrapper}>
-            {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
+            {f.time_difference && <div className={styles.more_details}>
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <div>
                   <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
                 </div>
                 <div className={styles.history_info}>
-                  {formatTime(f.updated_at)}
+                  {formatTimeDifference(f.time_difference)}
                 </div>
               </div>
             </div>}
@@ -129,9 +123,9 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         </div>}
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
-        <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
-        <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
-      </div>}
+          <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
+            <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
+          </div>}
     </div>
   </>)
 }

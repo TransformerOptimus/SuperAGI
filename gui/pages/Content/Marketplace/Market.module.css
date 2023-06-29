@@ -288,8 +288,9 @@
 
 .resources {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 0.3vw;
 }
 
 .agent_resources {
@@ -370,14 +371,13 @@
 
 .market_tool {
     display: flex;
-    height: 110px;
+    height: 105px;
     color: white;
     font-size: small;
     padding: 12px;
     width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
-    margin: 4px 0 4px 0;
 }
 
 .tool_description {
@@ -393,12 +393,6 @@
 
 .rowContainer {
     height: 100%;
-}
-
-.resources {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
 }
 
 .top_heading {
@@ -444,15 +438,16 @@
 }
 
 .vertical_line{
-    width: 0px;
+    width: 0;
     height: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     flex: none;
     margin-left:8px;
 }
+
 .topbar_heading{
     font-style: normal;
-    font-weight: 300;
+    font-weight: 500;
     font-size: 14px;
     line-height: 18px;
     color: #FFFFFF;
@@ -481,13 +476,15 @@
     color: #888888;
     margin-left: 4px;
 }
+
 .marketplace_public_button{
     display: flex;
     justify-content: flex-end;
     align-items: center;
     width:100%;
-    padding-right:24px;
+    padding-right:8px;
 }
+
 .marketplace_public_content{
     height:92.5vh;
     width:99vw;
@@ -495,8 +492,22 @@
     margin-left:8px;
     border-radius: 8px
 }
+
 .marketplace_public_container{
     height:6.5vh;
     display:flex;
     width:100%;
+}
+
+.markdown_style{
+    color:white;
+}
+.markdown_style img {
+    max-width: 100%;
+    height: auto;
+}
+.markdown_container{
+    height:68vh;
+    overflow-y:scroll;
+    overflow-x:hidden;
 }

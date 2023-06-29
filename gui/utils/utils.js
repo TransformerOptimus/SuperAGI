@@ -1,20 +1,20 @@
-import { formatDistanceToNow, parseISO } from 'date-fns';
 import {baseUrl} from "@/pages/api/apiConfig";
+import {EventBus} from "@/utils/eventBus";
 
-export const formatTime = (lastExecutionTime) => {
-  try {
-    const parsedTime = parseISO(lastExecutionTime);
-    if (isNaN(parsedTime.getTime())) {
-      throw new Error('Invalid time value');
+export const formatTimeDifference = (timeDifference) => {
+  const units = ['years', 'months', 'days', 'hours', 'minutes'];
+
+  for (const unit of units) {
+    if (timeDifference[unit] !== 0) {
+      if (unit === 'minutes') {
+        return `${timeDifference[unit]} minutes ago`;
+      } else {
+        return `${timeDifference[unit]} ${unit} ago`;
+      }
     }
-    return formatDistanceToNow(parsedTime, {
-      addSuffix: true,
-      includeSeconds: true,
-    }).replace(/about\s/, '');
-  } catch (error) {
-    console.error('Error formatting time:', error);
-    return 'Invalid Time';
   }
+
+  return 'Just now';
 };
 
 export const formatNumber = (number) => {
@@ -33,7 +33,6 @@ export const formatNumber = (number) => {
 
   return scaledNumber.toFixed(1) + suffix;
 };
-
 
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
@@ -80,3 +79,27 @@ export const refreshUrl = () => {
   const urlWithoutToken = window.location.origin + window.location.pathname;
   window.history.replaceState({}, document.title, urlWithoutToken);
 };
+
+export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
+  const text = loadingText;
+  let dots = '';
+
+  const interval = setInterval(() => {
+    dots = dots.length < 3 ? dots + '.' : '';
+    setLoadingText(`${text}${dots}`);
+  }, timer);
+
+  return () => clearInterval(interval)
+}
+
+export const openNewTab = (id, name, contentType) => {
+  EventBus.emit('openNewTab', {
+    element: {id: id, name: name, contentType: contentType}
+  });
+}
+
+export const removeTab = (id, name, contentType) => {
+  EventBus.emit('removeTab', {
+    element: {id: id, name: name, contentType: contentType}
+  });
+}

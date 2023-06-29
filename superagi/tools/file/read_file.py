@@ -1,10 +1,11 @@
 import os
-from typing import Type
+from typing import Type, Optional
 
 from pydantic import BaseModel, Field
 
+from superagi.helper.resource_helper import ResourceHelper
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
 
 
 class ReadFileSchema(BaseModel):
@@ -22,8 +23,10 @@ class ReadFileTool(BaseTool):
         args_schema : The args schema.
     """
     name: str = "Read File"
+    agent_id: int = None
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"
+    resource_manager: Optional[ResourceManager] = None
 
     def _execute(self, file_name: str):
         """
@@ -33,23 +36,19 @@ class ReadFileTool(BaseTool):
             file_name : The name of the file to read.
 
         Returns:
-            The file content
+            The file content and the file name
         """
-        input_root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
-        output_root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-        final_path = None
+        output_root_dir = ResourceHelper.get_root_output_dir()
 
-        if input_root_dir is not None:
-            input_root_dir = input_root_dir if input_root_dir.startswith("/") else os.getcwd() + "/" + input_root_dir
-            input_root_dir = input_root_dir if input_root_dir.endswith("/") else input_root_dir + "/"
-            final_path = input_root_dir + file_name
+        final_path = ResourceHelper.get_root_input_dir() + file_name
+        if "{agent_id}" in final_path:
+            final_path = final_path.replace("{agent_id}", str(self.agent_id))
 
         if final_path is None or not os.path.exists(final_path):
             if output_root_dir is not None:
-                output_root_dir = output_root_dir if output_root_dir.startswith(
-                    "/") else os.getcwd() + "/" + output_root_dir
-                output_root_dir = output_root_dir if output_root_dir.endswith("/") else output_root_dir + "/"
-                final_path = output_root_dir + file_name
+                final_path = ResourceHelper.get_root_output_dir() + file_name
+                if "{agent_id}" in final_path:
+                    final_path = final_path.replace("{agent_id}", str(self.agent_id))
 
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")
@@ -59,4 +58,7 @@ class ReadFileTool(BaseTool):
 
         with open(final_path, 'r') as file:
             file_content = file.read()
-        return file_content[:1500]
+        max_length = len(' '.join(file_content.split(" ")[:1000]))
+        return file_content[:max_length] + "\n File " + file_name + " read successfully."
+
+

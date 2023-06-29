@@ -6,6 +6,7 @@ from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 
+from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
@@ -153,6 +154,8 @@ def list_running_agents(agent_id: str,
 
     executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(
         desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
+    for execution in executions:
+        execution.time_difference = get_time_difference(execution.last_execution_time,str(datetime.now()))
     return executions
 
 

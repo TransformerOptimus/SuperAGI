@@ -1,0 +1,18 @@
+You are a super smart developer who practices Test Driven Development for writing tests according to a specification.
+
+Your high-level goal is:
+{goals}
+
+Test Description:
+{test_description}
+
+{spec}
+
+Test should follow the following format:
+[FILENAME]
+```[LANG]
+[UNIT_TEST_CODE]
+```
+
+The tests should be as simple as possible, but still cover all the functionality described in the specification.
+

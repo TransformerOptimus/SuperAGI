@@ -4,8 +4,11 @@ from fastapi import HTTPException
 
 from sqlalchemy.orm import sessionmaker
 
-from superagi import worker
+import superagi.worker
 from superagi.agent.super_agi import SuperAgi
+from superagi.config.config import get_config
+from superagi.helper.encyption_helper import decrypt_data
+from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
@@ -17,16 +20,33 @@ from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
+from superagi.models.tool_config import ToolConfig
+from superagi.tools.base_tool import BaseToolkitConfiguration
+from superagi.resource_manager.manager import ResourceManager
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-from superagi.helper.encyption_helper import decrypt_data
-import superagi.worker
-from superagi.lib.logger import logger
+import yaml
+# from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
 
+
+class DBToolkitConfiguration(BaseToolkitConfiguration):
+    session: Session
+    toolkit_id: int
+
+    def __init__(self, session=None, toolkit_id=None):
+        self.session = session
+        self.toolkit_id = toolkit_id
+
+    def get_tool_config(self, key: str):
+        tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
+        if tool_config and tool_config.value:
+            return tool_config.value
+        return super().get_tool_config(key=key)
 
 class AgentExecutor:
     @staticmethod
@@ -45,29 +65,35 @@ class AgentExecutor:
         return filename
 
     @staticmethod
-    def create_object(class_name, folder_name, file_name):
+    def create_object(tool,session):
         """
-        Create an object of a class dynamically.
+        Create an object of a agent usable tool dynamically.
 
         Args:
-            class_name (str): The name of the class.
-            folder_name (str): The name of the folder.
-            file_name (str): The name of the file.
+            tool (Tool) : Tool object from which agent tool would be made.
 
         Returns:
-            object: The object of the class.
+            object: The object of the agent usable tool.
         """
-        file_name = AgentExecutor.validate_filename(filename=file_name)
-        module_name = f"superagi.tools.{folder_name}.{file_name}"
+        file_name = AgentExecutor.validate_filename(filename=tool.file_name)
+
+        tools_dir = get_config("TOOLS_DIR")
+        if tools_dir is None:
+            tools_dir = "superagi/tools"
+        parsed_tools_dir = tools_dir.rstrip("/")
+        module_name = ".".join(parsed_tools_dir.split("/") + [tool.folder_name, file_name])
+
+        # module_name = f"superagi.tools.{folder_name}.{file_name}"
 
         # Load the module dynamically
         module = importlib.import_module(module_name)
 
         # Get the class from the loaded module
-        obj_class = getattr(module, class_name)
+        obj_class = getattr(module, tool.class_name)
 
         # Create an instance of the class
         new_object = obj_class()
+        new_object.toolkit_config = DBToolkitConfiguration(session=session, toolkit_id=tool.toolkit_id)
         return new_object
 
     @staticmethod
@@ -157,18 +183,18 @@ class AgentExecutor:
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
-
         for tool in user_tools:
-            tool = AgentExecutor.create_object(tool.class_name, tool.folder_name, tool.file_name)
+            tool = AgentExecutor.create_object(tool,session)
             tools.append(tool)
-        print(user_tools)
 
         print('////////////', model_api_key)
         resource_summary = self.generate_resource_summary(agent.id, session, model_api_key)
         resource_summary = resource_summary or parsed_config.get("resource_summary")
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
-                                              resource_description=resource_summary)
+                                              resource_description=resource_summary,
+                                              session=session)
+
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
@@ -201,13 +227,10 @@ class AgentExecutor:
             superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()
-        # except Exception as exception:
-        #      print("Exception Occured in celery job", exception)
-        #      print(str(exception))
-        # finally:
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key, resource_description=None):
+    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key, session,
+                                 resource_description=None):
         """
         Set the default parameters for the tools.
 
@@ -235,6 +258,12 @@ class AgentExecutor:
                 tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
+            if hasattr(tool, 'resource_manager'):
+                tool.resource_manager = ResourceManager(session=session, agent_id=agent_id)
+            if hasattr(tool, 'tool_response_manager'):
+                tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
+                    "agent_execution_id"])
+
             if tool.name == "Query Resource" and resource_description:
                 tool.description = resource_description
             new_tools.append(tool)

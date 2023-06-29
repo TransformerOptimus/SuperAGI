@@ -1,15 +1,12 @@
-from typing import Type, List
+import json
+from typing import Type, Optional
+
 from pydantic import BaseModel, Field
 
-from typing import Type, Optional, List
 from superagi.helper.google_search import GoogleSearchWrap
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
-import os
-import json
-from superagi.config.config import get_config
-
 
 
 class GoogleSearchSchema(BaseModel):
@@ -46,15 +43,14 @@ class GoogleSearchTool(BaseTool):
             query : The query to search for.
 
         Returns:
-            A tuple of (snippets, webpages, links)
+            Search result summary along with related links
         """
-        api_key = get_config("GOOGLE_API_KEY")
-        search_engine_id = get_config("SEARCH_ENGINE_ID")
+        api_key = self.get_tool_config("GOOGLE_API_KEY")
+        search_engine_id = self.get_tool_config("SEARCH_ENGINE_ID")
         num_results = 10
         num_pages = 1
         num_extracts = 3
 
-        #print("query: ", query)
         google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
         snippets, webpages, links = google_search.get_result(query)
 
