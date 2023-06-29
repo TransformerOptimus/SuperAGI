@@ -98,11 +98,11 @@ export default function ResourceManager({agentId}) {
       });
   }
 
-  const downloadAllOutputFiles = () => {
+  const downloadAllOutputFiles = (fileList) => {
     const zip = new JSZip();
     const promises = [];
 
-    output.forEach(file => {
+    fileList.forEach(file => {
       const promise = downloadFile(file.id)
         .then(blob => {
           const fileBlob = new Blob([blob], { type: file.type });
@@ -121,7 +121,7 @@ export default function ResourceManager({agentId}) {
         zip.generateAsync({ type: 'blob' })
           .then(content => {
             const timestamp = new Date().getTime();
-            const zipFilename = `output_files_${timestamp}.zip`;
+            const zipFilename = `files_${timestamp}.zip`;
             const downloadLink = document.createElement('a');
             downloadLink.href = URL.createObjectURL(content);
             downloadLink.download = zipFilename;
@@ -193,9 +193,9 @@ export default function ResourceManager({agentId}) {
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} />
-      {channel === 'output' && (
-        <button onClick={downloadAllOutputFiles} className="secondary_button" style={{width:'100%'}}>
-          Download All Output Files
+      {((channel === 'output' && output.length > 1) || (channel === 'input' && input.length > 1)) && (
+        <button onClick={() => downloadAllOutputFiles(channel === 'output' ? output : input)} className="secondary_button" style={{width:'100%'}}>
+          Download ZIP
         </button>
       )}
     </div>
