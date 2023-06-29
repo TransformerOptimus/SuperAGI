@@ -46,10 +46,10 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
 
         """
-        final_path = ResourceHelper().get_agent_resource_path(filename, self.agent_id)
+        final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id)
 
         if final_path is None or not os.path.exists(final_path):
-            final_path = ResourceHelper().get_root_input_dir() + filename
+            final_path = ResourceHelper.get_root_input_dir() + filename
 
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{filename}' not found.")

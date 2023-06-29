@@ -27,8 +27,7 @@ class SendEmailTool(BaseTool):
     name: str = "Send Email"
     args_schema: Type[BaseModel] = SendEmailInput
     description: str = "Send an Email"
-    agent_id: int  = None
-
+    
     def _execute(self, to: str, subject: str, body: str) -> str:
         """
         Execute the send email tool.
