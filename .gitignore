@@ -8,6 +8,7 @@ superagi/controllers/__pycache__
 **agent_dictvenv
 **/__gitpycache__/
 gui/node_modules
+node_modules
 gui/.next
 .DS_Store
 .DS_Store?

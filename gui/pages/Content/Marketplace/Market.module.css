@@ -452,6 +452,7 @@
     line-height: 18px;
     color: #FFFFFF;
     margin-left:8px;
+    pointer-events: none;
 }
 
 .empty_templates {

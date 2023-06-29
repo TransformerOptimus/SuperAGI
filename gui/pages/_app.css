@@ -209,7 +209,7 @@ input[type="range"]::-moz-range-track {
 
 .dropdown_container {
     width: 150px;
-    height: fit-content;
+    height: auto;
     background: #2E293F;
     flex-direction: column;
     justify-content: center;

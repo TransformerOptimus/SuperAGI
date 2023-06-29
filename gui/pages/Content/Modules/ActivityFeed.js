@@ -4,7 +4,7 @@ import Head from 'next/head';
 // import styles from './Agents.module.css';
 import {getExecutionFeeds} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {formatTime, loadingTextEffect} from "@/utils/utils";
+import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
@@ -30,8 +30,10 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     if (feeds.length !== prevFeedsLength) {
       if (feedContainerRef.current) {
         setTimeout(() => {
-          feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
-          setPrevFeedsLength(feeds.length);
+          if(feedContainerRef.current !== null) {
+            feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
+            setPrevFeedsLength(feeds.length);
+          }
         }, 100);
       }
     }
@@ -59,7 +61,6 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           const data = response.data;
           setFeeds(data.feeds);
           setRunStatus(data.status);
-          console.log(data.permissions)
           setFetchedData(data.permissions);
         })
         .catch((error) => {
@@ -92,13 +93,13 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
             <div className={styles.feed_title}>{f?.feed || ''}</div>
           </div>
           <div className={styles.more_details_wrapper}>
-            {f.updated_at && formatTime(f.updated_at) !== 'Invalid Time' && <div className={styles.more_details}>
+            {f.time_difference && <div className={styles.more_details}>
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <div>
                   <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
                 </div>
                 <div className={styles.history_info}>
-                  {formatTime(f.updated_at)}
+                  {formatTimeDifference(f.time_difference)}
                 </div>
               </div>
             </div>}

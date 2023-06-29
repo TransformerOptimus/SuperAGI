@@ -13,10 +13,10 @@ import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardSe
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import AgentCreate from "@/pages/Content/Modules/AgentCreate";
+import {createInternalId, removeInternalId} from "@/utils/utils";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
-  const [source, setSource] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
   const [toolkits, setToolkits] = useState(null);
@@ -56,12 +56,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     fetchToolkits();
   }, [selectedProjectId])
 
-  const closeTab = (e, index) => {
+  const closeTab = (e, index, contentType, internalId) => {
     e.stopPropagation();
-    cancelTab(index);
+    cancelTab(index, contentType, internalId);
   };
 
-  const cancelTab = (index) => {
+  const cancelTab = (index, contentType, internalId) => {
     let updatedTabs = [...tabs];
 
     if (selectedTab === index) {
@@ -79,6 +79,17 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       }
 
       updatedTabs.splice(index, 1);
+    }
+
+    if(contentType === 'Create_Agent') {
+      removeInternalId(internalId);
+    }
+
+    if(contentType === 'Marketplace') {
+      localStorage.removeItem('marketplace_tab');
+      localStorage.removeItem('market_item_clicked');
+      localStorage.removeItem('market_detail_type');
+      localStorage.removeItem('market_item');
     }
 
     setTabs(updatedTabs);
@@ -132,14 +143,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   useEffect(() => {
     const openNewTab = (eventData) => {
       addTab(eventData.element);
-      setSource(eventData.source || null);
     };
 
     const removeTab = (eventData) => {
       const newAgentTabIndex = tabs.findIndex(
         (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
       );
-      cancelTab(newAgentTabIndex);
+      cancelTab(newAgentTabIndex, eventData.contentType, eventData.contentType === 'Create_Agent' ? eventData.internalId : 0);
     };
 
     EventBus.on('openNewTab', openNewTab);
@@ -176,7 +186,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           <div>
             <div><Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/></div>
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
-              <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent" })} className={styles.empty_state_button}>Create new agent</button>
+              <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent", internalId: createInternalId() })} className={styles.empty_state_button}>Create new agent</button>
             </div>
             {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button onClick={getLastActive} className={styles.empty_state_button}>View last active agent</button>
@@ -196,7 +206,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {(tab.contentType === 'AgentCluster' || tab.contentType === 'Create_Agent_Cluster') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agent_cluster_light.svg" alt="agent-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, index)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, index, tab.contentType, tab.contentType === 'Create_Agent' ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>
@@ -208,11 +218,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 {selectedTab === index && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace toolkitDetails={toolkitDetails}/>}
-                  {tab.contentType === 'Settings' && <Settings/>}
-                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
-                  {tab.contentType === 'AgentCluster' && <AgentClusterWorkspace agentId={tab.id}/>}
-                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                  {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
+                  {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
+                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || tab.id} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                   {tab.contentType === 'Create_Agent_Cluster' && <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} isCluster={true} />}
+                  {tab.contentType === 'AgentCluster' && <AgentClusterWorkspace agentId={tab.id}/>}
                 </div>}
               </div>
             ))}

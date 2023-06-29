@@ -2,17 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {createAgent,fetchAgentTemplateConfig, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
 import styles from '../Agents/Agents.module.css';
-import {formatBytes} from "@/utils/utils";
+import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, isCluster}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, isCluster}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
-  const [selfEvaluation, setSelfEvaluation] = useState('');
-  const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
   const [input, setInput] = useState([]);
@@ -101,12 +99,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         .filter(tool => toolNames.includes(tool.name))
         .map(tool => tool.id);
 
-      setSelectedTools(selectedToolIds);
+      setLocalStorageArray("tool_ids_" + String(internalId), selectedToolIds, setSelectedTools);
     }
   };
 
   const handleIterationChange = (event) => {
-    setIterations(parseInt(event.target.value));
+    setLocalStorageValue("agent_iterations_" + String(internalId), parseInt(event.target.value), setIterations);
   };
   useEffect(() => {
     setPageTitle(isCluster ? 'Create new cluster' : 'Create new agent');
@@ -119,33 +117,24 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     if(template !== null) {
-      setAgentName(template.name)
-      setAgentDescription(template.description)
-      setAdvancedOptions(true)
+      setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
+      setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
+      setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
 
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
-            setGoals(data.goal)
-            setAgentType(data.agent_type)
-            setConstraints(data.constraints)
-            setIterations(data.max_iterations)
-            setRollingWindow(data.memory_window)
-            setPermission(data.permission_type)
-            setStepTime(data.iteration_interval)
-            setInstructions(data.instruction)
-            setDatabase(data.LTM_DB)
-            setModel(data.model)
-            data.tools.forEach((item) => {
-              toolkitList.forEach((toolkit) => {
-                toolkit.tools.forEach((tool) => {
-                  if (tool.name === item) {
-                    setSelectedTools((prevArray) => [...prevArray, tool.id]);
-                  }
-                });
-              });
-            });
-            setToolNames(data.tools)
+            setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+            setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+            setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+            setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+            setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+            setLocalStorageValue("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
+            setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+            setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+            setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+            setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
           })
           .catch((error) => {
             console.error('Error fetching template details:', error);
@@ -192,130 +181,129 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addTool = (tool) => {
     if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
-      setSelectedTools((prevArray) => [...prevArray, tool.id]);
-      setToolNames((prevArray) => [...prevArray, tool.name]);
+      const updatedToolIds = [...selectedTools, tool.id];
+      setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+
+      const updatedToolNames = [...toolNames, tool.name];
+      setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     }
     setSearchValue('');
   };
 
   const addToolkit = (toolkit) => {
+    const updatedToolIds = [...selectedTools];
+    const updatedToolNames = [...toolNames];
+
     toolkit.tools.map((tool) => {
       if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
-        setSelectedTools((prevArray) => [...prevArray, tool.id]);
-        setToolNames((prevArray) => [...prevArray, tool.name]);
+        updatedToolIds.push(tool.id);
+        updatedToolNames.push(tool.name);
       }
     });
+
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     setSearchValue('');
   }
-
+  
   const removeTool = (indexToDelete) => {
-    setSelectedTools((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    const updatedToolIds = [...selectedTools];
+    updatedToolIds.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
 
-    setToolNames((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    const updatedToolNames = [...toolNames];
+    updatedToolNames.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
   };
 
   const handlePermissionSelect = (index) => {
-    setPermission(permissions[index]);
+    setLocalStorageValue("agent_permission_" + String(internalId), permissions[index], setPermission);
     setPermissionDropdown(false);
   };
 
   const handleDatabaseSelect = (index) => {
-    setDatabase(databases[index]);
+    setLocalStorageValue("agent_database_" + String(internalId), databases[index], setDatabase);
     setDatabaseDropdown(false);
   };
 
   const handleWindowSelect = (index) => {
-    setRollingWindow(rollingWindows[index]);
+    setLocalStorageValue("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
     setRollingDropdown(false);
   };
 
   const handleStepChange = (event) => {
-    setStepTime(event.target.value)
+    setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
   };
 
   const handleExitSelect = (index) => {
-    setExitCriterion(exitCriteria[index]);
+    setLocalStorageValue("agent_exit_criterion_" + String(internalId), exitCriteria[index], setExitCriterion);
     setExitDropdown(false);
   };
 
   const handleAgentSelect = (index) => {
-    setAgentType(agentTypes[index]);
+    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
     setAgentDropdown(false);
   };
 
   const handleModelSelect = (index) => {
-    setModel(models[index]);
+    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
     setModelDropdown(false);
   };
 
   const handleGoalChange = (index, newValue) => {
     const updatedGoals = [...goals];
     updatedGoals[index] = newValue;
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
+
   const handleInstructionChange = (index, newValue) => {
     const updatedInstructions = [...instructions];
     updatedInstructions[index] = newValue;
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
     updatedConstraints[index] = newValue;
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const handleGoalDelete = (index) => {
     const updatedGoals = [...goals];
     updatedGoals.splice(index, 1);
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
 
   const handleInstructionDelete = (index) => {
     const updatedInstructions = [...instructions];
     updatedInstructions.splice(index, 1);
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const addGoal = () => {
-    setGoals((prevArray) => [...prevArray, 'new goal']);
+    setLocalStorageArray("agent_goals_" + String(internalId), [...goals, 'new goal'], setGoals);
   };
+
   const addInstruction = () => {
-    setInstructions((prevArray) => [...prevArray, 'new instructions']);
+    setLocalStorageArray("agent_instructions_" + String(internalId), [...instructions, 'new instructions'], setInstructions);
   };
 
   const addConstraint = () => {
-    setConstraints((prevArray) => [...prevArray, 'new constraint']);
+    setLocalStorageArray("agent_constraints_" + String(internalId), [...constraints, 'new constraint'], setConstraints);
   };
 
   const handleNameChange = (event) => {
-    setAgentName(event.target.value);
+    setLocalStorageValue("agent_name_" + String(internalId), event.target.value, setAgentName);
   };
 
   const handleDescriptionChange = (event) => {
-    setAgentDescription(event.target.value);
-  };
-
-  const handleSelfEvaluationChange = (event) => {
-    setSelfEvaluation(event.target.value);
-  };
-
-  const handleBasePromptChange = (event) => {
-    setBasePrompt(event.target.value);
+    setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
 
   const preventDefault = (e) => {
@@ -347,7 +335,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleAddAgent = () => {
     if(!hasAPIkey) {
       toast.error("Your OpenAI API key is empty!", {autoClose: 1800});
-      EventBus.emit("openSettings", {});
+      openNewTab(-3, "Settings", "Settings");
       return
     }
 
@@ -374,7 +362,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
-    // if permission has word restricted change the permission to
     let permission_type = permission;
     if (permission.includes("RESTRICTED")) {
       permission_type = "RESTRICTED";
@@ -403,7 +390,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       .then((response) => {
         const agent_id = response.data.id;
         fetchAgents();
-        cancelCreate();
+        removeTab(-1, "new agent", "Create_Agent");
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
           input.forEach((fileData) => {
@@ -425,10 +412,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       });
   };
 
-  function cancelCreate() {
-    EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
-  }
-
   const toggleToolkit = (e, id) => {
     e.stopPropagation();
     const toolkitToUpdate = toolkitList.find(toolkit => toolkit.id === id);
@@ -447,8 +430,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const clearTools = (e) => {
     e.stopPropagation();
-    setSelectedTools([]);
-    setToolNames([]);
+    setLocalStorageArray("tool_names_" + String(internalId), [], setToolNames);
+    setLocalStorageArray("tool_ids_" + String(internalId), [], setSelectedTools);
   };
 
   const handleFileInputChange = (event) => {
@@ -481,7 +464,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         "size": files[0].size,
         "type": files[0].type,
       };
-      setInput((prevArray) => [...prevArray, fileData]);
+      const updatedFiles = [...input, fileData];
+      setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
     }
   }
 
@@ -500,7 +484,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const removeFile = (index) => {
     const updatedFiles = input.filter((file) => input.indexOf(file) !== index);
-    setInput(updatedFiles);
+    setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
   };
 
   const ResourceItem = ({ file, index }) => {
@@ -532,6 +516,103 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       ))}
     </div>
   );
+
+  useEffect(() => {
+    const has_resource = localStorage.getItem("has_resource_" + String(internalId));
+    if(has_resource) {
+      setAddResources(JSON.parse(has_resource));
+    }
+
+    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId));
+    if(has_LTM) {
+      setLongTermMemory(JSON.parse(has_LTM));
+    }
+
+    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId));
+    if(advanced_options) {
+      setAdvancedOptions(JSON.parse(advanced_options));
+    }
+
+    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
+    if(agent_name) {
+      setAgentName(agent_name);
+    }
+
+    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
+    if(agent_description) {
+      setAgentDescription(agent_description);
+    }
+
+    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
+    if(agent_goals) {
+      setGoals(JSON.parse(agent_goals));
+    }
+
+    const tool_ids = localStorage.getItem("tool_ids_" + String(internalId));
+    if(tool_ids) {
+      setSelectedTools(JSON.parse(tool_ids));
+    }
+
+    const tool_names = localStorage.getItem("tool_names_" + String(internalId));
+    if(tool_names) {
+      setToolNames(JSON.parse(tool_names));
+    }
+
+    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
+    if(agent_instructions) {
+      setInstructions(JSON.parse(agent_instructions));
+    }
+
+    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
+    if(agent_constraints) {
+      setConstraints(JSON.parse(agent_constraints));
+    }
+
+    const agent_model = localStorage.getItem("agent_model_" + String(internalId));
+    if(agent_model) {
+      setModel(agent_model);
+    }
+
+    const agent_type = localStorage.getItem("agent_type_" + String(internalId));
+    if(agent_type) {
+      setAgentType(agent_type);
+    }
+
+    const agent_rolling_window = localStorage.getItem("agent_rolling_window_" + String(internalId));
+    if(agent_rolling_window) {
+      setRollingWindow(agent_rolling_window);
+    }
+
+    const agent_database = localStorage.getItem("agent_database_" + String(internalId));
+    if(agent_database) {
+      setDatabase(agent_database);
+    }
+
+    const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
+    if(agent_permission) {
+      setPermission(agent_permission);
+    }
+
+    const exit_criterion = localStorage.getItem("agent_exit_criterion_" + String(internalId));
+    if(exit_criterion) {
+      setExitCriterion(exit_criterion);
+    }
+
+    const iterations = localStorage.getItem("agent_iterations_" + String(internalId));
+    if(iterations) {
+      setIterations(Number(iterations));
+    }
+
+    const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
+    if(step_time) {
+      setStepTime(Number(step_time));
+    }
+
+    const agent_files = localStorage.getItem("agent_files_" + String(internalId));
+    if(agent_files) {
+      setInput(JSON.parse(agent_files));
+    }
+  }, [internalId])
 
   return (<>
     <div className="row">
@@ -661,7 +742,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           </div>
           {!isCluster && <div style={{marginTop: '15px'}}>
-            <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)}
+            <button className="medium_toggle"
+                    onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)}
                     style={advancedOptions ? {background: '#494856'} : {}}>
               {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ?
                 <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_up.svg"
@@ -687,20 +769,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
-              {/*</div>*/}
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
-              {/*</div>*/}
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
+                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
                     Add Resources
                   </label>
                 </div>
@@ -779,8 +851,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLongTermMemory(!longTermMemory)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLongTermMemory(!longTermMemory)}>
+                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>
                     Long term memory
                   </label>
                 </div>
@@ -818,7 +890,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight:'7px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
+            <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
             <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
           </div>
         </div>
