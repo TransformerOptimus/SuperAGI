@@ -42,7 +42,7 @@ def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
         #     return WeaviateVectorStore(vector_store.client)
 
     if vector_store_name.lower() == "redis":
-        redis_url = get_config("REDIS_URL") or "redis://super__redis:6379"
+        redis_url = get_config("REDIS_VECTOR_STORE_URL") or "redis://super__redis:6379"
         from llama_index.vector_stores import RedisVectorStore
         return RedisVectorStore(
             index_name=index_name,
@@ -88,12 +88,13 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     vector_store_name = get_config("RESOURCE_VECTOR_STORE") or "Redis"
     vector_store_index_name = get_config("resource_vector_store_index_name") or "super-agent-index"
     try:
+        print(vector_store_name, vector_store_index_name)
         vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
         if vector_store_name.lower() == "chroma":
             vector_store, chroma_collection = vector_store
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    except ValueError:
-        logging.error("Vector store not found")
+    except ValueError as e:
+        logging.error("Vector store not found",e)
         # vector_store = None
         # vector_store = llama_vector_store_factory('Weaviate', 'super-agent-index1', OpenAiEmbedding(model_api_key))
         # print(vector_store)
@@ -104,7 +105,7 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
         index.set_index_id(f'Agent {agent_id}')
     except Exception as e:
         print(e)
-    if vector_store_name == "Redis":
+    if vector_store_name.lower() == "redis":
         vector_store.persist()
     if vector_store is None:
         index.storage_context.persist(persist_dir="workspace/index")
