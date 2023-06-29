@@ -1,6 +1,10 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_sqlalchemy import db
+from pydantic import BaseModel
+
 from main import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.models.agent import Agent
@@ -9,10 +13,34 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.tool import Tool
-from superagi.types.db import AgentTemplateIn, AgentTemplateOut
+# from superagi.types.db import AgentTemplateIn, AgentTemplateOut
 
 router = APIRouter()
 
+
+class AgentTemplateOut(BaseModel):
+    id: int
+    organisation_id: int
+    agent_workflow_id: int
+    name: str
+    description: str
+    marketplace_template_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentTemplateIn(BaseModel):
+    organisation_id: int
+    agent_workflow_id: int
+    name: str
+    description: str
+    marketplace_template_id: int
+
+    class Config:
+        orm_mode = True
 
 @router.post("/create", status_code=201, response_model=AgentTemplateOut)
 def create_agent_template(agent_template: AgentTemplateIn,

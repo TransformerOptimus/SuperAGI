@@ -1,6 +1,8 @@
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
+
 from superagi.models.agent import Agent
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.project import Project
@@ -16,10 +18,30 @@ from datetime import datetime
 import json
 from sqlalchemy import func
 from superagi.helper.auth import check_auth
-from superagi.types.db import AgentOut, AgentIn
+# from superagi.types.db import AgentOut, AgentIn
 
 router = APIRouter()
 
+
+class AgentOut(BaseModel):
+    id: int
+    name: str
+    project_id: int
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentIn(BaseModel):
+    name: str
+    project_id: int
+    description: str
+
+    class Config:
+        orm_mode = True
 
 # CRUD Operations
 @router.post("/add", response_model=AgentOut, status_code=201)

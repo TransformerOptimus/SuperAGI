@@ -3,6 +3,7 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from fastapi import HTTPException, Depends, Request, BackgroundTasks
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
+from pydantic import BaseModel
 
 from superagi.models.budget import Budget
 from fastapi import APIRouter, UploadFile

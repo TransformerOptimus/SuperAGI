@@ -1,18 +1,38 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-
+from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
 from superagi.lib.logger import logger
-from superagi.types.db import OrganisationIn, OrganisationOut
+# from superagi.types.db import OrganisationIn, OrganisationOut
 
 router = APIRouter()
 
+
+class OrganisationOut(BaseModel):
+    id: int
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class OrganisationIn(BaseModel):
+    name: str
+    description: str
+
+    class Config:
+        orm_mode = True
 
 # CRUD Operations
 @router.post("/add", response_model=OrganisationOut, status_code=201)

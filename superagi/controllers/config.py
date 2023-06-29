@@ -1,4 +1,8 @@
+from datetime import datetime
+from typing import Optional
+
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
@@ -9,10 +13,30 @@ from superagi.helper.auth import check_auth
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.encyption_helper import encrypt_data,decrypt_data
 from superagi.lib.logger import logger
-from superagi.types.db import ConfigurationIn, ConfigurationOut
+# from superagi.types.db import ConfigurationIn, ConfigurationOut
 
 router = APIRouter()
 
+
+class ConfigurationOut(BaseModel):
+    id: int
+    organisation_id: int
+    key: str
+    value: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ConfigurationIn(BaseModel):
+    organisation_id: Optional[int]
+    key: str
+    value: str
+
+    class Config:
+        orm_mode = True
 
 # CRUD Operations
 @router.post("/add/organisation/{organisation_id}", status_code=201,

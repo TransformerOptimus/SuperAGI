@@ -1,14 +1,39 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
+from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 from superagi.models.tool import Tool
-from superagi.types.db import ToolIn, ToolOut
+# from superagi.types.db import ToolIn, ToolOut
 
 router = APIRouter()
 
+
+class ToolOut(BaseModel):
+    id: int
+    name: str
+    folder_name: str
+    class_name: str
+    file_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ToolIn(BaseModel):
+    name: str
+    folder_name: str
+    class_name: str
+    file_name: str
+
+    class Config:
+        orm_mode = True
 
 # CRUD Operations
 @router.post("/add", response_model=ToolOut, status_code=201)

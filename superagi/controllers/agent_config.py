@@ -1,14 +1,41 @@
+from typing import Union, List
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
+from pydantic import BaseModel
+
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.types.agent_config import AgentConfig
-from superagi.types.db import AgentConfigurationIn, AgentConfigurationOut
+# from superagi.types.db import AgentConfigurationIn, AgentConfigurationOut
+from datetime import datetime
+
 
 router = APIRouter()
+
+
+class AgentConfigurationOut(BaseModel):
+    id: int
+    agent_id: int
+    key: str
+    value: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentConfigurationIn(BaseModel):
+    agent_id: int
+    key: str
+    value: Union[str, List[str]]
+
+    class Config:
+        orm_mode = True
 
 
 # CRUD Operations

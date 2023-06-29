@@ -2,14 +2,30 @@ from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-
+from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 from superagi.models.budget import Budget
-from superagi.types.db import BudgetIn, BudgetOut
+# from superagi.types.db import BudgetIn, BudgetOut
 
 router = APIRouter()
 
+
+class BudgetOut(BaseModel):
+    id: int
+    budget: float
+    cycle: str
+
+    class Config:
+        orm_mode = True
+
+
+class BudgetIn(BaseModel):
+    budget: float
+    cycle: str
+
+    class Config:
+        orm_mode = True
 
 @router.post("/add", response_model=BudgetOut, status_code=201)
 def create_budget(budget: BudgetIn,

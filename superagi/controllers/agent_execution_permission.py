@@ -4,15 +4,43 @@ from typing import Annotated
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Body
 from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
 
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.worker import execute_agent
 from fastapi import APIRouter
 
 from superagi.helper.auth import check_auth
-from superagi.types.db import AgentExecutionPermissionOut, AgentExecutionPermissionIn
+# from superagi.types.db import AgentExecutionPermissionOut, AgentExecutionPermissionIn
 
 router = APIRouter()
+
+
+class AgentExecutionPermissionOut(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    status: str
+    tool_name: str
+    user_feedback: str
+    assistant_reply: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentExecutionPermissionIn(BaseModel):
+    agent_execution_id: int
+    agent_id: int
+    status: str
+    tool_name: str
+    user_feedback: str
+    assistant_reply: str
+
+    class Config:
+        orm_mode = True
 
 
 @router.get("/get/{agent_execution_permission_id}")

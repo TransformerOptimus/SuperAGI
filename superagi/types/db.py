@@ -247,7 +247,7 @@ class ConfigurationOut(DBModel):
 
 
 class ConfigurationIn(BaseModel):
-    organisation_id: int
+    organisation_id: Optional[int]
     key: str
     value: str
 

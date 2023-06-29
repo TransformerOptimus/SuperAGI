@@ -1,7 +1,10 @@
 from datetime import datetime
+from typing import Optional
+
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
 
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.worker import execute_agent
@@ -10,10 +13,40 @@ from superagi.models.agent import Agent
 from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
-from superagi.types.db import AgentExecutionOut, AgentExecutionIn
+# from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 
 router = APIRouter()
 
+
+class AgentExecutionOut(BaseModel):
+    id: int
+    status: str
+    name: str
+    agent_id: int
+    last_execution_time: datetime
+    num_of_calls: int
+    num_of_tokens: int
+    current_step_id: int
+    permission_id: Optional[int]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentExecutionIn(BaseModel):
+    status: Optional[str]
+    name: Optional[str]
+    agent_id: Optional[int]
+    last_execution_time: Optional[datetime]
+    num_of_calls: Optional[int]
+    num_of_tokens: Optional[int]
+    current_step_id: Optional[int]
+    permission_id: Optional[int]
+
+    class Config:
+        orm_mode = True
 
 # CRUD Operations
 @router.post("/add", response_model=AgentExecutionOut, status_code=201)

@@ -1,7 +1,11 @@
+from datetime import datetime
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
+from pydantic import BaseModel
 
 from sqlalchemy.sql import asc
 
@@ -11,10 +15,35 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
-from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
+# from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
 
 router = APIRouter()
 
+
+class AgentExecutionFeedOut(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    feed: str
+    role: str
+    extra_info: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentExecutionFeedIn(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    feed: str
+    role: str
+    extra_info: str
+
+    class Config:
+        orm_mode = True
 
 # CRUD Operations
 @router.post("/add", response_model=AgentExecutionFeedOut, status_code=201)

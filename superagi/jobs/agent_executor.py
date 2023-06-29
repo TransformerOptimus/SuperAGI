@@ -287,7 +287,7 @@ class AgentExecutor:
         texts = [resource.summary for resource in resources if resource.summary is not None]
         if len(texts) == 0:
             return
-        from superagi.helper.file_to_index_parser import generate_summary_of_texts
+        from superagi.helper.llama_vector_store_helper import generate_summary_of_texts
         if len(texts) > 1:
             resource_summary = generate_summary_of_texts(texts, openai_api_key)
         else:
