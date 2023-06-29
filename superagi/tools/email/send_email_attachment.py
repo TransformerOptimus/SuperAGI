@@ -42,7 +42,7 @@ class SendEmailAttachmentTool(BaseTool):
             filename : The name of the file to be sent as an attachment with the email.
 
         Returns:
-
+            success or failure message
         """
         input_root_dir = self.get_tool_config('RESOURCES_INPUT_ROOT_DIR')
         output_root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')

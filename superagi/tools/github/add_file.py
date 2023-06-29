@@ -66,7 +66,7 @@ class GithubAddFileTool(BaseTool):
             folder_path : The path of the folder to add the file to.
 
         Returns:
-            Pull request to add file/folder has been created. or error message.
+            Pull request success message if pull request is created successfully else error message.
         """
         try:
             github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")

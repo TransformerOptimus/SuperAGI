@@ -4,7 +4,7 @@ from superagi.models.base_model import DBBaseModel
 
 class Configuration(DBBaseModel):
     """
-    Model representing a configuration.
+    General org level configurations are stored here
 
     Attributes:
         id (Integer): The primary key of the configuration.

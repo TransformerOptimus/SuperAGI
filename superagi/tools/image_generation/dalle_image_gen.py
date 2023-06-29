@@ -47,7 +47,7 @@ class DalleImageGenTool(BaseTool):
             image_names (list): The name of the image to be generated.
 
         Returns:
-            Image generated successfully. or error message.
+            Image generated successfully message if image is generated or error message.
         """
         if size not in [256, 512, 1024]:
             size = min([256, 512, 1024], key=lambda x: abs(x - size))
