@@ -114,8 +114,10 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
         HTTPException (status_code=404): If the specified tool kit is not found.
         HTTPException (status_code=403): If the user is not authorized to access the tool kit.
     """
+
     user_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
-    toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
+                                               Toolkit.organisation_id == organisation.id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
     if toolkit.name not in [user_toolkit.name for user_toolkit in user_toolkits]:
