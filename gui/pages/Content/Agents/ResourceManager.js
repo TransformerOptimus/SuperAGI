@@ -4,8 +4,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, downloadFile} from "@/utils/utils";
-import JSZip from "jszip";
+import {formatBytes, downloadFile, downloadAllFiles} from "@/utils/utils";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -98,42 +97,6 @@ export default function ResourceManager({agentId}) {
       });
   }
 
-  const downloadAllOutputFiles = () => {
-    const zip = new JSZip();
-    const promises = [];
-
-    output.forEach(file => {
-      const promise = downloadFile(file.id)
-        .then(blob => {
-          const fileBlob = new Blob([blob], { type: file.type });
-          zip.file(file.name, fileBlob);
-        })
-        .catch(error => {
-          console.error('Error downloading file:', error);
-          toast.error('Error downloading files', { autoClose: 1800 });
-        });
-
-      promises.push(promise);
-    });
-
-    Promise.all(promises)
-      .then(() => {
-        zip.generateAsync({ type: 'blob' })
-          .then(content => {
-            const timestamp = new Date().getTime();
-            const zipFilename = `files_${timestamp}.zip`;
-            const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(content);
-            downloadLink.download = zipFilename;
-            downloadLink.click();
-          })
-          .catch(error => {
-            console.error('Error generating zip:', error);
-            toast.error('Error generating zip', { autoClose: 1800 });
-          });
-      });
-  };
-
   const ResourceItem = ({ file }) => {
     const isPDF = file.type === 'application/pdf';
     const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
@@ -186,7 +149,7 @@ export default function ResourceManager({agentId}) {
         </div>
         <div style={{order:1}}>
           {channel === 'output' && output.length > 0 && (
-            <button onClick={downloadAllOutputFiles} className={styles.tab_button} style={{background:'transparent',padding:'5px 10px',height:'30px',color:'#888888'}}>
+            <button onClick={() => downloadAllFiles(output)} className={styles.tab_button} style={{background:'transparent',padding:'5px 10px',height:'30px',color:'#888888'}}>
               <Image src="/images/download_icon.svg" width={20} height={20} alt="download-icon"/>&nbsp;Download
             </button>
           )}

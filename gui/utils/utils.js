@@ -1,5 +1,6 @@
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
+import JSZip from "jszip";
 
 export const  getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -89,6 +90,40 @@ export const downloadFile = (fileId, fileName = null) => {
         });
     }
   }
+};
+
+export const downloadAllFiles = (files) => {
+  const zip = new JSZip();
+  const promises = [];
+
+  files.forEach(file => {
+    const promise = downloadFile(file.id)
+      .then(blob => {
+        const fileBlob = new Blob([blob], { type: file.type });
+        zip.file(file.name, fileBlob);
+      })
+      .catch(error => {
+        console.error('Error downloading file:', error);
+      });
+
+    promises.push(promise);
+  });
+
+  Promise.all(promises)
+    .then(() => {
+      zip.generateAsync({ type: 'blob' })
+        .then(content => {
+          const timestamp = new Date().getTime();
+          const zipFilename = `files_${timestamp}.zip`;
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch(error => {
+          console.error('Error generating zip:', error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
