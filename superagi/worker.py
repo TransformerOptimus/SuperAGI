@@ -80,8 +80,7 @@ def update_next_scheduled_time():
                 agent.next_scheduled_time = updated_next_scheduled_time
                 session.commit()
 
-def should_execute_and_remove_agent(agent, interval, interval_in_seconds):
-    next_scheduled_time = agent.next_scheduled_time
+def should_execute_and_remove_agent(agent, interval):
     expiry_date = agent.expiry_date
     expiry_runs = agent.expiry_runs
     current_runs = agent.current_runs
@@ -103,8 +102,6 @@ def get_scheduled_agents():
     
     session = Session()
     scheduled_agents = session.query(AgentScheduler).filter(AgentScheduler.next_scheduled_time.between(last_5_minutes, now)).all()
-    logger.info("////////////// SCHEDULED AGENTS")
-    logger.info(scheduled_agents)
     agents_to_remove = []
 
     for agent in scheduled_agents:
@@ -117,9 +114,7 @@ def get_scheduled_agents():
         current_runs = agent.current_runs
 
         should_remove_agent = False
-
-
-        should_execute_agent, should_remove_agent = should_execute_and_remove_agent(agent, interval, interval_in_seconds)
+        should_execute_agent, should_remove_agent = should_execute_and_remove_agent(agent, interval)
         if should_execute_agent:
             ScheduledAgentExecutor.execute_scheduled_agent(agent_id, agent_name)
             agent.current_runs = current_runs + 1
