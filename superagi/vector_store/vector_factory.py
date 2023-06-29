@@ -60,25 +60,5 @@ class VectorFactory:
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
 
-        if vector_store.lower() == "redis":
-            redis_url = get_config("REDIS_URL") or "redis://super__redis:6379"
-            from llama_index.vector_stores import RedisVectorStore
-            return RedisVectorStore(
-                index_name=index_name,
-                redis_url=redis_url,
-                metadata_fields=["agent_id", "resource_id"]
-            )
-
-        if vector_store.lower() == "chroma":
-            from llama_index.vector_stores import ChromaVectorStore
-            import chromadb
-            from chromadb.config import Settings
-            chroma_host = get_config("CHROMA_HOST") or "chroma"
-            chroma_port = get_config("CHROMA_PORT") or 8000
-            # Example setup of the client to connect to your chroma server
-            chroma_client = chromadb.Client(
-                Settings(chroma_api_impl="rest", chroma_server_host=chroma_host, chroma_server_http_port=chroma_port))
-            chroma_collection = chroma_client.get_or_create_collection(index_name)
-            return ChromaVectorStore(chroma_collection), chroma_collection
 
         raise ValueError(f"Vector store {vector_store} not supported")

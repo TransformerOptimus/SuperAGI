@@ -204,10 +204,17 @@ def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resour
         resource_id (int): ID of the resource.
 
     """
-
+    from time import perf_counter
+    t1_start = perf_counter()
     save_file_to_vector_store(file_path, str(agent_id), str(resource_id))
+    t1_stop = perf_counter()
+    print("file to vector store:", t1_stop-t1_start)
+
     documents = create_llama_document(file_path)
+    t1_start = perf_counter()
     summary = generate_summary_of_document(documents)
+    t1_stop = perf_counter()
+    print("summary:", t1_stop-t1_start)
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     resource.summary = summary
     db.session.commit()

@@ -24,32 +24,48 @@ def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
     """
     Creates a llama vector store.
     """
-    model_api_key = get_config("OPENAI_API_KEY")
     from superagi.vector_store.vector_factory import VectorFactory
-    vector_store = VectorFactory.get_vector_storage(vector_store_name, index_name,
-                                                    embedding_model)
-    if vector_store is None:
-        raise ValueError("Vector store not found")
-    if vector_store_name.lower() == "pinecone":
-        from llama_index.vector_stores import PineconeVectorStore
-        return PineconeVectorStore(vector_store.index)
-    # weaviate doesnt support filtering using metadata
-    # if vector_store_name.lower() == "weaviate":
-        from llama_index.vector_stores import WeaviateVectorStore
-        # print(vector_store.client, "vector_store.client")
-        # return WeaviateVectorStore(vector_store.client)
+    model_api_key = get_config("OPENAI_API_KEY")
+
+    vector_factory_support = ["pinecone", "weaviate"]
+    if vector_store_name.lower() in vector_factory_support:
+        vector_store = VectorFactory.get_vector_storage(vector_store_name, index_name,
+                                                        embedding_model)
+        if vector_store_name.lower() == "pinecone":
+            from llama_index.vector_stores import PineconeVectorStore
+            return PineconeVectorStore(vector_store.index)
+
+        # llama index weaviate doesn't support filtering using metadata
+        # if vector_store_name.lower() == "weaviate":
+        #     from llama_index.vector_stores import WeaviateVectorStore
+        #     print(vector_store.client, "vector_store.client")
+        #     return WeaviateVectorStore(vector_store.client)
+
     if vector_store_name.lower() == "redis":
-        return vector_store
+        redis_url = get_config("REDIS_URL") or "redis://super__redis:6379"
+        from llama_index.vector_stores import RedisVectorStore
+        return RedisVectorStore(
+            index_name=index_name,
+            redis_url=redis_url,
+            metadata_fields=["agent_id", "resource_id"]
+        )
+
     if vector_store_name.lower() == "chroma":
-        return vector_store
-        # from llama_index.vector_stores import ChromaVectorStore
-        # import chromadb
-        # from chromadb.config import Settings
-        # # Example setup of the client to connect to your chroma server
-        # chroma_client = chromadb.Client(
-        #     Settings(chroma_api_impl="rest", chroma_server_host="chroma", chroma_server_http_port=8000))
-        # chroma_collection = chroma_client.get_or_create_collection(index_name)
-        # return ChromaVectorStore(chroma_collection), chroma_collection
+        from llama_index.vector_stores import ChromaVectorStore
+        import chromadb
+        from chromadb.config import Settings
+        chroma_client = chromadb.Client(
+            Settings(chroma_api_impl="rest", chroma_server_host="chroma", chroma_server_http_port=8000))
+        chroma_collection = chroma_client.get_or_create_collection(index_name)
+        return ChromaVectorStore(chroma_collection), chroma_collection
+
+    if vector_store_name.lower() == "qdrant":
+        from llama_index.vector_stores import QdrantVectorStore
+        qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
+        qdrant_port = get_config("QDRANT_PORT") or 6333
+        from qdrant_client import QdrantClient
+        qdrant_client = QdrantClient(host=qdrant_host_name, port=qdrant_port)
+        return QdrantVectorStore(client=qdrant_client, collection_name=index_name)
 
 
 def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
@@ -83,8 +99,11 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
         # print(vector_store)
         # storage_context = StorageContext.from_defaults(persist_dir="workspace/index")
     openai.api_key = get_config("OPENAI_API_KEY")
-    index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
-    index.set_index_id(f'Agent {agent_id}')
+    try:
+        index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+        index.set_index_id(f'Agent {agent_id}')
+    except Exception as e:
+        print(e)
     if vector_store_name == "Redis":
         vector_store.persist()
     if vector_store is None:
