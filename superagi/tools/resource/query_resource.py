@@ -7,7 +7,7 @@ from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 import openai
 from llama_index import VectorStoreIndex, LLMPredictor, ServiceContext
-from superagi.helper.file_to_index_parser import llama_vector_store_factory
+from superagi.helper.llama_vector_store_helper import llama_vector_store_factory
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from llama_index.vector_stores.types import ExactMatchFilter, MetadataFilters
 

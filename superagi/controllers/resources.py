@@ -6,7 +6,7 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 
 from superagi.models.budget import Budget
 from fastapi import APIRouter, UploadFile
-from superagi.helper.file_to_index_parser import create_llama_document, llama_vector_store_factory, \
+from superagi.helper.llama_vector_store_helper import create_llama_document, llama_vector_store_factory, \
     save_file_to_vector_store, generate_summary_of_document
 import os
 from fastapi import FastAPI, File, Form, UploadFile
@@ -209,7 +209,6 @@ def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resour
     save_file_to_vector_store(file_path, str(agent_id), str(resource_id))
     t1_stop = perf_counter()
     print("file to vector store:", t1_stop-t1_start)
-
     documents = create_llama_document(file_path)
     t1_start = perf_counter()
     summary = generate_summary_of_document(documents)
