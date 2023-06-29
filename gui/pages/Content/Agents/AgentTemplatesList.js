@@ -3,7 +3,6 @@ import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
-import {EventBus} from "@/utils/eventBus";
 import {setLocalStorageValue, openNewTab} from "@/utils/utils";
 
 export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId}){

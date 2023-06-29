@@ -78,8 +78,15 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       updatedTabs.splice(index, 1);
     }
 
-    if(contentType === 'Create_Agent' && typeof window !== 'undefined') {
+    if(contentType === 'Create_Agent') {
       removeInternalId(internalId);
+    }
+
+    if(contentType === 'Marketplace') {
+      localStorage.removeItem('marketplace_tab');
+      localStorage.removeItem('market_item_clicked');
+      localStorage.removeItem('market_detail_type');
+      localStorage.removeItem('market_item');
     }
 
     setTabs(updatedTabs);
