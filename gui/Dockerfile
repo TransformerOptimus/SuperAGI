@@ -2,7 +2,7 @@ FROM node:lts
 
 WORKDIR /app
 
-COPY . .
+COPY ./gui .
 RUN npm install
 
 
