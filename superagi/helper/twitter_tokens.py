@@ -9,8 +9,7 @@ import hashlib
 import urllib.parse
 import http.client as http_client
 from superagi.config.config import get_config
-from sqlalchemy.orm import sessionmaker
-from superagi.models.db import connect_db
+from sqlalchemy.orm import Session
 from superagi.models.tool_config import ToolConfig
 from superagi.resource_manager.manager import ResourceManager
 
@@ -23,6 +22,10 @@ class Creds:
         self.oauth_token_secret = oauth_token_secret
 
 class TwitterTokens:
+
+    def __init__(self,session: Session, agent_id: int = None):
+        self.session = session
+        self.agent_id = agent_id
 
     def get_request_token(self,api_data):
         api_key = api_data["api_key"]
@@ -84,10 +87,7 @@ class TwitterTokens:
                 creds = pickle.load(file)
             if isinstance(creds, str):
                 creds = json.loads(creds)
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        twitter_creds = session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id).all()
+        twitter_creds = self.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id).all()
         api_key = ""
         api_key_secret = ""
         for credentials in twitter_creds:
