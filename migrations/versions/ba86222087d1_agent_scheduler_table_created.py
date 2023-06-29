@@ -29,6 +29,7 @@ def upgrade() -> None:
     sa.Column('expiry_date', sa.DateTime(), nullable=True),
     sa.Column('expiry_runs', sa.Integer(), nullable=True),
     sa.Column('current_runs', sa.Integer(), nullable=True),
+    sa.Column('status', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.drop_index('ix_agent_execution_permissions_agent_execution_id', table_name='agent_execution_permissions')

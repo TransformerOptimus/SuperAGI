@@ -18,6 +18,7 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.tool import Tool
 from jsonmerge import merge
+from pytz import timezone
 import superagi.worker 
 from datetime import datetime
 import json
@@ -143,6 +144,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
             - LTM_DB (str): LTM database for the agent.
             - memory_window (int): Memory window size for the agent.
             - max_iterations (int): Maximum number of iterations for the agent.
+            - user_timezone (string): Timezone of the user
 
     Returns:
         dict: Dictionary containing the created agent's ID, execution ID, name, and content type.
@@ -196,6 +198,39 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
 @router.post("/schedule", status_code=201)
 def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSchedule,
                               exclude=["agent_id"], Authorize: AuthJWT = Depends(check_auth)):
+    
+    """
+    Create a new agent with configurations and scheduling.
+
+    Args:
+        agent_with_config_schedule (AgentWithConfigSchedule): Data for creating a new agent with configurations and scheduling.
+            - name (str): Name of the agent.
+            - project_id (int): Identifier of the associated project.
+            - description (str): Description of the agent.
+            - goal (List[str]): List of goals for the agent.
+            - agent_type (str): Type of the agent.
+            - constraints (List[str]): List of constraints for the agent.
+            - tools (List[int]): List of tool identifiers associated with the agent.
+            - exit (str): Exit condition for the agent.
+            - iteration_interval (int): Interval between iterations for the agent.
+            - model (str): Model information for the agent.
+            - permission_type (str): Permission type for the agent.
+            - LTM_DB (str): LTM database for the agent.
+            - memory_window (int): Memory window size for the agent.
+            - max_iterations (int): Maximum number of iterations for the agent.
+            - user_timezone (string): Timezone of the user
+            - start_time (DateTime): The date and time from which the agent is scheduled.
+            - recurrence_interval (String): Stores None if not recurring, 
+                or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input. (Optional)
+            - expiry_date (DateTime): The date and time when the agent is scheduled to stop runs. (Optional)
+            - expiry_runs (Integer): The number of runs before the agent expires. (Optional)
+
+    Returns:
+        dict: Dictionary containing the created agent's ID, name, content type and schedule ID of the agent.
+
+    Raises:
+        HTTPException (status_code=500): If the associated agent fails to get scheduled.
+    """
     agent = AgentWithConfig(
         name=agent_with_config_and_schedule.name,
         project_id=agent_with_config_and_schedule.project_id,
@@ -212,18 +247,16 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
         permission_type=agent_with_config_and_schedule.permission_type,
         LTM_DB=agent_with_config_and_schedule.LTM_DB,
         memory_window=agent_with_config_and_schedule.memory_window,
-        max_iterations=agent_with_config_and_schedule.max_iterations
+        max_iterations=agent_with_config_and_schedule.max_iterations,
+        user_timezone= agent_with_config_and_schedule.user_timezone
     )
 
     # First, create the agent with config but do not execute it
     agent_data = create_agent_with_config(agent, should_execute=False)
     agent_id = agent_data["id"]
-
-    # Fit agent_id after we get it
-    agent_with_config_and_schedule.agent_id = agent_id
     
     schedule = AgentScheduleCreate(
-        agent_id=agent_with_config_and_schedule.agent_id,
+        agent_id= agent_id,
         start_time=agent_with_config_and_schedule.start_time,
         recurrence_interval=agent_with_config_and_schedule.recurrence_interval,
         expiry_date=agent_with_config_and_schedule.expiry_date,
@@ -243,6 +276,119 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
         "schedule_id": schedule_id
     }
 
+@router.post("/delete/schedule")
+def delete_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Delete the scheduling for a given agent.
+
+    Args:
+        agent_id (int): Identifier of the Agent
+        Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
+
+    Returns:
+        success (bool): Depicting whether agent schedule was deleted successfully.
+
+    Raises:
+        HTTPException (status_code=404): If the agent schedule is not found.
+    """
+    
+    agent_to_delete = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == agent_id, AgentScheduler.status=="RUNNING").first()
+    if not agent_to_delete:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    agent_to_delete.status = "STOPPED"
+    db.session.commit()
+
+    return {
+        "success": True
+    }
+
+@router.put("/edit/schedule")
+def edit_schedule(schedule: AgentScheduleCreate, 
+                  Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Edit the scheduling for a given agent.
+
+    Args:
+        agent_id (int): Identifier of the Agent
+        schedule (AgentScheduleCreate): New schedule data 
+        Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
+
+    Returns:
+        success (bool): Depicting whether agent schedule was updated successfully.
+
+    Raises:
+        HTTPException (status_code=404): If the agent schedule is not found.
+    """
+    
+    agent_to_edit = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == schedule.agent_id, AgentScheduler.status=="RUNNING").first()
+    if not agent_to_edit:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    
+    # Update agent schedule with new data
+    agent_to_edit.start_time = schedule.start_time
+    agent_to_edit.next_scheduled_time = schedule.start_time
+    agent_to_edit.recurrence_interval = schedule.recurrence_interval
+    agent_to_edit.expiry_date = schedule.expiry_date
+    agent_to_edit.expiry_runs = schedule.expiry_runs
+    
+    db.session.commit()
+
+    return {
+        "success": True
+    }
+
+@router.get("/get/schedule_data/{agent_id}")
+def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Get scheduling data for a particular agent.
+
+    Args:
+        agent_id (int): The ID of the agent.
+
+    Returns:
+        A dictionary containing:
+            "current_date": The current date of the user.
+            "current_time": The current time of the user.
+            "recurrence_interval": The recurrence interval of the agent's scheduling. (Optional)
+            "expiry_date": The expiry date of the agent's scheduling. (Optional)
+            "expiry_runs": The number of runs before the agent's scheduling expires. (Optional)
+    """
+
+    # Get the agent's schedule data
+    agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id==agent_id, AgentScheduler.status=="RUNNING").first()
+
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent Schedule not found")
+
+    # Get User timezone
+    user_timezone = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id==agent_id).first()
+
+    # If user_timezone is not found, raise HTTPException
+    if user_timezone is None:
+        raise HTTPException(status_code=404, detail="User timezone not found")
+
+    tzone = timezone(user_timezone.value)
+    user_current_time = datetime.now(tzone)
+
+    response_data = {}
+
+    response_data["current_date"] = user_current_time.strftime("%d/%m/%Y")
+    response_data["current_time"] = user_current_time.strftime("%I:%M %p")
+
+    if agent.recurrence_interval is not None:
+        response_data["recurrence_interval"] = agent.recurrence_interval
+
+    if agent.expiry_date is not None:
+        response_data["expiry_date"] = agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y")
+
+    if agent.expiry_runs != -1:
+        response_data["expiry_runs"] = agent.expiry_runs
+
+    return response_data
+
 
 
 @router.get("/get/project/{project_id}")
@@ -256,7 +402,7 @@ def get_agents_by_project_id(project_id: int,
         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
 
     Returns:
-        list: List of agents associated with the project, including their status.
+        list: List of agents associated with the project, including their status and scheduling information.
 
     Raises:
         HTTPException (status_code=404): If the project is not found.
@@ -281,9 +427,13 @@ def get_agents_by_project_id(project_id: int,
             if execution.status == "RUNNING":
                 isRunning = True
                 break
+        # Check if the agent is scheduled
+        isScheduled = db.session.query(AgentScheduler).filter_by(agent_id=agent_id, status="RUNNING").first() is not None
+
         new_agent = {
             **agent_dict,
-            'status': isRunning
+            'status': isRunning,
+            'isScheduled': isScheduled
         }
         new_agents.append(new_agent)
     return new_agents

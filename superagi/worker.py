@@ -1,20 +1,20 @@
 from __future__ import absolute_import
 
 from datetime import datetime, timedelta
+import pytz
 from celery import Celery
 
 from superagi.config.config import get_config
-from superagi.jobs.agent_executor import AgentExecutor
+from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_scheduler import AgentScheduler
 from superagi.jobs.agent_executor import ScheduledAgentExecutor
+from superagi.lib.logger import logger
 from superagi.models.db import connect_db
 from sqlalchemy.orm import sessionmaker
-from superagi.lib.logger import logger
-
-engine = connect_db()
-Session = sessionmaker(bind=engine)
 
 redis_url = get_config('REDIS_URL')
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
 app.conf.broker_url = "redis://" + redis_url + "/0"
@@ -40,9 +40,17 @@ def parse_interval_to_seconds(interval: str) -> int:
     value, unit = interval.split(" ")
     return int(value) * units[unit]
 
-def create_agent_name_with_timestamp() -> str:
-    timestamp = datetime.now().strftime("_%Y-%m-%d_%H-%M-%S")
-    return f"Run {timestamp}"
+def create_agent_name_with_timestamp(agent_id) -> str:
+    session = Session()
+    user_timezone = session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id==agent_id).first()
+
+    if user_timezone and user_timezone.value:
+        current_time = datetime.now().astimezone(pytz.timezone(user_timezone.value))
+    else:
+        current_time = datetime.now().astimezone(pytz.timezone('GMT'))
+        
+    timestamp = current_time.strftime(" %d %B %Y %H:%M")
+    return f"Run{timestamp}"
 
 def check_time_difference(agent, now):
     next_scheduled_time = agent.next_scheduled_time
@@ -53,20 +61,24 @@ def check_time_difference(agent, now):
     
 def update_next_scheduled_time():
     now = datetime.now()
-    session = Session()
 
+    session = Session()
     scheduled_agents = session.query(AgentScheduler).filter(
-    (AgentScheduler.start_time < now) &
-    (AgentScheduler.next_scheduled_time < now)).all()
+    (AgentScheduler.start_time <= now) &
+    (AgentScheduler.next_scheduled_time <= now) &
+    (AgentScheduler.recurrence_interval != None) &
+    (AgentScheduler.status == "RUNNING")).all()
+
+    print(scheduled_agents)
     
     for agent in scheduled_agents:
-        interval_in_seconds = parse_interval_to_seconds(agent.recurrence_interval)
-        if check_time_difference(agent, now):
-            time_diff = now - agent.start_time
-            num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  
-            updated_next_scheduled_time = agent.start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
-            agent.next_scheduled_time = updated_next_scheduled_time
-            session.commit()
+            interval_in_seconds = parse_interval_to_seconds(agent.recurrence_interval)
+            if check_time_difference(agent, now):
+                time_diff = now - agent.start_time
+                num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  
+                updated_next_scheduled_time = agent.start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
+                agent.next_scheduled_time = updated_next_scheduled_time
+                session.commit()
 
 def should_execute_and_remove_agent(agent, interval, interval_in_seconds):
     next_scheduled_time = agent.next_scheduled_time
@@ -85,18 +97,10 @@ def should_execute_and_remove_agent(agent, interval, interval_in_seconds):
         return False, True
     return False, False
 
-def execute_agent(agent, agent_id):
-    agent_name = create_agent_name_with_timestamp()
-    agent.current_runs += 1
-    ScheduledAgentExecutor.execute_scheduled_agent(agent_id, agent_name)
-
-def update_next_schedule(agent, interval_in_seconds):
-    next_scheduled_time = agent.next_scheduled_time + timedelta(seconds=interval_in_seconds)
-    agent.next_scheduled_time = next_scheduled_time
-
 def get_scheduled_agents():
     now = datetime.now()
     last_5_minutes = now - timedelta(minutes=5)
+    
     session = Session()
     scheduled_agents = session.query(AgentScheduler).filter(AgentScheduler.next_scheduled_time.between(last_5_minutes, now)).all()
     logger.info("////////////// SCHEDULED AGENTS")
@@ -105,10 +109,15 @@ def get_scheduled_agents():
 
     for agent in scheduled_agents:
         interval = agent.recurrence_interval
-        interval_in_seconds = parse_interval_to_seconds(interval)
+        interval_in_seconds = 0  # default value
+        if interval is not None:
+            interval_in_seconds = parse_interval_to_seconds(interval)
         agent_id = agent.agent_id
-        agent_name = create_agent_name_with_timestamp()
+        agent_name = create_agent_name_with_timestamp(agent_id)
         current_runs = agent.current_runs
+
+        should_remove_agent = False
+
 
         should_execute_agent, should_remove_agent = should_execute_and_remove_agent(agent, interval, interval_in_seconds)
         if should_execute_agent:
@@ -125,7 +134,7 @@ def get_scheduled_agents():
             agents_to_remove.append(agent)
 
     for agent in agents_to_remove:
-        session.delete(agent)
+        agent.status = "COMPLETED"
         session.commit()
 
 

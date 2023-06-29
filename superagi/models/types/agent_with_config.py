@@ -19,3 +19,4 @@ class AgentWithConfig(BaseModel):
     LTM_DB: str
     memory_window: int
     max_iterations: int
+    user_timezone: str

@@ -53,26 +53,45 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
 
 @router.post("/schedule", status_code=201)
-def create_and_schedule_agent(agent_with_config_schedule: AgentScheduleCreate,
+def schedule_existing_agent(agent_schedule: AgentScheduleCreate,
                               Authorize: AuthJWT = Depends(check_auth)):
+    
+    """
+    Schedules an already existing agent.
+
+    Args:
+        agent_schedule (AgentScheduleCreate): Data for creating a scheduling for an existing agent.
+            agent_id (Integer): The ID of the agent being scheduled.
+            start_time (DateTime): The date and time from which the agent is scheduled.
+            recurrence_interval (String): Stores "none" if not recurring, 
+            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input. (Optional)
+            expiry_date (DateTime): The date and time when the agent is scheduled to stop runs. (Optional)
+            expiry_runs (Integer): The number of runs before the agent expires. (Optional)
+
+    Returns:
+        Schedule ID: Unique Schedule ID of the Agent.
+
+    Raises:
+        HTTPException (Status Code=500): If the agent fails to get scheduled.
+    """
 
     # Check if the agent is already scheduled
-    scheduled_agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == agent_with_config_schedule.agent_id).first()
+    scheduled_agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == agent_schedule.agent_id, AgentScheduler.status=="RUNNING").first()
 
     if scheduled_agent:
         # Update the old record with new data
-        scheduled_agent.start_time = agent_with_config_schedule.start_time
-        scheduled_agent.next_scheduled_time =  agent_with_config_schedule.start_time
-        scheduled_agent.recurrence_interval = agent_with_config_schedule.recurrence_interval
-        scheduled_agent.expiry_date = agent_with_config_schedule.expiry_date
-        scheduled_agent.expiry_runs = agent_with_config_schedule.expiry_runs
+        scheduled_agent.start_time = agent_schedule.start_time
+        scheduled_agent.next_scheduled_time =  agent_schedule.start_time
+        scheduled_agent.recurrence_interval = agent_schedule.recurrence_interval
+        scheduled_agent.expiry_date = agent_schedule.expiry_date
+        scheduled_agent.expiry_runs = agent_schedule.expiry_runs
 
         schedule_id = scheduled_agent.id
 
         db.session.commit()
     else:                      
          # Schedule the agent
-        schedule_id = AgentScheduler.schedule_agent(db.session, agent_with_config_schedule)
+        schedule_id = AgentScheduler.schedule_agent(db.session, agent_schedule)
 
     if schedule_id is None:
         raise HTTPException(status_code=500, detail="Failed to schedule agent")

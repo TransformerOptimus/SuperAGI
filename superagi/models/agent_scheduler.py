@@ -9,11 +9,13 @@ class AgentScheduler(DBBaseModel):
     Attributes:
         id (Integer): The primary key of the agent scheduler record.
         agent_id (Integer): The ID of the agent being scheduled.
-        start_time (Date): The date and time from which the agent is scheduled.
+        start_time (DateTime): The date and time from which the agent is scheduled.
         recurrence_interval (String): Stores "none" if not recurring,
-            or a time interval like '2 weeks', '1 month', '2 minutes' based on input.
-        expiry_date (Date): The date and time when the agent is scheduled to stop runs.
+            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
+        expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
         expiry_runs (Integer): The number of runs before the agent expires.
+        current_runs (Integer): Number of runs executed in that schedule.
+        status: state in which the schedule is, "RUNNING" or "STOPPED" or "COMPLETED"
 
     Methods:
         __repr__: Returns a string representation of the AgentScheduler instance.
@@ -29,6 +31,7 @@ class AgentScheduler(DBBaseModel):
     expiry_date = Column(DateTime)
     expiry_runs = Column(Integer)
     current_runs = Column(Integer)
+    status = Column(String)
 
     def __repr__(self):
         """
@@ -41,7 +44,8 @@ class AgentScheduler(DBBaseModel):
                f"recurrence_interval={self.recurrence_interval}, " \
                f"expiry_date={self.expiry_date}, " \
                f"expiry_runs={self.expiry_runs}), " \
-               f"current_runs={self.expiry_runs}), "
+               f"current_runs={self.expiry_runs}), " \
+               f"status={self.status}), " 
 
     @classmethod
     def schedule_agent(cls, session, schedule_data: AgentScheduleCreate) -> int:
@@ -52,7 +56,8 @@ class AgentScheduler(DBBaseModel):
             recurrence_interval=schedule_data.recurrence_interval,
             expiry_date=schedule_data.expiry_date,
             expiry_runs=schedule_data.expiry_runs,
-            current_runs=0
+            current_runs=0,
+            status = "RUNNING"
         )
 
         session.add(agent_scheduler)

@@ -19,7 +19,7 @@ class AgentWithConfigSchedule(BaseModel):
     LTM_DB: str
     memory_window: int
     max_iterations: int
-    agent_id: Optional[int]
+    user_timezone: str
     start_time: datetime
     recurrence_interval: Optional[str] = None
     expiry_date: Optional[datetime] = None

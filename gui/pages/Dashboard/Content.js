@@ -23,6 +23,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   function fetchAgents() {
     getAgents(selectedProjectId)
       .then((response) => {
+        console.log("/////////////");
         console.log(response);
         const data = response.data || [];
         const updatedData = data.map(item => {
