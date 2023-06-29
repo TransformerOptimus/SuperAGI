@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/add/{toolkit_name}", status_code=201)
-def update_tool_config(toolkit_name: str, configs: list):
+def update_tool_config(toolkit_name: str, configs: list, organisation: Organisation = Depends(get_user_organisation)):
     """
     Update tool configurations for a specific tool kit.
 
@@ -34,7 +34,7 @@ def update_tool_config(toolkit_name: str, configs: list):
 
     try:
         # Check if the tool kit exists
-        toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name)
+        toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name,organisation)
         if toolkit is None:
             raise HTTPException(status_code=404, detail="Tool kit not found")
 

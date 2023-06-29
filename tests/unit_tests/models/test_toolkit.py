@@ -154,18 +154,19 @@ def test_fetch_marketplace_detail_error():
 def test_get_toolkit_from_name_existing_toolkit(mock_session):
     # Arrange
     toolkit_name = "example_toolkit"
-    expected_toolkit = Toolkit(name=toolkit_name)
+    organisation = Organisation(id=1)
+    expected_toolkit = Toolkit(name=toolkit_name,organisation_id=organisation.id)
 
     # Mock the session.query method
     mock_session.query.return_value.filter_by.return_value.first.return_value = expected_toolkit
 
     # Act
-    result = Toolkit.get_toolkit_from_name(mock_session, toolkit_name)
+    result = Toolkit.get_toolkit_from_name(mock_session, toolkit_name,organisation)
 
     # Assert
     assert result == expected_toolkit
     mock_session.query.assert_called_once_with(Toolkit)
-    mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name)
+    mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name,organisation_id=organisation.id)
     mock_session.query.return_value.filter_by.return_value.first.assert_called_once()
 
 def test_get_toolkit_from_name_nonexistent_toolkit(mock_session):
@@ -174,14 +175,15 @@ def test_get_toolkit_from_name_nonexistent_toolkit(mock_session):
 
     # Mock the session.query method to return None
     mock_session.query.return_value.filter_by.return_value.first.return_value = None
+    organisation = Organisation(id=1)
 
     # Act
-    result = Toolkit.get_toolkit_from_name(mock_session, toolkit_name)
+    result = Toolkit.get_toolkit_from_name(mock_session, toolkit_name,organisation)
 
     # Assert
     assert result is None
     mock_session.query.assert_called_once_with(Toolkit)
-    mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name)
+    mock_session.query.return_value.filter_by.assert_called_once_with(name=toolkit_name,organisation_id=organisation.id)
     mock_session.query.return_value.filter_by.return_value.first.assert_called_once()
 
 def test_get_toolkit_installed_details(mock_session):
