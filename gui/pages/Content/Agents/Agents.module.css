@@ -385,8 +385,20 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0px 12px 6px 6px;
+    padding: 0px 12px 12px 6px;
     color: #FFF;
-    font-size: 12px;
-    curor:pointer;
+    cursor:pointer;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    font-size: 14px;
+}
+.run_count{
+    display: inline-flex;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.10);
+    padding: 2px 4px;
+    font-size: 9px;
+    align-items: center;
+    font-weight: 500;
 }

@@ -41,6 +41,7 @@ export default function ResourceManager({agentId, runs}) {
       return item;
     });
     setItems(updatedItems);
+    console.log(updatedItems)
   }, []);
 
   useEffect(() => {
@@ -129,6 +130,7 @@ export default function ResourceManager({agentId, runs}) {
   }
 
   const ResourceItem = ({ file }) => {
+    console.log(file)
     const isPDF = file.type === 'application/pdf';
     const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
     const isIMG = file.type.includes('image');
@@ -140,9 +142,14 @@ export default function ResourceManager({agentId, runs}) {
           {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
           {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
           {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px', width:'100%' }}>
-            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
-            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+          <div style={{ width:'100%' }} className='row'>
+            <div style={{ fontSize: '11px', display: 'flex',  justifyContent: 'space-between' }} className='col-12'>
+              <div className={styles.single_line_block}>{file.name}</div>
+              {file.channel === 'output' && <div>
+                <Image width={14} height={14} src="/images/download_icon.svg" alt="download-icon"/>
+              </div>}
+            </div>
+           <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
           </div>
         </div>
       </div>
@@ -186,22 +193,26 @@ export default function ResourceManager({agentId, runs}) {
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
-      <div>
+      {channel === 'output' && <div>
         {items.map((item, index) => (
             <div key={index}>
               <div onClick={() => handleClick(index)} className={styles.resource_runs}>
-                <Image src={item.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
+                <Image src={item.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11}
+                       alt="expand-arrow"/>
                 {item.name}
+                <span class={styles.run_count}>
+                <Image src="/images/bolt_icon.svg" width={10} height={12}
+                       alt="expand-arrow"/>Run 1</span>
               </div>
-              {item.isOpen && item.file_name.map((subItem, subIndex) => (
-                  <div key={subIndex} style={{ marginLeft: '20px' }}>
+              {item.isOpen && item.file_name && item.file_name.map((subItem, subIndex) => (
+                  <div key={subIndex} style={{marginLeft: '20px'}}>
                     {subItem}
                   </div>
               ))}
             </div>
         ))}
-      </div>
-      {/*<ResourceList files={channel === 'output' ? output : input} />*/}
+      </div>}
+      <ResourceList files={channel === 'output' ? output : input} />
     </div>
     <ToastContainer/>
   </>)
