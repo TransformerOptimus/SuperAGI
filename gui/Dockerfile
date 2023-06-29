@@ -11,4 +11,4 @@ RUN ls
 RUN cat package.json
 RUN npm run build
 RUN chmod +x ./entrypoint*
-CMD ["npm", "run", "start"]
+ENTRYPOINT ["entrypoint.sh"]
