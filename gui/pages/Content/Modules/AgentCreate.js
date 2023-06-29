@@ -81,6 +81,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [agentDropdown1, setAgentDropdown1] = useState(false);
 
   const [hasAPIkey, setHasAPIkey] = useState(false);
+  const [pageTitle, setPageTitle] = useState('');
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")

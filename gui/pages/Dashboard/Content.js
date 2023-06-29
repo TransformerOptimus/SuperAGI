@@ -12,6 +12,7 @@ import { EventBus } from "@/utils/eventBus";
 import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
+import AgentCreate from "@/pages/Content/Modules/AgentCreate";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -211,6 +212,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
                   {tab.contentType === 'AgentCluster' && <AgentClusterWorkspace agentId={tab.id}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                  {tab.contentType === 'Create_Agent_Cluster' && <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} isCluster={true} />}
                 </div>}
               </div>
             ))}

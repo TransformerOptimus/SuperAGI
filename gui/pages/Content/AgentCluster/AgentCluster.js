@@ -12,7 +12,7 @@ export default function AgentCluster({sendAgentClusterData,agents}) {
                     <p className={styles.title_text}>Agent Cluster</p>
                 </div>
                 <div className={styles.wrapper} style={{marginBottom:'10px',marginTop:'4px'}}>
-                    <button style={{width:'100%'}} className="secondary_button" onClick={() => sendAgentClusterData({ id: -1, name: "new agent cluster", contentType: "Create_Agent_Cluster" })}>
+                    <button style={{width:'100%'}} className="secondary_button" onClick={() => sendAgentClusterData({ id: -5, name: "new agent cluster", contentType: "Create_Agent_Cluster" })}>
                         + Create cluster
                     </button>
                 </div>
