@@ -116,7 +116,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [toolNames]);
 
   useEffect(() => {
-    if(template !== null) {
+    if(template !== null && !isCluster) {
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
       setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
@@ -640,11 +640,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                     <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeAgent(index)}/></div>
                   </div>))}
                 </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                {/*<Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
               </div>
               <div>
                 {agentDropdown1 && <div className="custom_select_options" ref={agentRef1} style={{width:'100%'}}>
-                  {tools && tools.map((tool, index) => (<div key={index}>
+                  {toolkits && toolkits.map((tool, index) => (<div key={index}>
                     {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
                                                                                    style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {tool.name}
