@@ -221,9 +221,9 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
             - user_timezone (string): Timezone of the user
             - start_time (DateTime): The date and time from which the agent is scheduled.
             - recurrence_interval (String): Stores None if not recurring, 
-                or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input. (Optional)
-            - expiry_date (DateTime): The date and time when the agent is scheduled to stop runs. (Optional)
-            - expiry_runs (Integer): The number of runs before the agent expires. (Optional)
+                or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
+            - expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
+            - expiry_runs (Integer): The number of runs before the agent expires.
 
     Returns:
         dict: Dictionary containing the created agent's ID, name, content type and schedule ID of the agent.
@@ -276,11 +276,11 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
         "schedule_id": schedule_id
     }
 
-@router.post("/delete/schedule")
-def delete_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+@router.post("/stop/schedule")
+def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     """
-    Delete the scheduling for a given agent.
+    Stopping the scheduling for a given agent.
 
     Args:
         agent_id (int): Identifier of the Agent
@@ -350,43 +350,32 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     Returns:
         A dictionary containing:
-            "current_date": The current date of the user.
-            "current_time": The current time of the user.
-            "recurrence_interval": The recurrence interval of the agent's scheduling. (Optional)
-            "expiry_date": The expiry date of the agent's scheduling. (Optional)
-            "expiry_runs": The number of runs before the agent's scheduling expires. (Optional)
+            "current_datetime": The current date and time of the user.
+            "recurrence_interval": The recurrence interval of the agent's scheduling.
+            "expiry_date": The expiry date of the agent's scheduling.
+            "expiry_runs": The number of runs before the agent's scheduling expires.
     """
 
-    # Get the agent's schedule data
     agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id==agent_id, AgentScheduler.status=="RUNNING").first()
-
+    
     if not agent:
         raise HTTPException(status_code=404, detail="Agent Schedule not found")
 
-    # Get User timezone
     user_timezone = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id==agent_id).first()
 
-    # If user_timezone is not found, raise HTTPException
     if user_timezone is None:
         raise HTTPException(status_code=404, detail="User timezone not found")
 
     tzone = timezone(user_timezone.value)
-    user_current_time = datetime.now(tzone)
-
-    response_data = {}
-
-    response_data["current_date"] = user_current_time.strftime("%d/%m/%Y")
-    response_data["current_time"] = user_current_time.strftime("%I:%M %p")
-
-    if agent.recurrence_interval is not None:
-        response_data["recurrence_interval"] = agent.recurrence_interval
-
-    if agent.expiry_date is not None:
-        response_data["expiry_date"] = agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y")
-
-    if agent.expiry_runs != -1:
-        response_data["expiry_runs"] = agent.expiry_runs
-
+    current_datetime = datetime.now(tzone).strftime("%d/%m/%Y %I:%M %p")
+    
+    response_data = {
+        "current_datetime": current_datetime, 
+        "recurrence_interval": agent.recurrence_interval if agent.recurrence_interval else None,
+        "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y") if agent.expiry_date else None,
+        "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None
+    }
+    
     return response_data
 
 

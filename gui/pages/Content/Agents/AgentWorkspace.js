@@ -169,7 +169,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
         .then((response) => {
-          console.log(response)
           let data = response.data
           data = data.filter((run) => run.status !== 'TERMINATED');
           setAgentExecutions(data);

@@ -64,9 +64,9 @@ def schedule_existing_agent(agent_schedule: AgentScheduleCreate,
             agent_id (Integer): The ID of the agent being scheduled.
             start_time (DateTime): The date and time from which the agent is scheduled.
             recurrence_interval (String): Stores "none" if not recurring, 
-            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input. (Optional)
-            expiry_date (DateTime): The date and time when the agent is scheduled to stop runs. (Optional)
-            expiry_runs (Integer): The number of runs before the agent expires. (Optional)
+            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
+            expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
+            expiry_runs (Integer): The number of runs before the agent expires.
 
     Returns:
         Schedule ID: Unique Schedule ID of the Agent.
