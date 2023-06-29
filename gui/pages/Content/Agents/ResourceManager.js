@@ -5,6 +5,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {formatBytes, downloadFile} from "@/utils/utils";
+import JSZip from "jszip";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -97,13 +98,49 @@ export default function ResourceManager({agentId}) {
       });
   }
 
+  const downloadAllOutputFiles = () => {
+    const zip = new JSZip();
+    const promises = [];
+
+    output.forEach(file => {
+      const promise = downloadFile(file.id)
+        .then(blob => {
+          const fileBlob = new Blob([blob], { type: file.type });
+          zip.file(file.name, fileBlob);
+        })
+        .catch(error => {
+          console.error('Error downloading file:', error);
+          toast.error('Error downloading files', { autoClose: 1800 });
+        });
+
+      promises.push(promise);
+    });
+
+    Promise.all(promises)
+      .then(() => {
+        zip.generateAsync({ type: 'blob' })
+          .then(content => {
+            const timestamp = new Date().getTime();
+            const zipFilename = `output_files_${timestamp}.zip`;
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(content);
+            downloadLink.download = zipFilename;
+            downloadLink.click();
+          })
+          .catch(error => {
+            console.error('Error generating zip:', error);
+            toast.error('Error generating zip', { autoClose: 1800 });
+          });
+      });
+  };
+
   const ResourceItem = ({ file }) => {
     const isPDF = file.type === 'application/pdf';
     const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
     const isIMG = file.type.includes('image');
 
     return (
-      <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
+      <div onClick={() => downloadFile(file.id, file.name)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
           {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
           {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
@@ -156,6 +193,11 @@ export default function ResourceManager({agentId}) {
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} />
+      {channel === 'output' && (
+        <button onClick={downloadAllOutputFiles} className="secondary_button" style={{width:'100%'}}>
+          Download All Output Files
+        </button>
+      )}
     </div>
     <ToastContainer/>
   </>)

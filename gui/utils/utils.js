@@ -51,27 +51,43 @@ export const formatBytes = (bytes, decimals = 2) => {
   return `${formattedValue} ${sizes[i]}`;
 }
 
-export const downloadFile = (fileId) => {
+export const downloadFile = (fileId, fileName = null) => {
   const authToken = localStorage.getItem('accessToken');
   const url = `${baseUrl()}/resources/get/${fileId}`;
   const env = localStorage.getItem('applicationEnvironment');
 
-  if(env === 'PROD') {
+  if (env === 'PROD') {
     const headers = {
       Authorization: `Bearer ${authToken}`,
     };
 
-    fetch(url, { headers })
+    return fetch(url, { headers })
       .then((response) => response.blob())
       .then((blob) => {
-        const fileUrl = window.URL.createObjectURL(blob);
-        window.open(fileUrl, "_blank");
+        if (fileName) {
+          const fileUrl = window.URL.createObjectURL(blob);
+          const anchorElement = document.createElement('a');
+          anchorElement.href = fileUrl;
+          anchorElement.download = fileName;
+          anchorElement.click();
+          window.URL.revokeObjectURL(fileUrl);
+        } else {
+          return blob;
+        }
       })
       .catch((error) => {
-        console.error("Error downloading file:", error);
+        console.error('Error downloading file:', error);
       });
   } else {
-    window.open(url, "_blank");
+    if (fileName) {
+      window.open(url, '_blank');
+    } else {
+      return fetch(url)
+        .then((response) => response.blob())
+        .catch((error) => {
+          console.error('Error downloading file:', error);
+        });
+    }
   }
 };
 
