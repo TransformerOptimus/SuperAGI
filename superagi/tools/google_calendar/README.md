@@ -4,7 +4,7 @@
 
 # SuperAGI - Google Calendar Toolkit
 
-This tool allows SuperAGI to be integrated with Google Calendar. With SuperAGI integrated with Google Calendar, you can now do the following: 
+Introducing the Google Calendar Toolkit, a powerful integration for SuperAGI. With the Gogole Calendar toolkit, you gain the ability to do the following:
 
 1. **Create Calendar Events**
 2. **List your Calendar Events**
@@ -15,7 +15,7 @@ This tool allows SuperAGI to be integrated with Google Calendar. With SuperAGI i
 
 ### ⚒️ Setting up of SuperAGI
 
-Set-up SuperAGI by following the instruction given [here](https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
+Set-up SuperAGI by following the instructions given [here](https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
 
 # ✅ Quick start Guide:
 
@@ -30,9 +30,9 @@ In order to get started with integrating Google Calendar with SuperAGI, you need
 
 2. After the project is created/you’re in your selected project, head to “APIs and Services”
 
-![GC2](README/GC2.png.png)
+![GC2](README/GC2.png)
 
-3. Click on “ENABLE APIS AND SERVICES” and search for “Google Calendar”
+3. Click on “ENABLED APIS AND SERVICES” and search for “Google Calendar”
 
 ![GC3](README/GC3.png)
 
@@ -46,15 +46,16 @@ In order to get started with integrating Google Calendar with SuperAGI, you need
 
 ![GC6](README/GC6.png)
 
-6. Select “External” and Create
+6. Select your User Type as “External” and click on "Create"
 
 ![GC7](README/GC7.png)
 
-7. Fill in the required details and go to “Save and Continue” 
+7. Fill in the required details such as the App Information, App Domain, Authorized Domain, Developer contact information. Once filled in, click “Save and Continue” 
 
 ![GC8](README/GC8.png)
 
 8. On the next page, you don’t need to select scopes. Proceed to “save and continue” and at the final page, review the process and click “Back to Dashboard”.  With this, you’ve created your OAuth Consent Screen for Google Calendar.
+   
 9. You can go ahead and click the “Publish App” 
 
 ![GC9](README/GC9.png)
@@ -101,4 +102,4 @@ Once the ClientID and Secret Key is obtained, you can configure and authorize Ca
 
 2. Click on “Authenticate Tool” - which will now take you to the OAuth Flow. 
 
-Once the OAuth Authentication is complete, you can now start using SuperAGI Agents with Google Calendar.
+Once the OAuth Authentication is complete, you can now start using SuperAGI Agents with Google Calendar!
