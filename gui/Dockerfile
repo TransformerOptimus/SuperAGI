@@ -1,11 +1,11 @@
-FROM node:lts AS deps
+FROM node:lts
 
 WORKDIR /app
 
-COPY package.json .
+COPY . .
 RUN npm install
 
-COPY . .
+
 ENV NEXT_PUBLIC_GITHUB_CLIENT_ID="06b962774236a4a8448f"
 
 RUN npm run build
