@@ -1,5 +1,10 @@
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
+import JSZip from "jszip";
+
+export const  getUserTimezone = () => {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
 
 export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
@@ -47,28 +52,78 @@ export const formatBytes = (bytes, decimals = 2) => {
   return `${formattedValue} ${sizes[i]}`;
 }
 
-export const downloadFile = (fileId) => {
+export const downloadFile = (fileId, fileName = null) => {
   const authToken = localStorage.getItem('accessToken');
   const url = `${baseUrl()}/resources/get/${fileId}`;
   const env = localStorage.getItem('applicationEnvironment');
 
-  if(env === 'PROD') {
+  if (env === 'PROD') {
     const headers = {
       Authorization: `Bearer ${authToken}`,
     };
 
-    fetch(url, { headers })
+    return fetch(url, { headers })
       .then((response) => response.blob())
       .then((blob) => {
-        const fileUrl = window.URL.createObjectURL(blob);
-        window.open(fileUrl, "_blank");
+        if (fileName) {
+          const fileUrl = window.URL.createObjectURL(blob);
+          const anchorElement = document.createElement('a');
+          anchorElement.href = fileUrl;
+          anchorElement.download = fileName;
+          anchorElement.click();
+          window.URL.revokeObjectURL(fileUrl);
+        } else {
+          return blob;
+        }
       })
       .catch((error) => {
-        console.error("Error downloading file:", error);
+        console.error('Error downloading file:', error);
       });
   } else {
-    window.open(url, "_blank");
+    if (fileName) {
+      window.open(url, '_blank');
+    } else {
+      return fetch(url)
+        .then((response) => response.blob())
+        .catch((error) => {
+          console.error('Error downloading file:', error);
+        });
+    }
   }
+};
+
+export const downloadAllFiles = (files) => {
+  const zip = new JSZip();
+  const promises = [];
+
+  files.forEach(file => {
+    const promise = downloadFile(file.id)
+      .then(blob => {
+        const fileBlob = new Blob([blob], { type: file.type });
+        zip.file(file.name, fileBlob);
+      })
+      .catch(error => {
+        console.error('Error downloading file:', error);
+      });
+
+    promises.push(promise);
+  });
+
+  Promise.all(promises)
+    .then(() => {
+      zip.generateAsync({ type: 'blob' })
+        .then(content => {
+          const timestamp = new Date().getTime();
+          const zipFilename = `files_${timestamp}.zip`;
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch(error => {
+          console.error('Error generating zip:', error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
@@ -107,7 +162,6 @@ export const removeTab = (id, name, contentType) => {
 export const setLocalStorageValue = (key, value, stateFunction) => {
   stateFunction(value);
   localStorage.setItem(key, value);
-  console.log(localStorage.getItem(key));
 }
 
 export const setLocalStorageArray = (key, value, stateFunction) => {
