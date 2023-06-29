@@ -30,14 +30,26 @@ def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
                                                     embedding_model)
     if vector_store is None:
         raise ValueError("Vector store not found")
-    if vector_store_name == "PineCone":
+    if vector_store_name.lower() == "pinecone":
         from llama_index.vector_stores import PineconeVectorStore
         return PineconeVectorStore(vector_store.index)
-    if vector_store_name == "Weaviate":
+    # weaviate doesnt support filtering using metadata
+    # if vector_store_name.lower() == "weaviate":
         from llama_index.vector_stores import WeaviateVectorStore
-        return WeaviateVectorStore(vector_store.client)
-    if vector_store_name == "Redis":
+        # print(vector_store.client, "vector_store.client")
+        # return WeaviateVectorStore(vector_store.client)
+    if vector_store_name.lower() == "redis":
         return vector_store
+    if vector_store_name.lower() == "chroma":
+        return vector_store
+        # from llama_index.vector_stores import ChromaVectorStore
+        # import chromadb
+        # from chromadb.config import Settings
+        # # Example setup of the client to connect to your chroma server
+        # chroma_client = chromadb.Client(
+        #     Settings(chroma_api_impl="rest", chroma_server_host="chroma", chroma_server_http_port=8000))
+        # chroma_collection = chroma_client.get_or_create_collection(index_name)
+        # return ChromaVectorStore(chroma_collection), chroma_collection
 
 
 def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
@@ -57,10 +69,12 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
     vector_store = None
     storage_context = None
-    vector_store_name = get_config("resource_vector_store") or "Redis"
+    vector_store_name = get_config("RESOURCE_VECTOR_STORE") or "Redis"
     vector_store_index_name = get_config("resource_vector_store_index_name") or "super-agent-index"
     try:
         vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
+        if vector_store_name.lower() == "chroma":
+            vector_store, chroma_collection = vector_store
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
     except ValueError:
         logging.error("Vector store not found")

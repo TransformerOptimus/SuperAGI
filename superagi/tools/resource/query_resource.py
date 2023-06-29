@@ -37,11 +37,13 @@ class QueryResourceTool(BaseTool):
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
-        vector_store_name = get_config("resource_vector_store") or "Redis"
+        vector_store_name = get_config("RESOURCE_VECTOR_STORE") or "Redis"
         vector_store_index_name = get_config("resource_vector_store_index_name") or "super-agent-index"
+        print("vector_store_name", vector_store_name)
+        print("vector_store_index_name", vector_store_index_name)
         vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
-        index = VectorStoreIndex.from_vector_store(vector_store=vector_store, service_context=service_context)
-        query_engine = index.as_query_engine(
+        print("vector_store", vector_store)
+        as_query_engine_args = dict(
             filters=MetadataFilters(
                 filters=[
                     ExactMatchFilter(
@@ -50,6 +52,13 @@ class QueryResourceTool(BaseTool):
                     )
                 ]
             )
+        )
+        if vector_store_name == "chroma":
+            vector_store, chroma_collection = vector_store[0], vector_store[1]
+            as_query_engine_args["chroma_collection"] = chroma_collection
+        index = VectorStoreIndex.from_vector_store(vector_store=vector_store, service_context=service_context)
+        query_engine = index.as_query_engine(
+            **as_query_engine_args
         )
         response = query_engine.query(query)
         return response
