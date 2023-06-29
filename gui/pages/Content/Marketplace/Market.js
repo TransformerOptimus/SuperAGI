@@ -6,10 +6,9 @@ import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
 import SearchBox from './SearchBox';
 import EachTool from './EachTool';
-import {fetchAgentTemplateConfig} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
-import {arEG} from "date-fns/locale";
+import {setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 
 export default function Market({env}) {
     const [activeTab, setActiveTab] = useState('market_tools');
@@ -23,7 +22,7 @@ export default function Market({env}) {
     };
 
     const handleToolClick = (clicked) => {
-      setItemClicked(clicked);
+        setLocalStorageValue('market_item_clicked', clicked, setItemClicked);
     };
 
     useEffect(() => {
@@ -32,14 +31,26 @@ export default function Market({env}) {
             setActiveTab(marketplace_tab);
         }
 
+        const item_clicked = localStorage.getItem('market_item_clicked');
+        const detail_type = localStorage.getItem('market_detail_type');
+        const market_item = localStorage.getItem('market_item');
+
+        if(item_clicked) {
+            setItemClicked(JSON.parse(item_clicked));
+            if(detail_type) {
+                setDetailType(item_clicked === 'true' ? detail_type : '');
+                setTemplateData(item_clicked === 'true' ? JSON.parse(market_item) : []);
+            }
+        }
+
         const handleOpenTemplateDetails = ({ item, contentType }) => {
-            setDetailType(contentType)
-            setTemplateData(item);
-            setItemClicked(true);
+            setLocalStorageValue('market_detail_type', contentType, setDetailType);
+            setLocalStorageArray('market_item', item, setTemplateData);
+            setLocalStorageValue('market_item_clicked', true, setItemClicked);
         };
 
         const handleBackClick = ()=>{
-            setItemClicked(false);
+            setLocalStorageValue('market_item_clicked', false, setItemClicked);
         }
 
         EventBus.on('openTemplateDetails', handleOpenTemplateDetails);
