@@ -98,11 +98,11 @@ export default function ResourceManager({agentId}) {
       });
   }
 
-  const downloadAllOutputFiles = (fileList) => {
+  const downloadAllOutputFiles = () => {
     const zip = new JSZip();
     const promises = [];
 
-    fileList.forEach(file => {
+    output.forEach(file => {
       const promise = downloadFile(file.id)
         .then(blob => {
           const fileBlob = new Blob([blob], { type: file.type });
@@ -171,16 +171,25 @@ export default function ResourceManager({agentId}) {
 
   return (<>
     <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
-      <div style={{display:'flex',overflowX:'scroll'}}>
-        <div>
-          <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
-            Input
-          </button>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%'}}>
+        <div style={{display:'flex',order:0}}>
+          <div>
+            <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
+              Input
+            </button>
+          </div>
+          <div>
+            <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
+              Output
+            </button>
+          </div>
         </div>
-        <div>
-          <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
-            Output
-          </button>
+        <div style={{order:1}}>
+          {channel === 'output' && output.length > 0 && (
+            <button onClick={downloadAllOutputFiles} className={styles.tab_button} style={{background:'transparent',padding:'5px 10px',height:'30px',color:'#888888'}}>
+              <Image src="/images/download_icon.svg" width={20} height={20} alt="download-icon"/>&nbsp;Download
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -193,11 +202,6 @@ export default function ResourceManager({agentId}) {
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} />
-      {((channel === 'output' && output.length > 1) || (channel === 'input' && input.length > 1)) && (
-        <button onClick={() => downloadAllOutputFiles(channel === 'output' ? output : input)} className="secondary_button" style={{width:'100%'}}>
-          Download ZIP
-        </button>
-      )}
     </div>
     <ToastContainer/>
   </>)
