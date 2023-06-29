@@ -22,10 +22,7 @@ class Creds:
         self.oauth_token_secret = oauth_token_secret
 
 class TwitterTokens:
-
-    def __init__(self,session: Session, agent_id: int = None):
-        self.session = session
-        self.agent_id = agent_id
+    session: Session
 
     def get_request_token(self,api_data):
         api_key = api_data["api_key"]

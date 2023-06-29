@@ -7,9 +7,13 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardService";
+import {getAgents, getToolKit, getLastActiveAgent, sendTwitterCreds} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
+import { useRouter } from 'next/router';
+import querystring from 'querystring';
+import { userInfo } from 'os';
+import { parse } from 'path';
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -19,6 +23,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [toolkits, setToolkits] = useState(null);
   const tabContainerRef = useRef(null);
   const [toolkitDetails, setToolkitDetails] = useState({})
+  const router = useRouter();
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -124,6 +129,21 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         }
       }
     }
+    const queryParams = router.asPath.split('?')[1];
+    const parsedParams = querystring.parse(queryParams);
+    parsedParams["toolkit_id"] = toolkitDetails.toolkit_id; 
+    if (window.location.href.indexOf("twitter_creds") > -1){
+      const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
+      parsedParams["toolkit_id"] = toolkit_id;
+      const params = JSON.stringify(parsedParams)
+      sendTwitterCreds(params)
+      .then((response) => {
+        console.log("Authentication completed successfully");
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ",error);
+      })
+    };
   }, [selectedTab]);
 
   useEffect(() => {

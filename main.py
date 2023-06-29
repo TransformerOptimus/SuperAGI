@@ -16,6 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 import superagi
 import urllib.parse
+import json
 import http.client as http_client
 from superagi.helper.twitter_tokens import TwitterTokens
 from datetime import datetime, timedelta
@@ -44,7 +45,7 @@ from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
-from superagi.models.toolkit import Toolkit
+from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 
@@ -331,24 +332,9 @@ async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Quer
     conn.request("POST", token_uri, "")
     res = conn.getresponse()
     response_data = res.read().decode('utf-8')
-    conn.close()
-    response = dict(urllib.parse.parse_qsl(response_data))
-    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
-    file_name = "twitter_credentials.pickle"
-    final_path = file_name
-    if root_dir is not None:
-        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-        final_path = root_dir + file_name
-    else:
-        final_path = os.getcwd() + "/" + file_name
-    try:
-        with open(final_path, mode="wb") as file:
-            pickle.dump(response, file)
-    except Exception as err:
-        return f"Error: {err}"
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
-    return RedirectResponse(frontend_url)
+    redirect_url_success = f"{frontend_url}/twitter_creds/?{response_data}"
+    return RedirectResponse(url=redirect_url_success)
 
 @app.get('/github-login')
 def github_login():
@@ -450,6 +436,34 @@ def get_twitter_tool_configs(toolkit_id: int):
     }
     response = TwitterTokens().get_request_token(api_data)
     return response
+
+@app.post("/twitter/send_twitter_creds/{twitter_creds}")
+def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    try:
+        Authorize.jwt_required()
+        current_user_email = Authorize.get_jwt_subject()
+        current_user = session.query(User).filter(User.email == current_user_email).first()
+    except:
+        current_user = session.query(User).filter(User.email == "super6@agi.com").first()
+    user_id = current_user.id
+    credentials = json.loads(twitter_creds)
+    credentials["user_id"] = user_id
+    api_key = session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_API_KEY", ToolConfig.toolkit_id == credentials["toolkit_id"]).first()
+    api_key_secret = session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_API_SECRET", ToolConfig.toolkit_id == credentials["toolkit_id"]).first()
+    final_creds = {
+        "api_key": api_key.value,
+        "api_key_secret": api_key_secret.value,
+        "oauth_token": credentials["oauth_token"],
+        "oauth_token_secret": credentials["oauth_token_secret"]
+    }
+    tokens = OauthTokens.add_or_update(session,credentials["toolkit_id"], current_user.id, "TWITTER_OAUTH_TOKENS", str(final_creds))
+    if tokens:
+        success = True
+    else:
+        success = False
+    return success
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
