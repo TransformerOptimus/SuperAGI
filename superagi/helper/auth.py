@@ -42,8 +42,11 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
         email = Authorize.get_jwt_subject()
 
     # Query the User table to find the user by their email
+    print("email", email)
     user = db.session.query(User).filter(User.email == email).first()
+    print("user_obj", user)
     if user is None:
         raise HTTPException(status_code=401, detail="Unauthenticated")
     organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
+    print("organisation", organisation)
     return organisation

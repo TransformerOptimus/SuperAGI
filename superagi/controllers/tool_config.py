@@ -117,10 +117,12 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
 
     toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
                                                Toolkit.organisation_id == organisation.id).first()
+    print("asdasasd",toolkit_name, toolkit)
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
 
     tool_configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
+    print("asdsdsdsdas", tool_configs)
     return tool_configs
 
 
