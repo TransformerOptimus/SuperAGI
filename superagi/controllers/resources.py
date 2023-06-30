@@ -92,38 +92,10 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
 
-    # from llama_index import VectorStoreIndex
-    # from superagi.vector_store.embedding.openai import OpenAiEmbedding
-    # from llama_index import StorageContext
-    # from llama_index import SimpleDirectoryReader
-    # model_api_key = get_config("OPENAI_API_KEY")
-    # documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
-    # for docs in documents:
-    #     if docs.extra_info is None:
-    #         docs.extra_info = {"agent_id": agent_id}
-    #     else:
-    #         docs.extra_info["agent_id"] = agent_id
-    # os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
-    # vector_store = llama_vector_store_factory('PineCone', 'super-agent-index1', OpenAiEmbedding(model_api_key))
-    # storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    # if vector_store is None:
-    #     storage_context = StorageContext.from_defaults(persist_dir="workspace/index")
-    # openai.api_key = get_config("OPENAI_API_KEY")
-    # index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
-    # index.set_index_id(f'Agent {agent_id}')
-    # if vector_store is None:
-    #     index.storage_context.persist()
-
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
     background_tasks.add_task(add_to_vector_store_and_create_summary, file_path, agent_id, resource.id)
-    # save_file_to_vector_store(file_path, str(agent_id), resource.id)
-    # documents = create_llama_document(file_path)
-    # summary = generate_summary_of_document(documents)
-    # resource.summary = summary
-    # print(summary)
-    # db.session.commit()
     logger.info(resource)
     return resource
 
