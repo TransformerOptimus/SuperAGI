@@ -142,6 +142,14 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       addTab(eventData.element);
     };
 
+    const openToolkitTab = (eventData) => {
+      const toolkit = toolkits.find((toolkit) => toolkit.tools.some((tool) => tool.id === eventData.toolId));
+      if(toolkit) {
+        localStorage.setItem('toolkit_tab_' + String(toolkit.internalId), 'tools_included');
+        addTab(toolkit);
+      }
+    }
+
     const removeTab = (eventData) => {
       const newAgentTabIndex = tabs.findIndex(
         (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
@@ -152,11 +160,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', fetchAgents);
     EventBus.on('removeTab', removeTab);
+    EventBus.on('openToolkitTab', openToolkitTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', fetchAgents);
       EventBus.off('removeTab', removeTab);
+      EventBus.off('openToolkitTab', openToolkitTab);
     };
   });
 
