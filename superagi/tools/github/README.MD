@@ -19,9 +19,9 @@ The powerful SuperAGI GitHub Tool enables users to perform various operations on
 
 Set up SuperAGI by following the instructions provided in the [SuperAGI repository's README file](https://github.com/TransformerOptimus/SuperAGI/blob/main/README.md).
 
-### 🔧 **Add GitHub Configuration Settings in config.yaml**
+### 🔧 **Add GitHub Configuration Settings in SuperAGI Dashboard**
 
-Add the following configuration settings in the `config.yaml` file:
+Add the following configuration settings in the Github Toolkit Page:
 
 1. _GitHub Access Token:_
    - Obtain a GitHub access token with the necessary permissions for accessing and modifying repositories.
@@ -34,10 +34,13 @@ Add the following configuration settings in the `config.yaml` file:
     ![github-permissions](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/757b02e8-0b49-47b8-bfef-5469c0d070eb)
     - Select all the scopes (In this way, users won't have to create new Access Tokens everytime we add new scopes to the code).
     - Click on Generate New Token.
-   - Copy the Token and set the `GITHUB_ACCESS_TOKEN` variable in the `config.yaml` file to the generated access token.
+    - Copy the token and save it a separate file. 
 
 2. _Github User Name:_
    - You can find your Github username on your GitHub Profile.
+
+3. _Configuring in SuperAGI Dashboard:_
+   -You can add your Generated Token and your Username in the GitHub Toolkit Page.
 
 ## Running SuperAGI GitHub Tool
 
