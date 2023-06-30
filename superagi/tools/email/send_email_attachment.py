@@ -44,7 +44,7 @@ class SendEmailAttachmentTool(BaseTool):
             filename : The name of the file to be sent as an attachment with the email.
 
         Returns:
-
+            success or failure message
         """
         final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id)
 

@@ -43,7 +43,7 @@ class GoogleSearchTool(BaseTool):
             query : The query to search for.
 
         Returns:
-            A tuple of (snippets, webpages, links)
+            Search result summary along with related links
         """
         api_key = self.get_tool_config("GOOGLE_API_KEY")
         search_engine_id = self.get_tool_config("SEARCH_ENGINE_ID")

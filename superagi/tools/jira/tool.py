@@ -28,7 +28,6 @@ class JiraTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    @classmethod
     def build_jira_instance(self) -> dict:
         """
         Build a Jira instance.

@@ -8,7 +8,7 @@ from superagi.models.base_model import DBBaseModel
 
 class AgentWorkflow(DBBaseModel):
     """
-    Represents an agent workflow.
+    Agent workflows which runs part of each agent execution step
 
     Attributes:
         id (int): The unique identifier of the agent workflow.

@@ -45,7 +45,7 @@ class GoogleSerpTool(BaseTool):
             query : The query to search for.
 
         Returns:
-            A tuple of (snippets, webpages, links)
+            Search result summary along with related links
         """
         api_key = self.get_tool_config("SERP_API_KEY")
         serp_api = GoogleSerpApiWrap(api_key)
