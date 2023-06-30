@@ -39,7 +39,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - "./workspace/index:/data"
+      - redis_data:/data
 
   super__postgres:
     image: "docker.io/library/postgres:latest"
@@ -71,3 +71,4 @@ networks:
     driver: bridge
 volumes:
   superagi_postgres_data:
+  redis_data:
