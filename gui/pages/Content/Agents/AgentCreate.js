@@ -11,7 +11,6 @@ import "react-datetime/css/react-datetime.css";
 import moment from 'moment';
 import 'moment-timezone';
 
-
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
@@ -43,6 +42,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [instructions, setInstructions] = useState(['']);
 
   const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k', 'gpt-4-32k']
+  const timezn = ['Minutes','Hours','Days'];
+  const Expiries = ['Specific Date', 'After certain number of runs','No expiry'];
   const [model, setModel] = useState(models[1]);
   const [time, setTime] = useState(timezn[1]);
   const [expiry, setExpiry] = useState(Expiries[1]);
@@ -85,6 +86,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
+  const [createModal, setCreateModal] = useState(false);
 
   const closeCreateModal = () => {
     // setRunName("New Run");
