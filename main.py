@@ -443,11 +443,11 @@ def get_twitter_tool_configs(toolkit_id: int):
 def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()):
     Session = sessionmaker(bind=engine)
     session = Session()
-    current_user = get_current_user
-    toolkit = session.query(Toolkit).filter(Toolkit.id == credentials["toolkit_id"]).first()
+    current_user = get_current_user()
     user_id = current_user.id
     credentials = json.loads(twitter_creds)
     credentials["user_id"] = user_id
+    toolkit = session.query(Toolkit).filter(Toolkit.id == credentials["toolkit_id"]).first()
     api_key = session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_API_KEY", ToolConfig.toolkit_id == credentials["toolkit_id"]).first()
     api_key_secret = session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_API_SECRET", ToolConfig.toolkit_id == credentials["toolkit_id"]).first()
     final_creds = {
@@ -456,7 +456,7 @@ def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()
         "oauth_token": credentials["oauth_token"],
         "oauth_token_secret": credentials["oauth_token_secret"]
     }
-    tokens = OauthTokens.add_or_update(session,credentials["toolkit_id"], current_user.id, toolkit.organisation_id, "TWITTER_OAUTH_TOKENS", str(final_creds))
+    tokens = OauthTokens().add_or_update(session, credentials["toolkit_id"], user_id, toolkit.organisation_id, "TWITTER_OAUTH_TOKENS", str(final_creds))
     if tokens:
         success = True
     else:

@@ -1,17 +1,14 @@
-import os
-import pickle
-import json
 import hmac
 import time
 import random
 import base64
 import hashlib
 import urllib.parse
+import ast
 import http.client as http_client
-from superagi.config.config import get_config
 from sqlalchemy.orm import Session
-from superagi.models.tool_config import ToolConfig
-from superagi.resource_manager.manager import ResourceManager
+from superagi.models.toolkit import Toolkit
+from superagi.models.oauth_tokens import OauthTokens
 
 class Creds:
 
@@ -22,7 +19,9 @@ class Creds:
         self.oauth_token_secret = oauth_token_secret
 
 class TwitterTokens:
-    session: Session
+
+    def __init__(self, session: Session):
+        self.session = session
 
     def get_request_token(self,api_data):
         api_key = api_data["api_key"]
@@ -70,28 +69,9 @@ class TwitterTokens:
         return nonce
 
     def get_twitter_creds(self, toolkit_id):
-        file_name = "twitter_credentials.pickle"
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-        file_path = file_name
-        if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-            file_path = root_dir + file_name
-        else:
-            file_path = os.getcwd() + "/" + file_name
-        if os.path.exists(file_path):
-            with open(file_path,'rb') as file:
-                creds = pickle.load(file)
-            if isinstance(creds, str):
-                creds = json.loads(creds)
-        twitter_creds = self.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id).all()
-        api_key = ""
-        api_key_secret = ""
-        for credentials in twitter_creds:
-            credentials = credentials.__dict__
-            if credentials["key"] == "TWITTER_API_KEY":
-                api_key = credentials["value"]
-            if credentials["key"] == "TWITTER_API_SECRET":
-                api_key_secret = credentials["value"]
-        final_creds = Creds(api_key, api_key_secret, creds["oauth_token"], creds["oauth_token_secret"])
+        toolkit = self.session.query(Toolkit).filter(Toolkit.id == toolkit_id).first()
+        organisation_id = toolkit.organisation_id
+        twitter_creds = self.session.query(OauthTokens).filter(OauthTokens.toolkit_id == toolkit_id, OauthTokens.organisation_id == organisation_id).first()
+        twitter_creds = ast.literal_eval(twitter_creds.value)
+        final_creds = Creds(twitter_creds['api_key'], twitter_creds['api_key_secret'], twitter_creds['oauth_token'], twitter_creds['oauth_token_secret'])
         return final_creds

@@ -22,7 +22,8 @@ class SendTweetsTool(BaseTool):
 
     def _execute(self, is_media: bool, tweet_text: str = 'None', media_num: int = 0, media_files: list = []):
         toolkit_id = self.toolkit_config.toolkit_id
-        creds = TwitterTokens().get_twitter_creds(toolkit_id)
+        session = self.toolkit_config.session
+        creds = TwitterTokens(session).get_twitter_creds(toolkit_id)
         params = {}
         if is_media:
             media_ids = TwitterHelper().get_media_ids(media_files, creds, self.agent_id)
