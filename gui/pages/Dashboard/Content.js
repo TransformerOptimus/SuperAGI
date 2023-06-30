@@ -80,13 +80,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
     if(contentType === 'Create_Agent') {
       removeInternalId(internalId);
-    }
-
-    if(contentType === 'Marketplace') {
+    } else if(contentType === 'Marketplace') {
       localStorage.removeItem('marketplace_tab');
       localStorage.removeItem('market_item_clicked');
       localStorage.removeItem('market_detail_type');
       localStorage.removeItem('market_item');
+    } else if(contentType === 'Toolkits') {
+      localStorage.removeItem('toolkit_tab_' + String(internalId));
     }
 
     setTabs(updatedTabs);
