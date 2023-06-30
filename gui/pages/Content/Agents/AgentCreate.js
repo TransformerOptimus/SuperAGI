@@ -95,11 +95,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [expiryDropdown, setExpiryDropdown] = useState(false);	
   const [selectedDateTime, setSelectedDateTime] = useState(null);	
   const [selectedTime, setSelectedTime] = useState(null);	
-  const [gmtDateTime, setgmtDateTime] = useState(null);	
+  const [gmtDateTime, setGmtDateTime] = useState(null);	
   const [gmtTime, setGmtTime] = useState(null);	
-  const timezn = ['Days', 'Hours', 'Minutes']
+  const timeUnitArray = ['Days', 'Hours', 'Minutes']
   const expiryArray = ['Specific Date', 'After certain number of runs', 'No expiry']
-  const [time, setTime] = useState(timezn[1]);	
+  const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
   const [expiry, setExpiry] = useState(expiryArray[1]);
   const timeRef = useRef(null);	
   const expiryRef = useRef(null);
@@ -107,46 +107,46 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleDateTimeChange = (momentObj) => {	
     setSelectedDateTime(momentObj);	
     const gmtDateTime = convertToGMT(momentObj);	
-    setgmtDateTime(gmtDateTime);	
-    console.log(gmtDateTime);	
-  };	
+    setGmtDateTime(gmtDateTime);	
+  };
+
   const handleTimeChange = (momentObj) => {	
     setSelectedTime(momentObj);	
     const gmtTime = convertToGMT(momentObj);	
-    setGmtTime(gmtTime);	
-    console.log(gmtTime);	
-  };	
+    setGmtTime(gmtTime);
+  };
+
   const toggleRecurring = () => {	
     setIsRecurring(!isRecurring);	
   };
-  const closeCreateModal = () => {	
-    // setRunName("New Run");	
+
+  const closeCreateModal = () => {
     setCreateModal(false);	
   };
   const convertToGMT = (dateTime) => {	
-    if (!dateTime) return null; // Handle empty case	
-  	
-    const gmtDateTime = moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');	
-  	
-    return gmtDateTime;	
+    if (!dateTime) {
+      return null;
+    }
+    return moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');
   };
+
   const handleTimeSelect = (index) => {	
-    setTime(timezn[index]);	
+    setTimeUnit(timeUnitArray[index]);
     setTimeDropdown(false);	
-  }	
+  }
+
   const handleExpirySelect = (index) => {	
     setExpiry(expiryArray[index]);	
     setExpiryDropdown(false);	
   }
+
   const handleDateChange = (event) => {	
     setTimeValue(event.target.value);	
-  };	
+  };
+
   const handleExpiryRuns = (event) => {	
     setExpiryRuns(event.target.value);	
   };
-
-
-
 
 
   useEffect(() => {
@@ -478,7 +478,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "memory_window": rollingWindow,
       "user_timezone": getUserTimezone(),	
       "start_time": gmtTime,	
-      "recurrence_interval": timeValue + time,
+      "recurrence_interval": timeValue + timeUnit,
       "expiry_date": gmtDateTime,	
       "expiry_runs": expiryRuns,
     }	
@@ -961,7 +961,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>}
             </div>
           </div>
-
           {createModal && (
             <div className="modal" onClick={closeCreateModal}>
               <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
@@ -979,8 +978,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </label>
                 </div>
                 {isRecurring && (<div style={{marginTop:'20px'}}>
-                  <div style={{color:"white", marginBottom:'20px'}}>Recurring run details</div>
-
+                  <div style={{color:"white", marginBottom:'10px'}}>Recurring run details</div>
                   <label className={styles.form_label}>Repeat every</label>
                   <div style={{display:'flex',marginBottom:'20px'}}>
                     <div style={{width:'70%', marginRight:'5px'}}>
@@ -988,18 +986,17 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                     </div>
                     <div style={{width:'30%'}}>
                       <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
-                        {time}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                        {timeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                       </div>
                       <div>
-                        {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
-                          {timezn.map((time, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'137px'}}>
+                          {timeUnitArray.map((time, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                             {time}
                           </div>))}
                         </div>}
                       </div>
                     </div>
                   </div>
-
                   <label className={styles.form_label}>Recurring expiry</label>
                   <div>
                     <div style={{display:'inline'}}>
@@ -1008,30 +1005,26 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                           {expiry}<Image width={20} height={21} src={!expiryDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                         </div>
                         <div>
-                          {expiryDropdown && <div className="custom_select_options" ref={expiryRef} style={{width:'30%'}}>
+                          {expiryDropdown && <div className="custom_select_options" ref={expiryRef}>
                             {expiryArray.map((expiry, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                               {expiry}
                             </div>))}
                           </div>}
                         </div>
                       </div>
-
                       {expiry==='After certain number of runs' && (
                         <div style={{width:'100%', marginTop:'10px'}}>
                           <input className="input_medium" type="text" value={expiryRuns} onChange={handleExpiryRuns} placeholder="Enter the number of runs" />
                         </div>
                       )}
-
                       {expiry==='Specific Date' && (
                         <div style={{width:'100%', marginTop:'10px'}}>
-                          {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
                           <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>)}
-
                 <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
                   <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                     Cancel
@@ -1043,7 +1036,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           )}
-
         </div>
       </div>
       <div className="col-3"></div>
