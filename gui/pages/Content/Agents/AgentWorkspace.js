@@ -104,6 +104,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         .catch((error) => {
           console.error('Error updating agent:', error);
         });
+
     updateAgents(agentData1)
         .then((response) => {
           EventBus.emit('reFetchAgents', {});
@@ -188,6 +189,22 @@ export default function AgentWorkspace({agentId, selectedView}) {
           console.error('Error saving agent as template:', error);
         });
   }
+
+  useEffect(() => {
+    const resetRunStatus = (eventData) => {
+      if (eventData.executionId === selectedRun.id) {
+        setSelectedRun((prevSelectedRun) => (
+          { ...prevSelectedRun, status: eventData.status }
+        ));
+      }
+    };
+
+    EventBus.on('resetRunStatus', resetRunStatus);
+
+    return () => {
+      EventBus.off('resetRunStatus', resetRunStatus);
+    };
+  });
 
   return (<>
     <div style={{display:'flex'}}>

@@ -1,29 +1,30 @@
+import unittest
 from unittest.mock import patch, Mock
+import os
+from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool, SendEmailAttachmentInput
 
-from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool
+class TestSendEmailAttachmentTool(unittest.TestCase):
+    @patch("superagi.tools.email.send_email_attachment.SendEmailAttachmentTool.send_email_with_attachment")
+    @patch("superagi.helper.resource_helper.ResourceHelper.get_agent_resource_path")
+    @patch("superagi.helper.resource_helper.ResourceHelper.get_root_input_dir")
+    @patch("os.path.exists")
+    def test__execute(self, mock_exists, mock_get_root_input_dir, mock_get_agent_resource_path, mock_send_email_with_attachment):
+        # Arrange
+        tool = SendEmailAttachmentTool()
+        tool.agent_id = 1
+        mock_exists.return_value = True
+        mock_get_agent_resource_path.return_value = "/test/path/test.txt"
+        mock_get_root_input_dir.return_value = "/root_dir/"
+        mock_send_email_with_attachment.return_value = "Email sent"
+        expected_result = "Email sent"
 
+        # Act
+        result = tool._execute("test@example.com", "test subject", "test body", "test.txt")
 
-def test_send_email_attachment():
-    # Arrange
-    with patch('superagi.tools.email.send_email_attachment.smtplib.SMTP') as mock_smtp:
-        with patch('superagi.tools.email.send_email_attachment.ImapEmail') as mock_imap_email:
-            with patch('superagi.tools.email.send_email_attachment.open', mock=Mock(), create=True) as mock_open:
-                mock_open.return_value.__enter__.return_value.read.return_value = b"some file content"
-                mock_imap_email_instance = mock_imap_email.return_value
-                mock_smtp_instance = mock_smtp.return_value
-                tool = SendEmailAttachmentTool()
-                tool.toolkit_config.get_tool_config = Mock()
-                tool.toolkit_config.get_tool_config.return_value = 'dummy_value'
-                mock_smtp_instance.send_message = Mock()
-                to = 'test@example.com'
-                subject = 'test_subject'
-                body = 'test_body'
-                filename = 'test_file.txt'
+        # Assert
+        self.assertEqual(result, expected_result)
+        mock_get_agent_resource_path.assert_called_once_with("test.txt", tool.agent_id)
+        mock_send_email_with_attachment.assert_called_once_with("test@example.com", "test subject", "test body", "/test/path/test.txt", "test.txt")
 
-                # Act
-                result = tool._execute(to, subject, body, filename)
-
-                # mock_smtp_instance.send_message.assert_called_once()
-                assert result == f"Email was sent to {to}"
-                assert 'rb' in mock_open.call_args[0]
-                assert filename in mock_open.call_args[0][0]
+if __name__ == "__main__":
+    unittest.main()
