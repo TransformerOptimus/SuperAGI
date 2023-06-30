@@ -7,7 +7,6 @@ from celery import Celery
 from superagi.config.config import get_config
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_scheduler import AgentScheduler
-from superagi.jobs.agent_executor import ScheduledAgentExecutor
 from superagi.lib.logger import logger
 from superagi.models.db import connect_db
 from sqlalchemy.orm import sessionmaker
@@ -95,6 +94,7 @@ def should_execute_and_remove_agent(agent, interval):
     return False, False
 
 def execute_schedule(should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name):
+    from superagi.jobs.agent_executor import ScheduledAgentExecutor
     if should_execute_agent:
         ScheduledAgentExecutor.execute_scheduled_agent(agent.agent_id, agent_name)
         agent.current_runs = agent.current_runs + 1
