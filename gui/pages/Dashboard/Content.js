@@ -196,6 +196,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
               <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent", internalId: createInternalId() })} className={styles.empty_state_button}>Create new agent</button>
             </div>
+            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
+              <button onClick={() => addTab({ id: -2, name: "new tool", contentType: "Add_Toolkit", internalId: createInternalId() })} className={styles.empty_state_button}>Add new tool</button>
+            </div>
             {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button onClick={getLastActive} className={styles.empty_state_button}>View last active agent</button>
             </div>}
