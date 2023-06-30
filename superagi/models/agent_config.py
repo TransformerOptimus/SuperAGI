@@ -7,7 +7,7 @@ from superagi.models.tool import Tool
 
 class AgentConfiguration(DBBaseModel):
     """
-    Represents a configuration for an agent.
+    Agent related configurations like goals, instructions, constraints and tools are stored here
 
     Attributes:
         id (int): The unique identifier of the agent configuration.

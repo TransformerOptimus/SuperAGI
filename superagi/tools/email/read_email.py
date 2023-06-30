@@ -40,7 +40,7 @@ class ReadEmailTool(BaseTool):
             limit : Number of emails to fetch in one cycle. Defaults to 5.
 
         Returns:
-            email content or error message
+            email contents or error message.
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
