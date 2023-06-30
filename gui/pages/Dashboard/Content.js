@@ -186,7 +186,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-        {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+        {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
       </div>
 
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -196,9 +196,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
               <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent", internalId: createInternalId() })} className={styles.empty_state_button}>Create new agent</button>
             </div>
-            <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
+            {env === 'PROD' && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button onClick={() => addTab({ id: -2, name: "new tool", contentType: "Add_Toolkit", internalId: createInternalId() })} className={styles.empty_state_button}>Add new tool</button>
-            </div>
+            </div>}
             {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button onClick={getLastActive} className={styles.empty_state_button}>View last active agent</button>
             </div>}

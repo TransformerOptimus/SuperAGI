@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import Image from "next/image";
-import styles from './Tool.module.css';
+import {addTool} from "@/pages/api/DashboardService";
 import styles1 from '../Agents/Agents.module.css'
 import {removeTab, setLocalStorageValue} from "@/utils/utils";
 import {ToastContainer, toast} from "react-toastify";
@@ -20,6 +19,23 @@ export default function AddToolkit({internalId}) {
     }
 
     setAddClickable(false);
+
+    const toolData = {
+      "github_link": githubURL
+    }
+
+    addTool(toolData)
+      .then((response) => {
+        toast.success('Tool will be installed in a while', {autoClose: 1800});
+        setAddClickable(true);
+        setLocalStorageValue("tool_github_" + String(internalId), '', setGithubURl);
+      })
+      .catch((error) => {
+        console.error('Error adding tool:', error);
+        toast.error(error, {autoClose: 1800});
+        setAddClickable(true);
+        setLocalStorageValue("tool_github_" + String(internalId), '', setGithubURl);
+      });
   };
 
   useEffect(() => {
