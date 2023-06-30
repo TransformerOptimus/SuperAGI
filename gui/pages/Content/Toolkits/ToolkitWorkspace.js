@@ -3,7 +3,7 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
-import {setLocalStorageValue} from "@/utils/utils";
+import {setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 
 export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const [activeTab,setActiveTab] = useState('configuration')
@@ -15,7 +15,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     let handleKeyChange = (event, index) => {
       const updatedData = [...apiConfigs];
       updatedData[index].value = event.target.value;
-      setApiConfigs(updatedData);
+      setLocalStorageArray('api_configs_' + String(internalId), updatedData, setApiConfigs);
     };
     
     function getToken(client_data){
@@ -33,8 +33,9 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
 
         getToolConfig(toolkitDetails.name)
           .then((response) => {
+            const localStoredConfigs = localStorage.getItem('api_configs_' + String(internalId));
             const apiConfigs = response.data || [];
-            setApiConfigs(apiConfigs);
+            setApiConfigs(localStoredConfigs ? JSON.parse(localStoredConfigs) : apiConfigs);
           })
           .catch((error) => {
             console.log('Error fetching API data:', error);

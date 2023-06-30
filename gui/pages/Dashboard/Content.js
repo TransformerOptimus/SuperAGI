@@ -87,6 +87,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       localStorage.removeItem('market_item');
     } else if(contentType === 'Toolkits') {
       localStorage.removeItem('toolkit_tab_' + String(internalId));
+      localStorage.removeItem('api_configs_' + String(internalId));
     }
 
     setTabs(updatedTabs);
