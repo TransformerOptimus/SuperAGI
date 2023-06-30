@@ -21,7 +21,7 @@ The robust SuperAGI Jira Tool lets users create, edit and search issues while pr
 ### 🛠 **Setting Up of SuperAGI**
 Set up the SuperAGI by following the instructions given (https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
 
-### 🔧 **Add Jira configuration settings in config.yaml**
+### 🔧 **Add Jira configuration settings in SuperAGI Dashbboard**
 Add the following configuration settings in the file:
 
 1. _JIRA API TOKEN:_
@@ -29,7 +29,7 @@ Add the following configuration settings in the file:
  - Go to Security and click on "Create and Manage API Tokens".
 ![Screenshot API Token jira](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/b9a535be-0f44-40f8-aec5-4f09bd223c9e)
  - Click on "Create API Token" and choose an appropriate label name.
- - Copy the API Token and paste it in your config.yaml file.
+ - Copy the API Token and save it in a text file.
 
 2. _JIRA INSTANCE URL:_
  - Your instance profile is the section at the start of your URL. It should look something like "https://mycompany.atlassian.net/".
@@ -37,6 +37,8 @@ Add the following configuration settings in the file:
 3. _JIRA USERNAME:_
  - Your Jira UserName is the Email Address with which you signed up in Jira. 
 
+4. _CONFIGURING JIRA IN SUPERAGI DASHBOARD:_ 
+ - Open the Jira Toolkit Page in SuperAGI and Add your Jira API Token, your Instasnce URL and your Jira Username and click "Update Changes"
 
 ## Running SuperAGI Jira Tool
 
