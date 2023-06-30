@@ -36,8 +36,12 @@ export const getExecutionTasks = (executionId) => {
   return api.get(`/agentexecutionfeeds/get/tasks/${executionId}`);
 };
 
-export const createAgent = (agentData) => {
-  return api.post(`/agents/create`, agentData);
+export const createAgent = (data, createModal) => {
+  if (createModal) {
+    return api.post(`http://192.168.1.170:3000/api/agents/schedule`, data);
+  } else {
+    return api.post(`/agents/create`, data);
+  }
 };
 
 export const updateAgents = (agentData) => {
