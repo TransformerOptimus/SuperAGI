@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, String
+from sqlalchemy import Column, Integer, Text, String, ForeignKey
 from sqlalchemy.orm import Session
 
 from superagi.models.base_model import DBBaseModel
@@ -20,8 +20,8 @@ class AgentExecutionFeed(DBBaseModel):
     __tablename__ = 'agent_execution_feeds'
 
     id = Column(Integer, primary_key=True)
-    agent_execution_id = Column(Integer)
-    agent_id = Column(Integer)
+    agent_execution_id = Column(Integer, ForeignKey('agent_executions.id'))
+    agent_id = Column(Integer, ForeignKey('agents.id'))
     feed = Column(Text)
     role = Column(String)
     extra_info = Column(String)

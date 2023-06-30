@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from superagi.models.base_model import DBBaseModel
 from sqlalchemy.orm import sessionmaker
 
@@ -27,7 +27,7 @@ class Resource(DBBaseModel):
     size = Column(Integer)
     type = Column(String)  # application/pdf etc
     channel = Column(String)  # INPUT,OUTPUT
-    agent_id = Column(Integer)
+    agent_id = Column(Integer, ForeignKey('agents.id'))
 
     def __repr__(self):
         """

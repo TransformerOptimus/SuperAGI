@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, String, Text, Boolean
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 
@@ -25,7 +25,7 @@ class AgentWorkflowStep(DBBaseModel):
     __tablename__ = 'agent_workflow_steps'
 
     id = Column(Integer, primary_key=True)
-    agent_workflow_id = Column(Integer)
+    agent_workflow_id = Column(Integer, ForeignKey('agent_workflows.id'))
     unique_id = Column(String)
     prompt = Column(Text)
     variables = Column(Text)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import Session, sessionmaker
 
 from superagi.models.base_model import DBBaseModel
@@ -22,7 +22,7 @@ class ToolConfig(DBBaseModel):
     id = Column(Integer, primary_key=True)
     key = Column(String)
     value = Column(String)
-    toolkit_id = Column(Integer)
+    toolkit_id = Column(Integer, ForeignKey('toolkits.id'))
 
     def __repr__(self):
         return f"ToolConfig(id={self.id}, key='{self.key}', value='{self.value}, toolkit_id={self.toolkit_id}')"
