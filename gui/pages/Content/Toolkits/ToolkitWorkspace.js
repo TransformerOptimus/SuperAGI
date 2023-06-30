@@ -3,9 +3,9 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {updateToolConfig, getToolConfig, authenticateGoogleCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
-import {EventBus} from "@/utils/eventBus";
+import {setLocalStorageValue} from "@/utils/utils";
 
-export default function ToolkitWorkspace({toolkitDetails}){
+export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const [activeTab,setActiveTab] = useState('configuration')
     const [showDescription,setShowDescription] = useState(false)
     const [apiConfigs, setApiConfigs] = useState([]);
@@ -71,6 +71,13 @@ export default function ToolkitWorkspace({toolkitDetails}){
         });
     };
 
+    useEffect(() => {
+      const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
+      if(active_tab) {
+        setActiveTab(active_tab);
+      }
+    }, [internalId]);
+
     return (<>
         <div className={styles.tools_container}>
           <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
@@ -90,10 +97,10 @@ export default function ToolkitWorkspace({toolkitDetails}){
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center',marginBottom:'20px' }}>
-            <div className={styles.tool1_box} onClick={() => setActiveTab('configuration')} style={activeTab === 'configuration' ? { background: '#454254'} : { background: 'transparent'}}>
+            <div className={styles.tool1_box} onClick={() => setLocalStorageValue('toolkit_tab_' + String(internalId), 'configuration', setActiveTab)} style={activeTab === 'configuration' ? { background: '#454254'} : { background: 'transparent'}}>
               <div className={styles.tab_text}>Configuration</div>
             </div>
-            <div className={styles.tool1_box} onClick={() => setActiveTab('tools_included')} style={activeTab === 'tools_included' ? { background: '#454254' } : { background: 'transparent' }}>
+            <div className={styles.tool1_box} onClick={() => setLocalStorageValue('toolkit_tab_' + String(internalId), 'tools_included', setActiveTab)} style={activeTab === 'tools_included' ? { background: '#454254' } : { background: 'transparent' }}>
               <div className={styles.tab_text}>Tools Included</div>
             </div>
           </div>
