@@ -12,7 +12,7 @@ from superagi.lib.logger import logger
 from superagi.models.db import connect_db
 from sqlalchemy.orm import sessionmaker
 
-redis_url = get_config('REDIS_URL')
+redis_url = get_config('REDIS_URL') or 'localhost:6379'
 engine = connect_db()
 Session = sessionmaker(bind=engine)
 
