@@ -13,15 +13,9 @@
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "date-fns": "^2.30.0",
-<<<<<<< HEAD
-    "datetime": "^0.0.3",
-    "eslint": "^8.43.0",
-    "eslint-config-next": "^13.4.7",
-=======
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
     "jszip": "^3.10.1",
->>>>>>> 2dddd7050116b216fcbdf6118435691327e2eb90
     "mitt": "^3.0.0",
     "moment-timezone": "^0.5.43",
     "next": "13.4.2",
@@ -30,12 +24,6 @@
     "react-datetime": "^3.2.0",
     "react-dom": "18.2.0",
     "react-markdown": "^8.0.7",
-<<<<<<< HEAD
-    "react-time-picker": "^6.2.0",
-    "react-toastify": "^9.1.3",
-    "timepicker": "^1.14.0"
-=======
     "react-toastify": "^9.1.3"
->>>>>>> 2dddd7050116b216fcbdf6118435691327e2eb90
   }
 }

@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-import { formatDistanceToNow, parseISO } from 'date-fns';
-=======
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
->>>>>>> 2dddd7050116b216fcbdf6118435691327e2eb90
 
 export const  getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -21,27 +17,6 @@ export const formatTimeDifference = (timeDifference) => {
         return `${timeDifference[unit]} ${unit} ago`;
       }
     }
-<<<<<<< HEAD
-
-    const istOffset = 5.5 * 60 * 60 * 1000;
-    const istTime = new Date(parsedTime.getTime() + istOffset);
-
-    const formattedTime = formatDistanceToNow(istTime, {
-      addSuffix: true,
-      includeSeconds: true,
-    }).replace(/about\s/, '');
-
-    const indianTime = istTime.toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      hour12: true,
-    });
-
-    return `${formattedTime}`;
-  } catch (error) {
-    console.error('Error formatting time:', error);
-    return 'Invalid Time';
-=======
->>>>>>> 2dddd7050116b216fcbdf6118435691327e2eb90
   }
 
   return 'Just now';

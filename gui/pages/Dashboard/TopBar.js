@@ -49,34 +49,6 @@ export default function TopBar({selectedProject, userName, env}) {
           </ul>
         </div>}
       </div>
-<<<<<<< HEAD
-      {settingsModal && (<div className="modal" onClick={() => setSettingsModal(false)}>
-        <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-          <div className={agentStyles.detail_name}>Settings</div>
-          <div>
-            <label className={agentStyles.form_label}>Open-AI API Key</label>
-            <input placeholder="Enter your Open-AI API key" className="input_medium" type="password" value={openAIKey} onChange={handleOpenAIKey}/>
-          </div>
-          {/*<div style={{marginTop:'15px'}}>*/}
-          {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
-          {/*  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
-          {/*    <input style={{width:'89%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
-          {/*    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={temperature}/>*/}
-          {/*  </div>*/}
-          {/*</div>*/}
-          <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-            <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setSettingsModal(false)}>
-              Cancel
-            </button>
-            <button className="primary_button" onClick={saveSettings}>
-              Update Changes
-            </button>
-          </div>
-        </div>
-      </div>)}
-      
-=======
->>>>>>> 2dddd7050116b216fcbdf6118435691327e2eb90
       <ToastContainer/>
     </div>  
   )

@@ -362,66 +362,6 @@
     color: #FFFFFF;
 }
 
-<<<<<<< HEAD
-.rdtPicker input {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 8px 14px 8px 14px;
-    gap: 4px;
-    border-radius: 8px;
-    width: 100%;
-    height: 32px;
-    background: #3B3B49;
-    border: 1px solid #4A4A55;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    transition: 0.2s;
-    color: white;
-}
-
-.rdtPicker input:focus {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 8px 14px 8px 14px;
-    gap: 4px;
-    border-radius: 8px;
-    width: 100%;
-    height: 32px;
-    background: #3B3B49;
-    border: 1px solid #4A4A55;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    transition: 0.2s;
-    color: white;
-    outline: none;
-  }
-
-/* .rdtPicker {
-    background-color: rgba(255, 255, 255, 0.08);
-    color:white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-  } 
-  
-  .rdtPicker table td {
-    background-color: rgba(255, 255, 255, 0.08);
-    color:white;
-    padding: 5px;
-  } 
-
-  .rdtPicker table {
-    background-color: rgba(255, 255, 255, 0.08);
-    padding: 5px;
-  } */
-  
-
-
-=======
 .notification_circle
 {
     display: flex;
@@ -441,4 +381,3 @@
     line-height: 12px;
     color: #FFFFFF;
 }
->>>>>>> 2dddd7050116b216fcbdf6118435691327e2eb90
