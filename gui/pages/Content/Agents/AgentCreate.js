@@ -4,7 +4,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes} from "@/utils/utils";
+import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
@@ -12,14 +12,12 @@ import moment from 'moment';
 import 'moment-timezone';
 
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId,template}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [timevalue, setTimeValue] = useState("");
   const [expiryruns, setExpiryRuns] = useState(null);
   const [agentDescription, setAgentDescription] = useState("");
-  const [selfEvaluation, setSelfEvaluation] = useState('');
-  const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
   const [input, setInput] = useState([]);
@@ -30,40 +28,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const txt_icon = '/images/txt_file.svg';
   const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
-  const [createDropdown, setCreateDropdown] = useState(false);
-  const [createModal, setCreateModal] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [timeDropdown, setTimeDropdown] = useState(false);
-  const [expiryDropdown, setExpiryDropdown] = useState(false);
-
-  const [selectedDateTime, setSelectedDateTime] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [gmtDateTime, setgmtDateTime] = useState(null);
-  const [gmtTime, setgmtTime] = useState(null);
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
- 
-
-  const handleDateTimeChange = (momentObj) => {
-    setSelectedDateTime(momentObj);
-    const gmtDateTime = convertToGMT(momentObj);
-    setgmtDateTime(gmtDateTime);
-    console.log(gmtDateTime);
-  };
-  const handleTimeChange = (momentObj) => {
-    setSelectedTime(momentObj);
-    const gmtTime = convertToGMT(momentObj);
-    setgmtTime(gmtTime);
-    console.log(gmtTime);
-  };
-
-  const toggleRecurring = () => {
-    setIsRecurring(!isRecurring);
-  };
+  const [toolkitList, setToolkitList] = useState(toolkits)
+  const [searchValue, setSearchValue] = useState('');
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-    "Ensure the command and args are as per current plan and reasoning",
-    'Exclusively use the tools listed in double quotes e.g. "tool name"',
+    "Ensure the tool and args are as per current plan and reasoning",
+    'Exclusively use the tools listed under "TOOLS"',
     "REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."
   ];
   const [constraints, setConstraints] = useState(constraintsArray);
@@ -71,9 +42,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k']
-  const timezn = ['Days', 'Hours', 'Minutes']
-  const Expiries = ['Specific Date', 'After certain number of runs','No expiry']
+  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k', 'gpt-4-32k']
   const [model, setModel] = useState(models[1]);
   const [time, setTime] = useState(timezn[1]);
   const [expiry, setExpiry] = useState(Expiries[1]);
@@ -109,12 +78,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const permissionRef = useRef(null);
   const [permissionDropdown, setPermissionDropdown] = useState(false);
 
-  const [myTools, setMyTools] = useState([]);
-  const [toolNames, setToolNames] = useState(['GoogleSearch', 'Read File', 'Write File']);
-  const toolRef = useRef(null);
-  const [toolDropdown, setToolDropdown] = useState(false);
+  const [selectedTools, setSelectedTools] = useState([]);
+  const [toolNames, setToolNames] = useState(['SearxSearch', 'Read File', 'Write File']);
+  const toolkitRef = useRef(null);
+  const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
-  const excludedTools = ["ThinkingTool", "LlmThinkingTool", "Human", "ReasoningTool"];
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   const closeCreateModal = () => {
@@ -134,15 +103,18 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [organisationId]);
 
   const filterToolsByNames = () => {
-    if(tools) {
-      const filteredTools = tools.filter((tool) => toolNames.includes(tool.name));
-      const toolIds = filteredTools.map((tool) => tool.id);
-      setMyTools(toolIds);
+    if(toolkitList) {
+      const selectedToolIds = toolkits
+        .flatMap(toolkit => toolkit.tools)
+        .filter(tool => toolNames.includes(tool.name))
+        .map(tool => tool.id);
+
+      setLocalStorageArray("tool_ids_" + String(internalId), selectedToolIds, setSelectedTools);
     }
   };
 
   const handleIterationChange = (event) => {
-    setIterations(parseInt(event.target.value));
+    setLocalStorageValue("agent_iterations_" + String(internalId), parseInt(event.target.value), setIterations);
   };
 
   useEffect(() => {
@@ -151,24 +123,24 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     if(template !== null) {
-      setAgentName(template.name)
-      setAgentDescription(template.description)
-      setAdvancedOptions(true)
+      setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
+      setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
+      setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
 
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
-            setGoals(data.goal)
-            setAgentType(data.agent_type)
-            setConstraints(data.constraints)
-            setIterations(data.max_iterations)
-            setRollingWindow(data.memory_window)
-            setPermission(data.permission_type)
-            setStepTime(data.iteration_interval)
-            setInstructions(data.instruction)
-            setDatabase(data.LTM_DB)
-            setModel(data.model)
-            setToolNames(data.tools)
+            setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+            setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+            setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+            setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+            setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+            setLocalStorageValue("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
+            setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+            setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+            setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+            setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
           })
           .catch((error) => {
             console.error('Error fetching template details:', error);
@@ -209,8 +181,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setPermissionDropdown(false)
       }
 
-      if (toolRef.current && !toolRef.current.contains(event.target)) {
-        setToolDropdown(false)
+      if (toolkitRef.current && !toolkitRef.current.contains(event.target)) {
+        setToolkitDropdown(false)
       }
     }
 
@@ -229,57 +201,73 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const addTool = (tool) => {
-    if (!myTools.includes(tool.id)) {
-      setMyTools((prevArray) => [...prevArray, tool.id]);
-      setToolNames((prevArray) => [...prevArray, tool.name]);
+    if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
+      const updatedToolIds = [...selectedTools, tool.id];
+      setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+
+      const updatedToolNames = [...toolNames, tool.name];
+      setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     }
+    setSearchValue('');
   };
-  
-  const removeTool = (indexToDelete) => {
-    setMyTools((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
+
+  const addToolkit = (toolkit) => {
+    const updatedToolIds = [...selectedTools];
+    const updatedToolNames = [...toolNames];
+
+    toolkit.tools.map((tool) => {
+      if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
+        updatedToolIds.push(tool.id);
+        updatedToolNames.push(tool.name);
+      }
     });
 
-    setToolNames((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
+    setSearchValue('');
+  }
+  
+  const removeTool = (indexToDelete) => {
+    const updatedToolIds = [...selectedTools];
+    updatedToolIds.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+
+    const updatedToolNames = [...toolNames];
+    updatedToolNames.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
   };
 
   const handlePermissionSelect = (index) => {
-    setPermission(permissions[index]);
+    setLocalStorageValue("agent_permission_" + String(internalId), permissions[index], setPermission);
     setPermissionDropdown(false);
   };
 
   const handleDatabaseSelect = (index) => {
-    setDatabase(databases[index]);
+    setLocalStorageValue("agent_database_" + String(internalId), databases[index], setDatabase);
     setDatabaseDropdown(false);
   };
 
   const handleWindowSelect = (index) => {
-    setRollingWindow(rollingWindows[index]);
+    setLocalStorageValue("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
     setRollingDropdown(false);
   };
 
   const handleStepChange = (event) => {
-    setStepTime(event.target.value)
+    setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
   };
 
   const handleExitSelect = (index) => {
-    setExitCriterion(exitCriteria[index]);
+    setLocalStorageValue("agent_exit_criterion_" + String(internalId), exitCriteria[index], setExitCriterion);
     setExitDropdown(false);
   };
 
   const handleAgentSelect = (index) => {
-    setAgentType(agentTypes[index]);
+    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
     setAgentDropdown(false);
   };
 
   const handleModelSelect = (index) => {
-    setModel(models[index]);
+    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
     setModelDropdown(false);
   };
   const handleTimeSelect = (index) => {
@@ -294,51 +282,53 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleGoalChange = (index, newValue) => {
     const updatedGoals = [...goals];
     updatedGoals[index] = newValue;
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
+
   const handleInstructionChange = (index, newValue) => {
     const updatedInstructions = [...instructions];
     updatedInstructions[index] = newValue;
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
     updatedConstraints[index] = newValue;
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const handleGoalDelete = (index) => {
     const updatedGoals = [...goals];
     updatedGoals.splice(index, 1);
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
 
   const handleInstructionDelete = (index) => {
     const updatedInstructions = [...instructions];
     updatedInstructions.splice(index, 1);
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const addGoal = () => {
-    setGoals((prevArray) => [...prevArray, 'new goal']);
+    setLocalStorageArray("agent_goals_" + String(internalId), [...goals, 'new goal'], setGoals);
   };
+
   const addInstruction = () => {
-    setInstructions((prevArray) => [...prevArray, 'new instructions']);
+    setLocalStorageArray("agent_instructions_" + String(internalId), [...instructions, 'new instructions'], setInstructions);
   };
 
   const addConstraint = () => {
-    setConstraints((prevArray) => [...prevArray, 'new constraint']);
+    setLocalStorageArray("agent_constraints_" + String(internalId), [...constraints, 'new constraint'], setConstraints);
   };
 
   const handleNameChange = (event) => {
-    setAgentName(event.target.value);
+    setLocalStorageValue("agent_name_" + String(internalId), event.target.value, setAgentName);
   };
   const handleDateChange = (event) => {
     setTimeValue(event.target.value);
@@ -348,15 +338,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handleDescriptionChange = (event) => {
-    setAgentDescription(event.target.value);
-  };
-
-  const handleSelfEvaluationChange = (event) => {
-    setSelfEvaluation(event.target.value);
-  };
-
-  const handleBasePromptChange = (event) => {
-    setBasePrompt(event.target.value);
+    setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
 
   const preventDefault = (e) => {
@@ -388,7 +370,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleAddAgent = () => {
     if(!hasAPIkey) {
       toast.error("Your OpenAI API key is empty!", {autoClose: 1800});
-      EventBus.emit("openSettings", {});
+      openNewTab(-3, "Settings", "Settings");
       return
     }
 
@@ -408,7 +390,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return;
     }
 
-    if (myTools.length <= 0) {
+    if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
@@ -427,7 +409,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "instruction":instructions,
       "agent_type": agentType,
       "constraints": constraints,
-      "tools": myTools,
+      "toolkits": [],
+      "tools": selectedTools,
       "exit": exitCriterion,
       "iteration_interval": stepTime,
       "model": model,
@@ -466,7 +449,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       .then((response) => {
         const agent_id = response.data.id;
         fetchAgents();
-        cancelCreate();
+        removeTab(-1, "new agent", "Create_Agent");
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
           input.forEach((fileData) => {
@@ -488,9 +471,27 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       });
   };
 
-  function cancelCreate() {
-    EventBus.emit('cancelAgentCreate', {});
-  }
+  const toggleToolkit = (e, id) => {
+    e.stopPropagation();
+    const toolkitToUpdate = toolkitList.find(toolkit => toolkit.id === id);
+    if (toolkitToUpdate) {
+      const newOpenValue = !toolkitToUpdate.isOpen;
+      setToolkitOpen(id, newOpenValue);
+    }
+  };
+
+  const setToolkitOpen = (id, isOpen) => {
+    const updatedToolkits = toolkitList.map(toolkit =>
+      toolkit.id === id ? { ...toolkit, isOpen: isOpen } : { ...toolkit, isOpen: false }
+    );
+    setToolkitList(updatedToolkits);
+  };
+
+  const clearTools = (e) => {
+    e.stopPropagation();
+    setLocalStorageArray("tool_names_" + String(internalId), [], setToolNames);
+    setLocalStorageArray("tool_ids_" + String(internalId), [], setSelectedTools);
+  };
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
@@ -522,8 +523,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         "size": files[0].size,
         "type": files[0].type,
       };
-      setInput((prevArray) => [...prevArray, fileData]);
+      const updatedFiles = [...input, fileData];
+      setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
     }
+  }
+
+  function checkSelectedToolkit(toolkit) {
+    const toolIds = toolkit.tools.map((tool) => tool.id);
+    const toolNameList = toolkit.tools.map((tool) => tool.name);
+    return toolIds.every((toolId) => selectedTools.includes(toolId)) && toolNameList.every((toolName) => toolNames.includes(toolName));
   }
 
   const handleDrop = (event) => {
@@ -535,7 +543,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const removeFile = (index) => {
     const updatedFiles = input.filter((file) => input.indexOf(file) !== index);
-    setInput(updatedFiles);
+    setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
   };
 
   const ResourceItem = ({ file, index }) => {
@@ -567,6 +575,103 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       ))}
     </div>
   );
+
+  useEffect(() => {
+    const has_resource = localStorage.getItem("has_resource_" + String(internalId));
+    if(has_resource) {
+      setAddResources(JSON.parse(has_resource));
+    }
+
+    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId));
+    if(has_LTM) {
+      setLongTermMemory(JSON.parse(has_LTM));
+    }
+
+    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId));
+    if(advanced_options) {
+      setAdvancedOptions(JSON.parse(advanced_options));
+    }
+
+    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
+    if(agent_name) {
+      setAgentName(agent_name);
+    }
+
+    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
+    if(agent_description) {
+      setAgentDescription(agent_description);
+    }
+
+    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
+    if(agent_goals) {
+      setGoals(JSON.parse(agent_goals));
+    }
+
+    const tool_ids = localStorage.getItem("tool_ids_" + String(internalId));
+    if(tool_ids) {
+      setSelectedTools(JSON.parse(tool_ids));
+    }
+
+    const tool_names = localStorage.getItem("tool_names_" + String(internalId));
+    if(tool_names) {
+      setToolNames(JSON.parse(tool_names));
+    }
+
+    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
+    if(agent_instructions) {
+      setInstructions(JSON.parse(agent_instructions));
+    }
+
+    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
+    if(agent_constraints) {
+      setConstraints(JSON.parse(agent_constraints));
+    }
+
+    const agent_model = localStorage.getItem("agent_model_" + String(internalId));
+    if(agent_model) {
+      setModel(agent_model);
+    }
+
+    const agent_type = localStorage.getItem("agent_type_" + String(internalId));
+    if(agent_type) {
+      setAgentType(agent_type);
+    }
+
+    const agent_rolling_window = localStorage.getItem("agent_rolling_window_" + String(internalId));
+    if(agent_rolling_window) {
+      setRollingWindow(agent_rolling_window);
+    }
+
+    const agent_database = localStorage.getItem("agent_database_" + String(internalId));
+    if(agent_database) {
+      setDatabase(agent_database);
+    }
+
+    const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
+    if(agent_permission) {
+      setPermission(agent_permission);
+    }
+
+    const exit_criterion = localStorage.getItem("agent_exit_criterion_" + String(internalId));
+    if(exit_criterion) {
+      setExitCriterion(exit_criterion);
+    }
+
+    const iterations = localStorage.getItem("agent_iterations_" + String(internalId));
+    if(iterations) {
+      setIterations(Number(iterations));
+    }
+
+    const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
+    if(step_time) {
+      setStepTime(Number(step_time));
+    }
+
+    const agent_files = localStorage.getItem("agent_files_" + String(internalId));
+    if(agent_files) {
+      setInput(JSON.parse(agent_files));
+    }
+  }, [internalId])
 
   return (<>
     <div className="row">
@@ -631,29 +736,48 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Tools</label>
             <div className="dropdown_container_search" style={{width:'100%'}}>
-              <div className="custom_select_container" onClick={() => setToolDropdown(!toolDropdown)} style={{width:'100%'}}>
-                {toolNames && toolNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
-                  {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
+              <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)} style={{width:'100%',alignItems:'flex-start'}}>
+                {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
+                  {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{margin:'2px'}} onClick={preventDefault}>
                     <div className={styles.tool_text}>{tool}</div>
                     <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                   </div>))}
+                  <input type="text" className="dropdown_search_text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)} onClick={(e) => e.stopPropagation()}/>
                 </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                <Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                <div style={{display:'inline-flex'}}>
+                  <Image width={20} height={21} onClick={(e) => clearTools(e)} src='/images/clear_input.svg' alt="clear-input"/>
+                  <Image width={20} height={21} src={!toolkitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
               </div>
               <div>
-                {toolDropdown && <div className="custom_select_options" ref={toolRef} style={{width:'100%'}}>
-                  {tools && tools.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && !excludedTools.includes(tool.name) && <div className="custom_select_option" onClick={() => addTool(tool)}
-                          style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {tool.name}
-                    </div>}
+                {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
+                  {toolkitList && toolkitList.filter((toolkit) => toolkit.tools ? toolkit.tools.some((tool) => tool.name.toLowerCase().includes(searchValue.toLowerCase())) : false).map((toolkit, index) => (<div key={index}>
+                    {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
+                        <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+                            <div onClick={(e) => toggleToolkit(e, toolkit.id)} style={{marginLeft:'-8px',marginRight:'8px'}}>
+                              <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
+                            </div>
+                            <div style={{width:'100%'}}>{toolkit.name}</div>
+                          </div>
+                          {checkSelectedToolkit(toolkit) && <div style={{order:'1',marginLeft:'10px'}}>
+                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
+                          </div>}
+                        </div>
+                        {toolkit.isOpen && toolkit.tools.filter((tool) => tool.name ? tool.name.toLowerCase().includes(searchValue.toLowerCase()) : true).map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 14px 10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div>{tool.name}</div>
+                          {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) && <div style={{order:'1',marginLeft:'10px'}}>
+                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
+                          </div>}
+                        </div>))}
+                      </div>}
                   </div>))}
                 </div>}
               </div>
             </div>
           </div>
           <div style={{marginTop: '15px'}}>
-            <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
+            <button className="medium_toggle" onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
               {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.svg" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.svg" alt="expand-icon"/>}
             </button>
           </div>
@@ -674,20 +798,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
-              {/*</div>*/}
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
-              {/*</div>*/}
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
+                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
                     Add Resources
                   </label>
                 </div>
@@ -757,8 +871,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLongTermMemory(!longTermMemory)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLongTermMemory(!longTermMemory)}>
+                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>
                     Long term memory
                   </label>
                 </div>
@@ -797,22 +911,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
 
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight:'4px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
-              <div style={{display:'inline'}}>
-              <div className="primary_button" style={{backgroundColor:'white', marginBottom:'4px'}}>
-              <button disabled={!createClickable} style={{border:'none',backgroundColor:'white'}} onClick={handleAddAgent}>Create and Run</button>
-              <button onClick={() => setCreateDropdown(!createDropdown)} style={{border:'none',backgroundColor:'white'}}>
-                <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-              </button> 
-              </div>
-              <div>
-                {createDropdown && 
-                <div className="custom_select_option" style={{padding:'12px 14px', maxWidth:'100%', boxShadow:'0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)'}}
-                onClick={() => setCreateModal(true)}>
-                Create and Schedule Run
-                </div>}
-              </div>
-              </div>
+            <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
+            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
           </div>
 
         {createModal && (

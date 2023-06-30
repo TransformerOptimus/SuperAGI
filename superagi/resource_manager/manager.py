@@ -4,7 +4,7 @@ from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
 import os
-
+import csv
 
 class ResourceManager:
     def __init__(self, session: Session, agent_id: int = None):
@@ -57,3 +57,23 @@ class ResourceManager:
             return f"{file_name} - File written successfully"
         except Exception as err:
             return f"Error: {err}"
+
+    def write_csv_file(self, file_name: str, csv_data):
+        if self.agent_id is not None:
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+        else:
+            final_path = ResourceHelper.get_resource_path(file_name)
+
+        try:
+            with open(final_path, mode="w") as file:
+                writer = csv.writer(file, lineterminator="\n")
+                for row in csv_data:
+                    writer.writerows(row)
+            self.write_to_s3(file_name, final_path)
+            logger.info(f"{file_name} - File written successfully")
+            return f"{file_name} - File written successfully"
+        except Exception as err:
+            return f"Error: {err}"
+
+    def get_agent_resource_path(self, file_name: str):
+        return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)

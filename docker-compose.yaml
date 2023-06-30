@@ -12,6 +12,7 @@ services:
   celery:
     volumes:
       - "./:/app"
+      - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
     build:
       context: .
       dockerfile: DockerfileCelery
@@ -28,7 +29,6 @@ services:
       - super_network
     volumes:
       - ./gui:/app
-      - /app/node_modules
       - /app/.next
   super__redis:
     image: "docker.io/library/redis:latest"

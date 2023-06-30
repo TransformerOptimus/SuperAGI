@@ -20,7 +20,7 @@ class ResourceHelper:
         Returns:
             Resource: The Resource object.
         """
-        path = ResourceHelper.get_root_dir()
+        path = ResourceHelper.get_root_output_dir()
         storage_type = get_config("STORAGE_TYPE")
         file_extension = os.path.splitext(file_name)[1][1:]
 
@@ -33,7 +33,7 @@ class ResourceHelper:
 
         if agent_id is not None:
             final_path = ResourceHelper.get_agent_resource_path(file_name, agent_id)
-            path = path + str(agent_id) + "/"
+            path = path.replace("{agent_id}", str(agent_id))
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
@@ -58,13 +58,26 @@ class ResourceHelper:
         Args:
             file_name (str): The name of the file.
         """
-        return ResourceHelper.get_root_dir() + file_name
+        return ResourceHelper.get_root_output_dir() + file_name
 
     @staticmethod
-    def get_root_dir():
+    def get_root_output_dir():
         """Get root dir of the resource.
         """
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+
+        if root_dir is not None:
+            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+        else:
+            root_dir = os.getcwd() + "/"
+        return root_dir
+
+    @staticmethod
+    def get_root_input_dir():
+        """Get root dir of the resource.
+        """
+        root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
 
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
@@ -80,10 +93,10 @@ class ResourceHelper:
         Args:
             file_name (str): The name of the file.
         """
-        root_dir = ResourceHelper.get_root_dir()
-        if agent_id is not None:
-            directory = os.path.dirname(root_dir + str(agent_id) + "/")
+        root_dir = ResourceHelper.get_root_output_dir()
+        if agent_id is not None and "{agent_id}" in root_dir:
+            root_dir = root_dir.replace("{agent_id}", str(agent_id))
+            directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
-            root_dir = root_dir + str(agent_id) + "/"
         final_path = root_dir + file_name
         return final_path

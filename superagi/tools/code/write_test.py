@@ -26,7 +26,7 @@ class WriteTestSchema(BaseModel):
 
 class WriteTestTool(BaseTool):
     """
-    Used to generate pytest unit tests based on the specification.
+    Used to generate unit tests based on the specification.
 
     Attributes:
         llm: LLM used for test generation.
@@ -50,7 +50,6 @@ class WriteTestTool(BaseTool):
     resource_manager: Optional[ResourceManager] = None
     tool_response_manager: Optional[ToolResponseQueryManager] = None
 
-
     class Config:
         arbitrary_types_allowed = True
 
@@ -63,38 +62,50 @@ class WriteTestTool(BaseTool):
             test_file_name: The name of the file where the generated tests will be saved.
 
         Returns:
-            Generated pytest unit tests or error message.
+            Generated unit tests or error message.
         """
-        try:
-            prompt = PromptReader.read_tools_prompt(__file__, "write_test.txt")
-            prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
-            prompt = prompt.replace("{test_description}", test_description)
+        prompt = PromptReader.read_tools_prompt(__file__, "write_test.txt")
+        prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+        prompt = prompt.replace("{test_description}", test_description)
 
-            spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
+        spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
+        if spec_response != "":
+            prompt = prompt.replace("{spec}",
+                                    "Please generate unit tests based on the following specification description:\n" + spec_response)
+        else:
+            spec_response = self.tool_response_manager.get_last_response()
             if spec_response != "":
-                prompt = prompt.replace("{spec}", "Please generate unit tests based on the following specification description:\n" + spec_response)
+                prompt = prompt.replace("{spec}",
+                                        "Please generate unit tests based on the following specification description:\n" + spec_response)
 
-            messages = [{"role": "system", "content": prompt}]
-            logger.info(prompt)
+        messages = [{"role": "system", "content": prompt}]
+        logger.info(prompt)
 
-            total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-            token_limit = TokenCounter.token_limit(self.llm.get_model())
-            result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
-            # Extract the code part using regular expression
-            code = re.search(r'(?<=```).*?(?=```)', result["content"], re.DOTALL)
-            if code:
-                code_content = code.group(0).strip()
-            else:
-                return "Unable to extract code from the response"
+        regex = r"(\S+?)\n```\S*\n(.+?)```"
+        matches = re.finditer(regex, result["content"], re.DOTALL)
 
-            # Save the tests to a file
-            save_result = self.resource_manager.write_file(test_file_name, code_content)
-            if not save_result.startswith("Error"):
-                return result["content"] + " \n Tests generated and saved successfully in " + test_file_name
-            else:
+        file_names = []
+        # Save each file
+
+        for match in matches:
+            # Get the filename
+            file_name = re.sub(r'[<>"|?*]', "", match.group(1))
+            code = match.group(2)
+            if not file_name.strip():
+                continue
+
+            file_names.append(file_name)
+            save_result = self.resource_manager.write_file(file_name, code)
+            if save_result.startswith("Error"):
                 return save_result
 
-        except Exception as e:
-            logger.error(e)
-            return f"Error generating tests: {e}"
+        # Save the tests to a file
+        # save_result = self.resource_manager.write_file(test_file_name, code_content)
+        if not result["content"].startswith("Error"):
+            return result["content"] + " \n Tests generated and saved successfully in " + test_file_name
+        else:
+            return save_result
