@@ -26,16 +26,24 @@ export default function AddTool({internalId}) {
 
     addTool(toolData)
       .then((response) => {
-        toast.success('Tool will be installed in a while', {autoClose: 1800});
-        setAddClickable(true);
-        setLocalStorageValue("tool_github_" + String(internalId), '', setGithubURl);
+        if (response.status === 200) {
+          toast.success('Tool will be installed in a while', { autoClose: 1800 });
+          setAddClickable(true);
+          setLocalStorageValue("tool_github_" + String(internalId), '', setGithubURl);
+        }
       })
       .catch((error) => {
-        console.error('Error adding tool:', error);
-        toast.error(error, {autoClose: 1800});
+        if (error.response && error.response.status === 400) {
+          console.error('Error adding tool:', error);
+          toast.error('Invalid Github URL', { autoClose: 1800 });
+        } else {
+          console.error('Error adding tool:', error);
+          toast.error(error.message, { autoClose: 1800 });
+        }
         setAddClickable(true);
         setLocalStorageValue("tool_github_" + String(internalId), '', setGithubURl);
       });
+
   };
 
   useEffect(() => {
