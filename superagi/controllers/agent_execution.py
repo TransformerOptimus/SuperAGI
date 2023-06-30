@@ -5,10 +5,8 @@ from fastapi_jwt_auth import AuthJWT
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_workflow import AgentWorkflow
-<<<<<<< HEAD
-=======
+
 from superagi.models.agent_schedule import AgentSchedule
->>>>>>> 669bfd46 (made changes according to code review)
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -16,10 +14,8 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
-<<<<<<< HEAD
-=======
+
 from superagi.controllers.types.agent_schedule import AgentScheduler
->>>>>>> 669bfd46 (made changes according to code review)
 
 router = APIRouter()
 
@@ -27,7 +23,7 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
 def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                           Authorize: AuthJWT = Depends(check_auth)):
+                        Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution/run.
 
@@ -57,12 +53,9 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     return db_agent_execution
 
-
-<<<<<<< HEAD
-=======
 @router.post("/schedule", status_code=201)
 def schedule_existing_agent(agent_schedule: AgentScheduler,
-                              Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     
     """
     Schedules an already existing agent.
@@ -98,7 +91,7 @@ def schedule_existing_agent(agent_schedule: AgentScheduler,
 
         db.session.commit()
     else:                      
-         # Schedule the agent
+        # Schedule the agent
         schedule_id = AgentSchedule.schedule_agent(db.session, agent_schedule)
 
     if schedule_id is None:
@@ -108,8 +101,6 @@ def schedule_existing_agent(agent_schedule: AgentScheduler,
         "schedule_id": schedule_id
     }
 
-
->>>>>>> 669bfd46 (made changes according to code review)
 @router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def get_agent_execution(agent_execution_id: int,
                         Authorize: AuthJWT = Depends(check_auth)):
@@ -134,8 +125,8 @@ def get_agent_execution(agent_execution_id: int,
 
 @router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def update_agent_execution(agent_execution_id: int,
-                           agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                           Authorize: AuthJWT = Depends(check_auth)):
+                        agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+                        Authorize: AuthJWT = Depends(check_auth)):
     """Update details of particular agent_execution by agent_execution_id"""
 
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
@@ -165,7 +156,7 @@ def update_agent_execution(agent_execution_id: int,
 
 @router.get("/get/agents/status/{status}")
 def agent_list_by_status(status: str,
-                         Authorize: AuthJWT = Depends(check_auth)):
+                        Authorize: AuthJWT = Depends(check_auth)):
     """Get list of all agent_ids for a given status"""
 
     running_agent_ids = db.session.query(AgentExecution.agent_id).filter(
@@ -188,7 +179,7 @@ def list_running_agents(agent_id: str,
 
 @router.get("/get/latest/agent/project/{project_id}")
 def get_agent_by_latest_execution(project_id: int,
-                                  Authorize: AuthJWT = Depends(check_auth)):
+                                Authorize: AuthJWT = Depends(check_auth)):
     """Get latest executing agent details"""
 
     latest_execution = (
