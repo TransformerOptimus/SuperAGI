@@ -3,6 +3,7 @@ import Image from "next/image";
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 import 'react-toastify/dist/ReactToastify.css';
+import {createInternalId} from "@/utils/utils";
 
 export default function Toolkits({ sendToolkitData, toolkits }) {
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
@@ -14,7 +15,7 @@ export default function Toolkits({ sendToolkitData, toolkits }) {
           <p className={styles1.title_text}>Toolkits</p>
         </div>
         <div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'4px'}}>
-          <button style={{width:'100%'}} className="secondary_button">
+          <button style={{width:'100%'}} className="secondary_button" onClick={() => sendToolkitData({ id: -2, name: "new toolkit", contentType: "Add_Toolkit", internalId: createInternalId() })}>
             + Add Toolkit
           </button>
         </div>
