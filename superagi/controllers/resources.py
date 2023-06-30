@@ -208,7 +208,7 @@ def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resour
     except Exception as e:
         logger.error(e)
     t1_stop = perf_counter()
-    print("file to vector store:", t1_stop-t1_start)
+    logger.info("file to vector store:"+str(t1_stop-t1_start))
     summary = None
     try:
         documents = create_llama_document(file_path)
@@ -217,7 +217,7 @@ def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resour
         logger.error(e)
     t1_start = perf_counter()
     t1_stop = perf_counter()
-    print("summary:", t1_stop-t1_start)
+    logger.info("summary: "+str(t1_stop-t1_start))
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     resource.summary = summary
     db.session.commit()
