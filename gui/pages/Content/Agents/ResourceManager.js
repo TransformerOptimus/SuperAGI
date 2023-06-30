@@ -4,7 +4,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, downloadFile} from "@/utils/utils";
+import {formatBytes, downloadFile, downloadAllFiles} from "@/utils/utils";
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -103,7 +103,7 @@ export default function ResourceManager({agentId}) {
     const isIMG = file.type.includes('image');
 
     return (
-      <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
+      <div onClick={() => downloadFile(file.id, file.name)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
           {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
           {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
@@ -134,16 +134,25 @@ export default function ResourceManager({agentId}) {
 
   return (<>
     <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
-      <div style={{display:'flex',overflowX:'scroll'}}>
-        <div>
-          <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
-            Input
-          </button>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%'}}>
+        <div style={{display:'flex',order:0}}>
+          <div>
+            <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
+              Input
+            </button>
+          </div>
+          <div>
+            <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
+              Output
+            </button>
+          </div>
         </div>
-        <div>
-          <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
-            Output
-          </button>
+        <div style={{order:1}}>
+          {channel === 'output' && output.length > 0 && (
+            <button onClick={() => downloadAllFiles(output)} className={styles.tab_button} style={{background:'transparent',padding:'5px 10px',height:'30px',color:'#888888'}}>
+              <Image src="/images/download_icon.svg" width={20} height={20} alt="download-icon"/>&nbsp;Download
+            </button>
+          )}
         </div>
       </div>
     </div>

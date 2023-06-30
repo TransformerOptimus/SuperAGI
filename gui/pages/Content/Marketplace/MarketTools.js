@@ -45,7 +45,7 @@ export default function MarketTools(){
   }
 
   return (
-      <div style={showMarketplace ? { marginLeft:'8px',marginRight:'8px' } : { marginLeft:'3px' }}>
+      <div style={showMarketplace ? { marginLeft:'8px'} : { marginLeft:'3px' }}>
         <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
           {!isLoading ? <div>
             {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item, index) => (
