@@ -4,8 +4,19 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
+import {
+  formatBytes,
+  openNewTab,
+  removeTab,
+  setLocalStorageValue,
+  setLocalStorageArray,
+  getUserTimezone
+} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import moment from 'moment';
+import 'moment-timezone';
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
@@ -75,6 +86,69 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
+  const [timeValue, setTimeValue] = useState("");
+  const [expiryRuns, setExpiryRuns] = useState(null);
+  const [createDropdown, setCreateDropdown] = useState(false);	
+  const [createModal, setCreateModal] = useState(false);	
+  const [isRecurring, setIsRecurring] = useState(false);	
+  const [timeDropdown, setTimeDropdown] = useState(false);	
+  const [expiryDropdown, setExpiryDropdown] = useState(false);	
+  const [selectedDateTime, setSelectedDateTime] = useState(null);	
+  const [selectedTime, setSelectedTime] = useState(null);	
+  const [gmtDateTime, setgmtDateTime] = useState(null);	
+  const [gmtTime, setGmtTime] = useState(null);	
+  const timezn = ['Days', 'Hours', 'Minutes']
+  const expiryArray = ['Specific Date', 'After certain number of runs', 'No expiry']
+  const [time, setTime] = useState(timezn[1]);	
+  const [expiry, setExpiry] = useState(expiryArray[1]);
+  const timeRef = useRef(null);	
+  const expiryRef = useRef(null);
+ 	
+  const handleDateTimeChange = (momentObj) => {	
+    setSelectedDateTime(momentObj);	
+    const gmtDateTime = convertToGMT(momentObj);	
+    setgmtDateTime(gmtDateTime);	
+    console.log(gmtDateTime);	
+  };	
+  const handleTimeChange = (momentObj) => {	
+    setSelectedTime(momentObj);	
+    const gmtTime = convertToGMT(momentObj);	
+    setGmtTime(gmtTime);	
+    console.log(gmtTime);	
+  };	
+  const toggleRecurring = () => {	
+    setIsRecurring(!isRecurring);	
+  };
+  const closeCreateModal = () => {	
+    // setRunName("New Run");	
+    setCreateModal(false);	
+  };
+  const convertToGMT = (dateTime) => {	
+    if (!dateTime) return null; // Handle empty case	
+  	
+    const gmtDateTime = moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');	
+  	
+    return gmtDateTime;	
+  };
+  const handleTimeSelect = (index) => {	
+    setTime(timezn[index]);	
+    setTimeDropdown(false);	
+  }	
+  const handleExpirySelect = (index) => {	
+    setExpiry(expiryArray[index]);	
+    setExpiryDropdown(false);	
+  }
+  const handleDateChange = (event) => {	
+    setTimeValue(event.target.value);	
+  };	
+  const handleExpiryRuns = (event) => {	
+    setExpiryRuns(event.target.value);	
+  };
+
+
+
+
+
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
       .then((response) => {
@@ -134,6 +208,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     function handleClickOutside(event) {
+      if(timeRef.current && !timeRef.current.contains(event.target))	
+      {	
+        setTimeDropdown(false)	
+      }	
+      if(expiryRef.current && !expiryRef.current.contains(event.target))	
+      {	
+        setExpiryDropdown(false);	
+      }
+
       if (modelRef.current && !modelRef.current.contains(event.target)) {
         setModelDropdown(false)
       }
@@ -376,7 +459,31 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "memory_window": rollingWindow
     };
 
-    createAgent(agentData)
+    const scheduleAgentData = {
+      "name": agentName,
+      "project_id": selectedProjectId,
+      "description": agentDescription,
+      "goal": goals,
+      "instruction":instructions,
+      "agent_type": agentType,
+      "constraints": constraints,
+      "toolkits": [],
+      "tools": selectedTools,
+      "exit": exitCriterion,
+      "iteration_interval": stepTime,
+      "model": model,
+      "max_iterations": maxIterations,
+      "permission_type": permission_type,
+      "LTM_DB": longTermMemory ? database : null,
+      "memory_window": rollingWindow,
+      "user_timezone": getUserTimezone(),	
+      "start_time": gmtTime,	
+      "recurrence_interval": timeValue + time,
+      "expiry_date": gmtDateTime,	
+      "expiry_runs": expiryRuns,
+    }	
+   
+    createAgent(createModal? scheduleAgentData:agentData,createModal)
       .then((response) => {
         const agent_id = response.data.id;
         fetchAgents();
@@ -842,8 +949,103 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
-            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+            <div style={{display:'inline'}}>
+              <div className="primary_button" style={{backgroundColor:'white', marginBottom:'4px'}}>
+                <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+                <button onClick={() => setCreateDropdown(!createDropdown)} style={{border:'none',backgroundColor:'white'}}>
+                  <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </button>
+              </div>	
+              <div>	
+                {createDropdown && <div className="custom_select_option" style={{padding:'12px 14px', maxWidth:'100%', boxShadow:'0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)'}}
+                onClick={() => setCreateModal(true)}>Create and Schedule Run
+                </div>}	
+              </div>	
+            </div>
           </div>
+
+          {createModal && (
+        <div className="modal" onClick={closeCreateModal}>
+          <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+            <div className={styles.detail_name}>Schedule Run</div>
+
+            <div style={{marginBottom:'20px'}}>
+              <label className={styles.form_label}>Select a date and time</label>
+              <div >
+              <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+              </div>          
+              </div>
+             
+            <div style={{marginBottom:'20px'}}>
+            <input type="checkbox" className="checkbox" checked={isRecurring} onChange={toggleRecurring} style={{ marginRight: '5px'}}/>
+            <label className={styles.form_label}>Recurring run</label>
+            </div>
+
+            {isRecurring && (<div>
+            <div style={{color:"white", marginBottom:'20px'}}>Recurring run details</div>
+            <label className={styles.form_label}>Repeat every</label>
+
+            <div style={{display:'flex',marginBottom:'20px'}}>
+              <div style={{width:'70%', marginRight:'5px'}}>
+                <input className="input_medium" type="text" value={timeValue} onChange={handleDateChange} placeholder='Enter here'/>
+              </div>
+              <div style={{width:'30%'}} >
+                <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
+                {time}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
+                <div>
+                {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
+                {timezn.map((time, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {time}
+                </div>))}
+                </div>} 
+                </div>
+              </div>
+              </div>
+
+            <label className={styles.form_label}>Recurring expiry</label>
+            <div>
+            <div style={{display:'inline'}}>
+              <div style={{width:'100%', marginRight:'5px'}}>
+              <div className="custom_select_container" onClick={() => setExpiryDropdown(!expiryDropdown)} style={{width:'100%'}}>
+                {expiry}<Image width={20} height={21} src={!expiryDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
+                <div>
+                {expiryDropdown && <div className="custom_select_options" ref={expiryRef} style={{width:'30%'}}>
+                {expiryArray.map((expiry, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {expiry}
+                </div>))}
+                </div>} 
+                </div>
+              </div>
+
+              {expiry==='After certain number of runs' && (
+                <div style={{width:'100%', marginTop:'10px'}}>
+                  <input className="input_medium" type="text" value={expiryRuns} onChange={handleExpiryRuns} placeholder="Enter the number of runs" />
+                </div>
+              )}
+
+              {expiry==='Specific Date' && (
+                <div style={{width:'100%', marginTop:'10px'}}>
+                  {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
+                  <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                </div>
+              )}
+            </div>
+            </div>
+            </div>)}
+
+            <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
+              <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
+                Cancel
+              </button>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={handleAddAgent}>
+                Create and Schedule Run
+              </button>
+            </div>
+          </div>
+        </div>)}
+
         </div>
       </div>
       <div className="col-3"></div>
