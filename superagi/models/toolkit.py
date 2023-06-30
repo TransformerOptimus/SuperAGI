@@ -112,8 +112,8 @@ class Toolkit(DBBaseModel):
             return None
 
     @staticmethod
-    def get_toolkit_from_name(session, toolkit_name):
-        toolkit = session.query(Toolkit).filter_by(name=toolkit_name).first()
+    def get_toolkit_from_name(session, toolkit_name, organisation):
+        toolkit = session.query(Toolkit).filter_by(name=toolkit_name, organisation_id=organisation.id).first()
         if toolkit:
             return toolkit
         return None

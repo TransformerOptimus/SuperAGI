@@ -19,7 +19,7 @@ export default function EachTool({template, env}) {
         setInstalled(template && template.is_installed ? 'Installed' : 'Install');
         if (window.location.href.toLowerCase().includes('marketplace')) {
             setInstalled('Sign in to install');
-            axios.get(`https://app.superagi.com/api/toolkits/marketplace/details/${template.name}`)
+            axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${template.name}`)
               .then((response) => {
                   const data = response.data || [];
                   setMarkdownContent(data);
