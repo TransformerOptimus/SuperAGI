@@ -20,7 +20,7 @@ export default function MarketplacePublic({env}) {
             <div className={styles.topbar_heading}>&nbsp;marketplace</div>
          </div>
          <div className={styles.marketplace_public_button}>
-             <button className="primary_button" onClick={handleSignupClick}>Try for free today!</button>
+             <button className="primary_button" onClick={handleSignupClick}>Sign Up</button>
          </div>
      </div>
       <div className={styles.marketplace_public_content}>
