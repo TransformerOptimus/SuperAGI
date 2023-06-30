@@ -109,8 +109,6 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
         print(e)
     if vector_store_name.lower() == "redis":
         vector_store.persist(persist_path="")
-    if vector_store is None:
-        index.storage_context.persist(persist_dir="workspace/index")
 
 
 def generate_summary_of_document(documents: list[llama_index.Document], openai_api_key: str = None):
