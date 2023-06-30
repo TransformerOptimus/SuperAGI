@@ -27,6 +27,7 @@ cssselect==1.2.0
 chromadb==0.3.26
 dataclasses-json==0.5.7
 defusedxml==0.7.1
+docx2txt==0.8
 dnspython==2.3.0
 email-validator==2.0.0.post2
 exceptiongroup==1.1.1
@@ -146,3 +147,7 @@ pytest-cov==4.1.0
 pytest-mock==3.11.1
 transformers==4.30.2
 pypdf==3.11.0
+python-pptx==0.6.21
+Pillow==9.5.0
+EbookLib==0.18
+html2text==2020.1.16
