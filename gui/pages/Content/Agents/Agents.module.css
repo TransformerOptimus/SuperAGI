@@ -76,7 +76,7 @@
 }
 
 .form_label {
-    font-size: 13px;
+    font-size: 14px;
     margin-bottom: 4px;
     font-weight: 500;
     color: #888888;
@@ -268,7 +268,7 @@
     font-size: 16px;
     line-height: 19px;
     color: #FFFFFF;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .separator {
@@ -358,5 +358,62 @@
     color: #FFFFFF;
     margin-top: 2px;
 }
+
+.rdtPicker input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px 8px 14px;
+    gap: 4px;
+    border-radius: 8px;
+    width: 100%;
+    height: 32px;
+    background: #3B3B49;
+    border: 1px solid #4A4A55;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    transition: 0.2s;
+    color: white;
+}
+
+.rdtPicker input:focus {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px 8px 14px;
+    gap: 4px;
+    border-radius: 8px;
+    width: 100%;
+    height: 32px;
+    background: #3B3B49;
+    border: 1px solid #4A4A55;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    transition: 0.2s;
+    color: white;
+    outline: none;
+  }
+
+/* .rdtPicker {
+    background-color: rgba(255, 255, 255, 0.08);
+    color:white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  } 
+  
+  .rdtPicker table td {
+    background-color: rgba(255, 255, 255, 0.08);
+    color:white;
+    padding: 5px;
+  } 
+
+  .rdtPicker table {
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 5px;
+  } */
+  
 
 

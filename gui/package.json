@@ -13,12 +13,19 @@
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "date-fns": "^2.30.0",
-    "eslint": "8.40.0",
-    "eslint-config-next": "13.4.2",
+    "datetime": "^0.0.3",
+    "eslint": "^8.43.0",
+    "eslint-config-next": "^13.4.7",
     "mitt": "^3.0.0",
+    "moment-timezone": "^0.5.43",
     "next": "13.4.2",
     "react": "18.2.0",
+    "react-datepicker": "^4.14.1",
+    "react-datetime": "^3.2.0",
     "react-dom": "18.2.0",
-    "react-toastify": "^9.1.3"
+    "react-markdown": "^8.0.7",
+    "react-time-picker": "^6.2.0",
+    "react-toastify": "^9.1.3",
+    "timepicker": "^1.14.0"
   }
 }

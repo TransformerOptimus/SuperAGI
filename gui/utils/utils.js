@@ -1,5 +1,4 @@
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import {baseUrl} from "@/pages/api/apiConfig";
 
 export const formatTime = (lastExecutionTime) => {
   try {
@@ -8,22 +7,25 @@ export const formatTime = (lastExecutionTime) => {
       throw new Error('Invalid time value');
     }
 
-    // Convert to Indian time
-    const indianTime = parsedTime.toLocaleString('en-IN', {
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istTime = new Date(parsedTime.getTime() + istOffset);
+
+    const formattedTime = formatDistanceToNow(istTime, {
+      addSuffix: true,
+      includeSeconds: true,
+    }).replace(/about\s/, '');
+
+    const indianTime = istTime.toLocaleString('en-IN', {
       timeZone: 'Asia/Kolkata',
       hour12: true,
     });
 
-    return formatDistanceToNow(parsedTime, {
-      addSuffix: true,
-      includeSeconds: true,
-    }).replace(/about\s/, '') + ' (' + indianTime + ')';
+    return `${formattedTime}`;
   } catch (error) {
     console.error('Error formatting time:', error);
     return 'Invalid Time';
   }
 };
-
 
 
 export const formatNumber = (number) => {

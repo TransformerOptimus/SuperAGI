@@ -12,6 +12,7 @@ import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, saveAgentAsTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
+
 export default function AgentWorkspace({agentId, selectedView}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
@@ -220,6 +221,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
+                <li className="dropdown_item">Schedule Run</li>
               </ul>
             </div>}
           </div>
