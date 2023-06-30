@@ -86,7 +86,7 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     vector_store = None
     storage_context = None
     vector_store_name = get_config("RESOURCE_VECTOR_STORE") or "Redis"
-    vector_store_index_name = get_config("resource_vector_store_index_name") or "super-agent-index"
+    vector_store_index_name = get_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
     try:
         print(vector_store_name, vector_store_index_name)
         vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))

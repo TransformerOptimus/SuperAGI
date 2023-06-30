@@ -3,6 +3,8 @@ from typing import Type
 
 from langchain.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field
+
+from superagi.controllers.tool_config import get_tool_config
 from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
 import openai
@@ -37,8 +39,8 @@ class QueryResourceTool(BaseTool):
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
-        vector_store_name = get_config("RESOURCE_VECTOR_STORE") or "Redis"
-        vector_store_index_name = get_config("resource_vector_store_index_name") or "super-agent-index"
+        vector_store_name = get_tool_config("RESOURCE_VECTOR_STORE") or "Redis"
+        vector_store_index_name = get_tool_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
         print("vector_store_name", vector_store_name)
         print("vector_store_index_name", vector_store_index_name)
         vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
