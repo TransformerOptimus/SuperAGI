@@ -82,8 +82,8 @@ body:
     attributes:
       label: Do you use OpenAI GPT-3.5 or GPT-3.5-Turbo-16k or GPT-4 or GPT-4-32k?
       description: >
-        # If you are using SuperAGI with GPT-3.5, your problems may be caused by
-        # the [limitations]() of GPT-3.5.
+        If you are using SuperAGI with GPT-3.5, your problems may be caused by
+        the limitations of GPT-3.5 like incorrect Tool selection thus causing looping in the agent feed.
       options:
         - GPT-3.5
         - GPT-3.5(16k)
