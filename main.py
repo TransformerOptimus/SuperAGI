@@ -41,10 +41,12 @@ from superagi.controllers.user import router as user_router
 from superagi.helper.tool_helper import register_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
+from superagi.helper.auth import get_current_user
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
+from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
@@ -441,12 +443,8 @@ def get_twitter_tool_configs(toolkit_id: int):
 def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()):
     Session = sessionmaker(bind=engine)
     session = Session()
-    try:
-        Authorize.jwt_required()
-        current_user_email = Authorize.get_jwt_subject()
-        current_user = session.query(User).filter(User.email == current_user_email).first()
-    except:
-        current_user = session.query(User).filter(User.email == "super6@agi.com").first()
+    current_user = get_current_user
+    toolkit = session.query(Toolkit).filter(Toolkit.id == credentials["toolkit_id"]).first()
     user_id = current_user.id
     credentials = json.loads(twitter_creds)
     credentials["user_id"] = user_id
@@ -458,7 +456,7 @@ def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()
         "oauth_token": credentials["oauth_token"],
         "oauth_token_secret": credentials["oauth_token_secret"]
     }
-    tokens = OauthTokens.add_or_update(session,credentials["toolkit_id"], current_user.id, "TWITTER_OAUTH_TOKENS", str(final_creds))
+    tokens = OauthTokens.add_or_update(session,credentials["toolkit_id"], current_user.id, toolkit.organisation_id, "TWITTER_OAUTH_TOKENS", str(final_creds))
     if tokens:
         success = True
     else:

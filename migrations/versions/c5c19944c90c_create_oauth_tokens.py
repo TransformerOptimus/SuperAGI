@@ -1,8 +1,8 @@
-"""Table for oauth tokens
+"""Create Oauth Tokens
 
-Revision ID: cc1dcc508611
+Revision ID: c5c19944c90c
 Revises: 7a3e336c0fba
-Create Date: 2023-06-29 07:57:22.861763
+Create Date: 2023-06-30 07:26:29.180784
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cc1dcc508611'
+revision = 'c5c19944c90c'
 down_revision = '7a3e336c0fba'
 branch_labels = None
 depends_on = None
@@ -23,6 +23,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('organisation_id', sa.Integer(), nullable=True),
     sa.Column('toolkit_id', sa.Integer(), nullable=True),
     sa.Column('key', sa.String(), nullable=True),
     sa.Column('value', sa.Text(), nullable=True),
