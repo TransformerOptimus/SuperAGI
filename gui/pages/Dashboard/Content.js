@@ -11,6 +11,7 @@ import {getAgents, getToolKit, getLastActiveAgent} from "@/pages/api/DashboardSe
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import {createInternalId, removeInternalId} from "@/utils/utils";
+import AddToolkit from "@/pages/Content/Toolkits/AddToolkit";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -100,7 +101,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
 
     const isExistingTab = tabs.some(
-      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && element.contentType !== 'Create_Agent'
+      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !['Create_Agent', 'Add_Toolkit'].includes(element.contentType)
     );
 
     if (!isExistingTab) {
@@ -185,7 +186,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     <div style={{display:'flex',height:'100%'}}>
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-        {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+        {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
       </div>
 
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -195,6 +196,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
               <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent", internalId: createInternalId() })} className={styles.empty_state_button}>Create new agent</button>
             </div>
+            {env === 'PROD' && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
+              <button onClick={() => addTab({ id: -2, name: "new tool", contentType: "Add_Toolkit", internalId: createInternalId() })} className={styles.empty_state_button}>Add new tool</button>
+            </div>}
             {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button onClick={getLastActive} className={styles.empty_state_button}>View last active agent</button>
             </div>}
@@ -207,7 +211,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {selectTab(tab, index)}}>
                 <div style={{display:'flex', order:'0'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
-                  {(tab.contentType === 'ToolKits' || tab.contentType === 'Create_Tool') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
+                  {(tab.contentType === 'ToolKits' || tab.contentType === 'Add_Toolkit') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
@@ -226,6 +230,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
+                  {tab.contentType === 'Add_Toolkit' && <AddToolkit internalId={tab.internalId || index}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
