@@ -11,7 +11,6 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
-=======
 import json
 from datetime import datetime
 
@@ -27,7 +26,6 @@ from sqlalchemy import func
 import superagi.worker
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
->>>>>>> 669bfd46 (made changes according to code review)
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_schedule import AgentSchedule
@@ -42,7 +40,6 @@ from datetime import datetime
 import json
 from sqlalchemy import func
 from superagi.helper.auth import check_auth, get_user_organisation
-=======
 from superagi.controllers.types.agent_schedule import AgentScheduler
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
@@ -185,9 +182,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
-<<<<<<< HEAD
     db.session.add(execution)
-=======
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
@@ -260,19 +255,15 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     if not agent_to_delete:
         raise HTTPException(status_code=404, detail="Schedule not found")
     agent_to_delete.status = "STOPPED"
->>>>>>> 669bfd46 (made changes according to code review)
     db.session.commit()
     execute_agent.delay(execution.id, datetime.now())
 
-<<<<<<< HEAD
     return {
         "id": db_agent.id,
         "execution_id": execution.id,
         "name": db_agent.name,
         "contentType": "Agents"
     }
-
-=======
 
 @router.put("/edit/schedule", status_code=200)
 def edit_schedule(schedule: AgentScheduler,
@@ -331,8 +322,6 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     return response_data
 
->>>>>>> 669bfd46 (made changes according to code review)
-
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
@@ -369,11 +358,9 @@ def get_agents_by_project_id(project_id: int,
             if execution.status == "RUNNING":
                 isRunning = True
                 break
-<<<<<<< HEAD
         new_agent = {
             **agent_dict,
             'status': isRunning
-=======
         # Check if the agent is scheduled
         is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
                                                                   status="RUNNING").first() is not None
@@ -382,7 +369,6 @@ def get_agents_by_project_id(project_id: int,
             **agent_dict,
             'status': isRunning,
             'is_scheduled': is_scheduled
->>>>>>> 669bfd46 (made changes according to code review)
         }
         new_agents.append(new_agent)
     return new_agents
