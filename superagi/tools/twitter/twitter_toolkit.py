@@ -4,7 +4,7 @@ from typing import Type, List
 from superagi.tools.twitter.send_tweets import SendTweetsTool
 
 
-class TwitterToolKit(BaseToolkit, ABC):
+class TwitterToolkit(BaseToolkit, ABC):
     name: str = "Twitter Toolkit"
     description: str = "Twitter Tool kit contains all tools related to Twitter"
 
