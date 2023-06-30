@@ -1,4 +1,3 @@
-
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
@@ -54,20 +53,6 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
                 Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
-
-        Args:
-            agent (Agent): An object representing the Agent to be created.
-                Contains the following attributes:
-                - name (str): Name of the Agent
-                - project_id (int): Identifier of the associated project
-                - description (str): Description of the Agent
-                - agent_workflow_id (int): Identifier of the Agent Workflow in use
-
-        Returns:
-            Agent: An object of Agent representing the created Agent.
-
-        Raises:
-            HTTPException (Status Code=404): If the associated project is not found.
     """
 
     project = db.session.query(Project).get(agent.project_id)
@@ -86,15 +71,6 @@ def get_agent(agent_id: int,
             Authorize: AuthJWT = Depends(check_auth)):
     """
         Get an Agent by ID
-
-        Args:
-            agent_id (int): Identifier of the Agent to retrieve
-
-        Returns:
-            Agent: An object of Agent representing the retrieved Agent.
-
-        Raises:
-            HTTPException (Status Code=404): If the Agent is not found.
     """
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
@@ -108,21 +84,6 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
                 Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent
-
-        Args:
-            agent_id (int): Identifier of the Agent to update
-            agent (Agent):  Updated Agent data
-                Contains the following attributes:
-                - name (str): Name of the Agent
-                - project_id (int): Identifier of the associated project
-                - description (str): Description of the Agent
-                - agent_workflow_id (int): Identifier of the Agent Workflow in use
-
-        Returns:
-            Agent: An object of Agent representing the updated Agent.
-
-        Raises:
-            HTTPException (Status Code=404): If the Agent or associated Project is not found.
     """
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
