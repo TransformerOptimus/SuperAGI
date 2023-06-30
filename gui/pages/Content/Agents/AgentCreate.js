@@ -950,17 +950,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
             <div style={{display:'inline'}}>
-              <div className="primary_button" style={{backgroundColor:'white', marginBottom:'4px'}}>
-                <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+              <div className="primary_button" style={{backgroundColor:'white', marginBottom:'4px', paddingLeft:'0', paddingRight:'5px'}}>
+                <button disabled={!createClickable} className="primary_button" style={{paddingRight:'5px'}} onClick={handleAddAgent}>Create and Run</button>
                 <button onClick={() => setCreateDropdown(!createDropdown)} style={{border:'none',backgroundColor:'white'}}>
                   <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                 </button>
-              </div>	
-              <div>	
-                {createDropdown && <div className="custom_select_option" style={{padding:'12px 14px', maxWidth:'100%', boxShadow:'0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)'}}
-                onClick={() => setCreateModal(true)}>Create and Schedule Run
-                </div>}	
-              </div>	
+              </div>
+              {createDropdown && <div className="custom_select_option" style={{padding:'12px 14px', maxWidth:'100%', boxShadow:'0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)'}}
+                  onClick={() => setCreateModal(true)}>Create & Schedule Run
+              </div>}
             </div>
           </div>
 
@@ -968,23 +966,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             <div className="modal" onClick={closeCreateModal}>
               <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
                 <div className={styles.detail_name}>Schedule Run</div>
-
-                <div style={{marginBottom:'20px'}}>
+                <div>
                   <label className={styles.form_label}>Select a date and time</label>
-                    <div>
-                      <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
-                    </div>
+                  <div>
+                    <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                  </div>
                 </div>
-
-                <div style={{marginBottom:'20px'}}>
-                  <input type="checkbox" className="checkbox" checked={isRecurring} onChange={toggleRecurring} style={{ marginRight: '5px'}}/>
-                  <label className={styles.form_label}>Recurring run</label>
+                <div style={{display:'flex',marginTop:'20px'}}>
+                  <input className="checkbox" type="checkbox" checked={isRecurring} onChange={toggleRecurring} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={toggleRecurring}>
+                    Recurring run
+                  </label>
                 </div>
-
-                {isRecurring && (<div>
+                {isRecurring && (<div style={{marginTop:'20px'}}>
                   <div style={{color:"white", marginBottom:'20px'}}>Recurring run details</div>
-                  <label className={styles.form_label}>Repeat every</label>
 
+                  <label className={styles.form_label}>Repeat every</label>
                   <div style={{display:'flex',marginBottom:'20px'}}>
                     <div style={{width:'70%', marginRight:'5px'}}>
                       <input className="input_medium" type="text" value={timeValue} onChange={handleDateChange} placeholder='Enter here'/>
