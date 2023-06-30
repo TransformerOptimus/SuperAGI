@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 
 from superagi.models.base_model import DBBaseModel
+from fastapi import HTTPException
 
 
 # from pydantic import BaseModel
@@ -100,3 +101,11 @@ class Tool(DBBaseModel):
 
         tools = db.session.query(Tool).filter(Tool.id.in_(tool_ids)).all()
         return [str(tool.name) for tool in tools]
+    
+    @staticmethod
+    def is_tool_id_valid(agent_with_config, session):
+        for tool_id in agent_with_config.tools:
+            tool = session.query(Tool).get(tool_id)
+            if tool is None:
+                # Tool does not exist, throw 404 or handle as desired
+                raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")

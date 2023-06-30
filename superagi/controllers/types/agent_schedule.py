@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-class AgentScheduleCreate(BaseModel):
+class AgentScheduler(BaseModel):
     agent_id: Optional[int]
     start_time: datetime
     recurrence_interval: Optional[str] = None

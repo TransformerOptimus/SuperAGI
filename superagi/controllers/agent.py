@@ -1,29 +1,28 @@
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
-from fastapi_jwt_auth import AuthJWT
-from superagi.models.agent import Agent
-from superagi.models.agent_scheduler import AgentScheduler
-from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.project import Project
-from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+import json
+from datetime import datetime
 
-from superagi.models.agent_workflow import AgentWorkflow
-from superagi.models.types.agent_with_config import AgentWithConfig
-from superagi.models.types.agent_schedule import AgentScheduleCreate
-from superagi.models.types.agent_with_config_schedule import AgentWithConfigSchedule
+from fastapi import APIRouter
+from fastapi import HTTPException, Depends
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+from jsonmerge import merge
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pytz import timezone
+from sqlalchemy import func
+
+import superagi.worker
+from superagi.helper.auth import check_auth
+from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.models.agent_schedule import AgentSchedule
+from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.project import Project
 from superagi.models.tool import Tool
-from jsonmerge import merge
-from pytz import timezone
-import superagi.worker 
-from datetime import datetime
-import json
-from sqlalchemy import func
-from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.controllers.types.agent_schedule import AgentScheduler
+from superagi.models.types.agent_with_config import AgentWithConfig
+from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
 
 router = APIRouter()
 
@@ -123,7 +122,6 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentWithConfig,
-                             should_execute: bool = True,
                              Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations.
@@ -153,77 +151,36 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
         HTTPException (status_code=404): If the associated project or any of the tools is not found.
     """
 
-    # Checking for project
-    project = db.session.query(Project).get(agent_with_config.project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    for tool_id in agent_with_config.tools:
-        tool = db.session.query(Tool).get(tool_id)
-        if tool is None:
-            # Tool does not exist, throw 404 or handle as desired
-            raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
-
+    Project.get_project_from_project_id(agent_with_config, db.session)
+    Tool.is_tool_id_valid(agent_with_config, db.session)
     agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
                                                                          agent_with_config=agent_with_config)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
-    # Only create AgentExecution if should_execute is True
-    if should_execute:
-        start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-        execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                                   name="New Run", current_step_id=start_step_id)
+    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
+    execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
+                               name="New Run", current_step_id=start_step_id)
 
-        db.session.add(execution)
-        db.session.commit()
-        superagi.worker.execute_agent.delay(execution.id, datetime.now())
+    db.session.add(execution)
+    db.session.commit()
+    superagi.worker.execute_agent.delay(execution.id, datetime.now())
 
-        return {
-            "id": db_agent.id,
-            "execution_id": execution.id,
-            "name": db_agent.name,
-            "contentType": "Agents"
-        }
-    
-    else:  # Return agent data without execution details
-        return {
-            "id": db_agent.id,
-            "name": db_agent.name,
-            "contentType": "Agents"
-        }
-    
-
+    return {
+        "id": db_agent.id,
+        "execution_id": execution.id,
+        "name": db_agent.name,
+        "contentType": "Agents"
+    }
 
 @router.post("/schedule", status_code=201)
 def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSchedule,
-                              exclude=["agent_id"], Authorize: AuthJWT = Depends(check_auth)):
-    
+                              Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations and scheduling.
 
     Args:
         agent_with_config_schedule (AgentWithConfigSchedule): Data for creating a new agent with configurations and scheduling.
-            - name (str): Name of the agent.
-            - project_id (int): Identifier of the associated project.
-            - description (str): Description of the agent.
-            - goal (List[str]): List of goals for the agent.
-            - agent_type (str): Type of the agent.
-            - constraints (List[str]): List of constraints for the agent.
-            - tools (List[int]): List of tool identifiers associated with the agent.
-            - exit (str): Exit condition for the agent.
-            - iteration_interval (int): Interval between iterations for the agent.
-            - model (str): Model information for the agent.
-            - permission_type (str): Permission type for the agent.
-            - LTM_DB (str): LTM database for the agent.
-            - memory_window (int): Memory window size for the agent.
-            - max_iterations (int): Maximum number of iterations for the agent.
-            - user_timezone (string): Timezone of the user
-            - start_time (DateTime): The date and time from which the agent is scheduled.
-            - recurrence_interval (String): Stores None if not recurring, 
-                or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
-            - expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
-            - expiry_runs (Integer): The number of runs before the agent expires.
 
     Returns:
         dict: Dictionary containing the created agent's ID, name, content type and schedule ID of the agent.
@@ -231,54 +188,32 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
     Raises:
         HTTPException (status_code=500): If the associated agent fails to get scheduled.
     """
-    agent = AgentWithConfig(
-        name=agent_with_config_and_schedule.name,
-        project_id=agent_with_config_and_schedule.project_id,
-        description=agent_with_config_and_schedule.description,
-        goal=agent_with_config_and_schedule.goal,
-        instruction=agent_with_config_and_schedule.instruction,
-        agent_type=agent_with_config_and_schedule.agent_type,
-        constraints=agent_with_config_and_schedule.constraints,
-        toolkits=agent_with_config_and_schedule.toolkits,
-        tools=agent_with_config_and_schedule.tools,
-        exit=agent_with_config_and_schedule.exit,
-        iteration_interval=agent_with_config_and_schedule.iteration_interval,
-        model=agent_with_config_and_schedule.model,
-        permission_type=agent_with_config_and_schedule.permission_type,
-        LTM_DB=agent_with_config_and_schedule.LTM_DB,
-        memory_window=agent_with_config_and_schedule.memory_window,
-        max_iterations=agent_with_config_and_schedule.max_iterations,
-        user_timezone= agent_with_config_and_schedule.user_timezone
-    )
-
-    # First, create the agent with config but do not execute it
-    agent_data = create_agent_with_config(agent, should_execute=False)
-    agent_id = agent_data["id"]
     
-    schedule = AgentScheduleCreate(
-        agent_id= agent_id,
-        start_time=agent_with_config_and_schedule.start_time,
-        recurrence_interval=agent_with_config_and_schedule.recurrence_interval,
-        expiry_date=agent_with_config_and_schedule.expiry_date,
-        expiry_runs=agent_with_config_and_schedule.expiry_runs
-    )
+    Project.get_project_from_project_id(agent_with_config_and_schedule.agent, db.session)
+    Tool.is_tool_id_valid(agent_with_config_and_schedule.agent, db.session)
+    agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
+                                                                         agent_with_config=agent_with_config_and_schedule.agent)
+    agent_with_config_and_schedule.agent.tools.extend(agent_toolkit_tools)
+    db_agent = Agent.create_agent_with_config(db, agent_with_config_and_schedule.agent)
+
+    # Update the agent_id of schedule before scheduling the agent
+    agent_with_config_and_schedule.schedule.agent_id = db_agent.id
 
     # Then, schedule the agent
-    schedule_id = AgentScheduler.schedule_agent(db.session, schedule)
+    schedule_id = AgentSchedule.schedule_agent(db.session, agent_with_config_and_schedule.schedule)
 
     if schedule_id is None:
         raise HTTPException(status_code=500, detail="Failed to schedule agent")
-    
+
     return {
-        "id": agent_id,
-        "name": agent_data["name"],
+        "id": db_agent.id,
+        "name": db_agent.name,
         "contentType": "Agents",
         "schedule_id": schedule_id
     }
 
-@router.post("/stop/schedule")
+@router.post("/stop/schedule", status_code=200)
 def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
-
     """
     Stopping the scheduling for a given agent.
 
@@ -286,98 +221,74 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         agent_id (int): Identifier of the Agent
         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
 
-    Returns:
-        success (bool): Depicting whether agent schedule was deleted successfully.
-
     Raises:
         HTTPException (status_code=404): If the agent schedule is not found.
     """
-    
-    agent_to_delete = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == agent_id, AgentScheduler.status=="RUNNING").first()
+
+    agent_to_delete = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
+                                                              AgentSchedule.status == "RUNNING").first()
     if not agent_to_delete:
         raise HTTPException(status_code=404, detail="Schedule not found")
     agent_to_delete.status = "STOPPED"
     db.session.commit()
 
-    return {
-        "success": True
-    }
 
-@router.put("/edit/schedule")
-def edit_schedule(schedule: AgentScheduleCreate, 
+@router.put("/edit/schedule", status_code=200)
+def edit_schedule(schedule: AgentScheduler,
                   Authorize: AuthJWT = Depends(check_auth)):
-
     """
     Edit the scheduling for a given agent.
 
     Args:
         agent_id (int): Identifier of the Agent
-        schedule (AgentScheduleCreate): New schedule data 
+        schedule (AgentSchedule): New schedule data 
         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
-
-    Returns:
-        success (bool): Depicting whether agent schedule was updated successfully.
 
     Raises:
         HTTPException (status_code=404): If the agent schedule is not found.
     """
-    
-    agent_to_edit = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id == schedule.agent_id, AgentScheduler.status=="RUNNING").first()
+
+    agent_to_edit = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == schedule.agent_id,
+                                                            AgentSchedule.status == "RUNNING").first()
     if not agent_to_edit:
         raise HTTPException(status_code=404, detail="Schedule not found")
-    
+
     # Update agent schedule with new data
     agent_to_edit.start_time = schedule.start_time
     agent_to_edit.next_scheduled_time = schedule.start_time
     agent_to_edit.recurrence_interval = schedule.recurrence_interval
     agent_to_edit.expiry_date = schedule.expiry_date
     agent_to_edit.expiry_runs = schedule.expiry_runs
-    
+
     db.session.commit()
 
-    return {
-        "success": True
-    }
 
 @router.get("/get/schedule_data/{agent_id}")
 def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+    agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
+                                                    AgentSchedule.status == "RUNNING").first()
 
-    """
-    Get scheduling data for a particular agent.
-
-    Args:
-        agent_id (int): The ID of the agent.
-
-    Returns:
-        A dictionary containing:
-            "current_datetime": The current date and time of the user.
-            "recurrence_interval": The recurrence interval of the agent's scheduling.
-            "expiry_date": The expiry date of the agent's scheduling.
-            "expiry_runs": The number of runs before the agent's scheduling expires.
-    """
-
-    agent = db.session.query(AgentScheduler).filter(AgentScheduler.agent_id==agent_id, AgentScheduler.status=="RUNNING").first()
-    
     if not agent:
         raise HTTPException(status_code=404, detail="Agent Schedule not found")
 
-    user_timezone = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id==agent_id).first()
+    user_timezone = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone",
+                                                                AgentConfiguration.agent_id == agent_id).first()
 
-    if user_timezone is None:
-        raise HTTPException(status_code=404, detail="User timezone not found")
+    if user_timezone and user_timezone.value:
+        tzone = timezone(user_timezone.value)
+    else:
+        tzone = timezone('GMT')
 
-    tzone = timezone(user_timezone.value)
     current_datetime = datetime.now(tzone).strftime("%d/%m/%Y %I:%M %p")
-    
+
     response_data = {
-        "current_datetime": current_datetime, 
+        "current_datetime": current_datetime,
         "recurrence_interval": agent.recurrence_interval if agent.recurrence_interval else None,
         "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y") if agent.expiry_date else None,
         "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None
     }
-    
-    return response_data
 
+    return response_data
 
 
 @router.get("/get/project/{project_id}")
@@ -417,12 +328,13 @@ def get_agents_by_project_id(project_id: int,
                 isRunning = True
                 break
         # Check if the agent is scheduled
-        isScheduled = db.session.query(AgentScheduler).filter_by(agent_id=agent_id, status="RUNNING").first() is not None
+        is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
+                                                                  status="RUNNING").first() is not None
 
         new_agent = {
             **agent_dict,
             'status': isRunning,
-            'isScheduled': isScheduled
+            'is_scheduled': is_scheduled
         }
         new_agents.append(new_agent)
     return new_agents
@@ -460,11 +372,10 @@ def get_agent_configuration(agent_id: int,
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
-
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
-    # Query the AgentConfiguration table for the speci
+                                # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,
