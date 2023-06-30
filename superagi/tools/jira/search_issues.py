@@ -4,7 +4,7 @@ from typing import Type, Dict, List
 from pydantic import Field, BaseModel
 
 from superagi.helper.token_counter import TokenCounter
-from superagi.tools.jira.tool import JiraTool, JiraIssueSchema
+from superagi.tools.jira.tool import JiraTool
 
 
 class SearchIssueSchema(BaseModel):

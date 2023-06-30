@@ -50,7 +50,7 @@ class GithubRepoSearchTool(BaseTool):
             folder_path : The path of the folder to search the file in.
 
         Returns:
-            The content of the file.
+            The content of the github file.
         """
         github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
         github_username = self.get_tool_config("GITHUB_USERNAME")
