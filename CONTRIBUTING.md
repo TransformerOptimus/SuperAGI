@@ -8,13 +8,12 @@ First of all, thank you for taking your time to to contribute to this project. W
 This document provides guidelines and best practices to help you to contribute effectively. These are meant to serve as guidelines, not strict rules. We encourage you to use your best judgment and feel comfortable proposing changes to this document through a pull request.
 
 **********************************Table of Content:********************************** 
-1. [Code of conduct](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#code-of-conduct) 
-2. [Getting Started](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#getting-started)
+1. [Code of conduct](https://github.com/Phoenix2809/SuperAGI/blob/CONTRIBUTING.md#code-of-conduct) 
+2. [Getting Started](https://github.com/Phoenix2809/SuperAGI/blob/CONTRIBUTING.md#getting-started)
 3. [How can I contribute](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#getting-started)
     1. [Reporting Bugs](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#reporting-bugs)
     2. [Suggesting Enhancements](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#suggesting-enhancements)
     3. [Pull Requests](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#pull-requests)
-4. Styleguides
 5. Testing
    
 ## Code of Conduct:
@@ -57,14 +56,8 @@ When submitting your pull request, please ensure that your changes meet the foll
 3.  You have documented your changes clearly and comprehensively.
 4.  You have added the required tests.
 
-
-## Styleguides
-
-will need extensive Developer KT on this
-
-## Code Formatting
-Pre-commit Hooks
-
 ## Testing Changes
 
-Will need Dev KT on filling this documentation
+Each method or the function of the code should have a unit test with maximum coverage possible and on each Pull Request, we have GitHub Actions triggered, which
+runs all the unit tests where all the tests should pass for merging the Pull Request. 
+
