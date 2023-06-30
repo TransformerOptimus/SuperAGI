@@ -14,7 +14,7 @@ This document provides guidelines and best practices to help you to contribute e
     1. [Reporting Bugs](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#reporting-bugs)
     2. [Suggesting Enhancements](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#suggesting-enhancements)
     3. [Pull Requests](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#pull-requests)
-5. Testing
+4. [Testing](https://github.com/Phoenix2809/SuperAGI/blob/main/CONTRIBUTING.md#testing-changes)
    
 ## Code of Conduct:
 
