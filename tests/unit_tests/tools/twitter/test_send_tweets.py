@@ -10,7 +10,6 @@ class TestSendTweets(unittest.TestCase):
         self.test_input = {
             "tweet_text": "Hello, world!",
             "is_media": False,
-            "media_num": 0,
             "media_files": []
         }
         self.send_tweets_instance = SendTweetsTool()
