@@ -44,6 +44,10 @@ export const createAgent = (agentData) => {
   return api.post(`/agents/create`, agentData);
 };
 
+export const addTool = (toolData) => {
+  return api.post(`/toolkits/get/local/install`, toolData);
+};
+
 export const updateAgents = (agentData) => {
   return api.put(`/agentconfigs/update/`, agentData);
 };
