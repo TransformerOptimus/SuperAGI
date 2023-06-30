@@ -306,6 +306,7 @@ class AgentExecutor:
         from superagi.models.resource import Resource
         from superagi.models.agent_config import AgentConfiguration
         resources = session.query(Resource).filter(Resource.agent_id == agent_id).all()
+        print(resources)
         if len(resources) == 0:
             return
         # get last resource from agent config

@@ -59,8 +59,10 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if agent is None:
         raise HTTPException(status_code=400, detail="Agent does not exists")
 
-    if not name.endswith(".txt") and not name.endswith(".pdf") and not name.endswith(".docx")\
-            and not name.endswith(".csv"):
+    # accepted_file_types is a tuple because endswith() expects a tuple
+    accepted_file_types = (".txt", ".pdf", ".docx", ".csv", ".jpg", ".pptx", ".png", ".jpeg", ".mp3",
+                           ".mp4", ".epub")
+    if not name.endswith(accepted_file_types):
         raise HTTPException(status_code=400, detail="File type not supported!")
 
     storage_type = get_config("STORAGE_TYPE")
