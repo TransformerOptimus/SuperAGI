@@ -54,9 +54,7 @@ def create_agent_name_with_timestamp(agent_id) -> str:
 
 def check_time_difference(agent, now):
     next_scheduled_time = agent.next_scheduled_time
-    interval = agent.recurrence_interval
-    interval_in_seconds = max(parse_interval_to_seconds(interval), 300)
-    return (now - next_scheduled_time).total_seconds() > interval_in_seconds
+    return (now - next_scheduled_time).total_seconds() > 300
 
     
 def update_next_scheduled_time():
@@ -66,17 +64,19 @@ def update_next_scheduled_time():
     scheduled_agents = session.query(AgentScheduler).filter(
     (AgentScheduler.start_time <= now) &
     (AgentScheduler.next_scheduled_time <= now) &
-    (AgentScheduler.recurrence_interval != None) &
     (AgentScheduler.status == "RUNNING")).all()
     
     for agent in scheduled_agents:
-            interval_in_seconds = parse_interval_to_seconds(agent.recurrence_interval)
-            if check_time_difference(agent, now):
+        if check_time_difference(agent, now):
+            if agent.recurrence_interval is not None:
+                interval_in_seconds = parse_interval_to_seconds(agent.recurrence_interval)
                 time_diff = now - agent.start_time
                 num_intervals_passed = time_diff.total_seconds() // interval_in_seconds  
                 updated_next_scheduled_time = agent.start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
                 agent.next_scheduled_time = updated_next_scheduled_time
-                session.commit()
+            else:
+                agent.status = "TERMINATED"
+            session.commit()
 
 def should_execute_and_remove_agent(agent, interval):
     expiry_date = agent.expiry_date

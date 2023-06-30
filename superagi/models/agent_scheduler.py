@@ -15,7 +15,7 @@ class AgentScheduler(DBBaseModel):
         expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
         expiry_runs (Integer): The number of runs before the agent expires.
         current_runs (Integer): Number of runs executed in that schedule.
-        status: state in which the schedule is, "RUNNING" or "STOPPED" or "COMPLETED"
+        status: state in which the schedule is, "RUNNING" or "STOPPED" or "COMPLETED" or "TERMINATED"
 
     Methods:
         __repr__: Returns a string representation of the AgentScheduler instance.
