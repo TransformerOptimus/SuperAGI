@@ -36,9 +36,6 @@ body:
         ❌ - my SuperAGI agent keeps looping
         ✅ - After performing Write Tool, SuperAGI goes into a loop where it keeps trying to write the file.
         
-        ⚠️ This is a SUPER-busy repo, please help the core team.
-        The less time we spend here, the more time we can spend building SuperAGI.
-        
         Please help us help you by following these steps:
         - Search for existing issues, adding a comment when you have the same or similar issue is tidier than "new issue" and 
           newer issues will not be reviewed earlier, this is dependent on the current priorities set by our wonderful team
@@ -48,7 +45,7 @@ body:
           - If it's a pip/packages issue, mention this in the title and provide pip version, python version.
   - type: dropdown
     attributes:
-      label: Which Operating System are you using?
+      label: Where are you using SuperAGI?
       description: >
         Please select the operating system you were using to run SuperAGI when this problem occurred.
       options:
@@ -68,7 +65,7 @@ body:
 
   - type: dropdown
     attributes:
-      label: Which version of SuperAGI are you using?
+      label: Which branch of SuperAGI are you using?
       description: |
         Please select which version of SuperAGI you were using when this issue occurred.
         If installed with git you can run `git branch` to see which version of Auto-GPT you are running.
@@ -80,7 +77,7 @@ body:
 
   - type: dropdown
     attributes:
-      label: Do you use OpenAI GPT-3.5 or GPT-3.5-Turbo-16k or GPT-4 or GPT-4-32k?
+      label: Do you use OpenAI GPT-3.5 or GPT-4?
       description: >
         If you are using SuperAGI with GPT-3.5, your problems may be caused by
         the limitations of GPT-3.5 like incorrect Tool selection thus causing looping in the agent feed.
@@ -125,7 +122,16 @@ body:
     validations:
       required: true
 
-  #Following are optional file content uploads
+   - type: textarea
+    attributes:
+      label: How to replicate your Issue?
+      description: |
+      Mention Agent Name, Agent Description and Agent Goals, along with Model selected. 
+      Provide any other data which might be relevant for us to replicate this issue.
+      ⚠️ Provide NO other data in this field  
+    validations:
+      required: false
+
   - type: markdown
     attributes:
       value: |
