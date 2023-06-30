@@ -1,4 +1,4 @@
-# Contributing to SuperAGI
+#  ⚡ Contributing to SuperAGI
 <p align=center>
 <a href=”https://superagi.co”><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
 </p>
@@ -51,7 +51,7 @@ You can start adding ideas for new features or improvements to SuperAGI. Create 
 
 ### Pull Requests
 
-Need Developer KT
+This section should be the single source of truth for how Pull Requestes should be raised and should be the universal framework of how things should work
 
 ## Styleguides
 
