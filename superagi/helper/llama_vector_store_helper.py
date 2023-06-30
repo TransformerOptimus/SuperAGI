@@ -54,8 +54,10 @@ def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
         from llama_index.vector_stores import ChromaVectorStore
         import chromadb
         from chromadb.config import Settings
+        chroma_host_name = get_config("CHROMA_HOST_NAME") or "localhost"
+        chroma_port = get_config("CHROMA_PORT") or 8000
         chroma_client = chromadb.Client(
-            Settings(chroma_api_impl="rest", chroma_server_host="chroma", chroma_server_http_port=8000))
+            Settings(chroma_api_impl="rest", chroma_server_host=chroma_host_name, chroma_server_http_port=chroma_port))
         chroma_collection = chroma_client.get_or_create_collection(index_name)
         return ChromaVectorStore(chroma_collection), chroma_collection
 
@@ -106,7 +108,7 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     except Exception as e:
         print(e)
     if vector_store_name.lower() == "redis":
-        vector_store.persist()
+        vector_store.persist(persist_path="")
     if vector_store is None:
         index.storage_context.persist(persist_dir="workspace/index")
 
