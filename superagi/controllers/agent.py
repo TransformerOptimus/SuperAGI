@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Request
 from fastapi_jwt_auth import AuthJWT
@@ -33,7 +33,7 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.project import Project
 from superagi.models.tool import Tool
-<<<<<<< HEAD
+
 from jsonmerge import merge
 from superagi.worker import execute_agent
 from datetime import datetime
@@ -43,7 +43,7 @@ from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.controllers.types.agent_schedule import AgentScheduler
 from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
->>>>>>> 669bfd46 (made changes according to code review)
+
 
 router = APIRouter()
 
@@ -51,7 +51,7 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
 def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
-                 Authorize: AuthJWT = Depends(check_auth)):
+                Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
 
@@ -83,7 +83,7 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
 
 @router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
 def get_agent(agent_id: int,
-              Authorize: AuthJWT = Depends(check_auth)):
+            Authorize: AuthJWT = Depends(check_auth)):
     """
         Get an Agent by ID
 
@@ -105,7 +105,7 @@ def get_agent(agent_id: int,
 
 @router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
 def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
-                 Authorize: AuthJWT = Depends(check_auth)):
+                Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent
 
@@ -143,7 +143,7 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentWithConfig,
-                             Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations.
 
@@ -174,18 +174,18 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     Project.get_project_from_project_id(agent_with_config, db.session)
     Tool.is_tool_id_valid(agent_with_config, db.session)
     agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
-                                                                         agent_with_config=agent_with_config)
+                                                                        agent_with_config=agent_with_config)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step_id)
+                            name="New Run", current_step_id=start_step_id)
 
     db.session.add(execution)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step_id)
+                            name="New Run", current_step_id=start_step_id)
 
     db.session.add(execution)
     db.session.commit()
@@ -200,7 +200,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
 
 @router.post("/schedule", status_code=201)
 def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSchedule,
-                              Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations and scheduling.
 
@@ -217,7 +217,7 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
     Project.get_project_from_project_id(agent_with_config_and_schedule.agent, db.session)
     Tool.is_tool_id_valid(agent_with_config_and_schedule.agent, db.session)
     agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
-                                                                         agent_with_config=agent_with_config_and_schedule.agent)
+                                                                        agent_with_config=agent_with_config_and_schedule.agent)
     agent_with_config_and_schedule.agent.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config_and_schedule.agent)
 
@@ -251,7 +251,7 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
 
     agent_to_delete = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
-                                                              AgentSchedule.status == "RUNNING").first()
+                                                            AgentSchedule.status == "RUNNING").first()
     if not agent_to_delete:
         raise HTTPException(status_code=404, detail="Schedule not found")
     agent_to_delete.status = "STOPPED"
@@ -267,7 +267,7 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
 @router.put("/edit/schedule", status_code=200)
 def edit_schedule(schedule: AgentScheduler,
-                  Authorize: AuthJWT = Depends(check_auth)):
+                Authorize: AuthJWT = Depends(check_auth)):
     """
     Edit the scheduling for a given agent.
 
@@ -324,7 +324,7 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
-                             Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Get all agents by project ID.
 
@@ -363,7 +363,7 @@ def get_agents_by_project_id(project_id: int,
             'status': isRunning
         # Check if the agent is scheduled
         is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
-                                                                  status="RUNNING").first() is not None
+                                                                status="RUNNING").first() is not None
 
         new_agent = {
             **agent_dict,
@@ -400,7 +400,7 @@ def get_agent_configuration(agent_id: int,
 
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
-                                                          AgentConfiguration.agent_id == agent_id).all()
+                                                        AgentConfiguration.agent_id == agent_id).all()
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
