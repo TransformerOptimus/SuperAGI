@@ -1,9 +1,29 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import {formatNumber, formatTimeDifference} from "@/utils/utils";
+import {EventBus} from "@/utils/eventBus";
 
-export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun}) {
+export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun, setAgentExecutions}) {
+  useEffect(() => {
+    const resetRunStatus = (eventData) => {
+      const updatedExecutions = runs.map((run) => {
+        if (run.id === eventData.executionId) {
+          return { ...run, status: eventData.status };
+        }
+        return run;
+      });
+
+      setAgentExecutions(updatedExecutions);
+    };
+
+    EventBus.on('resetRunStatus', resetRunStatus);
+
+    return () => {
+      EventBus.off('resetRunStatus', resetRunStatus);
+    };
+  });
+
   return (<>
     <div style={{width:'20%',height:'100%'}}>
       <div className={styles.detail_top}>

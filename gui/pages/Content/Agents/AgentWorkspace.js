@@ -104,6 +104,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         .catch((error) => {
           console.error('Error updating agent:', error);
         });
+
     updateAgents(agentData1)
         .then((response) => {
           EventBus.emit('reFetchAgents', {});
@@ -189,9 +190,25 @@ export default function AgentWorkspace({agentId, selectedView}) {
         });
   }
 
+  useEffect(() => {
+    const resetRunStatus = (eventData) => {
+      if (eventData.executionId === selectedRun.id) {
+        setSelectedRun((prevSelectedRun) => (
+          { ...prevSelectedRun, status: eventData.status }
+        ));
+      }
+    };
+
+    EventBus.on('resetRunStatus', resetRunStatus);
+
+    return () => {
+      EventBus.off('resetRunStatus', resetRunStatus);
+    };
+  });
+
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
