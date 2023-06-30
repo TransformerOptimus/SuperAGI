@@ -122,15 +122,15 @@ body:
     validations:
       required: true
 
-   - type: textarea
+  - type: textarea
     attributes:
-      label: How to replicate your Issue?
-      description: |
+     label: How to replicate your Issue?
+     description: |
       Mention Agent Name, Agent Description and Agent Goals, along with Model selected. 
       Provide any other data which might be relevant for us to replicate this issue.
       ⚠️ Provide NO other data in this field  
     validations:
-      required: false
+     required: false
 
   - type: markdown
     attributes:
