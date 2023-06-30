@@ -8,16 +8,16 @@ First of all, thank you for taking your time to to contribute to this project. W
 This document provides guidelines and best practices to help you to contribute effectively. These are meant to serve as guidelines, not strict rules. We encourage you to use your best judgment and feel comfortable proposing changes to this document through a pull request.
 
 **********************************Table of Content:********************************** 
-1. Code of conduct
-2. Notes (Github & Disord)
-3. Getting started
-4. How can I contribute
-    1. Reporting Bugs
-    2. Suggesting Enhancements
-    3. Pull Requests
+1. [Code of conduct](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#code-of-conduct) 
+2. Notes (Github & Discord)
+3. [Getting Started](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#getting-started)
+4. [How can I contribute](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#getting-started)
+    1. [Reporting Bugs](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#reporting-bugs)
+    2. [Suggesting Enhancements](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#suggesting-enhancements)
+    3. [Pull Requests](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#pull-requests)
 5. Styleguides
 6. Testing
-
+   
 ## Code of Conduct:
 
 Please read our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md) to understand the expectations we have for all contributors participating in this project. By participating, you agree to abide by our Code of Conduct.
@@ -51,7 +51,13 @@ You can start adding ideas for new features or improvements to SuperAGI. Create 
 
 ### Pull Requests
 
-This section should be the single source of truth for how Pull Requestes should be raised and should be the universal framework of how things should work
+When submitting your pull request, please ensure that your changes meet the following criteria: 
+
+1.  The pull request is atomic and focuses on a single change.
+2.  You have read the contributing guide and your code conforms to the guidelines.
+3.  You have documented your changes clearly and comprehensively.
+4.  You have added the required tests.
+
 
 ## Styleguides
 
