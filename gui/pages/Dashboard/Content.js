@@ -14,10 +14,10 @@ import { useRouter } from 'next/router';
 import querystring from 'querystring';
 import { userInfo } from 'os';
 import { parse } from 'path';
+import {createInternalId, removeInternalId} from "@/utils/utils";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
-  const [source, setSource] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
   const [toolkits, setToolkits] = useState(null);
@@ -44,7 +44,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       .then((response) => {
         const data = response.data || [];
         const updatedData = data.map(item => {
-          return { ...item, contentType: "Toolkits", isOpen: false };
+          return { ...item, contentType: "Toolkits", isOpen: false, internalId: createInternalId() };
         });
         setToolkits(updatedData);
       })
@@ -58,12 +58,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     fetchToolkits();
   }, [selectedProjectId])
 
-  const closeTab = (e, index) => {
+  const closeTab = (e, index, contentType, internalId) => {
     e.stopPropagation();
-    cancelTab(index);
+    cancelTab(index, contentType, internalId);
   };
 
-  const cancelTab = (index) => {
+  const cancelTab = (index, contentType, internalId) => {
     let updatedTabs = [...tabs];
 
     if (selectedTab === index) {
@@ -81,6 +81,18 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       }
 
       updatedTabs.splice(index, 1);
+    }
+
+    if(contentType === 'Create_Agent') {
+      removeInternalId(internalId);
+    } else if(contentType === 'Marketplace') {
+      localStorage.removeItem('marketplace_tab');
+      localStorage.removeItem('market_item_clicked');
+      localStorage.removeItem('market_detail_type');
+      localStorage.removeItem('market_item');
+    } else if(contentType === 'Toolkits') {
+      localStorage.removeItem('toolkit_tab_' + String(internalId));
+      localStorage.removeItem('api_configs_' + String(internalId));
     }
 
     setTabs(updatedTabs);
@@ -131,7 +143,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
     const queryParams = router.asPath.split('?')[1];
     const parsedParams = querystring.parse(queryParams);
-    parsedParams["toolkit_id"] = toolkitDetails.toolkit_id; 
+    parsedParams["toolkit_id"] = toolkitDetails.toolkit_id;
     if (window.location.href.indexOf("twitter_creds") > -1){
       const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
       parsedParams["toolkit_id"] = toolkit_id;
@@ -149,19 +161,27 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   useEffect(() => {
     const openNewTab = (eventData) => {
       addTab(eventData.element);
-      setSource(eventData.source || null);
     };
+
+    const openToolkitTab = (eventData) => {
+      const toolkit = toolkits.find((toolkit) => toolkit.tools.some((tool) => tool.id === eventData.toolId));
+      if(toolkit) {
+        localStorage.setItem('toolkit_tab_' + String(toolkit.internalId), 'tools_included');
+        addTab(toolkit);
+      }
+    }
 
     const removeTab = (eventData) => {
       const newAgentTabIndex = tabs.findIndex(
         (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
       );
-      cancelTab(newAgentTabIndex);
+      cancelTab(newAgentTabIndex, eventData.contentType, ['Create_Agent', 'Toolkits'].includes(eventData.contentType) ? eventData.internalId : 0);
     };
 
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', fetchAgents);
     EventBus.on('removeTab', removeTab);
+    EventBus.on('openToolkitTab', openToolkitTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
@@ -192,7 +212,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           <div>
             <div><Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/></div>
             <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'30px'}}>
-              <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent" })} className={styles.empty_state_button}>Create new agent</button>
+              <button onClick={() => addTab({ id: -1, name: "new agent", contentType: "Create_Agent", internalId: createInternalId() })} className={styles.empty_state_button}>Create new agent</button>
             </div>
             {agents && agents.length > 0 && <div style={{width:'100%',display:'flex',justifyContent:'center',marginTop:'12px'}}>
               <button onClick={getLastActive} className={styles.empty_state_button}>View last active agent</button>
@@ -211,7 +231,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, index)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, index, tab.contentType, ['Create_Agent', 'Toolkits'].includes(tab.contentType) ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>
@@ -222,10 +242,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               <div key={index}>
                 {selectedTab === index && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
-                  {tab.contentType === 'Toolkits' && <ToolkitWorkspace toolkitDetails={toolkitDetails}/>}
+                  {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
-                  {tab.contentType === 'Marketplace' && <Market env={env} source={source} selectedView={selectedView}/>}
-                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                  {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
+                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
             ))}
