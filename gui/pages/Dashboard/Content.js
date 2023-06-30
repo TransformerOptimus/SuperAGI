@@ -155,7 +155,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const newAgentTabIndex = tabs.findIndex(
         (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
       );
-      cancelTab(newAgentTabIndex, eventData.contentType, eventData.contentType === 'Create_Agent' ? eventData.internalId : 0);
+      cancelTab(newAgentTabIndex, eventData.contentType, ['Create_Agent', 'Toolkits'].includes(eventData.contentType) ? eventData.internalId : 0);
     };
 
     EventBus.on('openNewTab', openNewTab);
@@ -212,7 +212,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, index, tab.contentType, tab.contentType === 'Create_Agent' ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, index, tab.contentType, ['Create_Agent', 'Toolkits'].includes(tab.contentType) ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>
