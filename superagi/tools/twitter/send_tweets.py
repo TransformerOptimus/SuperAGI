@@ -11,7 +11,6 @@ from superagi.helper.twitter_helper import TwitterHelper
 class SendTweetsInput(BaseModel):
     tweet_text: str = Field(..., description="Tweet text to be posted from twitter handle, if no value is given keep the default value as 'None'")
     is_media: bool = Field(..., description="'True' if there is any media to be posted with Tweet else 'False'.")
-    media_num: int = Field(..., description="Integer value for the number of media files to be uploaded, default value is 0")
     media_files: list = Field(..., description="Name of the media files to be uploaded.")
 
 class SendTweetsTool(BaseTool):
@@ -20,7 +19,7 @@ class SendTweetsTool(BaseTool):
     description: str = "Send and Schedule Tweets for your Twitter Handle"
     agent_id: int = None
 
-    def _execute(self, is_media: bool, tweet_text: str = 'None', media_num: int = 0, media_files: list = []):
+    def _execute(self, is_media: bool, tweet_text: str = 'None', media_files: list = []):
         toolkit_id = self.toolkit_config.toolkit_id
         session = self.toolkit_config.session
         creds = TwitterTokens(session).get_twitter_creds(toolkit_id)
