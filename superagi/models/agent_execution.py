@@ -8,7 +8,7 @@ from superagi.models.base_model import DBBaseModel
 
 class AgentExecution(DBBaseModel):
     """
-    Represents single agent run
+    Represents an execution of an agent.
 
     Attributes:
         id (int): The unique identifier of the agent execution.

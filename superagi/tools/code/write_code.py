@@ -59,7 +59,7 @@ class CodingTool(BaseTool):
             code_file_name: The name of the file where the generated codes will be saved.
 
         Returns:
-            Generated code with where the code is being saved or error message.
+            Generated codes files or error message.
         """
         prompt = PromptReader.read_tools_prompt(__file__, "write_code.txt") + "\nUseful to know:\n" + PromptReader.read_tools_prompt(__file__, "generate_logic.txt")
         prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))

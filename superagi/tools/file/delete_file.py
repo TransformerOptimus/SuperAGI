@@ -35,7 +35,7 @@ class DeleteFileTool(BaseTool):
             file_name : The name of the file to delete.
 
         Returns:
-            success or error message.
+            file deleted successfully. or error message.
         """
         final_path = ResourceHelper.get_root_output_dir()
         if "{agent_id}" in final_path:

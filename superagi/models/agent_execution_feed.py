@@ -6,7 +6,7 @@ from superagi.models.base_model import DBBaseModel
 
 class AgentExecutionFeed(DBBaseModel):
     """
-    Feed of the agent execution.
+    Represents a feed entry for an agent execution.
 
     Attributes:
         id (int): The unique identifier of the agent execution feed.

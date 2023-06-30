@@ -32,9 +32,9 @@ class GetProjectsTool(JiraTool):
         Execute the get projects tool.
 
         Returns:
-            Found <count> projects: <projects>
+            The key of the created issue.
         """
-        jira = self.build_jira_instance()
+        jira = JiraTool.build_jira_instance()
         projects = jira.projects()
         parsed_projects = self.parse_projects(projects)
         parsed_projects_str = (

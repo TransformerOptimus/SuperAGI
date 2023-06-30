@@ -6,7 +6,7 @@ from superagi.models.agent_execution import AgentExecution
 
 class AgentExecutionPermission(DBBaseModel):
     """
-    Agent Execution Permissions at each step to be approved or rejected by the user.
+    Represents an Agent Execution Permission record in the database.
 
     Attributes:
         id (Integer): The primary key of the agent execution permission record.

@@ -7,7 +7,7 @@ from superagi.models.base_model import DBBaseModel
 
 class AgentTemplateConfig(DBBaseModel):
     """
-    Agent template related configurations like goals, instructions, constraints and tools are stored here
+    Represents the configuration settings for an agent template.
 
     Attributes:
         id (int): The unique identifier of the agent template config.

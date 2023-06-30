@@ -8,8 +8,7 @@ from superagi.models.toolkit import Toolkit
 def mock_session():
     return MagicMock()
 
-# marketplace_url = "http://localhost:8001"
-marketplace_url = "https://app.superagi.com/api"
+marketplace_url = "http://localhost:8001"
 
 
 def test_add_or_update_existing_toolkit(mock_session):

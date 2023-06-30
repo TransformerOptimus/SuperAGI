@@ -45,6 +45,6 @@ class WriteFileTool(BaseTool):
             content : The text to write to the file.
 
         Returns:
-            success message if message is file written successfully or failure message if writing file fails.
+            file written to successfully. or error message.
         """
         return self.resource_manager.write_file(file_name, content)

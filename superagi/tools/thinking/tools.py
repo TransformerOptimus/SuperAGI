@@ -48,7 +48,7 @@ class ThinkingTool(BaseTool):
             task_description : The task description.
 
         Returns:
-            Thought process of llm for the task
+            response from the Thinking tool. or error message.
         """
         try:
             prompt = PromptReader.read_tools_prompt(__file__, "thinking.txt")
