@@ -1,28 +1,20 @@
 from __future__ import absolute_import
 from superagi.lib.logger import logger
 
-<<<<<<< HEAD
 from celery import Celery
 
 from superagi.config.config import get_config
-=======
 from datetime import timedelta
 from celery import Celery
-
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.helper.agent_schedule_helper import RunAgentSchedule
-
->>>>>>> 669bfd46 (made changes according to code review)
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
-
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
 app.conf.broker_url = "redis://" + redis_url + "/0"
 app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
 
-<<<<<<< HEAD
-=======
 beat_schedule = {
     'initialize-schedule-agent': {
         'task': 'initialize-schedule-agent', 
@@ -36,8 +28,6 @@ def initialize_schedule_agent_task():
     RunAgentSchedule.update_next_scheduled_time()
     RunAgentSchedule.get_scheduled_agents()
 
-
->>>>>>> 669bfd46 (made changes according to code review)
 @app.task(name="execute_agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
