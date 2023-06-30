@@ -41,7 +41,6 @@ Add the following configuration settings in the Github Toolkit Page:
 
 3. _Configuring in SuperAGI Dashboard:_
    -You can add your Generated Token and your Username in the GitHub Toolkit Page.
-   ![Github_ToolkitConfig]()
 
 ## Running SuperAGI GitHub Tool
 
