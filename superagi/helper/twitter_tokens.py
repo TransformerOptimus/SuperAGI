@@ -30,7 +30,7 @@ class TwitterTokens:
         base_url = 'https://api.twitter.com/oauth/request_token'
 
         params = {
-            'oauth_callback': 'http://localhost:3000/api/oauth-twitter',
+            'oauth_callback': 'http://localhost:3000/api/twitter/oauth-tokens',
             'oauth_consumer_key': api_key,
             'oauth_nonce': self.gen_nonce(),
             'oauth_signature_method': 'HMAC-SHA1',
