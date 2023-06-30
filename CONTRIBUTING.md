@@ -8,15 +8,14 @@ First of all, thank you for taking your time to to contribute to this project. W
 This document provides guidelines and best practices to help you to contribute effectively. These are meant to serve as guidelines, not strict rules. We encourage you to use your best judgment and feel comfortable proposing changes to this document through a pull request.
 
 **********************************Table of Content:********************************** 
-1. [Code of conduct](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#code-of-conduct) 
-2. Notes (Github & Discord)
-3. [Getting Started](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#getting-started)
-4. [How can I contribute](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#getting-started)
-    1. [Reporting Bugs](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#reporting-bugs)
-    2. [Suggesting Enhancements](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#suggesting-enhancements)
-    3. [Pull Requests](https://github.com/Phoenix2809/SuperAGI/edit/contributing-md/CONTRIBUTING.md#pull-requests)
-5. Styleguides
-6. Testing
+1. [Code of conduct](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#code-of-conduct) 
+2. [Getting Started](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#getting-started)
+3. [How can I contribute](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#getting-started)
+    1. [Reporting Bugs](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#reporting-bugs)
+    2. [Suggesting Enhancements](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#suggesting-enhancements)
+    3. [Pull Requests](https://github.com/Phoenix2809/SuperAGI/blob/contributing-md/CONTRIBUTING.md#pull-requests)
+4. Styleguides
+5. Testing
    
 ## Code of Conduct:
 
