@@ -39,9 +39,9 @@ Add the following configuration settings in the Github Toolkit Page:
 2. _Github User Name:_
    - You can find your Github username on your GitHub Profile.
 
-3. _Configuring in SuperAGI Dashboard
+3. _Configuring in SuperAGI Dashboard:_
    -You can add your Generated Token and your Username in the GitHub Toolkit Page.
-   ![Github_ToolkitConfig]
+   ![Github_ToolkitConfig]()
 
 ## Running SuperAGI GitHub Tool
 
