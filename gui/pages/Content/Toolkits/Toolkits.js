@@ -14,7 +14,7 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
         <div className={styles1.title_box}>
           <p className={styles1.title_text}>Toolkits</p>
         </div>
-        {env === 'PROD' && <div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'4px'}}>
+        {env !== 'PROD' && <div className={styles1.wrapper} style={{marginBottom:'10px',marginTop:'4px'}}>
           <button style={{width:'100%'}} className="secondary_button" onClick={() => sendToolkitData({ id: -2, name: "new tool", contentType: "Add_Toolkit", internalId: createInternalId() })}>
             + Add Tool
           </button>

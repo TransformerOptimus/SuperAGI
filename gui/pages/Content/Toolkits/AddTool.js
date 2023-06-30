@@ -4,7 +4,7 @@ import styles1 from '../Agents/Agents.module.css'
 import {removeTab, setLocalStorageValue} from "@/utils/utils";
 import {ToastContainer, toast} from "react-toastify";
 
-export default function AddToolkit({internalId}) {
+export default function AddTool({internalId}) {
   const [githubURL, setGithubURl] = useState('');
   const [addClickable, setAddClickable] = useState(true);
 
