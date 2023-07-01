@@ -39,7 +39,8 @@ class QueryResourceTool(BaseTool):
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
-        vector_store_name = VectorStoreType.get_enum(self.get_tool_config(key="RESOURCE_VECTOR_STORE") or "Redis")
+        vector_store_name = VectorStoreType.get_vector_store_type(
+            self.get_tool_config(key="RESOURCE_VECTOR_STORE") or "Redis")
         vector_store_index_name = self.get_tool_config(key="RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
         logging.info(f"vector_store_name {vector_store_name}")
         logging.info(f"vector_store_index_name {vector_store_index_name}")

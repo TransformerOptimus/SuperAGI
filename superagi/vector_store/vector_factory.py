@@ -22,7 +22,7 @@ class VectorFactory:
         Returns:
             The vector storage object.
         """
-        vector_store = VectorStoreType.get_enum(vector_store)
+        vector_store = VectorStoreType.get_vector_store_type(vector_store)
         if vector_store == VectorStoreType.PINECONE:
             try:
                 api_key = get_config("PINECONE_API_KEY")

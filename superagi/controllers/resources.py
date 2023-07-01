@@ -20,6 +20,7 @@ from superagi.models.resource import Resource
 from superagi.resource_manager.resource_manager import ResourceManager
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.worker import summarize_resource
+from superagi.types.storage_types import StorageTypes
 
 router = APIRouter()
 
@@ -62,21 +63,20 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if not name.endswith(accepted_file_types):
         raise HTTPException(status_code=400, detail="File type not supported!")
 
-    storage_type = get_config("STORAGE_TYPE")
-    Resource.validate_resource_type(storage_type)
+    storage_type = StorageTypes.get_storage_type(get_config("STORAGE_TYPE"))
     save_directory = ResourceHelper.get_root_input_dir() + "/"
     if "{agent_id}" in save_directory:
         save_directory = save_directory.replace("{agent_id}", str(agent_id))
     path = ""
     os.makedirs(save_directory, exist_ok=True)
     file_path = os.path.join(save_directory, file.filename)
-    if storage_type == "FILE":
+    if storage_type == StorageTypes.FILE:
         path = file_path
         with open(file_path, "wb") as f:
             contents = await file.read()
             f.write(contents)
             file.file.close()
-    elif storage_type == "S3":
+    elif storage_type == StorageTypes.S3:
         bucket_name = get_config("BUCKET_NAME")
         file_name = file.filename.split('.')
         path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
@@ -87,17 +87,17 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
-    resource = Resource(name=name, path=path, storage_type=storage_type, size=size, type=type, channel="INPUT",
+    resource = Resource(name=name, path=path, storage_type=storage_type.value, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
 
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
 
-    file_path = file_path if storage_type == "FILE" else None
-    file_object = file if storage_type == "S3" else None
+    file_path = file_path if storage_type == StorageTypes.FILE else None
+    file_object = file if storage_type == StorageTypes.S3 else None
     documents = await ResourceManager.create_llama_document(file_path, file_object)
-    summarize_resource.delay(agent_id, resource.id, get_config("OPENAI_API_KEY"), documents)
+    summarize_resource.delay(agent_id, resource.id, documents)
     logger.info(resource)
 
     return resource
@@ -147,7 +147,7 @@ def download_file_by_id(resource_id: int,
     if not resource:
         raise HTTPException(status_code=400, detail="Resource Not found!")
 
-    if resource.storage_type == "S3":
+    if resource.storage_type == StorageTypes.S3.value:
         bucket_name = get_config("BUCKET_NAME")
         file_key = resource.path
         response = s3.get_object(Bucket=bucket_name, Key=file_key)

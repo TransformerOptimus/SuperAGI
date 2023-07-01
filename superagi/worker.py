@@ -30,4 +30,4 @@ def summarize_resource(agent_id: int, resource_id: int, openai_api_key: str,
     from superagi.jobs.resource_summary import ResourceSummarizer
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     ResourceSummarizer.add_to_vector_store_and_create_summary(agent_id=agent_id, resource_id=resource_id,
-                                                              openai_api_key=openai_api_key, documents=document)
+                                                              documents=document)

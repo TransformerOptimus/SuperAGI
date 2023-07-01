@@ -9,7 +9,7 @@ class VectorStoreType(Enum):
     QDRANT = 'qdrant'
 
     @classmethod
-    def get_enum(cls, store):
+    def get_vector_store_type(cls, store):
         store = store.upper()
         if store in cls.__members__:
             return cls[store]

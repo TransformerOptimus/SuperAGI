@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 
-
+from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.db import connect_db
@@ -13,8 +13,7 @@ session = sessionmaker(bind=engine)
 class ResourceSummarizer:
 
     @classmethod
-    def add_to_vector_store_and_create_summary(cls, agent_id: int, resource_id: int, openai_api_key: str,
-                                               documents: list):
+    def add_to_vector_store_and_create_summary(cls, agent_id: int, resource_id: int, documents: list):
         """
         Add a file to the vector store and generate a summary for it.
 
@@ -45,6 +44,7 @@ class ResourceSummarizer:
         if len(summary_texts) == 1:
             resource_summary = summary_texts[0]
         else:
+            openai_api_key = get_config("OPENAI_API_KEY")
             resource_summary = ResourceManager.generate_summary_of_texts(summary_texts, openai_api_key)
 
         agent_config_resource_summary = db.query(AgentConfiguration). \

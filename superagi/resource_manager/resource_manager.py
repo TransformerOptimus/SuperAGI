@@ -126,7 +126,7 @@ class ResourceManager:
         os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
         vector_store = None
         storage_context = None
-        vector_store_name = VectorStoreType.get_enum(get_config("RESOURCE_VECTOR_STORE") or "Redis")
+        vector_store_name = VectorStoreType.get_vector_store_type(get_config("RESOURCE_VECTOR_STORE") or "Redis")
         vector_store_index_name = get_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
         try:
             print(vector_store_name, vector_store_index_name)
