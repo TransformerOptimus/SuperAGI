@@ -4,18 +4,34 @@ import llama_index
 from llama_index import SimpleDirectoryReader
 import os
 
+from superagi.helper.resource_helper import ResourceHelper
 from superagi.jobs.agent_executor import AgentExecutor
 from superagi.models.agent_execution import AgentExecution
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.config.config import get_config
 from superagi.types.vector_store_types import VectorStoreType
 
-def create_llama_document(file_path: str):
+
+def create_llama_document(file_path: str = None, file_object=None):
     """
     Creates a document index from a given directory.
     """
+    if file_path is None and file_object is None:
+        raise Exception("Either file_path or file_object must be provided")
+
+    if file_path is not None and file_object is not None:
+        raise Exception("Only one of file_path or file_object must be provided")
+
+    save_directory = ResourceHelper.get_root_input_dir() + "/"
+
+    if file_object is not None:
+        file_path = save_directory + file_object.filename
+        file_object.save(file_path)
+
     documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
 
+    if file_object is not None:
+        os.remove(file_path)
 
     return documents
 
@@ -94,7 +110,7 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
         print(vector_store_name, vector_store_index_name)
         vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name,
                                                   OpenAiEmbedding(model_api_key))
-        if vector_store_name.lower() == "chroma":
+        if vector_store_name == VectorStoreType.CHROMA:
             vector_store, chroma_collection = vector_store
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
     except ValueError as e:
@@ -139,3 +155,42 @@ def generate_summary_of_texts(texts: list[str], openai_api_key: str):
     from llama_index import Document
     documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
     return generate_summary_of_document(documents, openai_api_key)
+
+
+def save_document_to_vector_store(documents: list, agent_id: str, resource_id: str):
+    from llama_index import VectorStoreIndex, StorageContext
+    import openai
+    from superagi.vector_store.embedding.openai import OpenAiEmbedding
+    model_api_key = get_config("OPENAI_API_KEY")
+    for docs in documents:
+        if docs.metadata is None:
+            docs.metadata = {"agent_id": agent_id, "resource_id": resource_id}
+        else:
+            docs.metadata["agent_id"] = agent_id
+            docs.metadata["resource_id"] = resource_id
+    os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
+    vector_store = None
+    storage_context = None
+    vector_store_name = VectorStoreType.get_enum(get_config("RESOURCE_VECTOR_STORE") or "Redis")
+    vector_store_index_name = get_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
+    try:
+        print(vector_store_name, vector_store_index_name)
+        vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name,
+                                                  OpenAiEmbedding(model_api_key))
+        if vector_store_name == VectorStoreType.CHROMA:
+            vector_store, chroma_collection = vector_store
+        storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    except ValueError as e:
+        logging.error("Vector store not found", e)
+        # vector_store = None
+        # vector_store = llama_vector_store_factory('Weaviate', 'super-agent-index1', OpenAiEmbedding(model_api_key))
+        # print(vector_store)
+        # storage_context = StorageContext.from_defaults(persist_dir="workspace/index")
+    openai.api_key = get_config("OPENAI_API_KEY")
+    try:
+        index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+        index.set_index_id(f'Agent {agent_id}')
+    except Exception as e:
+        print(e)
+    if vector_store_name == VectorStoreType.REDIS:
+        vector_store.persist(persist_path="")

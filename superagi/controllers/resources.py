@@ -20,9 +20,9 @@ from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
 from superagi.vector_store.vector_factory import VectorFactory
+from superagi.worker import summarize_resource
 
 router = APIRouter()
-
 
 s3 = boto3.client(
     's3',
@@ -33,8 +33,7 @@ s3 = boto3.client(
 
 @router.post("/add/{agent_id}", status_code=201)
 async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...),
-                 background_tasks: BackgroundTasks = None,
-                Authorize: AuthJWT = Depends(check_auth)):
+                 Authorize: AuthJWT = Depends(check_auth)):
     """
     Upload a file as a resource for an agent.
 
@@ -95,8 +94,12 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.add(resource)
     db.session.commit()
     db.session.flush()
-    background_tasks.add_task(add_to_vector_store_and_create_summary, file_path, agent_id, resource.id)
+
+    file_path = file_path if storage_type == "FILE" else None
+    file_object = file if storage_type == "FILE" else None
+    summarize_resource.delay(agent_id, resource.id, get_config("OPENAI_API_KEY"), file_path, file_object)
     logger.info(resource)
+
     return resource
 
 
@@ -181,7 +184,7 @@ def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resour
     except Exception as e:
         logger.error(e)
     t1_stop = perf_counter()
-    logger.info("file to vector store:"+str(t1_stop-t1_start))
+    logger.info("file to vector store:" + str(t1_stop - t1_start))
     summary = None
     try:
         documents = create_llama_document(file_path)
@@ -190,7 +193,7 @@ def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resour
         logger.error(e)
     t1_start = perf_counter()
     t1_stop = perf_counter()
-    logger.info("summary: "+str(t1_stop-t1_start))
+    logger.info("summary: " + str(t1_stop - t1_start))
     resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
     resource.summary = summary
     db.session.commit()
