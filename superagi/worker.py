@@ -17,3 +17,4 @@ def execute_agent(agent_execution_id: int, time):
     from superagi.jobs.agent_executor import AgentExecutor
     logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
+

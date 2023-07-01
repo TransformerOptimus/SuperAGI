@@ -8,7 +8,7 @@ from superagi.jobs.agent_executor import AgentExecutor
 from superagi.models.agent_execution import AgentExecution
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.config.config import get_config
-
+from superagi.types.vector_store_types import VectorStoreType
 
 def create_llama_document(file_path: str):
     """
@@ -20,28 +20,29 @@ def create_llama_document(file_path: str):
     return documents
 
 
-def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
+def llama_vector_store_factory(vector_store_name: VectorStoreType, index_name, embedding_model):
     """
     Creates a llama vector store.
     """
     from superagi.vector_store.vector_factory import VectorFactory
     model_api_key = get_config("OPENAI_API_KEY")
 
-    vector_factory_support = ["pinecone", "weaviate"]
-    if vector_store_name.lower() in vector_factory_support:
+    vector_factory_support = [VectorStoreType.PINECONE, VectorStoreType.WEAVIATE]
+    if vector_store_name in vector_factory_support:
         vector_store = VectorFactory.get_vector_storage(vector_store_name, index_name,
                                                         embedding_model)
-        if vector_store_name.lower() == "pinecone":
+        if vector_store_name == VectorStoreType.PINECONE:
             from llama_index.vector_stores import PineconeVectorStore
             return PineconeVectorStore(vector_store.index)
 
         # llama index weaviate doesn't support filtering using metadata
-        # if vector_store_name.lower() == "weaviate":
+        if vector_store_name == VectorStoreType.WEAVIATE:
+            raise ValueError("Weaviate vector store is not supported yet.")
         #     from llama_index.vector_stores import WeaviateVectorStore
         #     print(vector_store.client, "vector_store.client")
         #     return WeaviateVectorStore(vector_store.client)
 
-    if vector_store_name.lower() == "redis":
+    if vector_store_name == VectorStoreType.REDIS:
         redis_url = get_config("REDIS_VECTOR_STORE_URL") or "redis://super__redis:6379"
         from llama_index.vector_stores import RedisVectorStore
         return RedisVectorStore(
@@ -50,7 +51,7 @@ def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
             metadata_fields=["agent_id", "resource_id"]
         )
 
-    if vector_store_name.lower() == "chroma":
+    if vector_store_name == VectorStoreType.CHROMA:
         from llama_index.vector_stores import ChromaVectorStore
         import chromadb
         from chromadb.config import Settings
@@ -61,7 +62,7 @@ def llama_vector_store_factory(vector_store_name, index_name, embedding_model):
         chroma_collection = chroma_client.get_or_create_collection(index_name)
         return ChromaVectorStore(chroma_collection), chroma_collection
 
-    if vector_store_name.lower() == "qdrant":
+    if vector_store_name == VectorStoreType.QDRANT:
         from llama_index.vector_stores import QdrantVectorStore
         qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
         qdrant_port = get_config("QDRANT_PORT") or 6333
@@ -79,24 +80,25 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
     model_api_key = get_config("OPENAI_API_KEY")
     documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
     for docs in documents:
-        if docs.extra_info is None:
-            docs.extra_info = {"agent_id": agent_id, "resource_id": resource_id}
+        if docs.metadata is None:
+            docs.metadata = {"agent_id": agent_id, "resource_id": resource_id}
         else:
-            docs.extra_info["agent_id"] = agent_id
-            docs.extra_info["resource_id"] = resource_id
+            docs.metadata["agent_id"] = agent_id
+            docs.metadata["resource_id"] = resource_id
     os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
     vector_store = None
     storage_context = None
-    vector_store_name = get_config("RESOURCE_VECTOR_STORE") or "Redis"
+    vector_store_name = VectorStoreType.get_enum(get_config("RESOURCE_VECTOR_STORE") or "Redis")
     vector_store_index_name = get_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
     try:
         print(vector_store_name, vector_store_index_name)
-        vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
+        vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name,
+                                                  OpenAiEmbedding(model_api_key))
         if vector_store_name.lower() == "chroma":
             vector_store, chroma_collection = vector_store
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
     except ValueError as e:
-        logging.error("Vector store not found",e)
+        logging.error("Vector store not found", e)
         # vector_store = None
         # vector_store = llama_vector_store_factory('Weaviate', 'super-agent-index1', OpenAiEmbedding(model_api_key))
         # print(vector_store)
@@ -107,7 +109,7 @@ def save_file_to_vector_store(file_path: str, agent_id: str, resource_id: str):
         index.set_index_id(f'Agent {agent_id}')
     except Exception as e:
         print(e)
-    if vector_store_name.lower() == "redis":
+    if vector_store_name == VectorStoreType.REDIS:
         vector_store.persist(persist_path="")
 
 
