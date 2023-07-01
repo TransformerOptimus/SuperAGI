@@ -11,7 +11,7 @@ app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"
 app.conf.broker_url = "redis://" + redis_url + "/0"
 app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
-app.conf.accept_content = ['application/x-python-serialize']
+app.conf.accept_content = ['application/x-python-serialize', 'application/json']
 
 
 

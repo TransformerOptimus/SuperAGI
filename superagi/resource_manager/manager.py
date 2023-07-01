@@ -86,7 +86,7 @@ class ResourceManager:
         return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
 
     @classmethod
-    def create_llama_document(cls, file_path: str = None, file_object=None):
+    async def create_llama_document(cls, file_path: str = None, file_object=None):
         """
         Creates a document index from a given directory.
         """
@@ -101,7 +101,10 @@ class ResourceManager:
 
         if file_object is not None:
             file_path = save_directory + file_object.filename
-            file_object.save(file_path)
+            with open(file_path, "wb") as f:
+                contents = await file_object.read()
+                f.write(contents)
+                file_object.file.close()
 
         documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
 
