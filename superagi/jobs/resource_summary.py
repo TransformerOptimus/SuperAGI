@@ -5,8 +5,10 @@ from superagi.lib.logger import logger
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.db import connect_db
 from superagi.models.resource import Resource
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.resource_manager import ResourceManager
 
+engine = connect_db()
+session = sessionmaker(bind=engine)
 
 class ResourceSummarizer:
 
@@ -22,8 +24,6 @@ class ResourceSummarizer:
             openai_api_key (str): OpenAI API key.
             documents (list): List of documents.
         """
-        engine = connect_db()
-        session = sessionmaker(bind=engine)
         db = session()
         try:
             ResourceManager.save_document_to_vector_store(documents, str(agent_id), str(resource_id))

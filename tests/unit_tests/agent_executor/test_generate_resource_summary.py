@@ -99,7 +99,7 @@ resources_mock_data = [
 ]
 
 patched_generate_summary_of_texts = patch(
-    "superagi.resource_manager.manager.ResourceManager.generate_summary_of_texts", return_value="summary"
+    "superagi.resource_manager.resource_manager.ResourceManager.generate_summary_of_texts", return_value="summary"
 )
 
 @patched_generate_summary_of_texts

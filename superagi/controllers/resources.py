@@ -17,7 +17,7 @@ from superagi.helper.resource_helper import ResourceHelper
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.resource_manager import ResourceManager
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.worker import summarize_resource
 
