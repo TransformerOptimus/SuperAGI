@@ -12,7 +12,7 @@ from superagi.config.config import get_config
 from superagi.types.vector_store_types import VectorStoreType
 
 
-def create_llama_document(file_path: str = None, file_object=None):
+async def create_llama_document(file_path: str = None, file_object=None):
     """
     Creates a document index from a given directory.
     """
@@ -26,7 +26,10 @@ def create_llama_document(file_path: str = None, file_object=None):
 
     if file_object is not None:
         file_path = save_directory + file_object.filename
-        file_object.save(file_path)
+        with open(file_path, "wb") as f:
+            contents = await file_object.read()
+            f.write(contents)
+            file_object.file.close()
 
     documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
 

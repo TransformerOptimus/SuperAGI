@@ -13,21 +13,19 @@ class ResourceSummarizer:
 
     @classmethod
     def add_to_vector_store_and_create_summary(cls, agent_id: int, resource_id: int, openai_api_key: str,
-                                               file_path: str = None, file_object=None):
+                                               documents: list):
         """
         Add a file to the vector store and generate a summary for it.
 
         Args:
-            file_path (str): Path of the file.
-            file_object : File object.
             agent_id (str): ID of the agent.
             resource_id (int): ID of the resource.
             openai_api_key (str): OpenAI API key.
+            documents (list): List of documents.
         """
         engine = connect_db()
         session = sessionmaker(bind=engine)
         db = session()
-        documents = create_llama_document(file_path, file_object)
         try:
             save_document_to_vector_store(documents, str(agent_id), str(resource_id))
         except Exception as e:

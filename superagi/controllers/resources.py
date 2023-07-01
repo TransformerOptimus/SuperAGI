@@ -96,8 +96,9 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.flush()
 
     file_path = file_path if storage_type == "FILE" else None
-    file_object = file if storage_type == "FILE" else None
-    summarize_resource.delay(agent_id, resource.id, get_config("OPENAI_API_KEY"), file_path, file_object)
+    file_object = file if storage_type == "S3" else None
+    documents = await create_llama_document(file_path, file_object)
+    summarize_resource.delay(agent_id, resource.id, get_config("OPENAI_API_KEY"), documents)
     logger.info(resource)
 
     return resource

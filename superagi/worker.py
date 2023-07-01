@@ -11,6 +11,8 @@ app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"
 app.conf.broker_url = "redis://" + redis_url + "/0"
 app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
+app.conf.accept_content = ['application/x-python-serialize']
+
 
 
 @app.task(name="execute_agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
@@ -21,12 +23,11 @@ def execute_agent(agent_execution_id: int, time):
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
 
 
-@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
+@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')
 def summarize_resource(agent_id: int, resource_id: int, openai_api_key: str,
-                       file_path: str = None, file_object=None):
+                       document: list):
     """Summarize a resource in background."""
     from superagi.jobs.resource_summary import ResourceSummarizer
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     ResourceSummarizer.add_to_vector_store_and_create_summary(agent_id=agent_id, resource_id=resource_id,
-                                                              openai_api_key=openai_api_key, file_path=file_path,
-                                                              file_object=file_object)
+                                                              openai_api_key=openai_api_key, documents=document)
