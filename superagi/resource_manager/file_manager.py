@@ -6,7 +6,7 @@ from superagi.lib.logger import logger
 import os
 import csv
 
-class ResourceManager:
+class FileManager:
     def __init__(self, session: Session, agent_id: int = None):
         self.session = session
         self.agent_id = agent_id
