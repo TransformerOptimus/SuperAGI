@@ -27,6 +27,7 @@ from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
+from superagi.types.vector_store_types import VectorStoreType
 import yaml
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -173,10 +174,10 @@ class AgentExecutor:
 
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
+                memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
             else:
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
+                memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
             logger.info("Unable to setup the pinecone connection...")

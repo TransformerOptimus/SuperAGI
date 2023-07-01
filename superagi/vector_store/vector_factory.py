@@ -1,17 +1,16 @@
-import os
-
 import pinecone
 from pinecone import UnauthorizedException
 
-from superagi.vector_store.pinecone import Pinecone
-from superagi.vector_store import weaviate
 from superagi.config.config import get_config
+from superagi.types.vector_store_types import VectorStoreType
+from superagi.vector_store import weaviate
+from superagi.vector_store.pinecone import Pinecone
 
 
 class VectorFactory:
 
     @classmethod
-    def get_vector_storage(cls, vector_store, index_name, embedding_model):
+    def get_vector_storage(cls, vector_store: VectorStoreType, index_name, embedding_model):
         """
         Get the vector storage.
 
@@ -23,7 +22,8 @@ class VectorFactory:
         Returns:
             The vector storage object.
         """
-        if vector_store.lower() == "pinecone":
+        vector_store = VectorStoreType.get_enum(vector_store)
+        if vector_store == VectorStoreType.PINECONE:
             try:
                 api_key = get_config("PINECONE_API_KEY")
                 env = get_config("PINECONE_ENVIRONMENT")
@@ -47,9 +47,9 @@ class VectorFactory:
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
         
-        if vector_store.lower() == "weaviate":
+        if vector_store == VectorStoreType.WEAVIATE:
             
-            use_embedded = get_config("WEAVIATE_USE_EMBEDDED")
+            use_embedded = bool(get_config("WEAVIATE_USE_EMBEDDED"))
             url = get_config("WEAVIATE_URL")
             api_key = get_config("WEAVIATE_API_KEY")
 
@@ -59,6 +59,5 @@ class VectorFactory:
                 api_key=api_key
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
-
 
         raise ValueError(f"Vector store {vector_store} not supported")
