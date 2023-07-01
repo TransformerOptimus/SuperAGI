@@ -38,21 +38,35 @@ class ResourceSummarizer:
         resource = db.query(Resource).filter(Resource.id == resource_id).first()
         resource.summary = summary
         db.commit()
-
-        # get all resources associated with the agent and check if all have summaries generated
-        # if yes, then generate a summary for the agent and store it in the agent configuration
-
-        # get all resources associated with the agent
         resources = db.query(Resource).filter(Resource.agent_id == agent_id).all()
-        # check if all have summaries generated
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
         if len(summary_texts) != len(resources):
             return
 
-        resource_summary = generate_summary_of_texts(summary_texts, openai_api_key)
-        agent_resource_config = AgentConfiguration(agent_id=agent_id, key="resource_summary", value=resource_summary)
-        agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource", value=str(resource.updated_at))
-        db.add(agent_resource_config)
-        db.add(agent_last_resource)
+        if len(summary_texts) == 1:
+            resource_summary = summary_texts[0]
+        else:
+            resource_summary = generate_summary_of_texts(summary_texts, openai_api_key)
+
+        agent_config_resource_summary = db.query(AgentConfiguration). \
+            filter(AgentConfiguration.agent_id == agent_id,
+                   AgentConfiguration.key == "resource_summary").first()
+
+        agent_last_resource = db.query(AgentConfiguration). \
+            filter(AgentConfiguration.agent_id == agent_id,
+                   AgentConfiguration.key == "last_resource").first()
+
+        if agent_config_resource_summary is not None:
+            agent_config_resource_summary.value = resource_summary
+        else:
+            agent_config_resource_summary = AgentConfiguration(agent_id=agent_id, key="resource_summary",
+                                                               value=resource_summary)
+            db.add(agent_config_resource_summary)
+        if agent_last_resource is not None:
+            agent_last_resource.value = str(resource.updated_at)
+        else:
+            agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource",
+                                                     value=str(resource.updated_at))
+            db.add(agent_last_resource)
         db.commit()
         db.close()

@@ -188,7 +188,6 @@ class AgentExecutor:
             tool = AgentExecutor.create_object(tool,session)
             tools.append(tool)
 
-        print('////////////', model_api_key)
         resource_summary = self.generate_resource_summary(agent.id, session, model_api_key)
         resource_summary = resource_summary or parsed_config.get("resource_summary")
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
@@ -303,17 +302,19 @@ class AgentExecutor:
         agent_execution.status = "RUNNING"
         session.commit()
 
-    def generate_resource_summary(self,agent_id: int, session: Session, openai_api_key: str):
+    def generate_resource_summary(self, agent_id: int, session: Session, openai_api_key: str):
         from superagi.models.resource import Resource
         from superagi.models.agent_config import AgentConfiguration
-        resources = session.query(Resource).filter(Resource.agent_id == agent_id).all()
+        resources = session.query(Resource).filter(Resource.agent_id == agent_id).order_by(
+            Resource.updated_at.asc()).all()
         print(resources)
         if len(resources) == 0:
             return
         # get last resource from agent config
-        last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
+        agent_last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
                                                                  AgentConfiguration.key == "last_resource").first()
-        if last_resource is not None and last_resource.value == str(resources[-1].id):
+        if agent_last_resource is not None and \
+                datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at:
             return
         texts = [resource.summary for resource in resources if resource.summary is not None]
         if len(texts) == 0:
@@ -323,9 +324,22 @@ class AgentExecutor:
             resource_summary = generate_summary_of_texts(texts, openai_api_key)
         else:
             resource_summary = texts[0]
-        agent_resource_config = AgentConfiguration(agent_id=agent_id, key="resource_summary", value=resource_summary)
-        agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource", value=str(resources[-1].id))
-        session.add(agent_resource_config)
-        session.add(agent_last_resource)
+
+        agent_config_resource_summary = session.query(AgentConfiguration). \
+            filter(AgentConfiguration.agent_id == agent_id,
+                   AgentConfiguration.key == "resource_summary").first()
+
+        if agent_config_resource_summary is not None:
+            agent_config_resource_summary.value = resource_summary
+        else:
+            agent_config_resource_summary = AgentConfiguration(agent_id=agent_id, key="resource_summary",
+                                                               value=resource_summary)
+            session.add(agent_config_resource_summary)
+        if agent_last_resource is not None:
+            agent_last_resource.value = str(resources[-1].updated_at)
+        else:
+            agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource",
+                                                     value=str(resources[-1].updated_at))
+            session.add(agent_last_resource)
         session.commit()
         return resource_summary
