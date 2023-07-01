@@ -1,16 +1,17 @@
-import os
+import logging
 from typing import Type
 
+import openai
 from langchain.chat_models import ChatOpenAI
+from llama_index import VectorStoreIndex, LLMPredictor, ServiceContext
+from llama_index.vector_stores.types import ExactMatchFilter, MetadataFilters
 from pydantic import BaseModel, Field
 
-from superagi.tools.base_tool import BaseTool
 from superagi.config.config import get_config
-import openai
-from llama_index import VectorStoreIndex, LLMPredictor, ServiceContext
 from superagi.helper.llama_vector_store_helper import llama_vector_store_factory
+from superagi.tools.base_tool import BaseTool
+from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
-from llama_index.vector_stores.types import ExactMatchFilter, MetadataFilters
 
 
 class QueryResource(BaseModel):
@@ -38,12 +39,13 @@ class QueryResourceTool(BaseTool):
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
-        vector_store_name = self.get_tool_config(key="RESOURCE_VECTOR_STORE") or "Redis"
+        vector_store_name = VectorStoreType.get_enum(self.get_tool_config(key="RESOURCE_VECTOR_STORE") or "Redis")
         vector_store_index_name = self.get_tool_config(key="RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
-        print("vector_store_name", vector_store_name)
-        print("vector_store_index_name", vector_store_index_name)
-        vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name, OpenAiEmbedding(model_api_key))
-        print("vector_store", vector_store)
+        logging.info(f"vector_store_name {vector_store_name}")
+        logging.info(f"vector_store_index_name {vector_store_index_name}")
+        vector_store = llama_vector_store_factory(vector_store_name, vector_store_index_name,
+                                                  OpenAiEmbedding(model_api_key))
+        logging.info(f"vector_store {vector_store}")
         as_query_engine_args = dict(
             filters=MetadataFilters(
                 filters=[
@@ -54,7 +56,7 @@ class QueryResourceTool(BaseTool):
                 ]
             )
         )
-        if vector_store_name == "chroma":
+        if vector_store_name == VectorStoreType.CHROMA:
             vector_store, chroma_collection = vector_store[0], vector_store[1]
             as_query_engine_args["chroma_collection"] = chroma_collection
         index = VectorStoreIndex.from_vector_store(vector_store=vector_store, service_context=service_context)
