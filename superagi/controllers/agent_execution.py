@@ -5,6 +5,8 @@ from fastapi_jwt_auth import AuthJWT
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_workflow import AgentWorkflow
+
+from superagi.models.agent_schedule import AgentSchedule
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -13,13 +15,15 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 
+from superagi.controllers.types.agent_schedule import AgentScheduler
+
 router = APIRouter()
 
 
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
 def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                           Authorize: AuthJWT = Depends(check_auth)):
+                        Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution/run.
 
@@ -49,6 +53,53 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     return db_agent_execution
 
+@router.post("/schedule", status_code=201)
+def schedule_existing_agent(agent_schedule: AgentScheduler,
+                            Authorize: AuthJWT = Depends(check_auth)):
+    
+    """
+    Schedules an already existing agent.
+
+    Args:
+        agent_schedule (AgentScheduler): Data for creating a scheduling for an existing agent.
+            agent_id (Integer): The ID of the agent being scheduled.
+            start_time (DateTime): The date and time from which the agent is scheduled.
+            recurrence_interval (String): Stores "none" if not recurring, 
+            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
+            expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
+            expiry_runs (Integer): The number of runs before the agent expires.
+
+    Returns:
+        Schedule ID: Unique Schedule ID of the Agent.
+
+    Raises:
+        HTTPException (Status Code=500): If the agent fails to get scheduled.
+    """
+
+    # Check if the agent is already scheduled
+    scheduled_agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_schedule.agent_id, AgentSchedule.status=="RUNNING").first()
+
+    if scheduled_agent:
+        # Update the old record with new data
+        scheduled_agent.start_time = agent_schedule.start_time
+        scheduled_agent.next_scheduled_time =  agent_schedule.start_time
+        scheduled_agent.recurrence_interval = agent_schedule.recurrence_interval
+        scheduled_agent.expiry_date = agent_schedule.expiry_date
+        scheduled_agent.expiry_runs = agent_schedule.expiry_runs
+
+        schedule_id = scheduled_agent.id
+
+        db.session.commit()
+    else:                      
+        # Schedule the agent
+        schedule_id = AgentSchedule.schedule_agent(db.session, agent_schedule)
+
+    if schedule_id is None:
+        raise HTTPException(status_code=500, detail="Failed to schedule agent")
+        
+    return {
+        "schedule_id": schedule_id
+    }
 
 @router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def get_agent_execution(agent_execution_id: int,
@@ -74,8 +125,8 @@ def get_agent_execution(agent_execution_id: int,
 
 @router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
 def update_agent_execution(agent_execution_id: int,
-                           agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                           Authorize: AuthJWT = Depends(check_auth)):
+                        agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+                        Authorize: AuthJWT = Depends(check_auth)):
     """Update details of particular agent_execution by agent_execution_id"""
 
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
@@ -105,7 +156,7 @@ def update_agent_execution(agent_execution_id: int,
 
 @router.get("/get/agents/status/{status}")
 def agent_list_by_status(status: str,
-                         Authorize: AuthJWT = Depends(check_auth)):
+                        Authorize: AuthJWT = Depends(check_auth)):
     """Get list of all agent_ids for a given status"""
 
     running_agent_ids = db.session.query(AgentExecution.agent_id).filter(
@@ -128,7 +179,7 @@ def list_running_agents(agent_id: str,
 
 @router.get("/get/latest/agent/project/{project_id}")
 def get_agent_by_latest_execution(project_id: int,
-                                  Authorize: AuthJWT = Depends(check_auth)):
+                                Authorize: AuthJWT = Depends(check_auth)):
     """Get latest executing agent details"""
 
     latest_execution = (

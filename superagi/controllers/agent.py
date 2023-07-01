@@ -27,7 +27,7 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
 def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
-                 Authorize: AuthJWT = Depends(check_auth)):
+                Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
 
@@ -59,7 +59,7 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
 
 @router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
 def get_agent(agent_id: int,
-              Authorize: AuthJWT = Depends(check_auth)):
+            Authorize: AuthJWT = Depends(check_auth)):
     """
         Get an Agent by ID
 
@@ -81,7 +81,7 @@ def get_agent(agent_id: int,
 
 @router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
 def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
-                 Authorize: AuthJWT = Depends(check_auth)):
+                Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent
 
@@ -119,7 +119,7 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentWithConfig,
-                             Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations.
 
@@ -159,13 +159,13 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
             raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
 
     agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
-                                                                         agent_with_config=agent_with_config)
+                                                                        agent_with_config=agent_with_config)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step_id)
+                            name="New Run", current_step_id=start_step_id)
 
     db.session.add(execution)
     db.session.commit()
@@ -181,7 +181,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
 
 @router.get("/get/project/{project_id}")
 def get_agents_by_project_id(project_id: int,
-                             Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Get all agents by project ID.
 
@@ -249,7 +249,7 @@ def get_agent_configuration(agent_id: int,
 
     # Query the AgentConfiguration table for the specified keys
     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
-                                                          AgentConfiguration.agent_id == agent_id).all()
+                                                        AgentConfiguration.agent_id == agent_id).all()
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(

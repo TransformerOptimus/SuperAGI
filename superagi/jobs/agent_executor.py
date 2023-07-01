@@ -119,7 +119,7 @@ class AgentExecutor:
         if not organisation:
             raise HTTPException(status_code=404, detail="Organisation not found")
         config = session.query(Configuration).filter(Configuration.organisation_id == organisation.id,
-                                                     Configuration.key == "model_api_key").first()
+                                                    Configuration.key == "model_api_key").first()
         if not config:
             raise HTTPException(status_code=404, detail="Configuration not found")
         model_api_key = decrypt_data(config.value)
@@ -174,10 +174,10 @@ class AgentExecutor:
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
-                                                          OpenAiEmbedding(model_api_key))
+                                                        OpenAiEmbedding(model_api_key))
             else:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
-                                                          OpenAiEmbedding(model_api_key))
+                                                        OpenAiEmbedding(model_api_key))
         except:
             logger.info("Unable to setup the pinecone connection...")
             memory = None
@@ -188,13 +188,13 @@ class AgentExecutor:
             tools.append(tool)
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
-                                              model_api_key=model_api_key, session=session)
+                                            model_api_key=model_api_key, session=session)
 
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
-                                 llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
-                                 memory=memory,
-                                 agent_config=parsed_config)
+                                llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
+                                memory=memory,
+                                agent_config=parsed_config)
 
         try:
             self.handle_wait_for_permission(agent_execution, spawned_agent, session)
@@ -282,13 +282,13 @@ class AgentExecutor:
             result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
         else:
             result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
-                     f"{' and has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
+                    f"{' and has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
-                                                  agent_id=agent_execution_permission.agent_id,
-                                                  feed=result,
-                                                  role="user"
-                                                  )
+                                                agent_id=agent_execution_permission.agent_id,
+                                                feed=result,
+                                                role="user"
+                                                )
         session.add(agent_execution_feed)
         agent_execution.status = "RUNNING"
         session.commit()
