@@ -28,7 +28,10 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.types.vector_store_types import VectorStoreType
+from superagi.models.resource import Resource
+from superagi.models.agent_config import AgentConfiguration
 import yaml
+
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
@@ -49,6 +52,7 @@ class DBToolkitConfiguration(BaseToolkitConfiguration):
             return tool_config.value
         return super().get_tool_config(key=key)
 
+
 class AgentExecutor:
     @staticmethod
     def validate_filename(filename):
@@ -66,7 +70,7 @@ class AgentExecutor:
         return filename
 
     @staticmethod
-    def create_object(tool,session):
+    def create_object(tool, session):
         """
         Create an object of a agent usable tool dynamically.
 
@@ -185,7 +189,7 @@ class AgentExecutor:
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
         for tool in user_tools:
-            tool = AgentExecutor.create_object(tool,session)
+            tool = AgentExecutor.create_object(tool, session)
             tools.append(tool)
 
         resource_summary = self.generate_resource_summary(agent.id, session, model_api_key)
@@ -194,7 +198,6 @@ class AgentExecutor:
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
-
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
@@ -303,25 +306,21 @@ class AgentExecutor:
         session.commit()
 
     def generate_resource_summary(self, agent_id: int, session: Session, openai_api_key: str):
-        from superagi.models.resource import Resource
-        from superagi.models.agent_config import AgentConfiguration
         resources = session.query(Resource).filter(Resource.agent_id == agent_id).order_by(
             Resource.updated_at.asc()).all()
-        print(resources)
         if len(resources) == 0:
             return
         # get last resource from agent config
         agent_last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
-                                                                 AgentConfiguration.key == "last_resource").first()
+                                                                       AgentConfiguration.key == "last_resource").first()
         if agent_last_resource is not None and \
                 datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at:
             return
         texts = [resource.summary for resource in resources if resource.summary is not None]
         if len(texts) == 0:
             return
-        from superagi.helper.llama_vector_store_helper import generate_summary_of_texts
         if len(texts) > 1:
-            resource_summary = generate_summary_of_texts(texts, openai_api_key)
+            resource_summary = ResourceManager.generate_summary_of_texts(texts, openai_api_key)
         else:
             resource_summary = texts[0]
 

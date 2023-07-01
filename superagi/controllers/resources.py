@@ -13,12 +13,11 @@ from fastapi_sqlalchemy import db
 
 from superagi.config.config import get_config
 from superagi.helper.auth import check_auth
-from superagi.helper.llama_vector_store_helper import save_file_to_vector_store, create_llama_document, \
-    generate_summary_of_document
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
+from superagi.resource_manager.manager import ResourceManager
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.worker import summarize_resource
 
@@ -97,7 +96,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
 
     file_path = file_path if storage_type == "FILE" else None
     file_object = file if storage_type == "S3" else None
-    documents = await create_llama_document(file_path, file_object)
+    documents = await ResourceManager.create_llama_document(file_path, file_object)
     summarize_resource.delay(agent_id, resource.id, get_config("OPENAI_API_KEY"), documents)
     logger.info(resource)
 

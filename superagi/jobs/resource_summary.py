@@ -1,12 +1,11 @@
 from sqlalchemy.orm import sessionmaker
 
-from superagi.helper.llama_vector_store_helper import create_llama_document, \
-    generate_summary_of_document, save_document_to_vector_store
-from superagi.helper.llama_vector_store_helper import generate_summary_of_texts
+
 from superagi.lib.logger import logger
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.db import connect_db
 from superagi.models.resource import Resource
+from superagi.resource_manager.manager import ResourceManager
 
 
 class ResourceSummarizer:
@@ -27,12 +26,12 @@ class ResourceSummarizer:
         session = sessionmaker(bind=engine)
         db = session()
         try:
-            save_document_to_vector_store(documents, str(agent_id), str(resource_id))
+            ResourceManager.save_document_to_vector_store(documents, str(agent_id), str(resource_id))
         except Exception as e:
             logger.error(e)
         summary = None
         try:
-            summary = generate_summary_of_document(documents)
+            summary = ResourceManager.generate_summary_of_document(documents)
         except Exception as e:
             logger.error(e)
         resource = db.query(Resource).filter(Resource.id == resource_id).first()
@@ -46,7 +45,7 @@ class ResourceSummarizer:
         if len(summary_texts) == 1:
             resource_summary = summary_texts[0]
         else:
-            resource_summary = generate_summary_of_texts(summary_texts, openai_api_key)
+            resource_summary = ResourceManager.generate_summary_of_texts(summary_texts, openai_api_key)
 
         agent_config_resource_summary = db.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
