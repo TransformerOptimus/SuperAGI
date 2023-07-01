@@ -24,10 +24,10 @@ def execute_agent(agent_execution_id: int, time):
 
 
 @app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')
-def summarize_resource(agent_id: int, resource_id: int, openai_api_key: str,
-                       document: list):
+def summarize_resource(agent_id: int, resource_id: int,
+                       documents: list):
     """Summarize a resource in background."""
     from superagi.jobs.resource_summary import ResourceSummarizer
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     ResourceSummarizer.add_to_vector_store_and_create_summary(agent_id=agent_id, resource_id=resource_id,
-                                                              documents=document)
+                                                              documents=documents)

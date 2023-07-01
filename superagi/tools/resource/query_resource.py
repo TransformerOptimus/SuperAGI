@@ -8,7 +8,7 @@ from llama_index.vector_stores.types import ExactMatchFilter, MetadataFilters
 from pydantic import BaseModel, Field
 
 from superagi.config.config import get_config
-from superagi.resource_manager.manager import FileManager
+from superagi.resource_manager.resource_manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
@@ -44,7 +44,7 @@ class QueryResourceTool(BaseTool):
         vector_store_index_name = self.get_tool_config(key="RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
         logging.info(f"vector_store_name {vector_store_name}")
         logging.info(f"vector_store_index_name {vector_store_index_name}")
-        vector_store = FileManager.llama_vector_store_factory(vector_store_name, vector_store_index_name,
+        vector_store = ResourceManager.llama_vector_store_factory(vector_store_name, vector_store_index_name,
                                                               OpenAiEmbedding(model_api_key))
         logging.info(f"vector_store {vector_store}")
         as_query_engine_args = dict(
