@@ -118,6 +118,20 @@ export default function App() {
     window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
   }
 
+  useEffect(() => {
+    const clearLocalStorage = () => {
+      localStorage.clear();
+    };
+
+    window.addEventListener('beforeunload', clearLocalStorage);
+    window.addEventListener('unload', clearLocalStorage);
+
+    return () => {
+      window.removeEventListener('beforeunload', clearLocalStorage);
+      window.removeEventListener('unload', clearLocalStorage);
+    };
+  }, []);
+
   return (
     <div className="app">
       <Head>

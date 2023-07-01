@@ -6,7 +6,7 @@ from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
-from superagi.models.types.agent_config import AgentConfig
+from superagi.controllers.types.agent_config import AgentConfig
 
 router = APIRouter()
 
