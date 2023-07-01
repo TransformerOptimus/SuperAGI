@@ -166,35 +166,3 @@ def download_file_by_id(resource_id: int,
             "Content-Disposition": f"attachment; filename={file_name}"
         }
     )
-
-
-def add_to_vector_store_and_create_summary(file_path: str, agent_id: int, resource_id: int):
-    """
-    Add a file to the vector store and generate a summary for it.
-
-    Args:
-        file_path (str): Path of the file.
-        agent_id (str): ID of the agent.
-        resource_id (int): ID of the resource.
-
-    """
-    from time import perf_counter
-    t1_start = perf_counter()
-    try:
-        save_file_to_vector_store(file_path, str(agent_id), str(resource_id))
-    except Exception as e:
-        logger.error(e)
-    t1_stop = perf_counter()
-    logger.info("file to vector store:" + str(t1_stop - t1_start))
-    summary = None
-    try:
-        documents = create_llama_document(file_path)
-        summary = generate_summary_of_document(documents)
-    except Exception as e:
-        logger.error(e)
-    t1_start = perf_counter()
-    t1_stop = perf_counter()
-    logger.info("summary: " + str(t1_stop - t1_start))
-    resource = db.session.query(Resource).filter(Resource.id == resource_id).first()
-    resource.summary = summary
-    db.session.commit()
