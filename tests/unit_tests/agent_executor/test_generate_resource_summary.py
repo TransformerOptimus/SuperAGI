@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from unittest.mock import Mock, patch
 
@@ -23,12 +25,23 @@ class MockSession:
     def all(self):
         return []
 
+    def order_by(self, *args, **kwargs):
+        return self
 
 class MockAgentConfiguration:
-    def __init__(self, agent_id, key, value):
+    def __init__(self, agent_id, key, value, updated_at=None):
         self._agent_id = agent_id
         self._key = key
         self._value = value
+        self._updated_at = updated_at
+
+    @property
+    def updated_at(self):
+        return self._updated_at
+
+    @updated_at.setter
+    def updated_at(self, value):
+        self._updated_at = value
 
     @property
     def agent_id(self):
@@ -55,10 +68,11 @@ class MockAgentConfiguration:
         self._value = value
 
 class MockResource:
-    def __init__(self, id, agent_id, summary=None):
+    def __init__(self, id, agent_id, summary=None, update_at=None):
         self.id = id
         self._agent_id = agent_id
         self.summary = summary
+        self.update_at = update_at
 
     @property
     def agent_id(self):
@@ -68,14 +82,24 @@ class MockResource:
     def agent_id(self, value):
         self._agent_id = value
 
+    @property
+    def updated_at(self):
+        return self.update_at
+
+    @updated_at.setter
+    def updated_at(self, value):
+        self.update_at = value
+
+date_obj = datetime.strptime("2023-07-01 07:47:27.349297", '%Y-%m-%d %H:%M:%S.%f')
+
 
 resources_mock_data = [
-    MockResource(1, 1, "summary 1"),
-    MockResource(2, 1, "summary 2")
+    MockResource(1, 1, "summary 1", date_obj),
+    MockResource(2, 1, "summary 2", date_obj)
 ]
 
 patched_generate_summary_of_texts = patch(
-    "superagi.helper.llama_vector_store_helper.generate_summary_of_texts", return_value="summary"
+    "superagi.resource_manager.manager.ResourceManager.generate_summary_of_texts", return_value="summary"
 )
 
 @patched_generate_summary_of_texts
@@ -126,7 +150,7 @@ def test_generate_resource_summary_already_summarized(generate_summary_of_texts)
     session = MockSession()
     openai_api_key = "mock_openai_key"
     agent_id = 1
-    last_resource = MockAgentConfiguration(agent_id=agent_id, key="last_resource", value="2")
+    last_resource = MockAgentConfiguration(agent_id=agent_id, key="last_resource", value="2023-07-01 07:47:27.349297")
     with patch('superagi.models.agent_config.AgentConfiguration', new=MockAgentConfiguration):
         with patch('superagi.models.resource.Resource', new=MockResource):
             with patch.object(MockSession, 'first', return_value=last_resource):
