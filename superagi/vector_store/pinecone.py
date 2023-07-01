@@ -23,8 +23,7 @@ class Pinecone(VectorStore):
             index: Any,
             embedding_model: BaseEmbedding,
             text_field: str,
-            namespace: Optional[str] = '',
-            vector_group_id: Optional[str] = None):
+            namespace: Optional[str] = ''):
         """
             Create a vector store using Pinecone.
             Args:
@@ -46,7 +45,6 @@ class Pinecone(VectorStore):
         self.embedding_model = embedding_model
         self.text_field = text_field
         self.namespace = namespace
-        self.vector_group_id = vector_group_id
 
     @classmethod
     def create_index(cls, index_name, embedding_model):
@@ -105,13 +103,12 @@ class Pinecone(VectorStore):
         for text, id in zip(texts, ids):
             metadata = metadatas.pop() if metadatas else {}
             metadata[self.text_field] = text
-            metadata["vector_group_id"] = self.vector_group_id
             vectors.append((id, self.embedding_model.get_embedding(text), metadata))
 
         self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = None, **kwargs: Any) -> List[
+    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = {}, **kwargs: Any) -> List[
         Document]:
         """
         Return docs most similar to query using specified search type.
@@ -125,13 +122,12 @@ class Pinecone(VectorStore):
             The list of documents most similar to the query
         """
         namespace = kwargs.get("namespace", self.namespace)
-
-        filter = {
-            "vector_group_id": {"$eq": self.vector_group_id}
-        } if self.vector_group_id else None
+        filters = {}
+        for key in metadata.keys():
+            filters[key] = {"$eq": metadata[key]}
 
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, filter=filter, top_k=top_k, namespace=namespace, include_metadata=True)
+        res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace, include_metadata=True)
 
         documents = []
 
