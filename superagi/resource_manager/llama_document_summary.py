@@ -27,8 +27,10 @@ class LlamaDocumentSummary:
 
     def generate_summary_of_texts(self, texts: list[str]):
         from llama_index import Document
-        documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
-        return self.generate_summary_of_document(documents)
+        if texts is not None and len(texts) > 0:
+            documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
+            return self.generate_summary_of_document(documents)
+        raise ValueError("texts must be provided")
 
     def _build_llm(self):
         open_ai_models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
