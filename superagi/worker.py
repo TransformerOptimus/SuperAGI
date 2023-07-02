@@ -30,7 +30,7 @@ def execute_agent(agent_execution_id: int, time):
 def summarize_resource(agent_id: int, resource_id: int):
     """Summarize a resource in background."""
     from superagi.resource_manager.resource_summary import ResourceSummarizer
-    from superagi.types.storage_types import StorageTypes
+    from superagi.types.storage_types import StorageType
     from superagi.models.resource import Resource
     from superagi.resource_manager.resource_manager import ResourceManager
 
@@ -41,7 +41,7 @@ def summarize_resource(agent_id: int, resource_id: int):
     resource = session.query(Resource).filter(Resource.id == resource_id).first()
     file_path = resource.path
 
-    if resource.storage_type == StorageTypes.S3.value:
+    if resource.storage_type == StorageType.S3.value:
         documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
     else:
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)

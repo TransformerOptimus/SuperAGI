@@ -10,7 +10,7 @@ from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
-from superagi.types.storage_types import StorageTypes
+from superagi.types.storage_types import StorageType
 from superagi.types.vector_store_types import VectorStoreType
 
 
@@ -46,7 +46,7 @@ class FileManager:
                 self.session.add(resource)
                 self.session.commit()
                 self.session.flush()
-                if resource.storage_type == StorageTypes.S3.value:
+                if resource.storage_type == StorageType.S3.value:
                     s3_helper = S3Helper()
                     s3_helper.upload_file(img, path=resource.path)
 

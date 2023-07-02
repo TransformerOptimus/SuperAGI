@@ -26,7 +26,7 @@ class ResourceSummarizer:
             documents (list): List of documents.
         """
         try:
-            ResourceManager(agent_id).save_document_to_vector_store(documents, str(resource_id))
+            ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id))
         except Exception as e:
             logger.error(e)
         summary = None

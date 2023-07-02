@@ -20,7 +20,7 @@ from superagi.models.resource import Resource
 from superagi.resource_manager.resource_manager import ResourceManager
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.worker import summarize_resource
-from superagi.types.storage_types import StorageTypes
+from superagi.types.storage_types import StorageType
 
 router = APIRouter()
 
@@ -63,20 +63,20 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if not name.endswith(accepted_file_types):
         raise HTTPException(status_code=400, detail="File type not supported!")
 
-    storage_type = StorageTypes.get_storage_type(get_config("STORAGE_TYPE"))
+    storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
     save_directory = ResourceHelper.get_root_input_dir() + "/"
     if "{agent_id}" in save_directory:
         save_directory = save_directory.replace("{agent_id}", str(agent_id))
     path = ""
     os.makedirs(save_directory, exist_ok=True)
     file_path = os.path.join(save_directory, file.filename)
-    if storage_type == StorageTypes.FILE:
+    if storage_type == StorageType.FILE:
         path = file_path
         with open(file_path, "wb") as f:
             contents = await file.read()
             f.write(contents)
             file.file.close()
-    elif storage_type == StorageTypes.S3:
+    elif storage_type == StorageType.S3:
         bucket_name = get_config("BUCKET_NAME")
         file_name = file.filename.split('.')
         path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
@@ -144,7 +144,7 @@ def download_file_by_id(resource_id: int,
     if not resource:
         raise HTTPException(status_code=400, detail="Resource Not found!")
 
-    if resource.storage_type == StorageTypes.S3.value:
+    if resource.storage_type == StorageType.S3.value:
         bucket_name = get_config("BUCKET_NAME")
         file_key = resource.path
         response = s3.get_object(Bucket=bucket_name, Key=file_key)
