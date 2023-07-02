@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class StorageTypes(Enum):
+class StorageType(Enum):
     FILE = 'FILE'
     S3 = 'S3'
 
