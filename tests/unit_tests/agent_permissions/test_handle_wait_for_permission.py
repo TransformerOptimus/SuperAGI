@@ -1,7 +1,6 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 import superagi.models.agent_execution
 from superagi.lib.logger import logger
 from superagi.models.agent_execution_feed import AgentExecutionFeed
