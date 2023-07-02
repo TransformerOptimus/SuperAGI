@@ -4,7 +4,7 @@ from typing import Type, Dict, List
 from pydantic import Field, BaseModel
 
 from superagi.helper.token_counter import TokenCounter
-from superagi.tools.jira.tool import JiraTool, JiraIssueSchema
+from superagi.tools.jira.tool import JiraTool
 
 
 class SearchIssueSchema(BaseModel):
@@ -33,14 +33,14 @@ class SearchJiraTool(JiraTool):
 
         Args:
             query : JQL query string to search issues. For example, to find all the issues in project "Test"
-        assigned to the, you would pass in the following string: project = Test AND assignee = currentUser() or to
+        assigned to, you would pass in the following string: project = Test AND assignee = currentUser() or to
         find issues with summaries that contain the word "test", you would pass in the following string: summary ~
         'test'.
 
         Returns:
-            The key of the created issue.
+            The list of issues matching the query.
         """
-        jira = JiraTool.build_jira_instance()
+        jira = self.build_jira_instance()
         issues = jira.search_issues(query)
         parsed_issues = self.parse_issues(issues)
         parsed_issues_str = (

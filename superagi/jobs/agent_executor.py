@@ -44,7 +44,7 @@ class DBToolkitConfiguration(BaseToolkitConfiguration):
 
     def get_tool_config(self, key: str):
         tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
-        if tool_config:
+        if tool_config and tool_config.value:
             return tool_config.value
         return super().get_tool_config(key=key)
 
@@ -77,8 +77,11 @@ class AgentExecutor:
         """
         file_name = AgentExecutor.validate_filename(filename=tool.file_name)
 
-        tools_dir = get_config("TOOLS_DIR").rstrip("/")
-        module_name = ".".join(tools_dir.split("/") + [tool.folder_name, file_name])
+        tools_dir = get_config("TOOLS_DIR")
+        if tools_dir is None:
+            tools_dir = "superagi/tools"
+        parsed_tools_dir = tools_dir.rstrip("/")
+        module_name = ".".join(parsed_tools_dir.split("/") + [tool.folder_name, file_name])
 
         # module_name = f"superagi.tools.{folder_name}.{file_name}"
 
