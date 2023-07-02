@@ -85,29 +85,4 @@ class RunAgentSchedule:
 
     @staticmethod
     def get_scheduled_agents():
-        now = datetime.now()
-        last_5_minutes = now - timedelta(minutes=5)
-        
-        session = Session()
-        scheduled_agents = session.query(AgentSchedule).filter(AgentSchedule.next_scheduled_time.between(last_5_minutes, now)).all()
-        agents_to_remove = []
-
-        for agent in scheduled_agents:
-            interval = agent.recurrence_interval
-            interval_in_seconds = 0  # default value
-            if interval is not None:
-                interval_in_seconds = parse_interval_to_seconds(interval)
-            agent_id = agent.agent_id
-            agent_name = RunAgentSchedule.create_execution_name_for_scheduling(agent_id)
-
-            should_remove_agent = False
-            should_execute_agent, should_remove_agent = RunAgentSchedule.should_execute_and_remove_agent(agent, interval)
-            RunAgentSchedule.execute_schedule(should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name)
-
-            if should_remove_agent:
-                agents_to_remove.append(agent)
-
-            RunAgentSchedule.remove_completed_agents(agents_to_remove, session)
-
-        session.close()
-
+        now
