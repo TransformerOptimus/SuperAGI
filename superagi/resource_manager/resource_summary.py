@@ -15,7 +15,6 @@ class ResourceSummarizer:
     def __int__(self, session):
         self.session = session
 
-    @classmethod
     def add_to_vector_store_and_create_summary(self, agent_id: int, resource_id: int, documents: list):
         """
         Add a file to the vector store and generate a summary for it.

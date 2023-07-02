@@ -8,7 +8,7 @@ import superagi.worker
 from superagi.agent.super_agi import SuperAgi
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
-from superagi.jobs.resource_summary import ResourceSummarizer
+from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
@@ -22,18 +22,14 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
-from superagi.resource_manager.llama_document_summary import LlamaDocumentSummary
 from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.resource_manager.file_manager import FileManager
-from superagi.resource_manager.resource_manager import ResourceManager
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.types.vector_store_types import VectorStoreType
-from superagi.models.resource import Resource
 from superagi.models.agent_config import AgentConfiguration
-import yaml
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 

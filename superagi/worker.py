@@ -30,7 +30,7 @@ def execute_agent(agent_execution_id: int, time):
 def summarize_resource(agent_id: int, resource_id: int,
                        documents: list):
     """Summarize a resource in background."""
-    from superagi.jobs.resource_summary import ResourceSummarizer
+    from superagi.resource_manager.resource_summary import ResourceSummarizer
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
