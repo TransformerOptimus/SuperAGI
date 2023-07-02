@@ -13,9 +13,11 @@ class RabbitMQConnection:
     def on_connected(self, connection):
         # Called when the toolkit has successfully connected to RabbitMQ
         # TODO: Add code to perform the specified operation using the connection
+        pass
 
     def on_closed(self, connection, reason):
         # Called when the toolkit's connection to RabbitMQ has been closed
+        pass
 
     def run(self):
         self.connection = pika.SelectConnection(

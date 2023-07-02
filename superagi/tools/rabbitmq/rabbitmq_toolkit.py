@@ -4,7 +4,7 @@ from superagi.tools.base_tool import BaseTool
 import pika
 import os
 import logging
-from .rabbitmq_connection import RabbitMQConnection
+from superagi.tools.rabbitmq.rabbitmq_connection import RabbitMQConnection
 
 class RabbitMQToolkit(BaseTool, ABC):
     name = "RabbitMQ Toolkit"

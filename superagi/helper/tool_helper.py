@@ -170,8 +170,7 @@ def init_toolkits(code_link, existing_toolkits, folder_path, organisation, sessi
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseToolkit)
-                    tool_name_to_toolkit = update_base_toolkit_info(classes, code_link, folder_name, new_toolkits,
-                                                                    organisation, session, tool_name_to_toolkit)
+                    tool_name_to_toolkit = update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, organisation, session, tool_name_to_toolkit)
     # Delete toolkits that are not present in the updated toolkits
     delete_extra_toolkit(existing_toolkits, new_toolkits, session)
     return tool_name_to_toolkit
