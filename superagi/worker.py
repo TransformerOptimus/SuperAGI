@@ -31,14 +31,37 @@ def summarize_resource(agent_id: int, resource_id: int,
                        documents: list):
     """Summarize a resource in background."""
     from superagi.resource_manager.resource_summary import ResourceSummarizer
+    from superagi.types.storage_types import StorageTypes
+    from superagi.models.resource import Resource
+    from superagi.resource_manager.resource_manager import ResourceManager
+    import boto3
+    import asyncio
+    from io import BytesIO
+
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
 
+    resource = session.query(Resource).filter(Resource.id == resource_id).first()
+    file_path = resource.path
+
+    if resource.storage_type == StorageTypes.S3.value:
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+        )
+        bucket_name = get_config("S3_BUCKET")
+        file = s3.get_object(Bucket=bucket_name, Key=file_path)
+        file_obj = BytesIO(file['Body'].read())
+        documents = asyncio.run(ResourceManager(str(agent_id)).create_llama_document_s3(file_obj))
+    else:
+        documents = asyncio.run(ResourceManager(str(agent_id)).create_llama_document(file_path))
+
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     resource_summarizer = ResourceSummarizer(session=session)
     resource_summarizer.add_to_vector_store_and_create_summary(agent_id=agent_id,
-                                                                                 resource_id=resource_id,
-                                                                                 documents=documents)
+                                                               resource_id=resource_id,
+                                                               documents=documents)
     resource_summarizer.generate_agent_summary(agent_id=agent_id)
     session.close()
