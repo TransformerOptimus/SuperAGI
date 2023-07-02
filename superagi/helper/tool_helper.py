@@ -15,6 +15,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolkit
+from superagi.tools.rabbitmq.rabbitmq_toolkit import RabbitMQToolkit
 
 
 def parse_github_url(github_url):
@@ -128,6 +129,12 @@ def init_tools(folder_path, session, tool_name_to_toolkit):
             sys.path.append(folder_dir)
             for file_name in os.listdir(folder_dir):
                 file_path = os.path.join(folder_dir, file_name)
+                # Add a condition to check if the current file is your new toolkit file
+                if file_name == "rabbitmq_toolkit.py":
+                    classes = get_classes_in_file(file_path=file_path, clazz=BaseToolkit)
+                    tool_name_to_toolkit = update_base_toolkit_info(classes,folder_name,
+                                                    session, tool_name_to_toolkit)
+
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)

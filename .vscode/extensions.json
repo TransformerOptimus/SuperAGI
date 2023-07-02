@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "github.copilot",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python"
+    ]
+}

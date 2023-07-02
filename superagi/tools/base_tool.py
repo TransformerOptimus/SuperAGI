@@ -202,13 +202,18 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
 class BaseToolkit(BaseModel):
     name: str
     description: str
-
+    
     @abstractmethod
+    def get_rabbitmq_tool(self):
+        from .rabbitmq.rabbitmq_tool import RabbitMQTool
+        return RabbitMQTool.from_function(self._execute)
+    
     def get_tools(self) -> List[BaseTool]:
         # Add file related tools object here
-        pass
-
+        return [self.get_rabbitmq_tool()]
+    
     @abstractmethod
     def get_env_keys(self) -> List[str]:
         # Add file related config keys here
         pass
+ 
