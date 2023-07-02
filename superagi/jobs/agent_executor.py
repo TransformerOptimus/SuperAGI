@@ -27,6 +27,7 @@ from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
+from superagi.helper.analytics_helper import AnalyticsHelper
 import yaml
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -122,6 +123,30 @@ class AgentExecutor:
         model_api_key = decrypt_data(config.value)
         return model_api_key
 
+    @staticmethod
+    def get_organisation_id(agent_execution,session):
+        """
+        Get the model API key from the agent execution.
+
+        Args:
+            agent_execution (AgentExecution): The agent execution.
+            session (Session): The database session.
+
+        Returns:
+             str: The model API key.
+        """
+        agent_id = agent_execution.agent_id
+        agent = session.query(Agent).filter(Agent.id == agent_id).first()
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        project = session.query(Project).filter(Project.id == agent.project_id).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+
+        return organisation
+
+
     def execute_next_action(self, agent_execution_id):
         """
         Execute the next action of the agent execution.
@@ -167,6 +192,7 @@ class AgentExecutor:
         parsed_config["agent_execution_id"] = agent_execution.id
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
+        organisation = AgentExecutor.get_organisation_id(agent_execution, session)
 
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
@@ -209,6 +235,7 @@ class AgentExecutor:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "COMPLETED"
             session.commit()
+            AnalyticsHelper.create_event(session, 'RUN COMPLETED', 1, {'run_id':db_agent_execution.id,'name': db_agent_execution.name,'tokens_consumed':db_agent_execution.num_of_tokens,"calls":db_agent_execution.num_of_calls}, db_agent_execution.agent_id, organisation.id)
         elif response["result"] == "WAITING_FOR_PERMISSION":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "WAITING_FOR_PERMISSION"

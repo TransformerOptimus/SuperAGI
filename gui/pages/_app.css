@@ -673,6 +673,9 @@ p {
 .justify_center{justify-content: center}
 .display_flex{display: inline-flex}
 .align_center{align-items: center}
+.text_align_right{text-align: right}
+
+.gap_8{gap:8px;}
 
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
@@ -739,26 +742,24 @@ p {
     }
 }
 
-
-.progress-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.progress-table, .progress-table tr, .progress-table th, .progress-table td {
-    border: 1px solid black;
+.scrollable_container{
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    overflow: auto;
 }
 
 .progress-bar {
     width: 100%;
     height: 20px;
-    background-color: grey;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.10);
 }
 
 .filled {
     height: 20px;
     background: linear-gradient(90deg, #7491EA 0%, #9865D9 100%);
+    border-radius: 4px;
 }
 
 .bar-chart {
@@ -770,7 +771,6 @@ p {
 .bar {
     width: 0;
     height: 40px;
-    margin-bottom: 10px;
     background: linear-gradient(90deg, #7491EA 0%, #9865D9 100%);
     border-radius: 10px;
     line-height: 40px;
@@ -780,10 +780,19 @@ p {
     transition: width 2s;
 }
 
+.active_runs{
+    display: flex;
+    width: 100%;
+    padding: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
 .table_css{
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-right: none;
-    border-left: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     width: 100%;
 }
 
@@ -791,16 +800,21 @@ p {
     color: #888;
     font-size: 12px;
     font-weight: 500;
+    padding: 8px;
+    align-items: center;
 }
 
 .table_data{
-    display: inline-flex;
-    flex-direction: row;
     gap: 10px;
-
     color: #FFF;
     font-size: 12px;
     font-weight: 400;
+    padding: 8px;
+}
+
+tr{
     border: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: none;
+    border-left: none;
 }
 

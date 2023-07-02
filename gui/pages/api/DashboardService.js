@@ -138,3 +138,9 @@ export const fetchToolTemplateOverview = (toolTemplateName) => {
 export const installToolkitTemplate = (templateName) => {
   return api.get(`/toolkits/get/install/${templateName}`);
 }
+export const getMetrics = () => {
+  return api.get(`/analytics/metrics`)
+}
+export const getAllAgents = () => {
+  return api.get(`/analytics/agents/all`)
+}

@@ -20,6 +20,7 @@ from datetime import datetime
 import json
 from sqlalchemy import func
 from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.helper.analytics_helper import AnalyticsHelper
 
 router = APIRouter()
 
@@ -162,19 +163,25 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
                                                                          agent_with_config=agent_with_config)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
+
+    agent_id = db_agent.id
+    agent_name = db_agent.name
+
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
+
+    AnalyticsHelper.create_event(db.session, 'AGENT CREATED', 1, {'name': agent_with_config.name,'model':agent_with_config.model}, agent_id, 0)
 
     db.session.add(execution)
     db.session.commit()
     execute_agent.delay(execution.id, datetime.now())
 
     return {
-        "id": db_agent.id,
+        "id": agent_id,
         "execution_id": execution.id,
-        "name": db_agent.name,
+        "name": agent_name,
         "contentType": "Agents"
     }
 
