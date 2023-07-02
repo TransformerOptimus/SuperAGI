@@ -27,8 +27,7 @@ def execute_agent(agent_execution_id: int, time):
 
 
 @app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')
-def summarize_resource(agent_id: int, resource_id: int,
-                       documents: list):
+def summarize_resource(agent_id: int, resource_id: int):
     """Summarize a resource in background."""
     from superagi.resource_manager.resource_summary import ResourceSummarizer
     from superagi.types.storage_types import StorageTypes
