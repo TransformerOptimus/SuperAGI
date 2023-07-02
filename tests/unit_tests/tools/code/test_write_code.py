@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from superagi.resource_manager.manager import FileManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.code.write_code import CodingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 

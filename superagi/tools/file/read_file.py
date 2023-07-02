@@ -4,7 +4,7 @@ from typing import Type, Optional
 from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
-from superagi.resource_manager.manager import FileManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 

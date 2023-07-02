@@ -94,9 +94,10 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.commit()
     db.session.flush()
 
-    file_path = file_path if storage_type == StorageTypes.FILE else None
-    file_object = file if storage_type == StorageTypes.S3 else None
-    documents = await ResourceManager.create_llama_document(file_path, file_object)
+    if storage_type == StorageTypes.S3:
+        documents = await ResourceManager(agent.id).create_llama_document_s3(file)
+    else:
+        documents = await ResourceManager(agent.id).create_llama_document(file_path)
     summarize_resource.delay(agent_id, resource.id, documents)
     logger.info(resource)
 

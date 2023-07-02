@@ -3,7 +3,7 @@ from typing import Type, Optional
 from pydantic import BaseModel, Field
 
 # from superagi.helper.s3_helper import upload_to_s3
-from superagi.resource_manager.manager import FileManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 

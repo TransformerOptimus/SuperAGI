@@ -14,3 +14,6 @@ class VectorStoreType(Enum):
         if store in cls.__members__:
             return cls[store]
         raise ValueError(f"{store} is not a valid vector store name.")
+
+    def __str__(self):
+        return self.value

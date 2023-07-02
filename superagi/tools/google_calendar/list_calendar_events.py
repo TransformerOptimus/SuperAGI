@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 from superagi.helper.calendar_date import CalendarDate
-from superagi.resource_manager.manager import FileManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.helper.s3_helper import S3Helper
 from urllib.parse import urlparse, parse_qs
 from sqlalchemy.orm import sessionmaker

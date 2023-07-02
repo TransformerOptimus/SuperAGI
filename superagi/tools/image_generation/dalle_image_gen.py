@@ -4,7 +4,7 @@ import requests
 from pydantic import BaseModel, Field
 
 from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import FileManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 class DalleImageGenInput(BaseModel):

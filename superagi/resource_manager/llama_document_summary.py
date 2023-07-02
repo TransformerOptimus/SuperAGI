@@ -1,0 +1,39 @@
+from llama_index.indices.response import ResponseMode
+from llama_index.schema import Document
+
+from superagi.config.config import get_config
+
+
+class LlamaDocumentSummary:
+    def __init__(self, model_name=get_config("RESOURCES_EMBEDDING_MODEL_NAME", "text-davinci-003")):
+        self.model_name = model_name
+
+    def generate_summary_of_document(self, documents: list[Document]):
+        from llama_index import LLMPredictor, ServiceContext, ResponseSynthesizer, DocumentSummaryIndex
+
+        llm_predictor_chatgpt = LLMPredictor(llm=self._build_llm())
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt, chunk_size=1024)
+        response_synthesizer = ResponseSynthesizer.from_args(response_mode=ResponseMode.TREE_SUMMARIZE, use_async=True)
+        doc_summary_index = DocumentSummaryIndex.from_documents(
+            documents=documents,
+            service_context=service_context,
+            response_synthesizer=response_synthesizer
+        )
+
+        return doc_summary_index.get_document_summary(documents[0].doc_id)
+
+    def generate_summary_of_texts(self, texts: list[str]):
+        from llama_index import Document
+        documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
+        return self.generate_summary_of_document(documents)
+
+    def _build_llm(self):
+        open_ai_models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
+        if self.model_name in open_ai_models:
+            from langchain.chat_models import ChatOpenAI
+
+            openai_api_key = get_config("OPENAI_API_KEY")
+            return ChatOpenAI(temperature=0, model_name=self.model_name,
+                              openai_api_key=openai_api_key)
+
+        raise Exception(f"Model name {self.model_name} not supported for document summary")
