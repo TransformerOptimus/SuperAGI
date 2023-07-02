@@ -30,11 +30,13 @@ class MockDocumentSummaryIndex:
         return f'This is a summary of the document with id: {doc_id}'
 
 
+@patch('superagi.config.config.get_config')
 @patch('llama_index.LLMPredictor', MockLLMPredictor)
 @patch('llama_index.ServiceContext', MockServiceContext)
 @patch('llama_index.ResponseSynthesizer', MockResponseSynthesizer)
 @patch('llama_index.DocumentSummaryIndex', MockDocumentSummaryIndex)
-def test_generate_summary_of_documents():
+def test_generate_summary_of_documents(mock_get_config):
+    mock_get_config.return_value = 'dummy_api_key'
     lds = LlamaDocumentSummary()
     # Documents to be summarized
     documents = [
@@ -46,11 +48,13 @@ def test_generate_summary_of_documents():
     # Ensure mock summary is returned
     assert summary == 'This is a summary of the document with id: 1'
 
+@patch('superagi.config.config.get_config')
 @patch('llama_index.LLMPredictor', MockLLMPredictor)
 @patch('llama_index.ServiceContext', MockServiceContext)
 @patch('llama_index.ResponseSynthesizer', MockResponseSynthesizer)
 @patch('llama_index.DocumentSummaryIndex', MockDocumentSummaryIndex)
-def test_generate_summary_of_documents_from_texts():
+def test_generate_summary_of_documents_from_texts(mock_get_config):
+    mock_get_config.return_value = 'dummy_api_key'
     lds = LlamaDocumentSummary()
     # Documents to be summarized
     texts = [
