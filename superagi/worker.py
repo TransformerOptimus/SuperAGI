@@ -1,9 +1,13 @@
 from __future__ import absolute_import
+
+from sqlalchemy.orm import sessionmaker
+
 from superagi.lib.logger import logger
 
 from celery import Celery
 
 from superagi.config.config import get_config
+from superagi.models.db import connect_db
 
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
 
@@ -12,7 +16,6 @@ app.conf.broker_url = "redis://" + redis_url + "/0"
 app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
 app.conf.accept_content = ['application/x-python-serialize', 'application/json']
-
 
 
 @app.task(name="execute_agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
@@ -28,6 +31,14 @@ def summarize_resource(agent_id: int, resource_id: int,
                        documents: list):
     """Summarize a resource in background."""
     from superagi.jobs.resource_summary import ResourceSummarizer
+    engine = connect_db()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
-    ResourceSummarizer.add_to_vector_store_and_create_summary(agent_id=agent_id, resource_id=resource_id,
-                                                              documents=documents)
+    resource_summarizer = ResourceSummarizer(session=session)
+    resource_summarizer.add_to_vector_store_and_create_summary(agent_id=agent_id,
+                                                                                 resource_id=resource_id,
+                                                                                 documents=documents)
+    resource_summarizer.generate_agent_summary(agent_id=agent_id)
+    session.close()

@@ -150,7 +150,7 @@ def test_generate_resource_summary_already_summarized(generate_summary_of_texts)
     session = MockSession()
     openai_api_key = "mock_openai_key"
     agent_id = 1
-    last_resource = MockAgentConfiguration(agent_id=agent_id, key="last_resource", value="2023-07-01 07:47:27.349297")
+    last_resource = MockAgentConfiguration(agent_id=agent_id, key="last_resource_id", value="2023-07-01 07:47:27.349297")
     with patch('superagi.models.agent_config.AgentConfiguration', new=MockAgentConfiguration):
         with patch('superagi.models.resource.Resource', new=MockResource):
             with patch.object(MockSession, 'first', return_value=last_resource):

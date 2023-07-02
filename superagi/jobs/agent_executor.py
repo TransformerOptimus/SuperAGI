@@ -8,6 +8,7 @@ import superagi.worker
 from superagi.agent.super_agi import SuperAgi
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
+from superagi.jobs.resource_summary import ResourceSummarizer
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
@@ -194,8 +195,8 @@ class AgentExecutor:
             tool = AgentExecutor.create_object(tool, session)
             tools.append(tool)
 
-        resource_summary = self.generate_resource_summary(agent.id, session, model_api_key)
-        resource_summary = resource_summary or parsed_config.get("resource_summary")
+        resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
+                                                           default_summary=parsed_config.get("resource_summary"))
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
@@ -307,40 +308,10 @@ class AgentExecutor:
         agent_execution.status = "RUNNING"
         session.commit()
 
-    def generate_resource_summary(self, agent_id: int, session: Session, openai_api_key: str):
-        resources = session.query(Resource).filter(Resource.agent_id == agent_id).order_by(
-            Resource.updated_at.asc()).all()
-        if len(resources) == 0:
-            return
-        # get last resource from agent config
-        agent_last_resource = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id,
-                                                                       AgentConfiguration.key == "last_resource").first()
-        if agent_last_resource is not None and \
-                datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at:
-            return
-        texts = [resource.summary for resource in resources if resource.summary is not None]
-        if len(texts) == 0:
-            return
-        if len(texts) > 1:
-            resource_summary = LlamaDocumentSummary().generate_summary_of_texts(texts, openai_api_key)
-        else:
-            resource_summary = texts[0]
-
+    def get_agent_resource_summary(self, agent_id: int, session: Session, default_summary: str):
+        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id)
         agent_config_resource_summary = session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
-
-        if agent_config_resource_summary is not None:
-            agent_config_resource_summary.value = resource_summary
-        else:
-            agent_config_resource_summary = AgentConfiguration(agent_id=agent_id, key="resource_summary",
-                                                               value=resource_summary)
-            session.add(agent_config_resource_summary)
-        if agent_last_resource is not None:
-            agent_last_resource.value = str(resources[-1].updated_at)
-        else:
-            agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource",
-                                                     value=str(resources[-1].updated_at))
-            session.add(agent_last_resource)
-        session.commit()
+        resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
         return resource_summary
