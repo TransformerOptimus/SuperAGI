@@ -9,7 +9,7 @@ import pytest
 from superagi.helper.tool_helper import (
     parse_github_url,
     load_module_from_file,
-    extract_repo_name,
+    extract_repo_name_with_username,
     add_tool_to_json, get_readme_content_from_code_link, download_tool
 )
 
@@ -73,8 +73,8 @@ def test_get_readme_content_from_code_link(mock_requests_get):
 
 def test_extract_repo_name():
     repo_link = 'https://github.com/username/repo'
-    expected_result = 'repo'
-    assert extract_repo_name(repo_link) == expected_result
+    expected_result = 'username/repo'
+    assert extract_repo_name_with_username(repo_link) == expected_result
 
 
 @patch('requests.get')
