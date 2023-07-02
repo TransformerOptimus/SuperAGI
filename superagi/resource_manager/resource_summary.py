@@ -63,7 +63,7 @@ class ResourceSummarizer:
                                                                value=resource_summary)
             self.session.add(agent_config_resource_summary)
         if agent_last_resource is not None:
-            agent_last_resource.value = str(self.session.updated_at)
+            agent_last_resource.value = str(resources[-1].updated_at)
         else:
             agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource_id",
                                                      value=str(resources[-1].updated_at))

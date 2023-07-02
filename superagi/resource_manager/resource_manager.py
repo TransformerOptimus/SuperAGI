@@ -18,25 +18,34 @@ class ResourceManager:
         Creates a document index from a given directory.
         """
         if file_path is None:
-            raise Exception("Either file_path must be provided")
+            raise Exception("file_path must be provided")
         documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
 
         return documents
 
-    async def create_llama_document_s3(self, file_object):
+    def create_llama_document_s3(self, file_path: str):
         """
         Creates a document index from a given directory.
         """
 
-        if file_object is None:
-            raise Exception("Either file_path or file_object must be provided")
+        if file_path is None:
+            raise Exception("file_path must be provided")
 
+        import boto3
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+        )
+        bucket_name = get_config("BUCKET_NAME")
+        print(bucket_name, file_path)
+        file = s3.get_object(Bucket=bucket_name, Key=file_path)
+        file_name = file_path.split("/")[-1]
         save_directory = ResourceHelper.get_root_input_dir() + "/"
-        file_path = save_directory + file_object.filename
+        file_path = save_directory + file_name
         with open(file_path, "wb") as f:
-            contents = await file_object.read()
+            contents = file['Body'].read()
             f.write(contents)
-            file_object.file.close()
 
         documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
         os.remove(file_path)
@@ -46,6 +55,7 @@ class ResourceManager:
         from llama_index import VectorStoreIndex, StorageContext
         import openai
         openai.api_key = get_config("OPENAI_API_KEY")
+        os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
         for docs in documents:
             if docs.metadata is None:
                 docs.metadata = {}

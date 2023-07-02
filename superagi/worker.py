@@ -45,18 +45,9 @@ def summarize_resource(agent_id: int, resource_id: int):
     file_path = resource.path
 
     if resource.storage_type == StorageTypes.S3.value:
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
-        )
-        bucket_name = get_config("BUCKET_NAME")
-        print(bucket_name, file_path)
-        file = s3.get_object(Bucket=bucket_name, Key=file_path)
-        file_obj = BytesIO(file['Body'].read())
-        documents = asyncio.run(ResourceManager(str(agent_id)).create_llama_document_s3(file_obj))
+        documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
     else:
-        documents = asyncio.run(ResourceManager(str(agent_id)).create_llama_document(file_path))
+        documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     resource_summarizer = ResourceSummarizer(session=session)

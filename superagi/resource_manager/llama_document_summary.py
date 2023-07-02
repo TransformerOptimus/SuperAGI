@@ -1,3 +1,5 @@
+import os
+
 from llama_index.indices.response import ResponseMode
 from llama_index.schema import Document
 
@@ -5,12 +7,13 @@ from superagi.config.config import get_config
 
 
 class LlamaDocumentSummary:
-    def __init__(self, model_name=get_config("RESOURCES_EMBEDDING_MODEL_NAME", "text-davinci-003")):
+    def __init__(self, model_name=get_config("RESOURCES_EMBEDDING_MODEL_NAME", "gpt-3.5-turbo")):
         self.model_name = model_name
 
     def generate_summary_of_document(self, documents: list[Document]):
         from llama_index import LLMPredictor, ServiceContext, ResponseSynthesizer, DocumentSummaryIndex
 
+        os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
         llm_predictor_chatgpt = LLMPredictor(llm=self._build_llm())
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt, chunk_size=1024)
         response_synthesizer = ResponseSynthesizer.from_args(response_mode=ResponseMode.TREE_SUMMARIZE, use_async=True)
