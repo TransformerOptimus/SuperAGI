@@ -50,7 +50,8 @@ def summarize_resource(agent_id: int, resource_id: int):
             aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
             aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
         )
-        bucket_name = get_config("S3_BUCKET")
+        bucket_name = get_config("BUCKET_NAME")
+        print(bucket_name, file_path)
         file = s3.get_object(Bucket=bucket_name, Key=file_path)
         file_obj = BytesIO(file['Body'].read())
         documents = asyncio.run(ResourceManager(str(agent_id)).create_llama_document_s3(file_obj))
