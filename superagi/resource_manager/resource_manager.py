@@ -55,7 +55,7 @@ class ResourceManager:
         from llama_index import VectorStoreIndex, StorageContext
         import openai
         openai.api_key = get_config("OPENAI_API_KEY")
-        os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
+        os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "")
         for docs in documents:
             if docs.metadata is None:
                 docs.metadata = {}
