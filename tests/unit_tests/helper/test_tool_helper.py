@@ -73,7 +73,7 @@ def test_get_readme_content_from_code_link(mock_requests_get):
 
 def test_extract_repo_name():
     repo_link = 'https://github.com/username/repo'
-    expected_result = 'username/repo'
+    expected_result = 'username_repo'
     assert extract_repo_name_with_username(repo_link) == expected_result
 
 

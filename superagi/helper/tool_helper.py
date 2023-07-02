@@ -252,7 +252,7 @@ def extract_repo_name_with_username(repo_link):
     # Extract the repository name from the link
     # Assuming the GitHub link format: https://github.com/username/repoName
     username_repo = repo_link.rsplit('/', 2)[-2:]
-    user_repo_key = "/".join(username_repo)
+    user_repo_key = "_".join(username_repo)
 
     return user_repo_key
 
