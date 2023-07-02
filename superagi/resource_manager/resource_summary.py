@@ -12,7 +12,7 @@ from datetime import datetime
 class ResourceSummarizer:
     """Class to summarize a resource."""
 
-    def __int__(self, session):
+    def __init__(self, session):
         self.session = session
 
     def add_to_vector_store_and_create_summary(self, agent_id: int, resource_id: int, documents: list):
