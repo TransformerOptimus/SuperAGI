@@ -144,3 +144,4 @@ pylint==2.17.4
 pre-commit==3.3.3
 pytest-cov==4.1.0
 pytest-mock==3.11.1
+playwright==1.34.0

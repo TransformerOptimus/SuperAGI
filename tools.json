@@ -1,4 +1,11 @@
 {
+<<<<<<< HEAD
   "tools": {
   }
 }
+=======
+    "TOOLS": {
+      "discord": "https://github.com/Autocop-Agent/discord/tree/dev"
+    }
+  }
+>>>>>>> tool-input-arch
