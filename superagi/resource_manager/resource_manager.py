@@ -15,7 +15,7 @@ class ResourceManager:
 
     async def create_llama_document(self, file_path: str):
         """
-        Creates a document index from a given directory.
+        Creates a document index from a given file path.
         """
         if file_path is None:
             raise Exception("file_path must be provided")
@@ -25,7 +25,7 @@ class ResourceManager:
 
     def create_llama_document_s3(self, file_path: str):
         """
-        Creates a document index from a given directory.
+        Creates a document index from a given file path.
         """
 
         if file_path is None:
