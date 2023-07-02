@@ -10,12 +10,20 @@ from superagi.types.vector_store_types import VectorStoreType
 
 
 class ResourceManager:
+    """
+    Resource Manager handles creation of resources and saving them to the vector store.
+
+    :param agent_id: The agent id to use when saving resources to the vector store.
+    """
     def __init__(self, agent_id: str = None):
         self.agent_id = agent_id
 
     def create_llama_document(self, file_path: str):
         """
         Creates a document index from a given file path.
+
+        :param file_path: The file path to create the document index from.
+        :return: A list of documents.
         """
         if file_path is None:
             raise Exception("file_path must be provided")
@@ -26,6 +34,9 @@ class ResourceManager:
     def create_llama_document_s3(self, file_path: str):
         """
         Creates a document index from a given file path.
+
+        :param file_path: The file path to create the document index from.
+        :return: A list of documents.
         """
 
         if file_path is None:
@@ -52,6 +63,12 @@ class ResourceManager:
         return documents
 
     def save_document_to_vector_store(self, documents: list, resource_id: str):
+        """
+        Saves a document to the vector store.
+
+        :param documents: The documents to save to the vector store.
+        :param resource_id: The resource id to use when saving the documents to the vector store.
+        """
         from llama_index import VectorStoreIndex, StorageContext
         import openai
         openai.api_key = get_config("OPENAI_API_KEY")

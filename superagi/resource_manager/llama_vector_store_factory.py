@@ -5,11 +5,24 @@ from superagi.types.vector_store_types import VectorStoreType
 
 
 class LlamaVectorStoreFactory:
+    """
+    Factory class to create vector stores based on the vector_store_name
+
+    :param vector_store_name: VectorStoreType
+    :param index_name: str
+
+    :return: VectorStore object
+    """
     def __init__(self, vector_store_name: VectorStoreType, index_name: str):
         self.vector_store_name = vector_store_name
         self.index_name = index_name
 
     def get_vector_store(self) -> VectorStore:
+        """
+        Returns the vector store based on the vector_store_name
+
+        :return: VectorStore object
+        """
         if self.vector_store_name == VectorStoreType.PINECONE:
             from llama_index.vector_stores import PineconeVectorStore
             return PineconeVectorStore(self.index_name)

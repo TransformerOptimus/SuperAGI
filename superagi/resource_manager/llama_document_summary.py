@@ -11,6 +11,12 @@ class LlamaDocumentSummary:
         self.model_name = model_name
 
     def generate_summary_of_document(self, documents: list[Document]):
+        """
+        Generates summary of the documents
+
+        :param documents: list of Document objects
+        :return: summary of the documents
+        """
         from llama_index import LLMPredictor, ServiceContext, ResponseSynthesizer, DocumentSummaryIndex
 
         os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "")
@@ -26,6 +32,12 @@ class LlamaDocumentSummary:
         return doc_summary_index.get_document_summary(documents[0].doc_id)
 
     def generate_summary_of_texts(self, texts: list[str]):
+        """
+        Generates summary of the texts
+
+        :param texts: list of texts
+        :return: summary of the texts
+        """
         from llama_index import Document
         if texts is not None and len(texts) > 0:
             documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
@@ -33,6 +45,11 @@ class LlamaDocumentSummary:
         raise ValueError("texts must be provided")
 
     def _build_llm(self):
+        """
+        Builds the LLM model
+
+        :return: LLM model object
+        """
         open_ai_models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
         if self.model_name in open_ai_models:
             from langchain.chat_models import ChatOpenAI
