@@ -66,4 +66,4 @@ def test_handle_wait_for_permission():
     assert len(agent_execution_feeds) == 2
     assert agent_execution.status == "RUNNING"
     assert agent_execution_feeds[-1].feed == "User denied the permission to run the tool test_tool" \
-                                             " and has given the following feedback : Nope"
+                                            " and has given the following feedback : Nope"
