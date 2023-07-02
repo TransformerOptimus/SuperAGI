@@ -13,7 +13,7 @@ class ResourceManager:
     def __init__(self, agent_id: str = None):
         self.agent_id = agent_id
 
-    async def create_llama_document(self, file_path: str):
+    def create_llama_document(self, file_path: str):
         """
         Creates a document index from a given file path.
         """

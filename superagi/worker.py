@@ -33,9 +33,6 @@ def summarize_resource(agent_id: int, resource_id: int):
     from superagi.types.storage_types import StorageTypes
     from superagi.models.resource import Resource
     from superagi.resource_manager.resource_manager import ResourceManager
-    import boto3
-    import asyncio
-    from io import BytesIO
 
     engine = connect_db()
     Session = sessionmaker(bind=engine)
