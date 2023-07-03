@@ -4,6 +4,7 @@
 }
 
 .apm_dashboard {
+    margin-top: 16px;
     height: calc(100vh - 14vh);
     overflow-y: auto;
 }

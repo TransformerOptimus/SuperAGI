@@ -33,6 +33,7 @@ from superagi.controllers.tool import router as tool_router
 from superagi.controllers.tool_config import router as tool_config_router
 from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
+from superagi.controllers.analytics import router as analytics_router
 from superagi.helper.tool_helper import register_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
@@ -97,6 +98,7 @@ app.include_router(tool_config_router, prefix="/tool_configs")
 app.include_router(config_router, prefix="/configs")
 app.include_router(agent_template_router, prefix="/agent_templates")
 app.include_router(agent_workflow_router, prefix="/agent_workflows")
+app.include_router(analytics_router, prefix="/analytics")
 
 
 # in production you can use Settings management

@@ -1,12 +1,15 @@
 from sqlalchemy.orm import Session
 from superagi.models.events import Event
 from sqlalchemy.exc import SQLAlchemyError
+from superagi.models.agent_execution import AgentExecution
+from datetime import datetime
+from sqlalchemy import Integer
 
 
 class AnalyticsHelper:
     @classmethod
     def create_event(cls, session: Session, event_name: str, event_value: int,
-                  json_property: dict, agent_id: int, org_id: int) -> Event:
+                     json_property: dict, agent_id: int, org_id: int) -> Event:
         event = Event(
             event_name=event_name,
             event_value=event_value,
@@ -16,7 +19,6 @@ class AnalyticsHelper:
         )
         session.add(event)
         session.commit()
-        session.close()
         return event
 
     @classmethod
@@ -24,7 +26,7 @@ class AnalyticsHelper:
         result = {'total_tokens': 0, 'total_calls': 0, 'runs_completed': 0}
 
         try:
-            query_result = session.query(Event).filter_by(event_name="RUN COMPLETED").all()
+            query_result = session.query(Event).filter_by(event_name="run_completed").all()
 
             for res in query_result:
                 if 'tokens_consumed' in res.json_property:
@@ -47,7 +49,7 @@ class AnalyticsHelper:
         models_used_dict = {}
 
         try:
-            agent_created_events = session.query(Event).filter_by(event_name="AGENT CREATED").all()
+            agent_created_events = session.query(Event).filter_by(event_name="agent_created").all()
 
             for event in agent_created_events:
                 agent_id = event.agent_id
@@ -68,7 +70,7 @@ class AnalyticsHelper:
                 else:
                     models_used_dict[model_type] = 1  # first time seeing this model, initialize with 1
 
-            run_completed_events = session.query(Event).filter_by(event_name="RUN COMPLETED").all()
+            run_completed_events = session.query(Event).filter_by(event_name="run_completed").all()
 
             for event in run_completed_events:
                 agent_id = event.agent_id
@@ -91,3 +93,89 @@ class AnalyticsHelper:
         models_used = [{"model": model, "agents": count} for model, count in models_used_dict.items()]
 
         return {'agent_details':agent_details, 'model_info':models_used}
+
+    @classmethod
+    def fetch_agent_runs(cls, agent_id: int, session: Session) -> list:
+        agent_runs = []
+        try:
+            query_result = session.query(Event).filter_by(event_name="run_completed", agent_id=agent_id).all()
+
+            for run in query_result:
+                run_time = None
+                if 'created_at' in run.json_property and 'updated_at' in run.json_property:
+                    created_at = datetime.strptime(run.created_at, '%Y-%m-%d %H:%M:%S')
+                    updated_at = datetime.strptime(run.updated_at, '%Y-%m-%d %H:%M:%S')
+                    run_time = round(((updated_at - created_at).total_seconds()) / 60, 1)  # run_time in mins
+
+                run_data = {
+                    'name': run.json_property['name'],
+                    'tokens_consumed': run.json_property['tokens_consumed'],
+                    'calls': run.json_property['calls'],
+                    'run_time': run_time
+                }
+
+                agent_runs.append(run_data)
+
+        except SQLAlchemyError as e:
+            print(str(e))
+
+        session.close()
+
+        return agent_runs
+
+    @classmethod
+    def get_active_runs(cls, session: Session) -> list:
+        running_executions = []
+        try:
+            start_events = session.query(Event).filter_by(event_name="run_created").all()
+            completed_events = session.query(Event).filter_by(event_name="run_completed").all()
+
+            completed_run_ids = [event.json_property['run_id'] for event in completed_events]
+
+            for event in start_events:
+                if event.json_property['run_id'] not in completed_run_ids:
+                    agent_event = session.query(Event).filter_by(agent_id=event.agent_id, event_name="agent_created").first()
+                    agent_name = agent_event.json_property['name'] if agent_event else 'Unknown'
+                    execution_data = {
+                        'name': event.json_property['name'],
+                        'created_at': event.created_at,
+                        'agent_name': agent_name
+                    }
+                    running_executions.append(execution_data)
+
+        except SQLAlchemyError as e:
+            print(str(e))
+            return {"error": str(e)}
+        finally:
+            session.close()
+
+        return running_executions
+
+    @classmethod
+    def calculate_tool_usage(cls, session: Session) -> list:
+        tool_usage_dict = {}
+
+        try:
+            tool_used_events = session.query(Event).filter_by(event_name="tool_used").all()
+
+            for event in tool_used_events:
+                tool_name = event.json_property['tool_name']
+                agent_id = event.agent_id
+
+                if tool_name not in tool_usage_dict:
+                    tool_usage_dict[tool_name] = {
+                        "unique_agents": set(),
+                        "total_usage": 0,
+                    }
+
+                tool_usage_dict[tool_name]["unique_agents"].add(agent_id)
+                tool_usage_dict[tool_name]["total_usage"] += 1
+
+            session.close()
+
+        except SQLAlchemyError as e:
+            print(str(e))
+
+        tool_usage_metrics = [ { 'tool_name' : tool_name, 'unique_agents' : len(tool_data["unique_agents"]), 'total_usage' : tool_data["total_usage"]} for tool_name, tool_data in tool_usage_dict.items()]
+
+        return tool_usage_metrics

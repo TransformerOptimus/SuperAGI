@@ -11,6 +11,7 @@ from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
+from superagi.helper.analytics_helper import AnalyticsHelper
 
 router = APIRouter()
 
@@ -18,7 +19,7 @@ router = APIRouter()
 # CRUD Operations
 @router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
 def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                           Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution/run.
 
@@ -36,15 +37,21 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
+
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
-                                        num_of_tokens=0,
-                                        current_step_id=start_step_id)
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name,
+                                        num_of_calls=0, num_of_tokens=0, current_step_id=start_step_id)
+
     db.session.add(db_agent_execution)
     db.session.commit()
+
+    AnalyticsHelper.create_event(db.session, 'run_created', 0, {'run_id': db_agent_execution.id,'name':db_agent_execution.name},
+                                 agent_execution.agent_id, 0)
+
     if db_agent_execution.status == "RUNNING":
-        execute_agent.delay(db_agent_execution.id, datetime.now())
+      execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
 

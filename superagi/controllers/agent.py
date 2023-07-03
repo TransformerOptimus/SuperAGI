@@ -172,11 +172,15 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
-    AnalyticsHelper.create_event(db.session, 'AGENT CREATED', 1, {'name': agent_with_config.name,'model':agent_with_config.model}, agent_id, 0)
-
     db.session.add(execution)
     db.session.commit()
+
+    AnalyticsHelper.create_event(db.session, 'run_created', 0, {'run_id': execution.id,'name':execution.name}, db_agent.id, 0),
+    AnalyticsHelper.create_event(db.session, 'agent_created', 1, {'name': agent_with_config.name, 'model': agent_with_config.model}, agent_id, 0)
+
     execute_agent.delay(execution.id, datetime.now())
+
+    db.session.commit()
 
     return {
         "id": agent_id,

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
-import {getAllAgents, getAnalytics, getMetrics} from "@/pages/api/DashboardService";
-import {formatNumber} from "@/utils/utils";
+import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
+import {formatNumber, formatTime} from "@/utils/utils";
 import * as echarts from 'echarts';
 
 export default function ApmDashboard() {
@@ -55,6 +55,13 @@ export default function ApmDashboard() {
     const [totalAgents, setTotalAgents] = useState(0);
     const [allAgents, setAllAgents] = useState([]);
     const [allModels, setAllModels] = useState([]);
+    const [dropdown, setDropDown] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState('Select an Agent');
+    const [selectedAgentIndex, setSelectedAgentIndex] = useState(-1)
+    const [selectedAgentRun, setSelectedAgentRun] = useState([]);
+    const [activeRuns, setActiveRuns] = useState([]);
+    const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
+    const [toolsUsed, setToolsUsed] = useState([]);
 
     useEffect(() => {
         const chartDom = document.getElementById('barChart');
@@ -142,11 +149,6 @@ export default function ApmDashboard() {
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        console.log(allAgents);
-        console.log(allModels)
-    }, [allAgents]);
-
     const getDetails = () =>{
         getMetrics().then((response) => {
             const data = response.data
@@ -159,8 +161,29 @@ export default function ApmDashboard() {
             setTotalAgents(data.agent_details.length)
             setAllAgents(data.agent_details)
             setAllModels(data.model_info)
-            console.log(response)
         })
+        getActiveRuns().then((response) => {
+            setActiveRuns(response.data)
+        })
+        getToolsUsage().then((response) => {
+            setToolsUsed(response.data)
+        })
+    }
+
+    const handleSelectedAgent = (index, name) => {
+        setDropDown(false)
+        setSelectedAgent(name)
+        setSelectedAgentIndex(index)
+        let agentDetails = allAgents.find(agent => agent.agent_id === index);
+        setSelectedAgentDetails(agentDetails);
+        getAgentRuns(index).then((response) => {
+            console.log(response);
+            const data = response.data;
+            setSelectedAgentRun(data)
+        })
+            .catch((error) => {
+                console.error(`There was a problem with the request: ${error}`);
+            });
     }
 
     return (
@@ -168,7 +191,7 @@ export default function ApmDashboard() {
         <div className={style.apm_dashboard_container}>
             <div id="apm_dashboard" className={style.apm_dashboard}>
                 <span className="text_14 mt_10">Agent Performance Monitoring</span>
-                <div className="my_rows">
+                <div className="my_rows mt_16">
                     <div className="my_col_4 display_column_container">
                         <span className="text_14 mb_8">Total tokens consumed</span>
                         <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalTokens)}</div>
@@ -187,7 +210,41 @@ export default function ApmDashboard() {
                     <div className="my_col_8 display_column_container h_100">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
                             <span className="text_14 mb_8">Agent & Run details</span>
-                            <div className="text_14 mb_8">Select an Agent</div>
+                            <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
+                                <div className="text_14 mb_8" onClick={() => setDropDown(!dropdown)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
+                                {dropdown &&
+                                    <div className="custom_select_options" style={{marginTop:'3vh',padding:'4px'}}>
+                                        {allAgents.map((agent,index) => (
+                                            <div key={index} className="custom_select_option" style={{padding: '6px'}} onClick={() => handleSelectedAgent(agent.agent_id,agent.name)}>{agent.name}</div>
+                                        ))}
+                                    </div>}
+                            </div>
+                        </div>
+                        <div className="my_rows mt_24" style={{gap:'4px'}}>
+                            <div className="my_col_6 text_12 vertical_container">Agent <span className="text_20_bold mt_10">{selectedAgentDetails?.name || '-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens || '-'}</span></div>
+                        </div>
+                        <div className="scrollable_container mt_16">
+                            <table className="table_css mt_10">
+                                <thead>
+                                <tr style={{borderTop:'none'}}>
+                                    <th className="table_header">Run Name</th>
+                                    <th className="table_header text_align_right">Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                    <th className="table_header text_align_right">Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {selectedAgentRun.map((run, i) => (
+                                    <tr key={i}>
+                                        <td className="table_data" style={{width:'50%'}}>{run.name}</td>
+                                        <td className="table_data text_align_right" style={{width:'25%'}}>{run.tokens_consumed}</td>
+                                        <td className="table_data text_align_right" style={{width:'25%'}}>{run.calls}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div className="my_col_4">
@@ -246,11 +303,11 @@ export default function ApmDashboard() {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {items.map((item, i) => (
-                                            <tr key={i}>
-                                                <td className="table_data" style={{width:'50%'}}>{item.name}</td>
-                                                <td className="table_data text_align_right" style={{width:'25%'}}>{item.score}</td>
-                                                <td className="table_data text_align_right" style={{width:'25%'}}>{item.score}</td>
+                                        {toolsUsed.map((tool, index) => (
+                                            <tr key={index}>
+                                                <td className="table_data" style={{width:'50%'}}>{tool.tool_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'25%'}}>{tool.unique_agents}</td>
+                                                <td className="table_data text_align_right" style={{width:'25%'}}>{tool.total_usage}</td>
                                             </tr>
                                         ))}
                                         </tbody>
@@ -307,10 +364,14 @@ export default function ApmDashboard() {
                         <div className="my_col_12 display_column_container h_100">
                             <span className="text_14 mb_8">Active Runs</span>
                             <div className="scrollable_container gap_8">
-                                {items.map((item,i) => (
+                                {activeRuns.length === 0 ?
+                                    <div className="vertical_container align_center mt_24">
+                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                        <span className="text_12 color_white mt_6">No active runs found</span>
+                                    </div> : activeRuns.map((run,index) => (
                                     <div className="active_runs">
-                                        <span className="text_14">{item.name}</span>
-                                        <span className="text_14 mt_6">{item.score} . {item.score}</span>
+                                        <span className="text_14">{run.name}</span>
+                                        <div style={{display:'inline-flex',alignItems:'center'}}><span className="text_12 mt_6">{run.agent_name}  ·  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" /> {formatTime(run.created_at)}</span></div>
                                     </div>
                                 ))}
                             </div>
