@@ -175,11 +175,11 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
-            else:
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
+            elif parsed_config["LTM_DB"] == "LanceDB":
+                memory = VectorFactory.get_vector_storage("LanceDB", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            logger.info("Unable to setup the pinecone connection...")
+            logger.info("Unable to setup the connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
@@ -189,7 +189,6 @@ class AgentExecutor:
 
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key, session=session)
-
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,

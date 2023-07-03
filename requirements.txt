@@ -63,6 +63,7 @@ json5==0.9.14
 jsonmerge==1.9.0
 jsonschema==4.17.3
 kombu==5.2.4
+lancedb==0.1.8
 log-symbols==0.0.14
 loguru==0.7.0
 lxml==4.9.2
