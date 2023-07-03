@@ -13,7 +13,7 @@ This SuperAGI Tool lets users send messages to Slack Channels and provides a str
 
 **Features:**
 
-1. Send Message - This tool gives SuperAGI the ability to send messages to Slack Channels that you have specified.
+1. Send Message - This tool gives SuperAGI the ability to send messages to Slack Channels that you have specified
 
 ## 🛠️ Installation
 
@@ -31,7 +31,7 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
     
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/c9dcfb6a-8403-49d1-bdf4-680dd1d9d8bf" width=600px>
 
-3. Add your application's name and the workspace for which you'd like to use your Slack Application on
+3. Add your application's name and the workspace for which you'd like to use your Slack Application
     
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/af21f530-25aa-4bbc-a555-3d52f9bd42eb" width=600px>
     
@@ -46,16 +46,17 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/7d1d00a9-ff10-4694-9781-490e4f9b80d8" width=600px>
     
-6. Once you've defined the scope, install the application to your workspace.
+6. Once you've defined the scope, install the application to your workspace
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/fe206e70-14d4-4595-bbcc-f92ad2a7e950" width=600px>
 
 7. Post installation, you will get the bot token code
 
-<img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/51202b97-bcf2-471c-97ca-4d83b3e6deff" width=600px>
-    
-8. Once the installation is done, you'll get the Bot User OAuth Token, which needs to be added in the Slack Toolkit Page.
+<img src="https://github.com/Phoenix2809/SuperAGI/assets/92881074/10581710-12e5-4bc8-a1e8-18d1a892faff" width=600px>
+
+
+8. Once the installation is done, you'll get the Bot User OAuth Token, which needs to be added in the Slack Toolkit Page
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/2ecf1abf-1384-41f1-a317-c77d20f55330" width=600px>
 
-Once the configuration is complete, you can install the app in the channel of your choice and create an agent on SuperAGI which can now send messages to the Slack Channel!
+Once the configuration is complete, you can install the app in the channel of your choice and create an agent on SuperAGI which can now send messages to the Slack Channel.
