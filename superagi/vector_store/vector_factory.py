@@ -2,6 +2,7 @@ import pinecone
 from pinecone import UnauthorizedException
 
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store import weaviate
 from superagi.vector_store.pinecone import Pinecone
@@ -34,7 +35,7 @@ class VectorFactory:
                 if index_name not in pinecone.list_indexes():
                     sample_embedding = embedding_model.get_embedding("sample")
                     if "error" in sample_embedding:
-                        print("Error in embedding model", sample_embedding)
+                        logger.error(f"Error in embedding model {sample_embedding}")
 
                     # if does not exist, create index
                     pinecone.create_index(

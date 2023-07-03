@@ -49,7 +49,6 @@ class ResourceManager:
             aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
         )
         bucket_name = get_config("BUCKET_NAME")
-        print(bucket_name, file_path)
         file = s3.get_object(Bucket=bucket_name, Key=file_path)
         file_name = file_path.split("/")[-1]
         save_directory = ResourceHelper.get_root_input_dir() + "/"
@@ -91,7 +90,7 @@ class ResourceManager:
             index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
             index.set_index_id(f'Agent {self.agent_id}')
         except Exception as e:
-            print(e)
+            logger.error(e)
         # persisting the data in case of redis
         if vector_store_name == VectorStoreType.REDIS:
             vector_store.persist(persist_path="")
