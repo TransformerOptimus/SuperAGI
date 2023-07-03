@@ -31,7 +31,7 @@ You can now get your API Key from Dream Studio to use Stable Diffusion by follow
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/e405fbac-50fb-485a-8a3a-30ab7c64ac53" width=700px>
 
-3. Copy the API Key and save it in a separate file. 
+3. Copy the API Key and save it in a separate file
 
 ## 🛠️Configuring Stable Diffusion with SuperAGI
 
@@ -41,11 +41,11 @@ You can configure SuperAGI with Stable Diffusion using the following steps:
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/0d02b35a-f7ca-4375-a71b-50dc8dc8cbb0" width=700px>
 
-2. Once you’ve clicked Image Generation Toolkit, it will open a page asking you for the API Key and the Model Engine. You can enter the generated API key from Dream Studio here. 
+2. Once you’ve clicked Image Generation Toolkit, it will open a page asking you for the API Key and the Model Engine. You can enter the generated API key from Dream Studio here
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/5766bd80-0085-4467-b7bf-e6c0d1eddda6" width=700px>
 
-3. If you would like to get more in-depth with the model of Stable Diffusion you’d like to use, you can choose between the following engine IDs: 
+3. If you would like to go in-depth with the model of Stable Diffusion, you can choose between the following engine IDs: 
 
 - 'stable-diffusion-v1'
 - 'stable-diffusion-v1-5'
