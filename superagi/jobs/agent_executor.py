@@ -182,11 +182,11 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
-            elif parsed_config["LTM_DB"] == "LanceDB":
-                memory = VectorFactory.get_vector_storage(VectorStoreType.LANCEDB, "super-agent-index1",
+            else:
+                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            logger.info("Unable to setup the connection...")
+            logger.info("Unable to setup the pinecone connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
@@ -197,12 +197,16 @@ class AgentExecutor:
         if self.check_for_resource(agent.id, session):
             tools.append(QueryResourceTool())
 
+<<<<<<< HEAD
         resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
                                                            default_summary=parsed_config.get("resource_summary"))
         tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
+=======
+
+>>>>>>> parent of 5244b7d7 (Merge pull request #450 from unkn-wn/main)
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,
