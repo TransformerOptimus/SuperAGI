@@ -1,9 +1,14 @@
 #  ⚡ Contributing to SuperAGI
-<p align=center>
-<a href=”https://superagi.co”><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
+<p align="center">
+  <a href="https://superagi.com//#gh-light-mode-only">
+    <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-dark.svg" width="318px" alt="SuperAGI logo" />
+  </a>
+  <a href="https://superagi.com//#gh-dark-mode-only">
+    <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-light.svg" width="318px" alt="SuperAGI logo" />
+  </a>
 </p>
 
-First of all, thank you for taking your time to to contribute to this project. We truly appreciate your contributions, whether it's bug reports, feature suggestions, or pull requests. Your time and effort are highly valued in this project. 🚀
+First of all, thank you for taking the time to contribute to this project. We truly appreciate your contributions, whether it's bug reports, feature suggestions, or pull requests. Your time and effort are highly valued in this project. 🚀
 
 This document provides guidelines and best practices to help you to contribute effectively. These are meant to serve as guidelines, not strict rules. We encourage you to use your best judgment and feel comfortable proposing changes to this document through a pull request.
 
@@ -41,11 +46,11 @@ You can start contributing to SuperAGI by reporting bugs that you’ve encounter
 
 ### Suggesting Enhancements
 
-You can start adding ideas for new features or improvements to SuperAGI. Create an issue on Github with the following information: 
+You can start adding ideas for new features or improvements to SuperAGI. Create an issue on GitHub with the following information: 
 
 1. Title describing the issue in a clear and concise manner
 2. Please provide a clear description of the proposed enhancement, highlighting its benefits and potential drawbacks.
-3. Provide example and supporting information.
+3. Provide examples and supporting information.
 
 ### Pull Requests
 
@@ -58,5 +63,5 @@ When submitting your pull request, please ensure that your changes meet the foll
 
 ## Testing Changes
 
-Each method or the function of the code should have a unit test with maximum coverage possible and on each Pull Request, we have GitHub Actions triggered, which
+Each method or the function of the code should have a unit test with the maximum coverage possible and on each Pull Request, we have GitHub Actions triggered, which
 runs all the unit tests where all the tests should pass for merging the Pull Request. 
