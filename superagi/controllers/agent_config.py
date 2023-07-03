@@ -55,10 +55,14 @@ def get_agent(agent_config_id: int,
         HTTPException (Status Code=404): If the agent configuration is not found.
     """
 
-    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
-    if not db_agent_config:
+    if (
+        db_agent_config := db.session.query(AgentConfiguration)
+        .filter(AgentConfiguration.id == agent_config_id)
+        .first()
+    ):
+        return db_agent_config
+    else:
         raise HTTPException(status_code=404, detail="Agent Configuration not found")
-    return db_agent_config
 
 
 @router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
@@ -109,8 +113,8 @@ def get_agent_configurations(agent_id: int,
         HTTPException (Status Code=404): If the agent or agent configurations are not found or deleted.
     """
 
-    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if not agent or agent.is_deleted:
+    agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
+    if not agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
     agent_configurations = db.session.query(AgentConfiguration).filter_by(agent_id=agent_id).all()

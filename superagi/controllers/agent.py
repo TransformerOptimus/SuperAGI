@@ -73,10 +73,14 @@ def get_agent(agent_id: int,
             HTTPException (Status Code=404): If the Agent is not found or deleted.
     """
 
-    db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if not db_agent or db_agent.is_deleted:
+    if (
+        db_agent := db.session.query(Agent)
+        .filter(Agent.id == agent_id, Agent.is_deleted == False)
+        .first()
+    ):
+        return db_agent
+    else:
         raise HTTPException(status_code=404, detail="agent not found")
-    return db_agent
 
 
 @router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
@@ -101,8 +105,8 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
             HTTPException (Status Code=404): If the Agent or associated Project is not found.
     """
 
-    db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if not db_agent or db_agent.is_deleted:
+    db_agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
+    if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
     if agent.project_id:
@@ -197,15 +201,11 @@ def get_agents_by_project_id(project_id: int,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    agents = db.session.query(Agent).filter(Agent.project_id == project_id).all()
+    agents = db.session.query(Agent).filter(Agent.project_id == project_id, Agent.is_deleted == False).all()
 
     new_agents = []
     for agent in agents:
         agent_dict = vars(agent)
-
-        # skipping if the agent is deleted
-        if agent.is_deleted:
-            continue
 
         agent_id = agent.id
 
