@@ -169,22 +169,28 @@ export default function ApmDashboard() {
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
                             <span className="text_14 mb_8">Agent & Run details</span>
                             <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
-                                <div className="text_14 mb_8" onClick={() => setDropDown(!dropdown)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
-                                {dropdown &&
-                                    <div className="custom_select_options" style={{marginTop:'3vh',padding:'4px'}}>
-                                        {allAgents.map((agent,index) => (
-                                            <div key={index} className="custom_select_option" style={{padding: '6px'}} onClick={() => handleSelectedAgent(agent.agent_id,agent.name)}>{agent.name}</div>
-                                        ))}
-                                    </div>}
+                                {allAgents.length > 0 && <div>
+                                    <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown(!dropdown)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
+                                    {dropdown &&
+                                        <div className="custom_select_options" style={{padding:'8px'}}>
+                                            {allAgents.map((agent,index) => (
+                                                <div key={index} className="custom_select_option" style={{padding: '8px'}} onClick={() => handleSelectedAgent(agent.agent_id,agent.name)}>{agent.name}</div>
+                                            ))}
+                                        </div>}
+                                </div>}
                             </div>
                         </div>
-                        <div className="my_rows mt_24" style={{gap:'4px'}}>
+                        <div className="my_rows mt_24" style={{gap:'4px', padding:'0 6px'}}>
                             <div className="my_col_6 text_12 vertical_container">Agent <span className="text_20_bold mt_10">{selectedAgentDetails?.name || '-'}</span></div>
-                            <div className="my_col_2 text_12 vertical_container">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div>
-                            <div className="my_col_2 text_12 vertical_container">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div>
-                            <div className="my_col_2 text_12 vertical_container">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens || '-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container align_end">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container align_end">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container align_end">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens ? formatNumber(selectedAgentDetails.total_tokens) : '-' }</span></div>
                         </div>
-                        <div className="scrollable_container mt_16">
+                        {selectedAgentRun.length === 0 ?
+                            <div className="vertical_container align_center mt_50 w_100">
+                                <img src="/images/no_permissions.svg" width={300} height={120} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">{selectedAgent === 'Select an Agent' ? 'Please Select an Agent' : <React.Fragment>No Runs found for <b>{selectedAgent}</b></React.Fragment>}</span>
+                            </div> : <div className="scrollable_container mt_16">
                             <table className="table_css mt_10">
                                 <thead>
                                 <tr style={{borderTop:'none'}}>
@@ -203,7 +209,7 @@ export default function ApmDashboard() {
                                 ))}
                                 </tbody>
                             </table>
-                        </div>
+                        </div>}
                     </div>
                     <div className="my_col_4">
                         <div className="display_column_container">
@@ -212,11 +218,11 @@ export default function ApmDashboard() {
                         </div>
                         <div className="display_column_container mt_8">
                             <span className="text_14 mb_8">Average tokens consumed per run</span>
-                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalTokens/totalRuns)}</div>
+                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalTokens/totalRuns):'-'}</div>
                         </div>
                         <div className="display_column_container mt_8">
                             <span className="text_14 mb_8">Average calls made per run</span>
-                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalCalls/totalRuns)}</div>
+                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalCalls/totalRuns):'-'}</div>
                         </div>
                     </div>
                 </div>
@@ -226,7 +232,11 @@ export default function ApmDashboard() {
                         <div className="my_rows" style={{height:'318px'}}>
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Most active agents</span>
-                                <div className="scrollable_container">
+                                {allAgents.length === 0 ?
+                                    <div className="vertical_container align_center mt_50 w_100">
+                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                        <span className="text_12 color_white mt_6">No Active Agents Found</span>
+                                    </div> : <div className="scrollable_container">
                                     <table className="table_css mt_10">
                                         <thead>
                                         <tr style={{borderTop:'none'}}>
@@ -247,11 +257,15 @@ export default function ApmDashboard() {
                                             </tr>))}
                                         </tbody>
                                     </table>
-                                </div>
+                                </div>}
                             </div>
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Most used tools</span>
-                                <div className="scrollable_container">
+                                {toolsUsed.length === 0 ?
+                                    <div className="vertical_container align_center mt_50 w_100">
+                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                        <span className="text_12 color_white mt_6">No Used Tools Found</span>
+                                    </div> : <div className="scrollable_container">
                                     <table className="table_css mt_10">
                                         <thead>
                                         <tr style={{borderTop:'none'}}>
@@ -263,20 +277,24 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {toolsUsed.map((tool, index) => (
                                             <tr key={index}>
-                                                <td className="table_data" style={{width:'50%'}}>{tool.tool_name}</td>
-                                                <td className="table_data text_align_right" style={{width:'25%'}}>{tool.unique_agents}</td>
-                                                <td className="table_data text_align_right" style={{width:'25%'}}>{tool.total_usage}</td>
+                                                <td className="table_data" style={{width:'60%'}}>{tool.tool_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'20%'}}>{tool.unique_agents}</td>
+                                                <td className="table_data text_align_right" style={{width:'20%'}}>{tool.total_usage}</td>
                                             </tr>
                                         ))}
                                         </tbody>
                                     </table>
-                                </div>
+                                </div>}
                             </div>
                         </div>
                         <div className="my_rows mt_8" style={{height:'318px'}}>
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Calls per run by agent</span>
-                                <div className="scrollable_container">
+                                {allAgents.length === 0 ?
+                                    <div className="vertical_container align_center mt_50 w_100">
+                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                        <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
+                                    </div> : <div className="scrollable_container">
                                     <table className="table_css mt_10">
                                         <thead>
                                         <tr style={{borderTop:'none'}}>
@@ -288,16 +306,20 @@ export default function ApmDashboard() {
                                         {allAgents.map((agent, i) => (
                                             <tr key={i}>
                                                 <td className="table_data" style={{width:'70%'}}>{agent.name}</td>
-                                                <td className="table_data text_align_right" style={{width:'30%'}}>{(agent.total_calls/agent.runs_completed).toFixed(1)}</td>
+                                                <td className="table_data text_align_right" style={{width:'30%'}}>{agent.runs_completed?(agent.total_calls/agent.runs_completed).toFixed(1):'-'}</td>
                                             </tr>
                                         ))}
                                         </tbody>
                                     </table>
-                                </div>
+                                </div>}
                             </div>
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Tokens per run by agent</span>
-                                <div className="scrollable_container">
+                                {allAgents.length === 0 ?
+                                    <div className="vertical_container align_center mt_50 w_100">
+                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                        <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
+                                    </div> : <div className="scrollable_container">
                                     <table className="table_css mt_10">
                                         <thead>
                                         <tr style={{borderTop:'none'}}>
@@ -309,12 +331,12 @@ export default function ApmDashboard() {
                                         {allAgents.map((agent, i) => (
                                             <tr key={i}>
                                                 <td className="table_data" style={{width:'70%'}}>{agent.name}</td>
-                                                <td className="table_data text_align_right" style={{width:'30%'}}>{(agent.total_tokens/agent.runs_completed).toFixed(1)}</td>
+                                                <td className="table_data text_align_right" style={{width:'30%'}}>{agent.runs_completed?(agent.total_tokens/agent.runs_completed).toFixed(1):'-'}</td>
                                             </tr>
                                         ))}
                                         </tbody>
                                     </table>
-                                </div>
+                                </div>}
                             </div>
                         </div>
                     </div>

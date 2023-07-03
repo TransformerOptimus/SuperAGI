@@ -622,7 +622,10 @@ p {
 .mt_10{margin-top: 10px;}
 .mt_16{margin-top: 16px;}
 .mt_20{margin-top: 20px;}
-.mt_24{margin-top:24px;}
+.mt_24{margin-top: 24px;}
+.mt_30{margin-top: 30px;}
+.mt_40{margin-top: 40px;}
+.mt_50{margin-top: 50px;}
 
 .mb_24{margin-bottom:24px;}
 .mb_6{margin-bottom: 6px;}
@@ -695,7 +698,10 @@ p {
 .display_flex{display: inline-flex}
 .align_center{align-items: center}
 .align_start{align-items: flex-start}
+.align_end{align-items: flex-end}
 .text_align_right{text-align: right}
+
+.cursor_pointer{cursor: pointer}
 
 .gap_8{gap:8px;}
 .gap_4{gap:4px;}
