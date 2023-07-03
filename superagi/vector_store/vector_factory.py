@@ -1,11 +1,13 @@
 import pinecone
+import lancedb
 from pinecone import UnauthorizedException
 
+from superagi.vector_store.pinecone import Pinecone
+from superagi.vector_store.lancedb import LanceDB
+from superagi.vector_store import weaviate
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.types.vector_store_types import VectorStoreType
-from superagi.vector_store import weaviate
-from superagi.vector_store.pinecone import Pinecone
 
 
 class VectorFactory:
@@ -47,9 +49,19 @@ class VectorFactory:
                 return Pinecone(index, embedding_model, 'text')
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
-        
+
+        if vector_store == VectorStoreType.LANCEDB:
+            try:
+                # connect lancedb to local directory /lancedb/index_name
+                uri = "/lancedb/" + index_name
+                db = lancedb.connect(uri)
+
+                return LanceDB(db, embedding_model, 'text')
+            except:
+                raise ValueError("VectorStore setup for LanceDB failed")
+
         if vector_store == VectorStoreType.WEAVIATE:
-            
+
             use_embedded = bool(get_config("WEAVIATE_USE_EMBEDDED"))
             url = get_config("WEAVIATE_URL")
             api_key = get_config("WEAVIATE_API_KEY")

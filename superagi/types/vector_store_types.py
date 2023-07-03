@@ -7,6 +7,7 @@ class VectorStoreType(Enum):
     CHROMA = 'chroma'
     WEAVIATE = 'weaviate'
     QDRANT = 'qdrant'
+    LANCEDB = 'LanceDB'
 
     @classmethod
     def get_vector_store_type(cls, store):

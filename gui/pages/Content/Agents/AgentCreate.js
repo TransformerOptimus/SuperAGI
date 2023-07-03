@@ -57,7 +57,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
-  const databases = ["Pinecone"]
+  const databases = ["Pinecone", "LanceDB"]
   const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
@@ -195,7 +195,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     setSearchValue('');
   }
-  
+
+
   const removeTool = (indexToDelete) => {
     const updatedToolIds = [...selectedTools];
     updatedToolIds.splice(indexToDelete, 1);
