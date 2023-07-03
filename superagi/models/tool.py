@@ -107,5 +107,5 @@ class Tool(DBBaseModel):
         for tool_id in agent_with_config.tools:
             tool = session.query(Tool).get(tool_id)
             if tool is None:
-                # Tool does not exist, throw 404 or handle as desired
-                raise HTTPException(status_code=404, detail=f"Tool with ID {tool_id} does not exist. 404 Not Found.")
+                return tool_id  # return invalid tool_id
+        return True  # returns True when all tool_id are valid.

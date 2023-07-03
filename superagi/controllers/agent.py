@@ -21,7 +21,7 @@ from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.controllers.types.agent_schedule import AgentScheduler
-from superagi.models.types.agent_with_config import AgentWithConfig
+from superagi.controllers.types.agent_with_config import AgentWithConfig
 from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
 
 router = APIRouter()
@@ -152,7 +152,9 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     """
 
     Project.get_project_from_project_id(agent_with_config, db.session)
-    Tool.is_tool_id_valid(agent_with_config, db.session)
+    invalid_tool = Tool.is_tool_id_valid(agent_with_config, db.session)
+    if invalid_tool != True:  # If the returned value is not True (then it is an invalid tool_id)
+        raise HTTPException(status_code=404, detail=f"Tool with ID {invalid_tool} does not exist. 404 Not Found.")
     agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
                                                                          agent_with_config=agent_with_config)
     agent_with_config.tools.extend(agent_toolkit_tools)
@@ -190,7 +192,10 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
     """
     
     Project.get_project_from_project_id(agent_with_config_and_schedule.agent, db.session)
-    Tool.is_tool_id_valid(agent_with_config_and_schedule.agent, db.session)
+    invalid_tool = Tool.is_tool_id_valid(agent_with_config_and_schedule.agent, db.session)
+    if invalid_tool != True:  # If the returned value is not True (then it is an invalid tool_id)
+        raise HTTPException(status_code=404, detail=f"Tool with ID {invalid_tool} does not exist. 404 Not Found.")
+
     agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
                                                                          agent_with_config=agent_with_config_and_schedule.agent)
     agent_with_config_and_schedule.agent.tools.extend(agent_toolkit_tools)
