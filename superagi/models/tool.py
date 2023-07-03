@@ -107,5 +107,5 @@ class Tool(DBBaseModel):
         for tool_id in agent_with_config.tools:
             tool = session.query(Tool).get(tool_id)
             if tool is None:
-                return tool_id  # return invalid tool_id
+                return tool_id  # returns invalid tool_id
         return True  # returns True when all tool_id are valid.
