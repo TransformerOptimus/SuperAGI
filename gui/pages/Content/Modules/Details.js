@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import styles from '../Agents/Agents.module.css';
 import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
+import { EventBus } from "@/utils/eventBus";
 
 export default function Details({agentDetails, runCount}) {
   const [showGoals, setShowGoals] = useState(false);
@@ -19,6 +20,10 @@ export default function Details({agentDetails, runCount}) {
     lineHeight: '13px',
     fontSize: '11px'
   };
+
+  const openToolkitTab = (toolId) => {
+    EventBus.emit('openToolkitTab', {toolId: toolId});
+  }
   
   return (<>
     <div className={styles.history_box} style={{background:'#272335',padding:'15px',cursor:'default'}}>
@@ -92,7 +97,8 @@ export default function Details({agentDetails, runCount}) {
         <div style={info_text}>Tools assigned</div>
       </div>
       <div className={styles.agent_info_tools}>
-        {agentDetails.tools.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0',marginBottom:'5px'}}>
+        {agentDetails.tools.map((tool, index) =>
+          (<div onClick={() => openToolkitTab(tool.id)} key={index} className="tool_container" style={{marginTop:'0',marginBottom:'5px',cursor:'pointer'}}>
           <div className={styles.tool_text}>{tool.name || ''}</div>
         </div>))}
       </div></div>}</div>}

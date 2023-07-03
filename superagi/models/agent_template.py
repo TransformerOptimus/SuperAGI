@@ -13,7 +13,7 @@ marketplace_url = "https://app.superagi.com/api/"
 
 class AgentTemplate(DBBaseModel):
     """
-    Represents a preconfigured agent template.
+    Preconfigured agent templates that can be used to create agents.
 
     Attributes:
         id (int): The unique identifier of the agent template.
