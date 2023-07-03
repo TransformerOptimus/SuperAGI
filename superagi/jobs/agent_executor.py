@@ -269,7 +269,7 @@ class AgentExecutor:
                     "agent_execution_id"])
 
             if tool.name == "Query Resource" and resource_description:
-                tool.description = resource_description
+                tool.description = tool.description.replace("{summary}",resource_description)
             new_tools.append(tool)
         return tools
 

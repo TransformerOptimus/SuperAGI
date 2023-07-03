@@ -14,6 +14,8 @@ from superagi.tools.base_tool import BaseTool
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.chromadb import ChromaDB
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
+from typing import Optional
+from superagi.llms.base_llm import BaseLlm
 
 
 class QueryResource(BaseModel):
@@ -32,12 +34,14 @@ class QueryResourceTool(BaseTool):
     """
     name: str = "Query Resource"
     args_schema: Type[BaseModel] = QueryResource
-    description: str = "Has the ability to get information from a resource"
+    description: str = "A tool for performing queries on the resources that are uploaded which might give context for the given tasks.\nUse this tool to give a relevant response as this tool contains information about: {summary}"
     agent_id: int = None
+    llm: Optional[BaseLlm] = None
 
     def _execute(self, query: str):
         openai.api_key = get_config("OPENAI_API_KEY")
-        llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
+        print(self.llm.get_model())
+        llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name=self.llm.get_model(),
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
         vector_store_name = VectorStoreType.get_vector_store_type(
