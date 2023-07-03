@@ -15,7 +15,7 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.tool import Tool
 from jsonmerge import merge
-from superagi.worker import execute_agent
+from superagi.worker.agent_worker import execute_agent
 from datetime import datetime
 import json
 from sqlalchemy import func

@@ -1,5 +1,11 @@
-from sqlalchemy import Column, Integer, String,Text
+from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import sessionmaker
+
 from superagi.models.base_model import DBBaseModel
+from superagi.models.db import connect_db
+
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 
 
 class Configuration(DBBaseModel):
@@ -29,3 +35,20 @@ class Configuration(DBBaseModel):
         """
 
         return f"Config(id={self.id}, organisation_id={self.organisation_id}, key={self.key}, value={self.value})"
+
+    @classmethod
+    def get_model_api_key(cls, organisation_id):
+        """
+        Returns the model api key for the given organisation id.
+
+        Args:
+            organisation_id (int): The identifier of the organisation.
+
+        Returns:
+            str: The model api key.
+        """
+        session = Session()
+        model_api_key = session.query(cls).filter(cls.organisation_id == organisation_id,
+                                                  cls.key == 'model_api_key').first()
+        session.close()
+        return model_api_key.value if model_api_key else None

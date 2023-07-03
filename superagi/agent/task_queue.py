@@ -39,3 +39,7 @@ class TaskQueue:
             return None
 
         return eval(response)
+
+    def enqueue_tasks(self, tasks):
+        for task in tasks:
+            self.add_task(task)

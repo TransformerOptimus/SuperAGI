@@ -6,7 +6,7 @@ from fastapi import HTTPException, Depends, Body
 from fastapi_jwt_auth import AuthJWT
 
 from superagi.models.agent_execution_permission import AgentExecutionPermission
-from superagi.worker import execute_agent
+from superagi.worker.agent_worker import execute_agent
 from fastapi import APIRouter
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth

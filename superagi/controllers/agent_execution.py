@@ -5,7 +5,7 @@ from fastapi_jwt_auth import AuthJWT
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_workflow import AgentWorkflow
-from superagi.worker import execute_agent
+from superagi.worker.agent_worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
 from fastapi import APIRouter
