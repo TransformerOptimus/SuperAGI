@@ -152,7 +152,8 @@ class Agent(DBBaseModel):
             "permission_type": agent_with_config.permission_type,
             "LTM_DB": agent_with_config.LTM_DB,
             "memory_window": agent_with_config.memory_window,
-            "max_iterations": agent_with_config.max_iterations
+            "max_iterations": agent_with_config.max_iterations,
+            "user_timezone": agent_with_config.user_timezone
         }
 
         agent_configurations = [

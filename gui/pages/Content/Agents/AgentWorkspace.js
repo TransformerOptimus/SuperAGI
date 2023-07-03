@@ -208,7 +208,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
