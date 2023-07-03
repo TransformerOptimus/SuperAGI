@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import Column, Integer, Text, String
+from sqlalchemy import Column, Integer, Text, String, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 from superagi.models.tool import Tool
@@ -19,7 +19,7 @@ class AgentConfiguration(DBBaseModel):
     __tablename__ = 'agent_configurations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    agent_id = Column(Integer)
+    agent_id = Column(Integer, ForeignKey('agents.id'))
     key = Column(String)
     value = Column(Text)
 

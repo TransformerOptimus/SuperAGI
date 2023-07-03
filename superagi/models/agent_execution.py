@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 
@@ -27,7 +27,7 @@ class AgentExecution(DBBaseModel):
     id = Column(Integer, primary_key=True)
     status = Column(String)  # like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED', 'TERMINATED')
     name = Column(String)
-    agent_id = Column(Integer)
+    agent_id = Column(Integer, ForeignKey('agents.id'))
     last_execution_time = Column(DateTime)
     num_of_calls = Column(Integer, default=0)
     num_of_tokens = Column(Integer, default=0)

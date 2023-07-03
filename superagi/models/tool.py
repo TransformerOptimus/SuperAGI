@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 
@@ -25,7 +25,7 @@ class Tool(DBBaseModel):
     folder_name = Column(String)
     class_name = Column(String)
     file_name = Column(String)
-    toolkit_id = Column(Integer)
+    toolkit_id = Column(Integer, ForeignKey('toolkits.id'))
 
     def __repr__(self):
         """

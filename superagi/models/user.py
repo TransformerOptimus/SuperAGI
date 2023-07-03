@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 
@@ -23,7 +23,7 @@ class User(DBBaseModel):
     name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
-    organisation_id = Column(Integer)
+    organisation_id = Column(Integer, ForeignKey('organisations.id'))
 
     def __repr__(self):
         """

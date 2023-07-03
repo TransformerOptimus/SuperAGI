@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 
@@ -19,7 +19,7 @@ class AgentTemplateConfig(DBBaseModel):
     __tablename__ = 'agent_template_configs'
 
     id = Column(Integer, primary_key=True)
-    agent_template_id = Column(Integer)
+    agent_template_id = Column(Integer, ForeignKey('agent_templates.id'))
     key = Column(String)
     value = Column(Text)
 

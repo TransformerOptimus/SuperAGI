@@ -1,7 +1,7 @@
 import json
 
 import requests
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 
 from superagi.models.base_model import DBBaseModel
 
@@ -27,7 +27,7 @@ class Toolkit(DBBaseModel):
     name = Column(String)
     description = Column(String)
     show_toolkit = Column(Boolean)
-    organisation_id = Column(Integer)
+    organisation_id = Column(Integer, ForeignKey('organisations.id'))
     tool_code_link = Column(String)
 
     def __repr__(self):

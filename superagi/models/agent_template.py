@@ -1,7 +1,7 @@
 import json
 
 import requests
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
 
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
@@ -27,8 +27,8 @@ class AgentTemplate(DBBaseModel):
     __tablename__ = 'agent_templates'
 
     id = Column(Integer, primary_key=True)
-    organisation_id = Column(Integer)
-    agent_workflow_id = Column(Integer)
+    organisation_id = Column(Integer, ForeignKey('organisations.id'))
+    agent_workflow_id = Column(Integer, ForeignKey('agent_workflows.id'))
     name = Column(String)
     description = Column(Text)
     marketplace_template_id = Column(Integer)
