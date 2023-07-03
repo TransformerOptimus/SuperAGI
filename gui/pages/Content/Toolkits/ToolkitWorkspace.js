@@ -82,8 +82,8 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const handleTwitterAuthClick = async () => {
       authenticateTwitterCred(toolkitDetails.id)
       .then((response) => {
-        getTwitterToken(response.data);
         localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
+          getTwitterToken(response.data);
       })
       .catch((error) => {
         console.error('Error fetching data: ', error);
