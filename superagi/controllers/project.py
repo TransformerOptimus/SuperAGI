@@ -1,19 +1,39 @@
-from fastapi_sqlalchemy import DBSessionMiddleware, db
-from fastapi import HTTPException, Depends, Request
+from fastapi_sqlalchemy import db
+from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
+
 from superagi.models.project import Project
 from superagi.models.organisation import Organisation
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from superagi.helper.auth import check_auth
 from superagi.lib.logger import logger
+# from superagi.types.db import ProjectIn, ProjectOut
 
 router = APIRouter()
 
 
+class ProjectOut(BaseModel):
+    id: int
+    name: str
+    organisation_id: int
+    description: str
+
+    class Config:
+        orm_mode = True
+
+
+class ProjectIn(BaseModel):
+    name: str
+    organisation_id: int
+    description: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(Project), status_code=201)
-def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
+@router.post("/add", response_model=ProjectOut, status_code=201)
+def create_project(project: ProjectIn,
                    Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new project.
@@ -47,7 +67,7 @@ def create_project(project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
     return project
 
 
-@router.get("/get/{project_id}", response_model=sqlalchemy_to_pydantic(Project))
+@router.get("/get/{project_id}", response_model=ProjectOut)
 def get_project(project_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     Get project details by project_id.
@@ -69,8 +89,8 @@ def get_project(project_id: int, Authorize: AuthJWT = Depends(check_auth)):
     return db_project
 
 
-@router.put("/update/{project_id}", response_model=sqlalchemy_to_pydantic(Project))
-def update_project(project_id: int, project: sqlalchemy_to_pydantic(Project, exclude=["id"]),
+@router.put("/update/{project_id}", response_model=ProjectOut)
+def update_project(project_id: int, project: ProjectIn,
                    Authorize: AuthJWT = Depends(check_auth)):
     """
     Update a project detail by project_id.

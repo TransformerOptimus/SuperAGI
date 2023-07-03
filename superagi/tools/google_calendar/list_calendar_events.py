@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 from superagi.helper.calendar_date import CalendarDate
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.helper.s3_helper import S3Helper
 from urllib.parse import urlparse, parse_qs
 from sqlalchemy.orm import sessionmaker
@@ -27,7 +27,7 @@ class ListCalendarEventsTool(BaseTool):
     args_schema: Type[BaseModel] = ListCalendarEventsInput
     description: str = "Get the list of all the events from Google Calendar"
     agent_id: int  = None
-    resource_manager: ResourceManager = None
+    resource_manager: FileManager = None
 
     def _execute(self, start_time: str = 'None', start_date: str = 'None', end_date: str = 'None', end_time: str = 'None'):
         service = self.get_google_calendar_service()

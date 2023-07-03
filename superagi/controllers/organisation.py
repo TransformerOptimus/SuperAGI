@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 from superagi.helper.tool_helper import register_toolkits
@@ -10,13 +12,32 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
 from superagi.lib.logger import logger
+# from superagi.types.db import OrganisationIn, OrganisationOut
 
 router = APIRouter()
 
 
+class OrganisationOut(BaseModel):
+    id: int
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class OrganisationIn(BaseModel):
+    name: str
+    description: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
-def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclude=["id"]),
+@router.post("/add", response_model=OrganisationOut, status_code=201)
+def create_organisation(organisation: OrganisationIn,
                         Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new organisation.
@@ -45,7 +66,7 @@ def create_organisation(organisation: sqlalchemy_to_pydantic(Organisation, exclu
     return new_organisation
 
 
-@router.get("/get/{organisation_id}", response_model=sqlalchemy_to_pydantic(Organisation))
+@router.get("/get/{organisation_id}", response_model=OrganisationOut)
 def get_organisation(organisation_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     Get organisation details by organisation_id.
@@ -67,8 +88,8 @@ def get_organisation(organisation_id: int, Authorize: AuthJWT = Depends(check_au
     return db_organisation
 
 
-@router.put("/update/{organisation_id}", response_model=sqlalchemy_to_pydantic(Organisation))
-def update_organisation(organisation_id: int, organisation: sqlalchemy_to_pydantic(Organisation, exclude=["id"]),
+@router.put("/update/{organisation_id}", response_model=OrganisationOut)
+def update_organisation(organisation_id: int, organisation: OrganisationIn,
                         Authorize: AuthJWT = Depends(check_auth)):
     """
     Update organisation details by organisation_id.
@@ -96,7 +117,7 @@ def update_organisation(organisation_id: int, organisation: sqlalchemy_to_pydant
     return db_organisation
 
 
-@router.get("/get/user/{user_id}", response_model=sqlalchemy_to_pydantic(Organisation), status_code=201)
+@router.get("/get/user/{user_id}", response_model=OrganisationOut, status_code=201)
 def get_organisations_by_user(user_id: int):
     """
     Get organisations associated with a user.If Organisation does not exists a new organisation is created
