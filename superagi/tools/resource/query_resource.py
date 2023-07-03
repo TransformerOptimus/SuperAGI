@@ -64,5 +64,9 @@ class QueryResourceTool(BaseTool):
         query_engine = index.as_query_engine(
             **as_query_engine_args
         )
-        response = query_engine.query(query)
+        try:
+            response = query_engine.query(query)
+        except ValueError as e:
+            logging.error(f"ValueError {e}")
+            response = "Document not found"
         return response
