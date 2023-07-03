@@ -36,8 +36,8 @@ services:
     networks:
       - super_network
 #    uncomment to expose redis port to host
-    ports:
-      - "6379:6379"
+#    ports:
+#      - "6379:6379"
     volumes:
       - redis_data:/data
 
@@ -52,8 +52,8 @@ services:
     networks:
       - super_network
 #    uncomment to expose postgres port to host
-    ports:
-      - "5432:5432"
+#    ports:
+#      - "5432:5432"
   
   proxy:
     image: nginx:stable-alpine
