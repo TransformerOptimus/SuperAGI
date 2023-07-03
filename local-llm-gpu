@@ -42,14 +42,16 @@ services:
 
   super__tgwui:
     build:
-      context: .
+      context: ./tgwui/
       target: llama-cublas
-      dockerfile: ./tgwui/DockerfileTGWUI
+      dockerfile: DockerfileTGWUI
 #      args:
 #        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
+    image: atinoda/text-generation-webui:llama-cublas # Specify variant as the :tag
     container_name: super__tgwui
     environment:
-      - EXTRA_LAUNCH_ARGS="--listen --no-mmap --verbose --extensions openai --auto-devices --n_ctx 1600 --gpu-memory 20 20 --n-gpu-layers 128 --threads 8  --model vicuna-13b-cot.ggmlv3.q8_0.bin"
+      - EXTRA_LAUNCH_ARGS="--no-mmap --verbose --extensions openai --auto-devices --n_ctx 2000 --gpu-memory 22 22 --n-gpu-layers 128 --threads 8"
+#      - BUILD_EXTENSIONS_LIVE="silero_tts whisper_stt" # Install named extensions during every container launch. THIS WILL SIGNIFICANLTLY SLOW LAUNCH TIME.
     ports:
       - 7860:7860  # Default web port
       - 5000:5000  # Default API port
@@ -62,7 +64,7 @@ services:
       - ./tgwui/config/prompts:/app/prompts
       - ./tgwui/config/softprompts:/app/softprompts
       - ./tgwui/config/training:/app/training
-      - ./tgwui/config/embeddings:/app/embeddings
+#      - ./config/extensions:/app/extensions
     logging:
       driver:  json-file
       options:
@@ -70,7 +72,6 @@ services:
         max-size: '10m'
     networks:
       - super_network
-###  Uncomment the following lines to run the container using the host machine's GPU resources
     deploy:
         resources:
           reservations:
@@ -79,8 +80,6 @@ services:
 #                count: "all"
                 device_ids: ['0', '1'] # must comment the above line if this line is uncommented.
                 capabilities: [gpu]
-
-
   super__redis:
     image: "docker.io/library/redis:latest"
     networks:

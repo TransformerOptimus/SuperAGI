@@ -4,7 +4,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes} from "@/utils/utils";
+import {formatBytes, openNewTab, removeTab} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template}) {
@@ -338,7 +338,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleAddAgent = () => {
     if(!hasAPIkey) {
       toast.error("Your OpenAI API key is empty!", {autoClose: 1800});
-      EventBus.emit("openSettings", {});
+      openNewTab(-3, "Settings", "Settings");
       return
     }
 
@@ -365,7 +365,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     setCreateClickable(false);
 
-    // if permission has word restricted change the permission to
     let permission_type = permission;
     if (permission.includes("RESTRICTED")) {
       permission_type = "RESTRICTED";
@@ -394,7 +393,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       .then((response) => {
         const agent_id = response.data.id;
         fetchAgents();
-        cancelCreate();
+        removeTab(-1, "new agent", "Create_Agent");
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
           input.forEach((fileData) => {
@@ -415,10 +414,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setCreateClickable(true);
       });
   };
-
-  function cancelCreate() {
-    EventBus.emit('removeTab', {id: -1, name: "new agent", contentType: "Create_Agent"});
-  }
 
   const toggleToolkit = (e, id) => {
     e.stopPropagation();
@@ -771,7 +766,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight:'7px'}} className="secondary_button" onClick={cancelCreate}>Cancel</button>
+            <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
             <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
           </div>
         </div>
