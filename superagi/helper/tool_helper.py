@@ -248,13 +248,12 @@ def register_toolkits(session, organisation):
     logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
 
-def extract_repo_name_with_username(repo_link):
+def extract_repo_name(repo_link):
     # Extract the repository name from the link
     # Assuming the GitHub link format: https://github.com/username/repoName
-    username_repo = repo_link.rsplit('/', 2)[-2:]
-    user_repo_key = "_".join(username_repo)
+    repo_name = repo_link.rsplit('/', 1)[-1]
 
-    return user_repo_key
+    return repo_name
 
 
 def add_tool_to_json(repo_link):
@@ -263,7 +262,7 @@ def add_tool_to_json(repo_link):
         tools_data = json.load(file)
 
     # Extract the repository name from the link
-    repo_name = extract_repo_name_with_username(repo_link)
+    repo_name = extract_repo_name(repo_link)
 
     # Add a new key-value pair to the tools object
     tools_data['tools'][repo_name] = repo_link
