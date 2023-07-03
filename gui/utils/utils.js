@@ -204,9 +204,11 @@ export const removeInternalId = (internalId) => {
     localStorage.removeItem("agent_files_" + String(internalId));
     localStorage.removeItem("agent_start_time_" + String(internalId));
     localStorage.removeItem("agent_expiry_date_" + String(internalId));
+    localStorage.removeItem("agent_expiry_type_" + String(internalId));
     localStorage.removeItem("agent_expiry_runs_" + String(internalId));
-    localStorage.removeItem("agent_time_" + String(internalId));
+    localStorage.removeItem("agent_time_unit_" + String(internalId));
     localStorage.removeItem("agent_time_value_" + String(internalId));
+    localStorage.removeItem("agent_is_recurring_" + String(internalId));
   }
 }
 
