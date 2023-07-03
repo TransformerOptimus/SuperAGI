@@ -269,7 +269,7 @@ async def startup_event():
 
     build_single_step_agent()
     build_task_based_agents()
-    check_toolkit_registration()
+    # check_toolkit_registration()
     session.close()
 
 

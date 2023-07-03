@@ -29,6 +29,7 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 import yaml
+
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
@@ -49,6 +50,7 @@ class DBToolkitConfiguration(BaseToolkitConfiguration):
             return tool_config.value
         return super().get_tool_config(key=key)
 
+
 class AgentExecutor:
     @staticmethod
     def validate_filename(filename):
@@ -66,7 +68,7 @@ class AgentExecutor:
         return filename
 
     @staticmethod
-    def create_object(tool,session):
+    def create_object(tool, session):
         """
         Create an object of a agent usable tool dynamically.
 
@@ -158,7 +160,7 @@ class AgentExecutor:
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
-        parsed_execution_config = AgentExecutionConfiguration.fetch_configuration(session, agent_execution.id)
+        parsed_execution_config = AgentExecutionConfiguration.fetch_configuration(session, agent_execution)
         max_iterations = (parsed_config["max_iterations"])
         total_calls = agent_execution.num_of_calls
 
@@ -172,7 +174,7 @@ class AgentExecutor:
         parsed_config["agent_execution_id"] = agent_execution.id
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
-
+        memory = None
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
@@ -186,10 +188,10 @@ class AgentExecutor:
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
         for tool in user_tools:
-            tool = AgentExecutor.create_object(tool,session)
+            tool = AgentExecutor.create_object(tool, session)
             tools.append(tool)
 
-        tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
+        tools = self.set_default_params_tools(tools, parsed_config, parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key, session=session)
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
@@ -226,7 +228,7 @@ class AgentExecutor:
         session.close()
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, parsed_execution_config,agent_id, model_api_key, session):
+    def set_default_params_tools(self, tools, parsed_config, parsed_execution_config, agent_id, model_api_key, session):
         """
         Set the default parameters for the tools.
 

@@ -1,28 +1,26 @@
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
-from fastapi_jwt_auth import AuthJWT
+import json
+from datetime import datetime
 
-from superagi.controllers.types.agent_execution_config_request import AgentExecutionConfigRequest
-from superagi.models.agent import Agent
-from superagi.models.agent_execution_config import AgentExecutionConfiguration
-from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.project import Project
 from fastapi import APIRouter
+from fastapi import HTTPException, Depends
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+from jsonmerge import merge
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from sqlalchemy import func
 
-from superagi.models.agent_workflow import AgentWorkflow
-from superagi.models.types.agent_with_config import AgentWithConfig
+# from superagi.controllers.types.agent_create_request import AgentCreateRequest
+from superagi.helper.auth import check_auth
+from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
+from superagi.models.agent_template import AgentTemplate
+from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.project import Project
 from superagi.models.tool import Tool
-from jsonmerge import merge
+from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.worker import execute_agent
-from datetime import datetime
-import json
-from sqlalchemy import func
-from superagi.helper.auth import check_auth, get_user_organisation
 
 router = APIRouter()
 
@@ -122,7 +120,6 @@ def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["i
 
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentWithConfig,
-                             agent_execution_config_request: AgentExecutionConfigRequest,
                              Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations.
@@ -170,11 +167,16 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
-    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
-                                                                     agent_execution_config_request=agent_execution_config_request)
 
+    agent_execution_configs = {
+        "goal": agent_with_config.goal,
+        "instruction": agent_with_config.instruction
+    }
     db.session.add(execution)
     db.session.commit()
+    db.session.flush()
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
+                                                                     agent_execution_configs=agent_execution_configs)
     execute_agent.delay(execution.id, datetime.now())
 
     return {

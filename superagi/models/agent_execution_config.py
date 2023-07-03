@@ -29,40 +29,37 @@ class AgentExecutionConfiguration(DBBaseModel):
             str: String representation of the AgentTemplateConfig.
         """
 
-        return f"AgentExecutionConfig(id={self.id}, agent_execution_id='{self.agent_template_id}', " \
+        return f"AgentExecutionConfig(id={self.id}, agent_execution_id='{self.agent_execution_id}', " \
                f"key='{self.key}', value='{self.value}')"
 
     @classmethod
-    def add_or_update_agent_execution_config(cls, session, execution, agent_execution_config_request):
-        agent_config_values = {
-            "goal": agent_execution_config_request.goal,
-            "instruction": agent_execution_config_request.instruction
-        }
-
+    def add_or_update_agent_execution_config(cls, session, execution, agent_execution_configs):
+        print("EXECUTION : ",execution)
         agent_execution_configurations = [
             AgentExecutionConfiguration(agent_execution_id=execution.id, key=key, value=str(value))
-            for key, value in agent_config_values.items()
+            for key, value in agent_execution_configs.items()
         ]
-
-        for key, value in agent_execution_configurations.items():
+        for agent_execution in agent_execution_configurations:
             agent_execution_config = (
                 session.query(AgentExecutionConfiguration)
                 .filter(
                     AgentExecutionConfiguration.agent_execution_id == execution.id,
-                    AgentExecutionConfiguration.key == key
+                    AgentExecutionConfiguration.key == agent_execution.key
                 )
                 .first()
             )
 
             if agent_execution_config:
-                agent_execution_config.value = str(value)
+                agent_execution_config.value = str(agent_execution.value)
             else:
                 agent_execution_config = AgentExecutionConfiguration(
                     agent_execution_id=execution.id,
-                    key=key,
-                    value=str(value)
+                    key=agent_execution.key,
+                    value=str(agent_execution.value)
                 )
+                print("CONFIG : ",agent_execution_config)
                 session.add(agent_execution_config)
+            session.commit()
 
     @classmethod
     def fetch_configuration(cls, session, execution):
@@ -77,13 +74,15 @@ class AgentExecutionConfiguration(DBBaseModel):
             dict: Parsed agent configuration.
 
         """
-
+        print("fetching-------------------")
+        print(execution)
         agent_configurations = session.query(AgentExecutionConfiguration).filter_by(
             agent_execution_id=execution.id).all()
         parsed_config = {
             "goal": [],
             "instruction": [],
         }
+        print("PARSED CONFIG : ",parsed_config)
         if not agent_configurations:
             return parsed_config
         for item in agent_configurations:

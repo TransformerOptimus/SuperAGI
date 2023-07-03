@@ -3,6 +3,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 
+from superagi.controllers.types.agent_create_request import AgentExecutionConfigRequest
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.worker import execute_agent
@@ -17,8 +18,8 @@ router = APIRouter()
 
 
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
-def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+@router.post("/add", response_model=AgentExecutionConfigRequest, status_code=201)
+def create_agent_execution(agent_execution: AgentExecutionConfigRequest,
                            Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution/run.
