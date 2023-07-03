@@ -7,48 +7,6 @@ import {formatNumber, formatTime} from "@/utils/utils";
 import * as echarts from 'echarts';
 
 export default function ApmDashboard() {
-    const items = [
-        {
-            name: 'Apple',
-            score: 40
-        },
-        {
-            name: 'Banana',
-            score: 30
-        },
-        {
-            name: 'Cake',
-            score: 26
-        },
-        {
-            name: 'Pizza',
-            score: 16
-        },
-        {
-            name: 'Apple',
-            score: 40
-        },
-        {
-            name: 'Banana',
-            score: 30
-        },
-        {
-            name: 'Cake',
-            score: 26
-        },
-        {
-            name: 'Pizza',
-            score: 16
-        },
-        {
-            name: 'Banana',
-            score: 30
-        },
-        {
-            name: 'Cake',
-            score: 26
-        },
-    ]
     const [totalCalls, setTotalCalls] = useState(0);
     const [totalTokens, setTotalTokens] = useState(0);
     const [totalRuns, setTotalRuns] = useState(0);
