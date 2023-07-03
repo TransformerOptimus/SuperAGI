@@ -17,7 +17,6 @@ from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolkit
 
 
-
 def parse_github_url(github_url):
     parts = github_url.split('/')
     owner = parts[3]
@@ -129,12 +128,6 @@ def init_tools(folder_path, session, tool_name_to_toolkit):
             sys.path.append(folder_dir)
             for file_name in os.listdir(folder_dir):
                 file_path = os.path.join(folder_dir, file_name)
-                # Add a condition to check if the current file is your new toolkit file
-                if file_name == "rabbitmq_toolkit.py":
-                    classes = get_classes_in_file(file_path=file_path, clazz=BaseToolkit)
-                    tool_name_to_toolkit = update_base_toolkit_info(classes,folder_name,
-                                                    session, tool_name_to_toolkit)
-
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)
@@ -170,7 +163,8 @@ def init_toolkits(code_link, existing_toolkits, folder_path, organisation, sessi
                 if file_name.endswith(".py") and not file_name.startswith("__init__"):
                     # Get classes
                     classes = get_classes_in_file(file_path=file_path, clazz=BaseToolkit)
-                    tool_name_to_toolkit = update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, organisation, session, tool_name_to_toolkit)
+                    tool_name_to_toolkit = update_base_toolkit_info(classes, code_link, folder_name, new_toolkits,
+                                                                    organisation, session, tool_name_to_toolkit)
     # Delete toolkits that are not present in the updated toolkits
     delete_extra_toolkit(existing_toolkits, new_toolkits, session)
     return tool_name_to_toolkit
