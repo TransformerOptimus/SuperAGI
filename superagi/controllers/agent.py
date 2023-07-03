@@ -5,8 +5,11 @@ from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
+from fastapi import HTTPException, Depends
+from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
+
 from jsonmerge import merge
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from pytz import timezone
 from sqlalchemy import func
 
@@ -19,17 +22,49 @@ from superagi.models.agent_schedule import AgentSchedule
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.project import Project
+from fastapi import APIRouter
+from superagi.models.agent_workflow import AgentWorkflow
+from superagi.controllers.types.agent_with_config import AgentWithConfig
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_execution import AgentExecution
 from superagi.models.tool import Tool
 from superagi.controllers.types.agent_schedule import AgentScheduler
 from superagi.controllers.types.agent_with_config import AgentWithConfig
 from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
+from jsonmerge import merge
+from superagi.worker import execute_agent
+from datetime import datetime
+import json
+from sqlalchemy import func
+from superagi.helper.auth import check_auth
+# from superagi.types.db import AgentOut, AgentIn
 
 router = APIRouter()
 
 
+class AgentOut(BaseModel):
+    id: int
+    name: str
+    project_id: int
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentIn(BaseModel):
+    name: str
+    project_id: int
+    description: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
-def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+@router.post("/add", response_model=AgentOut, status_code=201)
+def create_agent(agent: AgentIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
@@ -60,7 +95,7 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
     return db_agent
 
 
-@router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
+@router.get("/get/{agent_id}", response_model=AgentOut)
 def get_agent(agent_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -82,8 +117,8 @@ def get_agent(agent_id: int,
     return db_agent
 
 
-@router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
-def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+@router.put("/update/{agent_id}", response_model=AgentOut)
+def update_agent(agent_id: int, agent: AgentIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent
@@ -190,7 +225,7 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
     Raises:
         HTTPException (status_code=500): If the associated agent fails to get scheduled.
     """
-    
+
     Project.get_project_from_project_id(agent_with_config_and_schedule.agent, db.session)
     invalid_tool = Tool.is_tool_id_valid(agent_with_config_and_schedule.agent, db.session)
     if invalid_tool != True:  # If the returned value is not True (then it is an invalid tool_id)
@@ -258,7 +293,7 @@ def edit_schedule(schedule: AgentScheduler,
 
     Args:
         agent_id (int): Identifier of the Agent
-        schedule (AgentSchedule): New schedule data 
+        schedule (AgentSchedule): New schedule data
         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
 
     Raises:
@@ -392,7 +427,7 @@ def get_agent_configuration(agent_id: int,
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
-                                # Query the AgentConfiguration table for the speci
+    # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,

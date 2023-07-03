@@ -100,7 +100,7 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
