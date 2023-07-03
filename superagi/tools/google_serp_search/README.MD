@@ -1,5 +1,10 @@
-<p align=center>
-<a href="https://superagi.co"><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
+<p align="center">
+  <a href="https://superagi.com//#gh-light-mode-only">
+    <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-dark.svg" width="318px" alt="SuperAGI logo" />
+  </a>
+  <a href="https://superagi.com//#gh-dark-mode-only">
+    <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-light.svg" width="318px" alt="SuperAGI logo" />
+  </a>
 </p>
 
 # SuperAGI Google SERP Search Toolkit
