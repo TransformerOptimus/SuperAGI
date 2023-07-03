@@ -299,6 +299,7 @@ class ScheduledAgentExecutor:
 
     @staticmethod
     def execute_scheduled_agent(agent_id: int, name: str):
+
         session = Session()
         agent = session.query(Agent).get(agent_id)
 
@@ -316,4 +317,6 @@ class ScheduledAgentExecutor:
         if db_agent_execution.status == "RUNNING":
             superagi.worker.execute_agent.delay(db_agent_execution.id, datetime.now())
 
+
         session.close()
+

@@ -19,7 +19,7 @@ class AgentSchedule(DBBaseModel):
 
     Methods:
         __repr__: Returns a string representation of the AgentSchedule instance.
-        schedule_agent: Creates and schedules an agent in the database.
+
     """
     __tablename__ = 'agent_schedule'
 
@@ -46,21 +46,3 @@ class AgentSchedule(DBBaseModel):
                f"expiry_runs={self.expiry_runs}), " \
                f"current_runs={self.expiry_runs}), " \
                f"status={self.status}), " 
-
-    @classmethod
-    def schedule_agent(cls, session, schedule_data: AgentScheduler) -> int:
-        agent_schedule = cls(
-            agent_id=schedule_data.agent_id,
-            start_time=schedule_data.start_time,
-            next_scheduled_time=schedule_data.start_time,
-            recurrence_interval=schedule_data.recurrence_interval,
-            expiry_date=schedule_data.expiry_date,
-            expiry_runs=schedule_data.expiry_runs,
-            current_runs=0,
-            status = "RUNNING"
-        )
-
-        session.add(agent_schedule)
-        session.commit()
-
-        return agent_schedule.id

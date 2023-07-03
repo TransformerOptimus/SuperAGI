@@ -57,8 +57,8 @@ class Project(DBBaseModel):
             default_project = project
         return default_project
     
-    @staticmethod
-    def get_project_from_project_id(agent_with_config, session):
+    @classmethod
+    def get_project_from_project_id(cls, agent_with_config, session):
         project = session.query(Project).get(agent_with_config.project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")

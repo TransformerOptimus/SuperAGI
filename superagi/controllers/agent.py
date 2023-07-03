@@ -204,17 +204,29 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
     # Update the agent_id of schedule before scheduling the agent
     agent_with_config_and_schedule.schedule.agent_id = db_agent.id
 
-    # Then, schedule the agent
-    schedule_id = AgentSchedule.schedule_agent(db.session, agent_with_config_and_schedule.schedule)
+    # Create a new agent schedule
+    agent_schedule = AgentSchedule(
+        agent_id=db_agent.id,
+        start_time=agent_with_config_and_schedule.schedule.start_time,
+        next_scheduled_time=agent_with_config_and_schedule.schedule.start_time,
+        recurrence_interval=agent_with_config_and_schedule.schedule.recurrence_interval,
+        expiry_date=agent_with_config_and_schedule.schedule.expiry_date,
+        expiry_runs=agent_with_config_and_schedule.schedule.expiry_runs,
+        current_runs=0,
+        status = "RUNNING"
+    )
 
-    if schedule_id is None:
+    db.session.add(agent_schedule)
+    db.session.commit()
+
+    if agent_schedule.id is None:
         raise HTTPException(status_code=500, detail="Failed to schedule agent")
 
     return {
         "id": db_agent.id,
         "name": db_agent.name,
         "contentType": "Agents",
-        "schedule_id": schedule_id
+        "schedule_id": agent_schedule.id
     }
 
 @router.post("/stop/schedule", status_code=200)

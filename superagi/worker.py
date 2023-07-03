@@ -5,7 +5,7 @@ from celery import Celery
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
-from superagi.helper.agent_schedule_helper import RunAgentSchedule
+from superagi.helper.agent_schedule_helper import AgentScheduleHelper
 
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
 
@@ -24,8 +24,8 @@ app.conf.beat_schedule = beat_schedule
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
-    RunAgentSchedule.update_next_scheduled_time()
-    RunAgentSchedule.get_scheduled_agents()
+    AgentScheduleHelper.update_next_scheduled_time()
+    AgentScheduleHelper.get_scheduled_agents()
 
 
 @app.task(name="execute_agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)

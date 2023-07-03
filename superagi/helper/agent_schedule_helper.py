@@ -9,10 +9,9 @@ import pytz
 engine = connect_db()
 Session = sessionmaker(bind=engine)
 
-class RunAgentSchedule:
-
-    @staticmethod
-    def create_execution_name_for_scheduling(agent_id) -> str:
+class AgentScheduleHelper:
+    @classmethod
+    def _create_execution_name_for_scheduling(cls, agent_id) -> str:
         session = Session()
         user_timezone = session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id==agent_id).first()
 
@@ -23,9 +22,9 @@ class RunAgentSchedule:
             
         timestamp = current_time.strftime(" %d %B %Y %H:%M")
         return f"Run{timestamp}"
-
-    @staticmethod
-    def update_next_scheduled_time():
+    
+    @classmethod
+    def update_next_scheduled_time(cls):
         now = datetime.now()
 
         session = Session()
@@ -33,7 +32,7 @@ class RunAgentSchedule:
         (AgentSchedule.start_time <= now) &
         (AgentSchedule.next_scheduled_time <= now) &
         (AgentSchedule.status == "RUNNING")).all()
-        
+
         for agent in scheduled_agents:
             if check_time_difference(agent, now):
                 if agent.recurrence_interval is not None:
@@ -47,8 +46,8 @@ class RunAgentSchedule:
                 session.commit()
         session.close()
 
-    @staticmethod
-    def should_execute_and_remove_agent(agent, interval):
+    @classmethod
+    def _should_execute_and_remove_agent(cls, agent, interval):
         expiry_date = agent.expiry_date
         expiry_runs = agent.expiry_runs
         current_runs = agent.current_runs
@@ -57,15 +56,19 @@ class RunAgentSchedule:
         if expiry_date is None and expiry_runs is None:
             return True, False
         elif expiry_date is not None and datetime.now() < expiry_date:
+            if agent.next_scheduled_time + timedelta(seconds=parse_interval_to_seconds(interval)) <= agent.expiry_date:
+                return True, True
             return True, False
         elif expiry_runs != -1 and current_runs < expiry_runs:
+            if current_runs+1 == expiry_runs:
+                return True, True
             return True, False
         if (expiry_date is not None and datetime.now() >= expiry_date) or (expiry_runs != -1 and current_runs >= expiry_runs):
             return False, True
         return False, False
 
-    @staticmethod
-    def execute_schedule(should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name):
+    @classmethod
+    def _execute_schedule(cls, should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name):
         from superagi.jobs.agent_executor import ScheduledAgentExecutor
         if should_execute_agent:
             ScheduledAgentExecutor.execute_scheduled_agent(agent.agent_id, agent_name)
@@ -75,21 +78,21 @@ class RunAgentSchedule:
                 next_scheduled_time = agent.next_scheduled_time + timedelta(seconds=interval_in_seconds)
                 agent.next_scheduled_time = next_scheduled_time
 
-                session.commit()
+            session.commit()
 
-    @staticmethod
-    def remove_completed_agents(agents_to_remove, session):
+    @classmethod
+    def __remove_completed_agents(cls, agents_to_remove, session):
         for agent in agents_to_remove:
             agent.status = "COMPLETED"
             session.commit()
 
-    @staticmethod
-    def get_scheduled_agents():
+    @classmethod
+    def get_scheduled_agents(cls):
         now = datetime.now()
-        last_5_minutes = now - timedelta(minutes=5)
+        last_five_minutes = now - timedelta(minutes=5)
         
         session = Session()
-        scheduled_agents = session.query(AgentSchedule).filter(AgentSchedule.next_scheduled_time.between(last_5_minutes, now)).all()
+        scheduled_agents = session.query(AgentSchedule).filter(AgentSchedule.next_scheduled_time.between(last_five_minutes, now)).all()
         agents_to_remove = []
 
         for agent in scheduled_agents:
@@ -98,16 +101,15 @@ class RunAgentSchedule:
             if interval is not None:
                 interval_in_seconds = parse_interval_to_seconds(interval)
             agent_id = agent.agent_id
-            agent_name = RunAgentSchedule.create_execution_name_for_scheduling(agent_id)
+            agent_name = cls._create_execution_name_for_scheduling(agent_id)
 
             should_remove_agent = False
-            should_execute_agent, should_remove_agent = RunAgentSchedule.should_execute_and_remove_agent(agent, interval)
-            RunAgentSchedule.execute_schedule(should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name)
+            should_execute_agent, should_remove_agent = cls._should_execute_and_remove_agent(agent, interval)
+            cls._execute_schedule(should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name)
 
             if should_remove_agent:
                 agents_to_remove.append(agent)
 
-            RunAgentSchedule.remove_completed_agents(agents_to_remove, session)
+        cls.__remove_completed_agents(agents_to_remove, session)
 
         session.close()
-
