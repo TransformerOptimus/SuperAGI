@@ -3,6 +3,7 @@ from superagi.models.resource import Resource
 import os
 import datetime
 from superagi.lib.logger import logger
+from superagi.types.storage_types import StorageType
 
 
 class ResourceHelper:
@@ -21,7 +22,7 @@ class ResourceHelper:
             Resource: The Resource object.
         """
         path = ResourceHelper.get_root_output_dir()
-        storage_type = get_config("STORAGE_TYPE")
+        storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
         file_extension = os.path.splitext(file_name)[1][1:]
 
         if file_extension in ["png", "jpg", "jpeg"]:
@@ -38,14 +39,14 @@ class ResourceHelper:
             final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
 
-        if storage_type == "S3":
+        if storage_type == StorageType.S3:
             file_name_parts = file_name.split('.')
             file_name = file_name_parts[0] + '_' + str(datetime.datetime.now()).replace(' ', '') \
                 .replace('.', '').replace(':', '') + '.' + file_name_parts[1]
             path = 'input/' if (channel == "INPUT") else 'output/'
 
         logger.info(final_path)
-        resource = Resource(name=file_name, path=path + file_name, storage_type=storage_type, size=file_size,
+        resource = Resource(name=file_name, path=path + file_name, storage_type=storage_type.value, size=file_size,
                             type=file_type,
                             channel="OUTPUT",
                             agent_id=agent_id)

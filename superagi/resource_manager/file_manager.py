@@ -1,12 +1,20 @@
+import csv
+import os
+
+from llama_index import SimpleDirectoryReader
+from llama_index.indices.response import ResponseMode
+from llama_index.schema import Document
 from sqlalchemy.orm import Session
 
+from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
-import os
-import csv
+from superagi.types.storage_types import StorageType
+from superagi.types.vector_store_types import VectorStoreType
 
-class ResourceManager:
+
+class FileManager:
     def __init__(self, session: Session, agent_id: int = None):
         self.session = session
         self.agent_id = agent_id
@@ -38,7 +46,7 @@ class ResourceManager:
                 self.session.add(resource)
                 self.session.commit()
                 self.session.flush()
-                if resource.storage_type == "S3":
+                if resource.storage_type == StorageType.S3.value:
                     s3_helper = S3Helper()
                     s3_helper.upload_file(img, path=resource.path)
 
@@ -77,3 +85,4 @@ class ResourceManager:
 
     def get_agent_resource_path(self, file_name: str):
         return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+

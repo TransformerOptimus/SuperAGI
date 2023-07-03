@@ -1,5 +1,9 @@
+from datetime import datetime
+from typing import Optional
+
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
+
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from fastapi_sqlalchemy import db
@@ -9,14 +13,35 @@ from superagi.helper.auth import check_auth
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.encyption_helper import encrypt_data,decrypt_data
 from superagi.lib.logger import logger
+# from superagi.types.db import ConfigurationIn, ConfigurationOut
 
 router = APIRouter()
 
 
+class ConfigurationOut(BaseModel):
+    id: int
+    organisation_id: int
+    key: str
+    value: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ConfigurationIn(BaseModel):
+    organisation_id: Optional[int]
+    key: str
+    value: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
 @router.post("/add/organisation/{organisation_id}", status_code=201,
-             response_model=sqlalchemy_to_pydantic(Configuration))
-def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]), organisation_id: int,
+             response_model=ConfigurationOut)
+def create_config(config: ConfigurationIn, organisation_id: int,
                   Authorize: AuthJWT = Depends(check_auth)):
     """
     Creates a new Organisation level config.
