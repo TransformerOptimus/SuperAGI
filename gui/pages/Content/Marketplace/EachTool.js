@@ -13,7 +13,7 @@ import axios from 'axios';
 export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
     const [installed, setInstalled] = useState('')
-    const [markdownContent, setMarkdownContent] = useState(null);
+    const [markdownContent, setMarkdownContent] = useState('');
 
     useEffect(() => {
         setInstalled(template && template.is_installed ? 'Installed' : 'Install');
@@ -21,8 +21,8 @@ export default function EachTool({template, env}) {
             setInstalled('Sign in to install');
             axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${template.name}`)
               .then((response) => {
-                  const data = response.data || [];
-                  setMarkdownContent(data);
+                  setMarkdownContent(response.data || '');
+                  setRightPanel(response.data ? 'overview' : 'tool_view');
               })
               .catch((error) => {
                   console.error('Error fetching template details:', error);
@@ -30,8 +30,8 @@ export default function EachTool({template, env}) {
         } else {
             fetchToolTemplateOverview(template.name)
               .then((response) => {
-                  const data = response.data || [];
-                  setMarkdownContent(data);
+                  setMarkdownContent(response.data || '');
+                  setRightPanel(response.data ? 'overview' : 'tool_view');
               })
               .catch((error) => {
                   console.error('Error fetching template details:', error);
@@ -113,13 +113,13 @@ export default function EachTool({template, env}) {
                             <div className={styles2.left_container} style={{marginBottom: '5px', padding: '8px'}}>
                                 <div className="row">
                                     <div className="col-4">
-                                        <button onClick={() => setRightPanel('overview')} className={styles2.tab_button}
+                                        {markdownContent && markdownContent !== '' && <button onClick={() => setRightPanel('overview')} className={styles2.tab_button}
                                                 style={rightPanel === 'overview' ? {
                                                     background: '#454254',
                                                     paddingRight: '15px'
                                                 } : {background: 'transparent', paddingRight: '15px'}}>
                                             &nbsp;Overview
-                                        </button>
+                                        </button>}
                                         <button onClick={() => setRightPanel('tool_view')}
                                                 className={styles2.tab_button} style={rightPanel === 'tool_view' ? {
                                             background: '#454254',
@@ -133,7 +133,7 @@ export default function EachTool({template, env}) {
                             {rightPanel === 'overview' &&
                                 <div className={styles2.left_container} style={{marginBottom: '8px'}}>
                                     <div className={styles2.markdown_container}>
-                                        {markdownContent ? <ReactMarkdown
+                                        {markdownContent && markdownContent !== '' ? <ReactMarkdown
                                                 className={styles2.markdown_style}>{markdownContent}</ReactMarkdown> :
                                            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
                                                <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
