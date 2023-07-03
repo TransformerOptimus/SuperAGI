@@ -34,7 +34,9 @@ class QueryResourceTool(BaseTool):
     """
     name: str = "Query Resource"
     args_schema: Type[BaseModel] = QueryResource
-    description: str = "A tool for performing queries on the resources that are uploaded which might give context for the given tasks.\nUse this tool to give a relevant response as this tool contains information about: {summary}"
+    description: str = "A tool for performing queries on the resources that are uploaded which might give context for " \
+                       "the given tasks.\nUse this tool to give a relevant response as this tool contains information" \
+                       " about: {summary}"
     agent_id: int = None
     llm: Optional[BaseLlm] = None
 
