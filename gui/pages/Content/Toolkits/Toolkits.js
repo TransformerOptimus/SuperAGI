@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {createInternalId} from "@/utils/utils";
 
 export default function Toolkits({ sendToolkitData, toolkits, env }) {
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit","Resource Toolkit"];
 
   return (
     <>

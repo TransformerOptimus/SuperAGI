@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.code.write_code import CodingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
@@ -20,7 +20,7 @@ class TestCodingTool:
     def tool(self):
         tool = CodingTool()
         tool.llm = MockBaseLlm()
-        tool.resource_manager = Mock(spec=ResourceManager)
+        tool.resource_manager = Mock(spec=FileManager)
         tool.tool_response_manager = Mock(spec=ToolResponseQueryManager)
         return tool
 

@@ -7,7 +7,7 @@ from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 
@@ -43,7 +43,7 @@ class WriteSpecTool(BaseTool):
     )
     args_schema: Type[WriteSpecSchema] = WriteSpecSchema
     goals: List[str] = []
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
 
     class Config:
         arbitrary_types_allowed = True
