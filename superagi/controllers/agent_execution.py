@@ -90,8 +90,9 @@ def schedule_existing_agent(agent_schedule: AgentScheduler,
 
         db.session.commit()
     else:                      
-         # Schedule the agent
-        agent_scheduled = AgentSchedule(
+        # Schedule the agent
+        scheduled_agent = AgentSchedule(
+            agent_id= agent_schedule.agent_id,
             start_time= agent_schedule.start_time,
             next_scheduled_time= agent_schedule.start_time,
             recurrence_interval= agent_schedule.recurrence_interval,
@@ -101,10 +102,10 @@ def schedule_existing_agent(agent_schedule: AgentScheduler,
             status = "RUNNING"
         )
 
-    db.session.add(agent_scheduled)
+    db.session.add(scheduled_agent)
     db.session.commit()
 
-    schedule_id = agent_scheduled.id
+    schedule_id = scheduled_agent.id
 
     if schedule_id is None:
         raise HTTPException(status_code=500, detail="Failed to schedule agent")

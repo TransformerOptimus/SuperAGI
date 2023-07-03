@@ -69,7 +69,7 @@ class AgentScheduleHelper:
 
     @classmethod
     def _execute_schedule(cls, should_execute_agent, should_remove_agent, interval_in_seconds, session, agent, agent_name):
-        from superagi.jobs.agent_executor import ScheduledAgentExecutor
+        from superagi.jobs.scheduling_executor import ScheduledAgentExecutor
         if should_execute_agent:
             ScheduledAgentExecutor.execute_scheduled_agent(agent.agent_id, agent_name)
             agent.current_runs = agent.current_runs + 1
