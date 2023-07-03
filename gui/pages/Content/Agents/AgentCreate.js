@@ -10,12 +10,12 @@ import {
   removeTab,
   setLocalStorageValue,
   setLocalStorageArray,
-  getUserTimezone
+  getUserTimezone,
+  convertToGMT
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import moment from 'moment';
 import 'moment-timezone';
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
@@ -92,7 +92,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [timeDropdown, setTimeDropdown] = useState(false);	
   const [expiryDropdown, setExpiryDropdown] = useState(false);
   
-  const [startTime, setStartTime] = useState(null);
+  const [startTime, setStartTime] = useState('');
 
   const timeUnitArray = ['Days', 'Hours', 'Minutes'];
   const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
@@ -101,7 +101,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const expiryTypeArray = ['Specific Date', 'After certain number of runs', 'No expiry'];
   const [expiryType, setExpiryType] = useState(expiryTypeArray[1]);
   const [expiryRuns, setExpiryRuns] = useState(null);
-  const [expiryDate, setExpiryDate] = useState(null);
+  const [expiryDate, setExpiryDate] = useState('');
   
   const timeRef = useRef(null);	
   const expiryRef = useRef(null);
@@ -123,13 +123,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const closeCreateModal = () => {
     setCreateModal(false);
     setCreateDropdown(false);	
-  };
-
-  const convertToGMT = (dateTime) => {	
-    if (!dateTime) {
-      return null;
-    }
-    return moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');
   };
 
   const handleTimeSelect = (index) => {

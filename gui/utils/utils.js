@@ -1,10 +1,18 @@
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
+import moment from 'moment';
 
 export const  getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
+
+export const convertToGMT = (dateTime) => {
+  if (!dateTime) {
+    return null;
+  }
+  return moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');
+};
 
 export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
