@@ -98,20 +98,22 @@ class AnalyticsHelper:
     def fetch_agent_runs(cls, agent_id: int, session: Session) -> list:
         agent_runs = []
         try:
-            query_result = session.query(Event).filter_by(event_name="run_completed", agent_id=agent_id).all()
+            query_result_completed = session.query(Event).filter_by(event_name="run_completed", agent_id=agent_id).all()
+            query_result_created = session.query(Event).filter_by(event_name="run_created", agent_id=agent_id).all()
 
-            for run in query_result:
-                run_time = None
-                if 'created_at' in run.json_property and 'updated_at' in run.json_property:
-                    created_at = datetime.strptime(run.created_at, '%Y-%m-%d %H:%M:%S')
-                    updated_at = datetime.strptime(run.updated_at, '%Y-%m-%d %H:%M:%S')
-                    run_time = round(((updated_at - created_at).total_seconds()) / 60, 1)  # run_time in mins
+            # create a dictionary of created_at times for run_created events
+            created_dict = {run.json_property['run_id']: run.created_at for run in query_result_created}
+
+            for run in query_result_completed:
+
+                run_id = run.json_property['run_id']
 
                 run_data = {
                     'name': run.json_property['name'],
                     'tokens_consumed': run.json_property['tokens_consumed'],
                     'calls': run.json_property['calls'],
-                    'run_time': run_time
+                    'created_at': created_dict.get(run_id, None),  # fallback to None if run_id doesn't exist in created_dict
+                    'updated_at': run.updated_at
                 }
 
                 agent_runs.append(run_data)

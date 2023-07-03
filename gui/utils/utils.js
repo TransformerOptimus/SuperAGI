@@ -35,6 +35,24 @@ export const formatNumber = (number) => {
   return scaledNumber.toFixed(1) + suffix;
 };
 
+export const formatTimeDifference = (updated_at, created_at) => {
+  let date1 = new Date(updated_at);
+  let date2 = new Date(created_at);
+
+  let differenceInMilliseconds = date1.getTime() - date2.getTime();
+  let diffInSeconds = differenceInMilliseconds / 1000;
+  let diffInMinutes = diffInSeconds / 60;
+  let diffInHours = diffInMinutes / 60;
+
+  if (diffInHours >= 1) {
+    return Math.round(diffInHours) + ' hr';
+  } else if (diffInMinutes >=1) {
+    return Math.round(diffInMinutes) + ' min';
+  } else {
+    return Math.round(diffInSeconds) + ' sec';
+  }
+}
+
 
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {

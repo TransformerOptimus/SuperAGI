@@ -3,7 +3,7 @@ import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
 import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
-import {formatNumber, formatTime} from "@/utils/utils";
+import {formatNumber, formatTime, formatTimeDifference} from "@/utils/utils";
 import * as echarts from 'echarts';
 
 export default function ApmDashboard() {
@@ -20,6 +20,7 @@ export default function ApmDashboard() {
     const [activeRuns, setActiveRuns] = useState([]);
     const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
     const [toolsUsed, setToolsUsed] = useState([]);
+    const [averageRunTime, setAverageRunTime] = useState('');
 
     useEffect(() => {
         const chartDom = document.getElementById('barChart');
@@ -107,6 +108,10 @@ export default function ApmDashboard() {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        handleSelectedAgent(selectedAgentIndex,selectedAgent)
+    },[allAgents])
+
     const getDetails = () =>{
         getMetrics().then((response) => {
             const data = response.data
@@ -138,10 +143,23 @@ export default function ApmDashboard() {
             console.log(response);
             const data = response.data;
             setSelectedAgentRun(data)
+            averageAgentRunTime(data)
         })
             .catch((error) => {
                 console.error(`There was a problem with the request: ${error}`);
             });
+    }
+
+    const averageAgentRunTime = (runs) => {
+        var total = 0;
+        for (var i=0; i<runs.length; i++) {
+            const timeDifference = formatTimeDifference(runs[i].updated_at, runs[i].created_at);
+            const mins = parseInt(timeDifference.replace('min', ''), 10);
+            total += isNaN(mins) ? 0 : mins;
+        }
+        console.log(runs.length)
+        const avg = runs.length > 0 ? total / runs.length : 0;
+        setAverageRunTime(`${avg.toFixed(1)} min`);
     }
 
     return (
@@ -180,11 +198,12 @@ export default function ApmDashboard() {
                                 </div>}
                             </div>
                         </div>
-                        <div className="my_rows mt_24" style={{gap:'4px', padding:'0 6px'}}>
-                            <div className="my_col_6 text_12 vertical_container">Agent <span className="text_20_bold mt_10">{selectedAgentDetails?.name || '-'}</span></div>
+                        <div className="my_rows mt_24" style={{gap:'4px', padding:'0 7px'}}>
+                            <div className="my_col_4 text_12 vertical_container">Agent <span className="text_20_bold mt_10">{selectedAgentDetails?.name || '-'}</span></div>
                             <div className="my_col_2 text_12 vertical_container align_end">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div>
                             <div className="my_col_2 text_12 vertical_container align_end">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div>
                             <div className="my_col_2 text_12 vertical_container align_end">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens ? formatNumber(selectedAgentDetails.total_tokens) : '-' }</span></div>
+                            <div className="my_col_2 text_12 vertical_container align_end">Average run time <span className="text_20_bold mt_10">{averageRunTime !== '0.0 min' ? averageRunTime:'-'}</span></div>
                         </div>
                         {selectedAgentRun.length === 0 ?
                             <div className="vertical_container align_center mt_50 w_100">
@@ -197,14 +216,16 @@ export default function ApmDashboard() {
                                     <th className="table_header">Run Name</th>
                                     <th className="table_header text_align_right">Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                     <th className="table_header text_align_right">Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                    <th className="table_header text_align_right">Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {selectedAgentRun.map((run, i) => (
                                     <tr key={i}>
-                                        <td className="table_data" style={{width:'50%'}}>{run.name}</td>
-                                        <td className="table_data text_align_right" style={{width:'25%'}}>{run.tokens_consumed}</td>
-                                        <td className="table_data text_align_right" style={{width:'25%'}}>{run.calls}</td>
+                                        <td className="table_data" style={{width:'64%'}}>{run.name}</td>
+                                        <td className="table_data text_align_right" style={{width:'12%'}}>{run.tokens_consumed}</td>
+                                        <td className="table_data text_align_right" style={{width:'12%'}}>{run.calls}</td>
+                                        <td className="table_data text_align_right" style={{width:'12%'}}>{formatTimeDifference(run.updated_at,run.created_at)}</td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -233,7 +254,7 @@ export default function ApmDashboard() {
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Most active agents</span>
                                 {allAgents.length === 0 ?
-                                    <div className="vertical_container align_center mt_50 w_100">
+                                    <div className="vertical_container align_center mt_70 w_100">
                                         <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                         <span className="text_12 color_white mt_6">No Active Agents Found</span>
                                     </div> : <div className="scrollable_container">
@@ -262,7 +283,7 @@ export default function ApmDashboard() {
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Most used tools</span>
                                 {toolsUsed.length === 0 ?
-                                    <div className="vertical_container align_center mt_50 w_100">
+                                    <div className="vertical_container align_center mt_70 w_100">
                                         <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                         <span className="text_12 color_white mt_6">No Used Tools Found</span>
                                     </div> : <div className="scrollable_container">
@@ -277,9 +298,9 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {toolsUsed.map((tool, index) => (
                                             <tr key={index}>
-                                                <td className="table_data" style={{width:'60%'}}>{tool.tool_name}</td>
-                                                <td className="table_data text_align_right" style={{width:'20%'}}>{tool.unique_agents}</td>
-                                                <td className="table_data text_align_right" style={{width:'20%'}}>{tool.total_usage}</td>
+                                                <td className="table_data" style={{width:'68%'}}>{tool.tool_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'16%'}}>{tool.unique_agents}</td>
+                                                <td className="table_data text_align_right" style={{width:'16%'}}>{tool.total_usage}</td>
                                             </tr>
                                         ))}
                                         </tbody>
@@ -291,7 +312,7 @@ export default function ApmDashboard() {
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Calls per run by agent</span>
                                 {allAgents.length === 0 ?
-                                    <div className="vertical_container align_center mt_50 w_100">
+                                    <div className="vertical_container align_center mt_70 w_100">
                                         <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                         <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
                                     </div> : <div className="scrollable_container">
@@ -316,7 +337,7 @@ export default function ApmDashboard() {
                             <div className="my_col_6 display_column_container h_100">
                                 <span className="text_14 mb_8">Tokens per run by agent</span>
                                 {allAgents.length === 0 ?
-                                    <div className="vertical_container align_center mt_50 w_100">
+                                    <div className="vertical_container align_center mt_70 w_100">
                                         <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                         <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
                                     </div> : <div className="scrollable_container">
