@@ -460,27 +460,31 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     };
 
     const scheduleAgentData = {
-      "name": agentName,
-      "project_id": selectedProjectId,
-      "description": agentDescription,
-      "goal": goals,
-      "instruction":instructions,
-      "agent_type": agentType,
-      "constraints": constraints,
-      "toolkits": [],
-      "tools": selectedTools,
-      "exit": exitCriterion,
-      "iteration_interval": stepTime,
-      "model": model,
-      "max_iterations": maxIterations,
-      "permission_type": permission_type,
-      "LTM_DB": longTermMemory ? database : null,
-      "memory_window": rollingWindow,
-      "user_timezone": getUserTimezone(),	
-      "start_time": gmtTime,	
-      "recurrence_interval": timeValue + time,
-      "expiry_date": gmtDateTime,	
-      "expiry_runs": expiryRuns,
+      "agent":{
+        "name": agentName,
+        "project_id": selectedProjectId,
+        "description": agentDescription,
+        "goal": goals,
+        "instruction":instructions,
+        "agent_type": agentType,
+        "constraints": constraints,
+        "toolkits": [],
+        "tools": selectedTools,
+        "exit": exitCriterion,
+        "iteration_interval": stepTime,
+        "model": model,
+        "max_iterations": maxIterations,
+        "permission_type": permission_type,
+        "LTM_DB": longTermMemory ? database : null,
+        "memory_window": rollingWindow,
+        "user_timezone": getUserTimezone(),	
+      },
+      "schedule":{
+        "start_time": gmtTime,	
+        "recurrence_interval": timeValue + time,
+        "expiry_date": gmtDateTime,	
+        "expiry_runs": expiryRuns,
+      }
     }	
    
     createAgent(createModal? scheduleAgentData:agentData,createModal)
@@ -965,7 +969,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           </div>
 
           {createModal && (
-        <div className="modal" onClick={closeCreateModal}>
+          <div className="modal" onClick={closeCreateModal}>
           <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
             <div className={styles.detail_name}>Schedule Run</div>
 
