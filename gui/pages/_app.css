@@ -617,6 +617,14 @@ p {
     border-radius: 16px;
 }
 
+.cancel_action {
+    margin-top: 10px;
+    width: fit-content;
+    color: #888888;
+    font-size: 12px;
+    cursor: pointer;
+}
+
 .mt_6{margin-top: 6px;}
 .mt_8{margin-top: 8px;}
 .mt_10{margin-top: 10px;}
