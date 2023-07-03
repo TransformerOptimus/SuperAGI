@@ -120,7 +120,11 @@ export default function App() {
 
   useEffect(() => {
     const clearLocalStorage = () => {
-      localStorage.clear();
+      Object.keys(localStorage).forEach((key) => {
+        if (key !== 'repo_starred' && key !== 'popup_closed_time') {
+          localStorage.removeItem(key);
+        }
+      });
     };
 
     window.addEventListener('beforeunload', clearLocalStorage);
@@ -131,6 +135,7 @@ export default function App() {
       window.removeEventListener('unload', clearLocalStorage);
     };
   }, []);
+
 
   return (
     <div className="app">

@@ -107,7 +107,7 @@ app.include_router(config_router, prefix="/configs")
 app.include_router(agent_template_router, prefix="/agent_templates")
 app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
-app.include_router(agent_execution_config, prefix="/agentexecutionsconfigs")
+app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 
 
 # in production you can use Settings management
@@ -269,7 +269,7 @@ async def startup_event():
 
     build_single_step_agent()
     build_task_based_agents()
-    # check_toolkit_registration()
+    check_toolkit_registration()
     session.close()
 
 

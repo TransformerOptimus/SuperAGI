@@ -5,12 +5,12 @@ from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
 
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 
 @pytest.fixture
 def resource_manager():
     session_mock = Mock()
-    resource_manager = ResourceManager(session_mock)
+    resource_manager = FileManager(session_mock)
     #resource_manager.agent_id = 1  # replace with actual value
     return resource_manager
 

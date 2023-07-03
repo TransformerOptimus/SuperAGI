@@ -6,7 +6,7 @@ import requests
 from PIL import Image
 from pydantic import BaseModel, Field
 
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 
@@ -35,7 +35,7 @@ class StableDiffusionImageGenTool(BaseTool):
     args_schema: Type[BaseModel] = StableDiffusionImageGenInput
     description: str = "Generate Images using Stable Diffusion"
     agent_id: int = None
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
 
     class Config:
         arbitrary_types_allowed = True

@@ -4,7 +4,7 @@ from typing import Type, Optional
 from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 
@@ -26,7 +26,7 @@ class ReadFileTool(BaseTool):
     agent_id: int = None
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
 
     def _execute(self, file_name: str):
         """

@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.models.organisation import Organisation
@@ -12,17 +14,39 @@ from superagi.models.toolkit import Toolkit
 router = APIRouter()
 
 
+class ToolOut(BaseModel):
+    id: int
+    name: str
+    folder_name: str
+    class_name: str
+    file_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ToolIn(BaseModel):
+    name: str
+    folder_name: str
+    class_name: str
+    file_name: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(Tool), status_code=201)
+@router.post("/add", response_model=ToolOut, status_code=201)
 def create_tool(
-        tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
+        tool: ToolIn,
         Authorize: AuthJWT = Depends(check_auth),
 ):
     """
     Create a new tool.
 
     Args:
-        tool (sqlalchemy_to_pydantic(Tool, exclude=["id"])): Tool data.
+        tool (ToolIn): Tool data.
 
     Returns:
         Tool: The created tool.
@@ -43,7 +67,7 @@ def create_tool(
     return db_tool
 
 
-@router.get("/get/{tool_id}", response_model=sqlalchemy_to_pydantic(Tool))
+@router.get("/get/{tool_id}", response_model=ToolOut)
 def get_tool(
         tool_id: int,
         Authorize: AuthJWT = Depends(check_auth),
@@ -80,10 +104,10 @@ def get_tools(
     return tools
 
 
-@router.put("/update/{tool_id}", response_model=sqlalchemy_to_pydantic(Tool))
+@router.put("/update/{tool_id}", response_model=ToolOut)
 def update_tool(
         tool_id: int,
-        tool: sqlalchemy_to_pydantic(Tool, exclude=["id"]),
+        tool: ToolIn,
         Authorize: AuthJWT = Depends(check_auth),
 ):
     """
@@ -91,7 +115,7 @@ def update_tool(
 
     Args:
         tool_id (int): ID of the tool.
-        tool (sqlalchemy_to_pydantic(Tool, exclude=["id"])): Updated tool data.
+        tool (ToolIn): Updated tool data.
 
     Returns:
         Tool: The updated tool details.

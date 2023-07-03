@@ -1,33 +1,52 @@
-import json
-from datetime import datetime
-
-from fastapi import APIRouter
+from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
-from fastapi_sqlalchemy import db
-from jsonmerge import merge
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from sqlalchemy import func
+from pydantic import BaseModel
 
-# from superagi.controllers.types.agent_create_request import AgentCreateRequest
-from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
-from superagi.models.agent_config import AgentConfiguration
-from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.project import Project
-from superagi.models.tool import Tool
+from fastapi import APIRouter
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.types.agent_with_config import AgentWithConfig
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.tool import Tool
+from jsonmerge import merge
 from superagi.worker import execute_agent
+from datetime import datetime
+import json
+from sqlalchemy import func
+from superagi.helper.auth import check_auth
+# from superagi.types.db import AgentOut, AgentIn
 
 router = APIRouter()
 
 
+class AgentOut(BaseModel):
+    id: int
+    name: str
+    project_id: int
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentIn(BaseModel):
+    name: str
+    project_id: int
+    description: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(Agent), status_code=201)
-def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+@router.post("/add", response_model=AgentOut, status_code=201)
+def create_agent(agent: AgentIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Creates a new Agent
@@ -58,7 +77,7 @@ def create_agent(agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
     return db_agent
 
 
-@router.get("/get/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
+@router.get("/get/{agent_id}", response_model=AgentOut)
 def get_agent(agent_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -80,8 +99,8 @@ def get_agent(agent_id: int,
     return db_agent
 
 
-@router.put("/update/{agent_id}", response_model=sqlalchemy_to_pydantic(Agent))
-def update_agent(agent_id: int, agent: sqlalchemy_to_pydantic(Agent, exclude=["id"]),
+@router.put("/update/{agent_id}", response_model=AgentOut)
+def update_agent(agent_id: int, agent: AgentIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Update an existing Agent
@@ -263,9 +282,11 @@ def get_agent_configuration(agent_id: int,
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
+
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
+    # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,

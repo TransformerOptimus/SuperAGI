@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 from superagi.helper.auth import get_user_organisation
@@ -11,6 +11,14 @@ from superagi.models.toolkit import Toolkit
 
 router = APIRouter()
 
+class ToolConfigOut(BaseModel):
+    id = int
+    key = str
+    value = str
+    toolkit_id = int
+
+    class Config:
+        orm_mode = True
 
 @router.post("/add/{toolkit_name}", status_code=201)
 def update_tool_config(toolkit_name: str, configs: list, organisation: Organisation = Depends(get_user_organisation)):
@@ -56,7 +64,7 @@ def update_tool_config(toolkit_name: str, configs: list, organisation: Organisat
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/create-or-update/{toolkit_name}", status_code=201, response_model=sqlalchemy_to_pydantic(ToolConfig))
+@router.post("/create-or-update/{toolkit_name}", status_code=201, response_model=ToolConfigOut)
 def create_or_update_tool_config(toolkit_name: str, tool_configs,
                                  Authorize: AuthJWT = Depends(check_auth)):
     """

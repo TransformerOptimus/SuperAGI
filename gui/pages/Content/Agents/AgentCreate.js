@@ -57,7 +57,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
-  const databases = ["Pinecone", "LanceDB"]
+  const databases = ["Pinecone"]
   const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
@@ -72,7 +72,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit","Resource Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -195,8 +195,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     setSearchValue('');
   }
-
-
+  
   const removeTool = (indexToDelete) => {
     const updatedToolIds = [...selectedTools];
     updatedToolIds.splice(indexToDelete, 1);
