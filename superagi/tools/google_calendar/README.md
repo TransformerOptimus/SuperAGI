@@ -9,20 +9,20 @@
 
 # SuperAGI - Google Calendar Toolkit
 
-Introducing the Google Calendar Toolkit, a powerful integration for SuperAGI. With the Gogole Calendar toolkit, you gain the ability to do the following:
+Introducing the Google Calendar Toolkit, a powerful integration for SuperAGI. With the Google Calendar toolkit, you have the ability to do the following:
 
 1. **Create Calendar Events**
 2. **List your Calendar Events**
 3. **Fetch an event from your Calendar**
 4. **Delete Calendar Events**
 
-# ⚙️ Installation
+## ⚙️ Installation
 
 ### ⚒️ Setting up of SuperAGI
 
-Set-up SuperAGI by following the instructions given [here](https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
+Set up SuperAGI by following the instructions given [here](https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
 
-# ✅ Quick start Guide:
+# ✅ Quickstart Guide:
 
 In order to get started with integrating Google Calendar with SuperAGI, you need to do the following:
 
@@ -56,11 +56,11 @@ In order to get started with integrating Google Calendar with SuperAGI, you need
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/92881074/43eb7e77-5292-4564-874b-0dea2b183c21" width=600px>
 
-7. Fill in the required details such as the App Information, App Domain, Authorized Domain, Developer contact information. Once filled in, click “Save and Continue” 
+7. Fill in the required details such as the App Information, App Domain, Authorized Domain, and Developer contact information. Once filled in, click “Save and Continue” 
 
 <img src="https://github.com/Phoenix2809/SuperAGI/assets/92881074/6ce9238e-d951-4fb0-bcc9-3bf054c26b95" width=600px>
 
-8. On the next page, you don’t need to select scopes. Proceed to “save and continue” and at the final page, review the process and click “Back to Dashboard”.  With this, you’ve created your OAuth Consent Screen for Google Calendar.
+8. On the next page, you don’t need to select the scopes. Proceed to “save and continue” and at the final page, review the process and click “Back to Dashboard”.  With this, you’ve created your OAuth Consent Screen for Google Calendar.
    
 9. You can go ahead and click the “Publish App” 
 
@@ -101,7 +101,7 @@ In order to obtain the Client ID and Secret ID, you need to do the following ste
 
 ## Configuring your Client ID, Secret Key and Authenticating Calendar with SuperAGI
 
-Once the ClientID and Secret Key is obtained, you can configure and authorize Calendar to be used with SuperAGI by following these steps: 
+Once the ClientID and Secret Key are obtained, you can configure and authorize Calendar to be used with SuperAGI by following these steps: 
 
 1. Add your Client ID and Client Secret Key on the toolkit page and click on “Update Changes”
 
