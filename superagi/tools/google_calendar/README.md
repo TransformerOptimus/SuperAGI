@@ -91,7 +91,7 @@ In order to obtain the Client ID and Secret ID, you need to do the following ste
 
 5. Go to Authorized redirect URIs and add the following as per the image: 
 
-<img src="https://github.com/Phoenix2809/SuperAGI/assets/133874957/9b262b0d-a8f7-4554-9ab2-a9ed7685750f" width=600px>
+<img src="https://github.com/Phoenix2809/SuperAGI/assets/92881074/f274c547-cb71-4377-807b-633fe708bea4" width=600px>
 
 6. Once you’re completed with adding the Authorized redirect URIs, you can click “Create” to obtain the Client ID and Client Secret Key
 
