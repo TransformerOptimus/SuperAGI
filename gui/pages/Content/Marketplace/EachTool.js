@@ -25,6 +25,7 @@ export default function EachTool({template, env}) {
                   setRightPanel(response.data ? 'overview' : 'tool_view');
               })
               .catch((error) => {
+                  setRightPanel('tool_view');
                   console.error('Error fetching template details:', error);
               });
         } else {
@@ -34,6 +35,7 @@ export default function EachTool({template, env}) {
                   setRightPanel(response.data ? 'overview' : 'tool_view');
               })
               .catch((error) => {
+                  setRightPanel('tool_view');
                   console.error('Error fetching template details:', error);
               });
         }
