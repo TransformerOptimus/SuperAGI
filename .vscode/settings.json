@@ -1,0 +1,11 @@
+{
+    "python.testing.pytestArgs": [
+<<<<<<< HEAD
+        "tests"
+=======
+        "gui"
+>>>>>>> origin/main
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

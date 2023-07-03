@@ -1,6 +1,10 @@
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 
+export const  getUserTimezone = () => {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
 export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
 
