@@ -272,7 +272,7 @@ class AgentExecutor:
                     "agent_execution_id"])
 
             if tool.name == "Query Resource" and resource_description:
-                tool.description = tool.description.replace("{summary}",resource_description)
+                tool.description = tool.description.replace("{summary}", resource_description)
             new_tools.append(tool)
         return tools
 
@@ -318,7 +318,7 @@ class AgentExecutor:
         return resource_summary
 
     def check_for_resource(self,agent_id: int, session: Session):
-        resource = session.query(Resource).filter(Resource.agent_id == agent_id).first()
+        resource = session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').first()
         if resource is None:
             return False
         return True
