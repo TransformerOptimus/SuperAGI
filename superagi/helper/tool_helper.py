@@ -15,7 +15,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.base_tool import BaseToolkit
-from superagi.tools.rabbitmq.rabbitmq_toolkit import RabbitMQToolkit
+
 
 
 def parse_github_url(github_url):
