@@ -37,7 +37,6 @@ export default function EachTool({template, env}) {
                   console.error('Error fetching template details:', error);
               });
         }
-
     }, []);
 
 
@@ -141,13 +140,6 @@ export default function EachTool({template, env}) {
                                            </div>
                                         }
                                     </div>
-                                    {/*<div>*/}
-                                    {/*    <span className={styles2.description_heading} style={{fontWeight: '400'}}>{goals.length}&nbsp;Goals</span><br/><br/>*/}
-                                    {/*    {goals.map((goal, index) => (<div key={index} style={{marginTop: '0'}}>*/}
-                                    {/*        <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>*/}
-                                    {/*        {index !== goals.length - 1}*/}
-                                    {/*    </div>))}*/}
-                                    {/*</div>*/}
                                 </div>}
                             {rightPanel === 'tool_view' && <div>
                                 <div style={{overflowY: 'scroll', height: '70vh'}}>
