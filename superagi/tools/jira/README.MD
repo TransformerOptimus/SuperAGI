@@ -9,7 +9,7 @@
 
 # SuperAGI Jira Tool
 
-The robust SuperAGI Jira Tool lets users create, edit and search issues while providing a foundation for other fascinating use cases.
+The SuperAGI Jira Tool lets users create, edit and search issues while providing a foundation for other great use cases.
 
 ## 💡 Features
 
@@ -42,7 +42,7 @@ Add the following configuration settings in the file:
  - Your instance profile is the section at the start of your URL. It should look something like "https://mycompany.atlassian.net/".
 
 3. _JIRA USERNAME:_
- - Your Jira UserName is the Email Address with which you signed up in Jira. 
+ - Your Jira UserName is the Email Address with which you signed up in Jira.
 
 4. _CONFIGURING JIRA IN SUPERAGI DASHBOARD:_ 
  - Open the Jira Toolkit Page in SuperAGI Add your Jira API Token, your Instance URL, and your Jira Username and click "Update Changes"
