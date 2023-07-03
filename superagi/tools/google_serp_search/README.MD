@@ -18,7 +18,7 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
 
 ### 🔧 **Add Google Serp Search API Key in SuperAGI Dashboard**
 
-1. Register an account verifying your email and phone-number.
+1. Register an account verifying your email and phone number.
 
 2. Your Private API Key would be made. Copy that and save it in a separate text file.
 
@@ -29,4 +29,4 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
 
 ## Running SuperAGI Google Search Serp Tool
 
-You can simply ask your agent about latest information regarding anything in the world and your agent will be able to browse the internet to get that information for you. 
+You can simply ask your agent about the latest information regarding anything and your agent will be able to browse the internet to get that information for you. 
