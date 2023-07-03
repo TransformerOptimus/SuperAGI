@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, Text
 from superagi.models.base_model import DBBaseModel
 
 
-class AgentExecutionConfig(DBBaseModel):
+class AgentExecutionConfiguration(DBBaseModel):
     """
     Agent Execution related configurations like goals, instructions are stored here
 
@@ -40,16 +40,16 @@ class AgentExecutionConfig(DBBaseModel):
         }
 
         agent_execution_configurations = [
-            AgentExecutionConfig(agent_execution_id=execution.id, key=key, value=str(value))
+            AgentExecutionConfiguration(agent_execution_id=execution.id, key=key, value=str(value))
             for key, value in agent_config_values.items()
         ]
 
         for key, value in agent_execution_configurations.items():
             agent_execution_config = (
-                session.query(AgentExecutionConfig)
+                session.query(AgentExecutionConfiguration)
                 .filter(
-                    AgentExecutionConfig.agent_execution_id == execution.id,
-                    AgentExecutionConfig.key == key
+                    AgentExecutionConfiguration.agent_execution_id == execution.id,
+                    AgentExecutionConfiguration.key == key
                 )
                 .first()
             )
@@ -57,9 +57,52 @@ class AgentExecutionConfig(DBBaseModel):
             if agent_execution_config:
                 agent_execution_config.value = str(value)
             else:
-                agent_execution_config = AgentExecutionConfig(
+                agent_execution_config = AgentExecutionConfiguration(
                     agent_execution_id=execution.id,
                     key=key,
                     value=str(value)
                 )
                 session.add(agent_execution_config)
+
+    @classmethod
+    def fetch_configuration(cls, session, execution):
+        """
+        Fetches the execution configuration of an agent.
+
+        Args:
+            session: The database session object.
+            execution (AgentExecution): The AgentExecution of the agent.
+
+        Returns:
+            dict: Parsed agent configuration.
+
+        """
+
+        agent_configurations = session.query(AgentExecutionConfiguration).filter_by(
+            agent_execution_id=execution.id).all()
+        parsed_config = {
+            "goal": [],
+            "instruction": [],
+        }
+        if not agent_configurations:
+            return parsed_config
+        for item in agent_configurations:
+            parsed_config[item.key] = cls.eval_agent_config(item.key, item.value)
+        return parsed_config
+
+    @classmethod
+    def eval_agent_config(cls, key, value):
+        """
+        Evaluates the value of an agent execution configuration setting based on its key.
+
+        Args:
+            key (str): The key of the execution configuration setting.
+            value (str): The value of execution configuration setting.
+
+        Returns:
+            object: The evaluated value of the execution configuration setting.
+
+        """
+
+        if key == "goal" or key == "instruction":
+            return eval(value)
