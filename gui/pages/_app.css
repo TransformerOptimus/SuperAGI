@@ -694,6 +694,7 @@ p {
 }
 
 .w_100{width: 100%}
+.w_fit_content{width:fit-content}
 .h_100{height: 100%}
 
 .justify_center{justify-content: center}

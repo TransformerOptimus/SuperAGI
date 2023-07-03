@@ -154,9 +154,19 @@ export default function ApmDashboard() {
         var total = 0;
         for (var i=0; i<runs.length; i++) {
             const timeDifference = formatTimeDifference(runs[i].updated_at, runs[i].created_at);
-            const mins = parseInt(timeDifference.replace('min', ''), 10);
-            total += isNaN(mins) ? 0 : mins;
+            var time = 0;
+
+            if(timeDifference.includes('min')) {
+                time = parseInt(timeDifference.replace('min', ''), 10);
+            }
+
+            if(timeDifference.includes('sec')) {
+                time = parseInt(timeDifference.replace('sec', ''), 10) / 60;
+            }
+
+            total += isNaN(time) ? 0 : time;
         }
+
         console.log(runs.length)
         const avg = runs.length > 0 ? total / runs.length : 0;
         setAverageRunTime(`${avg.toFixed(1)} min`);
@@ -200,10 +210,10 @@ export default function ApmDashboard() {
                         </div>
                         <div className="my_rows mt_24" style={{gap:'4px', padding:'0 7px'}}>
                             <div className="my_col_4 text_12 vertical_container">Agent <span className="text_20_bold mt_10">{selectedAgentDetails?.name || '-'}</span></div>
-                            <div className="my_col_2 text_12 vertical_container align_end">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div>
-                            <div className="my_col_2 text_12 vertical_container align_end">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div>
-                            <div className="my_col_2 text_12 vertical_container align_end">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens ? formatNumber(selectedAgentDetails.total_tokens) : '-' }</span></div>
-                            <div className="my_col_2 text_12 vertical_container align_end">Average run time <span className="text_20_bold mt_10">{averageRunTime !== '0.0 min' ? averageRunTime:'-'}</span></div>
+                            <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div></div>
+                            <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div></div>
+                            <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens ? formatNumber(selectedAgentDetails.total_tokens) : '-' }</span></div></div>
+                            <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Average run time <span className="text_20_bold mt_10">{averageRunTime !== '0.0 min' ? averageRunTime:'-'}</span></div></div>
                         </div>
                         {selectedAgentRun.length === 0 ?
                             <div className="vertical_container align_center mt_50 w_100">
