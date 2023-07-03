@@ -25,6 +25,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
@@ -158,7 +159,8 @@ class AgentExecutor:
             return "Agent Not found"
 
         tools = [
-            ThinkingTool()
+            ThinkingTool(),
+            QueryResourceTool()
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
