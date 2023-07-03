@@ -7,7 +7,7 @@ from superagi.config.config import get_config
 
 
 class LlamaDocumentSummary:
-    def __init__(self, model_name=get_config("RESOURCES_EMBEDDING_MODEL_NAME", "gpt-3.5-turbo")):
+    def __init__(self, model_name=get_config("RESOURCES_SUMMARY_MODEL_NAME", "gpt-3.5-turbo")):
         self.model_name = model_name
 
     def generate_summary_of_document(self, documents: list[Document]):
