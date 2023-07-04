@@ -41,7 +41,7 @@ export const getExecutionTasks = (executionId) => {
 };
 
 export const createAgent = (agentData, scheduledCreate) => {
-  return api.post(scheduledCreate ? `http://192.168.1.170:3000/api/agents/schedule` : `/agents/create`, agentData);
+  return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
 export const addTool = (toolData) => {

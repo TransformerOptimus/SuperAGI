@@ -100,8 +100,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   
   const expiryTypeArray = ['Specific Date', 'After certain number of runs', 'No expiry'];
   const [expiryType, setExpiryType] = useState(expiryTypeArray[1]);
-  const [expiryRuns, setExpiryRuns] = useState(null);
-  const [expiryDate, setExpiryDate] = useState('');
+  const [expiryRuns, setExpiryRuns] = useState(-1);
+  const [expiryDate, setExpiryDate] = useState(null);
   
   const timeRef = useRef(null);	
   const expiryRef = useRef(null);
@@ -474,9 +474,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         "user_timezone": getUserTimezone(),	
       },
       "schedule":{
-        "start_time": gmtTime,	
-        "recurrence_interval": timeValue + time,
-        "expiry_date": gmtDateTime,	
+        "start_time": startTime,	
+        "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
+        "expiry_date": expiryDate,	
         "expiry_runs": expiryRuns,
       }
     }	
@@ -1023,8 +1023,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                       </div>
                       <div>
                         {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'137px'}}>
-                          {timeUnitArray.map((time, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                            {time}
+                          {timeUnitArray.map((timeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                            {timeUnit}
                           </div>))}
                         </div>}
                       </div>

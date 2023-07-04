@@ -11,6 +11,7 @@ import Details from "./Details";
 import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, saveAgentAsTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import axios from 'axios';
 
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
@@ -35,7 +36,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
 
 
-  const [timeValue, setTimeValue] = useState("");
+  const [timeValue, setTimeValue] = useState(null);
   const [expiryRuns, setExpiryRuns] = useState(null);
   const [createDropdown, setCreateDropdown] = useState(false);	
   const [createModal, setCreateModal] = useState(false);	
@@ -44,61 +45,144 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [isRecurring, setIsRecurring] = useState(false);	
   const [timeDropdown, setTimeDropdown] = useState(false);	
   const [expiryDropdown, setExpiryDropdown] = useState(false);	
-  const [selectedDateTime, setSelectedDateTime] = useState(null);	
-  const [selectedTime, setSelectedTime] = useState(null);	
-  const [gmtDateTime, setgmtDateTime] = useState(null);	
-  const [gmtTime, setGmtTime] = useState(null);	
-  const timezn = ['Days', 'Hours', 'Minutes']
+  // const [selectedDateTime, setSelectedDateTime] = useState(null);	
+  // const [selectedTime, setSelectedTime] = useState(null);	
+  // const [gmtDateTime, setgmtDateTime] = useState(null);	
+  // const [gmtTime, setGmtTime] = useState(null);	
+  const timeUnitArray = ['Days', 'Hours', 'Minutes']
   const expiryArray = ['Specific Date', 'After certain number of runs', 'No expiry']
-  const [time, setTime] = useState(timezn[1]);	
+ 
   const [expiry, setExpiry] = useState(expiryArray[1]);
   const timeRef = useRef(null);	
   const expiryRef = useRef(null);
- 	
-  const handleDateTimeChange = (momentObj) => {	
-    setSelectedDateTime(momentObj);	
-    const gmtDateTime = convertToGMT(momentObj);	
-    setgmtDateTime(gmtDateTime);	
-    console.log(gmtDateTime);	
-  };	
+  const [startTime, setStartTime] = useState('');
+  const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
+  const [expiryDate, setExpiryDate] = useState(null);
+
   const handleTimeChange = (momentObj) => {	
-    setSelectedTime(momentObj);	
-    const gmtTime = convertToGMT(momentObj);	
-    setGmtTime(gmtTime);	
-    console.log(gmtTime);	
-  };	
+    const startTime = convertToGMT(momentObj);
+    setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
+  };
+  const handleDateChange = (event) => {	
+    setLocalStorageValue("agent_time_value_" + String(internalId), event.target.value, setTimeValue);
+  };
+  const handleTimeSelect = (index) => {
+    setLocalStorageValue("agent_time_unit_" + String(internalId), timeUnitArray[index], setTimeUnit);
+    setTimeDropdown(false);	
+  };
+  const handleDateTimeChange = (momentObj) => {	
+    const expiryDate = convertToGMT(momentObj);
+    setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
+  };
+  const handleExpiryRuns = (event) => {	
+    setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
+  };
+
   const toggleRecurring = () => {	
     setIsRecurring(!isRecurring);	
   };
   const closeCreateModal = () => {	
-    // setRunName("New Run");	
     setCreateModal(false);
     setCreateEditModal(false);	
     setCreateStopModal(false);
   };
-  const convertToGMT = (dateTime) => {	
-    if (!dateTime) return null; // Handle empty case	
-  	
-    const gmtDateTime = moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');	
-  	
-    return gmtDateTime;	
-  };
-  const handleTimeSelect = (index) => {	
-    setTime(timezn[index]);	
-    setTimeDropdown(false);	
-  }	
   const handleExpirySelect = (index) => {	
     setExpiry(expiryArray[index]);	
     setExpiryDropdown(false);	
   }
-  const handleDateChange = (event) => {	
-    setTimeValue(event.target.value);	
-  };	
-  const handleExpiryRuns = (event) => {	
-    setExpiryRuns(event.target.value);	
+
+  useEffect(() => {
+    const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
+    if(agent_start_time) {
+      setStartTime(agent_start_time);
+    }
+    const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
+    if(agent_time_value) {
+      setTimeValue(Number(agent_time_value));
+    }
+    const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
+    if(agent_time_unit) {
+      setTimeUnit(agent_time_unit);
+    }
+    const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
+    if(agent_expiry_date) {
+      setExpiryDate(agent_expiry_date);
+    }
+    const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
+    if(agent_expiry_runs) {
+      setExpiryRuns(Number(agent_expiry_runs));
+    }
+  },[internalId])
+
+  const stopSchedule = () => {
+    const apiUrl = `http://192.168.1.170:3000/api/agents/stop/schedule?agent_id=${agentId}`;
+    axios.post(apiUrl)
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success('Schedule stopped successfully!');
+        }
+      })
+      .catch((error) => {
+        console.error('Error stopping agent schedule:', error);
+      });
   };
 
+  const createAndScheduleRun = () => {//schedule existing data
+    const requestData = {
+      "agent_id": agentId,
+      "start_time": startTime,
+      "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
+      "expiry_runs":expiryRuns,
+      "expiry_date":expiryDate,
+    };
+    console.log("start_time", "recurrence_interval", "expiry_runs","expiry_date");
+    axios.post('http://192.168.1.170:3000/api/agentexecutions/schedule', requestData)
+      .then(response => {
+        const { schedule_id } = response.data;
+        console.log('Schedule ID:', schedule_id);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
 
+  const AgentScheduleComponent = () => {
+    const [agentData, setAgentData] = useState(null);//get agent data
+  
+    useEffect(() => {
+      const agentId = 2; 
+      const apiUrl = ``;
+  //{{localhost}}/agents/get/schedule_data/${agentId}
+      axios.get(apiUrl)
+        .then((response) => {
+          setAgentData(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent data:', error);
+        });
+    }, []);
+  }
+
+  const handleUpdateSchedule = () => {//update agent data
+    const agentId = 2; 
+    const apiUrl = ``;
+
+    const requestData = {
+      "agent_id": agentId,
+      "start_time": agentData.current_datetime,
+      "recurrence_interval": agentData.recurrence_interval,
+      "expiry_runs": agentData.expiry_runs,
+      "expiry_date": agentData.expiry_date,
+    };
+
+    axios.post(apiUrl, requestData)
+      .then((response) => {
+        toast.error('Schedule updated successfully');
+      })
+      .catch((error) => {
+        console.error('Error updating agent schedule:', error);
+      });
+  };
 
   const pendingPermissions = useMemo(() => {
     if (!fetchedData) return 0;
@@ -240,7 +324,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
       });
   }
 
-  function fetchExecutions(agentId, currentRun = null) {
+  function fetchExecutions(agentId, currentRun = null){
     getAgentExecutions(agentId)
         .then((response) => {
           let data = response.data
@@ -281,7 +365,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -316,7 +400,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
                 <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>     
-                <li className="dropdown_item" onClick={() => setCreateEditModal(true)}>Edit Schedule</li>
+                <li className="dropdown_item" onClick={() => {setCreateEditModal(true);AgentScheduleComponent;}}>Edit Schedule</li>
                 <li className="dropdown_item" onClick={() => setCreateStopModal(true)}>Stop Schedule</li>
               </ul>
             </div>}
@@ -349,12 +433,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
               </div>
               <div style={{width:'30%'}} >
                 <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
-                {time}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                {timeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                 </div>
                 <div>
                 {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
-                {timezn.map((time, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                  {time}
+                {timeUnitArray.map((timeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {timeUnit}
                 </div>))}
                 </div>} 
                 </div>
@@ -394,13 +478,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                 Cancel
               </button>
-              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}}>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={createAndScheduleRun}>
                 Create and Schedule Run
               </button>
             </div>
           </div>
         </div>)}
-
 
 
             {createEditModal && (
@@ -430,12 +513,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
               </div>
               <div style={{width:'30%'}} >
                 <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
-                {time}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                {timeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                 </div>
                 <div>
                 {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
-                {timezn.map((time, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                  {time}
+                {timeUnitArray.map((timeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {timeUnit}
                 </div>))}
                 </div>} 
                 </div>
@@ -475,7 +558,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                 Cancel
               </button>
-              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}}>
+              <button className={styles.run_button} onClick={handleUpdateSchedule} style={{paddingLeft:'15px',paddingRight:'25px'}}>
                 Update Schedule
               </button>
             </div>
@@ -491,7 +574,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                 Cancel
               </button>
-              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}}>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={stopSchedule}>
                 Stop Schedule
               </button>
             </div>
