@@ -1,25 +1,59 @@
 from datetime import datetime
+from typing import Optional
+
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
 
+from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
+# from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 from superagi.helper.analytics_helper import AnalyticsHelper
 
 router = APIRouter()
 
 
+class AgentExecutionOut(BaseModel):
+    id: int
+    status: str
+    name: str
+    agent_id: int
+    last_execution_time: datetime
+    num_of_calls: int
+    num_of_tokens: int
+    current_step_id: int
+    permission_id: Optional[int]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentExecutionIn(BaseModel):
+    status: Optional[str]
+    name: Optional[str]
+    agent_id: Optional[int]
+    last_execution_time: Optional[datetime]
+    num_of_calls: Optional[int]
+    num_of_tokens: Optional[int]
+    current_step_id: Optional[int]
+    permission_id: Optional[int]
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecution), status_code=201)
-def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
-                            Authorize: AuthJWT = Depends(check_auth)):
+@router.post("/add", response_model=AgentExecutionOut, status_code=201)
+def create_agent_execution(agent_execution: AgentExecutionIn,
+                           Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent execution/run.
 
@@ -56,7 +90,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
     return db_agent_execution
 
 
-@router.get("/get/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
+@router.get("/get/{agent_execution_id}", response_model=AgentExecutionOut)
 def get_agent_execution(agent_execution_id: int,
                         Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -78,14 +112,14 @@ def get_agent_execution(agent_execution_id: int,
     return db_agent_execution
 
 
-@router.put("/update/{agent_execution_id}", response_model=sqlalchemy_to_pydantic(AgentExecution))
+@router.put("/update/{agent_execution_id}", response_model=AgentExecutionOut)
 def update_agent_execution(agent_execution_id: int,
-                           agent_execution: sqlalchemy_to_pydantic(AgentExecution, exclude=["id"]),
+                           agent_execution: AgentExecutionIn,
                            Authorize: AuthJWT = Depends(check_auth)):
     """Update details of particular agent_execution by agent_execution_id"""
 
     db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-    if agent_execution == "COMPLETED":
+    if agent_execution.status == "COMPLETED":
         raise HTTPException(status_code=400, detail="Invalid Request")
 
     if not db_agent_execution:
@@ -127,6 +161,8 @@ def list_running_agents(agent_id: str,
 
     executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(
         desc(AgentExecution.status == 'RUNNING'), desc(AgentExecution.last_execution_time)).all()
+    for execution in executions:
+        execution.time_difference = get_time_difference(execution.last_execution_time,str(datetime.now()))
     return executions
 
 

@@ -44,6 +44,10 @@ export const createAgent = (agentData) => {
   return api.post(`/agents/create`, agentData);
 };
 
+export const addTool = (toolData) => {
+  return api.post(`/toolkits/get/local/install`, toolData);
+};
+
 export const updateAgents = (agentData) => {
   return api.put(`/agentconfigs/update/`, agentData);
 };
@@ -126,6 +130,14 @@ export const updatePermissions = (permissionId, data) => {
 
 export const authenticateGoogleCred = (toolKitId) => {
   return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
+}
+
+export const authenticateTwitterCred = (toolKitId) => {
+  return api.get(`/twitter/get_twitter_creds/toolkit_id/${toolKitId}`);
+}
+
+export const sendTwitterCreds = (twitter_creds) => {
+  return api.post(`/twitter/send_twitter_creds/${twitter_creds}`);
 }
 
 export const fetchToolTemplateList = () => {

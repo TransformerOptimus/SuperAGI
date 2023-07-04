@@ -3,7 +3,7 @@ import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
 import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
-import {formatNumber, formatTime, formatTimeDifference} from "@/utils/utils";
+import {formatNumber, formatTime, formatRunTimeDifference} from "@/utils/utils";
 import * as echarts from 'echarts';
 
 export default function ApmDashboard() {
@@ -153,7 +153,7 @@ export default function ApmDashboard() {
     const averageAgentRunTime = (runs) => {
         var total = 0;
         for (var i=0; i<runs.length; i++) {
-            const timeDifference = formatTimeDifference(runs[i].updated_at, runs[i].created_at);
+            const timeDifference = formatRunTimeDifference(runs[i].updated_at, runs[i].created_at);
             var time = 0;
 
             if(timeDifference.includes('min')) {
@@ -235,7 +235,7 @@ export default function ApmDashboard() {
                                         <td className="table_data" style={{width:'64%'}}>{run.name}</td>
                                         <td className="table_data text_align_right" style={{width:'12%'}}>{run.tokens_consumed}</td>
                                         <td className="table_data text_align_right" style={{width:'12%'}}>{run.calls}</td>
-                                        <td className="table_data text_align_right" style={{width:'12%'}}>{formatTimeDifference(run.updated_at,run.created_at)}</td>
+                                        <td className="table_data text_align_right" style={{width:'12%'}}>{formatRunTimeDifference(run.updated_at,run.created_at)}</td>
                                     </tr>
                                 ))}
                                 </tbody>

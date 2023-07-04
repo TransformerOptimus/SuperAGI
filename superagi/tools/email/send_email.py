@@ -27,7 +27,7 @@ class SendEmailTool(BaseTool):
     name: str = "Send Email"
     args_schema: Type[BaseModel] = SendEmailInput
     description: str = "Send an Email"
-
+    
     def _execute(self, to: str, subject: str, body: str) -> str:
         """
         Execute the send email tool.
@@ -38,7 +38,7 @@ class SendEmailTool(BaseTool):
             body : The body of the email.
 
         Returns:
-            
+            success or error message.
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')

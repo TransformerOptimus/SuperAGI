@@ -1,19 +1,27 @@
-from fastapi import APIRouter, HTTPException, Depends, Path
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
+
+from superagi.helper.auth import check_auth
+from superagi.helper.auth import get_user_organisation
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
-from fastapi_jwt_auth import AuthJWT
-from superagi.helper.auth import check_auth
-from superagi.helper.auth import get_user_organisation
-from typing import List
 
 router = APIRouter()
 
+class ToolConfigOut(BaseModel):
+    id = int
+    key = str
+    value = str
+    toolkit_id = int
+
+    class Config:
+        orm_mode = True
 
 @router.post("/add/{toolkit_name}", status_code=201)
-def update_tool_config(toolkit_name: str, configs: list):
+def update_tool_config(toolkit_name: str, configs: list, organisation: Organisation = Depends(get_user_organisation)):
     """
     Update tool configurations for a specific tool kit.
 
@@ -34,7 +42,7 @@ def update_tool_config(toolkit_name: str, configs: list):
 
     try:
         # Check if the tool kit exists
-        toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name)
+        toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name,organisation)
         if toolkit is None:
             raise HTTPException(status_code=404, detail="Tool kit not found")
 
@@ -56,7 +64,7 @@ def update_tool_config(toolkit_name: str, configs: list):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/create-or-update/{toolkit_name}", status_code=201, response_model=sqlalchemy_to_pydantic(ToolConfig))
+@router.post("/create-or-update/{toolkit_name}", status_code=201, response_model=ToolConfigOut)
 def create_or_update_tool_config(toolkit_name: str, tool_configs,
                                  Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -114,12 +122,11 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
         HTTPException (status_code=404): If the specified tool kit is not found.
         HTTPException (status_code=403): If the user is not authorized to access the tool kit.
     """
-    user_toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
-    toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name).first()
+
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
+                                               Toolkit.organisation_id == organisation.id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail='ToolKit not found')
-    if toolkit.name not in [user_toolkit.name for user_toolkit in user_toolkits]:
-        raise HTTPException(status_code=403, detail='Unauthorized')
 
     tool_configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
     return tool_configs
