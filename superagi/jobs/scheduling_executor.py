@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException
 from sqlalchemy.orm import sessionmaker
 
-import superagi.worker
+from superagi.worker import execute_agent
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
@@ -19,7 +19,13 @@ class ScheduledAgentExecutor:
 
     @classmethod
     def execute_scheduled_agent(self, agent_id: int, name: str):
+        """
+        Performs the execution of scheduled agents
 
+        Args:
+            agent_id: Identifier of the agent
+            name: Name of the agent
+        """
         session = Session()
         agent = session.query(Agent).get(agent_id)
 
@@ -35,7 +41,7 @@ class ScheduledAgentExecutor:
         session.commit()
 
         if db_agent_execution.status == "RUNNING":
-            superagi.worker.execute_agent.delay(db_agent_execution.id, datetime.now())
+            execute_agent.delay(db_agent_execution.id, datetime.now())
 
 
         session.close()

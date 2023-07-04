@@ -32,6 +32,7 @@ app.conf.beat_schedule = beat_schedule
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
+    """Executing agent scheduling in the background."""
     AgentScheduleHelper.update_next_scheduled_time()
     AgentScheduleHelper.get_scheduled_agents()
 
