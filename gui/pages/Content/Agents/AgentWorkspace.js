@@ -9,13 +9,12 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, saveAgentAsTemplate} from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
-
+import { convertToGMT } from "@/utils/utils";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import moment from 'moment';
 import 'moment-timezone';
 
 export default function AgentWorkspace({agentId, selectedView}) {
@@ -25,29 +24,24 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
   const [goals, setGoals] = useState(null)
-  const [tools, setTools] = useState([])
+  const [currentGoals, setCurrentGoals] = useState(null)
   const [runName, setRunName] = useState("New Run")
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
   const [dropdown, setDropdown] = useState(false);
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
-  const [pendingPermission, setPendingPermissions] = useState(0);
-
+  const [currentInstructions, setCurrentInstructions] = useState(['']);
+  const [pendingPermission, setPendingPermissions] = useState(0)
 
   const [timeValue, setTimeValue] = useState(null);
   const [expiryRuns, setExpiryRuns] = useState(null);
-  const [createDropdown, setCreateDropdown] = useState(false);	
-  const [createModal, setCreateModal] = useState(false);	
+  const [createModal, setCreateModal] = useState(false);
   const [createEditModal , setCreateEditModal] = useState(false);	
   const [createStopModal, setCreateStopModal] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);	
   const [timeDropdown, setTimeDropdown] = useState(false);	
-  const [expiryDropdown, setExpiryDropdown] = useState(false);	
-  // const [selectedDateTime, setSelectedDateTime] = useState(null);	
-  // const [selectedTime, setSelectedTime] = useState(null);	
-  // const [gmtDateTime, setgmtDateTime] = useState(null);	
-  // const [gmtTime, setGmtTime] = useState(null);	
+  const [expiryDropdown, setExpiryDropdown] = useState(false);
   const timeUnitArray = ['Days', 'Hours', 'Minutes']
   const expiryArray = ['Specific Date', 'After certain number of runs', 'No expiry']
  
@@ -60,58 +54,41 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   const handleTimeChange = (momentObj) => {	
     const startTime = convertToGMT(momentObj);
-    // setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
+    setStartTime(startTime);
   };
-  const handleDateChange = (event) => {	
-    // setLocalStorageValue("agent_time_value_" + String(internalId), event.target.value, setTimeValue);
+
+  const handleDateChange = (event) => {
+    setTimeValue(event.target.value);
   };
+
   const handleTimeSelect = (index) => {
-    // setLocalStorageValue("agent_time_unit_" + String(internalId), timeUnitArray[index], setTimeUnit);
-    setTimeDropdown(false);	
+    setTimeUnit(timeUnitArray[index]);
+    setTimeDropdown(false);
   };
+
   const handleDateTimeChange = (momentObj) => {	
     const expiryDate = convertToGMT(momentObj);
-    // setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
+    setExpiryDate(expiryDate);
   };
-  const handleExpiryRuns = (event) => {	
-    // setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
+
+  const handleExpiryRuns = (event) => {
+    setExpiryRuns(event.target.value);
   };
 
   const toggleRecurring = () => {	
     setIsRecurring(!isRecurring);	
   };
+
   const closeCreateModal = () => {	
     setCreateModal(false);
     setCreateEditModal(false);	
     setCreateStopModal(false);
   };
+
   const handleExpirySelect = (index) => {	
     setExpiry(expiryArray[index]);	
     setExpiryDropdown(false);	
   }
-
-  // useEffect(() => {
-  //   const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
-  //   if(agent_start_time) {
-  //     setStartTime(agent_start_time);
-  //   }
-  //   const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
-  //   if(agent_time_value) {
-  //     setTimeValue(Number(agent_time_value));
-  //   }
-  //   const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
-  //   if(agent_time_unit) {
-  //     setTimeUnit(agent_time_unit);
-  //   }
-  //   const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
-  //   if(agent_expiry_date) {
-  //     setExpiryDate(agent_expiry_date);
-  //   }
-  //   const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
-  //   if(agent_expiry_runs) {
-  //     setExpiryRuns(Number(agent_expiry_runs));
-  //   }
-  // },[internalId])
 
   const stopSchedule = () => {
     const apiUrl = `http://192.168.1.170:3000/api/agents/stop/schedule?agent_id=${agentId}`;
@@ -235,9 +212,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
       return
     }
 
-    const executionData = { "agent_id": agentId, "name": runName }
-    const agentData = { "agent_id": agentId, "key": "goal", "value": goals}
-    const agentData1 = { "agent_id": agentId, "key": "instruction", "value": instructions}
+    const executionData = {
+      "agent_id": agentId,
+      "name": runName,
+      "goal": goals,
+      "instruction": instructions
+    }
 
     addExecution(executionData)
         .then((response) => {
@@ -250,22 +230,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
         .catch((error) => {
           console.error('Error creating execution:', error);
           toast.error("Could not create run", {autoClose: 1800});
-        });
-
-    updateAgents(agentData)
-        .then((response) => {
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating agent:', error);
-        });
-
-    updateAgents(agentData1)
-        .then((response) => {
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating agent:', error);
         });
   };
 
@@ -305,6 +269,10 @@ export default function AgentWorkspace({agentId, selectedView}) {
   }, [agentId])
 
   useEffect(() => {
+    fetchExecutionDetails(selectedRun?.id);
+  }, [selectedRun?.id])
+
+  useEffect(() => {
     if(agentDetails) {
       setRightPanel(agentDetails.permission_type.includes('RESTRICTED') ? 'action_console' : 'details');
     }
@@ -314,9 +282,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
     getAgentDetails(agentId)
       .then((response) => {
         setAgentDetails(response.data);
-        setTools(response.data.tools);
-        setGoals(response.data.goal);
-        setInstructions(response.data.instruction);
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -334,6 +299,19 @@ export default function AgentWorkspace({agentId, selectedView}) {
         .catch((error) => {
           console.error('Error fetching agent executions:', error);
         });
+  }
+
+  function fetchExecutionDetails(executionId) {
+    getExecutionDetails(executionId)
+      .then((response) => {
+        setGoals(response.data.goal);
+        setCurrentGoals(response.data.goal);
+        setInstructions(response.data.instruction);
+        setCurrentInstructions(response.data.instruction);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent execution details:', error);
+      });
   }
 
   function saveAgentTemplate() {
@@ -586,7 +564,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
+            <ActivityFeed runModal={runModal} selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
           </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
@@ -627,7 +605,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
               </div>
           )}
-          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
+          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>
       </div>

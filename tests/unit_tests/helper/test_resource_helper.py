@@ -8,14 +8,14 @@ def test_make_written_file_resource(mocker):
     mocker.patch('os.makedirs', return_value=None)
     mocker.patch('os.path.getsize', return_value=1000)
     mocker.patch('os.path.splitext', return_value=("", ".txt"))
-    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/', 'local', None])
+    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/', 'FILE', None])
 
     with patch('superagi.helper.resource_helper.logger') as logger_mock:
         result = ResourceHelper.make_written_file_resource('test.txt', 1, 'INPUT')
 
     assert result.name == 'test.txt'
     assert result.path == '/test.txt'
-    assert result.storage_type == 'local'
+    assert result.storage_type == 'FILE'
     assert result.size == 1000
     assert result.type == 'application/txt'
     assert result.channel == 'OUTPUT'

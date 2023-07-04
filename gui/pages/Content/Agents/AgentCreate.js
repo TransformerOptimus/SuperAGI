@@ -83,7 +83,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit","Resource Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   const [createDropdown, setCreateDropdown] = useState(false);	
@@ -454,26 +454,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     };
 
     const scheduleAgentData = {
-      "agent":{
-        "name": agentName,
-        "project_id": selectedProjectId,
-        "description": agentDescription,
-        "goal": goals,
-        "instruction":instructions,
-        "agent_type": agentType,
-        "constraints": constraints,
-        "toolkits": [],
-        "tools": selectedTools,
-        "exit": exitCriterion,
-        "iteration_interval": stepTime,
-        "model": model,
-        "max_iterations": maxIterations,
-        "permission_type": permission_type,
-        "LTM_DB": longTermMemory ? database : null,
-        "memory_window": rollingWindow,
-        "user_timezone": getUserTimezone(),	
-      },
+      "agent": agentData,
       "schedule":{
+        "user_timezone": getUserTimezone(),
         "start_time": startTime,	
         "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
         "expiry_date": expiryDate,	
@@ -488,14 +471,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         removeTab(-1, "new agent", "Create_Agent");
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
-          input.forEach((fileData) => {
-            input.forEach(fileData => {
-              uploadResource(agent_id, fileData)
-                .then(response => {})
-                .catch(error => {
-                  console.error('Error uploading resource:', error);
-                });
-            });
+          input.forEach(fileData => {
+            uploadResource(agent_id, fileData)
+              .then(response => {})
+              .catch(error => {
+                console.error('Error uploading resource:', error);
+              });
           });
         }
         toast.success('Agent created successfully', {autoClose: 1800});
@@ -881,7 +862,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {addResources && <div style={{paddingBottom:'10px'}}>
                   <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
                     <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-                      <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
+                      <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file formats are txt, pdf, docx, epub, csv, pptx only</p>
                       <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
                   </div>
                   <ResourceList files={input}/>
@@ -940,29 +921,29 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              <div style={{marginTop: '15px'}}>
-                <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>
-                    Long term memory
-                  </label>
-                </div>
-              </div>
-              {longTermMemory === true && <div style={{marginTop: '10px'}}>
-                <label className={styles.form_label}>Choose an LTM database</label>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
-                    {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
-                      {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {data}
-                      </div>))}
-                    </div>}
-                  </div>
-                </div>
-              </div>}
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <div style={{display:'flex'}}>*/}
+              {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
+              {/*    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>*/}
+              {/*      Long term memory*/}
+              {/*    </label>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
+              {/*{longTermMemory === true && <div style={{marginTop: '10px'}}>*/}
+              {/*  <label className={styles.form_label}>Choose an LTM database</label>*/}
+              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+              {/*    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>*/}
+              {/*      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+              {/*    </div>*/}
+              {/*    <div>*/}
+              {/*      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>*/}
+              {/*        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+              {/*          {data}*/}
+              {/*        </div>))}*/}
+              {/*      </div>}*/}
+              {/*    </div>*/}
+              {/*  </div>*/}
+              {/*</div>}*/}
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Permission Type</label>
                 <div className="dropdown_container_search" style={{width:'100%'}}>

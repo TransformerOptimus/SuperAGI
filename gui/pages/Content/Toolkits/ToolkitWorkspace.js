@@ -11,6 +11,21 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const [apiConfigs, setApiConfigs] = useState([]);
     const [toolsIncluded, setToolsIncluded] = useState([]);
     const [loading, setLoading] = useState(true);
+    const toolkitData = [
+        { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
+        { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
+        { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
+        { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
+        { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
+        { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
+        { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
+        { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
+        { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
+        { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
+        { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
+        { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
+        { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
+    ];
 
     let handleKeyChange = (event, index) => {
       const updatedData = [...apiConfigs];
@@ -82,8 +97,8 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const handleTwitterAuthClick = async () => {
       authenticateTwitterCred(toolkitDetails.id)
       .then((response) => {
-        getTwitterToken(response.data);
         localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
+          getTwitterToken(response.data);
       })
       .catch((error) => {
         console.error('Error fetching data: ', error);
@@ -97,11 +112,20 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
       }
     }, [internalId]);
 
+    const getImageSource = () => {
+        for (let i = 0; i < toolkitData.length; i++) {
+            if (toolkitData[i].name === toolkitDetails.name) {
+                return toolkitData[i].imageSrc;
+            }
+        }
+        return '/images/custom_tool.svg';
+    };
+
     return (<>
         <div className={styles.tools_container}>
           <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
             <div>
-              <Image src="/images/custom_tool.svg" alt="toolkit-icon" width={45} height={45}/>
+              <Image src={getImageSource()} alt="toolkit-icon" width={45} height={45} style={{borderRadius:'25px',background: 'black'}} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
