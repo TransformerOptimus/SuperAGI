@@ -3,7 +3,13 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {
+  createAgent,
+  fetchAgentTemplateConfigLocal,
+  getOrganisationConfig,
+  updateExecution,
+  uploadFile
+} from "@/pages/api/DashboardService";
 import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -379,20 +385,35 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     createAgent(agentData)
       .then((response) => {
         const agent_id = response.data.id;
+        const executionId = response.data.execution_id;
         fetchAgents();
         removeTab(-1, "new agent", "Create_Agent");
-        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
-        if(addResources) {
-          input.forEach(fileData => {
-            uploadResource(agent_id, fileData)
-              .then(response => {})
+        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: executionId });
+        if (addResources) {
+          const uploadPromises = input.map(fileData => {
+            return uploadResource(agent_id, fileData)
               .catch(error => {
                 console.error('Error uploading resource:', error);
+                return Promise.reject(error);
               });
           });
+
+          Promise.all(uploadPromises)
+            .then(() => {
+              updateExecution(executionId, {"status": 'RUNNING'})
+                .then((response) => {})
+                .catch((error) => {
+                  console.error('Error updating execution:', error);
+                });
+            })
+            .catch(error => {
+              console.error('Error uploading files:', error);
+              setCreateClickable(true);
+            });
+        } else {
+          toast.success('Agent created successfully', { autoClose: 1800 });
+          setCreateClickable(true);
         }
-        toast.success('Agent created successfully', {autoClose: 1800});
-        setCreateClickable(true);
       })
       .catch((error) => {
         console.error('Error creating agent:', error);
