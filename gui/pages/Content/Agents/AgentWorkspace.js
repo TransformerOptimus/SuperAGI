@@ -128,7 +128,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
     useEffect(() => {
       const agentId = 2; 
       const apiUrl = ``;
-  //{{localhost}}/agents/get/schedule_data/${agentId}
       axios.get(apiUrl)
         .then((response) => {
           setAgentData(response.data);
