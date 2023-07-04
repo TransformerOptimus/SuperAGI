@@ -10,7 +10,13 @@ import {
   updateExecution,
   uploadFile
 } from "@/pages/api/DashboardService";
-import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
+import {
+  formatBytes,
+  openNewTab,
+  removeTab,
+  setLocalStorageValue,
+  setLocalStorageArray,
+} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
@@ -408,7 +414,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             });
         } else {
           runExecution(agentId, name, executionId);
-          toast.success('Agent created successfully', { autoClose: 1800 });
         }
       })
       .catch((error) => {
