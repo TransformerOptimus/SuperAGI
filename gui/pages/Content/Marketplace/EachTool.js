@@ -27,6 +27,7 @@ export default function EachTool({template, env}) {
         { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
         { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
     ];
+
     const getImageSource = (name) => {
         for (let i = 0; i < toolkitData.length; i++) {
             if (toolkitData[i].name === name) {
@@ -62,9 +63,9 @@ export default function EachTool({template, env}) {
         }
     }, []);
 
-
     function handleInstallClick() {
         if (window.location.href.toLowerCase().includes('marketplace')) {
+            localStorage.setItem('toolkit_to_install', template.name);
             if (env === 'PROD') {
                 window.open(`https://app.superagi.com/`, '_self');
             } else {
@@ -79,13 +80,13 @@ export default function EachTool({template, env}) {
         }
 
         installToolkitTemplate(template.name)
-            .then((response) => {
-                toast.success("Template installed", {autoClose: 1800});
-                setInstalled('Installed');
-            })
-            .catch((error) => {
-                console.error('Error fetching template details:', error);
-            });
+          .then((response) => {
+              toast.success("Template installed", {autoClose: 1800});
+              setInstalled('Installed');
+          })
+          .catch((error) => {
+              console.error('Error installing template:', error);
+          });
     }
 
     function handleBackClick() {
