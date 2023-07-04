@@ -320,7 +320,7 @@ export default function ApmDashboard() {
                         </div>
                         <div className="my_rows mt_8" style={{height:'318px'}}>
                             <div className="my_col_6 display_column_container h_100">
-                                <span className="text_14 mb_8">Calls per run by agent</span>
+                                <span className="text_14 mb_8">Calls per run</span>
                                 {allAgents.length === 0 ?
                                     <div className="vertical_container align_center mt_70 w_100">
                                         <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
@@ -345,7 +345,7 @@ export default function ApmDashboard() {
                                 </div>}
                             </div>
                             <div className="my_col_6 display_column_container h_100">
-                                <span className="text_14 mb_8">Tokens per run by agent</span>
+                                <span className="text_14 mb_8">Tokens per run</span>
                                 {allAgents.length === 0 ?
                                     <div className="vertical_container align_center mt_70 w_100">
                                         <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>

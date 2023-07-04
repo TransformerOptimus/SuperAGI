@@ -36,9 +36,9 @@ class AnalyticsHelper:
 
         result = {'total_tokens': 0, 'total_calls': 0, 'runs_completed': 0}
         for res in query_result:
-            result.update({'total_tokens': res.json_property.get('tokens_consumed', 0),
-                            'total_calls': res.json_property.get('calls', 0),
-                            'runs_completed': 1})
+            result['total_tokens'] += res.json_property.get('tokens_consumed', 0)
+            result['total_calls'] += res.json_property.get('calls', 0)
+            result['runs_completed'] += 1
 
         return result
 
