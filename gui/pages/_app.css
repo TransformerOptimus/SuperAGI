@@ -808,6 +808,25 @@ p {
     height: 20px;
     background: linear-gradient(90deg, #7491EA 0%, #9865D9 100%);
     border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.shine {
+    position: absolute;
+    top: -10%;
+    left: -50%;
+    height: 120%;
+    width: 25%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shine 1.5s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0% { left: -50%; opacity: 0; }
+    10% { left: 0%; opacity: 0.3; }
+    90% { left: 100%; opacity: 0.3; }
+    100% { left: 150%; opacity: 0; }
 }
 
 .bar-chart {

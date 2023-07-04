@@ -232,9 +232,9 @@ export default function ApmDashboard() {
                                 <tbody>
                                 {selectedAgentRun.map((run, i) => (
                                     <tr key={i}>
-                                        <td className="table_data table_border" style={{width:'64%'}}>{run.name}</td>
-                                        <td className="table_data text_align_right table_border" style={{width:'16%'}}>{run.tokens_consumed}</td>
-                                        <td className="table_data text_align_right table_border" style={{width:'10%'}}>{run.calls}</td>
+                                        <td className="table_data" style={{width:'64%'}}>{run.name}</td>
+                                        <td className="table_data text_align_right" style={{width:'16%'}}>{run.tokens_consumed}</td>
+                                        <td className="table_data text_align_right" style={{width:'10%'}}>{run.calls}</td>
                                         <td className="table_data text_align_right" style={{width:'10%'}}>{formatRunTimeDifference(run.updated_at,run.created_at)}</td>
                                     </tr>
                                 ))}
@@ -278,10 +278,12 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {allAgents.sort((a,b) => b.runs_completed - a.runs_completed).map((agent, i) => (
                                             <tr key={i}>
-                                                <td className="table_data table_border" style={{width:'20%'}}>{agent.name}</td>
+                                                <td className="table_data" style={{width:'20%'}}>{agent.name}</td>
                                                 <td className="table_data" style={{width:'100%',display:'inline-flex'}}>
                                                     <div className="progress-bar">
-                                                        <div className="filled" style={{width: `${(agent.runs_completed/(allAgents[0].runs_completed+1))*100}%`}}></div>
+                                                        <div className="filled" style={{width: `${(agent.runs_completed/(allAgents[0].runs_completed+1))*100}%`}}>
+                                                            <div className="shine"></div>
+                                                        </div>
                                                     </div>
                                                     <span>{agent.runs_completed}</span>
                                                 </td>
@@ -308,8 +310,8 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {toolsUsed.map((tool, index) => (
                                             <tr key={index}>
-                                                <td className="table_data table_border" style={{width:'68%'}}>{tool.tool_name}</td>
-                                                <td className="table_data text_align_right table_border" style={{width:'16%'}}>{tool.unique_agents}</td>
+                                                <td className="table_data" style={{width:'68%'}}>{tool.tool_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'16%'}}>{tool.unique_agents}</td>
                                                 <td className="table_data text_align_right" style={{width:'16%'}}>{tool.total_usage}</td>
                                             </tr>
                                         ))}
@@ -336,7 +338,7 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {allAgents.map((agent, i) => (
                                             <tr key={i}>
-                                                <td className="table_data table_border" style={{width:'70%'}}>{agent.name}</td>
+                                                <td className="table_data" style={{width:'70%'}}>{agent.name}</td>
                                                 <td className="table_data text_align_right" style={{width:'30%'}}>{agent.runs_completed?(agent.total_calls/agent.runs_completed).toFixed(1):'-'}</td>
                                             </tr>
                                         ))}
@@ -361,7 +363,7 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {allAgents.map((agent, i) => (
                                             <tr key={i}>
-                                                <td className="table_data table_border" style={{width:'66%'}}>{agent.name}</td>
+                                                <td className="table_data" style={{width:'66%'}}>{agent.name}</td>
                                                 <td className="table_data text_align_right" style={{width:'34%'}}>{agent.runs_completed?(agent.total_tokens/agent.runs_completed).toFixed(1):'-'}</td>
                                             </tr>
                                         ))}
