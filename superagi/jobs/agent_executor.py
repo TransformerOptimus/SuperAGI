@@ -218,7 +218,13 @@ class AgentExecutor:
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
-        response = spawned_agent.execute(agent_workflow_step)
+        
+        try:
+            response = spawned_agent.execute(agent_workflow_step)
+        except RuntimeError as e:
+            # If our execution encounters an error we return and attempt to retry
+            return
+
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
         agent_execution.current_step_id = agent_workflow_step.next_step_id
