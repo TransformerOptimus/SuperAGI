@@ -176,7 +176,7 @@ export default function ApmDashboard() {
         <>
         <div className={style.apm_dashboard_container}>
             <div id="apm_dashboard" className={style.apm_dashboard}>
-                <span className="text_14 mt_10">Agent Performance Monitoring</span>
+                <span className="text_14 mt_10 ml_6">Agent Performance Monitoring</span>
                 <div className="my_rows mt_16">
                     <div className="my_col_4 display_column_container">
                         <span className="text_14 mb_8">Total tokens consumed</span>

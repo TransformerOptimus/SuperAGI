@@ -644,6 +644,12 @@ p {
 .mb_16{margin-bottom: 16px;}
 .mb_20{margin-bottom: 20px;}
 
+.ml_24{margin-left:24px;}
+.ml_6{margin-left: 6px;}
+.ml_8{margin-left: 8px;}
+.ml_10{margin-left: 10px;}
+.ml_16{margin-left: 16px;}
+.ml_20{margin-left: 20px;}
 
 .text_12{
     color: #888;
