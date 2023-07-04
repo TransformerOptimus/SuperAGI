@@ -27,7 +27,7 @@ Please read our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI
 
 ## 🚀 Quick Start
 
-You can quickly get started with contributing by searching for issues with the labels **"Good First Issue"** or **"Help Needed"** in the [Issues Section](https://github.com/TransformerOptimus/SuperAGI/Issues). If you think you can contribute, comment on the issue and tag yourself on it.  
+You can quickly get started with contributing by searching for issues with the labels **"Good First Issue"** or **"Help Needed"** in the [Issues Section](https://github.com/TransformerOptimus/SuperAGI/Issues). If you think you can contribute, comment on the issue and we will assign it to you.  
 
 To set up your development environment, please follow the steps mentioned below : 
 
@@ -57,7 +57,7 @@ If the feature or enhancement is not in the issues, find out whether your idea f
 2. Clearly describe the proposed enhancement, highlighting its benefits and potential drawbacks.
 3. Provide examples and supporting information.
 
-Once you have raised the issue, you can start working on the feature or enhancement. Please make sure the feature or enhancement you're working on is placed on the Roadmap.
+Once you have raised the issue and have gotten yourself assigned, you can start working on the feature or enhancement. Please make sure the feature or enhancement you're working on is placed on the Roadmap.
 
 ## Testing your Changes
 
