@@ -14,6 +14,10 @@ class AgentScheduleHelper:
     AGENT_SCHEDULE_TIME_INTERVAL = 300
 
     def run_scheduled_agents(self):
+        """
+        Execute all eligible scheduled agent tasks since last five minutes.
+        """
+
         now = datetime.now()
         last_five_minutes = now - timedelta(minutes=5)
 
@@ -27,21 +31,24 @@ class AgentScheduleHelper:
             if interval is not None:
                 interval_in_seconds = parse_interval_to_seconds(interval)
             agent_id = agent.agent_id
-            agent_name = self._create_execution_name_for_scheduling(agent_id)
+            agent_execution_name = self.__create_execution_name_for_scheduling(agent_id)
 
-            should_execute_agent = self._should_execute_agent(agent, interval)
+            should_execute_agent = self.__should_execute_agent(agent, interval)
 
-            self._execute_schedule(should_execute_agent, interval_in_seconds, session, agent,
-                                   agent_name)
+            self.__execute_schedule(should_execute_agent, interval_in_seconds, session, agent,
+                                   agent_execution_name)
 
         for agent in scheduled_agents:
-            if self._can_remove_agent(agent, interval):
+            if self.__can_remove_agent(agent, interval):
                 agent.status = "COMPLETED"
                 session.commit()
 
         session.close()
 
     def update_next_scheduled_time(self):
+        """
+        Update the next scheduled time of each agent and terminate those who have finished their schedule, in case of any miss.
+        """
         now = datetime.now()
 
         session = Session()
@@ -64,7 +71,16 @@ class AgentScheduleHelper:
             session.commit()
         session.close()
         
-    def _create_execution_name_for_scheduling(self, agent_id) -> str:
+    def __create_execution_name_for_scheduling(self, agent_id) -> str:
+        """
+        Create name for an agent execution based on current time.
+
+        Args:
+            agent_id (str): The id of the agent job to be scheduled.
+
+        Returns:
+            str: Execution name of the agent in the format "Run <timestamp>"
+        """
         session = Session()
         user_timezone = session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone",
                                                                  AgentConfiguration.agent_id == agent_id).first()
@@ -77,13 +93,17 @@ class AgentScheduleHelper:
         timestamp = current_time.strftime(" %d %B %Y %H:%M")
         return f"Run{timestamp}"
 
-    def _check_time_difference(agent, now):
-        next_scheduled_time = agent.next_scheduled_time
-        return (now - next_scheduled_time).total_seconds() > AgentScheduleHelper.AGENT_SCHEDULE_TIME_INTERVAL
+    def __should_execute_agent(self, agent, interval):
+        """
+        Determine if an agent should be executed based on its scheduling.
 
+        Args:
+            agent (object): The agent job to evaluate.
+            interval (int): Recurrence interval of the scheduled agent in seconds.
 
-
-    def _should_execute_agent(self, agent, interval):
+        Returns:
+            bool: True if the agent should be executed, False otherwise.
+        """
         expiry_date = agent.expiry_date
         expiry_runs = agent.expiry_runs
         current_runs = agent.current_runs
@@ -104,7 +124,17 @@ class AgentScheduleHelper:
         return False
 
 
-    def _can_remove_agent(self, agent, interval):
+    def __can_remove_agent(self, agent, interval):
+        """
+        Determine if an agent can be removed based on its scheduled expiry.
+
+        Args:
+            agent (object): The agent job to evaluate.
+            interval (int): Recurrence interval of the scheduled agent in seconds.
+
+        Returns:
+            bool: True if the agent can be removed, False otherwise.
+        """
         expiry_date = agent.expiry_date
         expiry_runs = agent.expiry_runs
         current_runs = agent.current_runs
@@ -131,10 +161,19 @@ class AgentScheduleHelper:
         # If none of the conditions to keep the agent is met, we return True (i.e., the agent can be removed)
         return True
 
-    def _execute_schedule(self, should_execute_agent, interval_in_seconds, session, agent, agent_name):
+    def __execute_schedule(self, should_execute_agent, interval_in_seconds, session, agent, agent_execution_name):
+        """
+         Executes a scheduled job, if it should be executed.
+         Args:
+             should_execute_agent (bool): Whether agent should be executed.
+             interval_in_seconds (int): The interval in seconds for the schedule.
+             session (Session): The database session.
+             agent (object): The agent to be scheduled.
+             agent_execution_name (str): The name for the execution.
+         """
         from superagi.jobs.scheduling_executor import ScheduledAgentExecutor
         if should_execute_agent:
-            ScheduledAgentExecutor.execute_scheduled_agent(agent.agent_id, agent_name)
+            ScheduledAgentExecutor.execute_scheduled_agent(agent.agent_id, agent_execution_name)
             agent.current_runs = agent.current_runs + 1
 
             if agent.recurrence_interval:

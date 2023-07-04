@@ -330,6 +330,21 @@ def edit_schedule(schedule: AgentScheduleInput,
 
 @router.get("/get/schedule_data/{agent_id}")
 def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get the scheduling data for a given agent.
+
+    Args:
+        agent_id (int): Identifier of the Agent
+
+    Raises:
+        HTTPException (status_code=404): If the agent schedule is not found.
+
+    Returns:
+        current_datetime (DateTime): Current Date and Time.
+        recurrence_interval (String): Time interval for recurring schedule run.
+        expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
+        expiry_runs (Integer): The number of runs before the agent expires.
+    """
     agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
                                                     AgentSchedule.status == "SCHEDULED").first()
 
