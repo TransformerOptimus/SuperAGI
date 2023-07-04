@@ -55,7 +55,10 @@ class ResourceSummarizer:
                 datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at:
             return
 
-        resource_summary = LlamaDocumentSummary().generate_summary_of_texts(summary_texts)
+        resource_summary = summary_texts[0]
+        if len(summary_texts) > 1:
+            resource_summary = LlamaDocumentSummary().generate_summary_of_texts(summary_texts)
+
         if agent_config_resource_summary is not None:
             agent_config_resource_summary.value = resource_summary
         else:
