@@ -17,10 +17,7 @@ def mocks():
 
 
 def test_get_agent_execution_configuration_success(mocks):
-    # Mock the database session and query functions
-    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
-            patch('superagi.controllers.agent_execution_config.db') as mock_db:
-
+    with patch('superagi.controllers.agent_execution_config.db') as mock_db:
         mock_execution_config = mocks
         mock_db.session.query.return_value.filter.return_value.all.return_value = [mock_execution_config]
 
@@ -31,12 +28,9 @@ def test_get_agent_execution_configuration_success(mocks):
 
 
 def test_get_agent_execution_configuration_not_found():
-    with patch('main.check_auth') as mock_check_auth:
-        with patch('main.db') as mock_db:
-            mock_check_auth.return_value = True
-            mock_db.session.query.return_value.filter.return_value.all.return_value = []
+    with patch('superagi.controllers.agent_execution_config.db') as mock_db:
+        mock_db.session.query.return_value.filter.return_value.all.return_value = []
+        response = client.get("/agent_executions_configs/details/1")
 
-            response = client.get("/agent_executions_configs/details/1")
-
-            assert response.status_code == 404
-            assert response.json() == {"detail": "Agent Execution Configuration not found"}
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Agent Execution Configuration not found"}
