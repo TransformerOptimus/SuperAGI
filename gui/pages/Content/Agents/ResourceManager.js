@@ -160,7 +160,7 @@ export default function ResourceManager({agentId}) {
       {channel === 'input' && <div style={{paddingBottom:'10px'}}>
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
           <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-          <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
+          <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file formats are txt, pdf, docx, epub, csv, pptx only</p>
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
