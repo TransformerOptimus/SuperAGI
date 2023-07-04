@@ -18,6 +18,7 @@ from datetime import datetime
 import json
 from sqlalchemy import func
 from superagi.helper.auth import check_auth
+
 # from superagi.types.db import AgentOut, AgentIn
 
 router = APIRouter()
@@ -42,6 +43,7 @@ class AgentIn(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 # CRUD Operations
 @router.post("/add", response_model=AgentOut, status_code=201)
@@ -229,17 +231,18 @@ def get_agents_by_project_id(project_id: int,
 
         # Query the AgentExecution table using the agent ID
         executions = db.session.query(AgentExecution).filter_by(agent_id=agent_id).all()
-        isRunning = False
+        is_running = False
         for execution in executions:
             if execution.status == "RUNNING":
-                isRunning = True
+                is_running = True
                 break
         new_agent = {
             **agent_dict,
-            'status': isRunning
+            'is_running': is_running
         }
         new_agents.append(new_agent)
-    return new_agents
+        new_agents_sorted = sorted(new_agents, key=lambda agent: agent['is_running'] == True, reverse=True)
+    return new_agents_sorted
 
 
 @router.get("/get/details/{agent_id}")
@@ -274,11 +277,10 @@ def get_agent_configuration(agent_id: int,
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
-
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
-    # Query the AgentConfiguration table for the speci
+                                # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,
