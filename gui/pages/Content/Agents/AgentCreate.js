@@ -395,7 +395,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         const executionId = response.data.execution_id;
         fetchAgents();
 
-        if (addResources) {
+        if (addResources && input.length > 0) {
           const uploadPromises = input.map(fileData => {
             return uploadResource(agentId, fileData)
               .catch(error => {
