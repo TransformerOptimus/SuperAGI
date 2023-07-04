@@ -5,8 +5,6 @@ from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends
-from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 
 from jsonmerge import merge
@@ -17,26 +15,18 @@ import superagi.worker
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
-from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_schedule import AgentSchedule
 from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.project import Project
-from fastapi import APIRouter
 from superagi.models.agent_workflow import AgentWorkflow
-from superagi.controllers.types.agent_with_config import AgentWithConfig
-from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.tool import Tool
 from superagi.controllers.types.agent_schedule import AgentScheduler
 from superagi.controllers.types.agent_with_config import AgentWithConfig
 from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
 from jsonmerge import merge
-from superagi.worker import execute_agent
 from datetime import datetime
 import json
-from sqlalchemy import func
-from superagi.helper.auth import check_auth
 # from superagi.types.db import AgentOut, AgentIn
 
 router = APIRouter()
