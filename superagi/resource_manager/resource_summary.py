@@ -28,7 +28,7 @@ class ResourceSummarizer:
             documents (list): List of documents.
         """
         agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
-        organization = agent.get_agent_organiation(self.session)
+        organization = agent.get_agent_organisation(self.session)
         model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
         try:
             ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key)
@@ -36,7 +36,7 @@ class ResourceSummarizer:
             logger.error(e)
         summary = None
         try:
-            summary = LlamaDocumentSummary().generate_summary_of_document(documents, model_api_key)
+            summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents)
         except Exception as e:
             logger.error(e)
         resource = self.session.query(Resource).filter(Resource.id == resource_id).first()
@@ -53,7 +53,7 @@ class ResourceSummarizer:
             return
 
         agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
-        organization = agent.get_agent_organiation(self.session)
+        organization = agent.get_agent_organisation(self.session)
         model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
 
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
@@ -67,7 +67,7 @@ class ResourceSummarizer:
                     documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
                 else:
                     documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
-                summary_texts.append(LlamaDocumentSummary().generate_summary_of_document(documents, model_api_key))
+                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents))
 
         agent_last_resource = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
@@ -79,7 +79,7 @@ class ResourceSummarizer:
 
         resource_summary = summary_texts[0] if summary_texts else None
         if len(summary_texts) > 1:
-            resource_summary = LlamaDocumentSummary().generate_summary_of_texts(summary_texts)
+            resource_summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_texts(summary_texts)
 
         if agent_config_resource_summary is not None:
             agent_config_resource_summary.value = resource_summary

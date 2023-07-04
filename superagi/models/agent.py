@@ -231,7 +231,7 @@ class Agent(DBBaseModel):
         db.session.flush()
         return db_agent
 
-    def get_agent_organiation(self, session):
+    def get_agent_organisation(self, session):
         """
         Get the organization of the agent.
 
