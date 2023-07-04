@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String
 
 from superagi.models.base_model import DBBaseModel
-from fastapi import HTTPException
 
 
 # from pydantic import BaseModel

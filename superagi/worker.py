@@ -8,7 +8,6 @@ from datetime import timedelta
 from celery import Celery
 
 from superagi.config.config import get_config
-from superagi.lib.logger import logger
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
 
 from superagi.models.db import connect_db
