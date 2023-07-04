@@ -19,7 +19,7 @@ class AgentScheduleHelper:
 
         session = Session()
         scheduled_agents = session.query(AgentSchedule).filter(
-            AgentSchedule.next_scheduled_time.between(last_five_minutes, now)).all()
+            AgentSchedule.next_scheduled_time.between(last_five_minutes, now), AgentSchedule.status == "SCHEDULED").all()
 
         for agent in scheduled_agents:
             interval = agent.recurrence_interval
@@ -29,7 +29,6 @@ class AgentScheduleHelper:
             agent_id = agent.agent_id
             agent_name = self._create_execution_name_for_scheduling(agent_id)
 
-            should_remove_agent = False
             should_execute_agent = self._should_execute_agent(agent, interval)
 
             self._execute_schedule(should_execute_agent, interval_in_seconds, session, agent,
@@ -48,7 +47,7 @@ class AgentScheduleHelper:
         session = Session()
         scheduled_agents = session.query(AgentSchedule).filter(
             AgentSchedule.start_time <= now, AgentSchedule.next_scheduled_time <= now,
-            AgentSchedule.status == "RUNNING").all()
+            AgentSchedule.status == "SCHEDULED").all()
 
         for agent in scheduled_agents:
             if (now - agent.next_scheduled_time).total_seconds() < AgentScheduleHelper.AGENT_SCHEDULE_TIME_INTERVAL:
@@ -88,43 +87,49 @@ class AgentScheduleHelper:
         expiry_date = agent.expiry_date
         expiry_runs = agent.expiry_runs
         current_runs = agent.current_runs
-        if not interval:
+
+        # If there's no interval or there are no restrictions on when or how many times an agent can run
+        if not interval or (expiry_date is None and expiry_runs == -1):
             return True
-        if expiry_date is None and expiry_runs is None:
+
+        # Check if the agent's expiry date has not passed yet
+        if expiry_date and datetime.now() < expiry_date:
             return True
-        elif expiry_date is not None and datetime.now() < expiry_date:
-            if agent.next_scheduled_time + timedelta(seconds=parse_interval_to_seconds(interval)) <= agent.expiry_date:
-                return True
+
+        # Check if the agent has not yet run as many times as allowed
+        if expiry_runs != -1 and current_runs < expiry_runs:
             return True
-        elif expiry_runs != -1 and current_runs < expiry_runs:
-            if current_runs + 1 == expiry_runs:
-                return True
-            return True
-        if (expiry_date is not None and datetime.now() >= expiry_date) or (
-                expiry_runs != -1 and current_runs >= expiry_runs):
-            return False
+
+        # If none of the conditions to run the agent is met, return False (i.e., do not run the agent)
         return False
+
 
     def _can_remove_agent(self, agent, interval):
         expiry_date = agent.expiry_date
         expiry_runs = agent.expiry_runs
         current_runs = agent.current_runs
+
+        # Calculate the next scheduled time only if an interval exists.
+        next_scheduled = agent.next_scheduled_time + timedelta(seconds=parse_interval_to_seconds(interval)) if interval else None
+
+        # If there's no interval, the agent can be removed
         if not interval:
             return True
-        if expiry_date is None and expiry_runs is None:
+
+        # If the agent's expiry date has not come yet and next schedule is before expiry date, it cannot be removed
+        if expiry_date and datetime.now() < expiry_date and (next_scheduled is None or next_scheduled <= expiry_date):
             return False
-        elif expiry_date is not None and datetime.now() < expiry_date:
-            if agent.next_scheduled_time + timedelta(seconds=parse_interval_to_seconds(interval)) <= agent.expiry_date:
-                return True
+
+        # If agent has not yet run as many times as allowed, it cannot be removed
+        if expiry_runs != -1 and current_runs < expiry_runs:
             return False
-        elif expiry_runs != -1 and current_runs < expiry_runs:
-            if current_runs + 1 == expiry_runs:
-                return True
-            return True, False
-        if (expiry_date is not None and datetime.now() >= expiry_date) or (
-                expiry_runs != -1 and current_runs >= expiry_runs):
-            return True
-        return False
+
+        # If there are no restrictions on when or how many times an agent can run, it cannot be removed
+        if expiry_date is None and expiry_runs == -1:
+            return False
+
+        # If none of the conditions to keep the agent is met, we return True (i.e., the agent can be removed)
+        return True
 
     def _execute_schedule(self, should_execute_agent, interval_in_seconds, session, agent, agent_name):
         from superagi.jobs.scheduling_executor import ScheduledAgentExecutor

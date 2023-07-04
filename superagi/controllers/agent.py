@@ -183,12 +183,16 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
         HTTPException (status_code=404): If the associated project or any of the tools is not found.
     """
 
-    Project.get_project_from_project_id(agent_with_config, db.session)
-    invalid_tool = Tool.is_tool_id_valid(agent_with_config, db.session)
-    if invalid_tool != True:  # If the returned value is not True (then it is an invalid tool_id)
-        raise HTTPException(status_code=404, detail=f"Tool with ID {invalid_tool} does not exist. 404 Not Found.")
-    agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
-                                                                         agent_with_config=agent_with_config)
+    project = db.session.query(Project).get(agent_with_config.project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    invalid_tools = Tool.get_invalid_tools(agent_with_config.tools, db.session)
+    if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
+        raise HTTPException(status_code=404, detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
+
+    agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
+                                                              toolkit_ids=agent_with_config.toolkits)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
@@ -231,7 +235,7 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
         HTTPException (status_code=500): If the associated agent fails to get scheduled.
     """
 
-    project = db.session.query(Project).get(agent_config_schedule.project_id)
+    project = db.session.query(Project).get(agent_config_schedule.agent_config.project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     agent_config = agent_config_schedule.agent_config
@@ -327,7 +331,7 @@ def edit_schedule(schedule: AgentScheduleInput,
 @router.get("/get/schedule_data/{agent_id}")
 def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
-                                                    AgentSchedule.status == "RUNNING").first()
+                                                    AgentSchedule.status == "SCHEDULED").first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent Schedule not found")
