@@ -36,7 +36,7 @@ class QueryResourceTool(BaseTool):
     name: str = "Query Resource"
     args_schema: Type[BaseModel] = QueryResource
     description: str = "A tool for performing queries on the resources that are uploaded which might give context for " \
-                       "the given tasks.\nUse this tool before using other tools. The resource contains information " \
+                       "the given tasks. Use this tool before using other tools. The resource contains information " \
                        "about: {summary}"
     agent_id: int = None
     llm: Optional[BaseLlm] = None
@@ -44,7 +44,7 @@ class QueryResourceTool(BaseTool):
     def _execute(self, query: str):
         openai.api_key = get_config("OPENAI_API_KEY")
         os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY")
-        print(self.llm.get_model())
+
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name=self.llm.get_model(),
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
