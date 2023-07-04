@@ -3,8 +3,20 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
+import {
+  createAgent,
+  fetchAgentTemplateConfigLocal,
+  getOrganisationConfig,
+  updateExecution,
+  uploadFile
+} from "@/pages/api/DashboardService";
+import {
+  formatBytes,
+  openNewTab,
+  removeTab,
+  setLocalStorageValue,
+  setLocalStorageArray,
+} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
@@ -378,27 +390,50 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     createAgent(agentData)
       .then((response) => {
-        const agent_id = response.data.id;
+        const agentId = response.data.id;
+        const name = response.data.name;
+        const executionId = response.data.execution_id;
         fetchAgents();
-        removeTab(-1, "new agent", "Create_Agent");
-        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
-        if(addResources) {
-          input.forEach(fileData => {
-            uploadResource(agent_id, fileData)
-              .then(response => {})
+
+        if (addResources && input.length > 0) {
+          const uploadPromises = input.map(fileData => {
+            return uploadResource(agentId, fileData)
               .catch(error => {
                 console.error('Error uploading resource:', error);
+                return Promise.reject(error);
               });
           });
+
+          Promise.all(uploadPromises)
+            .then(() => {
+              runExecution(agentId, name, executionId);
+            })
+            .catch(error => {
+              console.error('Error uploading files:', error);
+              setCreateClickable(true);
+            });
+        } else {
+          runExecution(agentId, name, executionId);
         }
-        toast.success('Agent created successfully', {autoClose: 1800});
-        setCreateClickable(true);
       })
       .catch((error) => {
         console.error('Error creating agent:', error);
         setCreateClickable(true);
       });
   };
+
+  function runExecution(agentId, name, executionId) {
+    updateExecution(executionId, {"status": 'RUNNING'})
+      .then((response) => {
+        toast.success('Agent created successfully', { autoClose: 1800 });
+        sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
+        setCreateClickable(true);
+      })
+      .catch((error) => {
+        setCreateClickable(true);
+        console.error('Error updating execution:', error);
+      });
+  }
 
   const toggleToolkit = (e, id) => {
     e.stopPropagation();
@@ -840,7 +875,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
-            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
           </div>
         </div>
       </div>
