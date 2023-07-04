@@ -36,7 +36,7 @@ class ResourceSummarizer:
             logger.error(e)
         summary = None
         try:
-            summary = LlamaDocumentSummary().generate_summary_of_document(documents, model_api_key)
+            summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents)
         except Exception as e:
             logger.error(e)
         resource = self.session.query(Resource).filter(Resource.id == resource_id).first()
@@ -67,7 +67,7 @@ class ResourceSummarizer:
                     documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
                 else:
                     documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
-                summary_texts.append(LlamaDocumentSummary().generate_summary_of_document(documents, model_api_key))
+                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents))
 
         agent_last_resource = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
