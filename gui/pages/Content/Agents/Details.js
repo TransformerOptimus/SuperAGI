@@ -4,7 +4,7 @@ import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
 import { EventBus } from "@/utils/eventBus";
 
-export default function Details({agentDetails, runCount}) {
+export default function Details({agentDetails, runCount, goals, instructions}) {
   const [showGoals, setShowGoals] = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -58,26 +58,30 @@ export default function Details({agentDetails, runCount}) {
         <div><Image width={15} height={15} src="/images/flag.svg" alt="goals-icon"/></div>
         <div style={info_text}>{agentDetails?.goal.length || 0} Goals</div>
       </div>
-      {agentDetails && <div>{agentDetails.goal && agentDetails.goal.length > 0 && <div className={styles.large_text_box} style={!showGoals ? {overflow:'hidden',display:'-webkit-box'} : {}}>
-        {agentDetails.goal.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
-          <div>{index + 1}. {goal || ''}</div>{index !== agentDetails.goal.length - 1 && <br/>}
-        </div>))}
+      {goals && goals.length > 0 && <div>
+        <div className={styles.large_text_box} style={!showGoals ? {overflow:'hidden',display:'-webkit-box'} : {}}>
+          {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
+            <div>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}
+          </div>))}
+        </div>
+        <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>
+          {showGoals ? 'Show Less' : 'Show More'}
+        </div>
       </div>}
-        <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>{showGoals ? 'Show Less' : 'Show More'}</div>
-      </div>}
-      {agentDetails?.instruction.length>0 && agentDetails?.instruction[0].length>1 && <div>
+      {instructions && instructions.length > 0 && <div>
         <div className={styles.separator}></div>
         <div className={styles.agent_info_box}>
           <div><Image width={15} height={15} src="/images/instructions.svg" alt="instruction-icon"/></div>
-          <div style={info_text}>{agentDetails?.instruction.length || 0} Instructions</div>
+          <div style={info_text}>{instructions.length || 0} Instructions</div>
         </div>
-        {agentDetails && <div>{agentDetails?.instruction && agentDetails?.instruction.length > 0 && <div className={styles.large_text_box} style={!showInstructions ? {overflow:'hidden',display:'-webkit-box'} : {}}>
-          {agentDetails?.instruction.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
-            <div>{index + 1}. {goal || ''}</div>{index !== agentDetails?.instruction.length - 1 && <br/>}
-          </div>))}
-        </div>}
+        <div>
+          <div className={styles.large_text_box} style={!showInstructions ? {overflow:'hidden',display:'-webkit-box'} : {}}>
+            {instructions.map((instruction, index) => (<div key={index} style={{marginTop:'0'}}>
+              <div>{index + 1}. {instruction || ''}</div>{index !== instructions.length - 1 && <br/>}
+            </div>))}
+          </div>
           <div className={styles.show_more_button} onClick={() => setShowInstructions(!showInstructions)}>{showInstructions ? 'Show Less' : 'Show More'}</div>
-        </div>}
+        </div>
       </div>}
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
