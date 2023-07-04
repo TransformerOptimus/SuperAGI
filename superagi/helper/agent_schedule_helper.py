@@ -9,8 +9,10 @@ import pytz
 engine = connect_db()
 Session = sessionmaker(bind=engine)
 
+
 class AgentScheduleHelper:
     AGENT_SCHEDULE_TIME_INTERVAL = 300
+
     def run_scheduled_agents(self):
         now = datetime.now()
         last_five_minutes = now - timedelta(minutes=5)
@@ -31,7 +33,7 @@ class AgentScheduleHelper:
             should_execute_agent = self._should_execute_agent(agent, interval)
 
             self._execute_schedule(should_execute_agent, interval_in_seconds, session, agent,
-                                  agent_name)
+                                   agent_name)
 
         for agent in scheduled_agents:
             if self._can_remove_agent(agent, interval):
@@ -40,29 +42,13 @@ class AgentScheduleHelper:
 
         session.close()
 
-    def _create_execution_name_for_scheduling(self, agent_id) -> str:
-        session = Session()
-        user_timezone = session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id==agent_id).first()
-
-        if user_timezone and user_timezone.value:
-            current_time = datetime.now().astimezone(pytz.timezone(user_timezone.value))
-        else:
-            current_time = datetime.now().astimezone(pytz.timezone('GMT'))
-            
-        timestamp = current_time.strftime(" %d %B %Y %H:%M")
-        return f"Run{timestamp}"
-
-    def _check_time_difference(agent, now):
-        next_scheduled_time = agent.next_scheduled_time
-        return (now - next_scheduled_time).total_seconds() > AgentScheduleHelper.AGENT_SCHEDULE_TIME_INTERVAL
-
     def update_next_scheduled_time(self):
         now = datetime.now()
 
         session = Session()
         scheduled_agents = session.query(AgentSchedule).filter(
             AgentSchedule.start_time <= now, AgentSchedule.next_scheduled_time <= now,
-                        AgentSchedule.status == "RUNNING").all()
+            AgentSchedule.status == "RUNNING").all()
 
         for agent in scheduled_agents:
             if (now - agent.next_scheduled_time).total_seconds() < AgentScheduleHelper.AGENT_SCHEDULE_TIME_INTERVAL:
@@ -71,12 +57,32 @@ class AgentScheduleHelper:
                 interval_in_seconds = parse_interval_to_seconds(agent.recurrence_interval)
                 time_diff = now - agent.start_time
                 num_intervals_passed = time_diff.total_seconds() // interval_in_seconds
-                updated_next_scheduled_time = agent.start_time + timedelta(seconds=(interval_in_seconds * (num_intervals_passed + 1)))
+                updated_next_scheduled_time = agent.start_time + timedelta(
+                    seconds=(interval_in_seconds * (num_intervals_passed + 1)))
                 agent.next_scheduled_time = updated_next_scheduled_time
             else:
                 agent.status = "TERMINATED"
             session.commit()
         session.close()
+        
+    def _create_execution_name_for_scheduling(self, agent_id) -> str:
+        session = Session()
+        user_timezone = session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone",
+                                                                 AgentConfiguration.agent_id == agent_id).first()
+
+        if user_timezone and user_timezone.value:
+            current_time = datetime.now().astimezone(pytz.timezone(user_timezone.value))
+        else:
+            current_time = datetime.now().astimezone(pytz.timezone('GMT'))
+
+        timestamp = current_time.strftime(" %d %B %Y %H:%M")
+        return f"Run{timestamp}"
+
+    def _check_time_difference(agent, now):
+        next_scheduled_time = agent.next_scheduled_time
+        return (now - next_scheduled_time).total_seconds() > AgentScheduleHelper.AGENT_SCHEDULE_TIME_INTERVAL
+
+
 
     def _should_execute_agent(self, agent, interval):
         expiry_date = agent.expiry_date
@@ -91,10 +97,11 @@ class AgentScheduleHelper:
                 return True
             return True
         elif expiry_runs != -1 and current_runs < expiry_runs:
-            if current_runs+1 == expiry_runs:
+            if current_runs + 1 == expiry_runs:
                 return True
             return True
-        if (expiry_date is not None and datetime.now() >= expiry_date) or (expiry_runs != -1 and current_runs >= expiry_runs):
+        if (expiry_date is not None and datetime.now() >= expiry_date) or (
+                expiry_runs != -1 and current_runs >= expiry_runs):
             return False
         return False
 
@@ -111,10 +118,11 @@ class AgentScheduleHelper:
                 return True
             return False
         elif expiry_runs != -1 and current_runs < expiry_runs:
-            if current_runs+1 == expiry_runs:
+            if current_runs + 1 == expiry_runs:
                 return True
             return True, False
-        if (expiry_date is not None and datetime.now() >= expiry_date) or (expiry_runs != -1 and current_runs >= expiry_runs):
+        if (expiry_date is not None and datetime.now() >= expiry_date) or (
+                expiry_runs != -1 and current_runs >= expiry_runs):
             return True
         return False
 
@@ -129,6 +137,3 @@ class AgentScheduleHelper:
                 agent.next_scheduled_time = next_scheduled_time
 
             session.commit()
-
-
-

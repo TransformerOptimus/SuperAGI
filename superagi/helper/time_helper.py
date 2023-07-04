@@ -38,7 +38,4 @@ def parse_interval_to_seconds(interval: str) -> int:
     value, unit = interval.split(" ")
     return int(value) * units[unit]
 
-def check_time_difference(agent, now):
-    next_scheduled_time = agent.next_scheduled_time
-    return (now - next_scheduled_time).total_seconds() > 300
 
