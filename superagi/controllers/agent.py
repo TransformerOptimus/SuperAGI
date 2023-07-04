@@ -21,12 +21,15 @@ from superagi.models.project import Project
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.tool import Tool
-from superagi.controllers.types.agent_schedule import AgentScheduler
-from superagi.controllers.types.agent_with_config import AgentWithConfig
-from superagi.controllers.types.agent_with_config_schedule import AgentWithConfigSchedule
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
+from superagi.controllers.types.agent_with_config import AgentConfigInput
+from superagi.controllers.types.agent_with_config_schedule import AgentConfigSchedule
 from jsonmerge import merge
 from datetime import datetime
 import json
+
+from superagi.models.toolkit import Toolkit
+
 from sqlalchemy import func
 from superagi.helper.auth import check_auth
 
@@ -150,13 +153,13 @@ def update_agent(agent_id: int, agent: AgentIn,
 
 
 @router.post("/create", status_code=201)
-def create_agent_with_config(agent_with_config: AgentWithConfig,
+def create_agent_with_config(agent_with_config: AgentConfigInput,
                              Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations.
 
     Args:
-        agent_with_config (AgentWithConfig): Data for creating a new agent with configurations.
+        agent_with_config (AgentConfigInput): Data for creating a new agent with configurations.
             - name (str): Name of the agent.
             - project_id (int): Identifier of the associated project.
             - description (str): Description of the agent.
@@ -212,13 +215,13 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     }
 
 @router.post("/schedule", status_code=201)
-def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSchedule,
+def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
                               Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent with configurations and scheduling.
 
     Args:
-        agent_with_config_schedule (AgentWithConfigSchedule): Data for creating a new agent with configurations and scheduling.
+        agent_with_config_schedule (AgentConfigSchedule): Data for creating a new agent with configurations and scheduling.
 
     Returns:
         dict: Dictionary containing the created agent's ID, name, content type and schedule ID of the agent.
@@ -227,31 +230,35 @@ def create_and_schedule_agent(agent_with_config_and_schedule: AgentWithConfigSch
         HTTPException (status_code=500): If the associated agent fails to get scheduled.
     """
 
-    Project.get_project_from_project_id(agent_with_config_and_schedule.agent, db.session)
-    invalid_tool = Tool.is_tool_id_valid(agent_with_config_and_schedule.agent, db.session)
-    if invalid_tool != True:  # If the returned value is not True (then it is an invalid tool_id)
-        raise HTTPException(status_code=404, detail=f"Tool with ID {invalid_tool} does not exist. 404 Not Found.")
+    project = db.session.query(Project).get(agent_config_schedule.project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    agent_config = agent_config_schedule.agent_config
+    invalid_tools = Tool.get_invalid_tools(agent_config.tools, db.session)
+    if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
+        raise HTTPException(status_code=404, detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
 
-    agent_toolkit_tools = AgentConfiguration.get_tools_from_agent_config(session=db.session,
-                                                                         agent_with_config=agent_with_config_and_schedule.agent)
-    agent_with_config_and_schedule.agent.tools.extend(agent_toolkit_tools)
-    db_agent = Agent.create_agent_with_config(db, agent_with_config_and_schedule.agent)
+    agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
+                                                              toolkit_ids=agent_config.toolkits)
+    agent_config.tools.extend(agent_toolkit_tools)
+    db_agent = Agent.create_agent_with_config(db, agent_config)
 
     # Update the agent_id of schedule before scheduling the agent
-    agent_with_config_and_schedule.schedule.agent_id = db_agent.id
+    agent_schedule = agent_config_schedule.schedule
 
     # Create a new agent schedule
     agent_schedule = AgentSchedule(
         agent_id=db_agent.id,
-        start_time=agent_with_config_and_schedule.schedule.start_time,
-        next_scheduled_time=agent_with_config_and_schedule.schedule.start_time,
-        recurrence_interval=agent_with_config_and_schedule.schedule.recurrence_interval,
-        expiry_date=agent_with_config_and_schedule.schedule.expiry_date,
-        expiry_runs=agent_with_config_and_schedule.schedule.expiry_runs,
+        start_time=agent_schedule.start_time,
+        next_scheduled_time=agent_schedule.start_time,
+        recurrence_interval=agent_schedule.recurrence_interval,
+        expiry_date=agent_schedule.expiry_date,
+        expiry_runs=agent_schedule.expiry_runs,
         current_runs=0,
-        status = "RUNNING"
+        status="SCHEDULED"
     )
 
+    agent_schedule.agent_id = db_agent.id
     db.session.add(agent_schedule)
     db.session.commit()
 
@@ -279,7 +286,7 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
 
     agent_to_delete = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
-                                                              AgentSchedule.status == "RUNNING").first()
+                                                              AgentSchedule.status == "SCHEDULED").first()
     if not agent_to_delete:
         raise HTTPException(status_code=404, detail="Schedule not found")
     agent_to_delete.status = "STOPPED"
@@ -287,7 +294,7 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
 
 @router.put("/edit/schedule", status_code=200)
-def edit_schedule(schedule: AgentScheduler,
+def edit_schedule(schedule: AgentScheduleInput,
                   Authorize: AuthJWT = Depends(check_auth)):
     """
     Edit the scheduling for a given agent.
@@ -302,7 +309,7 @@ def edit_schedule(schedule: AgentScheduler,
     """
 
     agent_to_edit = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == schedule.agent_id,
-                                                            AgentSchedule.status == "RUNNING").first()
+                                                            AgentSchedule.status == "SCHEDULED").first()
     if not agent_to_edit:
         raise HTTPException(status_code=404, detail="Schedule not found")
 
@@ -382,7 +389,7 @@ def get_agents_by_project_id(project_id: int,
                 break
         # Check if the agent is scheduled
         is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
-                                                                  status="RUNNING").first() is not None
+                                                                  status="SCHEDULED").first() is not None
 
         new_agent = {
             **agent_dict,

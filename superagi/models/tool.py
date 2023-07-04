@@ -102,10 +102,11 @@ class Tool(DBBaseModel):
         tools = db.session.query(Tool).filter(Tool.id.in_(tool_ids)).all()
         return [str(tool.name) for tool in tools]
     
-    @staticmethod
-    def is_tool_id_valid(agent_with_config, session):
-        for tool_id in agent_with_config.tools:
+    @classmethod
+    def get_invalid_tools(cls, tool_ids, session):
+        invalid_tool_ids = []
+        for tool_id in tool_ids:
             tool = session.query(Tool).get(tool_id)
             if tool is None:
-                return tool_id  # returns invalid tool_id
-        return True  # returns True when all tool_id are valid.
+                invalid_tool_ids.append(tool_id)
+        return invalid_tool_ids  # returns True when all tool_id are valid.

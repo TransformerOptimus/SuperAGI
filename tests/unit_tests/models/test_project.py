@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from sqlalchemy.orm.exc import NoResultFound
 from superagi.models.project import Project
-from superagi.controllers.types.agent_with_config import AgentWithConfig
+from superagi.controllers.types.agent_with_config import AgentConfigInput
 from fastapi import HTTPException
 
 @pytest.fixture
@@ -15,7 +15,7 @@ def mock_session():
 
 @pytest.fixture
 def mock_agent_with_config():
-    return AgentWithConfig(
+    return AgentConfigInput(
         name="SmartAGI",
         project_id=1,
         description="AI assistant to solve complex problems",

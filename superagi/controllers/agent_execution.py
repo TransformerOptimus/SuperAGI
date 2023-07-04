@@ -17,7 +17,7 @@ from superagi.models.agent import Agent
 from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
-from superagi.controllers.types.agent_schedule import AgentScheduler
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 
 router = APIRouter()
@@ -98,14 +98,14 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
 
 
 @router.post("/schedule", status_code=201)
-def schedule_existing_agent(agent_schedule: AgentScheduler,
-                              Authorize: AuthJWT = Depends(check_auth)):
-    
+def schedule_existing_agent(agent_schedule: AgentScheduleInput,
+                            Authorize: AuthJWT = Depends(check_auth)):
+
     """
     Schedules an already existing agent.
 
     Args:
-        agent_schedule (AgentScheduler): Data for creating a scheduling for an existing agent.
+        agent_schedule (AgentScheduleInput): Data for creating a scheduling for an existing agent.
             agent_id (Integer): The ID of the agent being scheduled.
             start_time (DateTime): The date and time from which the agent is scheduled.
             recurrence_interval (String): Stores "none" if not recurring, 
@@ -121,30 +121,29 @@ def schedule_existing_agent(agent_schedule: AgentScheduler,
     """
 
     # Check if the agent is already scheduled
-    scheduled_agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_schedule.agent_id, AgentSchedule.status=="RUNNING").first()
+    scheduled_agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_schedule.agent_id,
+                                                             AgentSchedule.status == "SCHEDULED").first()
 
     if scheduled_agent:
         # Update the old record with new data
         scheduled_agent.start_time = agent_schedule.start_time
-        scheduled_agent.next_scheduled_time =  agent_schedule.start_time
+        scheduled_agent.next_scheduled_time = agent_schedule.start_time
         scheduled_agent.recurrence_interval = agent_schedule.recurrence_interval
         scheduled_agent.expiry_date = agent_schedule.expiry_date
         scheduled_agent.expiry_runs = agent_schedule.expiry_runs
-
-        schedule_id = scheduled_agent.id
 
         db.session.commit()
     else:                      
         # Schedule the agent
         scheduled_agent = AgentSchedule(
-            agent_id= agent_schedule.agent_id,
-            start_time= agent_schedule.start_time,
-            next_scheduled_time= agent_schedule.start_time,
-            recurrence_interval= agent_schedule.recurrence_interval,
-            expiry_date= agent_schedule.expiry_date,
-            expiry_runs= agent_schedule.expiry_runs,
+            agent_id=agent_schedule.agent_id,
+            start_time=agent_schedule.start_time,
+            next_scheduled_time=agent_schedule.start_time,
+            recurrence_interval=agent_schedule.recurrence_interval,
+            expiry_date=agent_schedule.expiry_date,
+            expiry_runs=agent_schedule.expiry_runs,
             current_runs=0,
-            status = "RUNNING"
+            status="SCHEDULED"
         )
 
     db.session.add(scheduled_agent)
