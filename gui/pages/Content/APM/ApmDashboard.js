@@ -361,8 +361,8 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {allAgents.map((agent, i) => (
                                             <tr key={i}>
-                                                <td className="table_data" style={{width:'70%'}}>{agent.name}</td>
-                                                <td className="table_data text_align_right" style={{width:'30%'}}>{agent.runs_completed?(agent.total_tokens/agent.runs_completed).toFixed(1):'-'}</td>
+                                                <td className="table_data" style={{width:'64%'}}>{agent.name}</td>
+                                                <td className="table_data text_align_right" style={{width:'36%'}}>{agent.runs_completed?(agent.total_tokens/agent.runs_completed).toFixed(1):'-'}</td>
                                             </tr>
                                         ))}
                                         </tbody>
@@ -391,25 +391,7 @@ export default function ApmDashboard() {
                 </div>
 
                 <div className="my_rows mt_8">
-                    {/*<div className="my_col_6 display_column_container">*/}
-                    {/*    <span className="text_14 mb_8">Models used by agents</span>*/}
-                    {/*    <div className="w_100" style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '0', alignItems: 'flex-start'}}>*/}
-                    {/*        {items.map((item, i) => (*/}
-                    {/*            <div className="mb_6 mt_6 w_100" style={{display: 'flex', alignItems: 'center', border: 'none'}} key={i}>*/}
-                    {/*                <div style={{width: '20%', whiteSpace: 'normal'}}> /!* Set a fixed width for the name *!/*/}
-                    {/*                    <span className="text_14 mb_8">{item.name}</span>*/}
-                    {/*                </div>*/}
-                    {/*                <div className="bar-chart" style={{flexGrow: 1, height: '50px', marginRight: '10px'}}> /!* Let the bar take up the majority of the space *!/*/}
-                    {/*                    <div className="bar" style={{width: `${(item.score/50)*100}%`, height: '100%'}}/>*/}
-                    {/*                </div>*/}
-                    {/*                <div style={{width: '10%', display: 'flex', justifyContent: 'flex-end'}}> /!* Allocate fixed width for the score and align it to the right *!/*/}
-                    {/*                    <span className="text_14">{item.score}</span>*/}
-                    {/*                </div>*/}
-                    {/*            </div>*/}
-                    {/*        ))}*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
-                    <div className="my_col_6 display_column_container">
+                    <div className="my_col_10 display_column_container">
                         <span className="text_14 mb_8">Models used by agents</span>
                         <div id="barChart" style={{width: '100%', height: 300}}></div>
                     </div>
