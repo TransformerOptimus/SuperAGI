@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime
 from superagi.models.base_model import DBBaseModel
-from superagi.controllers.types.agent_schedule import AgentScheduler
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
 
 class AgentSchedule(DBBaseModel):
     """

@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from superagi.controllers.types.agent_schedule import AgentScheduler
-from superagi.controllers.types.agent_with_config import AgentWithConfig
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
+from superagi.controllers.types.agent_with_config import AgentConfigInput
 
 
-class AgentWithConfigSchedule(BaseModel):
-    agent: AgentWithConfig
-    schedule: AgentScheduler
+class AgentConfigSchedule(BaseModel):
+    agent_config: AgentConfigInput
+    schedule: AgentScheduleInput

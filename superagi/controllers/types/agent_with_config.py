@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List
 
 
-class AgentWithConfig(BaseModel):
+class AgentConfigInput(BaseModel):
     name: str
     project_id: int
     description: str
