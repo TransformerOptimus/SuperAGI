@@ -56,7 +56,6 @@ class ResourceSummarizer:
         organization = agent.get_agent_organiation(self.session)
         model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
 
-        print("model_api_key", model_api_key)
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
 
         # generate_all is added because we want to generate summary for all resources when agent is created
