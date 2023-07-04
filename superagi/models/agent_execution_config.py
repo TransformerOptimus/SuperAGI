@@ -34,7 +34,6 @@ class AgentExecutionConfiguration(DBBaseModel):
 
     @classmethod
     def add_or_update_agent_execution_config(cls, session, execution, agent_execution_configs):
-        print("EXECUTION : ", execution)
         agent_execution_configurations = [
             AgentExecutionConfiguration(agent_execution_id=execution.id, key=key, value=str(value))
             for key, value in agent_execution_configs.items()
@@ -57,7 +56,6 @@ class AgentExecutionConfiguration(DBBaseModel):
                     key=agent_execution.key,
                     value=str(agent_execution.value)
                 )
-                print("CONFIG : ", agent_execution_config)
                 session.add(agent_execution_config)
             session.commit()
 
@@ -74,23 +72,16 @@ class AgentExecutionConfiguration(DBBaseModel):
             dict: Parsed agent configuration.
 
         """
-        print("fetching-------------------")
-        print(execution)
         agent_configurations = session.query(AgentExecutionConfiguration).filter_by(
             agent_execution_id=execution.id).all()
         parsed_config = {
             "goal": [],
             "instruction": [],
         }
-        print("PARSED CONFIG : ", parsed_config)
         if not agent_configurations:
             return parsed_config
         for item in agent_configurations:
-            print("item : ", item)
-            print("key : ", item.key)
-            print("value : ", item.value)
             parsed_config[item.key] = cls.eval_agent_config(item.key, item.value)
-        print("FINAL : ", parsed_config)
         return parsed_config
 
     @classmethod

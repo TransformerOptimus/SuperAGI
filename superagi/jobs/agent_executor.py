@@ -179,7 +179,7 @@ class AgentExecutor:
         parsed_config["agent_execution_id"] = agent_execution.id
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
-        # memory = None
+
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
@@ -205,7 +205,6 @@ class AgentExecutor:
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
-        print("Spawning......")
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,
