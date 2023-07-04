@@ -222,8 +222,11 @@ class AgentExecutor:
         try:
             response = spawned_agent.execute(agent_workflow_step)
         except RuntimeError as e:
+            superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            session.close()
             # If our execution encounters an error we return and attempt to retry
             return
+
 
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
