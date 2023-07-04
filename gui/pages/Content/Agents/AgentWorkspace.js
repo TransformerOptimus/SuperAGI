@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from 'react';
+import React, {useEffect, useState, useMemo, useRef} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +11,11 @@ import Details from "./Details";
 import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import axios from 'axios';
+import { convertToGMT } from "@/utils/utils";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import 'moment-timezone';
 
 export default function AgentWorkspace({agentId, selectedView}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
@@ -28,6 +33,132 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [instructions, setInstructions] = useState(['']);
   const [currentInstructions, setCurrentInstructions] = useState(['']);
   const [pendingPermission, setPendingPermissions] = useState(0)
+
+  const [timeValue, setTimeValue] = useState(null);
+  const [expiryRuns, setExpiryRuns] = useState(null);
+  const [createModal, setCreateModal] = useState(false);
+  const [createEditModal , setCreateEditModal] = useState(false);	
+  const [createStopModal, setCreateStopModal] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);	
+  const [timeDropdown, setTimeDropdown] = useState(false);	
+  const [expiryDropdown, setExpiryDropdown] = useState(false);
+  const timeUnitArray = ['Days', 'Hours', 'Minutes']
+  const expiryArray = ['Specific Date', 'After certain number of runs', 'No expiry']
+ 
+  const [expiry, setExpiry] = useState(expiryArray[1]);
+  const timeRef = useRef(null);	
+  const expiryRef = useRef(null);
+  const [startTime, setStartTime] = useState('');
+  const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
+  const [expiryDate, setExpiryDate] = useState(null);
+
+  const handleTimeChange = (momentObj) => {	
+    const startTime = convertToGMT(momentObj);
+    setStartTime(startTime);
+  };
+
+  const handleDateChange = (event) => {
+    setTimeValue(event.target.value);
+  };
+
+  const handleTimeSelect = (index) => {
+    setTimeUnit(timeUnitArray[index]);
+    setTimeDropdown(false);
+  };
+
+  const handleDateTimeChange = (momentObj) => {	
+    const expiryDate = convertToGMT(momentObj);
+    setExpiryDate(expiryDate);
+  };
+
+  const handleExpiryRuns = (event) => {
+    setExpiryRuns(event.target.value);
+  };
+
+  const toggleRecurring = () => {	
+    setIsRecurring(!isRecurring);	
+  };
+
+  const closeCreateModal = () => {	
+    setCreateModal(false);
+    setCreateEditModal(false);	
+    setCreateStopModal(false);
+  };
+
+  const handleExpirySelect = (index) => {	
+    setExpiry(expiryArray[index]);	
+    setExpiryDropdown(false);	
+  }
+
+  const stopSchedule = () => {
+    const apiUrl = `http://192.168.1.170:3000/api/agents/stop/schedule?agent_id=${agentId}`;
+    axios.post(apiUrl)
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success('Schedule stopped successfully!');
+        }
+      })
+      .catch((error) => {
+        console.error('Error stopping agent schedule:', error);
+      });
+  };
+
+  const createAndScheduleRun = () => {//schedule existing data
+    const requestData = {
+      "agent_id": agentId,
+      "start_time": startTime,
+      "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
+      "expiry_runs":expiryRuns,
+      "expiry_date":expiryDate,
+    };
+    console.log("start_time", "recurrence_interval", "expiry_runs","expiry_date");
+    axios.post('http://192.168.1.170:3000/api/agentexecutions/schedule', requestData)
+      .then(response => {
+        const { schedule_id } = response.data;
+        console.log('Schedule ID:', schedule_id);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+
+  const AgentScheduleComponent = () => {
+    const [agentData, setAgentData] = useState(null);//get agent data
+  
+    useEffect(() => {
+      const agentId = 2; 
+      const apiUrl = ``;
+  //{{localhost}}/agents/get/schedule_data/${agentId}
+      axios.get(apiUrl)
+        .then((response) => {
+          setAgentData(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent data:', error);
+        });
+    }, []);
+  }
+
+  const handleUpdateSchedule = () => {//update agent data
+    const agentId = 2; 
+    const apiUrl = ``;
+
+    const requestData = {
+      "agent_id": agentId,
+      "start_time": agentData.current_datetime,
+      "recurrence_interval": agentData.recurrence_interval,
+      "expiry_runs": agentData.expiry_runs,
+      "expiry_date": agentData.expiry_date,
+    };
+
+    axios.post(apiUrl, requestData)
+      .then((response) => {
+        toast.error('Schedule updated successfully');
+      })
+      .catch((error) => {
+        console.error('Error updating agent schedule:', error);
+      });
+  };
 
   const pendingPermissions = useMemo(() => {
     if (!fetchedData) return 0;
@@ -132,6 +263,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
   };
 
   useEffect(() => {
+    console.log(agentDetails)
     fetchAgentDetails(agentId);
     fetchExecutions(agentId);
   }, [agentId])
@@ -156,7 +288,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
       });
   }
 
-  function fetchExecutions(agentId, currentRun = null) {
+  function fetchExecutions(agentId, currentRun = null){
     getAgentExecutions(agentId)
         .then((response) => {
           let data = response.data
@@ -210,7 +342,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -244,9 +376,191 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
+                <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>     
+                <li className="dropdown_item" onClick={() => {setCreateEditModal(true);AgentScheduleComponent;}}>Edit Schedule</li>
+                <li className="dropdown_item" onClick={() => setCreateStopModal(true)}>Stop Schedule</li>
               </ul>
             </div>}
+
+
+            {createModal && (
+            <div className="modal" onClick={closeCreateModal}>
+            <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+            <div className={styles.detail_name}>Schedule Run</div>
+
+            <div style={{marginBottom:'20px'}}>
+              <label className={styles.form_label}>Select a date and time</label>
+              <div >
+              <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+              </div>          
+            </div>
+             
+            <div style={{marginBottom:'20px', display:'flex'}}>
+            <input type="checkbox" className="checkbox" checked={isRecurring} onChange={toggleRecurring} style={{ marginRight: '5px'}}/>
+            <label className={styles.form_label}>Recurring run</label>
+            </div>
+
+            {isRecurring && (<div>
+            <div style={{color:"white", marginBottom:'20px'}}>Recurring run details</div>
+            <label className={styles.form_label}>Repeat every</label>
+
+            <div style={{display:'flex',marginBottom:'20px'}}>
+              <div style={{width:'70%', marginRight:'5px'}}>
+                <input className="input_medium" type="text" value={timeValue} onChange={handleDateChange} placeholder='Enter here'/>
+              </div>
+              <div style={{width:'30%'}} >
+                <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
+                {timeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
+                <div>
+                {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
+                {timeUnitArray.map((timeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {timeUnit}
+                </div>))}
+                </div>} 
+                </div>
+              </div>
+            </div>
+
+            <label className={styles.form_label}>Recurring expiry</label>
+            <div>
+            <div style={{display:'inline'}}>
+              <div style={{width:'100%', marginRight:'5px'}}>
+              <div className="custom_select_container" onClick={() => setExpiryDropdown(!expiryDropdown)} style={{width:'100%'}}>
+                {expiry}<Image width={20} height={21} src={!expiryDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+              </div>
+              <div>
+                {expiryDropdown && <div className="custom_select_options" ref={expiryRef} style={{width:'30%'}}>
+                {expiryArray.map((expiry, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {expiry}
+                </div>))}
+                </div>} 
+              </div>
+              </div>
+              {expiry==='After certain number of runs' && (
+                <div style={{width:'100%', marginTop:'10px'}}>
+                  <input className="input_medium" type="text" value={expiryRuns} onChange={handleExpiryRuns} placeholder="Enter the number of runs" />
+                </div>
+              )}
+              {expiry==='Specific Date' && (
+                <div style={{width:'100%', marginTop:'10px'}}>
+                  {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
+                  <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                </div>
+              )}
+            </div>
+            </div>
+            </div>)}
+            <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
+              <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
+                Cancel
+              </button>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={createAndScheduleRun}>
+                Create and Schedule Run
+              </button>
+            </div>
           </div>
+        </div>)}
+
+
+            {createEditModal && (
+            <div className="modal" onClick={closeCreateModal}>
+            <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+            <div className={styles.detail_name}>Edit Schedule</div>
+
+            <div style={{marginBottom:'20px'}}>
+              <label className={styles.form_label}>Select a date and time</label>
+              <div >
+              <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+              </div>          
+            </div>
+             
+            <div style={{marginBottom:'20px', display:'flex'}}>
+            <input type="checkbox" className="checkbox" checked={isRecurring} onChange={toggleRecurring} style={{ marginRight: '5px'}}/>
+            <label className={styles.form_label}>Recurring run</label>
+            </div>
+
+            {isRecurring && (<div>
+            <div style={{color:"white", marginBottom:'20px'}}>Recurring run details</div>
+            <label className={styles.form_label}>Repeat every</label>
+
+            <div style={{display:'flex',marginBottom:'20px'}}>
+              <div style={{width:'70%', marginRight:'5px'}}>
+                <input className="input_medium" type="text" value={timeValue} onChange={handleDateChange} placeholder='Enter here'/>
+              </div>
+              <div style={{width:'30%'}} >
+                <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
+                {timeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
+                <div>
+                {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
+                {timeUnitArray.map((timeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {timeUnit}
+                </div>))}
+                </div>} 
+                </div>
+              </div>
+              </div>
+
+            <label className={styles.form_label}>Recurring expiry</label>
+            <div>
+            <div style={{display:'inline'}}>
+              <div style={{width:'100%', marginRight:'5px'}}>
+              <div className="custom_select_container" onClick={() => setExpiryDropdown(!expiryDropdown)} style={{width:'100%'}}>
+                {expiry}<Image width={20} height={21} src={!expiryDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
+                <div>
+                {expiryDropdown && <div className="custom_select_options" ref={expiryRef} style={{width:'30%'}}>
+                {expiryArray.map((expiry, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                  {expiry}
+                </div>))}
+                </div>} 
+                </div>
+              </div>
+              {expiry==='After certain number of runs' && (
+                <div style={{width:'100%', marginTop:'10px'}}>
+                  <input className="input_medium" type="text" value={expiryRuns} onChange={handleExpiryRuns} placeholder="Enter the number of runs" />
+                </div>
+              )}
+              {expiry==='Specific Date' && (
+                <div style={{width:'100%', marginTop:'10px'}}>
+                  {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
+                  <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                </div>
+              )}
+            </div>
+            </div>
+            </div>)}
+            <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
+              <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
+                Cancel
+              </button>
+              <button className={styles.run_button} onClick={handleUpdateSchedule} style={{paddingLeft:'15px',paddingRight:'25px'}}>
+                Update Schedule
+              </button>
+            </div>
+          </div>
+        </div>)}
+
+        {createStopModal && (
+          <div className="modal" onClick={closeCreateModal}>
+            <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+            <div className={styles.detail_name}>Stop Schedule</div>
+            <label className={styles.form_label}>All further schedules of this agent will be stopped. Are you sure you want to proceed?</label>
+            <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
+              <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
+                Cancel
+              </button>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={stopSchedule}>
+                Stop Schedule
+              </button>
+            </div>
+            </div>
+          </div>
+          )}
+
+
+        </div>
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>

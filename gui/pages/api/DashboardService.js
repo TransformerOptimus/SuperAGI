@@ -40,8 +40,8 @@ export const getExecutionTasks = (executionId) => {
   return api.get(`/agentexecutionfeeds/get/tasks/${executionId}`);
 };
 
-export const createAgent = (agentData) => {
-  return api.post(`/agents/create`, agentData);
+export const createAgent = (agentData, scheduledCreate) => {
+  return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
 export const addTool = (toolData) => {
