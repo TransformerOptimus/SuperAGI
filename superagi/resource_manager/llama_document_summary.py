@@ -55,7 +55,7 @@ class LlamaDocumentSummary:
         if self.model_name in open_ai_models:
             from langchain.chat_models import ChatOpenAI
 
-            openai_api_key = self.model_api_key
+            openai_api_key = get_config("OPENAI_API_KEY") or self.model_api_key
             return ChatOpenAI(temperature=0, model_name=self.model_name,
                               openai_api_key=openai_api_key)
 
