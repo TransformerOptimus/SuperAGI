@@ -53,7 +53,7 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
                         <div className="col-12">
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
                             <div>
-                              <Image className={styles.image_class} width={30} height={30} src={getImageSource(tool.name)}
+                              <Image className={styles.image_class} style={{background: 'black'}} width={30} height={30} src={getImageSource(tool.name)}
                                      alt="tool-icon" />
                             </div>
                             <div style={{ marginLeft: '8px' }}>

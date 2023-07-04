@@ -125,7 +125,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
         <div className={styles.tools_container}>
           <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
             <div>
-              <Image src={getImageSource()} alt="toolkit-icon" width={45} height={45} style={{borderRadius:'25px'}} />
+              <Image src={getImageSource()} alt="toolkit-icon" width={45} height={45} style={{borderRadius:'25px',background: 'black'}} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
