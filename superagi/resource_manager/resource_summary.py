@@ -43,7 +43,7 @@ class ResourceSummarizer:
         agent_config_resource_summary = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
-        resources = self.session.query(Resource).filter(Resource.agent_id == agent_id).all()
+        resources = self.session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').all()
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
         if len(summary_texts) != len(resources) or len(summary_texts) == 0:
             return

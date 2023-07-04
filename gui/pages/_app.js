@@ -121,7 +121,7 @@ export default function App() {
   useEffect(() => {
     const clearLocalStorage = () => {
       Object.keys(localStorage).forEach((key) => {
-        if (key !== 'repo_starred' && key !== 'popup_closed_time') {
+        if (key !== 'repo_starred' && key !== 'popup_closed_time' && key!=='twitter_toolkit_id') {
           localStorage.removeItem(key);
         }
       });

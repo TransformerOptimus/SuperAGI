@@ -23,6 +23,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
+from superagi.models.resource import Resource
 from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.thinking.tools import ThinkingTool
@@ -160,8 +161,7 @@ class AgentExecutor:
             return "Agent Not found"
 
         tools = [
-            ThinkingTool(),
-            QueryResourceTool()
+            ThinkingTool()
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
@@ -183,17 +183,20 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
-            elif parsed_config["LTM_DB"] == "LanceDB":
-                memory = VectorFactory.get_vector_storage(VectorStoreType.LANCEDB, "super-agent-index1",
+            else:
+                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            logger.info("Unable to setup the connection...")
+            logger.info("Unable to setup the pinecone connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
         for tool in user_tools:
             tool = AgentExecutor.create_object(tool, session)
             tools.append(tool)
+
+        if self.check_for_resource(agent.id, session):
+            tools.append(QueryResourceTool())
 
         resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
                                                            default_summary=parsed_config.get("resource_summary"))
@@ -270,7 +273,7 @@ class AgentExecutor:
                     "agent_execution_id"])
 
             if tool.name == "Query Resource" and resource_description:
-                tool.description = resource_description
+                tool.description = tool.description.replace("{summary}", resource_description)
             new_tools.append(tool)
         return tools
 
@@ -314,3 +317,9 @@ class AgentExecutor:
                    AgentConfiguration.key == "resource_summary").first()
         resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
         return resource_summary
+
+    def check_for_resource(self,agent_id: int, session: Session):
+        resource = session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').first()
+        if resource is None:
+            return False
+        return True
