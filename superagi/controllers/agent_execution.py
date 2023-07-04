@@ -5,8 +5,10 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
+from pydantic.fields import List
 
 from superagi.helper.time_helper import get_time_difference
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_schedule import AgentSchedule
 from superagi.worker import execute_agent
@@ -47,6 +49,8 @@ class AgentExecutionIn(BaseModel):
     num_of_tokens: Optional[int]
     current_step_id: Optional[int]
     permission_id: Optional[int]
+    goal: Optional[List[str]]
+    instruction: Optional[List[str]]
 
     class Config:
         orm_mode = True
@@ -77,8 +81,16 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_step_id=start_step_id)
+    agent_execution_configs = {
+        "goal": agent_execution.goal,
+        "instruction": agent_execution.instruction
+    }
     db.session.add(db_agent_execution)
     db.session.commit()
+    db.session.flush()
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
+                                                                     agent_execution_configs=agent_execution_configs)
+
     if db_agent_execution.status == "RUNNING":
         execute_agent.delay(db_agent_execution.id, datetime.now())
 

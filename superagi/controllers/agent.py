@@ -10,10 +10,10 @@ from pydantic import BaseModel
 from jsonmerge import merge
 from pytz import timezone
 from sqlalchemy import func
-
-import superagi.worker
+from superagi.worker import execute_agent
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_schedule import AgentSchedule
 from superagi.models.agent_template import AgentTemplate
@@ -27,6 +27,9 @@ from superagi.controllers.types.agent_with_config_schedule import AgentWithConfi
 from jsonmerge import merge
 from datetime import datetime
 import json
+from sqlalchemy import func
+from superagi.helper.auth import check_auth
+
 # from superagi.types.db import AgentOut, AgentIn
 
 router = APIRouter()
@@ -51,6 +54,7 @@ class AgentIn(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 # CRUD Operations
 @router.post("/add", response_model=AgentOut, status_code=201)
@@ -189,9 +193,16 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
+    agent_execution_configs = {
+        "goal": agent_with_config.goal,
+        "instruction": agent_with_config.instruction
+    }
     db.session.add(execution)
     db.session.commit()
-    superagi.worker.execute_agent.delay(execution.id, datetime.now())
+    db.session.flush()
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
+                                                                     agent_execution_configs=agent_execution_configs)
+    execute_agent.delay(execution.id, datetime.now())
 
     return {
         "id": db_agent.id,
@@ -364,10 +375,10 @@ def get_agents_by_project_id(project_id: int,
 
         # Query the AgentExecution table using the agent ID
         executions = db.session.query(AgentExecution).filter_by(agent_id=agent_id).all()
-        isRunning = False
+        is_running = False
         for execution in executions:
             if execution.status == "RUNNING":
-                isRunning = True
+                is_running = True
                 break
         # Check if the agent is scheduled
         is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
@@ -375,11 +386,12 @@ def get_agents_by_project_id(project_id: int,
 
         new_agent = {
             **agent_dict,
-            'status': isRunning,
+            'is_running': is_running,
             'is_scheduled': is_scheduled
         }
         new_agents.append(new_agent)
-    return new_agents
+        new_agents_sorted = sorted(new_agents, key=lambda agent: agent['is_running'] == True, reverse=True)
+    return new_agents_sorted
 
 
 @router.get("/get/details/{agent_id}")
@@ -417,7 +429,7 @@ def get_agent_configuration(agent_id: int,
     # Construct the JSON response
     response = {result.key: result.value for result in results}
     response = merge(response, {"name": agent.name, "description": agent.description,
-    # Query the AgentConfiguration table for the speci
+                                # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
                                 "calls": total_calls,

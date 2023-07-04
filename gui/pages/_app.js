@@ -23,6 +23,7 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
+  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken'];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -121,7 +122,7 @@ export default function App() {
   useEffect(() => {
     const clearLocalStorage = () => {
       Object.keys(localStorage).forEach((key) => {
-        if (key !== 'repo_starred' && key !== 'popup_closed_time' && key!=='twitter_toolkit_id') {
+        if (!excludedKeys.includes(key)) {
           localStorage.removeItem(key);
         }
       });
