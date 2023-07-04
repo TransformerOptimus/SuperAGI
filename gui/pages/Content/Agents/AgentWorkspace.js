@@ -60,21 +60,21 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   const handleTimeChange = (momentObj) => {	
     const startTime = convertToGMT(momentObj);
-    setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
+    // setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
   };
   const handleDateChange = (event) => {	
-    setLocalStorageValue("agent_time_value_" + String(internalId), event.target.value, setTimeValue);
+    // setLocalStorageValue("agent_time_value_" + String(internalId), event.target.value, setTimeValue);
   };
   const handleTimeSelect = (index) => {
-    setLocalStorageValue("agent_time_unit_" + String(internalId), timeUnitArray[index], setTimeUnit);
+    // setLocalStorageValue("agent_time_unit_" + String(internalId), timeUnitArray[index], setTimeUnit);
     setTimeDropdown(false);	
   };
   const handleDateTimeChange = (momentObj) => {	
     const expiryDate = convertToGMT(momentObj);
-    setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
+    // setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
   };
   const handleExpiryRuns = (event) => {	
-    setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
+    // setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
   };
 
   const toggleRecurring = () => {	
@@ -90,28 +90,28 @@ export default function AgentWorkspace({agentId, selectedView}) {
     setExpiryDropdown(false);	
   }
 
-  useEffect(() => {
-    const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
-    if(agent_start_time) {
-      setStartTime(agent_start_time);
-    }
-    const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
-    if(agent_time_value) {
-      setTimeValue(Number(agent_time_value));
-    }
-    const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
-    if(agent_time_unit) {
-      setTimeUnit(agent_time_unit);
-    }
-    const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
-    if(agent_expiry_date) {
-      setExpiryDate(agent_expiry_date);
-    }
-    const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
-    if(agent_expiry_runs) {
-      setExpiryRuns(Number(agent_expiry_runs));
-    }
-  },[internalId])
+  // useEffect(() => {
+  //   const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
+  //   if(agent_start_time) {
+  //     setStartTime(agent_start_time);
+  //   }
+  //   const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
+  //   if(agent_time_value) {
+  //     setTimeValue(Number(agent_time_value));
+  //   }
+  //   const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
+  //   if(agent_time_unit) {
+  //     setTimeUnit(agent_time_unit);
+  //   }
+  //   const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
+  //   if(agent_expiry_date) {
+  //     setExpiryDate(agent_expiry_date);
+  //   }
+  //   const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
+  //   if(agent_expiry_runs) {
+  //     setExpiryRuns(Number(agent_expiry_runs));
+  //   }
+  // },[internalId])
 
   const stopSchedule = () => {
     const apiUrl = `http://192.168.1.170:3000/api/agents/stop/schedule?agent_id=${agentId}`;
