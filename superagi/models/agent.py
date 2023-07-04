@@ -243,5 +243,5 @@ class Agent(DBBaseModel):
 
         """
         project = session.query(Project).filter(Project.id == self.project_id).first()
-        organization = session.query(Organisation).filter(Organisation.id == project.organization_id).first()
-        return organization
+        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+        return organisation
