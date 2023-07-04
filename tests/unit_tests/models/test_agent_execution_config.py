@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
+
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 
 
@@ -22,11 +23,9 @@ class TestAgentExecutionConfiguration(unittest.TestCase):
                     AgentExecutionConfiguration.add_or_update_agent_execution_config(self.session, self.execution,
                                                                                      test_config)
 
-        # additional assertions to validate behaviour can be added here
-
     def test_fetch_configuration(self):
-        test_db_response = [MagicMock(key="goal", value="test_goal"),
-                            MagicMock(key="instruction", value="test_instruction")]
+        test_db_response = [MagicMock(key="goal", value="['test_goal']"),
+                            MagicMock(key="instruction", value="['test_instruction']")]
 
         self.session.query.return_value.filter_by.return_value.all.return_value = test_db_response
 
@@ -34,7 +33,6 @@ class TestAgentExecutionConfiguration(unittest.TestCase):
 
         expected_result = {"goal": ["test_goal"], "instruction": ["test_instruction"]}
         self.assertDictEqual(result, expected_result)
-
 
     def test_eval_agent_config(self):
         key = "goal"
