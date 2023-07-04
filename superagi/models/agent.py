@@ -12,7 +12,8 @@ from superagi.models.agent_workflow import AgentWorkflow
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
 from superagi.lib.logger import logger
-
+from superagi.models.organisation import Organisation
+from superagi.models.project import Project
 
 class Agent(DBBaseModel):
     """
@@ -229,3 +230,18 @@ class Agent(DBBaseModel):
         db.session.commit()
         db.session.flush()
         return db_agent
+
+    def get_agent_organiation(self, session):
+        """
+        Get the organization of the agent.
+
+        Args:
+            agent_id (int): The ID of the agent.
+
+        Returns:
+            Organization: The organization of the agent.
+
+        """
+        project = session.query(Project).filter(Project.id == self.project_id).first()
+        organization = session.query(Organisation).filter(Organisation.id == project.organization_id).first()
+        return organization
