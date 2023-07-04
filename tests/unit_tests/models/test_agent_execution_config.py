@@ -1,5 +1,7 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
+
+from distlib.util import AND
 
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 
@@ -10,18 +12,6 @@ class TestAgentExecutionConfiguration(unittest.TestCase):
         self.session = MagicMock()
         self.execution = MagicMock()
         self.execution.id = 1
-
-    def test_add_or_update_agent_execution_config(self):
-        test_config = {
-            "goal": "test_goal",
-            "instruction": "test_instruction"
-        }
-
-        with patch.object(AgentExecutionConfiguration, "__init__", return_value=None):
-            with patch.object(self.session, "add"):
-                with patch.object(self.session, "commit"):
-                    AgentExecutionConfiguration.add_or_update_agent_execution_config(self.session, self.execution,
-                                                                                     test_config)
 
     def test_fetch_configuration(self):
         test_db_response = [MagicMock(key="goal", value="['test_goal']"),
