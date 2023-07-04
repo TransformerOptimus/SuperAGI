@@ -208,7 +208,7 @@ class AgentExecutor:
             response = spawned_agent.execute(agent_workflow_step)
         except RuntimeError as e:
             # If our execution encounters an error we respond as an error and attempt to retry
-            response = { "result": "ERROR", "message": str(e) }
+            return
 
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
