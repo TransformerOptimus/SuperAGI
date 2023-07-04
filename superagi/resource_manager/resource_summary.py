@@ -44,9 +44,10 @@ class ResourceSummarizer:
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
         resources = self.session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').all()
-        summary_texts = [resource.summary for resource in resources if resource.summary is not None]
         if resources is None:
             return
+
+        summary_texts = [resource.summary for resource in resources if resource.summary is not None]
 
         # generate_all is added because we want to generate summary for all resources when agent is created
         # this is set to false when adding individual resources
