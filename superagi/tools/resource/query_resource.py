@@ -42,7 +42,6 @@ class QueryResourceTool(BaseTool):
 
     def _execute(self, query: str):
         openai.api_key = get_config("OPENAI_API_KEY")
-        print(self.llm.get_model())
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name=self.llm.get_model(),
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
