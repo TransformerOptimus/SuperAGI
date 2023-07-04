@@ -387,8 +387,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         const agent_id = response.data.id;
         const executionId = response.data.execution_id;
         fetchAgents();
-        removeTab(-1, "new agent", "Create_Agent");
-        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: executionId });
         if (addResources) {
           const uploadPromises = input.map(fileData => {
             return uploadResource(agent_id, fileData)
@@ -401,8 +399,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           Promise.all(uploadPromises)
             .then(() => {
               updateExecution(executionId, {"status": 'RUNNING'})
-                .then((response) => {})
+                .then((response) => {
+                  toast.success('Agent created successfully', { autoClose: 1800 });
+                  sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: executionId });
+                  setCreateClickable(true);
+                })
                 .catch((error) => {
+                  setCreateClickable(true);
                   console.error('Error updating execution:', error);
                 });
             })
@@ -411,6 +414,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               setCreateClickable(true);
             });
         } else {
+          sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: executionId });
           toast.success('Agent created successfully', { autoClose: 1800 });
           setCreateClickable(true);
         }
