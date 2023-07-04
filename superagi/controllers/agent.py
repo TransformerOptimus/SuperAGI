@@ -186,7 +186,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with RUNNING status
-    execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=db_agent.id,
+    execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
     agent_execution_configs = {
@@ -198,7 +198,7 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     db.session.flush()
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
-    execute_agent.delay(execution.id, datetime.now())
+    # execute_agent.delay(execution.id, datetime.now())
 
     return {
         "id": db_agent.id,
