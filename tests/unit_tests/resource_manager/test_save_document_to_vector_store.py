@@ -19,7 +19,7 @@ def test_save_document_to_vector_store(mock_vc_from_docs, mock_sc_from_defaults,
     resource_id = "test_resource_id"
 
     # Run test method
-    resource_manager.save_document_to_vector_store(documents, resource_id)
+    resource_manager.save_document_to_vector_store(documents, resource_id, "test_model_api_key")
 
     # Validate calls
     mock_get_vector_store.assert_called_once()
