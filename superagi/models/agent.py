@@ -236,7 +236,7 @@ class Agent(DBBaseModel):
         Get the organization of the agent.
 
         Args:
-            agent_id (int): The ID of the agent.
+            session: The database session.
 
         Returns:
             Organization: The organization of the agent.

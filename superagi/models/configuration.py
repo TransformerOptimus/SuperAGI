@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String,Text
+
+from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
 
 
@@ -48,4 +50,4 @@ class Configuration(DBBaseModel):
         """
 
         configuration = session.query(Configuration).filter_by(organisation_id=organisation_id, key=key).first()
-        return configuration.value if configuration else default_value
+        return decrypt_data(configuration.value) if configuration else default_value
