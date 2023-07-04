@@ -33,7 +33,7 @@ export default function EachTool({template, env}) {
                 return toolkitData[i].imageSrc;
             }
         }
-        return '/images/app-logo-light.png'; // Default image URL when toolkit name doesn't match
+        return '/images/app-logo-light.png';
     };
 
     useEffect(() => {

@@ -118,7 +118,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
                 return toolkitData[i].imageSrc;
             }
         }
-        return '/images/custom_tool.svg'; // Default image URL when toolkit name doesn't match
+        return '/images/custom_tool.svg';
     };
 
     return (<>
