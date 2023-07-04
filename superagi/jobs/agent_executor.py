@@ -13,6 +13,7 @@ from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_workflow_step import AgentWorkflowStep
@@ -164,6 +165,7 @@ class AgentExecutor:
         ]
 
         parsed_config = Agent.fetch_configuration(session, agent.id)
+        parsed_execution_config = AgentExecutionConfiguration.fetch_configuration(session, agent_execution)
         max_iterations = (parsed_config["max_iterations"])
         total_calls = agent_execution.num_of_calls
 
@@ -199,14 +201,15 @@ class AgentExecutor:
             tools.append(QueryResourceTool())
             resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
                                                                default_summary=parsed_config.get("resource_summary"))
-        tools = self.set_default_params_tools(tools, parsed_config, agent_execution.agent_id,
+        tools = self.set_default_params_tools(tools, parsed_config,parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,
-                                 agent_config=parsed_config)
+                                 agent_config=parsed_config,
+                                 agent_execution_config=parsed_execution_config)
 
         try:
             self.handle_wait_for_permission(agent_execution, spawned_agent, session)
@@ -236,14 +239,15 @@ class AgentExecutor:
         session.close()
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, agent_id, model_api_key, session,
+    def set_default_params_tools(self, tools, parsed_config, parsed_execution_config, agent_id, model_api_key, session,
                                  resource_description=None):
         """
         Set the default parameters for the tools.
 
         Args:
             tools (list): The list of tools.
-            parsed_config (dict): The parsed configuration.
+            parsed_config (dict): Parsed agent configuration.
+            parsed_execution_config (dict): Parsed execution configuration
             agent_id (int): The ID of the agent.
             model_api_key (str): The API key of the model.
             resource_description (str): The description of the resource.
@@ -254,9 +258,9 @@ class AgentExecutor:
         new_tools = []
         for tool in tools:
             if hasattr(tool, 'goals'):
-                tool.goals = parsed_config["goal"]
+                tool.goals = parsed_execution_config["goal"]
             if hasattr(tool, 'instructions'):
-                tool.instructions = parsed_config["instruction"]
+                tool.instructions = parsed_execution_config["instruction"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
                 tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.3)
             elif hasattr(tool, 'llm'):
