@@ -17,7 +17,7 @@ def get_metrics(Authorize: AuthJWT = Depends(check_auth)):
     """
     try:
         return AnalyticsHelper(session=db.session).calculate_run_completed_metrics()
-    except:
+    except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -25,7 +25,7 @@ def get_metrics(Authorize: AuthJWT = Depends(check_auth)):
 def get_agents(Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).fetch_agent_data()
-    except:
+    except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -33,7 +33,7 @@ def get_agents(Authorize: AuthJWT = Depends(check_auth)):
 def get_agent_runs(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).fetch_agent_runs(agent_id)
-    except:
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
