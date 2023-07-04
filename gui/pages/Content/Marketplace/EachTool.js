@@ -14,6 +14,27 @@ export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
     const [installed, setInstalled] = useState('')
     const [markdownContent, setMarkdownContent] = useState('');
+    const toolkitData = [
+        { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
+        { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
+        { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
+        { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
+        { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
+        { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
+        { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
+        { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
+        { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
+        { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
+        { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
+    ];
+    const getImageSource = (name) => {
+        for (let i = 0; i < toolkitData.length; i++) {
+            if (toolkitData[i].name === name) {
+                return toolkitData[i].imageSrc;
+            }
+        }
+        return '/images/app-logo-light.png'; // Default image URL when toolkit name doesn't match
+    };
 
     useEffect(() => {
         setInstalled(template && template.is_installed ? 'Installed' : 'Install');
@@ -84,7 +105,7 @@ export default function EachTool({template, env}) {
                         <div className={styles2.left_container}>
                             <div style={{marginBottom: '15px'}}>
                                 <Image style={{borderRadius: '25px', background: 'black'}} width={50} height={50}
-                                       src="/images/app-logo-light.png" alt="tool-icon"/>
+                                       src={getImageSource(template.name)} alt="tool-icon"/>
                             </div>
                             <span className={styles2.top_heading}>{template.name}</span>
                             <span style={{fontSize: '12px', marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image

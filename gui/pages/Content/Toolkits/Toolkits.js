@@ -7,6 +7,29 @@ import {createInternalId} from "@/utils/utils";
 
 export default function Toolkits({ sendToolkitData, toolkits, env }) {
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit","Resource Toolkit"];
+    const toolkitData = [
+        { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
+        { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
+        { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
+        { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
+        { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
+        { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
+        { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
+        { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
+        { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
+        { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
+        { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
+        { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
+        { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
+    ];
+    const getImageSource = (name) => {
+        for (let i = 0; i < toolkitData.length; i++) {
+            if (toolkitData[i].name === name) {
+                return toolkitData[i].imageSrc;
+            }
+        }
+        return '/images/custom_tool.svg'; // Default image URL when toolkit name doesn't match
+    };
 
   return (
     <>
@@ -30,7 +53,7 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
                         <div className="col-12">
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
                             <div>
-                              <Image className={styles.image_class} width={30} height={30} src="/images/custom_tool.svg"
+                              <Image className={styles.image_class} width={30} height={30} src={getImageSource(tool.name)}
                                      alt="tool-icon" />
                             </div>
                             <div style={{ marginLeft: '8px' }}>
