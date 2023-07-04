@@ -14,54 +14,63 @@ This document provides guidelines and best practices to help you to contribute e
 
 **********************************Table of Content:********************************** 
 1. [Code of conduct](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#code-of-conduct) 
-2. [Getting Started](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#getting-started)
-3. [How can I contribute](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#getting-started)
+2. [Quick Start](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#quick-start)
+3. [Contributing Guidelines](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#contributing-guidelines)
     1. [Reporting Bugs](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#reporting-bugs)
-    2. [Suggesting Enhancements](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#suggesting-enhancements)
-    3. [Pull Requests](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#pull-requests)
+    2. [New Feature or Suggesting Enhancements](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#new-feature-or-suggesting-enhancements)
 4. [Testing](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#testing-changes)
+5. [Pull Requests](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#pull-requests)
 
-## Code of Conduct:
+## ✔️ Code of Conduct:
 
 Please read our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md) to understand the expectations we have for all contributors participating in this project. By participating, you agree to abide by our Code of Conduct.
 
-## Getting Started
+## 🚀 Quick Start
 
-1. Create a fork of this repository and clone your fork
-2. Create a new branch for your changes (make sure you’re using a descriptive name, such as bug-fix-293
-3. Make the respective changes in your new branch
-4. Test your changes thoroughly 
-5. Commit and push your changes to your fork
-6. Create a pull request. Please refer to the Submitting Pull Requests section for guidelines.
+You can quickly get started with contributing by searching for issues with the labels **"Good First Issue"** or **"Help Needed"** in the [Issues Section](https://github.com/TransformerOptimus/SuperAGI/Issues). If you think you can contribute, comment on the issue and tag yourself on it.  
 
-## How can I contribute
+To set up your development environment, please follow the steps mentioned below : 
+
+1. Fork the repository and create a clone of the fork
+2. Create a branch for a feature or a bug you are working on in your fork
+3. Once you've created your branch, follow the instructions in the [README.MD](https://github.com/TransformerOptimus/SuperAGI/README.MD)
+
+## Contributing Guidelines 
  
-### Reporting Bugs
+### 🔍 Reporting Bugs
 
-You can start contributing to SuperAGI by reporting bugs that you’ve encountered. Please create an issue on GitHub with the following information:
+You can start working on an existing bug that has been reported and labeled as **"Bug"** in the Issues Section, and you can report your bugs in the following manner :
 
-1. Title describing the issue in a clear and concise manner
-2. Provide a detailed description of the problem, along with the necessary steps to reproduce the issue.
-3. Make sure to include any relevant logs, screenshots, or other helpful information that supports the issue.
+1. Title describing the issue clearly and concisely with relevant labels
+2. Provide a detailed description of the problem and the necessary steps to reproduce the issue.
+3. Include any relevant logs, screenshots, or other helpful information supporting the issue.
 
-### Suggesting Enhancements
+### :bulb: New Feature or Suggesting Enhancements
 
-You can start adding ideas for new features or improvements to SuperAGI. Create an issue on GitHub with the following information: 
+This section guides you through working on an enhancement **Including a completely New Feature** & **Enhancements to an existing functionality**. 
 
-1. Title describing the issue in a clear and concise manner
-2. Please provide a clear description of the proposed enhancement, highlighting its benefits and potential drawbacks.
+Before getting started, Perform a search on Issues to see if the enhancement or feature has already been suggested and picked up. If the feature or enhancement is suggested and not picked up, comment on the issue and assign yourself to it. 
+
+If the feature or enhancement is not in the issues, find out whether your idea fits with the scope and aims of the project by looking at the [Roadmap](https://github.com/users/TransformerOptimus/projects/5/). If yes, raise an issue with the label **"Feature Request"** in the following manner: 
+
+1. Title describing the feature or enhancement in a clear and concise manner
+2. Clearly describe the proposed enhancement, highlighting its benefits and potential drawbacks.
 3. Provide examples and supporting information.
 
-### Pull Requests
+Once you have raised the issue, you can start working on the feature or enhancement. Please make sure the feature or enhancement you're working on is placed on the Roadmap.
 
-When submitting your pull request, please ensure that your changes meet the following criteria: 
+## Testing your Changes
+
+Each method or the function of the code should have a unit test with the maximum coverage possible and on each Pull Request, we have GitHub Actions triggered, which
+runs all the unit tests where all the tests should pass for merging the Pull Request. 
+
+## Pull Request
+
+Now that you have worked on your code and tested it thoroughly, you can now go ahead and raise the pull request. Please make sure that the Pull Request adheres to the following guidelines: 
 
 1.  The pull request is atomic and focuses on a single change.
 2.  You have read the contributing guide and your code conforms to the guidelines.
 3.  You have documented your changes clearly and comprehensively.
 4.  You have added the required tests.
 
-## Testing Changes
 
-Each method or the function of the code should have a unit test with the maximum coverage possible and on each Pull Request, we have GitHub Actions triggered, which
-runs all the unit tests where all the tests should pass for merging the Pull Request. 
