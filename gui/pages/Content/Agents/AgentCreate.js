@@ -383,14 +383,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         removeTab(-1, "new agent", "Create_Agent");
         sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
         if(addResources) {
-          input.forEach((fileData) => {
-            input.forEach(fileData => {
-              uploadResource(agent_id, fileData)
-                .then(response => {})
-                .catch(error => {
-                  console.error('Error uploading resource:', error);
-                });
-            });
+          input.forEach(fileData => {
+            uploadResource(agent_id, fileData)
+              .then(response => {})
+              .catch(error => {
+                console.error('Error uploading resource:', error);
+              });
           });
         }
         toast.success('Agent created successfully', {autoClose: 1800});
