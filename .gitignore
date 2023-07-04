@@ -16,4 +16,3 @@ venv
 workspace/output
 workspace/input
 ../bfg-report*
-.vscode/settings.json
