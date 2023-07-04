@@ -14,42 +14,20 @@ def mock_session():
     session.query.return_value.get = get_mock
     return session
 
-@pytest.fixture
-def mock_agent_with_config():
-    return AgentConfigInput(
-        name="SmartAGI",
-        project_id=1,
-        description="AI assistant to solve complex problems",
-        goal=["Share research on latest google news in fashion"],
-        agent_type="Don't Maintain Task Queue",
-        constraints=[
-            "~4000 word limit for short term memory.",
-            "Your short term memory is short, so immediately save important information to files.",
-            "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-            "No user assistance",
-            "Exclusively use the commands listed in double quotes e.g. \"command name\""
-        ],
-        instruction=[],
-        toolkits=[10, 12],
-        tools=[1,2],
-        exit="Exit strategy",
-        iteration_interval=500,
-        model="gpt-4",
-        permission_type="Type 1",
-        LTM_DB="Database Pinecone",
-        memory_window=10,
-        max_iterations=25,
-        user_timezone="Australia/Melbourne"
-    )
 
-def test_is_tool_id_valid_all_found(mock_session, mock_agent_with_config):
-    # All tools found
-    mock_session.query.return_value.get.side_effect = [MagicMock(), MagicMock()]  
+def test_get_invalid_tools(mock_session):
+    # Set up the mock session such that the second tool is not found
+    mock_session.query.return_value.get.side_effect = [MagicMock(), None]
 
-    # Calls the is_tool_id_valid method and assert that it returns True
-    assert Tool.is_tool_id_valid(mock_agent_with_config, mock_session) == True
+    # Call the get_invalid_tools method with tool_ids as [1, 2]
+    invalid_tool_ids = Tool.get_invalid_tools([1, 2], mock_session)
 
-    # assert that mock_session.query().get() was called with the correct arguments
-    calls = [call(1), call(2)]
-    mock_session.query.return_value.get.assert_has_calls(calls, any_order=True)
+    # Assert that the returned invalid tool IDs is as expected
+    assert invalid_tool_ids == [2]
+
+    # Assert that mock_session.query().get() was called with the correct arguments
+    calls = [call(Tool).get(1), call(Tool).get(2)]
+    mock_session.query.assert_has_calls(calls, any_order=True)
+
+
 

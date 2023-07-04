@@ -109,4 +109,4 @@ class Tool(DBBaseModel):
             tool = session.query(Tool).get(tool_id)
             if tool is None:
                 invalid_tool_ids.append(tool_id)
-        return invalid_tool_ids  # returns True when all tool_id are valid.
+        return invalid_tool_ids
