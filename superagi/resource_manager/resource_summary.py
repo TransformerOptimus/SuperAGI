@@ -38,26 +38,42 @@ class ResourceSummarizer:
         resource.summary = summary
         self.session.commit()
 
-    def generate_agent_summary(self, agent_id: int) -> str:
+    def generate_agent_summary(self, agent_id: int, generate_all: bool = False) -> str:
         """Generate a summary of all resources for an agent."""
         agent_config_resource_summary = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
-        resources = self.session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').all()
-        summary_texts = [resource.summary for resource in resources if resource.summary is not None]
-        if len(summary_texts) != len(resources) or len(summary_texts) == 0:
+        resources = self.session.query(Resource).filter(Resource.agent_id == agent_id, Resource.channel == 'INPUT').all()
+
+        if not resources:
             return
+
+        summary_texts = [resource.summary for resource in resources if resource.summary is not None]
+
+        if len(summary_texts) < len(resources) and generate_all:
+            file_paths = [resource.path for resource in resources if resource.summary is None]
+            for file_path in file_paths:
+                if resources[0].storage_type == 'S3':
+                    documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
+                else:
+                    documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
+                summary_texts.append(LlamaDocumentSummary().generate_summary_of_document(documents))
 
         agent_last_resource = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
-                   AgentConfiguration.key == "last_resource_id").first()
+            AgentConfiguration.key == "last_resource_time").first()
+
         if agent_last_resource is not None and \
-                datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at:
+            datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at \
+            and not generate_all:
             return
 
-        resource_summary = summary_texts[0]
-        if len(summary_texts) > 1:
-            resource_summary = LlamaDocumentSummary().generate_summary_of_texts(summary_texts)
+        resource_summary = None  # Default to None for when summary_texts is empty
+
+        if summary_texts:
+            resource_summary = summary_texts[0]
+            if len(summary_texts) > 1:
+                resource_summary = LlamaDocumentSummary().generate_summary_of_texts(summary_texts)
 
         if agent_config_resource_summary is not None:
             agent_config_resource_summary.value = resource_summary
@@ -65,10 +81,11 @@ class ResourceSummarizer:
             agent_config_resource_summary = AgentConfiguration(agent_id=agent_id, key="resource_summary",
                                                                value=resource_summary)
             self.session.add(agent_config_resource_summary)
+
         if agent_last_resource is not None:
             agent_last_resource.value = str(resources[-1].updated_at)
         else:
-            agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource_id",
+            agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource_time",
                                                      value=str(resources[-1].updated_at))
             self.session.add(agent_last_resource)
         self.session.commit()

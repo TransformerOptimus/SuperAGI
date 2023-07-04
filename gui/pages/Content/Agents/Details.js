@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
@@ -8,6 +8,11 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
   const [showGoals, setShowGoals] = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [filteredInstructions, setFilteredInstructions] = useState(false);
+
+  useEffect(() => {
+    setFilteredInstructions(instructions?.filter(instruction => instruction.trim() !== ''));
+  }, [instructions]);
 
   const info_text = {
     marginLeft:'7px',
@@ -68,16 +73,16 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
           {showGoals ? 'Show Less' : 'Show More'}
         </div>
       </div>}
-      {instructions && instructions.length > 0 && <div>
+      {filteredInstructions && filteredInstructions.length > 0 && <div>
         <div className={styles.separator}></div>
         <div className={styles.agent_info_box}>
           <div><Image width={15} height={15} src="/images/instructions.svg" alt="instruction-icon"/></div>
-          <div style={info_text}>{instructions.length || 0} Instructions</div>
+          <div style={info_text}>{filteredInstructions.length || 0} Instructions</div>
         </div>
         <div>
           <div className={styles.large_text_box} style={!showInstructions ? {overflow:'hidden',display:'-webkit-box'} : {}}>
-            {instructions.map((instruction, index) => (<div key={index} style={{marginTop:'0'}}>
-              <div>{index + 1}. {instruction || ''}</div>{index !== instructions.length - 1 && <br/>}
+            {filteredInstructions.map((instruction, index) => (<div key={index} style={{marginTop:'0'}}>
+              <div>{index + 1}. {instruction || ''}</div>{index !== filteredInstructions.length - 1 && <br/>}
             </div>))}
           </div>
           <div className={styles.show_more_button} onClick={() => setShowInstructions(!showInstructions)}>{showInstructions ? 'Show Less' : 'Show More'}</div>

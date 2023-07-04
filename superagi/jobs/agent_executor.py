@@ -222,11 +222,11 @@ class AgentExecutor:
             tool = AgentExecutor.create_object(tool, session)
             tools.append(tool)
 
-        resource_summary = None
-        if self.check_for_resource(agent.id, session):
+        resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
+                                                            default_summary=parsed_config.get("resource_summary"))
+        if resource_summary is not None:
             tools.append(QueryResourceTool())
-            resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
-                                                               default_summary=parsed_config.get("resource_summary"))
+
         tools = self.set_default_params_tools(tools, parsed_config,parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
@@ -341,7 +341,7 @@ class AgentExecutor:
         session.commit()
 
     def get_agent_resource_summary(self, agent_id: int, session: Session, default_summary: str):
-        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id)
+        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id,generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
