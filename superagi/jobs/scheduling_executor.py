@@ -7,7 +7,9 @@ from sqlalchemy.orm import sessionmaker
 from superagi.worker import execute_agent
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent import Agent
+from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 
 from superagi.models.db import connect_db
 
@@ -37,11 +39,24 @@ class ScheduledAgentExecutor:
                                             agent_id=agent_id, name=name, num_of_calls=0,
                                             num_of_tokens=0,
                                             current_step_id=start_step_id)
+        
         session.add(db_agent_execution)
         session.commit()
+        
+        goal_value = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'goal').first()
+        instruction_value = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'instruction').first()
+                
+        agent_execution_configs = {
+            "goal": goal_value,
+            "instruction": instruction_value
+        }
 
+        
+        AgentExecutionConfiguration.add_or_update_agent_execution_config(session= session, execution=db_agent_execution,
+                                                                        agent_execution_configs=agent_execution_configs)
+        
+        
         if db_agent_execution.status == "RUNNING":
             execute_agent.delay(db_agent_execution.id, datetime.now())
-
 
         session.close()
