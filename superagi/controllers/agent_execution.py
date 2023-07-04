@@ -47,7 +47,7 @@ def create_agent_execution(agent_execution: sqlalchemy_to_pydantic(AgentExecutio
     db.session.add(db_agent_execution)
     db.session.commit()
 
-    AnalyticsHelper.create_event(db.session, 'run_created', 0, {'run_id': db_agent_execution.id,'name':db_agent_execution.name},
+    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'run_id': db_agent_execution.id,'name':db_agent_execution.name},
                                  agent_execution.agent_id, 0)
 
     if db_agent_execution.status == "RUNNING":

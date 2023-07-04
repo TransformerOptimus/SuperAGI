@@ -241,11 +241,11 @@ class SuperAgi:
         if action.name.lower() == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
-            AnalyticsHelper.create_event(session, 'tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], 0),
+            AnalyticsHelper(session=session).create_event('tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], 0),
             return output
         if action.name.lower() in tools:
             tool = tools[action.name.lower()]
-            AnalyticsHelper.create_event(session, 'tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], 0),
+            AnalyticsHelper(session=session).create_event('tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], 0),
             try:
                 observation = tool.execute(action.args)
                 logger.info("Tool Observation : ")

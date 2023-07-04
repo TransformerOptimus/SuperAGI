@@ -16,7 +16,7 @@ def get_metrics(Authorize: AuthJWT = Depends(check_auth)):
 
     """
     try:
-        return AnalyticsHelper.calculate_run_completed_metrics(db.session)
+        return AnalyticsHelper(session=db.session).calculate_run_completed_metrics()
     except:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -24,7 +24,7 @@ def get_metrics(Authorize: AuthJWT = Depends(check_auth)):
 @router.get("/agents/all", status_code=200)
 def get_agents(Authorize: AuthJWT = Depends(check_auth)):
     try:
-        return AnalyticsHelper.fetch_agent_data(db.session)
+        return AnalyticsHelper(session=db.session).fetch_agent_data()
     except:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -32,7 +32,7 @@ def get_agents(Authorize: AuthJWT = Depends(check_auth)):
 @router.get("/agents/{agent_id}", status_code=200)
 def get_agent_runs(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     try:
-        return AnalyticsHelper.fetch_agent_runs(agent_id,db.session)
+        return AnalyticsHelper(session=db.session).fetch_agent_runs(agent_id)
     except:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -40,7 +40,7 @@ def get_agent_runs(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 @router.get("/runs/active", status_code=200)
 def get_active_runs(Authorize: AuthJWT = Depends(check_auth)):
     try:
-        return AnalyticsHelper.get_active_runs(db.session)
+        return AnalyticsHelper(session=db.session).get_active_runs()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -48,6 +48,6 @@ def get_active_runs(Authorize: AuthJWT = Depends(check_auth)):
 @router.get("/tools/used", status_code=200)
 def get_tools_used(Authorize: AuthJWT = Depends(check_auth)):
     try:
-        return AnalyticsHelper.calculate_tool_usage(db.session)
+        return AnalyticsHelper(session=db.session).calculate_tool_usage()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

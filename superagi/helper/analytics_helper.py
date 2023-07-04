@@ -7,8 +7,11 @@ from sqlalchemy import Integer
 
 
 class AnalyticsHelper:
-    @classmethod
-    def create_event(cls, session: Session, event_name: str, event_value: int,
+
+    def __init__(self,session):
+        self.session = session
+
+    def create_event(self, event_name: str, event_value: int,
                      json_property: dict, agent_id: int, org_id: int) -> Event:
         event = Event(
             event_name=event_name,
@@ -17,16 +20,15 @@ class AnalyticsHelper:
             agent_id=agent_id,
             org_id=org_id,
         )
-        session.add(event)
-        session.commit()
+        self.session.add(event)
+        self.session.commit()
         return event
 
-    @classmethod
-    def calculate_run_completed_metrics(cls, session: Session) -> dict:
+    def calculate_run_completed_metrics(self) -> dict:
         result = {'total_tokens': 0, 'total_calls': 0, 'runs_completed': 0}
 
         try:
-            query_result = session.query(Event).filter_by(event_name="run_completed").all()
+            query_result = self.session.query(Event).filter_by(event_name="run_completed").all()
 
             for res in query_result:
                 if 'tokens_consumed' in res.json_property:
@@ -36,20 +38,19 @@ class AnalyticsHelper:
 
                 result['runs_completed'] += 1
 
-            session.close()
+            self.session.close()
 
         except SQLAlchemyError as e:
             print(str(e))
 
         return result
 
-    @classmethod
-    def fetch_agent_data(cls, session: Session) -> dict:
+    def fetch_agent_data(self) -> dict:
         agent_details_dict = {}
         models_used_dict = {}
 
         try:
-            agent_created_events = session.query(Event).filter_by(event_name="agent_created").all()
+            agent_created_events = self.session.query(Event).filter_by(event_name="agent_created").all()
 
             for event in agent_created_events:
                 agent_id = event.agent_id
@@ -70,7 +71,7 @@ class AnalyticsHelper:
                 else:
                     models_used_dict[model_type] = 1  # first time seeing this model, initialize with 1
 
-            run_completed_events = session.query(Event).filter_by(event_name="run_completed").all()
+            run_completed_events = self.session.query(Event).filter_by(event_name="run_completed").all()
 
             for event in run_completed_events:
                 agent_id = event.agent_id
@@ -84,7 +85,7 @@ class AnalyticsHelper:
                     if 'calls' in event.json_property:
                         agent_details_dict[agent_id]['total_calls'] += event.json_property['calls']
 
-            session.close()
+            self.session.close()
 
         except SQLAlchemyError as e:
             print(str(e))
@@ -94,12 +95,11 @@ class AnalyticsHelper:
 
         return {'agent_details':agent_details, 'model_info':models_used}
 
-    @classmethod
-    def fetch_agent_runs(cls, agent_id: int, session: Session) -> list:
+    def fetch_agent_runs(self, agent_id: int) -> list:
         agent_runs = []
         try:
-            query_result_completed = session.query(Event).filter_by(event_name="run_completed", agent_id=agent_id).all()
-            query_result_created = session.query(Event).filter_by(event_name="run_created", agent_id=agent_id).all()
+            query_result_completed = self.session.query(Event).filter_by(event_name="run_completed", agent_id=agent_id).all()
+            query_result_created = self.session.query(Event).filter_by(event_name="run_created", agent_id=agent_id).all()
 
             # create a dictionary of created_at times for run_created events
             created_dict = {run.json_property['run_id']: run.created_at for run in query_result_created}
@@ -121,22 +121,21 @@ class AnalyticsHelper:
         except SQLAlchemyError as e:
             print(str(e))
 
-        session.close()
+        self.session.close()
 
         return agent_runs
 
-    @classmethod
-    def get_active_runs(cls, session: Session) -> list:
+    def get_active_runs(self) -> list:
         running_executions = []
         try:
-            start_events = session.query(Event).filter_by(event_name="run_created").all()
-            completed_events = session.query(Event).filter_by(event_name="run_completed").all()
+            start_events = self.session.query(Event).filter_by(event_name="run_created").all()
+            completed_events = self.session.query(Event).filter_by(event_name="run_completed").all()
 
             completed_run_ids = [event.json_property['run_id'] for event in completed_events]
 
             for event in start_events:
                 if event.json_property['run_id'] not in completed_run_ids:
-                    agent_event = session.query(Event).filter_by(agent_id=event.agent_id, event_name="agent_created").first()
+                    agent_event = self.session.query(Event).filter_by(agent_id=event.agent_id, event_name="agent_created").first()
                     agent_name = agent_event.json_property['name'] if agent_event else 'Unknown'
                     execution_data = {
                         'name': event.json_property['name'],
@@ -149,16 +148,15 @@ class AnalyticsHelper:
             print(str(e))
             return {"error": str(e)}
         finally:
-            session.close()
+            self.session.close()
 
         return running_executions
 
-    @classmethod
-    def calculate_tool_usage(cls, session: Session) -> list:
+    def calculate_tool_usage(self) -> list:
         tool_usage_dict = {}
 
         try:
-            tool_used_events = session.query(Event).filter_by(event_name="tool_used").all()
+            tool_used_events = self.session.query(Event).filter_by(event_name="tool_used").all()
 
             for event in tool_used_events:
                 tool_name = event.json_property['tool_name']
@@ -173,7 +171,7 @@ class AnalyticsHelper:
                 tool_usage_dict[tool_name]["unique_agents"].add(agent_id)
                 tool_usage_dict[tool_name]["total_usage"] += 1
 
-            session.close()
+            self.session.close()
 
         except SQLAlchemyError as e:
             print(str(e))
