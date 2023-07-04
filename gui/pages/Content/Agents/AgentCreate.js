@@ -875,7 +875,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
-            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
           </div>
         </div>
       </div>
