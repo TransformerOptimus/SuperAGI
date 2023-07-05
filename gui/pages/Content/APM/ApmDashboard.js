@@ -82,17 +82,7 @@ export default function ApmDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [
-                    metricsResponse,
-                    agentsResponse,
-                    activeRunsResponse,
-                    toolsUsageResponse
-                ] = await Promise.all([
-                    getMetrics(),
-                    getAllAgents(),
-                    getActiveRuns(),
-                    getToolsUsage()
-                ]);
+                const [metricsResponse, agentsResponse, activeRunsResponse, toolsUsageResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns(), getToolsUsage()]);
 
                 setTotalCalls(metricsResponse.data.total_calls);
                 setTotalTokens(metricsResponse.data.total_tokens);
