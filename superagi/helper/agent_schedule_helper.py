@@ -163,17 +163,18 @@ class AgentScheduleHelper:
 
     def __execute_schedule(self, should_execute_agent, interval_in_seconds, session, agent, agent_execution_name):
         """
-         Executes a scheduled job, if it should be executed.
-         Args:
-             should_execute_agent (bool): Whether agent should be executed.
-             interval_in_seconds (int): The interval in seconds for the schedule.
-             session (Session): The database session.
-             agent (object): The agent to be scheduled.
-             agent_execution_name (str): The name for the execution.
-         """
+        Executes a scheduled job, if it should be executed.
+        Args:
+            should_execute_agent (bool): Whether agent should be executed.
+            interval_in_seconds (int): The interval in seconds for the schedule.
+            session (Session): The database session.
+            agent (object): The agent to be scheduled.
+            agent_execution_name (str): The name for the execution.
+        """
         from superagi.jobs.scheduling_executor import ScheduledAgentExecutor
         if should_execute_agent:
-            ScheduledAgentExecutor.execute_scheduled_agent(agent.agent_id, agent_execution_name)
+            executor = ScheduledAgentExecutor()
+            executor.execute_scheduled_agent(agent.agent_id, agent_execution_name)
             agent.current_runs = agent.current_runs + 1
 
             if agent.recurrence_interval:
