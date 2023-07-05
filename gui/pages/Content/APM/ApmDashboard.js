@@ -3,7 +3,7 @@ import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
 import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
-import {formatNumber, formatTime, formatRunTimeDifference} from "@/utils/utils";
+import {formatNumber, formatTime, formatRunTimeDifference, averageAgentRunTime} from "@/utils/utils";
 import * as echarts from 'echarts';
 
 export default function ApmDashboard() {
@@ -112,7 +112,7 @@ export default function ApmDashboard() {
         getAgentRuns(index).then((response) => {
             const data = response.data;
             setSelectedAgentRun(data);
-            averageAgentRunTime(data);
+            setAverageRunTime(averageAgentRunTime(data));
         }).catch((error) => console.error(`Error in fetching agent runs: ${error}`));
     }, [allAgents]);
 
@@ -124,28 +124,6 @@ export default function ApmDashboard() {
             handleSelectedAgent(lastAgent.agent_id, lastAgent.name);
         }
     }, [allAgents, selectedAgent, handleSelectedAgent]);
-
-    const averageAgentRunTime = (runs) => {
-        var total = 0;
-        for (var i=0; i<runs.length; i++) {
-            const timeDifference = formatRunTimeDifference(runs[i].updated_at, runs[i].created_at);
-            var time = 0;
-
-            if(timeDifference.includes('min')) {
-                time = parseInt(timeDifference.replace('min', ''), 10);
-            }
-
-            if(timeDifference.includes('sec')) {
-                time = parseInt(timeDifference.replace('sec', ''), 10) / 60;
-            }
-
-            total += isNaN(time) ? 0 : time;
-        }
-
-        console.log(runs.length)
-        const avg = runs.length > 0 ? total / runs.length : 0;
-        setAverageRunTime(`${avg.toFixed(1)} min`);
-    }
 
     return (
         <>

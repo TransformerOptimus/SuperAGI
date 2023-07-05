@@ -260,3 +260,27 @@ export const createInternalId = () => {
 
   return newId;
 }
+
+export const averageAgentRunTime = (runs) => {
+  var total = 0;
+  for (var i=0; i<runs.length; i++) {
+    const timeDifference = formatRunTimeDifference(runs[i].updated_at, runs[i].created_at);
+    var time = 0;
+
+    if(timeDifference.includes('day')) {
+      time = parseFloat(timeDifference.replace('day', '')) * 24 * 60;
+    }
+    if(timeDifference.includes('hr')) {
+      time = parseFloat(timeDifference.replace('hr', '')) * 60;
+    }
+    if(timeDifference.includes('min')) {
+      time = parseFloat(timeDifference.replace('min', ''));
+    }
+    if(timeDifference.includes('sec')) {
+      time = parseFloat(timeDifference.replace('sec', '')) / 60;
+    }
+    total += isNaN(time) ? 0 : time;
+  }
+  const avg = runs.length > 0 ? total / runs.length : 0;
+  return (`${avg.toFixed(1)} min`);
+}
