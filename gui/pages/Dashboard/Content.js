@@ -172,7 +172,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     };
 
     const openToolkitTab = (eventData) => {
-      const toolkit = toolkits.find((toolkit) => toolkit.tools.some((tool) => tool.id === eventData.toolId));
+      const toolkit = toolkits?.find((toolkit) => toolkit.tools.some((tool) => tool.id === eventData.toolId));
       if(toolkit) {
         localStorage.setItem('toolkit_tab_' + String(toolkit.internalId), 'tools_included');
         addTab(toolkit);
