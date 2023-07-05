@@ -819,7 +819,7 @@ p {
     left: -50%;
     height: 120%;
     width: 25%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     animation: shine 1.5s ease-in-out infinite;
 }
 
