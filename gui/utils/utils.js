@@ -247,3 +247,14 @@ export const returnToolkitIcon = (toolkitName) => {
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
   return toolkit ? toolkit.imageSrc : '/images/custom_tool.svg';
 }
+
+export const returnResourceIcon = (file) => {
+  const fileTypeIcons = {
+    'application/pdf': '/images/pdf_file.svg',
+    'application/txt': '/images/txt_file.svg',
+    'text/plain': '/images/txt_file.svg',
+    'image': '/images/img_file.svg',
+  };
+
+  return fileTypeIcons[file.type] || '/images/default_file.svg';
+};

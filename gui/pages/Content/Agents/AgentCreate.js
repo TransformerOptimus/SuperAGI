@@ -15,7 +15,7 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray,
+  setLocalStorageArray, returnResourceIcon,
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -29,9 +29,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [isDragging, setIsDragging] = useState(false);
   const [createClickable, setCreateClickable] = useState(true);
   const fileInputRef = useRef(null);
-  const pdf_icon = '/images/pdf_file.svg';
-  const txt_icon = '/images/txt_file.svg';
-  const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
   const [toolkitList, setToolkitList] = useState(toolkits)
   const [searchValue, setSearchValue] = useState('');
@@ -510,36 +507,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
   };
 
-  const ResourceItem = ({ file, index }) => {
-    const isPDF = file.type === 'application/pdf';
-    const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
-    const isIMG = file.type.includes('image');
-
-    return (
-      <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
-          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
-          {!isTXT && !isIMG && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px', width:'100%' }}>
-            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
-            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
-          </div>
-          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
-        </div>
-      </div>
-    );
-  };
-
-  const ResourceList = ({ files }) => (
-    <div className={styles.agent_resources}>
-      {files.map((file, index) => (
-        <ResourceItem key={index} file={file} index={index} />
-      ))}
-    </div>
-  );
-
   useEffect(() => {
     const has_resource = localStorage.getItem("has_resource_" + String(internalId));
     if(has_resource) {
@@ -777,7 +744,20 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                       <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file formats are txt, pdf, docx, epub, csv, pptx only</p>
                       <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
                   </div>
-                  <ResourceList files={input}/>
+                  <div className={styles.agent_resources}>
+                    {input.map((file, index) => (
+                      <div key={index} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                          <div><Image width={28} height={46} src={returnResourceIcon(file)} alt="pdf-icon" /></div>
+                          <div style={{ marginLeft: '5px', width:'100%' }}>
+                            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
+                            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+                          </div>
+                          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>}
               </div>
               <div style={{marginTop: '5px'}}>
