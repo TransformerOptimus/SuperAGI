@@ -163,7 +163,7 @@ def get_agent_execution_feed(agent_execution_id: int,
     # # parse json
     final_feeds = []
     for feed in feeds:
-        if feed.feed != "" and "current time and date" not in feed.feed:
+        if feed.feed != "":
             final_feeds.append(parse_feed(feed))
 
     # get all permissions
