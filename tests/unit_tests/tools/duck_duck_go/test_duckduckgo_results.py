@@ -1,5 +1,5 @@
 import unittest
-from superagi.tools.DuckDuckGoTool.duck_duck_go_search import DuckDuckGoSearchTool
+from superagi.tools.duck_duck_go.duck_duck_go_search import DuckDuckGoSearchTool
 
 class DuckDuckGoSearchToolTest(unittest.TestCase):
     def setUp(self):
@@ -17,7 +17,7 @@ class DuckDuckGoSearchToolTest(unittest.TestCase):
         result = self.your_obj.get_raw_duckduckgo_results(query)
         self.assertEqual(len(result), expected_result_length)
 
-    def test_get_results_array(self):
+    def test_get_formatted_webpages(self):
         search_results = [
             {"title": "Result 1", "href": "https://example.com/1"},
             {"title": "Result 2", "href": "https://example.com/2"},
@@ -31,7 +31,7 @@ class DuckDuckGoSearchToolTest(unittest.TestCase):
             {"title": "Result 3", "body": "Webpage 3", "links": "https://example.com/3"},
         ]
 
-        results = self.your_obj.get_results_array(search_results, webpages)
+        results = self.your_obj.get_formatted_webpages(search_results, webpages)
         self.assertEqual(results, expected_results)
 
     
@@ -42,7 +42,7 @@ class DuckDuckGoSearchToolTest(unittest.TestCase):
         webpages = self.your_obj.get_content_from_url(links)
         self.assertEqual(webpages, expected_webpages)
 
-    def test_get_results_array_empty(self):
+    def test_get_formatted_webpages_with_empty_webpages(self):
         search_results = [
             {"title": "Result 1", "href": "https://example.com/1"},
             {"title": "Result 2", "href": "https://example.com/2"},
@@ -51,7 +51,7 @@ class DuckDuckGoSearchToolTest(unittest.TestCase):
         webpages = []
         expected_results = []
 
-        results = self.your_obj.get_results_array(search_results, webpages)
+        results = self.your_obj.get_formatted_webpages(search_results, webpages)
         self.assertEqual(results, expected_results)
 
       

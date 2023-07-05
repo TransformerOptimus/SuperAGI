@@ -62,7 +62,7 @@ class DuckDuckGoSearchTool(BaseTool):
         
         webpages=self.get_content_from_url(links)
 
-        results=self.get_results_array(search_results,webpages)                             #array to store objects with keys :{"title":snippet , "body":webpage content, "links":link URL}
+        results=self.get_formatted_webpages(search_results,webpages)                        #array to store objects with keys :{"title":snippet , "body":webpage content, "links":link URL}
         
         summary = self.summarise_result(query, results)                                     #summarize the content gathered using the function
         links = [result["links"] for result in results if len(result["links"]) > 0]
@@ -73,9 +73,9 @@ class DuckDuckGoSearchTool(BaseTool):
         return summary
 
 
-    def get_results_array(self,search_results,webpages):
+    def get_formatted_webpages(self,search_results,webpages):
         """
-        Generate a results array which can be passed to the summarizer function (summarise_result).
+        Generate an array of formatted webpages which can be passed to the summarizer function (summarise_result).
 
         Args:
             search_results : The array of objects which were fetched by DuckDuckGo.

@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 from superagi.tools.base_tool import BaseTool, BaseToolkit
-from superagi.tools.DuckDuckGoTool.duck_duck_go_search import DuckDuckGoSearchTool
+from superagi.tools.duck_duck_go.duck_duck_go_search import DuckDuckGoSearchTool
 
 class DuckDuckGoToolkit(BaseToolkit, ABC):
     name: str = "DuckDuckGo Search Toolkit"
