@@ -173,7 +173,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     };
 
     const openToolkitTab = (eventData) => {
-      const toolkit = toolkits.find((toolkit) => toolkit.tools.some((tool) => tool.id === eventData.toolId));
+      const toolkit = toolkits?.find((toolkit) => toolkit.tools.some((tool) => tool.id === eventData.toolId));
       if(toolkit) {
         localStorage.setItem('toolkit_tab_' + String(toolkit.internalId), 'tools_included');
         addTab(toolkit);
@@ -269,7 +269,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           <div className={styles.tabs} ref={tabContainerRef}>
             {tabs.map((tab, index) => (
               <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {selectTab(tab, index)}}>
-                <div style={{display:'flex', order:'0'}}>
+                <div style={{display:'flex', order:'0',overflowX:'hidden'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
                   {(tab.contentType === 'Toolkits' || tab.contentType === 'Add_Toolkit') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
