@@ -50,7 +50,7 @@ class ListCalendarEventsTool(BaseTool):
         Session = sessionmaker(bind=engine)
         session = Session()
         toolkit_id = self.toolkit_config.toolkit_id
-        return GoogleCalendarCreds().get_credentials(toolkit_id)
+        return GoogleCalendarCreds(session).get_credentials(toolkit_id)
 
     def get_event_results(self, service, date_utc):
         return (
