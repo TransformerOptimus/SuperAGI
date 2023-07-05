@@ -22,7 +22,7 @@ class Event(DBBaseModel):
     id = Column(Integer, primary_key=True)
     event_name = Column(String, nullable=False)
     event_value = Column(Integer, nullable=False)
-    json_property = Column(JSONB, nullable=True)
+    json_property = Column(JSON, nullable=True)
     agent_id = Column(Integer, nullable=True)
     org_id = Column(Integer, nullable=True)
 
