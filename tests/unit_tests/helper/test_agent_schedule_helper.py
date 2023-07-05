@@ -97,4 +97,5 @@ def test_run_scheduled_agents(
         mock_agent, 
         mock_create_execution_name_for_scheduling.return_value
     )])
+    
     mock_create_execution_name_for_scheduling.assert_called_once_with(mock_agent.agent_id)
