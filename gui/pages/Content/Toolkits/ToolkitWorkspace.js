@@ -69,7 +69,6 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
 
     const handleAuthenticateClick = async (toolkitName) => {
       if(toolkitName === 'Google Calendar Toolkit') {
-        console.log("GOOGLE")
         authenticateGoogleCred(toolkitDetails.id)
           .then((response) => {
             getGoogleToken(response.data);
@@ -78,7 +77,6 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
             console.error('Error fetching data:', error);
           });
       } else if(toolkitName === 'Twitter Toolkit') {
-        console.log("TWITTER")
         authenticateTwitterCred(toolkitDetails.id)
           .then((response) => {
             localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
