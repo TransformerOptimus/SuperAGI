@@ -126,6 +126,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     } else if(contentType === 'Toolkits') {
       localStorage.removeItem('toolkit_tab_' + String(internalId));
       localStorage.removeItem('api_configs_' + String(internalId));
+    } else if(contentType === 'Knowledge') {
+      localStorage.removeItem('knowledge_name_' + String(internalId));
+      localStorage.removeItem('knowledge_description_' + String(internalId));
+      localStorage.removeItem('knowledge_index_' + String(internalId));
     }
 
     setTabs(updatedTabs);
