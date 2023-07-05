@@ -93,7 +93,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                                      agent_execution_configs=agent_execution_configs)
 
 
-    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'run_id': db_agent_execution.id,'name':db_agent_execution.name},
+    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
                                  agent_execution.agent_id, 0)
 
     if db_agent_execution.status == "RUNNING":

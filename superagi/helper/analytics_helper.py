@@ -55,7 +55,7 @@ class AnalyticsHelper:
     def fetch_agent_data(self) -> Dict[str, List[Dict[str, int]]]:
         agent_subquery = self.session.query(
             Event.agent_id,
-            Event.json_property['name'].label('name'),
+            Event.json_property['agent_name'].label('agent_name'),
             Event.json_property['model'].label('model')
         ).filter_by(event_name="agent_created").subquery()
 
@@ -68,21 +68,21 @@ class AnalyticsHelper:
 
         query = self.session.query(
             agent_subquery.c.agent_id,
-            agent_subquery.c.name,
+            agent_subquery.c.agent_name,
             agent_subquery.c.model,
             run_subquery.c.total_tokens,
             run_subquery.c.total_calls,
             run_subquery.c.runs_completed
-        ).join(run_subquery, run_subquery.c.agent_id == agent_subquery.c.agent_id)
+        ).outerjoin(run_subquery, run_subquery.c.agent_id == agent_subquery.c.agent_id)
 
         result = query.all()
 
         agent_details = [{
-            "name": row.name,
+            "name": row.agent_name,
             "agent_id": row.agent_id,
-            "runs_completed": row.runs_completed or 0,
-            "total_calls": row.total_calls or 0,
-            "total_tokens": row.total_tokens or 0,
+            "runs_completed": row.runs_completed if row.runs_completed else 0,
+            "total_calls": row.total_calls if row.total_calls else 0,
+            "total_tokens": row.total_tokens if row.total_tokens else 0,
         } for row in result]
 
         models_used = self.session.query(
@@ -97,30 +97,30 @@ class AnalyticsHelper:
     def fetch_agent_runs(self, agent_id: int) -> List[Dict[str, int]]:
         agent_runs = []
         completed_subquery = self.session.query(
-            Event.json_property['run_id'].label('completed_run_id'),
+            Event.json_property['agent_execution_id'].label('completed_agent_execution_id'),
             Event.json_property['tokens_consumed'].label('tokens_consumed'),
             Event.json_property['calls'].label('calls'),
             Event.updated_at
         ).filter_by(event_name="run_completed", agent_id=agent_id).subquery()
 
         created_subquery = self.session.query(
-            Event.json_property['run_id'].label('created_run_id'),
-            Event.json_property['name'].label('name'),
+            Event.json_property['agent_execution_id'].label('created_agent_execution_id'),
+            Event.json_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at
         ).filter_by(event_name="run_created", agent_id=agent_id).subquery()
 
         query = self.session.query(
-            created_subquery.c.name,
+            created_subquery.c.agent_execution_name,
             completed_subquery.c.tokens_consumed,
             completed_subquery.c.calls,
             created_subquery.c.created_at,
             completed_subquery.c.updated_at
-        ).join(completed_subquery, completed_subquery.c.completed_run_id == created_subquery.c.created_run_id)
+        ).join(completed_subquery, completed_subquery.c.completed_agent_execution_id == created_subquery.c.created_agent_execution_id)
 
         result = query.all()
 
         agent_runs = [{
-            'name': row.name,
+            'name': row.agent_execution_name,
             'tokens_consumed': int(row.tokens_consumed) if row.tokens_consumed else 0,
             'calls': int(row.calls) if row.calls else 0,
             'created_at': row.created_at,
@@ -133,35 +133,35 @@ class AnalyticsHelper:
     def get_active_runs(self) -> List[Dict[str, str]]:
         running_executions = []
         completed_subquery = self.session.query(
-            Event.json_property['run_id'].label('run_id'),
+            Event.json_property['agent_execution_id'].label('agent_execution_id'),
         ).filter_by(event_name="run_completed").subquery()
 
         start_subquery = self.session.query(
-            Event.json_property['run_id'].label('run_id'),
-            Event.json_property['name'].label('name'),
+            Event.json_property['agent_execution_id'].label('agent_execution_id'),
+            Event.json_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at,
             Event.agent_id
         ).filter_by(event_name="run_created").subquery()
 
         agent_created_subquery = self.session.query(
-            Event.json_property['name'].label('agent_name'),
+            Event.json_property['agent_name'].label('agent_name'),
             Event.agent_id
         ).filter_by(event_name="agent_created").subquery()
 
         query = self.session.query(
-            start_subquery.c.name,
+            start_subquery.c.agent_execution_name,
             start_subquery.c.created_at,
             agent_created_subquery.c.agent_name
         ).select_from(start_subquery)
 
-        query = query.outerjoin(completed_subquery, start_subquery.c.run_id == completed_subquery.c.run_id).filter(completed_subquery.c.run_id == None)
+        query = query.outerjoin(completed_subquery, start_subquery.c.agent_execution_id == completed_subquery.c.agent_execution_id).filter(completed_subquery.c.agent_execution_id == None)
 
         query = query.join(agent_created_subquery, start_subquery.c.agent_id == agent_created_subquery.c.agent_id)
 
         result = query.all()
 
         running_executions = [{
-            'name': row.name,
+            'name': row.agent_execution_name,
             'created_at': row.created_at,
             'agent_name': row.agent_name or 'Unknown',
         } for row in result]

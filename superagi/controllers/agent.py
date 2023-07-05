@@ -185,9 +185,6 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
-    agent_id = db_agent.id
-    agent_name = db_agent.name
-
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
@@ -203,17 +200,17 @@ def create_agent_with_config(agent_with_config: AgentWithConfig,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
-    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'run_id': execution.id,'name':execution.name}, agent_id, 0),
-    AnalyticsHelper(session=db.session).create_event('agent_created', 1, {'name': agent_with_config.name, 'model': agent_with_config.model}, agent_id, 0)
+    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'agent_execution_id': execution.id,'agent_execution_name':execution.name}, db_agent.id, 0),
+    AnalyticsHelper(session=db.session).create_event('agent_created', 1, {'agent_name': agent_with_config.name, 'model': agent_with_config.model}, db_agent.id, 0)
 
     # execute_agent.delay(execution.id, datetime.now())
 
     db.session.commit()
 
     return {
-        "id": agent_id,
+        "id": db_agent.id,
         "execution_id": execution.id,
-        "name": agent_name,
+        "name": db_agent.name,
         "contentType": "Agents"
     }
 
