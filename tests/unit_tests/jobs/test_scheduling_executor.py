@@ -28,8 +28,12 @@ def test_execute_scheduled_agent(AgentExecutionMock, AgentWorkflowMock, AgentMoc
     type(db_agent_execution_mock).id = PropertyMock(return_value=123)
     AgentExecutionMock.return_value = db_agent_execution_mock
 
+    # Create a ScheduledAgentExecutor object and then call execute_scheduled_agent
+    executor = ScheduledAgentExecutor()
+    
     # Act
-    ScheduledAgentExecutor.execute_scheduled_agent(agent_id, name)
+    executor.execute_scheduled_agent(agent_id, name)
+
 
     # Assert
     assert session_mock.query.called
