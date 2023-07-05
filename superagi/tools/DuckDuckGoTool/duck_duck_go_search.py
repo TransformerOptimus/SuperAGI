@@ -123,7 +123,14 @@ class DuckDuckGoSearchTool(BaseTool):
         return webpages
 
     def get_raw_duckduckgo_results(self,query):
+        """
+        Gets raw search results from the duckduckgosearch python package
+        Args:
+            query : The query to search for.
 
+        Returns:
+            Returns raw search results from the duckduckgosearch python package
+        """
         search_results = []
         attempts = 0
 
