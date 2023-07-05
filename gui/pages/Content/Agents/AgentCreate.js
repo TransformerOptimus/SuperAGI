@@ -450,13 +450,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "max_iterations": maxIterations,
       "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
-      "memory_window": rollingWindow
+      "memory_window": rollingWindow,
+      "user_timezone": getUserTimezone(),
     };
 
     const scheduleAgentData = {
-      "agent": agentData,
+      "agent_config": agentData,
       "schedule":{
-        "user_timezone": getUserTimezone(),
         "start_time": startTime,	
         "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
         "expiry_date": expiryDate,	
@@ -1020,8 +1020,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                         </div>
                         <div>
                           {expiryDropdown && <div className="custom_select_options" ref={expiryRef}>
-                            {expiryTypeArray.map((expiry, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                              {expiry}
+                            {expiryTypeArray.map((expiryType, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                              {expiryType}
                             </div>))}
                           </div>}
                         </div>
