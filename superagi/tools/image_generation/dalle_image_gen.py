@@ -4,7 +4,7 @@ import requests
 from pydantic import BaseModel, Field
 
 from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 class DalleImageGenInput(BaseModel):
@@ -31,7 +31,7 @@ class DalleImageGenTool(BaseTool):
     description: str = "Generate Images using Dalle"
     llm: Optional[BaseLlm] = None
     agent_id: int = None
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
 
     class Config:
         arbitrary_types_allowed = True

@@ -47,5 +47,5 @@ def test_download_and_extract_tools(mock_load_tools_config, mock_download_tool):
     download_and_extract_tools()
 
     mock_load_tools_config.assert_called_once()
-    mock_download_tool.assert_any_call('url1', 'tools/tool1')
-    mock_download_tool.assert_any_call('url2', 'tools/tool2')
+    mock_download_tool.assert_any_call('url1', os.path.join('superagi', 'tools', 'tool1'))
+    mock_download_tool.assert_any_call('url2', os.path.join('superagi', 'tools', 'tool2'))

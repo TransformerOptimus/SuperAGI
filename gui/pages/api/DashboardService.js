@@ -44,6 +44,10 @@ export const createAgent = (agentData) => {
   return api.post(`/agents/create`, agentData);
 };
 
+export const addTool = (toolData) => {
+  return api.post(`/toolkits/get/local/install`, toolData);
+};
+
 export const updateAgents = (agentData) => {
   return api.put(`/agentconfigs/update/`, agentData);
 };
@@ -128,6 +132,14 @@ export const authenticateGoogleCred = (toolKitId) => {
   return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
 }
 
+export const authenticateTwitterCred = (toolKitId) => {
+  return api.get(`/twitter/get_twitter_creds/toolkit_id/${toolKitId}`);
+}
+
+export const sendTwitterCreds = (twitter_creds) => {
+  return api.post(`/twitter/send_twitter_creds/${twitter_creds}`);
+}
+
 export const fetchToolTemplateList = () => {
   return api.get(`/toolkits/get/list?page=0`);
 }
@@ -135,6 +147,11 @@ export const fetchToolTemplateList = () => {
 export const fetchToolTemplateOverview = (toolTemplateName) => {
   return api.get(`/toolkits/marketplace/readme/${toolTemplateName}`);
 }
+
 export const installToolkitTemplate = (templateName) => {
   return api.get(`/toolkits/get/install/${templateName}`);
+}
+
+export const getExecutionDetails = (executionId) => {
+  return api.get(`/agent_executions_configs/details/${executionId}`);
 }

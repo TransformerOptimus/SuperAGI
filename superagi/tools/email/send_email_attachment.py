@@ -9,6 +9,7 @@ from typing import Type
 from pydantic import BaseModel, Field
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
+from superagi.helper.resource_helper import ResourceHelper
 
 
 class SendEmailAttachmentInput(BaseModel):
@@ -30,7 +31,8 @@ class SendEmailAttachmentTool(BaseTool):
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
-
+    agent_id: int  = None
+    
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
         """
         Execute the send email tool with attachment.
@@ -44,21 +46,13 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             success or failure message
         """
-        input_root_dir = self.get_tool_config('RESOURCES_INPUT_ROOT_DIR')
-        output_root_dir = self.get_tool_config('RESOURCES_OUTPUT_ROOT_DIR')
-        final_path = None
-
-        if input_root_dir is not None:
-            input_root_dir = input_root_dir if input_root_dir.startswith("/") else os.getcwd() + "/" + input_root_dir
-            input_root_dir = input_root_dir if input_root_dir.endswith("/") else input_root_dir + "/"
-            final_path = input_root_dir + filename
+        final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id)
 
         if final_path is None or not os.path.exists(final_path):
-            if output_root_dir is not None:
-                output_root_dir = output_root_dir if output_root_dir.startswith(
-                    "/") else os.getcwd() + "/" + output_root_dir
-                output_root_dir = output_root_dir if output_root_dir.endswith("/") else output_root_dir + "/"
-                final_path = output_root_dir + filename
+            final_path = ResourceHelper.get_root_input_dir() + filename
+
+        if final_path is None or not os.path.exists(final_path):
+            raise FileNotFoundError(f"File '{filename}' not found.")
         attachment = os.path.basename(final_path)
         return self.send_email_with_attachment(to, subject, body, final_path, attachment)
 

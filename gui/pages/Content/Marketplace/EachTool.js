@@ -13,36 +13,59 @@ import axios from 'axios';
 export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
     const [installed, setInstalled] = useState('')
-    const [markdownContent, setMarkdownContent] = useState(null);
+    const [markdownContent, setMarkdownContent] = useState('');
+    const toolkitData = [
+        { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
+        { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
+        { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
+        { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
+        { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
+        { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
+        { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
+        { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
+        { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
+        { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
+        { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
+    ];
+
+    const getImageSource = (name) => {
+        for (let i = 0; i < toolkitData.length; i++) {
+            if (toolkitData[i].name === name) {
+                return toolkitData[i].imageSrc;
+            }
+        }
+        return '/images/app-logo-light.png';
+    };
 
     useEffect(() => {
         setInstalled(template && template.is_installed ? 'Installed' : 'Install');
         if (window.location.href.toLowerCase().includes('marketplace')) {
             setInstalled('Sign in to install');
-            axios.get(`https://app.superagi.com/api/toolkits/marketplace/details/${template.name}`)
+            axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${template.name}`)
               .then((response) => {
-                  const data = response.data || [];
-                  setMarkdownContent(data);
+                  setMarkdownContent(response.data || '');
+                  setRightPanel(response.data ? 'overview' : 'tool_view');
               })
               .catch((error) => {
+                  setRightPanel('tool_view');
                   console.error('Error fetching template details:', error);
               });
         } else {
             fetchToolTemplateOverview(template.name)
               .then((response) => {
-                  const data = response.data || [];
-                  setMarkdownContent(data);
+                  setMarkdownContent(response.data || '');
+                  setRightPanel(response.data ? 'overview' : 'tool_view');
               })
               .catch((error) => {
+                  setRightPanel('tool_view');
                   console.error('Error fetching template details:', error);
               });
         }
-
     }, []);
-
 
     function handleInstallClick() {
         if (window.location.href.toLowerCase().includes('marketplace')) {
+            localStorage.setItem('toolkit_to_install', template.name);
             if (env === 'PROD') {
                 window.open(`https://app.superagi.com/`, '_self');
             } else {
@@ -57,13 +80,13 @@ export default function EachTool({template, env}) {
         }
 
         installToolkitTemplate(template.name)
-            .then((response) => {
-                toast.success("Template installed", {autoClose: 1800});
-                setInstalled('Installed');
-            })
-            .catch((error) => {
-                console.error('Error fetching template details:', error);
-            });
+          .then((response) => {
+              toast.success("Template installed", {autoClose: 1800});
+              setInstalled('Installed');
+          })
+          .catch((error) => {
+              console.error('Error installing template:', error);
+          });
     }
 
     function handleBackClick() {
@@ -83,7 +106,7 @@ export default function EachTool({template, env}) {
                         <div className={styles2.left_container}>
                             <div style={{marginBottom: '15px'}}>
                                 <Image style={{borderRadius: '25px', background: 'black'}} width={50} height={50}
-                                       src="/images/app-logo-light.png" alt="tool-icon"/>
+                                       src={getImageSource(template.name)} alt="tool-icon"/>
                             </div>
                             <span className={styles2.top_heading}>{template.name}</span>
                             <span style={{fontSize: '12px', marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image
@@ -113,13 +136,13 @@ export default function EachTool({template, env}) {
                             <div className={styles2.left_container} style={{marginBottom: '5px', padding: '8px'}}>
                                 <div className="row">
                                     <div className="col-4">
-                                        <button onClick={() => setRightPanel('overview')} className={styles2.tab_button}
+                                        {markdownContent && markdownContent !== '' && <button onClick={() => setRightPanel('overview')} className={styles2.tab_button}
                                                 style={rightPanel === 'overview' ? {
                                                     background: '#454254',
                                                     paddingRight: '15px'
                                                 } : {background: 'transparent', paddingRight: '15px'}}>
                                             &nbsp;Overview
-                                        </button>
+                                        </button>}
                                         <button onClick={() => setRightPanel('tool_view')}
                                                 className={styles2.tab_button} style={rightPanel === 'tool_view' ? {
                                             background: '#454254',
@@ -133,7 +156,7 @@ export default function EachTool({template, env}) {
                             {rightPanel === 'overview' &&
                                 <div className={styles2.left_container} style={{marginBottom: '8px'}}>
                                     <div className={styles2.markdown_container}>
-                                        {markdownContent ? <ReactMarkdown
+                                        {markdownContent && markdownContent !== '' ? <ReactMarkdown
                                                 className={styles2.markdown_style}>{markdownContent}</ReactMarkdown> :
                                            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
                                                <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
@@ -141,13 +164,6 @@ export default function EachTool({template, env}) {
                                            </div>
                                         }
                                     </div>
-                                    {/*<div>*/}
-                                    {/*    <span className={styles2.description_heading} style={{fontWeight: '400'}}>{goals.length}&nbsp;Goals</span><br/><br/>*/}
-                                    {/*    {goals.map((goal, index) => (<div key={index} style={{marginTop: '0'}}>*/}
-                                    {/*        <div className={styles2.description_text}>{index + 1}. {goal || ''}</div>*/}
-                                    {/*        {index !== goals.length - 1}*/}
-                                    {/*    </div>))}*/}
-                                    {/*</div>*/}
                                 </div>}
                             {rightPanel === 'tool_view' && <div>
                                 <div style={{overflowY: 'scroll', height: '70vh'}}>

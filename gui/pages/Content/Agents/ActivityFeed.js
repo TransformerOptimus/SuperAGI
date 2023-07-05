@@ -5,7 +5,7 @@ import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData }) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal }) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -18,7 +18,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   useEffect(() => {
     const interval = window.setInterval(function(){
-      fetchFeeds();
+        fetchFeeds();
     }, 10000);
 
     return () => clearInterval(interval);
@@ -60,6 +60,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           setFeeds(data.feeds);
           setRunStatus(data.status);
           setFetchedData(data.permissions);
+          EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
         })
         .catch((error) => {
           console.error('Error fetching execution feeds:', error);
