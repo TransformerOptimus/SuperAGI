@@ -192,13 +192,13 @@ export default function AgentWorkspace({agentId, selectedView}) {
       "expiry_date": editExpiryDate,
     };
   
-    axios.post(apiUrl, requestData)
+    axios.put(apiUrl, requestData)
       .then((response) => {
         if (response.status === 200) {
-          toast.error('Schedule updated successfully');
+          toast.success('Schedule updated successfully');
           setCreateEditModal(false);
         } else {
-          toast.success('Error updating agent schedule');
+          toast.error('Error updating agent schedule');
         }
       })
       .catch((error) => {
