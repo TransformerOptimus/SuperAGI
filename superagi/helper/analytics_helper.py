@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.query import Query
 from superagi.models.events import Event
 from sqlalchemy.exc import SQLAlchemyError
-from datetime import datetime
+from sqlalchemy import text, func
 import logging
-
 
 class AnalyticsHelper:
 
@@ -13,109 +12,191 @@ class AnalyticsHelper:
         self.session = session
 
     def _run_query(self, query: Query) -> Iterator:
-        try:
+         try:
             return iter(query.yield_per(100).all())
-        except SQLAlchemyError as e:
-            logging.error(f"Database error: {str(e)}")
+         except SQLAlchemyError as err:
+            logging.error(f"Database error: {str(err)}")
             return iter([])
 
     def create_event(self, event_name: str, event_value: int, json_property: dict, agent_id: int, org_id: int) -> Optional[Event]:
-        event = Event(
-            event_name=event_name,
-            event_value=event_value,
-            json_property=json_property,
-            agent_id=agent_id,
-            org_id=org_id,
-        )
-        self.session.add(event)
-        self.session.commit()
-        return event
+        try:
+            event = Event(
+                event_name=event_name,
+                event_value=event_value,
+                json_property=json_property,
+                agent_id=agent_id,
+                org_id=org_id,
+            )
+            self.session.add(event)
+            self.session.commit()
+            return event
+        except SQLAlchemyError as err:
+            logging.error(f"Error while creating event: {str(err)}")
+            return None
 
     def calculate_run_completed_metrics(self) -> Dict[str, int]:
-        query_result = self._run_query(self.session.query(Event).filter_by(event_name="run_completed"))
+        metrics = {'total_tokens': 0, 'total_calls': 0, 'runs_completed': 0}
+        subquery = self.session.query(Event).filter_by(event_name="run_completed").subquery()
+        query = self.session.query(
+            func.sum(text("(json_property->>'tokens_consumed')::int")).label('total_tokens'),
+            func.sum(text("(json_property->>'calls')::int")).label('total_calls'),
+            func.count(subquery.c.id).label('runs_completed'),
+        )
+        result = query.one()
 
-        result = {'total_tokens': 0, 'total_calls': 0, 'runs_completed': 0}
-        for res in query_result:
-            result['total_tokens'] += res.json_property.get('tokens_consumed', 0)
-            result['total_calls'] += res.json_property.get('calls', 0)
-            result['runs_completed'] += 1
+        metrics.update({
+            'total_tokens': result.total_tokens or 0,
+            'total_calls': result.total_calls or 0,
+            'runs_completed': result.runs_completed
+        })
 
-        return result
+        return metrics
 
     def fetch_agent_data(self) -> Dict[str, List[Dict[str, int]]]:
-        agent_created_events = self._run_query(self.session.query(Event).filter_by(event_name="agent_created"))
-        run_completed_events = self._run_query(self.session.query(Event).filter_by(event_name="run_completed"))
+        agent_subquery = self.session.query(
+            Event.agent_id,
+            Event.json_property['name'].label('name'),
+            Event.json_property['model'].label('model')
+        ).filter_by(event_name="agent_created").subquery()
 
-        agent_details_dict, models_used_dict = {}, {}
-        for event in agent_created_events:
-            agent_id = event.agent_id
-            agent_details_dict[agent_id] = {
-                "name": event.json_property['name'],
-                "agent_id": agent_id,
-                "runs_completed": 0,
-                "total_calls": 0,
-                "total_tokens": 0
-            }
+        run_subquery = self.session.query(
+            Event.agent_id,
+            func.sum(text("(json_property->>'tokens_consumed')::int")).label('total_tokens'),
+            func.sum(text("(json_property->>'calls')::int")).label('total_calls'),
+            func.count(Event.id).label('runs_completed'),
+        ).filter_by(event_name="run_completed").group_by(Event.agent_id).subquery()
 
-            model = event.json_property.get('model', 'Unknown')
-            models_used_dict[model] = models_used_dict.get(model, 0) + 1
+        query = self.session.query(
+            agent_subquery.c.agent_id,
+            agent_subquery.c.name,
+            agent_subquery.c.model,
+            run_subquery.c.total_tokens,
+            run_subquery.c.total_calls,
+            run_subquery.c.runs_completed
+        ).join(run_subquery, run_subquery.c.agent_id == agent_subquery.c.agent_id)
 
-        for event in run_completed_events:
-            agent_id = event.agent_id
-            if agent_id in agent_details_dict:
-                agent_details_dict[agent_id]['runs_completed'] += 1
-                agent_details_dict[agent_id]['total_tokens'] += event.json_property.get('tokens_consumed', 0)
-                agent_details_dict[agent_id]['total_calls'] += event.json_property.get('calls', 0)
+        result = query.all()
 
-        agent_details = list(agent_details_dict.values())
-        models_used = [{"model": model, "agents": count} for model, count in models_used_dict.items()]
+        agent_details = [{
+            "name": row.name,
+            "agent_id": row.agent_id,
+            "runs_completed": row.runs_completed or 0,
+            "total_calls": row.total_calls or 0,
+            "total_tokens": row.total_tokens or 0,
+        } for row in result]
 
-        return {'agent_details': agent_details, 'model_info': models_used}
+        models_used = self.session.query(
+            agent_subquery.c.model,
+            func.count(agent_subquery.c.agent_id).label('agents')
+        ).group_by(agent_subquery.c.model).all()
+
+        model_info = [{"model": row.model, "agents": row.agents} for row in models_used]
+
+        return {'agent_details': agent_details, 'model_info': model_info}
 
     def fetch_agent_runs(self, agent_id: int) -> List[Dict[str, int]]:
-        query_result_completed = self._run_query(self.session.query(Event).filter_by(event_name="run_completed", agent_id=agent_id))
-        query_result_created = self._run_query(self.session.query(Event).filter_by(event_name="run_created", agent_id=agent_id))
-
-        created_dict = {run.json_property['run_id']: run.created_at for run in query_result_created}
-
         agent_runs = []
-        for run in query_result_completed:
-            run_id = run.json_property['run_id']
-            created_at = created_dict.get(run_id)
+        completed_subquery = self.session.query(
+            Event.json_property['run_id'].label('completed_run_id'),
+            Event.json_property['tokens_consumed'].label('tokens_consumed'),
+            Event.json_property['calls'].label('calls'),
+            Event.updated_at
+        ).filter_by(event_name="run_completed", agent_id=agent_id).subquery()
 
-            if created_at is not None:
-                agent_runs.append({'name': run.json_property['name'],
-                                    'tokens_consumed': run.json_property['tokens_consumed'],
-                                    'calls': run.json_property['calls'],
-                                    'created_at': created_at,
-                                    'updated_at': run.updated_at})
+        created_subquery = self.session.query(
+            Event.json_property['run_id'].label('created_run_id'),
+            Event.json_property['name'].label('name'),
+            Event.created_at
+        ).filter_by(event_name="run_created", agent_id=agent_id).subquery()
+
+        query = self.session.query(
+            created_subquery.c.name,
+            completed_subquery.c.tokens_consumed,
+            completed_subquery.c.calls,
+            created_subquery.c.created_at,
+            completed_subquery.c.updated_at
+        ).join(completed_subquery, completed_subquery.c.completed_run_id == created_subquery.c.created_run_id)
+
+        result = query.all()
+
+        agent_runs = [{
+            'name': row.name,
+            'tokens_consumed': int(row.tokens_consumed) if row.tokens_consumed else 0,
+            'calls': int(row.calls) if row.calls else 0,
+            'created_at': row.created_at,
+            'updated_at': row.updated_at
+        } for row in result]
 
         return agent_runs
 
-    def get_active_runs(self) -> List[Dict[str, str]]:
-        start_events = self._run_query(self.session.query(Event).filter_by(event_name="run_created"))
-        completed_events = self._run_query(self.session.query(Event).filter_by(event_name="run_completed"))
-        completed_run_ids = [event.json_property['run_id'] for event in completed_events]
 
+    def get_active_runs(self) -> List[Dict[str, str]]:
         running_executions = []
-        for event in start_events:
-            if event.json_property['run_id'] not in completed_run_ids:
-                agent_event = next(self._run_query(self.session.query(Event).filter_by(agent_id=event.agent_id, event_name="agent_created")), None)
-                agent_name = agent_event.json_property['name'] if agent_event else 'Unknown'
-                running_executions.append({'name': event.json_property['name'],'created_at': event.created_at, 'agent_name': agent_name})
+        completed_subquery = self.session.query(
+            Event.json_property['run_id'].label('run_id'),
+        ).filter_by(event_name="run_completed").subquery()
+
+        start_subquery = self.session.query(
+            Event.json_property['run_id'].label('run_id'),
+            Event.json_property['name'].label('name'),
+            Event.created_at,
+            Event.agent_id
+        ).filter_by(event_name="run_created").subquery()
+
+        agent_created_subquery = self.session.query(
+            Event.json_property['name'].label('agent_name'),
+            Event.agent_id
+        ).filter_by(event_name="agent_created").subquery()
+
+        query = self.session.query(
+            start_subquery.c.name,
+            start_subquery.c.created_at,
+            agent_created_subquery.c.agent_name
+        ).select_from(start_subquery)
+
+        query = query.outerjoin(completed_subquery, start_subquery.c.run_id == completed_subquery.c.run_id).filter(completed_subquery.c.run_id == None)
+
+        query = query.join(agent_created_subquery, start_subquery.c.agent_id == agent_created_subquery.c.agent_id)
+
+        result = query.all()
+
+        running_executions = [{
+            'name': row.name,
+            'created_at': row.created_at,
+            'agent_name': row.agent_name or 'Unknown',
+        } for row in result]
 
         return running_executions
 
     def calculate_tool_usage(self) -> List[Dict[str, int]]:
-        tool_used_events = self._run_query(self.session.query(Event).filter_by(event_name="tool_used"))
-        tool_usage_dict = {}
+        tool_usage = []
+        tool_used_subquery = self.session.query(
+            Event.json_property['tool_name'].label('tool_name'),
+            Event.agent_id
+        ).filter_by(event_name="tool_used").subquery()
 
-        for event in tool_used_events:
-            tool_name = event.json_property['tool_name']
-            if tool_name not in tool_usage_dict:
-                tool_usage_dict[tool_name] = {"unique_agents": set(), "total_usage": 0}
+        agent_count = self.session.query(
+            tool_used_subquery.c.tool_name,
+            func.count(func.distinct(tool_used_subquery.c.agent_id)).label('unique_agents')
+        ).group_by(tool_used_subquery.c.tool_name).subquery()
 
-            tool_usage_dict[tool_name]["unique_agents"].add(event.agent_id)
-            tool_usage_dict[tool_name]["total_usage"] += 1
+        total_usage = self.session.query(
+            tool_used_subquery.c.tool_name,
+            func.count(tool_used_subquery.c.tool_name).label('total_usage')
+        ).group_by(tool_used_subquery.c.tool_name).subquery()
 
-        return [{'tool_name': tool_name, 'unique_agents': len(tool_data["unique_agents"]), 'total_usage': tool_data["total_usage"]} for tool_name, tool_data in tool_usage_dict.items()]
+        query = self.session.query(
+            agent_count.c.tool_name,
+            agent_count.c.unique_agents,
+            total_usage.c.total_usage
+        ).join(total_usage, total_usage.c.tool_name == agent_count.c.tool_name)
+
+        result = query.all()
+
+        tool_usage = [{
+            'tool_name': row.tool_name,
+            'unique_agents': row.unique_agents,
+            'total_usage': row.total_usage
+        } for row in result]
+
+        return tool_usage

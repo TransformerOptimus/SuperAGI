@@ -18,6 +18,7 @@ def get_metrics(Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).calculate_run_completed_metrics()
     except Exception as e:
+        logging.error(f"Error while calculating metrics: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -26,6 +27,7 @@ def get_agents(Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).fetch_agent_data()
     except Exception as e:
+        logging.error(f"Error while fetching agent data: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -34,7 +36,8 @@ def get_agent_runs(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).fetch_agent_runs(agent_id)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Error while fetching agent runs: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.get("/runs/active", status_code=200)
@@ -42,7 +45,8 @@ def get_active_runs(Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).get_active_runs()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Error while getting active runs: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.get("/tools/used", status_code=200)
@@ -50,4 +54,5 @@ def get_tools_used(Authorize: AuthJWT = Depends(check_auth)):
     try:
         return AnalyticsHelper(session=db.session).calculate_tool_usage()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Error while calculating tool usage: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
