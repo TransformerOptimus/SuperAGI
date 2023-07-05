@@ -5,8 +5,8 @@ from superagi.tools.webscaper.tools import WebScraperTool
 
 
 class WebScrapperToolkit(BaseToolkit, ABC):
-    name: str = "Web Scrapper Toolkit"
-    description: str = "Web Scrapper tool kit is used to scrape web"
+    name: str = "Web Scraper Toolkit"
+    description: str = "Web Scraper toolkit is used to scrape the web"
 
     def get_tools(self) -> List[BaseTool]:
         return [
