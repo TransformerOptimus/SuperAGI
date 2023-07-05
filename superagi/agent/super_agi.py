@@ -134,7 +134,7 @@ class SuperAgi:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
-#             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
+            messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self.split_history(full_message_history,
