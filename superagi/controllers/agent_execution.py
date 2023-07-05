@@ -5,15 +5,19 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
+from pydantic.fields import List
 
 from superagi.helper.time_helper import get_time_difference
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.agent_schedule import AgentSchedule
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
 from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 
 router = APIRouter()
@@ -45,6 +49,8 @@ class AgentExecutionIn(BaseModel):
     num_of_tokens: Optional[int]
     current_step_id: Optional[int]
     permission_id: Optional[int]
+    goal: Optional[List[str]]
+    instruction: Optional[List[str]]
 
     class Config:
         orm_mode = True
@@ -75,12 +81,82 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_step_id=start_step_id)
+    agent_execution_configs = {
+        "goal": agent_execution.goal,
+        "instruction": agent_execution.instruction
+    }
     db.session.add(db_agent_execution)
     db.session.commit()
+    db.session.flush()
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
+                                                                     agent_execution_configs=agent_execution_configs)
+
     if db_agent_execution.status == "RUNNING":
         execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
+
+
+@router.post("/schedule", status_code=201)
+def schedule_existing_agent(agent_schedule: AgentScheduleInput,
+                            Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Schedules an already existing agent.
+
+    Args:
+        agent_schedule (AgentScheduleInput): Data for creating a scheduling for an existing agent.
+            agent_id (Integer): The ID of the agent being scheduled.
+            start_time (DateTime): The date and time from which the agent is scheduled.
+            recurrence_interval (String): Stores "none" if not recurring, 
+            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
+            expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
+            expiry_runs (Integer): The number of runs before the agent expires.
+
+    Returns:
+        Schedule ID: Unique Schedule ID of the Agent.
+
+    Raises:
+        HTTPException (Status Code=500): If the agent fails to get scheduled.
+    """
+
+    # Check if the agent is already scheduled
+    scheduled_agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_schedule.agent_id,
+                                                             AgentSchedule.status == "SCHEDULED").first()
+
+    if scheduled_agent:
+        # Update the old record with new data
+        scheduled_agent.start_time = agent_schedule.start_time
+        scheduled_agent.next_scheduled_time = agent_schedule.start_time
+        scheduled_agent.recurrence_interval = agent_schedule.recurrence_interval
+        scheduled_agent.expiry_date = agent_schedule.expiry_date
+        scheduled_agent.expiry_runs = agent_schedule.expiry_runs
+
+        db.session.commit()
+    else:                      
+        # Schedule the agent
+        scheduled_agent = AgentSchedule(
+            agent_id=agent_schedule.agent_id,
+            start_time=agent_schedule.start_time,
+            next_scheduled_time=agent_schedule.start_time,
+            recurrence_interval=agent_schedule.recurrence_interval,
+            expiry_date=agent_schedule.expiry_date,
+            expiry_runs=agent_schedule.expiry_runs,
+            current_runs=0,
+            status="SCHEDULED"
+        )
+
+    db.session.add(scheduled_agent)
+    db.session.commit()
+
+    schedule_id = scheduled_agent.id
+
+    if schedule_id is None:
+        raise HTTPException(status_code=500, detail="Failed to schedule agent")
+        
+    return {
+        "schedule_id": schedule_id
+    }
 
 
 @router.get("/get/{agent_execution_id}", response_model=AgentExecutionOut)

@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Type
 
 import openai
@@ -14,11 +15,13 @@ from superagi.tools.base_tool import BaseTool
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.chromadb import ChromaDB
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
+from typing import Optional
+from superagi.llms.base_llm import BaseLlm
 
 
 class QueryResource(BaseModel):
     """Input for QueryResource tool."""
-    query: str = Field(..., description="Description of the information to be queried")
+    query: str = Field(..., description="the search query to search resources")
 
 
 class QueryResourceTool(BaseTool):
@@ -30,14 +33,18 @@ class QueryResourceTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Query Resource"
+    name: str = "QueryResource"
     args_schema: Type[BaseModel] = QueryResource
-    description: str = "Has the ability to get information from a resource"
+    description: str = "Tool searches resources content and extracts relevant information to perform the given task." \
+                       "Tool is given preference over other search/read file tools for relevant data." \
+                       "Resources content includes: {summary}"
     agent_id: int = None
+    llm: Optional[BaseLlm] = None
 
     def _execute(self, query: str):
-        openai.api_key = get_config("OPENAI_API_KEY")
-        llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
+        openai.api_key = getattr(self.llm, 'api_key')
+        os.environ["OPENAI_API_KEY"] = getattr(self.llm, 'api_key')
+        llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name=self.llm.get_model(),
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
         vector_store_name = VectorStoreType.get_vector_store_type(

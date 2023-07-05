@@ -61,17 +61,18 @@ class ResourceManager:
         os.remove(file_path)
         return documents
 
-    def save_document_to_vector_store(self, documents: list, resource_id: str):
+    def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None):
         """
         Saves a document to the vector store.
 
         :param documents: The documents to save to the vector store.
         :param resource_id: The resource id to use when saving the documents to the vector store.
+        :param mode_api_key: The mode api key to use when creating embedding to the vector store.
         """
         from llama_index import VectorStoreIndex, StorageContext
         import openai
-        openai.api_key = get_config("OPENAI_API_KEY")
-        os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "")
+        openai.api_key = get_config("OPENAI_API_KEY") or mode_api_key
+        os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "") or mode_api_key
         for docs in documents:
             if docs.metadata is None:
                 docs.metadata = {}

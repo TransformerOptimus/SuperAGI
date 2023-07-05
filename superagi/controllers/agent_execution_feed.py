@@ -16,6 +16,8 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
+
+import re
 # from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
 
 router = APIRouter()
@@ -163,7 +165,7 @@ def get_agent_execution_feed(agent_execution_id: int,
     # # parse json
     final_feeds = []
     for feed in feeds:
-        if feed.feed != "":
+        if feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
             final_feeds.append(parse_feed(feed))
 
     # get all permissions

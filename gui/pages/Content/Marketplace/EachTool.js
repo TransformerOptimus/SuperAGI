@@ -9,6 +9,7 @@ import {fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/Das
 import {EventBus} from "@/utils/eventBus";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
+import {returnToolkitIcon} from "@/utils/utils";
 
 export default function EachTool({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
@@ -41,9 +42,9 @@ export default function EachTool({template, env}) {
         }
     }, []);
 
-
     function handleInstallClick() {
         if (window.location.href.toLowerCase().includes('marketplace')) {
+            localStorage.setItem('toolkit_to_install', template.name);
             if (env === 'PROD') {
                 window.open(`https://app.superagi.com/`, '_self');
             } else {
@@ -58,13 +59,13 @@ export default function EachTool({template, env}) {
         }
 
         installToolkitTemplate(template.name)
-            .then((response) => {
-                toast.success("Template installed", {autoClose: 1800});
-                setInstalled('Installed');
-            })
-            .catch((error) => {
-                console.error('Error fetching template details:', error);
-            });
+          .then((response) => {
+              toast.success("Template installed", {autoClose: 1800});
+              setInstalled('Installed');
+          })
+          .catch((error) => {
+              console.error('Error installing template:', error);
+          });
     }
 
     function handleBackClick() {
@@ -84,7 +85,7 @@ export default function EachTool({template, env}) {
                         <div className={styles2.left_container}>
                             <div style={{marginBottom: '15px'}}>
                                 <Image style={{borderRadius: '25px', background: 'black'}} width={50} height={50}
-                                       src="/images/app-logo-light.png" alt="tool-icon"/>
+                                       src={returnToolkitIcon(template.name)} alt="tool-icon"/>
                             </div>
                             <span className={styles2.top_heading}>{template.name}</span>
                             <span style={{fontSize: '12px', marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image
