@@ -270,10 +270,11 @@ class AgentExecutor:
                 tool.goals = parsed_execution_config["goal"]
             if hasattr(tool, 'instructions'):
                 tool.instructions = parsed_execution_config["instruction"]
-            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
-                tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.3)
+            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config[
+                "model"] == "gpt-3.5-turbo") and tool.name != "Query Resource":
+                tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
             elif hasattr(tool, 'llm'):
-                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
+                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
             if hasattr(tool, 'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
             if hasattr(tool, 'agent_id'):

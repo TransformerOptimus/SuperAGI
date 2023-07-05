@@ -1,6 +1,5 @@
-from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 
-from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
@@ -8,7 +7,6 @@ from superagi.models.configuration import Configuration
 from superagi.models.resource import Resource
 from superagi.resource_manager.llama_document_summary import LlamaDocumentSummary
 from superagi.resource_manager.resource_manager import ResourceManager
-from datetime import datetime
 
 
 class ResourceSummarizer:

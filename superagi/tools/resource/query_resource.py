@@ -21,7 +21,7 @@ from superagi.llms.base_llm import BaseLlm
 
 class QueryResource(BaseModel):
     """Input for QueryResource tool."""
-    query: str = Field(..., description="Description of the information to be queried")
+    query: str = Field(..., description="the search query to search resources")
 
 
 class QueryResourceTool(BaseTool):
@@ -33,11 +33,11 @@ class QueryResourceTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Query Resource"
+    name: str = "QueryResource"
     args_schema: Type[BaseModel] = QueryResource
-    description: str = "A tool for performing queries on the resources that are uploaded which might give context for " \
-                       "the given tasks. Use this tool before using other tools. The resource contains information " \
-                       "about: {summary}"
+    description: str = "Tool searches resources content and extracts relevant information to perform the given task." \
+                       "Tool is given preference over other search/read file tools for relevant data." \
+                       "Resources content includes: {summary}"
     agent_id: int = None
     llm: Optional[BaseLlm] = None
 
