@@ -3,7 +3,7 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {updateToolConfig, getToolConfig, authenticateGoogleCred, authenticateTwitterCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
-import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon} from "@/utils/utils";
+import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon, convertToTitleCase} from "@/utils/utils";
 
 export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const [activeTab,setActiveTab] = useState('configuration')
@@ -127,7 +127,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
           {apiConfigs.length > 0 ? (apiConfigs.map((config, index) => (
               <div key={index}>
                 <div style={{ color: '#888888', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
-                  <label style={{ marginBottom: '6px' }}>{config.key}</label>
+                  <label style={{ marginBottom: '6px' }}>{convertToTitleCase(config.key)}</label>
                   <div className={styles.search_box}>
                     <input type="text" style={{ color: 'white',width:'100%' }} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>
                   </div>
