@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,140 +15,125 @@ export default function ApmDashboard() {
     const [allModels, setAllModels] = useState([]);
     const [dropdown, setDropDown] = useState(false);
     const [selectedAgent, setSelectedAgent] = useState('Select an Agent');
-    const [selectedAgentIndex, setSelectedAgentIndex] = useState(-1)
+    const [selectedAgentIndex, setSelectedAgentIndex] = useState(-1);
     const [selectedAgentRun, setSelectedAgentRun] = useState([]);
     const [activeRuns, setActiveRuns] = useState([]);
     const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
     const [toolsUsed, setToolsUsed] = useState([]);
     const [averageRunTime, setAverageRunTime] = useState('');
 
+    const optionsGenerator = (allModels) => ({
+        yAxis: {
+            type: 'category',
+            data: allModels.map(item => item.model),
+            axisLine: { show: false },
+            axisLabel: {
+                show: true,
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#FFF',
+            },
+        },
+        xAxis: { type: 'value', show: false },
+        series: [{
+            data: allModels.map(item => item.agents),
+            type: 'bar',
+            barWidth: 50,
+            label: {
+                show: true,
+                position: 'right',
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#FFF',
+                formatter: (params) => params.data
+            },
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#7491EA' }, { offset: 1, color: '#9865D9' }], false),
+            },
+            emphasis: {
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#7491EA' }, { offset: 1, color: '#9865D9' }], false),
+                    shadowBlur: 20,
+                    shadowColor: 'rgba(0, 0, 0, 0.1)'
+                }
+            },
+            animationEasing: 'elasticOut',
+            animationDelayUpdate: (idx) => idx * 5
+        }],
+        grid: {
+            show: false,
+            height: allModels.length * 60
+        },
+        tooltip: {
+            show: true,
+            trigger: 'axis',
+            axisPointer: { type: 'line' },
+            formatter: (params) =>  `${params[0].name}: ${params[0].value}`
+        },
+    });
+
     useEffect(() => {
         const chartDom = document.getElementById('barChart');
         const myChart = echarts.init(chartDom);
-        let options = {
-            yAxis: {
-                type: 'category',
-                data: allModels.map(item => item.model),
-                axisLine: {
-                    show: false
-                },
-                axisLabel: {
-                    show: true,
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: '#FFF',
-                },
-            },
-            xAxis: {
-                type: 'value',
-                show : false
-            },
-            series: [{
-                data: allModels.map(item => item.agents),
-                type: 'bar',
-                barWidth: 50,
-                label: {
-                    show: true,
-                    position: 'right',
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: '#FFF',
-                    formatter: function(params) {
-                        return params.data;
-                    }
-                },
-                itemStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
-                        offset: 0, color: '#7491EA' // color at 0% position
-                    }, {
-                        offset: 1, color: '#9865D9' // color at 100% position
-                    }], false),
-                    // No support for border radius in ECharts
-                },
-                emphasis: {
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
-                            offset: 0, color: '#7491EA' // emphasis color at 0% position
-                        }, {
-                            offset: 1, color: '#9865D9' // emphasis color at 100% position
-                        }], false),
-                        shadowBlur: 20,
-                        shadowColor: 'rgba(0, 0, 0, 0.1)'
-                    }
-                },
-                animationEasing: 'elasticOut',
-                animationDelayUpdate: function (idx) {
-                    return idx * 5;
-                }
-            }],
-            grid: {
-                show: false,
-                height: allModels.length * 60 // 60px = 50px (bar height) + 10px (gap)
-            },
-            tooltip: {
-                show: true,
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'line'
-                },
-                formatter: function (params) {
-                    let data = params[0];
-                    return `${data.name}: ${data.value}`;
-                }
-            },
-        };
-        options && myChart.setOption(options);
+        const options = optionsGenerator(allModels);
+        if(options) myChart.setOption(options);
     }, [allModels]);
 
     useEffect(() => {
-        getDetails()
-        const interval = setInterval(() => {
-            getDetails();
-        }, 10000);
+        const fetchData = async () => {
+            try {
+                const [
+                    metricsResponse,
+                    agentsResponse,
+                    activeRunsResponse,
+                    toolsUsageResponse
+                ] = await Promise.all([
+                    getMetrics(),
+                    getAllAgents(),
+                    getActiveRuns(),
+                    getToolsUsage()
+                ]);
+
+                setTotalCalls(metricsResponse.data.total_calls);
+                setTotalTokens(metricsResponse.data.total_tokens);
+                setTotalRuns(metricsResponse.data.runs_completed);
+                setTotalAgents(agentsResponse.data.agent_details.length);
+                setAllAgents(agentsResponse.data.agent_details);
+                setAllModels(agentsResponse.data.model_info);
+                setActiveRuns(activeRunsResponse.data);
+                setToolsUsed(toolsUsageResponse.data);
+            } catch(error) {
+                console.log(`Error in fetching data: ${error}`);
+            }
+        }
+
+        fetchData();
+        const interval = setInterval(fetchData, 10000);
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        handleSelectedAgent(selectedAgentIndex,selectedAgent)
-    },[allAgents])
-
-    const getDetails = () =>{
-        getMetrics().then((response) => {
-            const data = response.data
-            setTotalCalls(data.total_calls);
-            setTotalTokens(data.total_tokens);
-            setTotalRuns(data.runs_completed);
-        })
-        getAllAgents().then((response) => {
-            const data = response.data
-            setTotalAgents(data.agent_details.length)
-            setAllAgents(data.agent_details)
-            setAllModels(data.model_info)
-        })
-        getActiveRuns().then((response) => {
-            setActiveRuns(response.data)
-        })
-        getToolsUsage().then((response) => {
-            setToolsUsed(response.data)
-        })
-    }
-
-    const handleSelectedAgent = (index, name) => {
+    const handleSelectedAgent = useCallback((index, name) => {
         setDropDown(false)
         setSelectedAgent(name)
         setSelectedAgentIndex(index)
-        let agentDetails = allAgents.find(agent => agent.agent_id === index);
+        const agentDetails = allAgents.find(agent => agent.agent_id === index);
         setSelectedAgentDetails(agentDetails);
+
         getAgentRuns(index).then((response) => {
-            console.log(response);
             const data = response.data;
-            setSelectedAgentRun(data)
-            averageAgentRunTime(data)
-        })
-            .catch((error) => {
-                console.error(`There was a problem with the request: ${error}`);
-            });
-    }
+            setSelectedAgentRun(data);
+            averageAgentRunTime(data);
+        }).catch((error) => console.error(`Error in fetching agent runs: ${error}`));
+    }, [allAgents]);
+
+    useEffect(() => handleSelectedAgent(selectedAgentIndex,selectedAgent),[allAgents]);
+
+    useEffect(() => {
+        if(allAgents.length > 0 && selectedAgent === 'Select an Agent') {
+            const lastAgent = allAgents[allAgents.length-1];
+            handleSelectedAgent(lastAgent.agent_id, lastAgent.name);
+        }
+    }, [allAgents, selectedAgent, handleSelectedAgent]);
 
     const averageAgentRunTime = (runs) => {
         var total = 0;
@@ -232,10 +217,10 @@ export default function ApmDashboard() {
                                 <tbody>
                                 {selectedAgentRun.map((run, i) => (
                                     <tr key={i}>
-                                        <td className="table_data" style={{width:'64%'}}>{run.name}</td>
-                                        <td className="table_data text_align_right" style={{width:'16%'}}>{run.tokens_consumed}</td>
+                                        <td className="table_data" style={{width:'60%'}}>{run.name}</td>
+                                        <td className="table_data text_align_right" style={{width:'18%'}}>{run.tokens_consumed}</td>
                                         <td className="table_data text_align_right" style={{width:'10%'}}>{run.calls}</td>
-                                        <td className="table_data text_align_right" style={{width:'10%'}}>{formatRunTimeDifference(run.updated_at,run.created_at)}</td>
+                                        <td className="table_data text_align_right" style={{width:'12%'}}>{formatRunTimeDifference(run.updated_at,run.created_at)}</td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -281,7 +266,7 @@ export default function ApmDashboard() {
                                                 <td className="table_data" style={{width:'20%'}}>{agent.name}</td>
                                                 <td className="table_data" style={{width:'100%',display:'inline-flex'}}>
                                                     <div className="progress-bar">
-                                                        <div className="filled" style={{width: `${(agent.runs_completed/(allAgents[0].runs_completed+1))*100}%`}}>
+                                                        <div className="filled" style={{width: `${(agent.runs_completed/(allAgents[0].runs_completed+0.1))*100}%`}}>
                                                             <div className="shine"></div>
                                                         </div>
                                                     </div>
