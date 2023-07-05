@@ -271,7 +271,7 @@ class AgentExecutor:
             if hasattr(tool, 'instructions'):
                 tool.instructions = parsed_execution_config["instruction"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config[
-                "model"] == "gpt-3.5-turbo") and tool.name != "Query Resource":
+                "model"] == "gpt-3.5-turbo") and tool.name != "QueryResource":
                 tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
             elif hasattr(tool, 'llm'):
                 tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
@@ -285,7 +285,7 @@ class AgentExecutor:
                 tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
                     "agent_execution_id"])
 
-            if tool.name == "Query Resource" and resource_description:
+            if tool.name == "QueryResource" and resource_description:
                 tool.description = tool.description.replace("{summary}", resource_description)
             new_tools.append(tool)
         return tools
