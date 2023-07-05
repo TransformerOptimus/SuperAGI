@@ -236,7 +236,7 @@ export const returnToolkitIcon = (toolkitName) => {
     { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
     { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
     { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
-    { name: 'Web Scraper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
+    { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
     { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
     { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
     { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
