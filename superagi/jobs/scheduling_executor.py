@@ -19,7 +19,6 @@ Session = sessionmaker(bind=engine)
 
 class ScheduledAgentExecutor:
 
-    @classmethod
     def execute_scheduled_agent(self, agent_id: int, name: str):
         """
         Performs the execution of scheduled agents
