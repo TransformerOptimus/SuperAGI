@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class AgentConfigInput(BaseModel):
@@ -19,4 +19,4 @@ class AgentConfigInput(BaseModel):
     LTM_DB: str
     memory_window: int
     max_iterations: int
-    user_timezone: str
+    user_timezone: Optional[str]
