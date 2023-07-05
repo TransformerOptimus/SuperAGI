@@ -22,9 +22,9 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
         {toolkits && toolkits.length > 0 ? (
           <div style={{ overflowY: 'scroll', height: '80vh' }}>
             <div className={styles.tool_container}>
-              {toolkits.map((tool) =>
+              {toolkits.map((tool, index) =>
                   tool.name !== null && !excludedToolkits.includes(tool.name) && (
-                  <div className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
+                  <div key={index} className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
                     <div className="row">
                       <div className="col-12">
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
