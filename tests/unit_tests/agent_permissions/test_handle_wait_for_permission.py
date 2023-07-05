@@ -11,7 +11,8 @@ from superagi.jobs.agent_executor import AgentExecutor
 # Setup
 engine = create_engine("sqlite:///:memory:")
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+tables_to_create = [AgentExecutionFeed.__table__,AgentExecutionPermission.__table__,AgentExecutor.__table__]
+Session = sessionmaker(bind=engine,tables=tables_to_create)
 
 class StubSpawnedAgent:
     def __init__(self):
