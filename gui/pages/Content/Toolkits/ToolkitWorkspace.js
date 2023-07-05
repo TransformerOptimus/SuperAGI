@@ -33,7 +33,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
       setLocalStorageArray('api_configs_' + String(internalId), updatedData, setApiConfigs);
     };
     
-    function getToken(client_data){
+    function getGoogleToken(client_data){
       const client_id = client_data.client_id 
       const scope = 'https://www.googleapis.com/auth/calendar';
       const redirect_uri = 'http://localhost:3000/api/google/oauth-tokens';
@@ -88,7 +88,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
       authenticateGoogleCred(toolkitDetails.id)
         .then((response) => {
           localStorage.setItem("google_calendar_toolkit_id", toolkitDetails.id)
-            getToken(response.data);
+            getGoogleToken(response.data);
         })
         .catch((error) => {
           console.error('Error fetching data:', error);
