@@ -25,7 +25,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
                     <div className="col-12">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
                         <div style={{ marginLeft: '8px' }}>
-                          <div className={styles.tool_name}>{item.name}&nbsp;{item.source === 'marketplace' && <Image width={13} height={13} src="/images/widgets.svg" alt="markteplace-icon"/>}</div>
+                          <div className={styles.tool_name}>{item.name}&nbsp;{item.source === 'Marketplace' && <Image width={13} height={13} src="/images/widgets.svg" alt="markteplace-icon"/>}</div>
                           <div className={styles.tool_publisher}>by {item.developer}</div>
                         </div>
                       </div>

@@ -29,13 +29,26 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
   const knowledge = [
-    {name: "knowledge name", developer: "developer", source: "marketplace", contentType: 'Knowledge'},
-    {name: "knowledge name", developer: "developer", source: "marketplace", contentType: 'Knowledge'},
-    {name: "knowledge name", developer: "developer", source: "default", contentType: 'Knowledge'},
-    {name: "knowledge name", developer: "developer", source: "marketplace", contentType: 'Knowledge'},
-    {name: "knowledge name", developer: "developer", source: "marketplace", contentType: 'Knowledge'},
-    {name: "knowledge name", developer: "developer", source: "default", contentType: 'Knowledge'},
-    {name: "knowledge name", developer: "developer", source: "marketplace", contentType: 'Knowledge'},
+    {
+      name: "knowledge name 1", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+    },
+    {
+      name: "knowledge name 2", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    },
+    {
+      name: "knowledge name 3", developer: "developer", source: "Custom", contentType: 'Knowledge',
+      description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium"
+    },
+    {
+      name: "knowledge name 4", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      description: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+    },
+    {
+      name: "knowledge name 5", developer: "developer", source: "Custom", contentType: 'Knowledge',
+      description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit"
+    },
   ];
 
   function fetchAgents() {
@@ -301,7 +314,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 {selectedTab === index && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
-                  {tab.contentType === 'Knowledge' && <KnowledgeDetails internalId={tab.internalId || index}/>}
+                  {tab.contentType === 'Knowledge' && <KnowledgeDetails internalId={tab.internalId || index} knowledgeDetails={tab}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                   {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
