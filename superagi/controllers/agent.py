@@ -236,20 +236,26 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
     """
 
     project = db.session.query(Project).get(agent_config_schedule.agent_config.project_id)
+    print(project)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     agent_config = agent_config_schedule.agent_config
+    print(agent_config)
     invalid_tools = Tool.get_invalid_tools(agent_config.tools, db.session)
+    print(invalid_tools)
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
         raise HTTPException(status_code=404, detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
 
     agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
                                                               toolkit_ids=agent_config.toolkits)
+    print(agent_toolkit_tools)
     agent_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_config)
 
     # Update the agent_id of schedule before scheduling the agent
     agent_schedule = agent_config_schedule.schedule
+
+    print(agent_schedule)
 
     # Create a new agent schedule
     agent_schedule = AgentSchedule(
