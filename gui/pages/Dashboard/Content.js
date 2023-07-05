@@ -7,7 +7,7 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
-import {getAgents, getToolKit, getLastActiveAgent, sendTwitterCreds} from "@/pages/api/DashboardService";
+import {getAgents, getToolKit, getLastActiveAgent, sendTwitterCreds, sendGoogleCreds} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import { useRouter } from 'next/router';
@@ -15,6 +15,7 @@ import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
 import {createInternalId, removeInternalId} from "@/utils/utils";
+import { pbkdf2 } from 'crypto';
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -151,7 +152,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
     const queryParams = router.asPath.split('?')[1];
     const parsedParams = querystring.parse(queryParams);
-    parsedParams["toolkit_id"] = toolkitDetails.toolkit_id;
     if (window.location.href.indexOf("twitter_creds") > -1){
       const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
       parsedParams["toolkit_id"] = toolkit_id;
@@ -162,6 +162,18 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       })
       .catch((error) => {
         console.error("Error fetching data: ",error);
+      })
+    };
+    if (window.location.href.indexOf("google_calendar_creds") > -1){
+      const toolkit_id = localStorage.getItem("google_calendar_toolkit_id") || null;
+      var data = Object.keys(parsedParams)[0];
+      var params = JSON.parse(data)
+      sendGoogleCreds(params, toolkit_id)
+      .then((response) => {
+        console.log("Authentication completed successfully");
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
       })
     };
   }, [selectedTab]);
