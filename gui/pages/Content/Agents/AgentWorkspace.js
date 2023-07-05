@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, updateAgents, saveAgentAsTemplate} from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentWorkspace({agentId, selectedView}) {
@@ -19,13 +19,14 @@ export default function AgentWorkspace({agentId, selectedView}) {
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
   const [goals, setGoals] = useState(null)
-  const [tools, setTools] = useState([])
+  const [currentGoals, setCurrentGoals] = useState(null)
   const [runName, setRunName] = useState("New Run")
   const [agentDetails, setAgentDetails] = useState(null)
   const [agentExecutions, setAgentExecutions] = useState(null)
   const [dropdown, setDropdown] = useState(false);
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
+  const [currentInstructions, setCurrentInstructions] = useState(['']);
   const [pendingPermission, setPendingPermissions] = useState(0)
 
   const pendingPermissions = useMemo(() => {
@@ -80,9 +81,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
       return
     }
 
-    const executionData = { "agent_id": agentId, "name": runName }
-    const agentData = { "agent_id": agentId, "key": "goal", "value": goals}
-    const agentData1 = { "agent_id": agentId, "key": "instruction", "value": instructions}
+    const executionData = {
+      "agent_id": agentId,
+      "name": runName,
+      "goal": goals,
+      "instruction": instructions
+    }
 
     addExecution(executionData)
         .then((response) => {
@@ -95,21 +99,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
         .catch((error) => {
           console.error('Error creating execution:', error);
           toast.error("Could not create run", {autoClose: 1800});
-        });
-
-    updateAgents(agentData)
-        .then((response) => {
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating agent:', error);
-        });
-    updateAgents(agentData1)
-        .then((response) => {
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating agent:', error);
         });
   };
 
@@ -148,6 +137,10 @@ export default function AgentWorkspace({agentId, selectedView}) {
   }, [agentId])
 
   useEffect(() => {
+    fetchExecutionDetails(selectedRun?.id);
+  }, [selectedRun?.id])
+
+  useEffect(() => {
     if(agentDetails) {
       setRightPanel(agentDetails.permission_type.includes('RESTRICTED') ? 'action_console' : 'details');
     }
@@ -157,9 +150,6 @@ export default function AgentWorkspace({agentId, selectedView}) {
     getAgentDetails(agentId)
       .then((response) => {
         setAgentDetails(response.data);
-        setTools(response.data.tools);
-        setGoals(response.data.goal);
-        setInstructions(response.data.instruction);
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -179,6 +169,19 @@ export default function AgentWorkspace({agentId, selectedView}) {
         });
   }
 
+  function fetchExecutionDetails(executionId) {
+    getExecutionDetails(executionId)
+      .then((response) => {
+        setGoals(response.data.goal);
+        setCurrentGoals(response.data.goal);
+        setInstructions(response.data.instruction);
+        setCurrentInstructions(response.data.instruction);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent execution details:', error);
+      });
+  }
+
   function saveAgentTemplate() {
     saveAgentAsTemplate(agentId)
         .then((response) => {
@@ -189,9 +192,25 @@ export default function AgentWorkspace({agentId, selectedView}) {
         });
   }
 
+  useEffect(() => {
+    const resetRunStatus = (eventData) => {
+      if (eventData.executionId === selectedRun.id) {
+        setSelectedRun((prevSelectedRun) => (
+          { ...prevSelectedRun, status: eventData.status }
+        ));
+      }
+    };
+
+    EventBus.on('resetRunStatus', resetRunStatus);
+
+    return () => {
+      EventBus.off('resetRunStatus', resetRunStatus);
+    };
+  });
+
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -231,7 +250,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
+            <ActivityFeed runModal={runModal} selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
           </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
@@ -272,7 +291,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
               </div>
           )}
-          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} tools={tools} runCount={agentExecutions?.length || 0}/></div>}
+          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>
       </div>

@@ -15,7 +15,6 @@ body:
         [#general]: https://discord.com/channels/1107593006032355359/1107642413993959505
         [#support]: https://discord.com/channels/1107593006032355359/1107645922797703198
         [existing issues]: https://github.com/TransformerOptimus/SuperAGI/issues
-
   - type: checkboxes
     attributes:
       label: ⚠️ Check for existing issues before proceeding. ⚠️

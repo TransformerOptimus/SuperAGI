@@ -1,17 +1,17 @@
-import os
-
 import pinecone
 from pinecone import UnauthorizedException
 
 from superagi.vector_store.pinecone import Pinecone
 from superagi.vector_store import weaviate
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
+from superagi.types.vector_store_types import VectorStoreType
 
 
 class VectorFactory:
 
     @classmethod
-    def get_vector_storage(cls, vector_store, index_name, embedding_model):
+    def get_vector_storage(cls, vector_store: VectorStoreType, index_name, embedding_model):
         """
         Get the vector storage.
 
@@ -23,7 +23,8 @@ class VectorFactory:
         Returns:
             The vector storage object.
         """
-        if vector_store == "PineCone":
+        vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        if vector_store == VectorStoreType.PINECONE:
             try:
                 api_key = get_config("PINECONE_API_KEY")
                 env = get_config("PINECONE_ENVIRONMENT")
@@ -33,6 +34,8 @@ class VectorFactory:
 
                 if index_name not in pinecone.list_indexes():
                     sample_embedding = embedding_model.get_embedding("sample")
+                    if "error" in sample_embedding:
+                        logger.error(f"Error in embedding model {sample_embedding}")
 
                     # if does not exist, create index
                     pinecone.create_index(
@@ -44,9 +47,9 @@ class VectorFactory:
                 return Pinecone(index, embedding_model, 'text')
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
+
         
         if vector_store == "Weaviate":
-            
             use_embedded = get_config("WEAVIATE_USE_EMBEDDED")
             url = get_config("WEAVIATE_URL")
             api_key = get_config("WEAVIATE_API_KEY")
@@ -58,5 +61,4 @@ class VectorFactory:
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
 
-        else:
-            raise Exception("Vector store not supported")
+        raise ValueError(f"Vector store {vector_store} not supported")

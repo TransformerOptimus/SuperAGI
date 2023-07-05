@@ -1,10 +1,15 @@
-<p align=center>
-<a href="https://superagi.co"><img src=https://superagi.co/wp-content/uploads/2023/05/SuperAGI_icon.png></a>
+<p align="center">
+  <a href="https://superagi.com//#gh-light-mode-only">
+    <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-dark.svg" width="318px" alt="SuperAGI logo" />
+  </a>
+  <a href="https://superagi.com//#gh-dark-mode-only">
+    <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-light.svg" width="318px" alt="SuperAGI logo" />
+  </a>
 </p>
 
 # SuperAGI Jira Tool
 
-The robust SuperAGI Jira Tool lets users create, edit and search issues while providing a foundation for other fascinating use cases.
+The SuperAGI Jira Tool lets users create, edit and search issues while providing a foundation for other great use cases.
 
 ## 💡 Features
 
@@ -21,22 +26,26 @@ The robust SuperAGI Jira Tool lets users create, edit and search issues while pr
 ### 🛠 **Setting Up of SuperAGI**
 Set up the SuperAGI by following the instructions given (https://github.com/TransformerOptimus/SuperAGI/blob/main/README.MD)
 
-### 🔧 **Add Jira configuration settings in config.yaml**
+### 🔧 **Add Jira configuration settings in SuperAGI Dashboard**
 Add the following configuration settings in the file:
 
 1. _JIRA API TOKEN:_
  - Login into your Jira Account. Go to "Manage Account".
  - Go to Security and click on "Create and Manage API Tokens".
-![Screenshot API Token jira](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/b9a535be-0f44-40f8-aec5-4f09bd223c9e)
+
+<img src="https://github.com/TransformerOptimus/SuperAGI/assets/43145646/b9a535be-0f44-40f8-aec5-4f09bd223c9e" width=600px>
+
  - Click on "Create API Token" and choose an appropriate label name.
- - Copy the API Token and paste it in your config.yaml file.
+ - Copy the API Token and save it in a text file.
 
 2. _JIRA INSTANCE URL:_
  - Your instance profile is the section at the start of your URL. It should look something like "https://mycompany.atlassian.net/".
 
 3. _JIRA USERNAME:_
- - Your Jira UserName is the Email Address with which you signed up in Jira. 
+ - Your Jira UserName is the Email Address with which you signed up in Jira.
 
+4. _CONFIGURING JIRA IN SUPERAGI DASHBOARD:_ 
+ - Open the Jira Toolkit Page in SuperAGI Add your Jira API Token, your Instance URL, and your Jira Username and click "Update Changes"
 
 ## Running SuperAGI Jira Tool
 
@@ -44,6 +53,6 @@ Add the following configuration settings in the file:
 
 2. **Edit an Issue:** To edit a particular issue, specify the issue ID in your goal. The modifications can be made by changing the relevant fields in the edit_issue.py script.
 
-3. **Search for Issues:** You can simply search for a particular Issue in your agent's goals and your agent performs a search based on the JIRA Query Language (JQL) query you define. Modify the JQL query according to your requirements in the search_issues.py script.
+3. **Search for Issues:** You can simply search for a particular issue in your agent's goals and your agent performs a search based on the JIRA Query Language (JQL) query you define. Modify the JQL query according to your requirements in the search_issues.py script.
 
 4. **Fetch Project Details:** Use the 'Get Projects' feature to retrieve a list of your accessible projects. The get_projects.py script can be modified to adjust the parameters of this operation.

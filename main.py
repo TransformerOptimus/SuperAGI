@@ -15,6 +15,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi
+import urllib.parse
+import json
+import http.client as http_client
+from superagi.helper.twitter_tokens import TwitterTokens
+from datetime import datetime, timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
@@ -28,19 +33,23 @@ from superagi.controllers.budget import router as budget_router
 from superagi.controllers.config import router as config_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
+from superagi.controllers.twitter_oauth import router as twitter_oauth_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.tool_config import router as tool_config_router
 from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
+from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.helper.tool_helper import register_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
+from superagi.helper.auth import get_current_user
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
+from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 
@@ -97,6 +106,8 @@ app.include_router(tool_config_router, prefix="/tool_configs")
 app.include_router(config_router, prefix="/configs")
 app.include_router(agent_template_router, prefix="/agent_templates")
 app.include_router(agent_workflow_router, prefix="/agent_workflows")
+app.include_router(twitter_oauth_router, prefix="/twitter")
+app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 
 
 # in production you can use Settings management
@@ -320,7 +331,6 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     return RedirectResponse(frontend_url)
 
-
 @app.get('/github-login')
 def github_login():
     """GitHub login"""
@@ -410,7 +420,6 @@ def get_google_calendar_tool_configs(toolkit_id: int):
     return {
         "client_id": google_calendar_config.value
     }
-
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):

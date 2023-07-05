@@ -64,7 +64,7 @@ def download_and_extract_tools():
     tools_config = load_tools_config()
 
     for tool_name, tool_url in tools_config.items():
-        tool_folder = os.path.join("", "tools", tool_name)
+        tool_folder = os.path.join("superagi", "tools", tool_name)
         if not os.path.exists(tool_folder):
             os.makedirs(tool_folder)
         download_tool(tool_url, tool_folder)

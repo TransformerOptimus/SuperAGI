@@ -6,12 +6,20 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { getOrganisation, getProject, validateAccessToken, checkEnvironment, addUser } from "@/pages/api/DashboardService";
+import {
+  getOrganisation,
+  getProject,
+  validateAccessToken,
+  checkEnvironment,
+  addUser,
+  installToolkitTemplate, installAgentTemplate
+} from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
+import {toast} from "react-toastify";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -23,6 +31,7 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
+  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install'];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -34,9 +43,38 @@ export default function App() {
       });
   }
 
+  const installFromMarketplace = () => {
+    const toolkitName = localStorage.getItem('toolkit_to_install') || null;
+    const agentTemplateId = localStorage.getItem('agent_to_install') || null;
+    
+    if(toolkitName !== null) {
+      installToolkitTemplate(toolkitName)
+        .then((response) => {
+          toast.success("Template installed", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error installing template:', error);
+        });
+      localStorage.removeItem('toolkit_to_install');
+    }
+
+    if(agentTemplateId !== null) {
+      installAgentTemplate(agentTemplateId)
+        .then((response) => {
+          toast.success("Template installed", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error installing template:', error);
+        });
+      localStorage.removeItem('agent_to_install');
+    }
+  }
+
   useEffect(() => {
     if(window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);
+    } else {
+      installFromMarketplace();
     }
 
     loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
@@ -117,6 +155,25 @@ export default function App() {
     const github_client_id = githubClientId();
     window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
   }
+
+  useEffect(() => {
+    const clearLocalStorage = () => {
+      Object.keys(localStorage).forEach((key) => {
+        if (!excludedKeys.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+    };
+
+    window.addEventListener('beforeunload', clearLocalStorage);
+    window.addEventListener('unload', clearLocalStorage);
+
+    return () => {
+      window.removeEventListener('beforeunload', clearLocalStorage);
+      window.removeEventListener('unload', clearLocalStorage);
+    };
+  }, []);
+
 
   return (
     <div className="app">

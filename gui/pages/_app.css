@@ -39,6 +39,7 @@
     justify-content: center;
     height: 120px;
     cursor: pointer;
+    padding: 20px;
     background: transparent;
 }
 
@@ -209,7 +210,7 @@ input[type="range"]::-moz-range-track {
 
 .dropdown_container {
     width: 150px;
-    height: fit-content;
+    height: auto;
     background: #2E293F;
     flex-direction: column;
     justify-content: center;
@@ -615,6 +616,14 @@ p {
     background: rgba(255, 255, 255, 0.14);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
+}
+
+.cancel_action {
+    margin-top: 10px;
+    width: fit-content;
+    color: #888888;
+    font-size: 12px;
+    cursor: pointer;
 }
 
 .mt_6{margin-top: 6px;}
