@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Sequence
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from superagi.models.base_model import DBBaseModel
 from sqlalchemy.ext.declarative import declarative_base
 
