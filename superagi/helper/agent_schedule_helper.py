@@ -85,7 +85,7 @@ class AgentScheduleHelper:
         user_timezone = session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone",
                                                                  AgentConfiguration.agent_id == agent_id).first()
 
-        if user_timezone and user_timezone.value:
+        if user_timezone and user_timezone.value != "None":
             current_time = datetime.now().astimezone(pytz.timezone(user_timezone.value))
         else:
             current_time = datetime.now().astimezone(pytz.timezone('GMT'))
