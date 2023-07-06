@@ -34,6 +34,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           return { ...item, contentType: "Agents" };
         });
         setAgents(updatedData);
+        console.log(agents);
       })
       .catch((error) => {
         console.error('Error fetching agents:', error);

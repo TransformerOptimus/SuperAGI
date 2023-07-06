@@ -155,3 +155,7 @@ export const installToolkitTemplate = (templateName) => {
 export const getExecutionDetails = (executionId) => {
   return api.get(`/agent_executions_configs/details/${executionId}`);
 }
+
+export const stopSchedule = (agentId) => {
+  return api.post(`/agents/stop/schedule?agent_id=${agentId}`);
+}

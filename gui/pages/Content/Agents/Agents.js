@@ -21,9 +21,9 @@ export default function Agents({sendAgentData, agents}) {
           <div key={index}>
             <div className={styles.agent_box} onClick={() => sendAgentData(agent)}>
               {agent.is_running && <div className={styles.agent_active}><Image width={14} height={14} style={{mixBlendMode: 'exclusion'}} src="/images/loading.gif" alt="active-icon"/></div>}
-              <div style={{display:'flex'}}>
+              <div style={{display:'flex', height:'15px'}}>
               <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>
-              <div style={{marginLeft:'10px'}}><Image width={20} height={23} src="/images/calendar.png" alt="check-icon"/></div>
+              {agent.is_scheduled && <div style={{marginLeft:'8px'}}><Image style={{ paddingBottom:'12px'}} width={20} height={28}  src="/images/event_repeat.svg" alt="check-icon"/></div>}
               </div>
             </div>
           </div>
