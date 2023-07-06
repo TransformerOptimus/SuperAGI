@@ -358,3 +358,41 @@
     color: #FFFFFF;
     margin-top: 2px;
 }
+
+.delete_agent_modal_label
+{
+    color: #FFF;
+    font-size: 16px;
+    font-family: "Public Sans", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.delete_button
+{
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #FFF;
+    color: #000;
+    font-size: 12px;
+    font-family: "Public Sans", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+
+}
+
+.delete_modal_text
+{
+    color: #888;
+    font-size: 12px;
+    font-family: "Roboto Flex", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

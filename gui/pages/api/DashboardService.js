@@ -107,3 +107,7 @@ export const installAgentTemplate = (templateId) => {
 export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
 }
+
+export const deleteAgent = (agentId) => {
+  return api.put(`/agents/delete/${agentId}`)
+}
