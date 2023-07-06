@@ -354,10 +354,11 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     user_timezone = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone",
                                                                 AgentConfiguration.agent_id == agent_id).first()
 
-    if user_timezone and user_timezone.value:
+    if user_timezone and user_timezone.value != "None":
         tzone = timezone(user_timezone.value)
     else:
         tzone = timezone('GMT')
+
 
     current_datetime = datetime.now(tzone).strftime("%d/%m/%Y %I:%M %p")
 
