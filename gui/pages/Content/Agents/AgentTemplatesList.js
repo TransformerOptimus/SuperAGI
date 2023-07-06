@@ -3,9 +3,9 @@ import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
-import {EventBus} from "@/utils/eventBus";
+import {setLocalStorageValue, openNewTab} from "@/utils/utils";
 
-export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, tools, organisationId}){
+export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId}){
     const [agentTemplates, setAgentTemplates] = useState([])
     const [createAgentClicked, setCreateAgentClicked] = useState(false)
     const [sendTemplate, setSendTemplate] = useState(null)
@@ -21,17 +21,25 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
             });
     }, [])
 
+    useEffect(() => {
+        const agent_create_click = localStorage.getItem("agent_create_click_" + String(internalId));
+        if(agent_create_click) {
+            setCreateAgentClicked(JSON.parse(agent_create_click));
+        }
+    }, [internalId])
+
     function redirectToCreateAgent() {
-        setCreateAgentClicked(true);
+        setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
     }
 
     function openMarketplace() {
-        EventBus.emit('openNewTab', { id: -4, name: "Marketplace", contentType: "Marketplace" });
+        openNewTab(-4, "Marketplace", "Marketplace");
+        localStorage.setItem('marketplace_tab', 'market_agents');
     }
 
     function handleTemplateClick(item) {
         setSendTemplate(item);
-        setCreateAgentClicked(true);
+        setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
     }
 
     return (
@@ -48,9 +56,9 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                     </div>
                 </div>
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
-                    {agentTemplates.length > 0 ? <div className={styles.resources} style={agentTemplates.length === 1 ? {justifyContent:'flex-start',gap:'7px'} : {}}>
-                        {agentTemplates.map((item, index) => (
-                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'90px'}}
+                    {agentTemplates.length > 0 ? <div className={styles.resources}>
+                        {agentTemplates.map((item) => (
+                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'85px'}}
                                  onClick={() => handleTemplateClick(item)}>
                                 <div style={{display: 'inline',overflow:'auto'}}>
                                     <div>{item.name}</div>
@@ -58,10 +66,10 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                                 </div>
                             </div>
                         ))}
-                        <div className={styles.market_tool} style={{cursor: 'pointer',height:'90px',background:'#413C4F'}}
+                        <div className={styles.market_tool} style={{cursor: 'pointer',height:'85px',background:'#413C4F'}}
                              onClick={openMarketplace}>
                             <div style={{display: 'inline',overflow:'auto'}}>
-                                <div style={{display:'flex',justifyContent:'space-between'}}>
+                                <div style={{display:'flex',justifyContent:'space-between',gap:'0.3vw'}}>
                                     <div style={{order:'0'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/marketplace.svg" alt="arrow-outward"/>&nbsp;&nbsp;Browse templates from marketplace</div>
                                     <div style={{order:'1'}}><Image style={{marginTop:'-3px'}} width={16} height={16} src="/images/arrow_outward.svg" alt="arrow-outward"/></div>
                                 </div>
@@ -80,7 +88,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                         </div>
                     </div>}
                 </div>
-            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} tools={tools} template={sendTemplate} />}
+            </div> : <AgentCreate internalId={internalId} organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
         </div>
     )
 };

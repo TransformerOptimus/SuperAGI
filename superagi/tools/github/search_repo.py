@@ -1,8 +1,6 @@
 from typing import Type
 
 from pydantic import BaseModel, Field
-
-from superagi.config.config import get_config
 from superagi.helper.github_helper import GithubHelper
 from superagi.tools.base_tool import BaseTool
 
@@ -52,10 +50,10 @@ class GithubRepoSearchTool(BaseTool):
             folder_path : The path of the folder to search the file in.
 
         Returns:
-            The content of the file.
+            The content of the github file.
         """
-        github_access_token = get_config("GITHUB_ACCESS_TOKEN")
-        github_username = get_config("GITHUB_USERNAME")
+        github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
+        github_username = self.get_tool_config("GITHUB_USERNAME")
         github_repo_search = GithubHelper(github_access_token, github_username)
         content = github_repo_search.get_content_in_file(repository_owner, repository_name, file_name, folder_path)
 

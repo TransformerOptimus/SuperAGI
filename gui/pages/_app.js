@@ -6,12 +6,20 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import { getOrganisation, getProject, validateAccessToken, checkEnvironment, addUser } from "@/pages/api/DashboardService";
+import {
+  getOrganisation,
+  getProject,
+  validateAccessToken,
+  checkEnvironment,
+  addUser,
+  installToolkitTemplate, installAgentTemplate
+} from "@/pages/api/DashboardService";
 import { githubClientId } from "@/pages/api/apiConfig";
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
+import {toast} from "react-toastify";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -23,18 +31,7 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
-
-  useEffect(() => {
-    const text = 'Initializing SuperAGI';
-    let dots = '';
-
-    const interval = setInterval(() => {
-      dots = dots.length < 3 ? dots + '.' : '';
-      setLoadingText(`${text}${dots}`);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
+  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install'];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -46,7 +43,42 @@ export default function App() {
       });
   }
 
+  const installFromMarketplace = () => {
+    const toolkitName = localStorage.getItem('toolkit_to_install') || null;
+    const agentTemplateId = localStorage.getItem('agent_to_install') || null;
+    
+    if(toolkitName !== null) {
+      installToolkitTemplate(toolkitName)
+        .then((response) => {
+          toast.success("Template installed", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error installing template:', error);
+        });
+      localStorage.removeItem('toolkit_to_install');
+    }
+
+    if(agentTemplateId !== null) {
+      installAgentTemplate(agentTemplateId)
+        .then((response) => {
+          toast.success("Template installed", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error installing template:', error);
+        });
+      localStorage.removeItem('agent_to_install');
+    }
+  }
+
   useEffect(() => {
+    if(window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true);
+    } else {
+      installFromMarketplace();
+    }
+
+    loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
+
     checkEnvironment()
       .then((response) => {
         const env = response.data.env;
@@ -114,12 +146,6 @@ export default function App() {
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
-
-  useEffect(() => {
-      if(window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true)
-    }
-  }, []);
   
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
@@ -130,6 +156,25 @@ export default function App() {
     window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
   }
 
+  useEffect(() => {
+    const clearLocalStorage = () => {
+      Object.keys(localStorage).forEach((key) => {
+        if (!excludedKeys.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+    };
+
+    window.addEventListener('beforeunload', clearLocalStorage);
+    window.addEventListener('unload', clearLocalStorage);
+
+    return () => {
+      window.removeEventListener('beforeunload', clearLocalStorage);
+      window.removeEventListener('unload', clearLocalStorage);
+    };
+  }, []);
+
+
   return (
     <div className="app">
       <Head>
@@ -139,7 +184,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
-      {showMarketplace && <div className="projectStyle"> <MarketplacePublic /> </div>}
+      {showMarketplace && <div className="projectStyle"> <MarketplacePublic env={env} /> </div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? ( <div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
@@ -149,7 +194,7 @@ export default function App() {
             <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
-            <Content organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content env={env} organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
       </div> ) : !showMarketplace ? ( <div className="signInStyle">
