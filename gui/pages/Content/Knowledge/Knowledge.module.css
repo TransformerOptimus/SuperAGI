@@ -1,0 +1,47 @@
+.knowledge_label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #888888;
+}
+
+.knowledge_info {
+    font-size: 12px;
+    color: white;
+}
+
+.knowledge_info_box {
+    margin-bottom: 20px;
+}
+
+.knowledge_wrapper {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.knowledge_db {
+    font-size: 12px;
+    color: #888888;
+    font-weight: normal;
+    height: auto;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.knowledge_db_name {
+    padding:12px 14px;
+    border-top: 1px solid #888888;
+}
+
+.knowledge_alert {
+    border-radius: 8px;
+    background-color: #423D52;
+    border-left: 4px solid #B3B2BB;
+    color: white;
+    font-size: 12px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: flex-start;
+}

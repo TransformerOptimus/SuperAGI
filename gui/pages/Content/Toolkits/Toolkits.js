@@ -2,7 +2,6 @@ import React from 'react';
 import Image from "next/image";
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
-import 'react-toastify/dist/ReactToastify.css';
 import {createInternalId, returnToolkitIcon} from "@/utils/utils";
 
 export default function Toolkits({ sendToolkitData, toolkits, env }) {

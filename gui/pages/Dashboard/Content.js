@@ -1,5 +1,8 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Agents from '../Content/Agents/Agents';
+import Knowledge from '../Content/Knowledge/Knowledge';
+import AddKnowledge from '../Content/Knowledge/AddKnowledge';
+import KnowledgeDetails from '../Content/Knowledge/KnowledgeDetails';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
@@ -25,6 +28,28 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
+  const knowledge = [
+    {
+      name: "knowledge name 1", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+    },
+    {
+      name: "knowledge name 2", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    },
+    {
+      name: "knowledge name 3", developer: "developer", source: "Custom", contentType: 'Knowledge',
+      description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium"
+    },
+    {
+      name: "knowledge name 4", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      description: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+    },
+    {
+      name: "knowledge name 5", developer: "developer", source: "Custom", contentType: 'Knowledge',
+      description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit"
+    },
+  ];
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -101,6 +126,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     } else if(contentType === 'Toolkits') {
       localStorage.removeItem('toolkit_tab_' + String(internalId));
       localStorage.removeItem('api_configs_' + String(internalId));
+    } else if(contentType === 'Knowledge') {
+      localStorage.removeItem('knowledge_name_' + String(internalId));
+      localStorage.removeItem('knowledge_description_' + String(internalId));
+      localStorage.removeItem('knowledge_index_' + String(internalId));
     }
 
     setTabs(updatedTabs);
@@ -113,7 +142,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
 
     const isExistingTab = tabs.some(
-      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !['Create_Agent', 'Add_Toolkit'].includes(element.contentType)
+      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !['Create_Agent', 'Add_Toolkit', 'Add_Knowledge'].includes(element.contentType)
     );
 
     if (!isExistingTab) {
@@ -235,6 +264,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       <div className={styles.item_list} style={selectedView === '' ? {width:'0vw'} : {width:'13vw'}}>
         {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
         {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
+        {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
       </div>
 
       {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {width:'93.5vw',paddingLeft:'10px'} : {width:'80.5vw'}}>
@@ -271,6 +301,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 <div style={{display:'flex', order:'0',overflowX:'hidden'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
                   {(tab.contentType === 'Toolkits' || tab.contentType === 'Add_Toolkit') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
+                  {(tab.contentType === 'Knowledge' || tab.contentType === 'Add_Knowledge') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/knowledge.svg" alt="knowledge-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
@@ -287,9 +318,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 {selectedTab === index && <div>
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
+                  {tab.contentType === 'Knowledge' && <KnowledgeDetails internalId={tab.internalId || index} knowledgeDetails={tab}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                   {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
+                  {tab.contentType === 'Add_Knowledge' && <AddKnowledge internalId={tab.internalId || index}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
