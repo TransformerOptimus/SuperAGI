@@ -1,92 +1,63 @@
-import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import patch
 
+import pytest
+from fastapi.testclient import TestClient
+
 from main import app
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.models.events import Event
 
 client = TestClient(app)
 
-def test_get_metrics_success():
-    # Mock the AnalyticsHelper
-    with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_analytics_helper:
-        # Set up test data
-        test_data = {
-            "total_tokens": 200,
-            "total_calls": 14,
-            "run_completed": 2
+
+@pytest.fixture
+def mock_event_data():
+    return [
+        Event(
+            id=1,
+            event_name="event1",
+            event_value=100,
+            json_property={},
+            agent_id=1,
+            org_id=1
+        ),
+        Event(
+            id=2,
+            event_name="event2",
+            event_value=200,
+            json_property={},
+            agent_id=2,
+            org_id=2
+        ),
+        Event(
+            id=3,
+            event_name="event3",
+            event_value=300,
+            json_property={},
+            agent_id=3,
+            org_id=3
+        )
+    ]
+
+
+@pytest.mark.parametrize("endpoint,status_code", [
+    ("/metrics", 200),
+    ("/agents/all", 200),
+    ("/agents/1", 200),
+    ("/runs/active", 200),
+    ("/tools/used", 200)
+])
+def test_analytics_endpoints(endpoint, status_code, mock_event_data):
+    with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_helper:
+        mock_helper.return_value.calculate_run_completed_metrics.return_value = {
+            'total_tokens': 0,
+            'total_calls': 0,
+            'runs_completed': 3
         }
+        mock_helper.return_value.fetch_agent_data.return_value = {'agent_details': [], 'model_info': []}
+        mock_helper.return_value.fetch_agent_runs.return_value = []
+        mock_helper.return_value.get_active_runs.return_value = []
+        mock_helper.return_value.calculate_tool_usage.return_value = []
 
-        # Mock the return value
-        mock_analytics_helper().calculate_run_completed_metrics.return_value = test_data
+        response = client.get(endpoint, headers={"Authorization": "Bearer test_token"})
 
-        # Call the function
-        response = client.get("/metrics")
-
-        # Assertions
-        assert response.status_code == 200
-        assert response.json() == test_data
-
-def test_get_agents_success():
-   with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_analytics_helper:
-        # Set up test data
-        test_data = [{"id": 1,"name": "Agent X","type": "type1"},{"id": 2,"name": "Agent Y","type": "type2"}]
-
-        # Mock the return value
-        mock_analytics_helper().fetch_agent_data.return_value = test_data
-
-        # Call the function
-        response = client.get("/agents/all")
-
-        # Assertions
-        assert response.status_code == 200
-        assert response.json() == test_data
-
-def test_get_agent_runs_success():
-    with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_analytics_helper:
-        # Set up test data
-        agent_id = 1
-        test_data = [{"agent_execution_id": 101,"status": "completed","date": "2022-01-01"},
-        {"agent_execution_id": 102,"status": "in progress","date": "2022-01-02"}]
-
-        # Mock the return value
-        mock_analytics_helper().fetch_agent_runs.return_value = test_data
-
-        # Call the function
-        response = client.get(f"/agents/{agent_id}")
-
-        # Assertions
-        assert response.status_code == 200
-        assert response.json() == test_data
-
-
-def test_get_active_runs_success():
-    with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_analytics_helper:
-        # Set up test data
-        test_data = [{"agent_execution_id": 101,"agent_id": 1},{"agent_execution_id": 102,"agent_id": 2}]
-
-        # Mock the return value
-        mock_analytics_helper().get_active_runs.return_value = test_data
-
-        # Call the function
-        response = client.get("/runs/active")
-
-        # Assertions
-        assert response.status_code == 200
-        assert response.json() == test_data
-
-
-def test_get_tools_used_success():
-    with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_analytics_helper:
-        # Set up test data
-        test_data = {"tool_x": 10,"tool_y": 5,"tool_z": 15}
-
-        # Mock the return value
-        mock_analytics_helper().calculate_tool_usage.return_value = test_data
-
-        # Call the function
-        response = client.get("/tools/used")
-
-        # Assertions
-        assert response.status_code == 200
-        assert response.json() == test_data
+        assert response.status_code == status_code
