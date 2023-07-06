@@ -109,21 +109,42 @@ def analytics_helper(mock_session):
             'updated_at': '2023-07-05T12:23:20.174844'
         }]
 
-    def test_calculate_tool_usage(self, mock_session, analytics_helper):
+    def test_calculate_tool_usage(self, mock_session, mock_query, analytics_helper):
         # Test Data
-        execution1 = {
-            'tool_name': 'Finish',
-            'agent_id': 1,
-            'org_id': 1
-        }
-        execution2 = {
-                    'tool_name': 'Finish',
-                    'agent_id': 1,
-                    'org_id': 1
-                }
-        mock_session.query().all.return_value = [execution1,execution2]
-        assert analytics_helper.calculate_tool_usage() == [{
+        execution1 = Mock()
+        execution1.configure_mock(
+            tool_name='Finish',
+            unique_agents=1,
+            total_usage=1
+        )
+
+        execution2 = Mock()
+        execution2.configure_mock(
+            tool_name='Finish',
+            unique_agents=1,
+            total_usage=1
+        )
+
+        mock_query.return_value.all.return_value = [execution1, execution2]
+        mock_session.query.return_value = mock_query.return_value
+        result = analytics_helper.calculate_tool_usage()
+
+        assert result == [{
             'tool_name': 'Finish',
             'unique_agents': 1,
             'total_usage': 2
         }]
+
+        mock_session.query.assert_called()  # Ensures that the session.query() was called
+        mock_query.return_value.all.assert_called()  # Ensures that all() was called
+
+        # Here we are also verifying that our function's call to query is as expected. Replace the placeholders with your expected values.
+        calls = [
+            call(Event.json_property['tool_name'].label('tool_name'), Event.agent_id),
+            call().filter_by(event_name="tool_used").subquery(),
+            call(tool_used_subquery.c.tool_name, func.count(func.distinct(tool_used_subquery.c.agent_id)).label('unique_agents')).group_by(tool_used_subquery.c.tool_name).subquery(),
+            call(tool_used_subquery.c.tool_name, func.count(tool_used_subquery.c.tool_name).label('total_usage')).group_by(tool_used_subquery.c.tool_name).subquery(),
+            call(agent_count.c.tool_name, agent_count.c.unique_agents, total_usage.c.total_usage).join(total_usage, total_usage.c.tool_name == agent_count.c.tool_name),
+            call().all()
+        ]
+        mock_query.assert_has_calls(calls, any_order=True)
