@@ -45,3 +45,23 @@
     display: flex;
     justify-content: flex-start;
 }
+
+.database_container {
+    background-color: rgb(39, 35, 53);
+    width: calc(33% - 10px);
+    padding: 10px;
+    color: white;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.database_wrapper {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+}

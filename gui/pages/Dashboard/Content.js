@@ -18,6 +18,7 @@ import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
 import {createInternalId, removeInternalId} from "@/utils/utils";
+import AddDatabase from "@/pages/Dashboard/Settings/AddDatabase";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -116,7 +117,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     if(contentType === 'Create_Agent') {
       removeInternalId(internalId);
     } else if(contentType === 'Add_Toolkit') {
-      console.log(localStorage.getItem('tool_github_' + String(internalId)))
       localStorage.removeItem('tool_github_' + String(internalId));
     } else if(contentType === 'Marketplace') {
       localStorage.removeItem('marketplace_tab');
@@ -130,6 +130,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       localStorage.removeItem('knowledge_name_' + String(internalId));
       localStorage.removeItem('knowledge_description_' + String(internalId));
       localStorage.removeItem('knowledge_index_' + String(internalId));
+    } else if(contentType === 'Add_Database') {
+      localStorage.removeItem('add_database_tab_' + String(internalId));
+    } else if(contentType === 'Settings') {
+      localStorage.removeItem('settings_tab');
     }
 
     setTabs(updatedTabs);
@@ -302,6 +306,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
                   {(tab.contentType === 'Toolkits' || tab.contentType === 'Add_Toolkit') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {(tab.contentType === 'Knowledge' || tab.contentType === 'Add_Knowledge') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/knowledge.svg" alt="knowledge-icon"/></div>}
+                  {(tab.contentType === 'Database' || tab.contentType === 'Add_Database') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/database.svg" alt="database-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
@@ -319,10 +324,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Knowledge' && <KnowledgeDetails internalId={tab.internalId || index} knowledgeDetails={tab}/>}
-                  {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
+                  {tab.contentType === 'Settings' && <Settings organisationId={organisationId} sendDatabaseData={addTab}/>}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                   {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
                   {tab.contentType === 'Add_Knowledge' && <AddKnowledge internalId={tab.internalId || index}/>}
+                  {tab.contentType === 'Add_Database' && <AddDatabase internalId={tab.internalId || index}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList knowledge={knowledge} internalId={tab.internalId || index} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
