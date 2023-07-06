@@ -159,3 +159,17 @@ export const getExecutionDetails = (executionId) => {
 export const stopSchedule = (agentId) => {
   return api.post(`/agents/stop/schedule?agent_id=${agentId}`);
 }
+
+export const createAndScheduleRun = (requestData) => {
+  return api.post(`/agentexecutions/schedule`, requestData);
+}
+
+export const AgentScheduleComponent = (agentId) => {
+  return api.get(`/agents/get/schedule_data/${agentId}`);
+}
+
+export const  updateSchedule= (requestData) => {
+  return api.put(`/agents/edit/schedule`,requestData);
+}
+
+

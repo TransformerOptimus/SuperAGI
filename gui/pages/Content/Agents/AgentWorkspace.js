@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, } from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, createAndScheduleRun, AgentScheduleComponent, updateSchedule } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
 import { convertToGMT } from "@/utils/utils";
@@ -17,7 +17,7 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import 'moment-timezone';
 
-export default function AgentWorkspace({agentId, selectedView}) {
+export default function AgentWorkspace({agentId, selectedView, agents}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -121,21 +121,20 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
-    AgentScheduleComponent();
+    fetchAgentScheduleComponent();
   }; 
   const handleStopScheduleClick = () => {
     setCreateStopModal(true);
     setCreateModal(false);
   };
 
-  const stopSchedule = () => {//stop schedule
-    const apiUrl = `http://192.168.1.62:3000/api/agents/stop/schedule?agent_id=${agentId}`;
-    axios.post(apiUrl)
+  function fetchStopSchedule() {//Stop Schedule
+    stopSchedule(agentId)
       .then((response) => {
         if (response.status === 200) {
           toast.success('Schedule stopped successfully!');
-          EventBus.emit('reFetchAgents', {});
           setCreateStopModal(false);
+          EventBus.emit('reFetchAgents', {});
         }
       })
       .catch((error) => {
@@ -143,7 +142,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
       });
   };
 
-  const createAndScheduleRun = () => {//schedule existing data
+  function fetchScheduleRun() {//schedule run
     const requestData = {
       "agent_id": agentId,
       "start_time": startTime,
@@ -151,45 +150,46 @@ export default function AgentWorkspace({agentId, selectedView}) {
       "expiry_runs":expiryRuns,
       "expiry_date":expiryDate,
     };
-    console.log("start_time", "recurrence_interval", "expiry_runs","expiry_date");
-    axios.post(`http://192.168.1.62:3000/api/agentexecutions/schedule`, requestData)
-      .then(response => {
-        const { schedule_id } = response.data;
-        toast.success('Scheduled successfully!');
-        setCreateModal(false);
-        console.log('Schedule ID:', schedule_id);
-        EventBus.emit('reFetchAgents', {});
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+    createAndScheduleRun(requestData)
+    .then(response => {
+      const { schedule_id } = response.data;
+      toast.success('Scheduled successfully!');
+      setCreateModal(false);
+      console.log('Schedule ID:', schedule_id);
+      EventBus.emit('reFetchAgents', {});
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   };
 
-  const AgentScheduleComponent = () => {//getting agent data
-    axios.get(`http://192.168.1.62:3000/api/agents/get/schedule_data/${agentId}`)
-      .then((response) => {
-        const {current_datetime, recurrence_interval, expiry_date, expiry_runs} = response.data;
-        setEditStartTime(current_datetime);
-        seteditExpiryRuns(expiry_runs);
-        setEditExpiryDate(expiry_date);
-        if (recurrence_interval) {
-          const [value, unit] = recurrence_interval.split(' ');
-          setEditTimeValue(value);
-          setEditTimeUnit(unit);
-        }
-        console.log('Start Time:', editStartTime);
-        console.log('Expiry Runs:', editExpiryRuns);
-        console.log('Expiry Date:', editExpiryDate);
-        console.log('Edit Time Value:', editTimeValue);
-        console.log('Edit Time Unit:', editTimeUnit);
-      })
-      .catch((error) => {
-        console.error('Error fetching agent data:', error);
-      });
+  function fetchAgentScheduleComponent() {//get data
+    AgentScheduleComponent(agentId)
+    .then((response) => {
+      const {current_datetime, recurrence_interval, expiry_date, expiry_runs} = response.data;
+      setEditStartTime(current_datetime);
+      seteditExpiryRuns(expiry_runs);
+      setEditExpiryDate(expiry_date);
+      if (recurrence_interval) {
+        const [value, unit] = recurrence_interval.split(' ');
+        setEditTimeValue(value);
+        setEditTimeUnit(unit);
+      }
+      console.log(response);
+      console.log('Start Time:', editStartTime);
+      console.log('Expiry Runs:', editExpiryRuns);
+      console.log('Expiry Date:', editExpiryDate);
+      console.log('Edit Time Value:', editTimeValue);
+      console.log('Edit Time Unit:', editTimeUnit);
+    })
+    .catch((error) => {
+      console.error('Error fetching agent data:', error);
+    });
   };
 
-  const handleUpdateSchedule = () => {//update agent data
-    const apiUrl = `http://192.168.1.62:3000/api/agents/edit/schedule`;
+  const agent = agents.find(agent => agent.id === agentId);
+
+  function fetchUpdateSchedule() {//Update Schedule
     const requestData = {
       "agent_id": agentId,
       "start_time": editStartTime,
@@ -197,25 +197,21 @@ export default function AgentWorkspace({agentId, selectedView}) {
       "expiry_runs": editExpiryRuns,
       "expiry_date": editExpiryDate,
     };
-  
-    axios.put(apiUrl, requestData)
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success('Schedule updated successfully');
-          setCreateEditModal(false);
-          EventBus.emit('reFetchAgents', {});
-        } else {
-          toast.error('Error updating agent schedule');
-        }
-      })
-      .catch((error) => {
-        console.error('Error updating agent schedule:', error);
-      });
+    updateSchedule(requestData)
+    .then((response) => {
+      if (response.status === 200) {
+        toast.success('Schedule updated successfully');
+        setCreateEditModal(false);
+        EventBus.emit('reFetchAgents', {});
+      } else {
+        toast.error('Error updating agent schedule');
+      }
+    })
+    .catch((error) => {
+      console.error('Error updating agent schedule:', error);
+    });
   };
 
-  useEffect(() => {
-    stopSchedule();
-  }, [agentId])
 
   const pendingPermissions = useMemo(() => {
     if (!fetchedData) return 0;
@@ -433,14 +429,16 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
-                
-                <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>
+
+                {agent && agent.is_scheduled ? (<div>
                 <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                 <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
-       
+                </div>):(<div>
+                <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>
+                </div>)} 
+
               </ul>
             </div>}
-
 
             {createModal && (
             <div className="modal" onClick={closeCreateModal}>
@@ -514,7 +512,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                 Cancel
               </button>
-              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={createAndScheduleRun}>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={fetchScheduleRun}>
                 Create and Schedule Run
               </button>
             </div>
@@ -598,7 +596,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                 Cancel
               </button>
-              <button className={styles.run_button} onClick={handleUpdateSchedule} style={{paddingLeft:'15px',paddingRight:'25px'}}>
+              <button className={styles.run_button} onClick={fetchUpdateSchedule} style={{paddingLeft:'15px',paddingRight:'25px'}}>
                 Update Schedule
               </button>
             </div>
@@ -614,7 +612,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
                 Cancel
               </button>
-              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={stopSchedule}>
+              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={fetchStopSchedule}>
                 Stop Schedule
               </button>
             </div>

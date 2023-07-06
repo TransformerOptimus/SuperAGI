@@ -480,14 +480,14 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
           Promise.all(uploadPromises)
             .then(() => {
-              runExecution(agentId, name, executionId);
+              runExecution(agentId, name, executionId, createModal);
             })
             .catch(error => {
               console.error('Error uploading files:', error);
               setCreateClickable(true);
             });
         } else {
-          runExecution(agentId, name, executionId);
+          runExecution(agentId, name, executionId, createModal);
         }
       })
       .catch((error) => {
@@ -496,12 +496,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       });
   };
 
-  function runExecution(agentId, name, executionId) {
+  function runExecution(agentId, name, executionId, createModal) {
+    if(createModal) {
+      toast.success('Agent created successfully', { autoClose: 1800 });
+      sendAgentData({ id: agentId, name: name, contentType: "Agents" });
+      setCreateClickable(true);
+      setCreateModal(false);
+      return;
+    }
+
     updateExecution(executionId, {"status": 'RUNNING'})
       .then((response) => {
         toast.success('Agent created successfully', { autoClose: 1800 });
         sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
         setCreateClickable(true);
+        setCreateModal(false);
       })
       .catch((error) => {
         setCreateClickable(true);
