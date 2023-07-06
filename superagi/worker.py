@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from sqlalchemy.orm import sessionmaker
 
+from superagi.helper.tool_helper import handle_tools_import
 from superagi.lib.logger import logger
 
 from celery import Celery
@@ -22,6 +23,7 @@ app.conf.accept_content = ['application/x-python-serialize', 'application/json']
 def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
     from superagi.jobs.agent_executor import AgentExecutor
+    handle_tools_import()
     logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
 
