@@ -626,6 +626,21 @@ p {
     cursor: pointer;
 }
 
+.title_wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.database_box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+    background-color: #282437;
+}
+
+
 .mt_6{margin-top: 6px;}
 .mt_8{margin-top: 8px;}
 .mt_10{margin-top: 10px;}

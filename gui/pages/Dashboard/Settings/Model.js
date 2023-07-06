@@ -62,7 +62,7 @@ export default function Model({organisationId}) {
     <div className="row">
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div className="title_wrapper">
           <div className={agentStyles.page_title}>Settings</div>
         </div>
         <div>

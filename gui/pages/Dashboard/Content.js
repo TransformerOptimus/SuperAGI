@@ -51,6 +51,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit"
     },
   ];
+  const internalIdContentTypes = ['Create_Agent', 'Toolkits', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -146,7 +148,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
 
     const isExistingTab = tabs.some(
-      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !['Create_Agent', 'Add_Toolkit', 'Add_Knowledge'].includes(element.contentType)
+      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !multipleTabContentTypes.includes(element.contentType)
     );
 
     if (!isExistingTab) {
@@ -216,7 +218,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const newAgentTabIndex = tabs.findIndex(
         (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
       );
-      cancelTab(newAgentTabIndex, eventData.contentType, ['Create_Agent', 'Toolkits', 'Add_Toolkit'].includes(eventData.contentType) ? eventData.internalId : 0);
+      cancelTab(newAgentTabIndex, eventData.contentType, internalIdContentTypes.includes(eventData.contentType) ? eventData.internalId : 0);
     };
 
     EventBus.on('openNewTab', openNewTab);
@@ -311,7 +313,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Marketplace' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg" alt="marketplace-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, index, tab.contentType, ['Create_Agent', 'Toolkits', 'Add_Toolkit'].includes(tab.contentType) ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
+                <div onClick={(e) => closeTab(e, index, tab.contentType, internalIdContentTypes.includes(tab.contentType) ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>

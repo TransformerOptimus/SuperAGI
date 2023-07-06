@@ -34,7 +34,7 @@ export default function Database({organisationId, sendDatabaseData}) {
     <div className="row">
       <div className="col-2"></div>
       <div className="col-8" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div className="title_wrapper">
           <div className={agentStyles.page_title}>Vector Database</div>
           {vectorDB && vectorDB.length > 0 && !isLoading &&
             <button className="primary_button" onClick={() => sendDatabaseData({ id: -7, name: "new database", contentType: "Add_Database", internalId: createInternalId() })} style={{marginTop:'-10px',marginRight:'20px'}}>
