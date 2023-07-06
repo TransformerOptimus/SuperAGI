@@ -1,0 +1,9 @@
+{
+  "workspace": {
+    "input": "workspace/input",
+    "output": "workspace/output"
+  },
+  "entry_path": "benchmarks.py",
+  "home_path": "",
+  "cutoff": 60
+}
