@@ -107,4 +107,4 @@ def test_handle_tools_import():
         mock_listdir.return_value = "test_tool"
         initial_path_length = len(sys.path)
         handle_tools_import()
-        assert (len(sys.path), initial_path_length + 2)
+        assert len(sys.path), initial_path_length + 2
