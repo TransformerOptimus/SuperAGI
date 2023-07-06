@@ -273,8 +273,6 @@ def add_tool_to_json(repo_link):
 
 
 def handle_tools_import():
-    print("_______________________EXECUTOR.py")
-    # folder_path = "superagi/tools"
     folder_path = get_config("TOOLS_DIR")
     if folder_path is None:
         folder_path = "superagi/tools"
