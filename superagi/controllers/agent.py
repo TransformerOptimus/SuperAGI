@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from jsonmerge import merge
 from pytz import timezone
 from sqlalchemy import func
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.worker import execute_agent
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
@@ -366,14 +367,14 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     current_datetime = datetime.now(tzone).strftime("%d/%m/%Y %I:%M %p")
 
-    response_data = {
+    return {
         "current_datetime": current_datetime,
-        "recurrence_interval": agent.recurrence_interval if agent.recurrence_interval else None,
-        "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y") if agent.expiry_date else None,
-        "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None
+        "recurrence_interval": agent.recurrence_interval or None,
+        "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y")
+        if agent.expiry_date
+        else None,
+        "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None,
     }
-
-    return response_data
 
 
 @router.get("/get/project/{project_id}")
