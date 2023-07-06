@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch, create_autospec
+from unittest.mock import MagicMock, patch, create_autospec, Mock
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text, func
