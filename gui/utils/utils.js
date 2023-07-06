@@ -202,6 +202,7 @@ export const removeInternalId = (internalId) => {
     localStorage.removeItem("has_LTM_" + String(internalId));
     localStorage.removeItem("has_resource_" + String(internalId));
     localStorage.removeItem("agent_files_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_" + String(internalId));
   }
 }
 

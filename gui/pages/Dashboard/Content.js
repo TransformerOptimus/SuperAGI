@@ -30,23 +30,23 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const router = useRouter();
   const knowledge = [
     {
-      name: "knowledge name 1", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      id: 1, name: "knowledge name 1", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
     },
     {
-      name: "knowledge name 2", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      id: 2, name: "knowledge name 2", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
       description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     },
     {
-      name: "knowledge name 3", developer: "developer", source: "Custom", contentType: 'Knowledge',
+      id: 3, name: "knowledge name 3", developer: "developer", source: "Custom", contentType: 'Knowledge',
       description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium"
     },
     {
-      name: "knowledge name 4", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
+      id: 4, name: "knowledge name 4", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
       description: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
     },
     {
-      name: "knowledge name 5", developer: "developer", source: "Custom", contentType: 'Knowledge',
+      id: 5, name: "knowledge name 5", developer: "developer", source: "Custom", contentType: 'Knowledge',
       description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit"
     },
   ];
@@ -323,7 +323,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                   {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
                   {tab.contentType === 'Add_Knowledge' && <AddKnowledge internalId={tab.internalId || index}/>}
-                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                  {tab.contentType === 'Create_Agent' && <AgentTemplatesList knowledge={knowledge} internalId={tab.internalId || index} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
                 </div>}
               </div>
             ))}

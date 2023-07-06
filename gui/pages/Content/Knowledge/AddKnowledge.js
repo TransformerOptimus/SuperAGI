@@ -67,6 +67,19 @@ export default function AddKnowledge({internalId}) {
     }
   }, [internalId])
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (indexRef.current && !indexRef.current.contains(event.target)) {
+        setIndexDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (<>
     <div className="row">
       <div className="col-3"></div>

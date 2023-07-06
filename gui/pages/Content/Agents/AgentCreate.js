@@ -19,7 +19,7 @@ import {
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
+export default function AgentCreate({sendAgentData, knowledge, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -65,6 +65,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [rollingWindow, setRollingWindow] = useState(rollingWindows[1]);
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
+
+  const [selectedKnowledge, setSelectedKnowledge] = useState('');
+  const knowledgeRef = useRef(null);
+  const [knowledgeDropdown, setKnowledgeDropdown] = useState(false);
 
   const databases = ["Pinecone"]
   const [database, setDatabase] = useState(databases[0]);
@@ -159,6 +163,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setRollingDropdown(false)
       }
 
+      if (knowledgeRef.current && !knowledgeRef.current.contains(event.target)) {
+        setKnowledgeDropdown(false)
+      }
+
       if (databaseRef.current && !databaseRef.current.contains(event.target)) {
         setDatabaseDropdown(false)
       }
@@ -228,6 +236,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleWindowSelect = (index) => {
     setLocalStorageValue("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
     setRollingDropdown(false);
+  };
+
+  const handleKnowledgeSelect = (index) => {
+    setLocalStorageValue("agent_knowledge_" + String(internalId), knowledge[index].name, setSelectedKnowledge);
+    setKnowledgeDropdown(false);
   };
 
   const handleStepChange = (event) => {
@@ -602,6 +615,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     if(agent_files) {
       setInput(JSON.parse(agent_files));
     }
+
+    const agent_knowledge = localStorage.getItem("agent_knowledge_" + String(internalId));
+    if(agent_knowledge) {
+      setSelectedKnowledge(agent_knowledge);
+    }
   }, [internalId])
 
   return (<>
@@ -760,7 +778,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>}
               </div>
-              <div style={{marginTop: '5px'}}>
+              {knowledge && knowledge.length > 0 && <div style={{marginTop: '5px'}}>
+                <label className={styles.form_label}>Add knowledge (optional)</label>
+                <div className="dropdown_container_search" style={{width:'100%'}}>
+                  <div className="custom_select_container" onClick={() => setKnowledgeDropdown(!knowledgeDropdown)} style={selectedKnowledge ? {width:'100%'} : {width:'100%', color:'#888888'}}>
+                    {selectedKnowledge || 'Select knowledge'}<Image width={20} height={21} src={!knowledgeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                  </div>
+                  <div>
+                    {knowledgeDropdown && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
+                      {knowledge.map((item, index) => (<div key={index} className="custom_select_option" onClick={() => handleKnowledgeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        {item.name}
+                      </div>))}
+                    </div>}
+                  </div>
+                </div>
+              </div>}
+              <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
                 {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
