@@ -49,6 +49,7 @@ def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()
         "oauth_token_secret": credentials["oauth_token_secret"]
     }
     tokens = OauthTokens().add_or_update(session, credentials["toolkit_id"], user_id, toolkit.organisation_id, "TWITTER_OAUTH_TOKENS", str(final_creds))
+    session.close()
     if tokens:
         success = True
     else:
@@ -67,4 +68,5 @@ def get_twitter_tool_configs(toolkit_id: int):
         "api_secret": twitter_config_secret.value
     }
     response = TwitterTokens(session).get_request_token(api_data)
+    session.close()
     return response
