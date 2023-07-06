@@ -108,3 +108,22 @@ def analytics_helper(mock_session):
             'created_at': '2023-07-05T12:21:58.153551',
             'updated_at': '2023-07-05T12:23:20.174844'
         }]
+
+    def test_calculate_tool_usage(self, mock_session, analytics_helper):
+        # Test Data
+        execution1 = {
+            'tool_name': 'Finish',
+            'agent_id': 1,
+            'org_id': 1
+        }
+        execution2 = {
+                    'tool_name': 'Finish',
+                    'agent_id': 1,
+                    'org_id': 1
+                }
+        mock_session.query().all.return_value = [execution1,execution2]
+        assert analytics_helper.calculate_tool_usage() == [{
+            'tool_name': 'Finish',
+            'unique_agents': 1,
+            'total_usage': 2
+        }]
