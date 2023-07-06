@@ -12,4 +12,4 @@ WORKDIR /app
 COPY . .
 COPY config.yaml .
 
-CMD ["celery", "-A", "superagi.worker", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "superagi.worker", "worker", "--beat","--loglevel=info"]

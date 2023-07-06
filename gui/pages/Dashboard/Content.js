@@ -268,7 +268,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           <div className={styles.tabs} ref={tabContainerRef}>
             {tabs.map((tab, index) => (
               <div data-tab-id={index} key={index} className={`${styles.tab_box} ${selectedTab === index ? styles.tab_box_selected : ''}`} onClick={() => {selectTab(tab, index)}}>
-                <div style={{display:'flex', order:'0'}}>
+                <div style={{display:'flex', order:'0',overflowX:'hidden'}}>
                   {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg" alt="agent-icon"/></div>}
                   {(tab.contentType === 'Toolkits' || tab.contentType === 'Add_Toolkit') && <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg" alt="tools-icon"/></div>}
                   {tab.contentType === 'Settings' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg" alt="settings-icon"/></div>}
@@ -285,7 +285,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             {tabs.map((tab, index) => (
               <div key={index}>
                 {selectedTab === index && <div>
-                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView}/>}
+                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView} agentName = {tab.name}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}

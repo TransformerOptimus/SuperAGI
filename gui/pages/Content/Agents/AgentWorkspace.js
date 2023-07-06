@@ -9,15 +9,16 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate} from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, deleteAgent} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentWorkspace({agentId, selectedView}) {
+export default function AgentWorkspace({agentId, selectedView, agentName}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
   const [goals, setGoals] = useState(null)
   const [currentGoals, setCurrentGoals] = useState(null)
   const [runName, setRunName] = useState("New Run")
@@ -89,23 +90,56 @@ export default function AgentWorkspace({agentId, selectedView}) {
     }
 
     addExecution(executionData)
+      .then((response) => {
+        setRunModal(false);
+        fetchExecutions(agentId, response.data);
+        fetchAgentDetails(agentId);
+        EventBus.emit('reFetchAgents', {});
+        toast.success("New run created", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error creating execution:', error);
+        toast.error("Could not create run", {autoClose: 1800});
+      });
+
+    updateAgents(agentData)
+      .then((response) => {
+        EventBus.emit('reFetchAgents', {});
+      })
+      .catch((error) => {
+        console.error('Error updating agent:', error);
+      });
+    updateAgents(agentData1)
         .then((response) => {
-          setRunModal(false);
-          fetchExecutions(agentId, response.data);
-          fetchAgentDetails(agentId);
           EventBus.emit('reFetchAgents', {});
-          toast.success("New run created", {autoClose: 1800});
         })
         .catch((error) => {
-          console.error('Error creating execution:', error);
-          toast.error("Could not create run", {autoClose: 1800});
+          console.error('Error updating agent:', error);
         });
   };
 
+  const handleDeleteAgent = () => {
+    deleteAgent(agentId)
+      .then((response) => {
+        setDeleteModal(false);
+        EventBus.emit('reFetchAgents', {});
+        EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents"})
+        toast.success("Agent Deleted Successfully", {autoClose: 1800});
+      })
+      .catch((error) => {
+        setDeleteModal(false);
+        toast.error("Agent Could not be Deleted", {autoClose: 1800});
+        console.error("Agent could not be deleted: ", error)
+      })
+  }
   const closeRunModal = () => {
     setRunName("New Run");
     setRunModal(false);
   };
+
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+  }
 
   const updateRunStatus = (status) => {
     const executionData = {"status": status};
@@ -210,7 +244,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   return (<>
     <div style={{display:'flex'}}>
-      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
+      {history  && selectedRun !== null && <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun} setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
       <div style={{width: history ? '40%' : '60%'}}>
         <div className={styles.detail_top}>
           <div style={{display:'flex'}}>
@@ -244,6 +278,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
+                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
               </ul>
             </div>}
           </div>
@@ -296,6 +331,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
       </div>
 
+      
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={styles.detail_name}>Run agent name</div>
@@ -340,6 +376,27 @@ export default function AgentWorkspace({agentId, selectedView}) {
           </div>
         </div>
       </div>)}
+
+      {deleteModal && (<div className="modal" onClick={closeDeleteModal}>
+      <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px' }} onClick={preventDefault}>
+          <div>
+            <label className={styles.delete_agent_modal_label}>Delete Agent</label>
+          </div>
+          <div>
+          <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you sure you want to proceed?</label>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="secondary_button" style={{ marginRight: '10px' }} onClick={closeDeleteModal}>
+              Cancel
+            </button>
+            <button className="primary_button" onClick={() => handleDeleteAgent()}>
+              Delete Agent
+            </button>
+          </div>
+        </div>
+      </div>)}
+      
+
     </div>
     <ToastContainer/>
   </>);
