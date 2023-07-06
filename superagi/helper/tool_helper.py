@@ -280,5 +280,3 @@ def handle_tools_import():
         folder_dir = os.path.join(folder_path, folder_name)
         if os.path.isdir(folder_dir):
             sys.path.append(folder_dir)
-    for path in sys.path:
-        print(path)
