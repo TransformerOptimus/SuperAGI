@@ -136,7 +136,7 @@ class AgentExecutor:
         return model_api_key
 
     @staticmethod
-    def get_organisation_id(agent_execution,session):
+    def get_organisation(agent_execution,session):
         """
         Get the model API key from the agent execution.
 
@@ -205,7 +205,7 @@ class AgentExecutor:
         parsed_config["agent_execution_id"] = agent_execution.id
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
-        organisation = AgentExecutor.get_organisation_id(agent_execution, session)
+        organisation = AgentExecutor.get_organisation(agent_execution, session)
 
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
