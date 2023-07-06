@@ -17,7 +17,7 @@ import { useRouter } from 'next/router';
 import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
-import {createInternalId, removeInternalId} from "@/utils/utils";
+import {createInternalId, resetLocalStorage} from "@/utils/utils";
 import AddDatabase from "@/pages/Dashboard/Settings/AddDatabase";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
@@ -116,28 +116,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       updatedTabs.splice(index, 1);
     }
 
-    if(contentType === 'Create_Agent') {
-      removeInternalId(internalId);
-    } else if(contentType === 'Add_Toolkit') {
-      localStorage.removeItem('tool_github_' + String(internalId));
-    } else if(contentType === 'Marketplace') {
-      localStorage.removeItem('marketplace_tab');
-      localStorage.removeItem('market_item_clicked');
-      localStorage.removeItem('market_detail_type');
-      localStorage.removeItem('market_item');
-    } else if(contentType === 'Toolkits') {
-      localStorage.removeItem('toolkit_tab_' + String(internalId));
-      localStorage.removeItem('api_configs_' + String(internalId));
-    } else if(contentType === 'Knowledge') {
-      localStorage.removeItem('knowledge_name_' + String(internalId));
-      localStorage.removeItem('knowledge_description_' + String(internalId));
-      localStorage.removeItem('knowledge_index_' + String(internalId));
-    } else if(contentType === 'Add_Database') {
-      localStorage.removeItem('add_database_tab_' + String(internalId));
-    } else if(contentType === 'Settings') {
-      localStorage.removeItem('settings_tab');
-    }
-
+    resetLocalStorage(contentType, internalId);
     setTabs(updatedTabs);
   };
 

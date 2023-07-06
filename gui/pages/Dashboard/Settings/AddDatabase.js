@@ -12,7 +12,7 @@ export default function AddDatabase({internalId}) {
   const [activeView, setActiveView] = useState('select_database');
   const vectorDatabases = ["Pinecone", "Qdrant"];
   const [selectedDB, setSelectedDB] = useState(vectorDatabases[0]);
-  const [databaseName, setDatabaseName] = useState('name');
+  const [databaseName, setDatabaseName] = useState('');
   const [collections, setCollections] = useState(['collection name']);
 
   const [pineconeApiKey, setPineconeApiKey] = useState('');
@@ -89,7 +89,7 @@ export default function AddDatabase({internalId}) {
   }
 
   const addCollection = () => {
-    setLocalStorageArray("db_collections_" + String(internalId), [...collections, 'new collection'], setCollections);
+    setLocalStorageArray("db_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
   };
 
   const handleCollectionChange = (index, newValue) => {
