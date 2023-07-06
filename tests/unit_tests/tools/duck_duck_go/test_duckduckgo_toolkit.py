@@ -1,9 +1,9 @@
-import unittest
+import pytest
 from superagi.tools.duck_duck_go.duck_duck_go_search_toolkit import DuckDuckGoToolkit
 from superagi.tools.duck_duck_go.duck_duck_go_search import DuckDuckGoSearchTool
 
-class DuckDuckGoSearchToolKitTest(unittest.TestCase):
-    def setUp(self):
+class TestDuckDuckGoSearchToolKit:
+    def setup_method(self):
         """
         Set up the test fixture.
 
@@ -16,21 +16,20 @@ class DuckDuckGoSearchToolKitTest(unittest.TestCase):
 
     def test_get_tools(self):
         """
-        Test the `get_tools` method of the `SearxSearchToolkit` class.
+        Test the `get_tools` method of the `DuckDuckGoToolkit` class.
 
-        It should return a list of tools, containing one instance of `SearxSearchTool`.
+        It should return a list of tools, containing one instance of `DuckDuckGoSearchTool`.
 
         Returns:
             None
         """
-
         tools = self.toolkit.get_tools()
-        self.assertEqual(1, len(tools))
-        self.assertIsInstance(tools[0], DuckDuckGoSearchTool)
+        assert len(tools) == 1
+        assert isinstance(tools[0], DuckDuckGoSearchTool)
 
     def test_get_env_keys(self):
         """
-        Test the `get_env_keys` method of the `SearxSearchToolkit` class.
+        Test the `get_env_keys` method of the `DuckDuckGoToolkit` class.
 
         It should return an empty list of environment keys.
 
@@ -38,8 +37,4 @@ class DuckDuckGoSearchToolKitTest(unittest.TestCase):
             None
         """
         env_keys = self.toolkit.get_env_keys()
-        self.assertEqual(0, len(env_keys))
-
-if __name__ == '__main__':
-    unittest.main()
-
+        assert len(env_keys) == 0
