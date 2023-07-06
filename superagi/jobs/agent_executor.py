@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 import superagi.worker
 from superagi.agent.super_agi import SuperAgi
+from superagi.models.agent_workflow import AgentWorkflow
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.resource_manager.resource_summary import ResourceSummarizer
@@ -218,7 +219,16 @@ class AgentExecutor:
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
-        response = spawned_agent.execute(agent_workflow_step)
+        
+        try:
+            response = spawned_agent.execute(agent_workflow_step)
+        except RuntimeError as e:
+            superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            session.close()
+            # If our execution encounters an error we return and attempt to retry
+            return
+
+
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
         agent_execution.current_step_id = agent_workflow_step.next_step_id
@@ -261,10 +271,11 @@ class AgentExecutor:
                 tool.goals = parsed_execution_config["goal"]
             if hasattr(tool, 'instructions'):
                 tool.instructions = parsed_execution_config["instruction"]
-            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config["model"] == "gpt-3.5-turbo"):
-                tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.3)
+            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config[
+                "model"] == "gpt-3.5-turbo") and tool.name != "QueryResource":
+                tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
             elif hasattr(tool, 'llm'):
-                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.3)
+                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
             if hasattr(tool, 'image_llm'):
                 tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
             if hasattr(tool, 'agent_id'):
@@ -275,7 +286,7 @@ class AgentExecutor:
                 tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
                     "agent_execution_id"])
 
-            if tool.name == "Query Resource" and resource_description:
+            if tool.name == "QueryResource" and resource_description:
                 tool.description = tool.description.replace("{summary}", resource_description)
             new_tools.append(tool)
         return tools

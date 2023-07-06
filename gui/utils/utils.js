@@ -241,3 +241,41 @@ export const createInternalId = () => {
 
   return newId;
 }
+
+export const returnToolkitIcon = (toolkitName) => {
+  const toolkitData = [
+    { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
+    { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
+    { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
+    { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
+    { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
+    { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
+    { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
+    { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
+    { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
+    { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
+    { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
+    { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
+    { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
+  ];
+
+  const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
+  return toolkit ? toolkit.imageSrc : '/images/custom_tool.svg';
+}
+
+export const returnResourceIcon = (file) => {
+  const fileTypeIcons = {
+    'application/pdf': '/images/pdf_file.svg',
+    'application/txt': '/images/txt_file.svg',
+    'text/plain': '/images/txt_file.svg',
+    'image': '/images/img_file.svg',
+  };
+
+  return fileTypeIcons[file.type] || '/images/default_file.svg';
+};
+
+export const  convertToTitleCase = (str) => {
+  const words = str.toLowerCase().split('_');
+  const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+  return capitalizedWords.join(' ');
+}

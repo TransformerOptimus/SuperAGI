@@ -1,12 +1,12 @@
-from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 
-from superagi.config.config import get_config
 from superagi.lib.logger import logger
+from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.configuration import Configuration
 from superagi.models.resource import Resource
 from superagi.resource_manager.llama_document_summary import LlamaDocumentSummary
 from superagi.resource_manager.resource_manager import ResourceManager
-from datetime import datetime
 
 
 class ResourceSummarizer:
@@ -25,13 +25,16 @@ class ResourceSummarizer:
             openai_api_key (str): OpenAI API key.
             documents (list): List of documents.
         """
+        agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
+        organization = agent.get_agent_organisation(self.session)
+        model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
         try:
-            ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id))
+            ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key)
         except Exception as e:
             logger.error(e)
         summary = None
         try:
-            summary = LlamaDocumentSummary().generate_summary_of_document(documents)
+            summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents)
         except Exception as e:
             logger.error(e)
         resource = self.session.query(Resource).filter(Resource.id == resource_id).first()
@@ -44,9 +47,14 @@ class ResourceSummarizer:
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
         resources = self.session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').all()
-        summary_texts = [resource.summary for resource in resources if resource.summary is not None]
-        if resources is None:
+        if not resources:
             return
+
+        agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
+        organization = agent.get_agent_organisation(self.session)
+        model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
+
+        summary_texts = [resource.summary for resource in resources if resource.summary is not None]
 
         # generate_all is added because we want to generate summary for all resources when agent is created
         # this is set to false when adding individual resources
@@ -57,7 +65,7 @@ class ResourceSummarizer:
                     documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
                 else:
                     documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
-                summary_texts.append(LlamaDocumentSummary().generate_summary_of_document(documents))
+                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents))
 
         agent_last_resource = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
@@ -67,9 +75,9 @@ class ResourceSummarizer:
                 and not generate_all:
             return
 
-        resource_summary = summary_texts[0]
+        resource_summary = summary_texts[0] if summary_texts else None
         if len(summary_texts) > 1:
-            resource_summary = LlamaDocumentSummary().generate_summary_of_texts(summary_texts)
+            resource_summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_texts(summary_texts)
 
         if agent_config_resource_summary is not None:
             agent_config_resource_summary.value = resource_summary

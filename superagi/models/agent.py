@@ -12,7 +12,8 @@ from superagi.models.agent_workflow import AgentWorkflow
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
 from superagi.lib.logger import logger
-
+from superagi.models.organisation import Organisation
+from superagi.models.project import Project
 
 class Agent(DBBaseModel):
     """
@@ -152,7 +153,8 @@ class Agent(DBBaseModel):
             "permission_type": agent_with_config.permission_type,
             "LTM_DB": agent_with_config.LTM_DB,
             "memory_window": agent_with_config.memory_window,
-            "max_iterations": agent_with_config.max_iterations
+            "max_iterations": agent_with_config.max_iterations,
+            "user_timezone": agent_with_config.user_timezone
         }
 
         agent_configurations = [
@@ -229,3 +231,18 @@ class Agent(DBBaseModel):
         db.session.commit()
         db.session.flush()
         return db_agent
+
+    def get_agent_organisation(self, session):
+        """
+        Get the organization of the agent.
+
+        Args:
+            session: The database session.
+
+        Returns:
+            Organization: The organization of the agent.
+
+        """
+        project = session.query(Project).filter(Project.id == self.project_id).first()
+        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+        return organisation
