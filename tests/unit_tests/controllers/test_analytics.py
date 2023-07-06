@@ -5,6 +5,12 @@ from fastapi.testclient import TestClient
 
 from main import app
 from superagi.models.events import Event
+from fastapi import FastAPI
+from superagi.controllers.analytics import router as analytics_router
+
+app = FastAPI()
+
+app.include_router(analytics_router)
 
 client = TestClient(app)
 
