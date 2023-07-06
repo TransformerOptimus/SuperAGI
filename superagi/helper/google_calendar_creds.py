@@ -35,6 +35,7 @@ class GoogleCalendarCreds:
                 creds = json.loads(creds)
             expire_time = datetime.strptime(creds["expiry"], "%Y-%m-%dT%H:%M:%S.%fZ")
             google_creds = session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id).all()
+            session.close()
             client_id = ""
             client_secret = ""
             for credentials in google_creds:
