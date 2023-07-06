@@ -3,7 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
+import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile, updateExecution} from "@/pages/api/DashboardService";
 import {
   formatBytes,
   openNewTab,
@@ -496,21 +496,22 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       });
   };
 
+  const finaliseAgentCreation = (agentId, name, executionId) => {
+    toast.success('Agent created successfully', { autoClose: 1800 });
+    sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
+    setCreateClickable(true);
+    setCreateModal(false);
+  }
+
   function runExecution(agentId, name, executionId, createModal) {
     if(createModal) {
-      toast.success('Agent created successfully', { autoClose: 1800 });
-      sendAgentData({ id: agentId, name: name, contentType: "Agents" });
-      setCreateClickable(true);
-      setCreateModal(false);
+      finaliseAgentCreation(agentId, name, null);
       return;
     }
 
     updateExecution(executionId, {"status": 'RUNNING'})
       .then((response) => {
-        toast.success('Agent created successfully', { autoClose: 1800 });
-        sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
-        setCreateClickable(true);
-        setCreateModal(false);
+        finaliseAgentCreation(agentId, name, executionId);
       })
       .catch((error) => {
         setCreateClickable(true);
