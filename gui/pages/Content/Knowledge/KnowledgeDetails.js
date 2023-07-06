@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import styles1 from './Knowledge.module.css'
 import {ToastContainer, toast} from "react-toastify";
 import styles from "@/pages/Content/Toolkits/Tool.module.css";
-import Image from "next/image";
 
 export default function KnowledgeDetails({knowledgeDetails}) {
   const [showDescription,setShowDescription] = useState(false)

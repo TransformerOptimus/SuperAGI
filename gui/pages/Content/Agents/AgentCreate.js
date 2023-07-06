@@ -645,7 +645,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -658,7 +658,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                 <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
                 </div>{instructions.length > 1 && <div>
                   <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
-                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                    <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                   </button>
                 </div>}
               </div>))}
@@ -689,7 +689,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                 {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
                   {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{margin:'2px'}} onClick={preventDefault}>
                     <div className={styles.tool_text}>{tool}</div>
-                    <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
+                    <div><Image width={12} height={12} src='/images/close.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                   </div>))}
                   <input type="text" className="dropdown_search_text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)} onClick={(e) => e.stopPropagation()}/>
                 </div> : <div style={{color:'#666666'}}>Select Tools</div>}
@@ -771,7 +771,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                             <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
                             <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
                           </div>
-                          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
+                          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close.svg' alt="close-icon" /></div>
                         </div>
                       </div>
                     ))}
@@ -799,7 +799,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                   <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
                   <div>
                     <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
-                      <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                      <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                     </button>
                   </div>
                 </div>))}

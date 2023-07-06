@@ -310,7 +310,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -322,7 +322,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
               </div>{instructions.length > 1 && <div>
               <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
-                <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
               </button>
             </div>}
             </div>))}

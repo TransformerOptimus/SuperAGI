@@ -7,13 +7,14 @@ import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 import styles1 from "@/pages/Content/Agents/Agents.module.css";
+import { EventBus } from "@/utils/eventBus";
 
-export default function AddDatabase({internalId}) {
+export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const [activeView, setActiveView] = useState('select_database');
   const vectorDatabases = ["Pinecone", "Qdrant"];
   const [selectedDB, setSelectedDB] = useState(vectorDatabases[0]);
-  const [databaseName, setDatabaseName] = useState('');
-  const [collections, setCollections] = useState(['collection name']);
+  const [databaseName, setDatabaseName] = useState('database name');
+  const [collections, setCollections] = useState([]);
 
   const [pineconeApiKey, setPineconeApiKey] = useState('');
   const [pineconeEnvironment, setPineconeEnvironment] = useState('');
@@ -89,12 +90,12 @@ export default function AddDatabase({internalId}) {
   }
 
   const addCollection = () => {
-    setLocalStorageArray("db_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
+    setLocalStorageArray("db_collections_" + String(internalId), [...collections, {name: 'collection name', editable: 'true'}], setCollections);
   };
 
   const handleCollectionChange = (index, newValue) => {
     const updatedCollections = [...collections];
-    updatedCollections[index] = newValue;
+    updatedCollections[index].name = newValue;
     setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
   };
 
@@ -103,6 +104,27 @@ export default function AddDatabase({internalId}) {
     updatedCollections.splice(index, 1);
     setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
   };
+
+  const handleCollectionAddConfirm = (index) => {
+    const updatedCollections = [...collections];
+    updatedCollections[index].editable = false;
+    setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
+  }
+
+  const connectDatabase = () => {
+    sendDatabaseDetailsData({
+      id: -8,
+      name: databaseName,
+      contentType: "Database",
+      database: selectedDB,
+      collections: collections,
+      pineconeApiKey: pineconeApiKey,
+      pineconeEnvironment: pineconeEnvironment,
+      qdrantApiKey: qdrantApiKey,
+      qdrantURL: qdrantURL,
+      qdrantPort: qdrantPort
+    })
+  }
 
   return (<>
     <div className="row">
@@ -156,6 +178,29 @@ export default function AddDatabase({internalId}) {
           <label className={styles1.form_label}>Name</label>
           <input className="input_medium" type="text" value={databaseName} onChange={handleNameChange}/>
         </div>
+        <div style={{marginTop: '15px'}}>
+          <div><label className={styles.form_label}>Collection i.e, Index</label></div>
+          {collections.map((collection, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{flex:'1'}}>
+              <input disabled={!collection.editable} className="input_medium" type="text" value={collection.name}
+                     style={!collection.editable ? {color:'#888888'} : {}}
+                     onChange={(event) => handleCollectionChange(index, event.target.value)}/>
+            </div>
+            <div>
+              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
+                      onClick={() => handleCollectionDelete(index)}>
+                <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
+              </button>
+            </div>
+            {collection.editable && <div>
+              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
+                      onClick={() => handleCollectionAddConfirm(index)}>
+                <Image width={20} height={21} src="/images/tick.svg" alt="close-icon"/>
+              </button>
+            </div>}
+          </div>))}
+          <div><button className="secondary_button" onClick={addCollection}>+ Add</button></div>
+        </div>
         {selectedDB === 'Pinecone' && <div>
           <div style={{marginTop:'15px'}}>
             <label className={styles1.form_label}>Pinecone API key</label>
@@ -175,21 +220,6 @@ export default function AddDatabase({internalId}) {
             <label className={styles1.form_label}>Qdrant URL</label>
             <input className="input_medium" type="text" value={qdrantURL} onChange={handleQdrantURLChange}/>
           </div>
-        </div>}
-        {collections && collections.length > 0 && <div style={{marginTop: '15px'}}>
-          <div><label className={styles.form_label}>Collection i.e, Index</label></div>
-          {collections.map((collection, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div style={{flex:'1'}}><input className="input_medium" type="text" value={collection} onChange={(event) => handleCollectionChange(index, event.target.value)}/></div>
-            {collections.length > 1 && <div>
-              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
-                      onClick={() => handleCollectionDelete(index)}>
-                <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
-              </button>
-            </div>}
-          </div>))}
-          <div><button className="secondary_button" onClick={addCollection}>+ Add</button></div>
-        </div>}
-        {selectedDB === 'Qdrant' && <div>
           <div style={{marginTop:'15px'}}>
             <label className={styles1.form_label}>Port</label>
             <input className="input_medium" type="number" value={qdrantPort} onChange={handleQdrantPortChange}/>
@@ -199,7 +229,7 @@ export default function AddDatabase({internalId}) {
           <button onClick={() => removeTab(-7, "new database", "Add_Database")} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
-          <button className="primary_button">
+          <button className="primary_button" onClick={connectDatabase}>
             Connect
           </button>
         </div>
