@@ -1,69 +1,41 @@
 from unittest.mock import patch
-
 import pytest
 from fastapi.testclient import TestClient
-
-from main import app
-from superagi.models.events import Event
-from fastapi import FastAPI
-from superagi.controllers.analytics import router as analytics_router
-
-app = FastAPI()
-
-app.include_router(analytics_router)
+from superagi.main import app
 
 client = TestClient(app)
 
+def test_get_metrics_success():
+    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
+        mock_helper().calculate_run_completed_metrics.return_value = {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
+        response = client.get("/metrics")
+        assert response.status_code == 200
+        assert response.json() == {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
 
-@pytest.fixture
-def mock_event_data():
-    return [
-        Event(
-            id=1,
-            event_name="event1",
-            event_value=100,
-            json_property={},
-            agent_id=1,
-            org_id=1
-        ),
-        Event(
-            id=2,
-            event_name="event2",
-            event_value=200,
-            json_property={},
-            agent_id=2,
-            org_id=2
-        ),
-        Event(
-            id=3,
-            event_name="event3",
-            event_value=300,
-            json_property={},
-            agent_id=3,
-            org_id=3
-        )
-    ]
+def test_get_agents_success():
+    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
+        mock_helper().fetch_agent_data.return_value = {"agent_details": "mock_details", "model_info": "mock_info"}
+        response = client.get("/agents/all")
+        assert response.status_code == 200
+        assert response.json() == {"agent_details": "mock_details", "model_info": "mock_info"}
 
+def test_get_agent_runs_success():
+    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
+        mock_helper().fetch_agent_runs.return_value = "mock_agent_runs"
+        response = client.get("/agents/1")
+        assert response.status_code == 200
+        assert response.json() == "mock_agent_runs"
 
-@pytest.mark.parametrize("endpoint,status_code", [
-    ("/metrics", 200),
-    ("/agents/all", 200),
-    ("/agents/1", 200),
-    ("/runs/active", 200),
-    ("/tools/used", 200)
-])
-def test_analytics_endpoints(endpoint, status_code, mock_event_data):
-    with patch('superagi.helper.analytics_helper.AnalyticsHelper') as mock_helper:
-        mock_helper.return_value.calculate_run_completed_metrics.return_value = {
-            'total_tokens': 0,
-            'total_calls': 0,
-            'runs_completed': 3
-        }
-        mock_helper.return_value.fetch_agent_data.return_value = {'agent_details': [], 'model_info': []}
-        mock_helper.return_value.fetch_agent_runs.return_value = []
-        mock_helper.return_value.get_active_runs.return_value = []
-        mock_helper.return_value.calculate_tool_usage.return_value = []
+def test_get_active_runs_success():
+    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
+        mock_helper().get_active_runs.return_value = ["mock_run_1", "mock_run_2"]
+        response = client.get("/runs/active")
+        assert response.status_code == 200
+        assert response.json() == ["mock_run_1", "mock_run_2"]
 
-        response = client.get(endpoint, headers={"Authorization": "Bearer test_token"})
-
-        assert response.status_code == status_code
+def test_get_tools_user_success():
+    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
+        mock_helper().calculate_tool_usage.return_value = ["tool1", "tool2"]
+        response = client.get("/tools/used")
+        assert response.status_code == 200
+        assert response.json() == ["tool1", "tool2"]
