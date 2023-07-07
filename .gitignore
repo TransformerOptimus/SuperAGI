@@ -15,4 +15,5 @@ gui/.next
 venv
 workspace/output
 workspace/input
+celerybeat-schedule
 ../bfg-report*
