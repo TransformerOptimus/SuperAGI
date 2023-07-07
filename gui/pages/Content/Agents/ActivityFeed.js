@@ -5,7 +5,7 @@ import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal }) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal, agent }) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -84,6 +84,16 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   return (<>
     <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom:'55px'}}>
+
+        {agent.is_scheduled && !agent.is_running ? 
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <Image width={72} height={72} src="/images/eventSchedule.png" alt="github" />
+            <div style={{ color: 'white', fontSize: '14px' }}>
+              This agent is scheduled to start on 26 Jul 2023, Saturday at 12:01 PM
+            </div>
+        </div>:
+        <div>
+
         {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
           <div style={{display:'flex'}}>
             {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
@@ -122,6 +132,15 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
             <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
           </div>
         </div>}
+
+        </div>}
+        
+        {!agent.is_scheduled && !agent.is_running &&
+        <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
+          The Agent is not scheduled
+        </div>
+        }
+
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
           <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>

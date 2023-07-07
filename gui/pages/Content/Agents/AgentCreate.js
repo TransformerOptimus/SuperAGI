@@ -468,7 +468,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         const name = response.data.name;
         const executionId = response.data.execution_id;
         fetchAgents();
-
+        console.log(response);
         if (addResources && input.length > 0) {
           const uploadPromises = input.map(fileData => {
             return uploadResource(agentId, fileData)
@@ -901,21 +901,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
                 </div>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Exit criterion</label>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
-              {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
-              {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {exit}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
+ 
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Time between steps (in milliseconds)</label>
                 <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
@@ -935,29 +921,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <div style={{display:'flex'}}>*/}
-              {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
-              {/*    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>*/}
-              {/*      Long term memory*/}
-              {/*    </label>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
-              {/*{longTermMemory === true && <div style={{marginTop: '10px'}}>*/}
-              {/*  <label className={styles.form_label}>Choose an LTM database</label>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>*/}
-              {/*      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>*/}
-              {/*        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {data}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>}*/}
+ 
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Permission Type</label>
                 <div className="dropdown_container_search" style={{width:'100%'}}>
@@ -989,6 +953,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>}
             </div>
           </div>
+
           {createModal && (
             <div className="modal" onClick={closeCreateModal}>
               <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
@@ -996,7 +961,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 <div>
                   <label className={styles.form_label}>Select a date and time</label>
                   <div>
-                    <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                    <Datetime className={`${styles.rdtPicker} custom-rdtPicker`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
                   </div>
                 </div>
                 <div style={{display:'flex',marginTop:'20px'}}>
@@ -1064,6 +1029,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           )}
+
         </div>
       </div>
       <div className="col-3"></div>

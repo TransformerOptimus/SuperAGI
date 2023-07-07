@@ -35,7 +35,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
   const [pendingPermission, setPendingPermissions] = useState(0)
 
   const [timeValue, setTimeValue] = useState(null);
-  const [expiryRuns, setExpiryRuns] = useState(null);
+  const [expiryRuns, setExpiryRuns] = useState(-1);
   const [editExpiryRuns, seteditExpiryRuns] = useState(null);
   const [createModal, setCreateModal] = useState(false);
   const [createEditModal , setCreateEditModal] = useState(false);	
@@ -147,7 +147,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
       "agent_id": agentId,
       "start_time": startTime,
       "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
-      "expiry_runs":expiryRuns,
+      "expiry_runs":parseInt(expiryRuns),
       "expiry_date":expiryDate,
     };
     createAndScheduleRun(requestData)
@@ -175,7 +175,6 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
         setEditTimeValue(value);
         setEditTimeUnit(unit);
       }
-      console.log(response);
       console.log('Start Time:', editStartTime);
       console.log('Expiry Runs:', editExpiryRuns);
       console.log('Expiry Date:', editExpiryDate);
@@ -187,6 +186,10 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
     });
   };
 
+  useEffect(() => {
+    console.log("Edit:: "+editStartTime)
+  },[editStartTime])
+
   const agent = agents.find(agent => agent.id === agentId);
 
   function fetchUpdateSchedule() {//Update Schedule
@@ -194,7 +197,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
       "agent_id": agentId,
       "start_time": editStartTime,
       "recurrence_interval": editTimeValue ? `${editTimeValue} ${editTimeUnit}` : null,
-      "expiry_runs": editExpiryRuns,
+      "expiry_runs": parseInt(editExpiryRuns),
       "expiry_date": editExpiryDate,
     };
     updateSchedule(requestData)
@@ -347,6 +350,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
           let data = response.data
           data = data.filter((run) => run.status !== 'TERMINATED');
           setAgentExecutions(data);
+          console.log("agent Executions:" + (agentExecutions));
           setSelectedRun(currentRun ? currentRun : data[0]);
         })
         .catch((error) => {
@@ -527,9 +531,9 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             <div style={{marginBottom:'10px'}}>
               <label className={styles.form_label}>Select a date and time</label>
               <div >
-              <Datetime className={styles.rdtPicker} onChange={handleEditTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+              <Datetime className={styles.rdtPicker} onChange={handleEditTimeChange} value={editStartTime} inputProps={{ placeholder: 'Enter here' }}/>
               </div>          
-            </div>/
+            </div>
             {/* editStartTime */}
             <div style={{marginBottom:'20px', display:'flex'}}>
             <input type="checkbox" className="checkbox" checked={isRecurring} onChange={toggleRecurring} style={{ marginRight: '5px'}}/>
@@ -619,13 +623,11 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             </div>
           </div>
           )}
-
-
         </div>
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed runModal={runModal} selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData}/>
+            <ActivityFeed runModal={runModal} selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData} agent={agent}/>
           </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
