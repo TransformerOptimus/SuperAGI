@@ -8,7 +8,7 @@ from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
@@ -47,7 +47,7 @@ class WriteTestTool(BaseTool):
     )
     args_schema: Type[WriteTestSchema] = WriteTestSchema
     goals: List[str] = []
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
     tool_response_manager: Optional[ToolResponseQueryManager] = None
 
     class Config:

@@ -9,7 +9,7 @@ import {fetchAgentTemplateConfig, installAgentTemplate} from "@/pages/api/Dashbo
 import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
 
-export default function AgentTemplate({template}) {
+export default function AgentTemplate({template, env}) {
     const [tools, setTools] = useState([])
     const [agentType, setAgentType] = useState('')
     const [templateModel, setTemplateModel] = useState('')
@@ -54,12 +54,13 @@ export default function AgentTemplate({template}) {
     }
 
     function handleInstallClick(){
-        if(window.location.href.toLowerCase().includes('marketplace')) {
-            if (window.location.href.toLowerCase().includes('localhost')) {
+        if (window.location.href.toLowerCase().includes('marketplace')) {
+            localStorage.setItem('agent_to_install', template.id);
+            if (env === 'PROD') {
+                window.open(`https://app.superagi.com/`, '_self');
+            } else {
                 window.location.href = '/';
             }
-            else
-                window.open(`https://app.superagi.com/`, '_self')
             return;
         }
 
@@ -74,7 +75,7 @@ export default function AgentTemplate({template}) {
               setInstalled('Installed');
           })
           .catch((error) => {
-              console.error('Error fetching template details:', error);
+              console.error('Error installing template:', error);
           });
     }
 

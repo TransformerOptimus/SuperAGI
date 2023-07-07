@@ -27,7 +27,7 @@ def create_sample_image_base64():
 def stable_diffusion_tool():
     with patch('superagi.tools.image_generation.stable_diffusion_image_gen.requests.post') as post_mock, \
             patch(
-                'superagi.tools.image_generation.stable_diffusion_image_gen.ResourceManager') as resource_manager_mock:
+                'superagi.tools.image_generation.stable_diffusion_image_gen.FileManager') as resource_manager_mock:
 
         # Create a mock response object
         response_mock = Mock()

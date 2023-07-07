@@ -3,9 +3,9 @@ import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
-import {EventBus} from "@/utils/eventBus";
+import {setLocalStorageValue, openNewTab} from "@/utils/utils";
 
-export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId}){
+export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId}){
     const [agentTemplates, setAgentTemplates] = useState([])
     const [createAgentClicked, setCreateAgentClicked] = useState(false)
     const [sendTemplate, setSendTemplate] = useState(null)
@@ -21,23 +21,25 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
             });
     }, [])
 
+    useEffect(() => {
+        const agent_create_click = localStorage.getItem("agent_create_click_" + String(internalId));
+        if(agent_create_click) {
+            setCreateAgentClicked(JSON.parse(agent_create_click));
+        }
+    }, [internalId])
+
     function redirectToCreateAgent() {
-        setCreateAgentClicked(true);
+        setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
     }
 
     function openMarketplace() {
-        EventBus.emit('openNewTab', {
-            element: {
-                id: -4,
-                name: "Marketplace",
-                contentType: "Marketplace"
-            },
-            source:"market_agents"});
+        openNewTab(-4, "Marketplace", "Marketplace");
+        localStorage.setItem('marketplace_tab', 'market_agents');
     }
 
     function handleTemplateClick(item) {
         setSendTemplate(item);
-        setCreateAgentClicked(true);
+        setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
     }
 
     return (
@@ -86,7 +88,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                         </div>
                     </div>}
                 </div>
-            </div> : <AgentCreate organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
+            </div> : <AgentCreate internalId={internalId} organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
         </div>
     )
 };

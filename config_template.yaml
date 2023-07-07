@@ -11,6 +11,7 @@ OPENAI_API_BASE: https://api.openai.com/v1
 
 # "gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-4-32k": 32768, "gpt-4-32k-0314": 32768, "llama":2048, "mpt-7b-storywriter":45000
 MODEL_NAME: "gpt-3.5-turbo-0301"
+RESOURCES_SUMMARY_MODEL_NAME: "gpt-3.5-turbo"
 MAX_TOOL_TOKEN_LIMIT: 800
 MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
 
@@ -29,8 +30,8 @@ STORAGE_TYPE: "FILE"
 TOOLS_DIR: "superagi/tools"
 
 #STORAGE INFO FOR FILES
-RESOURCES_INPUT_ROOT_DIR: workspace/input
-RESOURCES_OUTPUT_ROOT_DIR: workspace/output
+RESOURCES_INPUT_ROOT_DIR: workspace/input/{agent_id}
+RESOURCES_OUTPUT_ROOT_DIR: workspace/output/{agent_id}
 
 #S3 RELATED DETAILS ONLY WHEN STORAGE_TYPE IS "S3"
 BUCKET_NAME:
@@ -92,3 +93,21 @@ SLACK_BOT_TOKEN: YOUR_SLACK_BOT_TOKEN
 STABILITY_API_KEY: YOUR_STABILITY_API_KEY
 #Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
 ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
+
+## To config a vector store for resources manager uncomment config below
+## based on the vector store you want to use
+
+## RESOURCE_VECTOR_STORE can be REDIS, PINECONE, CHROMA, QDRANT
+#RESOURCE_VECTOR_STORE: YOUR_RESOURCE_VECTOR_STORE
+#RESOURCE_VECTOR_STORE_INDEX_NAME: YOUR_RESOURCE_VECTOR_STORE_INDEX_NAME
+
+## To use a custom redis
+#REDIS_VECTOR_STORE_URL: YOUR_REDIS_VECTOR_STORE_URL
+
+## To use qdrant for vector store in resources manager
+#QDRANT_PORT: YOUR_QDRANT_PORT
+#QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
+
+## To use chroma for vector store in resources manager
+#CHROMA_HOST_NAME: YOUR_CHROMA_HOST_NAME
+#CHROMA_PORT: YOUR_CHROMA_PORT

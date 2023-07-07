@@ -3,25 +3,32 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, openNewTab, removeTab} from "@/utils/utils";
+import {
+  createAgent,
+  fetchAgentTemplateConfigLocal,
+  getOrganisationConfig,
+  updateExecution,
+  uploadFile
+} from "@/pages/api/DashboardService";
+import {
+  formatBytes,
+  openNewTab,
+  removeTab,
+  setLocalStorageValue,
+  setLocalStorageArray, returnResourceIcon,
+} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
-  const [selfEvaluation, setSelfEvaluation] = useState('');
-  const [basePrompt, setBasePrompt] = useState('');
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
   const [input, setInput] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [createClickable, setCreateClickable] = useState(true);
   const fileInputRef = useRef(null);
-  const pdf_icon = '/images/pdf_file.svg';
-  const txt_icon = '/images/txt_file.svg';
-  const img_icon = '/images/img_file.svg';
   const [maxIterations, setIterations] = useState(25);
   const [toolkitList, setToolkitList] = useState(toolkits)
   const [searchValue, setSearchValue] = useState('');
@@ -74,7 +81,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
+  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit","Resource Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   useEffect(() => {
@@ -95,12 +102,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         .filter(tool => toolNames.includes(tool.name))
         .map(tool => tool.id);
 
-      setSelectedTools(selectedToolIds);
+      setLocalStorageArray("tool_ids_" + String(internalId), selectedToolIds, setSelectedTools);
     }
   };
 
   const handleIterationChange = (event) => {
-    setIterations(parseInt(event.target.value));
+    setLocalStorageValue("agent_iterations_" + String(internalId), parseInt(event.target.value), setIterations);
   };
 
   useEffect(() => {
@@ -109,33 +116,24 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     if(template !== null) {
-      setAgentName(template.name)
-      setAgentDescription(template.description)
-      setAdvancedOptions(true)
+      setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
+      setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
+      setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
 
       fetchAgentTemplateConfigLocal(template.id)
           .then((response) => {
             const data = response.data || [];
-            setGoals(data.goal)
-            setAgentType(data.agent_type)
-            setConstraints(data.constraints)
-            setIterations(data.max_iterations)
-            setRollingWindow(data.memory_window)
-            setPermission(data.permission_type)
-            setStepTime(data.iteration_interval)
-            setInstructions(data.instruction)
-            setDatabase(data.LTM_DB)
-            setModel(data.model)
-            data.tools.forEach((item) => {
-              toolkitList.forEach((toolkit) => {
-                toolkit.tools.forEach((tool) => {
-                  if (tool.name === item) {
-                    setSelectedTools((prevArray) => [...prevArray, tool.id]);
-                  }
-                });
-              });
-            });
-            setToolNames(data.tools)
+            setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+            setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+            setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+            setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+            setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+            setLocalStorageValue("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
+            setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+            setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+            setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+            setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
           })
           .catch((error) => {
             console.error('Error fetching template details:', error);
@@ -182,130 +180,129 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const addTool = (tool) => {
     if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
-      setSelectedTools((prevArray) => [...prevArray, tool.id]);
-      setToolNames((prevArray) => [...prevArray, tool.name]);
+      const updatedToolIds = [...selectedTools, tool.id];
+      setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+
+      const updatedToolNames = [...toolNames, tool.name];
+      setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     }
     setSearchValue('');
   };
 
   const addToolkit = (toolkit) => {
+    const updatedToolIds = [...selectedTools];
+    const updatedToolNames = [...toolNames];
+
     toolkit.tools.map((tool) => {
       if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
-        setSelectedTools((prevArray) => [...prevArray, tool.id]);
-        setToolNames((prevArray) => [...prevArray, tool.name]);
+        updatedToolIds.push(tool.id);
+        updatedToolNames.push(tool.name);
       }
     });
+
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     setSearchValue('');
   }
   
   const removeTool = (indexToDelete) => {
-    setSelectedTools((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    const updatedToolIds = [...selectedTools];
+    updatedToolIds.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_ids_" + String(internalId), updatedToolIds, setSelectedTools);
 
-    setToolNames((prevArray) => {
-      const newArray = [...prevArray];
-      newArray.splice(indexToDelete, 1);
-      return newArray;
-    });
+    const updatedToolNames = [...toolNames];
+    updatedToolNames.splice(indexToDelete, 1);
+    setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
   };
 
   const handlePermissionSelect = (index) => {
-    setPermission(permissions[index]);
+    setLocalStorageValue("agent_permission_" + String(internalId), permissions[index], setPermission);
     setPermissionDropdown(false);
   };
 
   const handleDatabaseSelect = (index) => {
-    setDatabase(databases[index]);
+    setLocalStorageValue("agent_database_" + String(internalId), databases[index], setDatabase);
     setDatabaseDropdown(false);
   };
 
   const handleWindowSelect = (index) => {
-    setRollingWindow(rollingWindows[index]);
+    setLocalStorageValue("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
     setRollingDropdown(false);
   };
 
   const handleStepChange = (event) => {
-    setStepTime(event.target.value)
+    setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
   };
 
   const handleExitSelect = (index) => {
-    setExitCriterion(exitCriteria[index]);
+    setLocalStorageValue("agent_exit_criterion_" + String(internalId), exitCriteria[index], setExitCriterion);
     setExitDropdown(false);
   };
 
   const handleAgentSelect = (index) => {
-    setAgentType(agentTypes[index]);
+    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
     setAgentDropdown(false);
   };
 
   const handleModelSelect = (index) => {
-    setModel(models[index]);
+    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
     setModelDropdown(false);
   };
 
   const handleGoalChange = (index, newValue) => {
     const updatedGoals = [...goals];
     updatedGoals[index] = newValue;
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
+
   const handleInstructionChange = (index, newValue) => {
     const updatedInstructions = [...instructions];
     updatedInstructions[index] = newValue;
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintChange = (index, newValue) => {
     const updatedConstraints = [...constraints];
     updatedConstraints[index] = newValue;
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const handleGoalDelete = (index) => {
     const updatedGoals = [...goals];
     updatedGoals.splice(index, 1);
-    setGoals(updatedGoals);
+    setLocalStorageArray("agent_goals_" + String(internalId), updatedGoals, setGoals);
   };
 
   const handleInstructionDelete = (index) => {
     const updatedInstructions = [...instructions];
     updatedInstructions.splice(index, 1);
-    setInstructions(updatedInstructions);
+    setLocalStorageArray("agent_instructions_" + String(internalId), updatedInstructions, setInstructions);
   };
 
   const handleConstraintDelete = (index) => {
     const updatedConstraints = [...constraints];
     updatedConstraints.splice(index, 1);
-    setConstraints(updatedConstraints);
+    setLocalStorageArray("agent_constraints_" + String(internalId), updatedConstraints, setConstraints);
   };
 
   const addGoal = () => {
-    setGoals((prevArray) => [...prevArray, 'new goal']);
+    setLocalStorageArray("agent_goals_" + String(internalId), [...goals, 'new goal'], setGoals);
   };
+
   const addInstruction = () => {
-    setInstructions((prevArray) => [...prevArray, 'new instructions']);
+    setLocalStorageArray("agent_instructions_" + String(internalId), [...instructions, 'new instructions'], setInstructions);
   };
 
   const addConstraint = () => {
-    setConstraints((prevArray) => [...prevArray, 'new constraint']);
+    setLocalStorageArray("agent_constraints_" + String(internalId), [...constraints, 'new constraint'], setConstraints);
   };
 
   const handleNameChange = (event) => {
-    setAgentName(event.target.value);
+    setLocalStorageValue("agent_name_" + String(internalId), event.target.value, setAgentName);
   };
 
   const handleDescriptionChange = (event) => {
-    setAgentDescription(event.target.value);
-  };
-
-  const handleSelfEvaluationChange = (event) => {
-    setSelfEvaluation(event.target.value);
-  };
-
-  const handleBasePromptChange = (event) => {
-    setBasePrompt(event.target.value);
+    setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
 
   const preventDefault = (e) => {
@@ -390,29 +387,50 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     createAgent(agentData)
       .then((response) => {
-        const agent_id = response.data.id;
+        const agentId = response.data.id;
+        const name = response.data.name;
+        const executionId = response.data.execution_id;
         fetchAgents();
-        removeTab(-1, "new agent", "Create_Agent");
-        sendAgentData({ id: agent_id, name: response.data.name, contentType: "Agents", execution_id: response.data.execution_id });
-        if(addResources) {
-          input.forEach((fileData) => {
-            input.forEach(fileData => {
-              uploadResource(agent_id, fileData)
-                .then(response => {})
-                .catch(error => {
-                  console.error('Error uploading resource:', error);
-                });
-            });
+
+        if (addResources && input.length > 0) {
+          const uploadPromises = input.map(fileData => {
+            return uploadResource(agentId, fileData)
+              .catch(error => {
+                console.error('Error uploading resource:', error);
+                return Promise.reject(error);
+              });
           });
+
+          Promise.all(uploadPromises)
+            .then(() => {
+              runExecution(agentId, name, executionId);
+            })
+            .catch(error => {
+              console.error('Error uploading files:', error);
+              setCreateClickable(true);
+            });
+        } else {
+          runExecution(agentId, name, executionId);
         }
-        toast.success('Agent created successfully', {autoClose: 1800});
-        setCreateClickable(true);
       })
       .catch((error) => {
         console.error('Error creating agent:', error);
         setCreateClickable(true);
       });
   };
+
+  function runExecution(agentId, name, executionId) {
+    updateExecution(executionId, {"status": 'RUNNING'})
+      .then((response) => {
+        toast.success('Agent created successfully', { autoClose: 1800 });
+        sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
+        setCreateClickable(true);
+      })
+      .catch((error) => {
+        setCreateClickable(true);
+        console.error('Error updating execution:', error);
+      });
+  }
 
   const toggleToolkit = (e, id) => {
     e.stopPropagation();
@@ -432,8 +450,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const clearTools = (e) => {
     e.stopPropagation();
-    setSelectedTools([]);
-    setToolNames([]);
+    setLocalStorageArray("tool_names_" + String(internalId), [], setToolNames);
+    setLocalStorageArray("tool_ids_" + String(internalId), [], setSelectedTools);
   };
 
   const handleFileInputChange = (event) => {
@@ -466,7 +484,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         "size": files[0].size,
         "type": files[0].type,
       };
-      setInput((prevArray) => [...prevArray, fileData]);
+      const updatedFiles = [...input, fileData];
+      setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
     }
   }
 
@@ -485,38 +504,105 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const removeFile = (index) => {
     const updatedFiles = input.filter((file) => input.indexOf(file) !== index);
-    setInput(updatedFiles);
+    setLocalStorageArray('agent_files_' + String(internalId), updatedFiles, setInput);
   };
 
-  const ResourceItem = ({ file, index }) => {
-    const isPDF = file.type === 'application/pdf';
-    const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
-    const isIMG = file.type.includes('image');
+  useEffect(() => {
+    const has_resource = localStorage.getItem("has_resource_" + String(internalId));
+    if(has_resource) {
+      setAddResources(JSON.parse(has_resource));
+    }
 
-    return (
-      <div className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
-          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
-          {!isTXT && !isIMG && !isPDF && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px', width:'100%' }}>
-            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
-            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
-          </div>
-          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
-        </div>
-      </div>
-    );
-  };
+    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId));
+    if(has_LTM) {
+      setLongTermMemory(JSON.parse(has_LTM));
+    }
 
-  const ResourceList = ({ files }) => (
-    <div className={styles.agent_resources}>
-      {files.map((file, index) => (
-        <ResourceItem key={index} file={file} index={index} />
-      ))}
-    </div>
-  );
+    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId));
+    if(advanced_options) {
+      setAdvancedOptions(JSON.parse(advanced_options));
+    }
+
+    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
+    if(agent_name) {
+      setAgentName(agent_name);
+    }
+
+    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
+    if(agent_description) {
+      setAgentDescription(agent_description);
+    }
+
+    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
+    if(agent_goals) {
+      setGoals(JSON.parse(agent_goals));
+    }
+
+    const tool_ids = localStorage.getItem("tool_ids_" + String(internalId));
+    if(tool_ids) {
+      setSelectedTools(JSON.parse(tool_ids));
+    }
+
+    const tool_names = localStorage.getItem("tool_names_" + String(internalId));
+    if(tool_names) {
+      setToolNames(JSON.parse(tool_names));
+    }
+
+    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
+    if(agent_instructions) {
+      setInstructions(JSON.parse(agent_instructions));
+    }
+
+    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
+    if(agent_constraints) {
+      setConstraints(JSON.parse(agent_constraints));
+    }
+
+    const agent_model = localStorage.getItem("agent_model_" + String(internalId));
+    if(agent_model) {
+      setModel(agent_model);
+    }
+
+    const agent_type = localStorage.getItem("agent_type_" + String(internalId));
+    if(agent_type) {
+      setAgentType(agent_type);
+    }
+
+    const agent_rolling_window = localStorage.getItem("agent_rolling_window_" + String(internalId));
+    if(agent_rolling_window) {
+      setRollingWindow(agent_rolling_window);
+    }
+
+    const agent_database = localStorage.getItem("agent_database_" + String(internalId));
+    if(agent_database) {
+      setDatabase(agent_database);
+    }
+
+    const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
+    if(agent_permission) {
+      setPermission(agent_permission);
+    }
+
+    const exit_criterion = localStorage.getItem("agent_exit_criterion_" + String(internalId));
+    if(exit_criterion) {
+      setExitCriterion(exit_criterion);
+    }
+
+    const iterations = localStorage.getItem("agent_iterations_" + String(internalId));
+    if(iterations) {
+      setIterations(Number(iterations));
+    }
+
+    const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
+    if(step_time) {
+      setStepTime(Number(step_time));
+    }
+
+    const agent_files = localStorage.getItem("agent_files_" + String(internalId));
+    if(agent_files) {
+      setInput(JSON.parse(agent_files));
+    }
+  }, [internalId])
 
   return (<>
     <div className="row">
@@ -622,7 +708,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             </div>
           </div>
           <div style={{marginTop: '15px'}}>
-            <button className="medium_toggle" onClick={() => setAdvancedOptions(!advancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
+            <button className="medium_toggle" onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)} style={advancedOptions ? {background:'#494856'} : {}}>
               {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ? <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_up.svg" alt="expand-icon"/> : <Image style={{marginLeft:'10px'}} width={20} height={21} src="/images/dropdown_down.svg" alt="expand-icon"/>}
             </button>
           </div>
@@ -643,20 +729,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Base prompt</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>This will defined the agent role definitely and reduces hallucination. This will defined the agent role definitely and reduces hallucination.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={basePrompt} onChange={handleBasePromptChange}/>*/}
-              {/*</div>*/}
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Self Evaluation</label><br/>*/}
-              {/*  <p className={styles.form_label} style={{fontSize:'11px'}}>Allows the agent to evaluate and correct themselves as they proceed further.</p>*/}
-              {/*  <textarea className="textarea_medium" rows={3} value={selfEvaluation} onChange={handleSelfEvaluationChange}/>*/}
-              {/*</div>*/}
               <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setAddResources(!addResources)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setAddResources(!addResources)}>
+                  <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)} />
+                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
                     Add Resources
                   </label>
                 </div>
@@ -665,10 +741,23 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {addResources && <div style={{paddingBottom:'10px'}}>
                   <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
                     <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-                      <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
+                      <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file formats are txt, pdf, docx, epub, csv, pptx only</p>
                       <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
                   </div>
-                  <ResourceList files={input}/>
+                  <div className={styles.agent_resources}>
+                    {input.map((file, index) => (
+                      <div key={index} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                          <div><Image width={28} height={46} src={returnResourceIcon(file)} alt="pdf-icon" /></div>
+                          <div style={{ marginLeft: '5px', width:'100%' }}>
+                            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
+                            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+                          </div>
+                          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>}
               </div>
               <div style={{marginTop: '5px'}}>
@@ -724,29 +813,29 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>
               </div>
-              <div style={{marginTop: '15px'}}>
-                <div style={{display:'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLongTermMemory(!longTermMemory)} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLongTermMemory(!longTermMemory)}>
-                    Long term memory
-                  </label>
-                </div>
-              </div>
-              {longTermMemory === true && <div style={{marginTop: '10px'}}>
-                <label className={styles.form_label}>Choose an LTM database</label>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>
-                    {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>
-                      {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {data}
-                      </div>))}
-                    </div>}
-                  </div>
-                </div>
-              </div>}
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <div style={{display:'flex'}}>*/}
+              {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
+              {/*    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>*/}
+              {/*      Long term memory*/}
+              {/*    </label>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
+              {/*{longTermMemory === true && <div style={{marginTop: '10px'}}>*/}
+              {/*  <label className={styles.form_label}>Choose an LTM database</label>*/}
+              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+              {/*    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>*/}
+              {/*      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+              {/*    </div>*/}
+              {/*    <div>*/}
+              {/*      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>*/}
+              {/*        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+              {/*          {data}*/}
+              {/*        </div>))}*/}
+              {/*      </div>}*/}
+              {/*    </div>*/}
+              {/*  </div>*/}
+              {/*</div>}*/}
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Permission Type</label>
                 <div className="dropdown_container_search" style={{width:'100%'}}>
@@ -766,7 +855,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
             <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
-            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>Create and Run</button>
+            <button disabled={!createClickable} className="primary_button" onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
           </div>
         </div>
       </div>
