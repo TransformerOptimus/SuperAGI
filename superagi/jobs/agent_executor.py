@@ -149,12 +149,7 @@ class AgentExecutor:
         """
         agent_id = agent_execution.agent_id
         agent = session.query(Agent).filter(Agent.id == agent_id).first()
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        project = session.query(Project).filter(Project.id == agent.project_id).first()
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+        organisation = agent.get_agent_organisation(session)
 
         return organisation
 

@@ -94,9 +94,9 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
-
+    organisation = agent.get_agent_organisation(db.session)
     AnalyticsHelper(session=db.session).create_event('run_created', 0, {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
-                                 agent_execution.agent_id, 0)
+                                 agent_execution.agent_id, organisation.id if organisation else 0)
 
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())

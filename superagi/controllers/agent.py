@@ -211,8 +211,10 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
-    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'agent_execution_id': execution.id,'agent_execution_name':execution.name}, db_agent.id, 0),
-    AnalyticsHelper(session=db.session).create_event('agent_created', 1, {'agent_name': agent_with_config.name, 'model': agent_with_config.model}, db_agent.id, 0)
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id,).first()
+    organisation = agent.get_agent_organisation(db.session)
+    AnalyticsHelper(session=db.session).create_event('run_created', 0, {'agent_execution_id': execution.id,'agent_execution_name':execution.name}, db_agent.id, organisation.id if organisation else 0),
+    AnalyticsHelper(session=db.session).create_event('agent_created', 1, {'agent_name': agent_with_config.name, 'model': agent_with_config.model}, db_agent.id, organisation.id if organisation else 0)
 
     # execute_agent.delay(execution.id, datetime.now())
 

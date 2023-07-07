@@ -239,15 +239,16 @@ class SuperAgi:
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower(): t for t in self.tools}
-
+        agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
+        organisation = agent.get_agent_organisation(session)
         if action.name.lower() == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
-            AnalyticsHelper(session=session).create_event('tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], 0),
+            AnalyticsHelper(session=session).create_event('tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             return output
         if action.name.lower() in tools:
             tool = tools[action.name.lower()]
-            AnalyticsHelper(session=session).create_event('tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], 0),
+            AnalyticsHelper(session=session).create_event('tool_used', 0, {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             try:
                 observation = tool.execute(action.args)
                 logger.info("Tool Observation : ")
