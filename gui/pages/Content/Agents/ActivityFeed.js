@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
-import {getExecutionFeeds} from "@/pages/api/DashboardService";
+import {getExecutionFeeds, getDateTime} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
@@ -11,6 +11,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const feedContainerRef = useRef(null);
   const [runStatus, setRunStatus] = useState("CREATED");
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
+  const [scheduleDate, setScheduleDate] = useState(null);
+  const [scheduleTime, setScheduleTime] = useState(null);
 
   useEffect(() => {
     loadingTextEffect('Thinking', setLoadingText, 250);
@@ -23,6 +25,24 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
     return () => clearInterval(interval);
   }, [selectedRunId]);
+
+  function fetchDateTime(){
+    getDateTime(agent.id)
+    .then((response) => {
+      const {start_date, start_time} = response.data;
+      console.log("hello:: "+response_data)
+        setScheduleDate(start_date);
+        setScheduleTime(start_time);
+    })
+    .catch((error) => {
+      console.error('Error fetching agent data:', error);
+    });
+  };
+  useEffect(() => {
+    if (agent.is_scheduled && !agent.is_running) {
+      fetchDateTime();
+    }
+  }, []);
 
   useEffect(() => {
     if (feeds.length !== prevFeedsLength) {
@@ -84,12 +104,12 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   return (<>
     <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom:'55px'}}>
-
+        
         {agent.is_scheduled && !agent.is_running ? 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <Image width={72} height={72} src="/images/eventSchedule.png" alt="github" />
             <div style={{ color: 'white', fontSize: '14px' }}>
-              This agent is scheduled to start on 26 Jul 2023, Saturday at 12:01 PM
+              This agent is scheduled to start on {scheduleDate}, at {scheduleTime}
             </div>
         </div>:
         <div>

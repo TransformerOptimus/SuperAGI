@@ -172,4 +172,8 @@ export const  updateSchedule= (requestData) => {
   return api.put(`/agents/edit/schedule`,requestData);
 }
 
+export const  getDateTime= (agentId) => {
+  return api.get(`/agents/get/schedule_data/${agentId}`);
+}
+
 

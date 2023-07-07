@@ -14,7 +14,7 @@ import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
 import { convertToGMT } from "@/utils/utils";
 import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
+import styles1 from './react-datetime.css';
 import 'moment-timezone';
 
 export default function AgentWorkspace({agentId, selectedView, agents}) {
@@ -57,6 +57,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
   const [editStartTime, setEditStartTime] = useState('');
   const [editTimeValue, setEditTimeValue] = useState('');
   const [editExpiry, seteditExpiry] = useState(expiryArray[1]);
+
 
   const handleTimeChange = (momentObj) => {	
     const startTime = convertToGMT(momentObj);
@@ -166,7 +167,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
   function fetchAgentScheduleComponent() {//get data
     AgentScheduleComponent(agentId)
     .then((response) => {
-      const {current_datetime, recurrence_interval, expiry_date, expiry_runs} = response.data;
+      const {current_datetime, start_date, start_time, recurrence_interval, expiry_date, expiry_runs} = response.data;
       setEditStartTime(current_datetime);
       seteditExpiryRuns(expiry_runs);
       setEditExpiryDate(expiry_date);
@@ -452,7 +453,8 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             <div style={{marginBottom:'20px'}}>
               <label className={styles.form_label}>Select a date and time</label>
               <div >
-              <Datetime className={styles.rdtPicker} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+              <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+              <h6>{handleTimeChange}</h6>
               </div>          
             </div>
              
@@ -506,7 +508,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
               {expiry==='Specific Date' && (
                 <div style={{width:'100%', marginTop:'10px'}}>
                   {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
-                  <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                  <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
                 </div>
               )}
             </div>
@@ -531,7 +533,8 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             <div style={{marginBottom:'10px'}}>
               <label className={styles.form_label}>Select a date and time</label>
               <div >
-              <Datetime className={styles.rdtPicker} onChange={handleEditTimeChange} value={editStartTime} inputProps={{ placeholder: 'Enter here' }}/>
+              <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditTimeChange} value={editStartTime} inputProps={{ placeholder: 'Enter here' }}/>
+              <h6>{editStartTime}</h6>
               </div>          
             </div>
             {/* editStartTime */}
@@ -589,7 +592,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
               {editExpiry==='Specific Date' && (
                 <div style={{width:'100%', marginTop:'10px'}}>
                   {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
-                  <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleEditDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                  <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
                 </div>
               )}
               {/* editExpiryDate */}

@@ -3,6 +3,7 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
+import styles1 from './react-datetime.css';
 import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile, updateExecution} from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -16,7 +17,6 @@ import {
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
 import 'moment-timezone';
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
@@ -961,7 +961,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 <div>
                   <label className={styles.form_label}>Select a date and time</label>
                   <div>
-                    <Datetime className={`${styles.rdtPicker} custom-rdtPicker`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                    <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
                   </div>
                 </div>
                 <div style={{display:'flex',marginTop:'20px'}}>
@@ -1012,7 +1012,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                       )}
                       {expiryType === 'Specific Date' && (
                         <div style={{width:'100%', marginTop:'10px'}}>
-                          <Datetime timeFormat={false} className={styles.rdtPicker} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
+                          <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
                         </div>
                       )}
                     </div>
