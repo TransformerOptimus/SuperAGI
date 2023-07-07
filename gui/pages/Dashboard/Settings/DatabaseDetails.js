@@ -9,6 +9,7 @@ import Image from "next/image";
 
 export default function DatabaseDetails({internalId, databaseDetails}) {
   const [dropdown,setDropdown] = useState(false);
+  const [deleteModal,setDeleteModal] = useState(false);
   const [selectedDB, setSelectedDB] = useState('');
   const [databaseName, setDatabaseName] = useState('');
   const [collections, setCollections] = useState([]);
@@ -33,6 +34,10 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
     }
   }, [internalId]);
 
+  const preventDefault = (e) => {
+    e.stopPropagation();
+  };
+
   const addCollection = () => {
     setLocalStorageArray("db_details_collections_" + String(internalId), [...collections, {name: 'collection name', editable: 'true'}], setCollections);
   };
@@ -56,7 +61,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
   }
 
   const deleteDatabase = () => {
-    setDropdown(false);
+    setDeleteModal(false);
   }
 
   return (<>
@@ -71,7 +76,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
             </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container">
-                <li className="dropdown_item" onClick={deleteDatabase}>Delete database</li>
+                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete database</li>
               </ul>
             </div>}
           </div>
@@ -134,6 +139,21 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
       </div>
       <div className="col-3"></div>
     </div>
+
+    {deleteModal && (<div className="modal" onClick={() => setDeleteModal(false)}>
+      <div className="modal-content" style={{width: '30%'}} onClick={preventDefault}>
+        <div className={styles.detail_name}>Are you sure you want to delete this database?</div>
+        <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'10px'}}>
+          <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setDeleteModal(false)}>
+            Cancel
+          </button>
+          <button className="primary_button" onClick={deleteDatabase}>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>)}
+    
     <ToastContainer/>
   </>)
 }
