@@ -111,6 +111,40 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   }
 
   const connectDatabase = () => {
+    if(databaseName.replace(/\s/g, '') === '') {
+      toast.error("Database name can't be blank", {autoClose: 1800});
+      return;
+    }
+
+    if(selectedDB === 'Pinecone') {
+      if(pineconeApiKey.replace(/\s/g, '') === '') {
+        toast.error("Pinecone API key is empty", {autoClose: 1800});
+        return;
+      }
+
+      if(pineconeEnvironment.replace(/\s/g, '') === '') {
+        toast.error("Pinecone environment is empty", {autoClose: 1800});
+        return;
+      }
+    }
+
+    if(selectedDB === 'Qdrant') {
+      if(qdrantApiKey.replace(/\s/g, '') === '') {
+        toast.error("Qdrant API key is empty", {autoClose: 1800});
+        return;
+      }
+
+      if(qdrantURL.replace(/\s/g, '') === '') {
+        toast.error("Qdrant URL is empty", {autoClose: 1800});
+        return;
+      }
+
+      if(qdrantPort.replace(/\s/g, '') === '') {
+        toast.error("Qdrant port can't be blank", {autoClose: 1800});
+        return;
+      }
+    }
+
     sendDatabaseDetailsData({
       id: -8,
       name: databaseName,

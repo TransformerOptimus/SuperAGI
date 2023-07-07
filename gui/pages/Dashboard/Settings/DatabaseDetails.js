@@ -8,6 +8,7 @@ import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 
 export default function DatabaseDetails({internalId, databaseDetails}) {
+  const [dropdown,setDropdown] = useState(false);
   const [selectedDB, setSelectedDB] = useState('');
   const [databaseName, setDatabaseName] = useState('');
   const [collections, setCollections] = useState([]);
@@ -66,7 +67,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
             <div style={{marginLeft:'15px'}}>
               <Image src={returnDatabaseIcon(selectedDB)} alt="database-icon" width={40} height={40}/>
             </div>
-            <div style={{marginLeft:'15px',fontSize:'14px',marginTop:'23px'}} className={agentStyles.page_title}><p>{selectedDB}</p></div>
+            <div style={{marginLeft:'15px',fontSize:'14px',marginTop:'23px'}} className={agentStyles.page_title}>{selectedDB}</div>
           </div>
         </div>
         <div style={{marginTop: '15px'}}>
