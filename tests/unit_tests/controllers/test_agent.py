@@ -105,7 +105,7 @@ def test_edit_schedule_not_found(mock_patch_schedule_input):
         assert response.status_code == 404
         assert response.json() == {"detail": "Schedule not found"}
 
-# '''Test for getting agent schedule'''
+'''Test for getting agent schedule'''
 def test_get_schedule_data_success(mock_schedule_get, mock_agent_config):
     with patch('superagi.controllers.agent.db') as mock_db:
         mock_db.session.query.return_value.filter.return_value.first.side_effect = [mock_schedule_get, mock_agent_config]
