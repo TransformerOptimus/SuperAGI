@@ -1,3 +1,5 @@
+import ast
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
@@ -42,4 +44,4 @@ def get_agent_execution_configuration(agent_execution_id: int,
                                                                       AgentConfiguration.agent_id == agent_execution
                                                                       .agent_id).all()
 
-    return {result.key: eval(result.value) for result in agent_configuration}
+    return {result.key: ast.literal_eval(result.value) for result in agent_configuration}
