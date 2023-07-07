@@ -364,6 +364,8 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     response_data = {
         "current_datetime": current_datetime,
+        "start_date": agent.start_time.astimezone(tzone).strftime("%d %b %Y"),
+        "start_time": agent.start_time.astimezone(tzone).strftime("%I:%M %p"),
         "recurrence_interval": agent.recurrence_interval if agent.recurrence_interval else None,
         "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y") if agent.expiry_date else None,
         "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None
