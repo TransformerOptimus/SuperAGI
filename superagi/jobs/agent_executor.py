@@ -6,12 +6,13 @@ from sqlalchemy.orm import sessionmaker
 
 import superagi.worker
 from superagi.agent.super_agi import SuperAgi
+from superagi.llms.google_palm import GooglePalm
+from superagi.llms.llm_model_factory import get_model
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.lib.logger import logger
-from superagi.llms.openai import OpenAi
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
@@ -30,6 +31,7 @@ from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
+from superagi.types.model_source_types import ModelSourceType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.types.vector_store_types import VectorStoreType
@@ -117,22 +119,21 @@ class AgentExecutor:
         Returns:
             str: The model API key.
         """
-        agent_id = agent_execution.agent_id
-        agent = session.query(Agent).filter(Agent.id == agent_id).first()
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        project = session.query(Project).filter(Project.id == agent.project_id).first()
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
-        if not organisation:
-            raise HTTPException(status_code=404, detail="Organisation not found")
-        config = session.query(Configuration).filter(Configuration.organisation_id == organisation.id,
-                                                     Configuration.key == "model_api_key").first()
-        if not config:
-            raise HTTPException(status_code=404, detail="Configuration not found")
-        model_api_key = decrypt_data(config.value)
+        config_value = Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_api_key")
+        model_api_key = decrypt_data(config_value)
         return model_api_key
+
+    @staticmethod
+    def get_llm_source(agent_execution, session):
+        return Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_source")
+
+    @staticmethod
+    def get_embedding(model_source, model_api_key):
+        if "OpenAi" in model_source:
+            return OpenAiEmbedding(api_key=model_api_key)
+        if "Google" in model_source:
+            return GooglePalm(api_key=model_api_key)
+        return None
 
     def execute_next_action(self, agent_execution_id):
         """
@@ -180,14 +181,14 @@ class AgentExecutor:
         parsed_config["agent_execution_id"] = agent_execution.id
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
-
+        model_llm_source = AgentExecutor.get_llm_source(agent_execution, session)
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
-                                                          OpenAiEmbedding(model_api_key))
+                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
             else:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
-                                                          OpenAiEmbedding(model_api_key))
+                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
         except:
             logger.info("Unable to setup the pinecone connection...")
             memory = None
@@ -198,6 +199,7 @@ class AgentExecutor:
             tools.append(tool)
 
         resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
+                                                           model_llm_source=model_llm_source,
                                                             default_summary=parsed_config.get("resource_summary"))
         if resource_summary is not None:
             tools.append(QueryResourceTool())
@@ -206,8 +208,9 @@ class AgentExecutor:
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
+
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
-                                 llm=OpenAi(model=parsed_config["model"], api_key=model_api_key), tools=tools,
+                                 llm=get_model(model=parsed_config["model"], api_key=model_api_key), tools=tools,
                                  memory=memory,
                                  agent_config=parsed_config,
                                  agent_execution_config=parsed_execution_config)
@@ -219,11 +222,12 @@ class AgentExecutor:
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
-        
+
         try:
             response = spawned_agent.execute(agent_workflow_step)
         except RuntimeError as e:
-            superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            logger.error("Error executing the agent:", e)
+            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
             session.close()
             # If our execution encounters an error we return and attempt to retry
             return
@@ -249,8 +253,8 @@ class AgentExecutor:
         session.close()
         engine.dispose()
 
-    def set_default_params_tools(self, tools, parsed_config, parsed_execution_config, agent_id, model_api_key, session,
-                                 resource_description=None):
+    def set_default_params_tools(self, tools, parsed_config, parsed_execution_config, agent_id, model_api_key,
+                                 session, resource_description=None):
         """
         Set the default parameters for the tools.
 
@@ -273,11 +277,9 @@ class AgentExecutor:
                 tool.instructions = parsed_execution_config["instruction"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config[
                 "model"] == "gpt-3.5-turbo") and tool.name != "QueryResource":
-                tool.llm = OpenAi(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
+                tool.llm = get_model(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
             elif hasattr(tool, 'llm'):
-                tool.llm = OpenAi(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
-            if hasattr(tool, 'image_llm'):
-                tool.image_llm = OpenAi(model=parsed_config["model"], api_key=model_api_key)
+                tool.llm = get_model(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             if hasattr(tool, 'resource_manager'):
@@ -324,7 +326,9 @@ class AgentExecutor:
         agent_execution.status = "RUNNING"
         session.commit()
 
-    def get_agent_resource_summary(self, agent_id: int, session: Session, default_summary: str):
+    def get_agent_resource_summary(self, agent_id: int, session: Session, model_llm_source: str, default_summary: str):
+        if ModelSourceType.GooglePalm.value in model_llm_source:
+            return
         ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id,generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,

@@ -3,6 +3,7 @@ PINECONE_API_KEY: YOUR_PINECONE_API_KEY
 PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
 OPENAI_API_KEY: YOUR_OPEN_API_KEY
+PALM_API_KEY: YOUR_PALM_API_KEY
 
 # For locally hosted LLMs comment out the next line and uncomment the one after
 # to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
@@ -11,6 +12,7 @@ OPENAI_API_BASE: https://api.openai.com/v1
 
 # "gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-4-32k": 32768, "gpt-4-32k-0314": 32768, "llama":2048, "mpt-7b-storywriter":45000
 MODEL_NAME: "gpt-3.5-turbo-0301"
+# "gpt-3.5-turbo", , "gpt-4", "models/text-bison-001"
 RESOURCES_SUMMARY_MODEL_NAME: "gpt-3.5-turbo"
 MAX_TOOL_TOKEN_LIMIT: 800
 MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama

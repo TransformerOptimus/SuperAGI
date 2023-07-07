@@ -44,7 +44,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k', 'gpt-4-32k']
+  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -333,7 +333,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const handleAddAgent = () => {
     if(!hasAPIkey) {
-      toast.error("Your OpenAI API key is empty!", {autoClose: 1800});
+      toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings");
       return
     }

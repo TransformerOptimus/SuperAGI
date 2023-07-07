@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict
 from typing import Tuple
-
+import numpy as np
 from halo import Halo
 from pydantic import ValidationError
 from pydantic.types import List
@@ -166,13 +166,11 @@ class SuperAgi:
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         self.update_agent_execution_tokens(current_calls, total_tokens)
-
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
 
         final_response = {"result": "PENDING", "retry": False}
-
         if workflow_step.output_type == "tools":
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"], feed=assistant_reply,
@@ -208,6 +206,7 @@ class SuperAgi:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
         elif workflow_step.output_type == "tasks":
             tasks = eval(assistant_reply)
+            tasks = np.array(tasks).flatten().tolist()
             for task in reversed(tasks):
                 task_queue.add_task(task)
             if len(tasks) > 0:
@@ -223,7 +222,6 @@ class SuperAgi:
                 final_response = {"result": "COMPLETE", "pending_task_count": 0}
             else:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
-
         if workflow_step.output_type == "tools" and final_response["retry"] == False:
             task_queue.complete_task(final_response["result"])
             current_tasks = task_queue.get_tasks()
@@ -237,14 +235,14 @@ class SuperAgi:
 
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
-        tools = {t.name.lower(): t for t in self.tools}
-
-        if action.name.lower() == FINISH or action.name == "":
+        tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
+        action_name = action.name.lower().replace(" ", "")
+        if action_name == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
             return output
-        if action.name.lower() in tools:
-            tool = tools[action.name.lower()]
+        if action_name in tools:
+            tool = tools[action_name]
             try:
                 observation = tool.execute(action.args)
                 logger.info("Tool Observation : ")
