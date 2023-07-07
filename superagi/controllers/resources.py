@@ -92,7 +92,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.commit()
     db.session.flush()
 
-    summarize_resource.delay(agent_id, resource.id)
+    # summarize_resource.delay(agent_id, resource.id)
     logger.info(resource)
 
     return resource
