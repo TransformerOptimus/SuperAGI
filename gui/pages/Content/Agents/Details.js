@@ -117,6 +117,10 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
         <div style={info_text}>{agentDetails?.agent_type || ''}</div>
       </div>
       <div className={styles.agent_info_box}>
+        <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
+        <div style={info_text}>knowledge name</div>
+      </div>
+      <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/deployed_code.svg" alt="model-icon"/></div>
         <div style={info_text}>{agentDetails?.model || ''}</div>
       </div>
