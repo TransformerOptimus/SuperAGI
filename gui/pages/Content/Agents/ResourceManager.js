@@ -4,8 +4,10 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
+import {formatBytes, downloadFile,deleteFile} from "@/utils/utils";
 import {downloadAllFiles} from "@/utils/utils";
 import ResourceList from "@/pages/Content/Agents/ResourceList";
+
 
 export default function ResourceManager({agentId}) {
   const [output, setOutput] = useState([]);
@@ -94,6 +96,43 @@ export default function ResourceManager({agentId}) {
         console.error('Error fetching resources:', error);
       });
   }
+
+  const ResourceItem = ({ file }) => {
+    const isPDF = file.type === 'application/pdf';
+    const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
+    const isIMG = file.type.includes('image');
+
+    return (
+      <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+        <button type="button" className="deletebtn" onClick={() => deleteFile(file.id)}>Delete</button>
+
+          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
+          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
+          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
+          {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
+          <div style={{ marginLeft: '5px', width:'100%' }}>
+            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
+            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ResourceList = ({ files }) => (
+    <div>
+      {files.length <= 0 && channel === 'output' ? <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
+        <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+        <span className={styles.feed_title} style={{marginTop: '8px'}}>No Output files!</span>
+      </div> : <div className={styles.resources}>
+        {files.map((file, index) => (
+          <ResourceItem key={index} file={file} />
+        ))}
+      </div>
+      }
+    </div>
+  );
 
   return (<>
     <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
