@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
 import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
 import {formatNumber, formatTime, formatRunTimeDifference, averageAgentRunTime} from "@/utils/utils";
 import * as echarts from 'echarts';
+import { WidthProvider, Responsive } from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 
+const ResponsiveGridLayout = WidthProvider(Responsive);
 export default function ApmDashboard() {
     const [totalCalls, setTotalCalls] = useState(0);
     const [totalTokens, setTotalTokens] = useState(0);
@@ -21,63 +25,40 @@ export default function ApmDashboard() {
     const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
     const [toolsUsed, setToolsUsed] = useState([]);
     const [averageRunTime, setAverageRunTime] = useState('');
+    const initialLayout = [
+        {i: 'a', x: 0, y: 0, w: 4, h: 1.5},
+        {i: 'b', x: 4, y: 0, w: 4, h: 1.5},
+        {i: 'c', x: 8, y: 0, w: 4, h: 1.5},
+        {i: 'd', x: 0, y: 1, w: 8, h: 4.5},
+        {i: 'e', x: 8, y: 1, w: 4, h: 1.5},
+        {i: 'f', x: 8, y: 2, w: 4, h: 1.5},
+        {i: 'g', x: 8, y: 3, w: 4, h: 1.5},
+        {i: 'h', x: 0, y: 4, w: 5, h: 2},
+        {i: 'i', x: 5, y: 4, w: 5, h: 2},
+        {i: 'j', x: 0, y: 5, w: 5, h: 2},
+        {i: 'k', x: 5, y: 5, w: 5, h: 2},
+        {i: 'l', x: 10, y: 4, w:2, h: 4}
+    ];
+    const storedLayout = localStorage.getItem('myLayoutKey');
+    const [layout, setLayout] = useState(storedLayout !== null ? JSON.parse(storedLayout) : initialLayout);
+    const firstUpdate = useRef(true);
 
-    const optionsGenerator = (allModels) => ({
-        yAxis: {
-            type: 'category',
-            data: allModels.map(item => item.model),
-            axisLine: { show: false },
-            axisLabel: {
-                show: true,
-                fontSize: 14,
-                fontWeight: 400,
-                color: '#FFF',
-            },
-        },
-        xAxis: { type: 'value', show: false },
-        series: [{
-            data: allModels.map(item => item.agents),
-            type: 'bar',
-            barWidth: 50,
-            label: {
-                show: true,
-                position: 'right',
-                fontSize: 14,
-                fontWeight: 400,
-                color: '#FFF',
-                formatter: (params) => params.data
-            },
-            itemStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#7491EA' }, { offset: 1, color: '#9865D9' }], false),
-            },
-            emphasis: {
-                itemStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#7491EA' }, { offset: 1, color: '#9865D9' }], false),
-                    shadowBlur: 20,
-                    shadowColor: 'rgba(0, 0, 0, 0.1)'
-                }
-            },
-            animationEasing: 'elasticOut',
-            animationDelayUpdate: (idx) => idx * 5
-        }],
-        grid: {
-            show: false,
-            height: allModels.length * 60
-        },
-        tooltip: {
-            show: true,
-            trigger: 'axis',
-            axisPointer: { type: 'line' },
-            formatter: (params) =>  `${params[0].name}: ${params[0].value}`
-        },
-    });
+    const onLayoutChange = (currentLayout) => {
+        setLayout(currentLayout);
+    };
+
+    const onClickLayoutChange = () => {
+        localStorage.setItem('myLayoutKey',JSON.stringify(initialLayout))
+        setLayout(initialLayout)
+    }
 
     useEffect(() => {
-        const chartDom = document.getElementById('barChart');
-        const myChart = echarts.init(chartDom);
-        const options = optionsGenerator(allModels);
-        if(options) myChart.setOption(options);
-    }, [allModels]);
+        if (!firstUpdate.current) {
+            localStorage.setItem('myLayoutKey', JSON.stringify(layout));
+        } else {
+            firstUpdate.current = false;
+        }
+    }, [layout]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -125,28 +106,31 @@ export default function ApmDashboard() {
         }
     }, [allAgents, selectedAgent, handleSelectedAgent]);
 
+
     return (
-        <>
         <div className={style.apm_dashboard_container}>
             <div id="apm_dashboard" className={style.apm_dashboard}>
                 <span className="text_14 mt_10 ml_6">Agent Performance Monitoring</span>
-                <div className="my_rows mt_16">
-                    <div className="my_col_4 display_column_container">
+                <button onClick={() => onClickLayoutChange()} className="primary_button">Click</button>
+                <ResponsiveGridLayout
+                    className="layout"
+                    layouts={{lg: layout}}
+                    onLayoutChange={onLayoutChange}
+                    breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
+                    cols={{lg: 12, md: 12, sm: 12, xs: 12, xxs: 12}}>
+                    <div key="a" className="display_column_container">
                         <span className="text_14 mb_8">Total tokens consumed</span>
                         <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalTokens)}</div>
                     </div>
-                    <div className="my_col_4 display_column_container">
+                    <div key="b" className="display_column_container">
                         <span className="text_14 mb_8">Total runs</span>
                         <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalRuns)}</div>
                     </div>
-                    <div className="my_col_4 display_column_container">
+                    <div key="c" className="display_column_container">
                         <span className="text_14 mb_8">Total calls</span>
                         <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalCalls)}</div>
                     </div>
-                </div>
-
-                <div className="my_rows mt_8" style={{height:'565px'}}>
-                    <div className="my_col_8 display_column_container h_100">
+                    <div key="d" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
                             <span className="text_14 mb_8">Agent & Run details</span>
                             <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
@@ -173,186 +157,165 @@ export default function ApmDashboard() {
                                 <img src="/images/no_permissions.svg" width={300} height={120} alt="No Data"/>
                                 <span className="text_12 color_white mt_6">{selectedAgent === 'Select an Agent' ? 'Please Select an Agent' : <React.Fragment>No Runs found for <b>{selectedAgent}</b></React.Fragment>}</span>
                             </div> : <div className="scrollable_container mt_16">
-                            <table className="table_css mt_10">
-                                <thead>
-                                <tr style={{borderTop:'none'}}>
-                                    <th className="table_header">Run Name</th>
-                                    <th className="table_header text_align_right">Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                    <th className="table_header text_align_right">Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                    <th className="table_header text_align_right">Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {selectedAgentRun.map((run, i) => (
-                                    <tr key={i}>
-                                        <td className="table_data" style={{width:'60%'}}>{run.name}</td>
-                                        <td className="table_data text_align_right" style={{width:'18%'}}>{run.tokens_consumed}</td>
-                                        <td className="table_data text_align_right" style={{width:'10%'}}>{run.calls}</td>
-                                        <td className="table_data text_align_right" style={{width:'12%'}}>{formatRunTimeDifference(run.updated_at,run.created_at)}</td>
+                                <table className="table_css mt_10">
+                                    <thead>
+                                    <tr style={{borderTop:'none'}}>
+                                        <th className="table_header">Run Name</th>
+                                        <th className="table_header text_align_right">Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right">Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right">Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                     </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        </div>}
-                    </div>
-                    <div className="my_col_4">
-                        <div className="display_column_container">
-                            <span className="text_14 mb_8">Number of Agents</span>
-                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalAgents)}</div>
-                        </div>
-                        <div className="display_column_container mt_8">
-                            <span className="text_14 mb_8">Average tokens consumed per run</span>
-                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalTokens/totalRuns):'-'}</div>
-                        </div>
-                        <div className="display_column_container mt_8">
-                            <span className="text_14 mb_8">Average calls made per run</span>
-                            <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalCalls/totalRuns):'-'}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="my_rows mt_8" style={{height:'644px'}}>
-                    <div className="my_col_10">
-                        <div className="my_rows" style={{height:'318px'}}>
-                            <div className="my_col_6 display_column_container h_100">
-                                <span className="text_14 mb_8">Most active agents</span>
-                                {allAgents.length === 0 ?
-                                    <div className="vertical_container align_center mt_70 w_100">
-                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                                        <span className="text_12 color_white mt_6">No Active Agents Found</span>
-                                    </div> : <div className="scrollable_container">
-                                    <table className="table_css mt_10">
-                                        <thead>
-                                        <tr style={{borderTop:'none'}}>
-                                            <th className="table_header">Agent</th>
-                                            <th className="table_header text_align_right">Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                    </thead>
+                                    <tbody>
+                                    {selectedAgentRun.map((run, i) => (
+                                        <tr key={i}>
+                                            <td className="table_data" style={{width:'60%'}}>{run.name}</td>
+                                            <td className="table_data text_align_right" style={{width:'18%'}}>{run.tokens_consumed}</td>
+                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.calls}</td>
+                                            <td className="table_data text_align_right" style={{width:'12%'}}>{formatRunTimeDifference(run.updated_at,run.created_at)}</td>
                                         </tr>
-                                        </thead>
-                                        <tbody>
-                                        {allAgents.sort((a,b) => b.runs_completed - a.runs_completed).map((agent, i) => (
-                                            <tr key={i}>
-                                                <td className="table_data" style={{width:'20%'}}>{agent.name}</td>
-                                                <td className="table_data" style={{width:'100%',display:'inline-flex'}}>
-                                                    <div className="progress-bar">
-                                                        <div className="filled" style={{width: `${(agent.runs_completed/(allAgents[0].runs_completed+0.1))*100}%`}}>
-                                                            <div className="shine"></div>
-                                                        </div>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>}
+                    </div>
+                    <div key="e" className="display_column_container">
+                        <span className="text_14 mb_8">Number of Agents</span>
+                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalAgents)}</div>
+                    </div>
+                    <div key="f" className="display_column_container">
+                        <span className="text_14 mb_8">Average tokens consumed per run</span>
+                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalTokens/totalRuns):'-'}</div>
+                    </div>
+                    <div key="g" className="display_column_container">
+                        <span className="text_14 mb_8">Average calls made per run</span>
+                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalCalls/totalRuns):'-'}</div>
+                    </div>
+                    <div key="h" className="display_column_container">
+                        <span className="text_14 mb_8">Most active agents</span>
+                        {allAgents.length === 0 ?
+                            <div className="vertical_container align_center mt_70 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Active Agents Found</span>
+                            </div> : <div className="scrollable_container">
+                                <table className="table_css mt_10">
+                                    <thead>
+                                    <tr style={{borderTop:'none'}}>
+                                        <th className="table_header">Agent</th>
+                                        <th className="table_header text_align_right">Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {allAgents.sort((a,b) => b.runs_completed - a.runs_completed).map((agent, i) => (
+                                        <tr key={i}>
+                                            <td className="table_data" style={{width:'20%'}}>{agent.name}</td>
+                                            <td className="table_data" style={{width:'100%',display:'inline-flex'}}>
+                                                <div className="progress-bar">
+                                                    <div className="filled" style={{width: `${(agent.runs_completed/(allAgents[0].runs_completed+0.1))*100}%`}}>
+                                                        <div className="shine"></div>
                                                     </div>
-                                                    <span>{agent.runs_completed}</span>
-                                                </td>
-                                            </tr>))}
-                                        </tbody>
-                                    </table>
-                                </div>}
-                            </div>
-                            <div className="my_col_6 display_column_container h_100">
-                                <span className="text_14 mb_8">Most used tools</span>
-                                {toolsUsed.length === 0 ?
-                                    <div className="vertical_container align_center mt_70 w_100">
-                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                                        <span className="text_12 color_white mt_6">No Used Tools Found</span>
-                                    </div> : <div className="scrollable_container">
-                                    <table className="table_css mt_10">
-                                        <thead>
-                                        <tr style={{borderTop:'none'}}>
-                                            <th className="table_header">Tool</th>
-                                            <th className="table_header text_align_right">Agents <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                            <th className="table_header text_align_right">Iterations</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {toolsUsed.map((tool, index) => (
-                                            <tr key={index}>
-                                                <td className="table_data" style={{width:'68%'}}>{tool.tool_name}</td>
-                                                <td className="table_data text_align_right" style={{width:'16%'}}>{tool.unique_agents}</td>
-                                                <td className="table_data text_align_right" style={{width:'16%'}}>{tool.total_usage}</td>
-                                            </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                </div>}
-                            </div>
-                        </div>
-                        <div className="my_rows mt_8" style={{height:'318px'}}>
-                            <div className="my_col_6 display_column_container h_100">
-                                <span className="text_14 mb_8">Calls per run</span>
-                                {allAgents.length === 0 ?
-                                    <div className="vertical_container align_center mt_70 w_100">
-                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                                        <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
-                                    </div> : <div className="scrollable_container">
-                                    <table className="table_css mt_10">
-                                        <thead>
-                                        <tr style={{borderTop:'none'}}>
-                                            <th className="table_header">Agent</th>
-                                            <th className="table_header text_align_right">Average calls per runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {allAgents.map((agent, i) => (
-                                            <tr key={i}>
-                                                <td className="table_data" style={{width:'70%'}}>{agent.name}</td>
-                                                <td className="table_data text_align_right" style={{width:'30%'}}>{agent.runs_completed?(agent.total_calls/agent.runs_completed).toFixed(1):'-'}</td>
-                                            </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                </div>}
-                            </div>
-                            <div className="my_col_6 display_column_container h_100">
-                                <span className="text_14 mb_8">Tokens per run</span>
-                                {allAgents.length === 0 ?
-                                    <div className="vertical_container align_center mt_70 w_100">
-                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                                        <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
-                                    </div> : <div className="scrollable_container">
-                                    <table className="table_css mt_10">
-                                        <thead>
-                                        <tr style={{borderTop:'none'}}>
-                                            <th className="table_header">Agent</th>
-                                            <th className="table_header text_align_right">Average Tokens per runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {allAgents.map((agent, i) => (
-                                            <tr key={i}>
-                                                <td className="table_data" style={{width:'66%'}}>{agent.name}</td>
-                                                <td className="table_data text_align_right" style={{width:'34%'}}>{agent.runs_completed?(agent.total_tokens/agent.runs_completed).toFixed(1):'-'}</td>
-                                            </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                </div>}
-                            </div>
-                        </div>
+                                                </div>
+                                                <span>{agent.runs_completed}</span>
+                                            </td>
+                                        </tr>))}
+                                    </tbody>
+                                </table>
+                            </div>}
                     </div>
-                    <div className="my_col_2 h_100">
-                        <div className="my_col_12 display_column_container h_100">
-                            <span className="text_14 mb_8">Active Runs</span>
-                            <div className="scrollable_container gap_8">
-                                {activeRuns.length === 0 ?
-                                    <div className="vertical_container align_center mt_24">
-                                        <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                                        <span className="text_12 color_white mt_6">No active runs found</span>
-                                    </div> : activeRuns.map((run,index) => (
+                    <div key="i" className="display_column_container">
+                        <span className="text_14 mb_8">Most used tools</span>
+                        {toolsUsed.length === 0 ?
+                            <div className="vertical_container align_center mt_70 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Used Tools Found</span>
+                            </div> : <div className="scrollable_container">
+                                <table className="table_css mt_10">
+                                    <thead>
+                                    <tr style={{borderTop:'none'}}>
+                                        <th className="table_header">Tool</th>
+                                        <th className="table_header text_align_right">Agents <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right">Iterations</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {toolsUsed.map((tool, index) => (
+                                        <tr key={index}>
+                                            <td className="table_data" style={{width:'68%'}}>{tool.tool_name}</td>
+                                            <td className="table_data text_align_right" style={{width:'16%'}}>{tool.unique_agents}</td>
+                                            <td className="table_data text_align_right" style={{width:'16%'}}>{tool.total_usage}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>}
+                    </div>
+                    <div key="j" className="display_column_container">
+                        <span className="text_14 mb_8">Calls per run</span>
+                        {allAgents.length === 0 ?
+                            <div className="vertical_container align_center mt_70 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
+                            </div> : <div className="scrollable_container">
+                                <table className="table_css mt_10">
+                                    <thead>
+                                    <tr style={{borderTop:'none'}}>
+                                        <th className="table_header">Agent</th>
+                                        <th className="table_header text_align_right">Average calls per runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {allAgents.map((agent, i) => (
+                                        <tr key={i}>
+                                            <td className="table_data" style={{width:'70%'}}>{agent.name}</td>
+                                            <td className="table_data text_align_right" style={{width:'30%'}}>{agent.runs_completed?(agent.total_calls/agent.runs_completed).toFixed(1):'-'}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>}
+                    </div>
+                    <div key="k" className="display_column_container">
+                        <span className="text_14 mb_8">Tokens per run</span>
+                        {allAgents.length === 0 ?
+                            <div className="vertical_container align_center mt_70 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Agents/Runs Found</span>
+                            </div> : <div className="scrollable_container">
+                                <table className="table_css mt_10">
+                                    <thead>
+                                    <tr style={{borderTop:'none'}}>
+                                        <th className="table_header">Agent</th>
+                                        <th className="table_header text_align_right">Average Tokens per runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {allAgents.map((agent, i) => (
+                                        <tr key={i}>
+                                            <td className="table_data" style={{width:'66%'}}>{agent.name}</td>
+                                            <td className="table_data text_align_right" style={{width:'34%'}}>{agent.runs_completed?(agent.total_tokens/agent.runs_completed).toFixed(1):'-'}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>}
+                    </div>
+                    <div key="l" className="display_column_container">
+                        <span className="text_14 mb_8">Active Runs</span>
+                        <div className="scrollable_container gap_8">
+                            {activeRuns.length === 0 ?
+                                <div className="vertical_container align_center mt_24">
+                                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                    <span className="text_12 color_white mt_6">No active runs found</span>
+                                </div> : activeRuns.map((run,index) => (
                                     <div className="active_runs">
                                         <span className="text_14">{run.name}</span>
                                         <div style={{display:'inline-flex',alignItems:'center'}}><span className="text_12 mt_6">{run.agent_name}  ·  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" /> {formatTime(run.created_at)}</span></div>
                                     </div>
                                 ))}
-                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div className="my_rows mt_8">
-                    <div className="my_col_10 display_column_container">
-                        <span className="text_14 mb_8">Models used by agents</span>
-                        <div id="barChart" style={{width: '100%', height: 300}}></div>
-                    </div>
-                </div>
+                </ResponsiveGridLayout>
             </div>
         </div>
-        </>
-    )
+    );
 }
