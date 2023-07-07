@@ -427,6 +427,18 @@ input[type="range"]::-moz-range-track {
     text-overflow: ellipsis;
 }
 
+.custom_no_select_option {
+    pointer-events: none;
+    font-size: 12px;
+    color: #888888;
+    font-weight: normal;
+    height: auto;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .custom_select_option:hover {
     background: #3B3B49;
     border-radius: 8px;

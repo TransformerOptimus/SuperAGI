@@ -43,6 +43,10 @@ export default function KnowledgeDetails({knowledgeDetails}) {
               <label className={styles1.knowledge_label}>Chunk Size</label>
               <div className={styles1.knowledge_info}>256</div>
             </div>
+            <div className={styles1.knowledge_info_box}>
+              <label className={styles1.knowledge_label}>Vector Database</label>
+              <div className={styles1.knowledge_info}>database name • Pinecone</div>
+            </div>
           </div>
           <div style={{width:'50%'}}>
             <div className={styles1.knowledge_info_box}>
@@ -60,6 +64,10 @@ export default function KnowledgeDetails({knowledgeDetails}) {
             <div className={styles1.knowledge_info_box}>
               <label className={styles1.knowledge_label}>Dimension</label>
               <div className={styles1.knowledge_info}>1536</div>
+            </div>
+            <div className={styles1.knowledge_info_box}>
+              <label className={styles1.knowledge_label}>Vector database index</label>
+              <div className={styles1.knowledge_info}>index name</div>
             </div>
           </div>
         </div>}

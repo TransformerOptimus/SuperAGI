@@ -161,16 +161,11 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
           <div className={agentStyles.page_title}>Connect new vector database</div>
         </div>
         <div className="database_box">
-          <div style={{display:'flex',justifyContent:'flex-start',order:'0',alignItems:'center'}}>
+          <div style={{display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
             <div style={{marginLeft:'15px'}}>
               <Image src={returnDatabaseIcon(selectedDB)} alt="database-icon" width={40} height={40}/>
             </div>
             <div style={{marginLeft:'15px',fontSize:'14px',marginTop:'23px'}} className={agentStyles.page_title}><p>{selectedDB}</p></div>
-          </div>
-          <div style={{display:'flex',justifyContent:'flex-start',order:'0',alignItems:'center'}}>
-            <button onClick={() => setLocalStorageValue('add_database_tab_' + String(internalId), 'select_database', setActiveView)} className="secondary_button" style={{marginRight: '10px'}}>
-              Change
-            </button>
           </div>
         </div>
         <div style={{marginTop:'15px'}}>

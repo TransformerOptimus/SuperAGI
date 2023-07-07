@@ -102,7 +102,8 @@ export default function AddKnowledge({internalId}) {
             <input className="input_medium" type="text" value={knowledgeName} onChange={handleNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
-            <label className={styles.form_label}>Description</label>
+            <label className={styles.form_label}>Description</label><br/>
+            <label className={styles.form_label}>This description will be passed to the agent as knowledge context.</label>
             <textarea className="textarea_medium" rows={3} value={knowledgeDescription} onChange={handleDescriptionChange}/>
           </div>
           <div style={{marginTop: '15px'}}>

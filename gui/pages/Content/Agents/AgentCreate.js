@@ -372,6 +372,11 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
       return
     }
 
+    if(toolNames.includes('KnowledgeTool') && !selectedKnowledge) {
+      toast.error("Add atleast one knowledge", {autoClose: 1800});
+      return;
+    }
+
     setCreateClickable(false);
 
     let permission_type = permission;
@@ -778,21 +783,26 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                   </div>
                 </div>}
               </div>
-              {knowledge && knowledge.length > 0 && <div style={{marginTop: '5px'}}>
+              <div style={{marginTop: '5px'}}>
                 <label className={styles.form_label}>Add knowledge (optional)</label>
                 <div className="dropdown_container_search" style={{width:'100%'}}>
                   <div className="custom_select_container" onClick={() => setKnowledgeDropdown(!knowledgeDropdown)} style={selectedKnowledge ? {width:'100%'} : {width:'100%', color:'#888888'}}>
                     {selectedKnowledge || 'Select knowledge'}<Image width={20} height={21} src={!knowledgeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                   </div>
                   <div>
-                    {knowledgeDropdown && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
+                    {knowledgeDropdown && knowledge.length > 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
                       {knowledge.map((item, index) => (<div key={index} className="custom_select_option" onClick={() => handleKnowledgeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                         {item.name}
                       </div>))}
                     </div>}
+                    {knowledgeDropdown && knowledge.length <= 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
+                      <div className="custom_no_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        No knowledge found
+                      </div>
+                    </div>}
                   </div>
                 </div>
-              </div>}
+              </div>
               <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
                 {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
