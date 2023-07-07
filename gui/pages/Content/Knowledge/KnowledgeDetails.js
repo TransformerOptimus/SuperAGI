@@ -2,9 +2,25 @@ import React, {useState} from 'react';
 import styles1 from './Knowledge.module.css'
 import {ToastContainer, toast} from "react-toastify";
 import styles from "@/pages/Content/Toolkits/Tool.module.css";
+import Image from "next/image";
 
 export default function KnowledgeDetails({knowledgeDetails}) {
-  const [showDescription,setShowDescription] = useState(false)
+  const [showDescription,setShowDescription] = useState(false);
+  const [dropdown,setDropdown] = useState(false);
+  const [isEditing,setIsEditing] = useState(false);
+
+  const uninstallKnowledge = () => {
+    setDropdown(false);
+  }
+
+  const viewKnowledge = () => {
+    setDropdown(false);
+  }
+
+  const editKnowledge = () => {
+    setIsEditing(true);
+    setDropdown(false);
+  }
 
   return (<>
     <div className="row">
@@ -22,6 +38,19 @@ export default function KnowledgeDetails({knowledgeDetails}) {
                   </span>}
                 </div>
               </div>
+            </div>
+            <div style={{width:'5%'}}>
+              <button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+              </button>
+              {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                <ul className="dropdown_container" style={{marginTop:'0',marginLeft:'-10px',width:'165px'}}>
+                  {knowledgeDetails.source === 'Marketplace' ?
+                    <li className="dropdown_item" onClick={viewKnowledge}>View in marketplace</li> :
+                    <li className="dropdown_item" onClick={editKnowledge}>Edit details</li>}
+                  <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
+                </ul>
+              </div>}
             </div>
           </div>
         </div>
