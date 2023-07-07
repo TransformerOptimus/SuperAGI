@@ -11,7 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import {returnToolkitIcon} from "@/utils/utils";
 
-export default function EachTool({template, env}) {
+export default function ToolkitTemplate({template, env}) {
     const [rightPanel, setRightPanel] = useState('overview')
     const [installed, setInstalled] = useState('')
     const [markdownContent, setMarkdownContent] = useState('');
