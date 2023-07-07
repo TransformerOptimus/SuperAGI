@@ -55,12 +55,26 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
     setLocalStorageArray("db_details_collections_" + String(internalId), updatedCollections, setCollections);
   }
 
+  const deleteDatabase = () => {
+    setDropdown(false);
+  }
+
   return (<>
     <div className="row">
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
         <div className="title_wrapper">
           <div className={agentStyles.page_title}>{databaseName}</div>
+          <div>
+            <button className="secondary_button" style={{padding:'8px',height:'31px',marginTop:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+              <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+            </button>
+            {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+              <ul className="dropdown_container">
+                <li className="dropdown_item" onClick={deleteDatabase}>Delete database</li>
+              </ul>
+            </div>}
+          </div>
         </div>
         <div className="database_box">
           <div style={{display:'flex',justifyContent:'flex-start',order:'0',alignItems:'center'}}>
