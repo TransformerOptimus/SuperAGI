@@ -33,14 +33,13 @@ def mock_agent_config():
 
 @pytest.fixture
 def mock_schedule_get():
-    # Use predefined start_time
     return AgentSchedule(
         id=1, 
         agent_id=1, 
         status="SCHEDULED",
         start_time= datetime(2022, 1, 1, 10, 30),
         recurrence_interval="5 Minutes",
-        expiry_date=datetime(2022, 1, 1, 10, 30) + timedelta(days=10),  # adjusted expiry_date as well here
+        expiry_date=datetime(2022, 1, 1, 10, 30) + timedelta(days=10),
         expiry_runs=5 
     )
 
@@ -113,14 +112,14 @@ def test_get_schedule_data_success(mock_schedule_get, mock_agent_config):
         response = client.get("agents/get/schedule_data/1")
         assert response.status_code == 200
 
-        time_gmt = mock_schedule_get.start_time.astimezone(timezone('GMT')) # convert to GMT
+        time_gmt = mock_schedule_get.start_time.astimezone(timezone('GMT'))
 
         expected_data = {
             "current_datetime": mock.ANY,
-            "start_date": time_gmt.strftime("%d %b %Y"),  # start_date in GMT
-            "start_time": time_gmt.strftime("%I:%M %p"),  # start_time in GMT
+            "start_date": time_gmt.strftime("%d %b %Y"),
+            "start_time": time_gmt.strftime("%I:%M %p"),
             "recurrence_interval": mock_schedule_get.recurrence_interval,
-            "expiry_date": mock_schedule_get.expiry_date.astimezone(timezone('GMT')).strftime("%d/%m/%Y"), # expiry_date also in GMT
+            "expiry_date": mock_schedule_get.expiry_date.astimezone(timezone('GMT')).strftime("%d/%m/%Y"),
             "expiry_runs": mock_schedule_get.expiry_runs,
         }
         assert response.json() == expected_data
