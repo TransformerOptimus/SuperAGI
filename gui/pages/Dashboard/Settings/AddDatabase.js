@@ -19,7 +19,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const vectorDatabases = ["Pinecone", "Qdrant"];
   const [selectedDB, setSelectedDB] = useState(vectorDatabases[0]);
   const [databaseName, setDatabaseName] = useState('database name');
-  const [collections, setCollections] = useState([]);
+  const [collections, setCollections] = useState(['collection name']);
 
   const [pineconeApiKey, setPineconeApiKey] = useState('');
   const [pineconeEnvironment, setPineconeEnvironment] = useState('');
@@ -95,12 +95,12 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   }
 
   const addCollection = () => {
-    setLocalStorageArray("db_collections_" + String(internalId), [...collections, {name: 'collection name', editable: 'true'}], setCollections);
+    setLocalStorageArray("db_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
   };
 
   const handleCollectionChange = (index, newValue) => {
     const updatedCollections = [...collections];
-    updatedCollections[index].name = newValue;
+    updatedCollections[index] = newValue;
     setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
   };
 
@@ -109,12 +109,6 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     updatedCollections.splice(index, 1);
     setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
   };
-
-  const handleCollectionAddConfirm = (index) => {
-    const updatedCollections = [...collections];
-    updatedCollections[index].editable = false;
-    setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
-  }
 
   const connectDatabase = () => {
     if(databaseName.replace(/\s/g, '') === '') {
@@ -216,20 +210,13 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
           <div><label className={styles.form_label}>Collection i.e, Index</label></div>
           {collections.map((collection, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{flex:'1'}}>
-              <input disabled={!collection.editable} className="input_medium" type="text" value={collection.name}
-                     style={!collection.editable ? {color:'#888888'} : {}}
+              <input className="input_medium" type="text" value={collection}
                      onChange={(event) => handleCollectionChange(index, event.target.value)}/>
             </div>
-            <div>
+            {collections.length > 1 && <div>
               <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                       onClick={() => handleCollectionDelete(index)}>
                 <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
-              </button>
-            </div>
-            {collection.editable && <div>
-              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
-                      onClick={() => handleCollectionAddConfirm(index)}>
-                <Image width={20} height={21} src="/images/tick.svg" alt="close-icon"/>
               </button>
             </div>}
           </div>))}

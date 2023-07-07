@@ -13,6 +13,8 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
   const [selectedDB, setSelectedDB] = useState('');
   const [databaseName, setDatabaseName] = useState('');
   const [collections, setCollections] = useState([]);
+  const [initialCollections, setInitialCollections] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const [pineconeApiKey, setPineconeApiKey] = useState('');
   const [pineconeEnvironment, setPineconeEnvironment] = useState('');
@@ -26,6 +28,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
       setSelectedDB(databaseDetails.database);
       setDatabaseName(databaseDetails.name);
       setCollections(databaseDetails.collections);
+      setInitialCollections(databaseDetails.collections);
       setPineconeApiKey(databaseDetails.pineconeApiKey);
       setPineconeEnvironment(databaseDetails.pineconeEnvironment);
       setQdrantApiKey(databaseDetails.qdrantApiKey);
@@ -34,17 +37,25 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
     }
   }, [internalId]);
 
+  useEffect(() => {
+    if (JSON.stringify(collections) !== JSON.stringify(initialCollections)) {
+      setHasChanges(true);
+    } else {
+      setHasChanges(false);
+    }
+  }, [collections]);
+
   const preventDefault = (e) => {
     e.stopPropagation();
   };
 
   const addCollection = () => {
-    setLocalStorageArray("db_details_collections_" + String(internalId), [...collections, {name: 'collection name', editable: 'true'}], setCollections);
+    setLocalStorageArray("db_details_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
   };
 
   const handleCollectionChange = (index, newValue) => {
     const updatedCollections = [...collections];
-    updatedCollections[index].name = newValue;
+    updatedCollections[index] = newValue;
     setLocalStorageArray("db_details_collections_" + String(internalId), updatedCollections, setCollections);
   };
 
@@ -54,15 +65,19 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
     setLocalStorageArray("db_details_collections_" + String(internalId), updatedCollections, setCollections);
   };
 
-  const handleCollectionAddConfirm = (index) => {
-    const updatedCollections = [...collections];
-    updatedCollections[index].editable = false;
-    setLocalStorageArray("db_details_collections_" + String(internalId), updatedCollections, setCollections);
-  }
-
   const deleteDatabase = () => {
     setDeleteModal(false);
   }
+
+  const revertChanges = () => {
+    setCollections(initialCollections);
+    setHasChanges(false);
+  };
+
+  const updateChanges = () => {
+    setInitialCollections(collections);
+    setHasChanges(false);
+  };
 
   return (<>
     <div className="row">
@@ -93,20 +108,13 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
           <div><label className={styles.form_label}>Collection i.e, Index</label></div>
           {collections.map((collection, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{flex:'1'}}>
-              <input disabled={!collection.editable} className="input_medium" type="text" value={collection.name}
-                     style={!collection.editable ? {color:'#888888'} : {}}
+              <input className="input_medium" type="text" value={collection}
                      onChange={(event) => handleCollectionChange(index, event.target.value)}/>
             </div>
-            <div>
+            {collections.length > 1 && <div>
               <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                       onClick={() => handleCollectionDelete(index)}>
                 <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
-              </button>
-            </div>
-            {collection.editable && <div>
-              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
-                      onClick={() => handleCollectionAddConfirm(index)}>
-                <Image width={20} height={21} src="/images/tick.svg" alt="close-icon"/>
               </button>
             </div>}
           </div>))}
@@ -135,6 +143,14 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
             <label className={knowledgeStyles.knowledge_label}>Port</label>
             <div className={knowledgeStyles.knowledge_info}>{qdrantPort}</div>
           </div>
+        </div>}
+        {hasChanges && <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
+          <button className="secondary_button" style={{marginRight: '10px'}} onClick={revertChanges}>
+            Cancel
+          </button>
+          <button className="primary_button" onClick={updateChanges}>
+            Update
+          </button>
         </div>}
       </div>
       <div className="col-3"></div>
