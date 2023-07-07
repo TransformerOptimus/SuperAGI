@@ -72,8 +72,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
         HTTPException (Status Code=404): If the agent is not found.
     """
 
-    agent = db.session.query(Agent).filter(Agent.is_deleted == False).get(agent_execution.agent_id)
-
+    agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
