@@ -57,6 +57,7 @@ class SuperAgi:
                  memory: VectorStore,
                  tools: List[BaseTool],
                  agent_config: Any,
+                 agent_execution_config: Any,
                  output_parser: BaseOutputParser = AgentOutputParser(),
                  ):
         self.ai_name = ai_name
@@ -67,6 +68,7 @@ class SuperAgi:
         self.output_parser = output_parser
         self.tools = tools
         self.agent_config = agent_config
+        self.agent_execution_config = agent_execution_config
         # Init Log
         # print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 
@@ -99,7 +101,7 @@ class SuperAgi:
             .order_by(asc(AgentExecutionFeed.created_at)) \
             .limit(memory_window) \
             .all()
-        return agent_feeds
+        return agent_feeds[2:]
 
     def split_history(self, history: List, pending_token_limit: int) -> Tuple[List[BaseMessage], List[BaseMessage]]:
         hist_token_count = 0
@@ -149,6 +151,7 @@ class SuperAgi:
             #                                           role="user")
 
         logger.info(prompt)
+        # print(messages)
         if len(agent_feeds) <= 0:
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -164,7 +167,7 @@ class SuperAgi:
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         self.update_agent_execution_tokens(current_calls, total_tokens)
 
-        if response['content'] is None:
+        if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
 
@@ -285,7 +288,7 @@ class SuperAgi:
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
 
-        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_config["goal"], self.agent_config["instruction"],
+        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_execution_config["goal"], self.agent_execution_config["instruction"],
                                                            self.agent_config["constraints"], self.tools, add_finish_tool)
 
         response = task_queue.get_last_task_details()

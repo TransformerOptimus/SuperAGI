@@ -8,7 +8,7 @@ from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
@@ -18,6 +18,7 @@ class CodingSchema(BaseModel):
         ...,
         description="Description of the coding task",
     )
+
 
 class CodingTool(BaseTool):
     """
@@ -43,12 +44,11 @@ class CodingTool(BaseTool):
     )
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
     tool_response_manager: Optional[ToolResponseQueryManager] = None
 
     class Config:
         arbitrary_types_allowed = True
-
 
     def _execute(self, code_description: str) -> str:
         """
@@ -59,54 +59,50 @@ class CodingTool(BaseTool):
             code_file_name: The name of the file where the generated codes will be saved.
 
         Returns:
-            Generated codes files or error message.
+            Generated code with where the code is being saved or error message.
         """
-        try:
-            prompt = PromptReader.read_tools_prompt(__file__, "write_code.txt")
-            prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
-            prompt = prompt.replace("{code_description}", code_description)
-            spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
-            if spec_response != "":
-                prompt = prompt.replace("{spec}", "Use this specs for generating the code:\n" + spec_response)
-            logger.info(prompt)
-            messages = [{"role": "system", "content": prompt}]
+        prompt = PromptReader.read_tools_prompt(__file__, "write_code.txt") + "\nUseful to know:\n" + PromptReader.read_tools_prompt(__file__, "generate_logic.txt")
+        prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+        prompt = prompt.replace("{code_description}", code_description)
+        spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
+        if spec_response != "":
+            prompt = prompt.replace("{spec}", "Use this specs for generating the code:\n" + spec_response)
+        logger.info(prompt)
+        messages = [{"role": "system", "content": prompt}]
 
-            total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-            token_limit = TokenCounter.token_limit(self.llm.get_model())
-            result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
-            # Get all filenames and corresponding code blocks
-            regex = r"(\S+?)\n```\S*\n(.+?)```"
-            matches = re.finditer(regex, result["content"], re.DOTALL)
+        # Get all filenames and corresponding code blocks
+        regex = r"(\S+?)\n```\S*\n(.+?)```"
+        matches = re.finditer(regex, result["content"], re.DOTALL)
 
-            file_names = []
-            # Save each file
+        file_names = []
+        # Save each file
 
-            for match in matches:
-                # Get the filename
-                file_name = re.sub(r'[<>"|?*]', "", match.group(1))
+        for match in matches:
+            # Get the filename
+            file_name = re.sub(r'[<>"|?*]', "", match.group(1))
 
-                # Get the code
-                code = match.group(2)
+            # Get the code
+            code = match.group(2)
 
-                # Ensure file_name is not empty
-                if not file_name.strip():
-                    continue
+            # Ensure file_name is not empty
+            if not file_name.strip():
+                continue
 
-                file_names.append(file_name)
-                save_result = self.resource_manager.write_file(file_name, code)
-                if save_result.startswith("Error"):
-                    return save_result
+            file_names.append(file_name)
+            save_result = self.resource_manager.write_file(file_name, code)
+            if save_result.startswith("Error"):
+                return save_result
 
-            # Get README contents and save
-            split_result = result["content"].split("```")
-            if len(split_result) > 0:
-                readme = split_result[0]
-                save_readme_result = self.resource_manager.write_file("README.md", readme)
-                if save_readme_result.startswith("Error"):
-                    return save_readme_result
+        # Get README contents and save
+        split_result = result["content"].split("```")
+        if len(split_result) > 0:
+            readme = split_result[0]
+            save_readme_result = self.resource_manager.write_file("README.md", readme)
+            if save_readme_result.startswith("Error"):
+                return save_readme_result
 
-            return result["content"] + "\n Codes generated and saved successfully in " + ", ".join(file_names)
-        except Exception as e:
-            logger.error(e)
-            return f"Error generating codes: {e}"
+        return result["content"] + "\n Codes generated and saved successfully in " + ", ".join(file_names)

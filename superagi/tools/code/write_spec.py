@@ -7,7 +7,7 @@ from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
-from superagi.resource_manager.manager import ResourceManager
+from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 
@@ -21,6 +21,7 @@ class WriteSpecSchema(BaseModel):
         ...,
         description="Name of the file to write. Only include the file name. Don't include path."
     )
+
 
 class WriteSpecTool(BaseTool):
     """
@@ -42,7 +43,7 @@ class WriteSpecTool(BaseTool):
     )
     args_schema: Type[WriteSpecSchema] = WriteSpecSchema
     goals: List[str] = []
-    resource_manager: Optional[ResourceManager] = None
+    resource_manager: Optional[FileManager] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -58,23 +59,18 @@ class WriteSpecTool(BaseTool):
         Returns:
             Generated specification or error message.
         """
-        try:
-            prompt = PromptReader.read_tools_prompt(__file__, "write_spec.txt")
-            prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
-            prompt = prompt.replace("{task}", task_description)
-            messages = [{"role": "system", "content": prompt}]
+        prompt = PromptReader.read_tools_prompt(__file__, "write_spec.txt")
+        prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+        prompt = prompt.replace("{task}", task_description)
+        messages = [{"role": "system", "content": prompt}]
 
-            total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-            token_limit = TokenCounter.token_limit(self.llm.get_model())
-            result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
-            
-            # Save the specification to a file
-            write_result = self.resource_manager.write_file(spec_file_name, result["content"])
-            if not write_result.startswith("Error"):
-                return result["content"] + "Specification generated and saved successfully"
-            else:
-                return write_result
-                
-        except Exception as e:
-            logger.error(e)
-            return f"Error generating specification: {e}"
+        total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+
+        # Save the specification to a file
+        write_result = self.resource_manager.write_file(spec_file_name, result["content"])
+        if not write_result.startswith("Error"):
+            return result["content"] + "\nSpecification generated and saved successfully"
+        else:
+            return write_result

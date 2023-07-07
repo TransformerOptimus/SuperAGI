@@ -1,8 +1,8 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
 
 from superagi.config.config import get_config
-from fastapi_sqlalchemy import db
 from superagi.models.organisation import Organisation
 from superagi.models.user import User
 
@@ -33,6 +33,13 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     Returns:
         Organisation: Instance of Organisation class to which the authenticated user belongs.
     """
+    user = get_current_user()
+    if user is None:
+        raise HTTPException(status_code=401, detail="Unauthenticated")
+    organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
+    return organisation
+
+def get_current_user(Authorize: AuthJWT = Depends(check_auth)):
     env = get_config("ENV", "DEV")
 
     if env == "DEV":
@@ -43,5 +50,4 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
 
     # Query the User table to find the user by their email
     user = db.session.query(User).filter(User.email == email).first()
-    organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
-    return organisation
+    return user

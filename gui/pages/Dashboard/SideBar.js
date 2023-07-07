@@ -9,8 +9,7 @@ export default function SideBar({onSelectEvent}) {
     setSelection(value);
     onSelectEvent(value);
   };
-
-  return (
+    return (
     <div className={styles.side_bar}>
       <div><Image width={64} height={48} className={styles.logo} src="/images/app-logo-light.png" alt="super-agi-logo"/>
       </div>
@@ -21,15 +20,15 @@ export default function SideBar({onSelectEvent}) {
         </div>
       </div>
       <div className={styles.selection_section}>
-        <div onClick={() => handleClick(sectionSelected !== 'tools' ? 'tools' : '')} className={`${styles.section} ${sectionSelected === 'tools' ? styles.selected : ''}`}>
+        <div onClick={() => handleClick(sectionSelected !== 'toolkits' ? 'toolkits' : '')} className={`${styles.section} ${sectionSelected === 'toolkits' ? styles.selected : ''}`}>
           <div className={styles.button_icon}><Image width={17} height={17} src="/images/tools_light.svg" alt="tools-icon"/></div>
-          <div>Tools</div>
+          <div>Toolkits</div>
         </div>
       </div>
       {/*<div className={styles.selection_section}>*/}
-      {/*  <div onClick={() => handleClick(sectionSelected !== 'agent_cluster' ? 'agent_cluster' : '')} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>*/}
+      {/*  <div onClick={getToken} className={`${styles.section} ${sectionSelected === 'agent_cluster' ? styles.selected : ''}`}>*/}
       {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/agent_cluster_light.svg" alt="agent-cluster-icon"/></div>*/}
-      {/*    <div>Agent Cluster</div>*/}
+      {/*    <div>Google Calendar</div>*/}
       {/*  </div>*/}
       {/*</div>*/}
       {/*<div className={styles.selection_section}>*/}

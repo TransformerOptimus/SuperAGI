@@ -3,11 +3,9 @@ import json
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
-from superagi.models.tool import Tool
 
 marketplace_url = "https://app.superagi.com/api/"
 # marketplace_url = "http://localhost:8001/"
@@ -15,7 +13,7 @@ marketplace_url = "https://app.superagi.com/api/"
 
 class AgentTemplate(DBBaseModel):
     """
-    Represents a preconfigured agent template.
+    Preconfigured agent templates that can be used to create agents.
 
     Attributes:
         id (int): The unique identifier of the agent template.

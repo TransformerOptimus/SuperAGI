@@ -6,33 +6,51 @@ import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
 import SearchBox from './SearchBox';
 import EachTool from './EachTool';
-import {fetchAgentTemplateConfig} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
-import {arEG} from "date-fns/locale";
+import {setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 
-export default function Market() {
-    const [activeTab, setActiveTab] = useState('market_agents');
+export default function Market({env}) {
+    const [activeTab, setActiveTab] = useState('market_tools');
     const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
-    const [agentTemplateData, setAgentTemplateData] = useState([]);
+    const [templateData, setTemplateData] = useState([]);
+    const [detailType, setDetailType] = useState('');
 
     const handleSearch = (term) => {
       setSearchTerm(term);
     };
 
     const handleToolClick = (clicked) => {
-      setItemClicked(clicked);
+        setLocalStorageValue('market_item_clicked', clicked, setItemClicked);
     };
 
     useEffect(() => {
-        const handleOpenTemplateDetails = (item) => {
-            setAgentTemplateData(item);
-            setItemClicked(true);
+        const marketplace_tab = localStorage.getItem('marketplace_tab');
+        if(marketplace_tab) {
+            setActiveTab(marketplace_tab);
+        }
+
+        const item_clicked = localStorage.getItem('market_item_clicked');
+        const detail_type = localStorage.getItem('market_detail_type');
+        const market_item = localStorage.getItem('market_item');
+
+        if(item_clicked) {
+            setItemClicked(JSON.parse(item_clicked));
+            if(detail_type) {
+                setDetailType(item_clicked === 'true' ? detail_type : '');
+                setTemplateData(item_clicked === 'true' ? JSON.parse(market_item) : []);
+            }
+        }
+
+        const handleOpenTemplateDetails = ({ item, contentType }) => {
+            setLocalStorageValue('market_detail_type', contentType, setDetailType);
+            setLocalStorageArray('market_item', item, setTemplateData);
+            setLocalStorageValue('market_item_clicked', true, setItemClicked);
         };
 
         const handleBackClick = ()=>{
-            setItemClicked(false);
+            setLocalStorageValue('market_item_clicked', false, setItemClicked);
         }
 
         EventBus.on('openTemplateDetails', handleOpenTemplateDetails);
@@ -44,6 +62,11 @@ export default function Market() {
         };
     }, []);
 
+    const switchTab = (tab) => {
+        setActiveTab(tab);
+        localStorage.setItem('marketplace_tab', tab);
+    };
+
   return (
     <div>
         {!itemClicked ? <div className={styles.empty_state}>
@@ -51,18 +74,18 @@ export default function Market() {
               <div className={styles.detail_top}>
 
               <div style={{display:'flex',overflowX:'scroll',marginLeft:'8px'}}>
+                  <div>
+                      <button onClick={() => switchTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                          <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>&nbsp;Tools
+                      </button>
+                  </div>
                   {/*<div>*/}
-                  {/*    <button onClick={() => setActiveTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
-                  {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>&nbsp;Tools*/}
-                  {/*    </button>*/}
-                  {/*</div>*/}
-                  {/*<div>*/}
-                  {/*    <button onClick={() => setActiveTab('market_embeddings')} className={styles.tab_button} style={activeTab === 'market_embeddings' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
+                  {/*    <button onClick={() => switchTab('market_embeddings')} className={styles.tab_button} style={activeTab === 'market_embeddings' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
                   {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/embedding_light.svg" alt="embeddings-icon"/>&nbsp;Embeddings*/}
                   {/*    </button>*/}
                   {/*</div>*/}
                   <div>
-                      <button onClick={() => setActiveTab('market_agents')} className={styles.tab_button} style={activeTab === 'market_agents' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                      <button onClick={() => switchTab('market_agents')} className={styles.tab_button} style={activeTab === 'market_agents' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
                           <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/agents_light.svg" alt="agent-template-icon"/>&nbsp;Agent Templates
                       </button>
                   </div>
@@ -79,7 +102,8 @@ export default function Market() {
             </div>
         </div>
         </div> : <div style={{padding:'0 3px'}}>
-            <AgentTemplate template={agentTemplateData} />
+            {detailType === 'agent_template' && <AgentTemplate env={env} template={templateData}/>}
+            {detailType === 'tool_template' && <EachTool env={env} template={templateData} />}
         </div>}
     </div>
   );

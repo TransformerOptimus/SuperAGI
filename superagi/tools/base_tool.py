@@ -1,9 +1,11 @@
 from abc import abstractmethod
 from functools import wraps
+from inspect import signature
+from typing import List
 from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 
-from pydantic import BaseModel, Field, create_model, validate_arguments, Extra
-from inspect import signature
+import yaml
+from pydantic import BaseModel, create_model, validate_arguments, Extra
 
 from superagi.config.config import get_config
 
@@ -54,21 +56,34 @@ def create_function_schema(
     )
 
 
+class BaseToolkitConfiguration:
+
+    def get_tool_config(self, key: str):
+        # Default implementation of the tool configuration retrieval logic
+        with open("config.yaml") as file:
+            config = yaml.safe_load(file)
+
+        # Retrieve the value associated with the given key
+        return config.get(key)
+
+
 class BaseTool(BaseModel):
     name: str = None
     description: str
     args_schema: Type[BaseModel] = None
     permission_required: bool = True
+    toolkit_config: BaseToolkitConfiguration = BaseToolkitConfiguration()
+
+    class Config:
+        arbitrary_types_allowed = True
 
     @property
     def args(self):
-        # print("args_schema", self.args_schema)
         if self.args_schema is not None:
             return self.args_schema.schema()["properties"]
         else:
             name = self.name
             args_schema = create_function_schema(f"{name}Schema", self.execute)
-            # print("args:", args_schema.schema()["properties"])
             return args_schema.schema()["properties"]
 
     @abstractmethod
@@ -78,7 +93,6 @@ class BaseTool(BaseModel):
     @property
     def max_token_limit(self):
         return get_config("MAX_TOOL_TOKEN_LIMIT", 600)
-
 
     def _parse_input(
             self,
@@ -129,6 +143,9 @@ class BaseTool(BaseModel):
         else:
             return cls(description=func.__doc__)
 
+    def get_tool_config(self, key):
+        return self.toolkit_config.get_tool_config(key=key)
+
 
 class FunctionalTool(BaseTool):
     name: str = None
@@ -143,7 +160,6 @@ class FunctionalTool(BaseTool):
         else:
             name = self.name
             args_schema = create_function_schema(f"{name}Schema", self.execute)
-            # print("args:", args_schema.schema()["properties"])
             return args_schema.schema()["properties"]
 
     def _execute(self, *args: Any, **kwargs: Any):
@@ -183,3 +199,16 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator
 
 
+class BaseToolkit(BaseModel):
+    name: str
+    description: str
+
+    @abstractmethod
+    def get_tools(self) -> List[BaseTool]:
+        # Add file related tools object here
+        pass
+
+    @abstractmethod
+    def get_env_keys(self) -> List[str]:
+        # Add file related config keys here
+        pass
