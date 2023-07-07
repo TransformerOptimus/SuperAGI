@@ -369,11 +369,11 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     return {
         "current_datetime": current_datetime,
-        "recurrence_interval": agent.recurrence_interval or None,
-        "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y")
-        if agent.expiry_date
-        else None,
-        "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None,
+        "start_date": agent.start_time.astimezone(tzone).strftime("%d %b %Y"),
+        "start_time": agent.start_time.astimezone(tzone).strftime("%I:%M %p"),
+        "recurrence_interval": agent.recurrence_interval if agent.recurrence_interval else None,
+        "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y") if agent.expiry_date else None,
+        "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None
     }
 
 
@@ -483,7 +483,7 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
         Delete an existing Agent
             - Updates the is_deleted flag: Executes a soft delete
-            - AgentExecution is updated to: "TERMINATED" if agentexecution is created
+            - AgentExecutions are updated to: "TERMINATED" if agentexecution is created, All the agent executions are updated
             - AgentExecutionPermission is set to: "REJECTED" if agentexecutionpersmision is created
             
         Args:
@@ -497,7 +497,7 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).first()
+    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
     db_agent_execution_permission = db.session.query(AgentExecutionPermission).filter(AgentExecutionPermission.agent_id == agent_id).first()
     
     
@@ -506,8 +506,11 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     
     # Deletion Procedure 
     db_agent.is_deleted = True
-    if db_agent_execution:
-        db_agent_execution.status = "TERMINATED"
+    if db_agent_executions:
+        # Updating all the RUNNING executions to TERMINATED
+        for db_agent_execution in db_agent_executions:
+            db_agent_execution.status = "TERMINATED"
+            
     if db_agent_execution_permission:
         db_agent_execution_permission.status = "REJECTED"
     
