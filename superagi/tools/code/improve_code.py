@@ -38,13 +38,20 @@ class ImproveCodeTool(BaseTool):
     def _execute(self, code: str) -> str:
         
         # Getting the response from the last run of "CodingTool"
-        code_response = self.tool_response_manager.get_last_response("CodingTool")
+        # code_response = self.tool_response_manager.get_last_response("CodingTool")
         
-        # If there is a previous response from "CodingTool" then use it for the new prompt
-        if code_response != "":
-            prompt = PromptReader.read_tools_prompt(__file__, "improve_code.txt")
-            prompt = prompt.replace("{code}", code_response)
+        # # If there is a previous response from "CodingTool" then use it for the new prompt
+        # if code_response != "":
+        #     prompt = PromptReader.read_tools_prompt(__file__, "improve_code.txt")
+        #     prompt = prompt.replace("{code}", code_response)
+        
 
+        # messages = [{"role": "system", "content": prompt}]
+        prompt = PromptReader.read_tools_prompt(__file__, "improve_code.txt")
+        code_response = self.tool_response_manager.get_last_response("CodingTool")
+        if code_response != "":
+            prompt = prompt.replace("{code}", "Improve this code and fill any missing function:\n" + code_response)
+        logger.info(prompt)
         messages = [{"role": "system", "content": prompt}]
 
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
@@ -59,7 +66,9 @@ class ImproveCodeTool(BaseTool):
 
         file_names = []
         for match in matches:
+            print("@@@@@@@@@@@@@@@@@@@@@@@@###############################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$____GOT IN THE FILE")
             file_name = re.sub(r'[<>"|?*]', "", match.group(1))
+            print(f"############################   FILE NAME ################################### {file_name}")
             improved_code_part = match.group(2)
 
             if not file_name.strip():
