@@ -11,10 +11,10 @@ from superagi.tools.base_tool import BaseTool
 
 
 class ReadEmailInput(BaseModel):
-    imap_folder: str = Field(..., description="Email folder to read from. default value is \"INBOX\"")
-    page: int = Field(...,
+    imap_folder: str = Field(..., required=False, description="Email folder to read from. default value is \"INBOX\"")
+    page: int = Field(..., required=False,
                       description="The index of the page result the function should resturn. Defaults to 0, the first page.")
-    limit: int = Field(..., description="Number of emails to fetch in one cycle. Defaults to 5.")
+    limit: int = Field(..., required=False, description="Number of emails to fetch in one cycle. Defaults to 5.")
 
 
 class ReadEmailTool(BaseTool):
@@ -26,7 +26,7 @@ class ReadEmailTool(BaseTool):
         description : The description of the tool.
         args_schema : The args schema.
     """
-    name: str = "Read Email"
+    name: str = "ReadEmail"
     args_schema: Type[BaseModel] = ReadEmailInput
     description: str = "Read emails from an IMAP mailbox"
 

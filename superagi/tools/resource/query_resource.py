@@ -19,7 +19,7 @@ from superagi.vector_store.chromadb import ChromaDB
 
 class QueryResource(BaseModel):
     """Input for QueryResource tool."""
-    query: str = Field(..., description="the search query to search resources")
+    query: str = Field(..., required=True, description="the search query to search resources")
 
 
 class QueryResourceTool(BaseTool):

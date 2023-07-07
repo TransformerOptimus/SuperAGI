@@ -13,6 +13,7 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 class ThinkingSchema(BaseModel):
     task_description: str = Field(
         ...,
+        required=True,
         description="Task description which needs reasoning.",
     )
 

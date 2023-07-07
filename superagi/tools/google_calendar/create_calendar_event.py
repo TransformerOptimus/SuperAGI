@@ -5,17 +5,17 @@ from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 from superagi.helper.calendar_date import CalendarDate
 
 class CreateEventCalendarInput(BaseModel):
-    event_name: str = Field(..., description="Name of the event/meeting to be scheduled, if not given craete a name depending on description.")
-    description: str = Field(..., description="Description of the event/meeting to be scheduled.")
-    start_date: str = Field(..., description="Start date of the event to be scheduled in format 'yyyy-mm-dd', if no value is given keep the default value as 'None'.")
-    start_time: str = Field(..., description="Start time of the event to be scheduled in format 'hh:mm:ss', if no value is given keep the default value as 'None'.")
-    end_date: str = Field(..., description="End Date of the event to be scheduled in format 'yyyy-mm-dd', if no value is given keep the default value as 'None'.")
-    end_time: str = Field(..., description="End Time of the event to be scheduled in format 'hh:mm:ss', if no value is given keep the default value as 'None'.")
-    attendees: list = Field(..., description="List of attendees email ids to be invited for the event.")
-    location: str = Field(..., description="Geographical location of the event. if no value is given keep the default value as 'None'")
+    event_name: str = Field(..., required=True, description="Name of the event/meeting to be scheduled, if not given craete a name depending on description.")
+    description: str = Field(..., required=True, description="Description of the event/meeting to be scheduled.")
+    start_date: str = Field(..., required=True, description="Start date of the event to be scheduled in format 'yyyy-mm-dd', if no value is given keep the default value as 'None'.")
+    start_time: str = Field(..., required=False, description="Start time of the event to be scheduled in format 'hh:mm:ss', if no value is given keep the default value as 'None'.")
+    end_date: str = Field(..., required=False, description="End Date of the event to be scheduled in format 'yyyy-mm-dd', if no value is given keep the default value as 'None'.")
+    end_time: str = Field(..., required=False, description="End Time of the event to be scheduled in format 'hh:mm:ss', if no value is given keep the default value as 'None'.")
+    attendees: list = Field(..., required=False, description="List of attendees email ids to be invited for the event.")
+    location: str = Field(..., required=False, description="Geographical location of the event. if no value is given keep the default value as 'None'")
 
 class CreateEventCalendarTool(BaseTool):
-    name: str = "Create Google Calendar Event"
+    name: str = "CreateGoogleCalendarEvent"
     args_schema: Type[BaseModel] = CreateEventCalendarInput
     description: str = "Create an event for Google Calendar"
 

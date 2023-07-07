@@ -21,7 +21,7 @@ class ListFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "List File"
+    name: str = "ListFile"
     agent_id: int = None
     args_schema: Type[BaseModel] = ListFileInput
     description: str = "lists files in a directory recursively"

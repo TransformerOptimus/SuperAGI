@@ -10,6 +10,7 @@ from superagi.tools.jira.tool import JiraTool
 class SearchIssueSchema(BaseModel):
     query: str = Field(
         ...,
+        required=True,
         description="JQL query string to search issues. For example, to find all the issues in project \"Test\" assigned to the me, you would pass in the following string: project = Test AND assignee = currentUser() or to find issues with summaries that contain the word \"test\", you would pass in the following string: summary ~ 'test'.",
     )
 

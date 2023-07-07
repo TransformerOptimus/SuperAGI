@@ -14,6 +14,9 @@ class BaseLlm(ABC):
     def get_api_key(self):
         pass
 
+    def support_functions_response(self):
+        return False
+
     @abstractmethod
     def get_model(self):
         pass

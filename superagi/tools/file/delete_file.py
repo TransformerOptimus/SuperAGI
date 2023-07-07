@@ -8,8 +8,8 @@ from superagi.tools.base_tool import BaseTool
 
 
 class DeleteFileInput(BaseModel):
-    """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to delete")
+    """Input for DeleteFileTool."""
+    file_name: str = Field(..., required=True, description="Name of the file to delete")
 
 
 class DeleteFileTool(BaseTool):
@@ -22,7 +22,7 @@ class DeleteFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Delete File"
+    name: str = "DeleteFile"
     agent_id: int = None
     args_schema: Type[BaseModel] = DeleteFileInput
     description: str = "Delete a file"

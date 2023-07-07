@@ -10,7 +10,7 @@ from superagi.tools.base_tool import BaseTool
 
 class ReadFileSchema(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Path of the file to read")
+    file_name: str = Field(..., required=True, description="Path of the file to read")
 
 
 class ReadFileTool(BaseTool):
@@ -22,7 +22,7 @@ class ReadFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Read File"
+    name: str = "ReadFile"
     agent_id: int = None
     args_schema: Type[BaseModel] = ReadFileSchema
     description: str = "Reads the file content in a specified location"

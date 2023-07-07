@@ -12,8 +12,9 @@ from superagi.tools.base_tool import BaseTool
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
-    content: str = Field(..., description="File content to write")
+    file_name: str = Field(..., required=True,
+                           description="Name of the file to write. Only include the file name. Don't include path.")
+    content: str = Field(..., required=True, description="File content to write")
 
 
 class WriteFileTool(BaseTool):
@@ -27,7 +28,7 @@ class WriteFileTool(BaseTool):
         args_schema : The args schema.
         resource_manager: File resource manager.
     """
-    name: str = "Write File"
+    name: str = "WriteFile"
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"
     agent_id: int = None

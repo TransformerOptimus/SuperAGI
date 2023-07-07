@@ -16,6 +16,7 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 class CodingSchema(BaseModel):
     code_description: str = Field(
         ...,
+        required=False,
         description="Description of the coding task",
     )
 

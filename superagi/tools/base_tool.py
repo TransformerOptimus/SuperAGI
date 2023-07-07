@@ -69,7 +69,7 @@ class BaseToolkitConfiguration:
 
 class BaseTool(BaseModel):
     name: str = None
-    description: str
+    description: str = None
     args_schema: Type[BaseModel] = None
     permission_required: bool = True
     toolkit_config: BaseToolkitConfiguration = BaseToolkitConfiguration()
@@ -85,6 +85,27 @@ class BaseTool(BaseModel):
             name = self.name
             args_schema = create_function_schema(f"{name}Schema", self.execute)
             return args_schema.schema()["properties"]
+
+    @property
+    def function_args(self):
+        properties = self.args_schema.schema()["properties"]
+        return {
+            "name": self.name,
+            "description": self.description,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    key: {
+                        "type": properties[key]['type'],
+                        "description": properties[key]['description'],
+                    }
+                    for key in properties.keys()
+                },
+                "required": [
+                    key for key in properties.keys() if 'required' in properties[key] and properties[key]['required']
+                ],
+            },
+        }
 
     @abstractmethod
     def _execute(self, *args: Any, **kwargs: Any):

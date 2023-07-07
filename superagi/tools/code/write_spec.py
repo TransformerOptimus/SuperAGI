@@ -14,11 +14,13 @@ from superagi.tools.base_tool import BaseTool
 class WriteSpecSchema(BaseModel):
     task_description: str = Field(
         ...,
+        required=False,
         description="Specification task description.",
     )
 
     spec_file_name: str = Field(
         ...,
+        required=False,
         description="Name of the file to write. Only include the file name. Don't include path."
     )
 

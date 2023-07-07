@@ -9,8 +9,8 @@ from superagi.tools.base_tool import BaseTool
 
 class AppendFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write")
-    content: str = Field(..., description="The text to append to the file")
+    file_name: str = Field(..., required=True, description="Name of the file to write")
+    content: str = Field(..., required=True, description="The text to append to the file")
 
 
 class AppendFileTool(BaseTool):
@@ -23,7 +23,7 @@ class AppendFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Append File"
+    name: str = "AppendFile"
     agent_id: int = None
     args_schema: Type[BaseModel] = AppendFileInput
     description: str = "Append text to a file"

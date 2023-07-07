@@ -9,12 +9,12 @@ from superagi.helper.twitter_tokens import TwitterTokens
 from superagi.helper.twitter_helper import TwitterHelper
 
 class SendTweetsInput(BaseModel):
-    tweet_text: str = Field(..., description="Tweet text to be posted from twitter handle, if no value is given keep the default value as 'None'")
-    is_media: bool = Field(..., description="'True' if there is any media to be posted with Tweet else 'False'.")
-    media_files: list = Field(..., description="Name of the media files to be uploaded.")
+    tweet_text: str = Field(..., required=True, description="Tweet text to be posted from twitter handle, if no value is given keep the default value as 'None'")
+    is_media: bool = Field(..., required=False, description="'True' if there is any media to be posted with Tweet else 'False'.")
+    media_files: list = Field(..., required=False, description="Name of the media files to be uploaded.")
 
 class SendTweetsTool(BaseTool):
-    name: str = "Send Tweets Tool"
+    name: str = "SendTweetsTool"
     args_schema: Type[BaseModel] = SendTweetsInput
     description: str = "Send and Schedule Tweets for your Twitter Handle"
     agent_id: int = None

@@ -10,7 +10,6 @@ GOALS:
 CONSTRAINTS:
 {constraints}
 
-TOOLS:
 {tools}
 
 PERFORMANCE EVALUATION:

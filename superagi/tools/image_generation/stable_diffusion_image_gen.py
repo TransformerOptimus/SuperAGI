@@ -11,12 +11,12 @@ from superagi.tools.base_tool import BaseTool
 
 
 class StableDiffusionImageGenInput(BaseModel):
-    prompt: str = Field(..., description="Prompt for Image Generation to be used by Stable Diffusion.")
-    height: int = Field(..., description="Height of the image to be Generated. default height is 512")
-    width: int = Field(..., description="Width of the image to be Generated. default width is 512")
-    num: int = Field(..., description="Number of Images to be generated. default num is 2")
-    steps: int = Field(..., description="Number of diffusion steps to run. default steps are 50")
-    image_names: list = Field(...,
+    prompt: str = Field(..., required=True, description="Prompt for Image Generation to be used by Stable Diffusion.")
+    height: int = Field(..., required=False, description="Height of the image to be Generated. default height is 512")
+    width: int = Field(..., required=False, description="Width of the image to be Generated. default width is 512")
+    num: int = Field(..., required=False, description="Number of Images to be generated. default num is 2")
+    steps: int = Field(..., required=False, description="Number of diffusion steps to run. default steps are 50")
+    image_names: list = Field(..., required=True,
                               description="Image Names for the generated images, example 'image_1.png'. Only include the image name. Don't include path.")
 
 
@@ -31,7 +31,7 @@ class StableDiffusionImageGenTool(BaseTool):
             agent_id : The agent id
             resource_manager : Manages the file resources
         """
-    name: str = "Stable Diffusion Image Generation"
+    name: str = "StableDiffusionImageGeneration"
     args_schema: Type[BaseModel] = StableDiffusionImageGenInput
     description: str = "Generate Images using Stable Diffusion"
     agent_id: int = None

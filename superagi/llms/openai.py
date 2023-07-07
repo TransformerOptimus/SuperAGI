@@ -41,6 +41,9 @@ class OpenAi(BaseLlm):
         """
         return self.api_key
 
+    def support_functions_response(self):
+        return True
+
     def get_model(self):
         """
         Returns:
@@ -48,7 +51,7 @@ class OpenAi(BaseLlm):
         """
         return self.model
 
-    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
+    def chat_completion(self, messages, functions = None, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         """
         Call the OpenAI chat completion API.
 
@@ -60,6 +63,8 @@ class OpenAi(BaseLlm):
             dict: The response.
         """
         try:
+            print("RAMRAM functions:")
+            print(functions)
             # openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.ChatCompletion.create(
                 n=self.number_of_results,
@@ -68,11 +73,14 @@ class OpenAi(BaseLlm):
                 temperature=self.temperature,
                 max_tokens=max_tokens,
                 top_p=self.top_p,
+                functions=functions,
                 frequency_penalty=self.frequency_penalty,
                 presence_penalty=self.presence_penalty
             )
             content = response.choices[0].message["content"]
-            return {"response": response, "content": content}
+            function_call = response.choices[0].message["function_call"]
+            print(content)
+            return {"response": response, "content": content, "function_call": function_call}
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)
             return {"error": exception}

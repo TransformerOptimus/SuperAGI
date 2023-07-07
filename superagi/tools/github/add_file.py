@@ -10,14 +10,17 @@ class GithubAddFileSchema(BaseModel):
     # """Input for CopyFileTool."""
     repository_name: str = Field(
         ...,
+        required=True,
         description="Repository name in which file hase to be added",
     )
     base_branch: str = Field(
         ...,
+        required=True,
         description="branch to interact with",
     )
     file_name: str = Field(
         ...,
+        required=True,
         description="file name to be added to repository",
     )
     folder_path: str = Field(
@@ -26,14 +29,17 @@ class GithubAddFileSchema(BaseModel):
     )
     body: str = Field(
         ...,
+        required=True,
         description="content to be stored",
     )
     commit_message: str = Field(
         ...,
+        required=True,
         description="clear description of the contents of file",
     )
     repository_owner: str = Field(
         ...,
+        required=True,
         description="Owner of the github repository",
     )
 
@@ -47,7 +53,7 @@ class GithubAddFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Github Add File"
+    name: str = "GithubAddFile"
     args_schema: Type[BaseModel] = GithubAddFileSchema
     description: str = "Add a file or folder to a particular github repository"
 

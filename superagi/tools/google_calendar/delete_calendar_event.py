@@ -4,10 +4,10 @@ from superagi.tools.base_tool import BaseTool
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 
 class DeleteCalendarEventInput(BaseModel):
-    event_id: str = Field(..., description="The id of event to be deleted from Google Calendar. default value is None")
+    event_id: str = Field(..., required=True, description="The id of event to be deleted from Google Calendar. default value is None")
 
 class DeleteCalendarEventTool(BaseTool):
-    name: str = "Delete Google Calendar Event"
+    name: str = "DeleteGoogleCalendarEvent"
     args_schema: Type[BaseModel] = DeleteCalendarEventInput
     description: str = "Delete an event from Google Calendar"
 

@@ -67,9 +67,7 @@ class AgentPromptBuilder:
                 "plan": "- short bulleted\n- list that conveys\n- long-term plan",
                 "criticism": "constructive self-criticism",
                 "speak": "thoughts summary to say to user",
-            },
-            "tool": {"name": "tool name/task name", "description": "tool or task description",
-                     "args": {"arg name": "value"}}
+            }
         }
         formatted_response_format = json.dumps(response_format, indent=4)
 
@@ -112,7 +110,7 @@ class AgentPromptBuilder:
 
     @classmethod
     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
-                               tools: List[BaseTool], add_finish_tool: bool = True):
+                               tools: List[BaseTool], add_finish_tool: bool = True, support_functions_response: bool = False):
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
             task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
@@ -127,7 +125,10 @@ class AgentPromptBuilder:
 
         # logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
-        super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
+        if support_functions_response:
+            super_agi_prompt = super_agi_prompt.replace("{tools}", "")
+        else:
+            super_agi_prompt = super_agi_prompt.replace("{tools}", "TOOLS:\n" + tools_string)
         return super_agi_prompt
 
     @classmethod

@@ -171,12 +171,12 @@ class AgentExecutor:
         max_iterations = (parsed_config["max_iterations"])
         total_calls = agent_execution.num_of_calls
 
-        if max_iterations <= total_calls:
-            db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-            db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
-            session.commit()
-            logger.info("ITERATION_LIMIT_CROSSED")
-            return "ITERATION_LIMIT_CROSSED"
+        # if max_iterations <= total_calls:
+        #     db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+        #     db_agent_execution.status = "ITERATION_LIMIT_CROSSED"
+        #     session.commit()
+        #     logger.info("ITERATION_LIMIT_CROSSED")
+        #     return "ITERATION_LIMIT_CROSSED"
 
         parsed_config["agent_execution_id"] = agent_execution.id
 
@@ -223,14 +223,14 @@ class AgentExecutor:
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
 
-        try:
-            response = spawned_agent.execute(agent_workflow_step)
-        except RuntimeError as e:
-            logger.error("Error executing the agent:", e)
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
-            session.close()
-            # If our execution encounters an error we return and attempt to retry
-            return
+        # try:
+        response = spawned_agent.execute(agent_workflow_step)
+        # except RuntimeError as e:
+        #     logger.error("Error executing the agent:", e)
+        #     superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
+        #     session.close()
+        #     # If our execution encounters an error we return and attempt to retry
+        #     return
 
 
         if "retry" in response and response["retry"]:

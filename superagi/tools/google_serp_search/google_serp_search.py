@@ -12,6 +12,7 @@ import json
 class GoogleSerpSchema(BaseModel):
     query: str = Field(
         ...,
+        required=True,
         description="The search query for Google SERP.",
     )
 

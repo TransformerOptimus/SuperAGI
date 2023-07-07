@@ -16,14 +16,14 @@ from superagi.lib.logger import logger
 
 
 class ListCalendarEventsInput(BaseModel):
-    start_time: str = Field(..., description="A string variable storing the start time to return events from the calendar in format 'HH:MM:SS'. if no value is given keep default value as 'None'")
-    start_date: str = Field(..., description="A string variable storing the start date to return events from the calendar in format 'yyyy-mm-dd' in a string variable, if no value is given keep default value as 'None'.")
-    end_date: str = Field(..., description="A string variable storing the end date to return events from the calendar in format 'yyyy-mm-dd' in a string variable, if no value is given keep default value as 'None'.")
-    end_time: str = Field(..., description="A string variable storing the end time to return events from the calendar in format 'HH:MM:SS'. if no value is given keep default value as 'None'")
+    start_time: str = Field(..., required=False, description="A string variable storing the start time to return events from the calendar in format 'HH:MM:SS'. if no value is given keep default value as 'None'")
+    start_date: str = Field(..., required=False, description="A string variable storing the start date to return events from the calendar in format 'yyyy-mm-dd' in a string variable, if no value is given keep default value as 'None'.")
+    end_date: str = Field(..., required=False, description="A string variable storing the end date to return events from the calendar in format 'yyyy-mm-dd' in a string variable, if no value is given keep default value as 'None'.")
+    end_time: str = Field(..., required=False, description="A string variable storing the end time to return events from the calendar in format 'HH:MM:SS'. if no value is given keep default value as 'None'")
 
 
 class ListCalendarEventsTool(BaseTool):
-    name: str = "List Google Calendar Events"
+    name: str = "ListGoogleCalendarEvents"
     args_schema: Type[BaseModel] = ListCalendarEventsInput
     description: str = "Get the list of all the events from Google Calendar"
     agent_id: int  = None

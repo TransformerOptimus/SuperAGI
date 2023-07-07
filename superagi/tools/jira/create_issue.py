@@ -8,6 +8,7 @@ from superagi.tools.jira.tool import JiraTool, JiraIssueSchema
 class CreateIssueSchema(BaseModel):
     fields: dict = Field(
         ...,
+        required=True,
         description='Dictionary of fields to create the Jira issue with. Format: {{"summary": "test issue", "project": "project_id", "description": "test description", "issuetype": {{"name": "Task"}}, "priority": {{"name": "Low"}}}}',
     )
 

@@ -16,10 +16,12 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 class WriteTestSchema(BaseModel):
     test_description: str = Field(
         ...,
+        required=False,
         description="Description of the testing task",
     )
     test_file_name: str = Field(
         ...,
+        required=False,
         description="Name of the file to write. Only include the file name. Don't include path."
     )
 

@@ -13,10 +13,10 @@ from superagi.helper.resource_helper import ResourceHelper
 
 
 class SendEmailAttachmentInput(BaseModel):
-    to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
-    subject: str = Field(..., description="Subject of the Email to be sent")
-    body: str = Field(..., description="Email Body to be sent")
-    filename: str = Field(..., description="Name of the file to be sent as an Attachment with Email")
+    to: str = Field(..., required=True, description="Email Address of the Receiver, default email address is 'example@example.com'")
+    subject: str = Field(..., required=True, description="Subject of the Email to be sent")
+    body: str = Field(..., required=True, description="Email Body to be sent")
+    filename: str = Field(..., required=True, description="Name of the file to be sent as an Attachment with Email")
 
 
 class SendEmailAttachmentTool(BaseTool):
@@ -28,7 +28,7 @@ class SendEmailAttachmentTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Send Email with Attachment"
+    name: str = "SendEmailWithAttachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
     agent_id: int  = None

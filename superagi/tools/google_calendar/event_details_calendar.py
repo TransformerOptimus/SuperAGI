@@ -5,10 +5,10 @@ from superagi.tools.base_tool import BaseTool
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 
 class EventDetailsCalendarInput(BaseModel):
-    event_id: str = Field(..., description="The id of event to be fetched from Google Calendar. if no value is given keep default value is None")
+    event_id: str = Field(..., required=True, description="The id of event to be fetched from Google Calendar. if no value is given keep default value is None")
 
 class EventDetailsCalendarTool(BaseTool):
-    name: str = "Fetch Google Calendar Event"
+    name: str = "FetchGoogleCalendarEvent"
     args_schema: Type[BaseModel] = EventDetailsCalendarInput
     description: str = "Fetch an event from Google Calendar"
 

@@ -1,19 +1,20 @@
 from typing import Type
 
 from pydantic import Field, BaseModel
+from slack_sdk import WebClient
 
 from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
-from slack_sdk import WebClient
 
 
 class SlackMessageSchema(BaseModel):
     channel: str = Field(
         ...,
+        required=True,
         description="Slack Channel/Group Name"
     )
     message: str = Field(
         ...,
+        required=True,
         description="Text Message to be sent to a person or a group or people"
     )
 

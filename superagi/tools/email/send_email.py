@@ -10,9 +10,9 @@ from superagi.tools.base_tool import BaseTool
 
 
 class SendEmailInput(BaseModel):
-    to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
-    subject: str = Field(..., description="Subject of the Email to be sent")
-    body: str = Field(..., description="Email Body to be sent")
+    to: str = Field(..., required=True, description="Email Address of the Receiver, default email address is 'example@example.com'")
+    subject: str = Field(..., required=True, description="Subject of the Email to be sent")
+    body: str = Field(..., required=True, description="Email Body to be sent")
 
 
 class SendEmailTool(BaseTool):
@@ -24,7 +24,7 @@ class SendEmailTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Send Email"
+    name: str = "SendEmail"
     args_schema: Type[BaseModel] = SendEmailInput
     description: str = "Send an Email"
     

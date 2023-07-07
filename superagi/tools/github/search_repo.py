@@ -8,18 +8,22 @@ from superagi.tools.base_tool import BaseTool
 class GithubSearchRepoSchema(BaseModel):
     repository_name: str = Field(
         ...,
+        required=True,
         description="Repository name in which we have to search",
     )
     repository_owner: str = Field(
         ...,
+        required=True,
         description="Owner of the github repository",
     )
     file_name: str = Field(
         ...,
+        required=True,
         description="Name of the file we need to fetch from the repository",
     )
     folder_path: str = Field(
         ...,
+        required=False,
         description="folder path in which file is present",
     )
 
@@ -33,7 +37,7 @@ class GithubRepoSearchTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name = "GithubRepo Search"
+    name = "GithubRepoSearch"
     description = (
         "Search for a file inside a Github repository"
     )

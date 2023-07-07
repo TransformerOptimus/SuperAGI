@@ -10,26 +10,32 @@ class GithubDeleteFileSchema(BaseModel):
     # """Input for CopyFileTool."""
     repository_name: str = Field(
         ...,
+        required=True,
         description="Repository name in which file hase to be deleted",
     )
     base_branch: str = Field(
         ...,
+        required=True,
         description="branch to interact with",
     )
     file_name: str = Field(
         ...,
+        required=True,
         description="file name to be deleted in the repository",
     )
     folder_path: str = Field(
         ...,
+        required=False,
         description="folder path in which file to be deleted is present",
     )
     commit_message: str = Field(
         ...,
+        required=True,
         description="clear description of files that are being deleted",
     )
     repository_owner: str = Field(
         ...,
+        required=True,
         description="Owner of the github repository",
     )
 
@@ -43,7 +49,7 @@ class GithubDeleteFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
-    name: str = "Github Delete File"
+    name: str = "GithubDeleteFile"
     args_schema: Type[BaseModel] = GithubDeleteFileSchema
     description: str = "Delete a file or folder inside a particular github repository"
 

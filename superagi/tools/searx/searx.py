@@ -8,6 +8,7 @@ from superagi.tools.searx.search_scraper import search_results
 class SearxSearchSchema(BaseModel):
     query: str = Field(
         ...,
+        required=True,
         description="The search query for the Searx search engine.",
     )
 

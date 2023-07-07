@@ -9,10 +9,10 @@ from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 class DalleImageGenInput(BaseModel):
-    prompt: str = Field(..., description="Prompt for Image Generation to be used by Dalle.")
-    size: int = Field(..., description="Size of the image to be Generated. default size is 512")
-    num: int = Field(..., description="Number of Images to be generated. default num is 2")
-    image_names: list = Field(..., description="Image Names for the generated images, example 'image_1.png'. Only include the image name. Don't include path.")
+    prompt: str = Field(..., required=True, description="Prompt for Image Generation to be used by Dalle.")
+    size: int = Field(..., required=False, description="Size of the image to be Generated. default size is 512")
+    num: int = Field(..., required=False, description="Number of Images to be generated. default num is 2")
+    image_names: list = Field(..., required=True, description="Image Names for the generated images, example 'image_1.png'. Only include the image name. Don't include path.")
 
 
 class DalleImageGenTool(BaseTool):

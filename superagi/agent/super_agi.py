@@ -6,6 +6,8 @@ from __future__ import annotations
 import time
 from typing import Any, Dict
 from typing import Tuple
+
+import json5
 import numpy as np
 from halo import Halo
 from pydantic import ValidationError
@@ -130,12 +132,19 @@ class SuperAgi:
         messages = []
         max_token_limit = 600
         # adding history to the messages
+        has_tools = "{tools}" in workflow_step.prompt
+        functions_token_limit = 0
+        if has_tools and self.llm.support_functions_response():
+            functions_token_limit = self.count_tools_tokens(self.tools)
+
+        print("functions_token_limit::" + str(functions_token_limit))
         if workflow_step.history_enabled:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_token_limit)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+            base_token_limit = base_token_limit + functions_token_limit
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self.split_history(full_message_history,
                                                                  token_limit - base_token_limit - max_token_limit)
@@ -161,19 +170,31 @@ class SuperAgi:
                 session.add(agent_execution_feed)
                 session.commit()
 
-        current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        response = self.llm.chat_completion(messages, token_limit - current_tokens)
+        current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model()) + functions_token_limit
+        if has_tools and self.llm.support_functions_response():
+            functions_response = self.build_func_response(self.tools)
+            response = self.llm.chat_completion(messages=messages, functions=functions_response,
+                                                max_tokens=token_limit - current_tokens)
+        else:
+            response = self.llm.chat_completion(messages=messages, max_tokens=token_limit - current_tokens)
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         self.update_agent_execution_tokens(current_calls, total_tokens)
-        if 'content' not in response or response['content'] is None:
-            raise RuntimeError(f"Failed to get response from llm")
-        assistant_reply = response['content']
+        print(response)
+        has_function_response = False
+        if 'function_call' in response:
+            assistant_reply = response['function_call']
+            has_function_response = self.llm.support_functions_response()
+        else:
+            if 'content' not in response or response['content'] is None:
+                raise RuntimeError(f"Failed to get response from llm")
+            assistant_reply = response['content']
+
 
         final_response = {"result": "PENDING", "retry": False}
         if workflow_step.output_type == "tools":
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      agent_id=self.agent_config["agent_id"], feed=str(assistant_reply),
                                                       role="assistant")
             session.add(agent_execution_feed)
             session.commit()
@@ -182,8 +203,10 @@ class SuperAgi:
             is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
             if is_permission_required:
                 return response
-
-            tool_response = self.handle_tool_response(assistant_reply)
+            if has_function_response:
+                tool_response = self.handle_tool_function_response(assistant_reply, has_function_response)
+            else:
+                tool_response = self.handle_tool_response(assistant_reply, has_function_response)
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed=tool_response["result"],
@@ -233,6 +256,17 @@ class SuperAgi:
         session.close()
         return final_response
 
+    def build_func_response(self, tools: List[BaseTool]):
+        return [tool.function_args for tool in tools]
+
+    #  TODO: Add support for tools with multiple inputs
+    def count_tools_tokens(self, tools: List[BaseTool]):
+        return 500
+
+    def transform_function_response(self, response):
+        response["name"]
+        return response
+
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
@@ -272,6 +306,49 @@ class SuperAgi:
         logger.info("Tool Response : " + str(output) + "\n")
         return output
 
+    def handle_tool_function_response(self, functions_reply):
+        action_name = functions_reply['name'] or ""
+        arguments = functions_reply["arguments"] or "{}"
+        arguments = json5.loads(arguments)
+        print("Function arguments:")
+        print(arguments)
+        tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
+        action_name = action_name.lower().replace(" ", "")
+        if action_name == FINISH or action_name == "":
+            logger.info("\nTask Finished :) \n")
+            output = {"result": "COMPLETE", "retry": False}
+            return output
+        if action_name in tools:
+            tool = tools[action_name]
+            try:
+                observation = tool.execute(arguments)
+                logger.info("Tool Observation : ")
+                logger.info(observation)
+
+            except ValidationError as e:
+                observation = (
+                    f"Validation Error in args: {str(e)}, args: {action.args}"
+                )
+            except Exception as e:
+                observation = (
+                    f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
+                )
+            result = f"Tool {tool.name} returned: {observation}"
+            output = {"result": result, "retry": False}
+        elif action_name == "ERROR":
+            result = f"Error2: {arguments}. "
+            output = {"result": result, "retry": False}
+        else:
+            result = (
+                f"Unknown tool '{action_name}'. "
+                f"Please refer to the 'TOOLS' list for available "
+                f"tools and only respond in the specified JSON format."
+            )
+            output = {"result": result, "retry": True}
+
+        logger.info("Tool Response : " + str(output) + "\n")
+        return output
+
     def update_agent_execution_tokens(self, current_calls, total_tokens):
         agent_execution = session.query(AgentExecution).filter(
             AgentExecution.id == self.agent_config["agent_execution_id"]).first()
@@ -286,8 +363,10 @@ class SuperAgi:
         if len(pending_tasks) > 0 or len(completed_tasks) > 0:
             add_finish_tool = False
 
-        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_execution_config["goal"], self.agent_execution_config["instruction"],
-                                                           self.agent_config["constraints"], self.tools, add_finish_tool)
+        prompt = AgentPromptBuilder.replace_main_variables(prompt, self.agent_execution_config["goal"],
+                                                           self.agent_execution_config["instruction"],
+                                                           self.agent_config["constraints"], self.tools,
+                                                           add_finish_tool, self.llm.support_functions_response())
 
         response = task_queue.get_last_task_details()
 

@@ -42,7 +42,8 @@ class GooglePalm(BaseLlm):
         """
         return self.model
 
-    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT") or 800, examples=[], context=""):
+    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT") or 800, examples=[], context="",
+                        functions=None):
         """
         Call the Google PALM chat API.
 
