@@ -5,7 +5,7 @@ import styles from "@/pages/Content/Toolkits/Tool.module.css";
 import Image from "next/image";
 import KnowledgeForm from "@/pages/Content/Knowledge/KnowledgeForm";
 
-export default function KnowledgeDetails({knowledgeDetails}) {
+export default function KnowledgeDetails({internalId, knowledgeDetails}) {
   const [showDescription,setShowDescription] = useState(false);
   const [dropdown,setDropdown] = useState(false);
   const [isEditing,setIsEditing] = useState(false);
@@ -42,7 +42,7 @@ export default function KnowledgeDetails({knowledgeDetails}) {
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
         {isEditing ?
-        <KnowledgeForm internalId={-9999}
+        <KnowledgeForm internalId={internalId}
                        knowledgeName={knowledgeName}
                        setKnowledgeName={setKnowledgeName}
                        knowledgeDescription={knowledgeDescription}
@@ -58,10 +58,10 @@ export default function KnowledgeDetails({knowledgeDetails}) {
             <div className={styles1.knowledge_wrapper} style={{width:'95%'}}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ textAlign:'left', paddingRight:'10px' }}>
-                  <div style={{fontSize:'17px',marginTop:'-3px'}}>{knowledgeDetails.name}</div>
+                  <div style={{fontSize:'17px',marginTop:'-3px'}}>{knowledgeName}</div>
                   <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
-                    {`${showDescription ? knowledgeDetails.description : knowledgeDetails.description.slice(0, 80)}`}
-                    {knowledgeDetails.description.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                    {`${showDescription ? knowledgeDescription : knowledgeDescription.slice(0, 80)}`}
+                    {knowledgeDescription.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
                         {showDescription ? '...less' : '...more'}
                     </span>}
                   </div>
@@ -136,7 +136,7 @@ export default function KnowledgeDetails({knowledgeDetails}) {
               </div>
               <div className={styles1.knowledge_info_box}>
                 <label className={styles1.knowledge_label}>Vector database index</label>
-                <div className={styles1.knowledge_info}>index name</div>
+                <div className={styles1.knowledge_info}>{selectedIndex}</div>
               </div>
             </div>
             <div style={{width:'50%'}}>

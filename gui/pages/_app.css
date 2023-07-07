@@ -531,6 +531,25 @@ p {
     background-color: transparent;
 }
 
+.three_dots_vertical {
+    width: 32px;
+    border: none;
+    font-size: 14px;
+    color: white;
+    height: 32px;
+    background: transparent;
+    padding: 15px;
+    display: -webkit-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .sideBarStyle {
     height: 100vh;
     width: 6.5vw;

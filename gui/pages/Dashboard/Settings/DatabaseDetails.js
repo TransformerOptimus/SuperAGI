@@ -141,9 +141,12 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
     </div>
 
     {deleteModal && (<div className="modal" onClick={() => setDeleteModal(false)}>
-      <div className="modal-content" style={{width: '30%'}} onClick={preventDefault}>
-        <div className={styles.detail_name}>Are you sure you want to delete this database?</div>
-        <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'10px'}}>
+      <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+        <div className={styles.detail_name}>Delete {databaseName}</div>
+        <div>
+          <label className={styles.form_label}>Are you sure you want to delete this database?</label>
+        </div>
+        <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'20px'}}>
           <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setDeleteModal(false)}>
             Cancel
           </button>

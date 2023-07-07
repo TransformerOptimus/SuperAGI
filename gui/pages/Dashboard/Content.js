@@ -33,23 +33,28 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const knowledge = [
     {
       id: 1, name: "knowledge name 1", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+      internalId: createInternalId()
     },
     {
       id: 2, name: "knowledge name 2", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
-      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+      internalId: createInternalId()
     },
     {
       id: 3, name: "knowledge name 3", developer: "developer", source: "Custom", contentType: 'Knowledge',
-      description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium"
+      description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium",
+      internalId: createInternalId()
     },
     {
       id: 4, name: "knowledge name 4", developer: "developer", source: "Marketplace", contentType: 'Knowledge',
-      description: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+      description: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
+      internalId: createInternalId()
     },
     {
       id: 5, name: "knowledge name 5", developer: "developer", source: "Custom", contentType: 'Knowledge',
-      description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit"
+      description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit",
+      internalId: createInternalId()
     },
   ];
   const internalIdContentTypes = ['Create_Agent', 'Toolkits', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
