@@ -483,7 +483,7 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
         Delete an existing Agent
             - Updates the is_deleted flag: Executes a soft delete
-            - AgentExecution is updated to: "TERMINATED" if agentexecution is created
+            - AgentExecutions are updated to: "TERMINATED" if agentexecution is created, All the agent executions are updated
             - AgentExecutionPermission is set to: "REJECTED" if agentexecutionpersmision is created
             
         Args:
@@ -497,7 +497,7 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).first()
+    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
     db_agent_execution_permission = db.session.query(AgentExecutionPermission).filter(AgentExecutionPermission.agent_id == agent_id).first()
     
     
@@ -506,8 +506,11 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     
     # Deletion Procedure 
     db_agent.is_deleted = True
-    if db_agent_execution:
-        db_agent_execution.status = "TERMINATED"
+    if db_agent_executions:
+        # Updating all the RUNNING executions to TERMINATED
+        for db_agent_execution in db_agent_executions:
+            db_agent_execution.status = "TERMINATED"
+            
     if db_agent_execution_permission:
         db_agent_execution_permission.status = "REJECTED"
     
