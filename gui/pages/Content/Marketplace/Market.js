@@ -4,6 +4,7 @@ import styles from './Market.module.css';
 import Embeddings from './Embeddings';
 import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
+import MarketKnowledge from './MarketKnowledge';
 import SearchBox from './SearchBox';
 import EachTool from './EachTool';
 import {EventBus} from "@/utils/eventBus";
@@ -74,6 +75,8 @@ export default function Market({env}) {
               <div className={styles.detail_top}>
 
               <div style={{display:'flex',overflowX:'scroll',marginLeft:'8px'}}>
+
+                {/* Tools Button */}
                   <div>
                       <button onClick={() => switchTab('market_tools')} className={styles.tab_button} style={activeTab === 'market_tools' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
                           <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>&nbsp;Tools
@@ -84,11 +87,21 @@ export default function Market({env}) {
                   {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/embedding_light.svg" alt="embeddings-icon"/>&nbsp;Embeddings*/}
                   {/*    </button>*/}
                   {/*</div>*/}
+
+                   {/* knowlege button */}
+                  <div>
+                      <button onClick={() => switchTab('market_knowledge')} className={styles.tab_button} style={activeTab === 'market_knowledge' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
+                          <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/knowledge.svg" alt="knowledge-template-icon"/>&nbsp;Knowledge
+                      </button>
+                  </div>
+
+                  {/* Agents Button */}
                   <div>
                       <button onClick={() => switchTab('market_agents')} className={styles.tab_button} style={activeTab === 'market_agents' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
                           <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/agents_light.svg" alt="agent-template-icon"/>&nbsp;Agent Templates
                       </button>
                   </div>
+                   
               </div>
 
                 {/*<div>*/}
@@ -98,6 +111,7 @@ export default function Market({env}) {
             <div>
               {activeTab === 'market_tools' && <MarketTools onToolClick={handleToolClick} />}
               {activeTab === 'market_embeddings' && <Embeddings />}
+   {/*added*/}{activeTab === 'market_knowledge' && <MarketKnowledge/>}
               {activeTab === 'market_agents' && <MarketAgent />}
             </div>
         </div>
