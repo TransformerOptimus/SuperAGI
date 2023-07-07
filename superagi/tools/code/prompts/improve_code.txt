@@ -1,8 +1,7 @@
 You will read instructions and not carry them out, only seek to clarify them.
 Specifically you will first summarise a list of super short bullets of areas that need clarification.
 Then you will pick one clarifying question, and wait for an answer from the user.
+Keep the file names as same as original code
 
 Use this code for the refactoring:
 {code}
- and keep the file name same as the original code
-
