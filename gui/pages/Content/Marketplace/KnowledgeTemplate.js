@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Image from "next/image";
 import styles from '.././Toolkits/Tool.module.css';
 import styles1 from '../Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
+import styles3 from "../Knowledge/Knowledge.module.css"
 import {EventBus} from "@/utils/eventBus";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
@@ -12,6 +13,32 @@ import axios from 'axios';
 export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('')
   const [markdownContent, setMarkdownContent] = useState('');
+  const indexRef = useRef(null);
+  const [indexDropdown, setIndexDropdown] = useState(false);
+  const collections = [
+    {
+      name: 'database name • Pinecone',
+      indices: ['index name 1', 'index name 2', 'index name 3']
+    },
+    {
+      name: 'database name • Qdrant',
+      indices: ['index name 4', 'index name 5']
+    }
+  ];
+  const [selectedIndex, setSelectedIndex] = useState(collections[0].indices[0]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (indexRef.current && !indexRef.current.contains(event.target)) {
+        setIndexDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     setInstalled(template && template.is_installed ? 'Installed' : 'Install');
@@ -22,7 +49,7 @@ export default function KnowledgeTemplate({template, env}) {
     }
   }, []);
 
-  function handleInstallClick() {
+  const handleInstallClick = (item) => {
 
   }
 
@@ -43,8 +70,24 @@ export default function KnowledgeTemplate({template, env}) {
             <div className={styles2.left_container}>
               <span className={styles2.top_heading}>{template.name}</span>
               <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>by {template.contributor}</span>
-              <button className="primary_button" style={{marginTop:'15px',width:'100%',background: template && template.is_installed ? 'rgba(255, 255, 255, 0.14)':'#FFF',color:template && template.is_installed ? '#FFFFFF':'#000'}} onClick={() => handleInstallClick()}>
-                {(template && template.is_installed) ? <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> : <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>}&nbsp;{installed}</button>
+
+              <div className="dropdown_container_search" style={{width:'100%'}}>
+                <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
+                     style={{marginTop:'15px',cursor:'pointer',width:'100%',background: template && template.is_installed ? 'rgba(255, 255, 255, 0.14)':'#FFF',color:template && template.is_installed ? '#FFFFFF':'#000'}}>
+                  {(template && template.is_installed) ? <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> : <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>}&nbsp;{installed}
+                </div>
+                <div>
+                  {indexDropdown && <div className="custom_select_options" ref={indexRef} style={{width:'100%',maxHeight:'500px'}}>
+                    <div className={styles3.knowledge_label} style={{padding:'12px 14px',maxWidth:'100%'}}>Select an existing vector database collection/index to install the knowledge</div>
+                    {collections.map((collection, index) => (<div key={index} className={styles3.knowledge_db} style={{maxWidth:'100%'}}>
+                      <div className={styles3.knowledge_db_name}>{collection.name}</div>
+                      {collection.indices.map((item, index) => (<div key={index} className="custom_select_option" onClick={() => handleInstallClick(item)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        {item}
+                      </div>))}
+                    </div>))}
+                  </div>}
+                </div>
+              </div>
 
               <hr className={styles2.horizontal_line} />
 
