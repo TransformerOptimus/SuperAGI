@@ -76,7 +76,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
             </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container">
-                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete database</li>
+                <li className="dropdown_item" onClick={() => {setDropdown(false);setDeleteModal(true)}}>Delete database</li>
               </ul>
             </div>}
           </div>
