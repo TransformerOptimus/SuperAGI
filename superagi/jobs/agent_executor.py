@@ -102,8 +102,8 @@ class AgentExecutor:
         new_object.toolkit_config = DBToolkitConfiguration(session=session, toolkit_id=tool.toolkit_id)
         return new_object
 
-    @staticmethod
-    def get_model_api_key_from_execution(model, agent_execution, session):
+    @classmethod
+    def get_model_api_key_from_execution(cls, model, agent_execution, session):
         """
         Get the model API key from the agent execution.
 
@@ -125,12 +125,12 @@ class AgentExecutor:
             return get_config("PALM_API_KEY")
         return get_config("OPENAI_API_KEY")
 
-    @staticmethod
-    def get_llm_source(agent_execution, session):
+    @classmethod
+    def get_llm_source(cls, agent_execution, session):
         return Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_source")
 
-    @staticmethod
-    def get_embedding(model_source, model_api_key):
+    @classmethod
+    def get_embedding(cls, model_source, model_api_key):
         if "OpenAi" in model_source:
             return OpenAiEmbedding(api_key=model_api_key)
         if "Google" in model_source:
