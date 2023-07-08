@@ -1,19 +1,17 @@
 import importlib
 from datetime import datetime, timedelta
-from fastapi import HTTPException
 
 from sqlalchemy.orm import sessionmaker
 
 import superagi.worker
 from superagi.agent.super_agi import SuperAgi
-from superagi.llms.google_palm import GooglePalm
-from superagi.llms.llm_model_factory import get_model
-from superagi.models.agent_workflow import AgentWorkflow
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
-from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.lib.logger import logger
+from superagi.llms.google_palm import GooglePalm
+from superagi.llms.llm_model_factory import get_model
 from superagi.models.agent import Agent
+from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_execution_feed import AgentExecutionFeed
@@ -21,22 +19,19 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
-from superagi.models.organisation import Organisation
-from superagi.models.project import Project
+from superagi.models.resource import Resource
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
-from superagi.models.resource import Resource
-from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.resource_manager.file_manager import FileManager
-from superagi.tools.thinking.tools import ThinkingTool
+from superagi.resource_manager.resource_summary import ResourceSummarizer
+from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.tools.resource.query_resource import QueryResourceTool
+from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 from superagi.types.model_source_types import ModelSourceType
+from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-from superagi.types.vector_store_types import VectorStoreType
-from superagi.models.agent_config import AgentConfiguration
-import yaml
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -108,7 +103,7 @@ class AgentExecutor:
         return new_object
 
     @staticmethod
-    def get_model_api_key_from_execution(agent_execution, session):
+    def get_model_api_key_from_execution(model, agent_execution, session):
         """
         Get the model API key from the agent execution.
 
@@ -119,9 +114,16 @@ class AgentExecutor:
         Returns:
             str: The model API key.
         """
-        config_value = Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_api_key")
-        model_api_key = decrypt_data(config_value)
-        return model_api_key
+        config_model_source = AgentExecutor.get_llm_source(agent_execution, session)
+        selected_model_source = ModelSourceType.get_model_source_from_model(model)
+        if selected_model_source.value == config_model_source:
+            config_value = Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_api_key")
+            model_api_key = decrypt_data(config_value)
+            return model_api_key
+
+        if selected_model_source == ModelSourceType.GooglePalm:
+            return get_config("PALM_API_KEY")
+        return get_config("OPENAI_API_KEY")
 
     @staticmethod
     def get_llm_source(agent_execution, session):
@@ -180,8 +182,8 @@ class AgentExecutor:
 
         parsed_config["agent_execution_id"] = agent_execution.id
 
-        model_api_key = AgentExecutor.get_model_api_key_from_execution(agent_execution, session)
-        model_llm_source = AgentExecutor.get_llm_source(agent_execution, session)
+        model_api_key = AgentExecutor.get_model_api_key_from_execution(parsed_config["model"], agent_execution, session)
+        model_llm_source = ModelSourceType.get_model_source_from_model(parsed_config["model"]).value
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
@@ -200,7 +202,7 @@ class AgentExecutor:
 
         resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
                                                            model_llm_source=model_llm_source,
-                                                            default_summary=parsed_config.get("resource_summary"))
+                                                           default_summary=parsed_config.get("resource_summary"))
         if resource_summary is not None:
             tools.append(QueryResourceTool())
 
@@ -226,10 +228,10 @@ class AgentExecutor:
         try:
             response = spawned_agent.execute(agent_workflow_step)
         except RuntimeError as e:
-            logger.error("Error executing the agent:", e)
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
-            session.close()
             # If our execution encounters an error we return and attempt to retry
+            logger.error("Error executing the agent:", e)
+            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
+            session.close()
             return
 
 

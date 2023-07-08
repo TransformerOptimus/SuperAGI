@@ -112,7 +112,7 @@ export default function Settings({organisationId}) {
                 </div>}
               </div>
             </div>
-        </div>
+        </div><br/>
         <div>
           <label className={agentStyles.form_label}>Open-AI/Palm API Key</label>
           <input placeholder="Enter your Open-AI/Palm API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
