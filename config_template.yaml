@@ -94,18 +94,20 @@ STABILITY_API_KEY: YOUR_STABILITY_API_KEY
 #Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
 ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 
-# To config a vector store for resources manager
-# RESOURCE_VECTOR_STORE can be REDIS, PINECONE, CHROMA, QDRANT
-RESOURCE_VECTOR_STORE: YOUR_RESOURCE_VECTOR_STORE
-RESOURCE_VECTOR_STORE_INDEX_NAME: YOUR_RESOURCE_VECTOR_STORE_INDEX_NAME
+## To config a vector store for resources manager uncomment config below
+## based on the vector store you want to use
 
-# To use a custom redis
-REDIS_VECTOR_STORE_URL: YOUR_REDIS_VECTOR_STORE_URL
+## RESOURCE_VECTOR_STORE can be REDIS, PINECONE, CHROMA, QDRANT
+#RESOURCE_VECTOR_STORE: YOUR_RESOURCE_VECTOR_STORE
+#RESOURCE_VECTOR_STORE_INDEX_NAME: YOUR_RESOURCE_VECTOR_STORE_INDEX_NAME
 
-# To use qdrant for vector store in resources manager
-QDRANT_PORT: YOUR_QDRANT_PORT
-QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
+## To use a custom redis
+#REDIS_VECTOR_STORE_URL: YOUR_REDIS_VECTOR_STORE_URL
 
-# To use chroma for vector store in resources manager
-CHROMA_HOST_NAME: YOUR_CHROMA_HOST_NAME
-CHROMA_PORT: YOUR_CHROMA_PORT
+## To use qdrant for vector store in resources manager
+#QDRANT_PORT: YOUR_QDRANT_PORT
+#QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
+
+## To use chroma for vector store in resources manager
+#CHROMA_HOST_NAME: YOUR_CHROMA_HOST_NAME
+#CHROMA_PORT: YOUR_CHROMA_PORT
