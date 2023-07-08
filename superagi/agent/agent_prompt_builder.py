@@ -35,7 +35,7 @@ class AgentPromptBuilder:
             'people know you have finished your objectives"'
         )
         finish_string = (
-            f"{len(tools) + 1}. {FINISH_NAME}: "
+            f"{len(tools) + 1}. \"{FINISH_NAME}\": "
             f"{finish_description}, args: {finish_args}"
         )
         if add_finish:
@@ -63,11 +63,12 @@ class AgentPromptBuilder:
         response_format = {
             "thoughts": {
                 "text": "thought",
-                "reasoning": "reasoning",
+                "reasoning": "short reasoning",
                 "plan": "- short bulleted\n- list that conveys\n- long-term plan",
                 "criticism": "constructive self-criticism",
                 "speak": "thoughts summary to say to user",
-            }
+            },
+            "tool": {"name": "tool name/task name", "args": {"arg name": "arg value(escape in case of string)"}}
         }
         formatted_response_format = json.dumps(response_format, indent=4)
 

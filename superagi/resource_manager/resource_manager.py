@@ -81,7 +81,7 @@ class ResourceManager:
         for docs in documents:
             if docs.metadata is None:
                 docs.metadata = {}
-            docs.metaedata["agent_id"] = str(self.agent_id)
+            docs.metadata["agent_id"] = str(self.agent_id)
             docs.metadata["resource_id"] = resource_id
         vector_store = None
         storage_context = None

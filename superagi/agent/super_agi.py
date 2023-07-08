@@ -92,16 +92,10 @@ class SuperAgi:
             tools=tools
         )
 
-    def fetch_agent_feeds(self, session, agent_execution_id, agent_id):
-        memory_window = session.query(AgentConfiguration).filter(
-            AgentConfiguration.key == "memory_window",
-            AgentConfiguration.agent_id == agent_id
-        ).order_by(desc(AgentConfiguration.updated_at)).first().value
-
+    def fetch_agent_feeds(self, session, agent_execution_id):
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
             .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
             .order_by(asc(AgentExecutionFeed.created_at)) \
-            .limit(memory_window) \
             .all()
         return agent_feeds[2:]
 
@@ -124,8 +118,7 @@ class SuperAgi:
         task_queue = TaskQueue(str(agent_execution_id))
 
         token_limit = TokenCounter.token_limit()
-        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"],
-                                             self.agent_config["agent_id"])
+        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"])
         current_calls = 0
         if len(agent_feeds) <= 0:
             task_queue.clear_tasks()
@@ -159,9 +152,9 @@ class SuperAgi:
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
 
-        logger.info(prompt)
-        # print(messages)
+        logger.info(messages)
         if len(agent_feeds) <= 0:
+            logger.info(prompt)
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
@@ -191,14 +184,8 @@ class SuperAgi:
             assistant_reply = response['content']
 
 
-        final_response = {"result": "PENDING", "retry": False}
+        final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=str(assistant_reply),
-                                                      role="assistant")
-            session.add(agent_execution_feed)
-            session.commit()
-
             # check if permission is required for the tool in restricted mode
             is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
             if is_permission_required:
@@ -207,14 +194,20 @@ class SuperAgi:
                 tool_response = self.handle_tool_function_response(assistant_reply, has_function_response)
             else:
                 tool_response = self.handle_tool_response(assistant_reply, has_function_response)
+
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"],
-                                                      feed=tool_response["result"],
-                                                      role="system"
-                                                      )
+                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      role="assistant")
             session.add(agent_execution_feed)
+            tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+                                                    agent_id=self.agent_config["agent_id"],
+                                                    feed=tool_response["result"],
+                                                    role="system"
+                                                    )
+            session.add(tool_response_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
+            final_response["completed_task_count"] = len(task_queue.get_completed_tasks())
         elif workflow_step.output_type == "replace_tasks":
             tasks = eval(assistant_reply)
             task_queue.clear_tasks()
@@ -248,6 +241,8 @@ class SuperAgi:
         if workflow_step.output_type == "tools" and final_response["retry"] == False:
             task_queue.complete_task(final_response["result"])
             current_tasks = task_queue.get_tasks()
+            if final_response["completed_task_count"] > 0 and len(current_tasks) == 0:
+                final_response["result"] = "COMPLETE"
             if len(current_tasks) > 0 and final_response["result"] == "COMPLETE":
                 final_response["result"] = "PENDING"
         session.commit()
@@ -277,21 +272,22 @@ class SuperAgi:
             return output
         if action_name in tools:
             tool = tools[action_name]
+            retry = False
             try:
-                observation = tool.execute(action.args)
-                logger.info("Tool Observation : ")
-                logger.info(observation)
-
+                parsed_args = self.clean_tool_args(action.args)
+                observation = tool.execute(parsed_args)
             except ValidationError as e:
+                retry = True
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"
                 )
             except Exception as e:
+                retry = True
                 observation = (
                     f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
                 )
             result = f"Tool {tool.name} returned: {observation}"
-            output = {"result": result, "retry": False}
+            output = {"result": result, "retry": retry}
         elif action.name == "ERROR":
             result = f"Error2: {action.args}. "
             output = {"result": result, "retry": False}
@@ -327,11 +323,11 @@ class SuperAgi:
 
             except ValidationError as e:
                 observation = (
-                    f"Validation Error in args: {str(e)}, args: {action.args}"
+                    f"Validation Error in args: {str(e)}, args: {arguments}"
                 )
             except Exception as e:
                 observation = (
-                    f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
+                    f"Error1: {str(e)}, {type(e).__name__}, args: {arguments}"
                 )
             result = f"Tool {tool.name} returned: {observation}"
             output = {"result": result, "retry": False}
@@ -348,6 +344,14 @@ class SuperAgi:
 
         logger.info("Tool Response : " + str(output) + "\n")
         return output
+
+    def clean_tool_args(self, args):
+        parsed_args = {}
+        for key in args.keys():
+            parsed_args[key] = args[key]
+            if type(args[key]) is dict and "value" in args[key]:
+                parsed_args[key] = args[key]["value"]
+        return parsed_args
 
     def update_agent_execution_tokens(self, current_calls, total_tokens):
         agent_execution = session.query(AgentExecution).filter(
