@@ -270,7 +270,7 @@ async def startup_event():
     build_single_step_agent()
     build_task_based_agents()
     env = get_config("ENV", "DEV")
-    if env == "PROD":
+    if env != "PROD":
         check_toolkit_registration()
     session.close()
 
