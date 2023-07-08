@@ -60,6 +60,7 @@ class GooglePalm(BaseLlm):
         if len(messages) == 1:
             prompt = messages[0]['content']
         try:
+            # NOTE: Default chat based palm bison model has different issues. We will switch to it once it gets fixed.
             final_model = "models/text-bison-001" if self.model == "models/chat-bison-001" else self.model
             completion = palm.generate_text(
                 model=final_model,
