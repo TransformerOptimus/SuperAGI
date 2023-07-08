@@ -17,6 +17,5 @@ class AgentConfigInput(BaseModel):
     model: str
     permission_type: str
     LTM_DB: str
-    memory_window: int
     max_iterations: int
     user_timezone: Optional[str]
