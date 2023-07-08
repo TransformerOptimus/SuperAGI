@@ -30,7 +30,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     getDateTime(agent.id)
     .then((response) => {
       const {start_date, start_time} = response.data;
-      console.log("hello:: "+response_data)
+      console.log("hello:: "+response)
         setScheduleDate(start_date);
         setScheduleTime(start_time);
     })

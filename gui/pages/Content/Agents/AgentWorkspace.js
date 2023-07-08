@@ -167,7 +167,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
   function fetchAgentScheduleComponent() {//get data
     AgentScheduleComponent(agentId)
     .then((response) => {
-      const {current_datetime, start_date, start_time, recurrence_interval, expiry_date, expiry_runs} = response.data;
+      const {current_datetime, recurrence_interval, expiry_date, expiry_runs} = response.data;
       setEditStartTime(current_datetime);
       seteditExpiryRuns(expiry_runs);
       setEditExpiryDate(expiry_date);
@@ -534,7 +534,6 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
               <label className={styles.form_label}>Select a date and time</label>
               <div >
               <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditTimeChange} value={editStartTime} inputProps={{ placeholder: 'Enter here' }}/>
-              <h6>{editStartTime}</h6>
               </div>          
             </div>
             {/* editStartTime */}
