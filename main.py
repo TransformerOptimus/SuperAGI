@@ -265,17 +265,17 @@ async def startup_event():
         workflow_step4.next_step_id = workflow_step3.id
         session.commit()
 
-    def check_toolkit_registration():
-        organizations = session.query(Organisation).all()
-        for organization in organizations:
-            register_toolkits(session, organization)
-        logger.info("Successfully registered local toolkits for all Organisations!")
+    # def check_toolkit_registration():
+    #     organizations = session.query(Organisation).all()
+    #     for organization in organizations:
+    #         register_toolkits(session, organization)
+    #     logger.info("Successfully registered local toolkits for all Organisations!")
 
     build_single_step_agent()
     build_task_based_agents()
-    env = get_config("ENV", "DEV")
-    if env != "PROD":
-        check_toolkit_registration()
+    # env = get_config("ENV", "DEV")
+    # if env != "PROD":
+    #     check_toolkit_registration()
     session.close()
 
 
