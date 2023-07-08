@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, Text, String
 from superagi.models.base_model import DBBaseModel
 
 
-class Knowledge_config(DBBaseModel):
+class KnowledgeConfig(DBBaseModel):
     """
     Knowledge related configurations such as model, data_type, tokenizer, chunk_size, chunk_overlap, text_splitter, etc. are stored here.
 
@@ -30,3 +30,11 @@ class Knowledge_config(DBBaseModel):
 
         """
         return f"KnowledgeConfiguration(id={self.id}, knowledge_id={self.knowledge_id}, key={self.key}, value={self.value})"
+    
+    @classmethod
+    def get_knowledge_config(session, knowledge_id: int, knowledge):
+        knowledge_configs = session.query(KnowledgeConfig).filter_by(KnowledgeConfig.knowledge_id == knowledge_id).all()
+        for config in knowledge_configs:
+            knowledge[config.key] = config.value
+
+        return knowledge_configs

@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, Text, String
 from superagi.models.base_model import DBBaseModel
 
 
-class Vectordb_config(DBBaseModel):
+class VectordbConfig(DBBaseModel):
     """
     Vector db related configurations like api_key, environment, and url are stored here
 
@@ -30,3 +30,14 @@ class Vectordb_config(DBBaseModel):
 
         """
         return f"VectorConfiguration(id={self.id}, key={self.key}, value={self.value})"
+    
+    @classmethod
+    def add_database_config(session, vector_db_id, key, value):
+        db_config = VectordbConfig(vector_db_id=vector_db_id, key=key, value=value)
+        session.add(db_config)
+        session.commit()
+    
+    @classmethod
+    def delete_vector_db_config(session, vector_db_id):
+        session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == vector_db_id).delete()
+        session.commit()
