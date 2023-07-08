@@ -27,7 +27,7 @@ class BaseOutputParser(ABC):
 class AgentOutputParser(BaseOutputParser):
     def parse(self, text: str) -> AgentGPTAction:
         try:
-            # logger.info(text)
+            logger.info(text)
             text = JsonCleaner.check_and_clean_json(text)
             parsed = json5.loads(text)
         except json.JSONDecodeError:
@@ -55,6 +55,8 @@ class AgentOutputParser(BaseOutputParser):
 
             logger.info(format_prefix_green + "Action : " + format_suffix_green)
             # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["tool"]["args"] + "\n")
+            if "tool" not in parsed:
+                raise Exception("No tool found in the response..")
             if parsed["tool"] is None or not parsed["tool"]:
                 return AgentGPTAction(name="", args="")
             if "name" in parsed["tool"]:
