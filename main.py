@@ -59,6 +59,7 @@ database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
+env = get_config('ENV', "DEV")
 
 if db_username is None:
     db_url = f'postgresql://{database_url}/{db_name}'
@@ -269,7 +270,8 @@ async def startup_event():
 
     build_single_step_agent()
     build_task_based_agents()
-    check_toolkit_registration()
+    if env != "PROD":
+        check_toolkit_registration()
     session.close()
 
 

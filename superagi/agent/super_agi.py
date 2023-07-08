@@ -90,16 +90,10 @@ class SuperAgi:
             tools=tools
         )
 
-    def fetch_agent_feeds(self, session, agent_execution_id, agent_id):
-        memory_window = session.query(AgentConfiguration).filter(
-            AgentConfiguration.key == "memory_window",
-            AgentConfiguration.agent_id == agent_id
-        ).order_by(desc(AgentConfiguration.updated_at)).first().value
-
+    def fetch_agent_feeds(self, session, agent_execution_id):
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
             .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
             .order_by(asc(AgentExecutionFeed.created_at)) \
-            .limit(memory_window) \
             .all()
         return agent_feeds[2:]
 
@@ -122,8 +116,7 @@ class SuperAgi:
         task_queue = TaskQueue(str(agent_execution_id))
 
         token_limit = TokenCounter.token_limit()
-        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"],
-                                             self.agent_config["agent_id"])
+        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"])
         current_calls = 0
         if len(agent_feeds) <= 0:
             task_queue.clear_tasks()
