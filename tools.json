@@ -1,4 +1,5 @@
 {
   "tools": {
+    "rabbitmq": "https://github.com/zhound420/rabbitmq"
   }
 }
