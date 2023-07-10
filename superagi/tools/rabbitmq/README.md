@@ -1,6 +1,6 @@
 # RabbitMQ Toolkit for SuperAGI
 
-Welcome to the RabbitMQ Toolkit for the [SuperAGI](https://github.com/TransformerOptimus/SuperAGI) project. This toolkit is designed to facilitate natural language communication between AI agents using RabbitMQ as a messaging broker.
+Welcome to the RabbitMQ Toolkit for the [SuperAGI](https://github.com/TransformerOptimus/SuperAGI) project. This toolkit is designed to facilitate natural language communication between AI agents using RabbitMQ as a messaging broker. 
 
 ## Features
 
