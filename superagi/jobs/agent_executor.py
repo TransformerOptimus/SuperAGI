@@ -5,7 +5,6 @@ from sqlalchemy.orm import sessionmaker
 
 import superagi.worker
 from superagi.agent.super_agi import SuperAgi
-from superagi.models.agent_workflow import AgentWorkflow
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.lib.logger import logger
