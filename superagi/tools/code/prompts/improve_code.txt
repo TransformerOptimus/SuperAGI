@@ -17,7 +17,7 @@ When you're writing the improved code, keep the following in mind:
    ```[LANG]
    [CODE]
    ```
-
+- FILENAME should be exactly same as the file name in given code, extract the file name from the old code only
 - Start from the "entrypoint" file, then go to the ones that are imported by that file, and so on. Your code should be fully functional without any placeholders.
 
 - Follow best practices for naming conventions, imports, types etc in the language and framework. Ensure inter-file compatibility. Include any needed dependencies.
