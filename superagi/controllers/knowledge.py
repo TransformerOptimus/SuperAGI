@@ -28,41 +28,13 @@ def handle_marketplace_operations_list(
 
     """
 
-    marketplace_knowledges = Knowledge.fetch_marketplace_list(page=page)
+    marketplace_organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
+    marketplace_knowledges = Knowledge.fetch_marketplace_list(db.session, page, marketplace_organisation_id)
     marketplace_knowledges_with_install = Knowledge.get_knowledge_installed_details(db.session, marketplace_knowledges,
                                                                               organisation)
     for knowledge in marketplace_knowledges_with_install:
         knowledge["install_number"] = MarketPlaceStats.get_knowledge_installation_number(db.session, knowledge.id)
     return marketplace_knowledges_with_install
-
-
-#For internal use
-@router.get("/marketplace/list/{page}")
-def get_marketplace_knowledge(
-        page: int = 0,
-):
-    """
-    Get marketplace knowledges.
-
-    Args:
-        page (int): The page number for pagination.
-
-    Returns:
-        list: A list of knowledges.
-
-    """
-
-    organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    page_size = 30
-
-    # Apply search filter if provided
-    query = db.session.query(Knowledge).filter(Knowledge.organisation_id == organisation_id)
-
-    # Paginate the results
-    knowledges = query.offset(page * page_size).limit(page_size).all()
-
-
-    return knowledges
 
 @router.get("/user/list")
 def get_user_knowledge_list(Authorize: AuthJWT = Depends(), organisation = Depends(get_user_organisation)):

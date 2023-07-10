@@ -13,7 +13,8 @@ from superagi.helper.auth import get_user_organisation
 router = APIRouter()
 
 @router.get("/get/list")
-def handle_marketplace_operations_list():
+def handle_marketplace_operations_list(
+        page: int):
     """
     Handle marketplace operation list.
 
@@ -24,34 +25,12 @@ def handle_marketplace_operations_list():
         dict: The response containing the marketplace list.
 
     """
-
-    marketplace_vector_dbs = Vectordb.fetch_marketplace_list()
+    marketplace_organisation_id = int(get_config("MARKEPLACE_ORGANISATION_ID"))
+    marketplace_vector_dbs = Vectordb.fetch_marketplace_list(db.session, marketplace_organisation_id)
     #marketplace_vector_dbs_with_install = Vectordb.get_vector_db_installed_details(db.session, marketplace_vector_dbs,
     #                                                                          organisation)
     return marketplace_vector_dbs
 
-#For internal use
-@router.get("/marketplace/list")
-def get_marketplace_vectordb():
-    """
-    Get marketplace vectordbs.
-
-    Args:
-        page (int): The page number for pagination.
-
-    Returns:
-        list: A list of vectordbs.
-
-    """
-
-    organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-
-    # Apply search filter if provided
-    vector_dbs = db.session.query(Vectordb).filter(Vectordb.organisation_id == organisation_id)
-
-    # Paginate the results
-
-    return vector_dbs
 
 @router.post("/connect/pinecone")
 def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organisation)):
@@ -66,12 +45,12 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
         if not index_dimensions["status"] or not index_state:
             return {"success": False}
         key_data = {
-            "DIMENSIONS": index_dimensions["dimensions"],
-            "INDEX_STATE": index_state["state"]
+            "DIMENSIONS": index_dimensions,
+            "INDEX_STATE": index_state
         }
         for key in key_data.keys():
            VectorIndexConfig.add_vector_index_config(db.session, vector_index.id, key, key_data[key]) 
-    return {"success": True}
+    return {"success": True, "id": pinecone_db.id, "name": pinecone_db.name}
 
 @router.post("/connect/qdrant")
 def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organisation)):
@@ -92,7 +71,7 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
         for key in key_data.keys():
            VectorIndexConfig.add_vector_index_config(db.session, vector_index.id, key, key_data[key]) 
     
-    return {"success": True}
+    return {"success": True, "id": qdrant_db.id, "name": qdrant_db.name}
 
 @router.get("/user/list")
 def get_user_connected_vector_db(organisation = Depends(get_user_organisation)):

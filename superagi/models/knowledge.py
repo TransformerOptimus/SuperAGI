@@ -32,7 +32,6 @@ class Knowledge(DBBaseModel):
     summary = Column(String)
     readme = Column(String)
     index_id = Column(Integer)
-    # is_deleted = Column(Integer)
     organisation_id = Column(Integer)
     contributed_by = Column(String)
 
@@ -49,15 +48,28 @@ class Knowledge(DBBaseModel):
                f"organisation_id={self.organisation_id}), contributed_by={self.contributed_by}"
 
     @classmethod
-    def fetch_marketplace_list(cls, page):
-        headers = {'Content-Type': 'application/json'}
-        response = requests.get(
-            marketplace_url + f"/knowledge/marketplace/list/{str(page)}",
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return []
+    def fetch_marketplace_list(cls, session, page, organisation_id):
+        page_size = 30
+
+    # Apply search filter if provided
+        query = session.query(Knowledge).filter(Knowledge.organisation_id == organisation_id)
+
+    # Paginate the results
+        knowledges = query.offset(page * page_size).limit(page_size).all()
+        knowledge_data = []
+        for knowledge in knowledges:
+            data = {
+                "id": knowledge.id,
+                "name": knowledge.name,
+                "description": knowledge.description,
+                "summary": knowledge.summary,
+                "readme": knowledge.readme,
+                "index_id": knowledge.index_id,
+                "organisation_id": knowledge.organisation_id,
+                "contributed_by": knowledge.contributed_by
+            }
+            knowledge_data.append(data)
+        return knowledge_data
 
     @classmethod
     def get_knowledge_installed_details(cls, session, marketplace_knowledges, organisation):
