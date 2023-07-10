@@ -13,6 +13,8 @@ class DeleteCalendarEventTool(BaseTool):
     args_schema: Type[BaseModel] = DeleteCalendarEventInput
     description: str = "Delete an event from Google Calendar"
 
+
+
     def _execute(self, event_id: str):
         session = self.toolkit_config.session
         toolkit_id = self.toolkit_config.toolkit_id
