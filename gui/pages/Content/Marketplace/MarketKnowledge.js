@@ -20,7 +20,7 @@ export default function MarketKnowledge() {
       updated_at: "23 Jun 2023"
     },
     {
-      name: "knowledge name 3", model: "text-embedding-ada-002", datatype: "Text", tokenizer: "Tiktoken", is_installed: false,
+      name: "knowledge name 3", model: "text-embedding-ada-002", datatype: "Text", tokenizer: "Tiktoken", is_installed: true,
       contributor: "Google", chunk_size: "256", chunk_overlap: "20", text_splitter: "Fixed size", dimension: "1536",
       description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
       updated_at: "23 Jun 2023"

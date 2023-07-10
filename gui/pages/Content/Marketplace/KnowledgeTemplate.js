@@ -11,7 +11,8 @@ import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
 export default function KnowledgeTemplate({template, env}) {
-  const [installed, setInstalled] = useState('')
+  const [installed, setInstalled] = useState('');
+  const [dropdown,setDropdown] = useState(false);
   const [markdownContent, setMarkdownContent] = useState('');
   const indexRef = useRef(null);
   const [indexDropdown, setIndexDropdown] = useState(false);
@@ -41,7 +42,10 @@ export default function KnowledgeTemplate({template, env}) {
   }, []);
 
   useEffect(() => {
-    setInstalled(template && template.is_installed ? 'Installed' : 'Install');
+    if(template) {
+      setInstalled(template.is_installed ? 'Installed' : 'Install');
+    }
+
     if (window.location.href.toLowerCase().includes('marketplace')) {
       setInstalled('Sign in to install');
     } else {
@@ -57,6 +61,10 @@ export default function KnowledgeTemplate({template, env}) {
     EventBus.emit('goToMarketplace', {});
   }
 
+  const uninstallKnowledge = () => {
+
+  }
+
   return (
     <>
       <div>
@@ -68,13 +76,13 @@ export default function KnowledgeTemplate({template, env}) {
           </div>
           <div className="col-3" style={{maxHeight: '84vh', overflowY: 'auto', padding: '0'}}>
             <div className={styles2.left_container}>
-              <span className={styles2.top_heading}>{template.name}</span>
-              <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>by {template.contributor}</span>
+              <span className={styles2.top_heading}>{template?.name}</span>
+              <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>by {template?.contributor}</span>
 
-              <div className="dropdown_container_search" style={{width:'100%'}}>
+              {!template?.is_installed && <div className="dropdown_container_search" style={{width:'100%'}}>
                 <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
-                     style={{marginTop:'15px',cursor:'pointer',width:'100%',background: template && template.is_installed ? 'rgba(255, 255, 255, 0.14)':'#FFF',color:template && template.is_installed ? '#FFFFFF':'#000'}}>
-                  {(template && template.is_installed) ? <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> : <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>}&nbsp;{installed}
+                     style={{marginTop:'15px',cursor: 'pointer',width:'100%'}}>
+                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;Install
                 </div>
                 <div>
                   {indexDropdown && <div className="custom_select_options" ref={indexRef} style={{width:'100%',maxHeight:'500px'}}>
@@ -87,53 +95,69 @@ export default function KnowledgeTemplate({template, env}) {
                     </div>))}
                   </div>}
                 </div>
-              </div>
+              </div>}
+
+              {template?.is_installed && <div style={{width:'100%',display:'flex',justifyContent:'flex-start',marginTop:'15px'}}>
+                <div className="secondary_button" style={{cursor: 'default',width:'85%'}}>
+                  <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/>&nbsp;Installed
+                </div>
+                <div style={{width:'5%',marginLeft:'10px'}}>
+                  <button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+                  </button>
+                  {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    <ul className="dropdown_container" style={{marginTop:'0',width:'165px'}}>
+                      <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
+                    </ul>
+                  </div>}
+                </div>
+              </div>}
 
               <hr className={styles2.horizontal_line} />
 
-              <span className={styles2.description_text}>{template.description}</span>
+              <span className={styles2.description_text}>{template?.description}</span>
 
               <hr className={styles2.horizontal_line} />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.model}</div>
+                <div className={styles1.tool_text}>{template?.model}</div>
               </div><br />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Knowledge datatype</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.datatype}</div>
+                <div className={styles1.tool_text}>{template?.datatype}</div>
               </div><br />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Tokenizer</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.tokenizer}</div>
+                <div className={styles1.tool_text}>{template?.tokenizer}</div>
               </div><br />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Chunk size</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.chunk_size}</div>
+                <div className={styles1.tool_text}>{template?.chunk_size}</div>
               </div><br />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Chunk overlap</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.chunk_overlap}</div>
+                <div className={styles1.tool_text}>{template?.chunk_overlap}</div>
               </div><br />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Text splitter</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.text_splitter}</div>
+                <div className={styles1.tool_text}>{template?.text_splitter}</div>
               </div><br />
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Dimensions</span>
               <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{template.dimension}</div>
+                <div className={styles1.tool_text}>{template?.dimension}</div>
               </div>
 
               <hr className={styles2.horizontal_line} />
 
               <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Last updated</span>
-              <span className={styles2.description_text}>{template.updated_at}</span>
+              <span className={styles2.description_text}>{template?.updated_at}</span>
             </div>
           </div>
           <div className="col-9" style={{paddingLeft: '8px'}}>
