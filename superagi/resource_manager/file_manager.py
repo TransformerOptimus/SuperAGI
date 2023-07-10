@@ -85,4 +85,20 @@ class FileManager:
 
     def get_agent_resource_path(self, file_name: str):
         return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+    
+    def overwrite_file(self, file_name: str, content):
+        if self.agent_id is not None:
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+        else:
+            final_path = ResourceHelper.get_resource_path(file_name)
+
+        try:
+            with open(final_path, mode="w") as file:
+                file.write(content)
+                file.close()
+            self.write_to_s3(file_name, final_path)
+            logger.info(f"{file_name} - File overwritten successfully")
+            return f"{file_name} - File overwritten successfully"
+        except Exception as err:
+            return f"Error: {err}"
 
