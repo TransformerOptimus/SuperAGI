@@ -56,12 +56,12 @@ export default function KnowledgeDetails({internalId, knowledgeDetails}) {
         <div>
           <div className={styles.tools_container}>
             <div className={styles1.knowledge_wrapper} style={{width:'95%'}}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ textAlign:'left', paddingRight:'10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <div style={{ textAlign:'left', paddingRight:'10px', width: '95%' }}>
                   <div style={{fontSize:'17px',marginTop:'-3px'}}>{knowledgeName}</div>
                   <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
-                    {`${showDescription ? knowledgeDescription : knowledgeDescription.slice(0, 80)}`}
-                    {knowledgeDescription.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                    {`${showDescription ? knowledgeDescription : knowledgeDescription.slice(0, 70)}`}
+                    {knowledgeDescription.length > 70 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
                         {showDescription ? '...less' : '...more'}
                     </span>}
                   </div>
