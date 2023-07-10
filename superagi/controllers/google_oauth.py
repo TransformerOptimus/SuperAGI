@@ -41,8 +41,6 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     expire_time = expire_time - timedelta(minutes=5)
     response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     response_data = json.dumps(response)
-    print("/////////////////////")
-    print(response_data)
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     redirect_url_success = f"{frontend_url}/google_calendar_creds/?{response_data}"
     return RedirectResponse(url=redirect_url_success)
