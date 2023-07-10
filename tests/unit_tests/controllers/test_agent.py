@@ -34,20 +34,20 @@ def mock_agent_config():
 @pytest.fixture
 def mock_schedule_get():
     return AgentSchedule(
-        id=1, 
-        agent_id=1, 
+        id=1,
+        agent_id=1,
         status="SCHEDULED",
         start_time= datetime(2022, 1, 1, 10, 30),
         recurrence_interval="5 Minutes",
         expiry_date=datetime(2022, 1, 1, 10, 30) + timedelta(days=10),
-        expiry_runs=5 
+        expiry_runs=5
     )
 
 '''Test for Stopping Agent Scheduling'''
 def test_stop_schedule_success(mock_schedule):
     with patch('superagi.controllers.agent.db') as mock_db:
         # Set up the database query result
-        mock_db.session.query.return_value.filter.return_value.first.return_value = mock_schedule 
+        mock_db.session.query.return_value.filter.return_value.first.return_value = mock_schedule
 
         # Call the endpoint
         response = client.post("agents/stop/schedule?agent_id=1")
@@ -142,7 +142,7 @@ def test_get_schedule_data_not_found():
 def mock_agent_config_schedule():
     return {
         "agent_config": {
-            "name": "SmartAGI", 
+            "name": "SmartAGI",
             "project_id": 1,
             "description": "AI assistant to solve complex problems",
             "goal": ["Share research on latest google news in fashion"],
@@ -179,7 +179,7 @@ def mock_agent():
 
 
 def test_create_and_schedule_agent_success(mock_agent_config_schedule, mock_agent, mock_schedule):
-    
+
     with patch('superagi.models.agent.Agent') as AgentMock,\
          patch('superagi.controllers.agent.Project') as ProjectMock,\
          patch('superagi.controllers.agent.Tool') as ToolMock,\
@@ -198,11 +198,11 @@ def test_create_and_schedule_agent_success(mock_agent_config_schedule, mock_agen
 
         toolkit_mock = Mock()
         ToolkitMock.fetch_tool_ids_from_toolkit.return_value = []
-        
+
         agent_schedule_mock = Mock()
         agent_schedule_mock.id = None  # id is None before commit
         AgentScheduleMock.return_value = mock_schedule
-        
+
         db_mock.session.query.return_value.get.return_value = project_mock
         db_mock.session.add.return_value = None
         db_mock.session.commit.side_effect = lambda: setattr(agent_schedule_mock, 'id', 1)  # id is set after commit

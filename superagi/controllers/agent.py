@@ -185,7 +185,7 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     project = db.session.query(Project).get(agent_with_config.project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     invalid_tools = Tool.get_invalid_tools(agent_with_config.tools, db.session)
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
         raise HTTPException(status_code=404, detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
