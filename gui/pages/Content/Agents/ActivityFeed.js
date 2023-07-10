@@ -105,7 +105,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom:'55px'}}>
         
-        {agent.is_scheduled && !agent.is_running ? 
+        {agent.is_scheduled && !agent.is_running && !selectedRunId ? 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <Image width={72} height={72} src="/images/eventSchedule.png" alt="github" />
             <div style={{ color: 'white', fontSize: '14px' }}>
@@ -155,7 +155,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
         </div>}
         
-        {!agent.is_scheduled && !agent.is_running &&
+        {!agent.is_scheduled && !agent.is_running && !selectedRunId &&
         <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
           The Agent is not scheduled
         </div>
