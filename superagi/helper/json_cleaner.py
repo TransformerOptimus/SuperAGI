@@ -103,7 +103,9 @@ class JsonCleaner:
         json_string = re.sub(r'}\n+\s*}', '}}', json_string)
         json_string = re.sub(r'"\n+\s*}', '"}', json_string)
         json_string = re.sub(r'\n+\s*}', '}', json_string)
+        json_string = re.sub(r'\n+\s*]', ']', json_string)
         return json_string.strip()
+
     @classmethod
     def clean_newline_characters(cls, string):
         string = string.replace("\t", "\\t")
@@ -121,10 +123,11 @@ class JsonCleaner:
         Returns:
             str: The json string with quotes added to property names.
         """
-        def replace(match: re.Match) -> str:
-            return f'"{match.group(1)}":'
 
-        json_string = re.sub(r'(\b\w+\b):', replace, json_string)
+        def replace(match: re.Match) -> str:
+            return f'{match.group(1)}"{match.group(2)}":'
+
+        json_string = re.sub(r'([,{])\n*\s*(\b\w+\b):', replace, json_string)
 
         return json_string
 

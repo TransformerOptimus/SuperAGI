@@ -7,7 +7,8 @@ from main import app
 from superagi.models.agent_schedule import AgentSchedule
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent import Agent
-from datetime import datetime
+from datetime import datetime, timedelta
+from pytz import timezone
 
 client = TestClient(app)
 
@@ -29,6 +30,18 @@ def mock_schedule():
 @pytest.fixture
 def mock_agent_config():
     return AgentConfiguration(key="user_timezone", agent_id=1, value='GMT')
+
+@pytest.fixture
+def mock_schedule_get():
+    return AgentSchedule(
+        id=1,
+        agent_id=1,
+        status="SCHEDULED",
+        start_time= datetime(2022, 1, 1, 10, 30),
+        recurrence_interval="5 Minutes",
+        expiry_date=datetime(2022, 1, 1, 10, 30) + timedelta(days=10),
+        expiry_runs=5
+    )
 
 '''Test for Stopping Agent Scheduling'''
 def test_stop_schedule_success(mock_schedule):
@@ -93,25 +106,21 @@ def test_edit_schedule_not_found(mock_patch_schedule_input):
         assert response.json() == {"detail": "Schedule not found"}
 
 '''Test for getting agent schedule'''
-def test_get_schedule_data_success(mock_schedule, mock_agent_config):
+def test_get_schedule_data_success(mock_schedule_get, mock_agent_config):
     with patch('superagi.controllers.agent.db') as mock_db:
-        # Set up the database query result
-        
-        mock_db.session.query.return_value.filter.return_value.first.side_effect = [mock_schedule, mock_agent_config]
-
-        # Call the endpoint
+        mock_db.session.query.return_value.filter.return_value.first.side_effect = [mock_schedule_get, mock_agent_config]
         response = client.get("agents/get/schedule_data/1")
-
-
-        # Verify the HTTP response
         assert response.status_code == 200
 
-        # Verify the response data is correct
+        time_gmt = mock_schedule_get.start_time.astimezone(timezone('GMT'))
+
         expected_data = {
             "current_datetime": mock.ANY,
-            "recurrence_interval": mock_schedule.recurrence_interval,
-            "expiry_date": mock_schedule.expiry_date,
-            "expiry_runs": mock_schedule.expiry_runs,
+            "start_date": time_gmt.strftime("%d %b %Y"),
+            "start_time": time_gmt.strftime("%I:%M %p"),
+            "recurrence_interval": mock_schedule_get.recurrence_interval,
+            "expiry_date": mock_schedule_get.expiry_date.astimezone(timezone('GMT')).strftime("%d/%m/%Y"),
+            "expiry_runs": mock_schedule_get.expiry_runs,
         }
         assert response.json() == expected_data
 
@@ -127,7 +136,6 @@ def test_get_schedule_data_not_found():
         # Verify the HTTP response
         assert response.status_code == 404
         assert response.json() == {"detail": "Agent Schedule not found"}
-
 
 
 @pytest.fixture
