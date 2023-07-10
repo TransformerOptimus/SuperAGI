@@ -49,6 +49,8 @@ class ImproveCodeTool(BaseTool):
         # messages = [{"role": "system", "content": prompt}]
         prompt = PromptReader.read_tools_prompt(__file__, "improve_code.txt")
         code_response = self.tool_response_manager.get_last_response("CodingTool")
+        print("###################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$################################## CodingToolResponse")
+        print(code_response)
         if code_response != "":
             prompt = prompt.replace("{code}", "Improve this code and fill any missing function:\n" + code_response)
         logger.info(prompt)
@@ -78,72 +80,3 @@ class ImproveCodeTool(BaseTool):
             self.resource_manager.write_file(file_name, improved_code_part)
 
         return "Successfully improved the below files: \n" + "\n".join(file_names) if file_names else "No files improved."
-
-# class ImproveCodeTool(BaseTool):
-#     name = "ImproveCodeTool"
-#     agent_id: int = None
-#     description = (
-#         "Code improvement tool. This tool checks if anything is missing or wrong in the generated code "
-#         "and modifies the contents of the files stored in the resource manager accordingly."
-#     )
-#     args_schema: Type[ImproveCodeSchema] = ImproveCodeSchema
-#     goals: List[str] = []
-#     resource_manager: Optional[FileManager] = None
-#     tool_response_manager: Optional[ToolResponseQueryManager] = None
-#     llm: Optional[BaseLlm] = None
-
-#     class Config:
-#         arbitrary_types_allowed = True
-
-#     def _execute(self, code: str) -> str:
-#         """
-#         Executing the improve code tool.
-
-#         Args:
-#             code: The generated code to be improved.
-
-#         Returns: 
-#             Success or failure message.
-#         """
-
-#         prompt = PromptReader.read_tools_prompt(__file__, "improve_code.txt")
-#         prompt = prompt.replace("{code}", code)
-#         messages = [{"role": "system", "content": prompt}]
-#         code_response = self.tool_response_manager.get_last_response("CodingTool")
-#         if code_response != "":
-#             prompt = prompt.replace("{spec}", "Use this specs for generating the code:\n" + code_response)
-#         logger.info(prompt)
-#         messages = [{"role": "system", "content": prompt}]
-
-#         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-#         token_limit = TokenCounter.token_limit(self.llm.get_model())
-#         improved_code_result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
-
-#         improved_code = improved_code_result["content"]
-
-#         # Get all filenames and corresponding code blocks
-#         regex = r"(\S+?)\n```\S*\n(.+?)```"
-#         matches = re.finditer(regex, improved_code, re.DOTALL)
-
-#         file_names = []
-#         for match in matches:
-#             # Get the filename
-#             file_name = re.sub(r'[<>"|?*]', "", match.group(1))
-
-#             # Get the improved code
-#             improved_code = match.group(2)
-
-#             if not file_name.strip():
-#                 continue
-
-#             # Read the old code from file_manager
-#             old_code = self.resource_manager.read_file(file_name)
-#             if old_code is None:
-#                 return "Error: Failed to fetch old code from file manager."
-            
-#             # Replace the old code with the improved code
-#             self.resource_manager.write_file(file_name, improved_code)
-
-#             file_names.append(file_name)
-
-#         return "Successfully improved the below files: \n" + "\n".join(file_names)
