@@ -6,7 +6,13 @@ class QdrantHelper:
         self.session = session
     
     def get_dimensions(self, vector_index):
-        return "abc"
+        return {
+            "success": True,
+            "dimensions": "1536"
+        }
     
     def get_qdrant_index_state(self, vector_index):
-        return "abc"
+        return {
+            "success": True,
+            "state": "CUSTOM"
+        }

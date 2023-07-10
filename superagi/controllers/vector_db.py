@@ -67,8 +67,8 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
         if not index_dimensions["status"] or not index_state:
             return {"success": False}
         key_data = {
-            "DIMENSIONS": index_dimensions,
-            "INDEX_STATE": index_state
+            "DIMENSIONS": index_dimensions["dimensions"],
+            "INDEX_STATE": index_state["state"]
         }
         for key in key_data.keys():
            VectorIndexConfig.add_vector_index_config(db.session, vector_index.id, key, key_data[key]) 
@@ -87,8 +87,8 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
         if not index_dimensions["status"] or not index_state:
             return {"success": False}
         key_data = {
-            "DIMENSIONS": index_dimensions,
-            "INDEX_STATE": index_state
+            "DIMENSIONS": index_dimensions["dimensions"],
+            "INDEX_STATE": index_state["state"]
         }
         for key in key_data.keys():
            VectorIndexConfig.add_vector_index_config(db.session, vector_index.id, key, key_data[key]) 
@@ -119,8 +119,8 @@ def update_vector_indices(new_indices: list, vector_db_id: int):
             if not index_dimensions["status"] or not index_state:
                 return {"success": False}
             key_data = {
-                "DIMENSIONS": index_dimensions,
-                "INDEX_STATE": index_state
+                "DIMENSIONS": index_dimensions["dimensions"],
+                "INDEX_STATE": index_state["state"]
             }
             for key in key_data.keys():
                 VectorIndexConfig.add_vector_index_config(db.session, vector_index.id, key, key_data[key])
