@@ -14,6 +14,14 @@ class MockTool(BaseTool):
     def _execute(self, *args, **kwargs):
         pass
 
+
+class MockSession:
+    def add(self, instance):
+        pass
+
+    def commit(self):
+        pass
+
 @pytest.fixture
 def super_agi():
     ai_name = "test_ai"
@@ -34,7 +42,7 @@ def test_check_permission_in_restricted_mode_not_required(super_agi):
 
     super_agi.output_parser.parse = MagicMock(
         return_value=MockTool(name="NotRestrictedTool", permission_required=False))
-    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply)
+    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply,MockSession())
     assert not result
     assert output is None
 
@@ -47,15 +55,9 @@ def test_check_permission_in_restricted_mode_permission_required(super_agi, monk
     super_agi.output_parser.parse = MagicMock(
         return_value=mock_tool_requiring_permission)
 
-    class MockSession:
-        def add(self, instance):
-            pass
 
-        def commit(self):
-            pass
+    # monkeypatch.setattr("superagi.agent.super_agi.session", MockSession())
 
-    monkeypatch.setattr("superagi.agent.super_agi.session", MockSession())
-
-    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply)
+    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply,MockSession())
     assert result
     assert output["result"] == "WAITING_FOR_PERMISSION"
