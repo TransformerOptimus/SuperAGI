@@ -6,6 +6,7 @@ from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.lib.logger import logger
 from superagi.resource_manager.llama_vector_store_factory import LlamaVectorStoreFactory
+from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 
 
@@ -61,7 +62,8 @@ class ResourceManager:
         os.remove(file_path)
         return documents
 
-    def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None):
+    def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None,
+                                      model_source: str = ""):
         """
         Saves a document to the vector store.
 
@@ -70,6 +72,9 @@ class ResourceManager:
         :param mode_api_key: The mode api key to use when creating embedding to the vector store.
         """
         from llama_index import VectorStoreIndex, StorageContext
+        if ModelSourceType.GooglePalm.value in model_source:
+            logger.info("Resource embedding not supported for Google Palm..")
+            return
         import openai
         openai.api_key = get_config("OPENAI_API_KEY") or mode_api_key
         os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "") or mode_api_key
@@ -91,7 +96,7 @@ class ResourceManager:
             index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
             index.set_index_id(f'Agent {self.agent_id}')
         except Exception as e:
-            logger.error(e)
+            logger.error("save_document_to_vector_store - unable to create documents from vector", e)
         # persisting the data in case of redis
         if vector_store_name == VectorStoreType.REDIS:
             vector_store.persist(persist_path="")

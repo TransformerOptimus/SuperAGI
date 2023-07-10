@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Optional
 from typing import Type
 
 import openai
@@ -9,14 +10,11 @@ from llama_index.vector_stores.types import ExactMatchFilter, MetadataFilters
 from pydantic import BaseModel, Field
 
 from superagi.config.config import get_config
+from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.llama_vector_store_factory import LlamaVectorStoreFactory
-from superagi.resource_manager.resource_manager import ResourceManager
 from superagi.tools.base_tool import BaseTool
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.chromadb import ChromaDB
-from superagi.vector_store.embedding.openai import OpenAiEmbedding
-from typing import Optional
-from superagi.llms.base_llm import BaseLlm
 
 
 class QueryResource(BaseModel):
@@ -42,10 +40,11 @@ class QueryResourceTool(BaseTool):
     llm: Optional[BaseLlm] = None
 
     def _execute(self, query: str):
-        openai.api_key = getattr(self.llm, 'api_key')
-        os.environ["OPENAI_API_KEY"] = getattr(self.llm, 'api_key')
+        openai.api_key = self.llm.get_api_key()
+        os.environ["OPENAI_API_KEY"] = self.llm.get_api_key()
         llm_predictor_chatgpt = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name=self.llm.get_model(),
                                                             openai_api_key=get_config("OPENAI_API_KEY")))
+
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor_chatgpt)
         vector_store_name = VectorStoreType.get_vector_store_type(
             self.get_tool_config(key="RESOURCE_VECTOR_STORE") or "Redis")
