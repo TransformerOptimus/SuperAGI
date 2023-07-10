@@ -8,14 +8,14 @@ from superagi.helper.resource_helper import ResourceHelper
 
 class TwitterHelper:
 
-    def get_media_ids(self, media_files, creds, agent_id):
+    def get_media_ids(self, media_files, creds, agent_id,agent_execution_id):
         media_ids = []
         oauth = OAuth1(creds.api_key,
                     client_secret=creds.api_key_secret,
                     resource_owner_key=creds.oauth_token,
                     resource_owner_secret=creds.oauth_token_secret)
         for file in media_files:
-            file_path = self.get_file_path(file, agent_id)
+            file_path = self.get_file_path(file, agent_id,agent_execution_id)
             image_data = open(file_path, 'rb').read()
             b64_image = base64.b64encode(image_data)
             upload_endpoint = 'https://upload.twitter.com/1.1/media/upload.json'
@@ -27,8 +27,8 @@ class TwitterHelper:
             media_ids.append(str(ids))
         return media_ids
 
-    def get_file_path(self, file_name, agent_id):
-        final_path = ResourceHelper().get_agent_resource_path(file_name, agent_id)
+    def get_file_path(self, file_name, agent_id,agent_execution_id):
+        final_path = ResourceHelper().get_agent_resource_path(file_name, agent_id,agent_execution_id)
         return final_path
     
     def send_tweets(self, params, creds):

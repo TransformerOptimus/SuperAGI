@@ -18,6 +18,7 @@ class SendTweetsTool(BaseTool):
     args_schema: Type[BaseModel] = SendTweetsInput
     description: str = "Send and Schedule Tweets for your Twitter Handle"
     agent_id: int = None
+    agent_execution_id : int = None
 
     def _execute(self, is_media: bool, tweet_text: str = 'None', media_files: list = []):
         toolkit_id = self.toolkit_config.toolkit_id
@@ -25,7 +26,7 @@ class SendTweetsTool(BaseTool):
         creds = TwitterTokens(session).get_twitter_creds(toolkit_id)
         params = {}
         if is_media:
-            media_ids = TwitterHelper().get_media_ids(media_files, creds, self.agent_id)
+            media_ids = TwitterHelper().get_media_ids(media_files, creds, self.agent_id,self.agent_execution_id)
             params["media"] = {"media_ids": media_ids}
         if tweet_text is not None:
             params["text"] = tweet_text

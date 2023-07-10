@@ -31,8 +31,9 @@ class SendEmailAttachmentTool(BaseTool):
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
-    agent_id: int  = None
-    
+    agent_id: int = None
+    agent_execution_id: int = None
+
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
         """
         Execute the send email tool with attachment.
@@ -46,7 +47,7 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             success or failure message
         """
-        final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id)
+        final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id,self.agent_execution_id)
 
         if final_path is None or not os.path.exists(final_path):
             final_path = ResourceHelper.get_root_input_dir() + filename

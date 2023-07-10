@@ -206,7 +206,7 @@ class AgentExecutor:
         if resource_summary is not None:
             tools.append(QueryResourceTool())
 
-        tools = self.set_default_params_tools(tools, parsed_config,parsed_execution_config, agent_execution.agent_id,
+        tools = self.set_default_params_tools(tools, parsed_config, parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
@@ -233,7 +233,6 @@ class AgentExecutor:
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
             session.close()
             return
-
 
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
@@ -285,7 +284,9 @@ class AgentExecutor:
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             if hasattr(tool, 'resource_manager'):
-                tool.resource_manager = FileManager(session=session, agent_id=agent_id)
+                tool.resource_manager = FileManager(session=session, agent_id=agent_id,
+                                                    agent_execution_id=parsed_config[
+                                                        "agent_execution_id"])
             if hasattr(tool, 'tool_response_manager'):
                 tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
                     "agent_execution_id"])
@@ -331,15 +332,15 @@ class AgentExecutor:
     def get_agent_resource_summary(self, agent_id: int, session: Session, model_llm_source: str, default_summary: str):
         if ModelSourceType.GooglePalm.value in model_llm_source:
             return
-        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id,generate_all=True)
+        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id, generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
         resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
         return resource_summary
 
-    def check_for_resource(self,agent_id: int, session: Session):
-        resource = session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').first()
+    def check_for_resource(self, agent_id: int, session: Session):
+        resource = session.query(Resource).filter(Resource.agent_id == agent_id, Resource.channel == 'INPUT').first()
         if resource is None:
             return False
         return True

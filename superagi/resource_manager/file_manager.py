@@ -15,13 +15,14 @@ from superagi.types.vector_store_types import VectorStoreType
 
 
 class FileManager:
-    def __init__(self, session: Session, agent_id: int = None):
+    def __init__(self, session: Session, agent_id: int = None, agent_execution_id: int = None):
         self.session = session
         self.agent_id = agent_id
+        self.agent_execution_id = agent_execution_id
 
     def write_binary_file(self, file_name: str, data):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id, self.agent_execution_id)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
@@ -41,7 +42,9 @@ class FileManager:
     def write_to_s3(self, file_name, final_path):
         with open(final_path, 'rb') as img:
             resource = ResourceHelper.make_written_file_resource(file_name=file_name,
-                                                                 agent_id=self.agent_id, channel="OUTPUT")
+                                                                 agent_id=self.agent_id,
+                                                                 agent_execution_id=self.agent_execution_id,
+                                                                 channel="OUTPUT")
             if resource is not None:
                 self.session.add(resource)
                 self.session.commit()
@@ -52,7 +55,7 @@ class FileManager:
 
     def write_file(self, file_name: str, content):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id, self.agent_execution_id)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
@@ -68,7 +71,7 @@ class FileManager:
 
     def write_csv_file(self, file_name: str, csv_data):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id, self.agent_execution_id)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
@@ -84,5 +87,4 @@ class FileManager:
             return f"Error write_csv_file: {err}"
 
     def get_agent_resource_path(self, file_name: str):
-        return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
-
+        return ResourceHelper.get_agent_resource_path(file_name, self.agent_id, self.agent_execution_id)
