@@ -6,13 +6,6 @@ import styles from './Agents.module.css';
 import styles1 from './react-datetime.css';
 import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile, updateExecution} from "@/pages/api/DashboardService";
 import {
-  createAgent,
-  fetchAgentTemplateConfigLocal,
-  getOrganisationConfig,
-  updateExecution,
-  uploadFile
-} from "@/pages/api/DashboardService";
-import {
   formatBytes,
   openNewTab,
   removeTab,
@@ -448,7 +441,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "max_iterations": maxIterations,
       "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
-      "memory_window": rollingWindow,
       "user_timezone": getUserTimezone(),
     };
 
