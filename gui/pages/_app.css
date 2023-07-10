@@ -888,3 +888,19 @@ tr{
 
 .table_border{border-right: 1px solid rgba(255, 255, 255, 0.08);}
 
+.tools_used{
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.14);
+    display: inline-flex;
+    height: 20px;
+    padding: 3px 8px;
+    align-items: center;
+    gap: 6px;
+    color: #FFF;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 2px;
+}

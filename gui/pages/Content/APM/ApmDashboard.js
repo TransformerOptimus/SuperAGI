@@ -131,7 +131,7 @@ export default function ApmDashboard() {
 
                     <div key="models_by_agents" className="display_column_container">
                         <span className="text_14 mb_8">Models used by Agents</span>
-                        {agentDetails.model_metrics && <BarGraph data={agentDetails.model_metrics} type="value" color="#9E95FF"/>}
+                        {agentDetails.model_metrics && <BarGraph data={agentDetails.model_metrics} type="value" color="#8B6EFF"/>}
                     </div>
 
                     <div key="runs_by_model" className="display_column_container">
@@ -141,7 +141,7 @@ export default function ApmDashboard() {
 
                     <div key="tokens_by_model" className="display_column_container">
                         <span className="text_14 mb_8">Total Tokens consumed by models</span>
-                        {tokenDetails.model_metrics && <BarGraph data={tokenDetails.model_metrics} type="value" color="#83ACFB"/>}
+                        {tokenDetails.model_metrics && <BarGraph data={tokenDetails.model_metrics} type="value" color="#3C7EFF"/>}
                     </div>
 
                     <div key="agent_details" className="display_column_container">
@@ -177,10 +177,17 @@ export default function ApmDashboard() {
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.model_name}</td>
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_tokens}</td>
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed}</td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_tokens/run.runs_completed}</td>
-                                            <td className="table_data text_align_right" style={{width:'20%'}}>{run.tools_used && run.tools_used.map((tool,index) => (
-                                                <div>{tool}</div>
-                                            ))}</td>
+                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
+                                            <td className="table_data text_align_right" style={{width:'20%'}}>
+                                                {run.tools_used &&
+                                                    run.tools_used.slice(0, 2).map((tool,index) => (
+                                                        <div className="tools_used">{tool}</div>
+                                                    ))
+                                                }
+                                                {run.tools_used && run.tools_used.length > 2 &&
+                                                    <div className="tools_used">+{run.tools_used.length - 2}</div>
+                                                }
+                                            </td>
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_calls}</td>
                                         </tr>
                                     ))}
@@ -218,16 +225,16 @@ export default function ApmDashboard() {
                                 </div>}
                             </div>
                         </div>
-                        <BarGraph data={selectedAgentRun} type="tokens_consumed" color="#83ACFB"/>
+                        <BarGraph data={selectedAgentRun} type="tokens_consumed" color="#3C7EFF"/>
                     </div>
 
                     <div key="total_calls_made" className="display_column_container">
                         <span className="text_14 mb_8">Total Calls Made</span>
-                        <BarGraph data={selectedAgentRun} type="calls" color="#83FBAC"/>
+                        <BarGraph data={selectedAgentRun} type="calls" color="#3DFF7F"/>
                     </div>
                     <div key="tokens_consumed_per_call" className="display_column_container">
                         <span className="text_14 mb_8">Tokens consumed per call</span>
-                        <BarGraph data={selectedAgentRun} type="tokens_per_call" color="#83ACFB"/>
+                        <BarGraph data={selectedAgentRun} type="tokens_per_call" color="#3C7EFF"/>
                     </div>
                 </ResponsiveGridLayout>
             </div>

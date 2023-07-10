@@ -14,6 +14,7 @@
     "bootstrap": "^5.2.3",
     "date-fns": "^2.30.0",
     "echarts": "^5.4.2",
+    "echarts-for-react": "^3.0.2",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
     "jszip": "^3.10.1",

@@ -48,12 +48,3 @@ def get_active_runs(Authorize: AuthJWT = Depends(check_auth)):
     except Exception as e:
         logging.error(f"Error while getting active runs: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-#
-# @router.get("/tools/used", status_code=200)
-# def get_tools_used(Authorize: AuthJWT = Depends(check_auth)):
-#     try:
-#         return AnalyticsHelper(session=db.session).calculate_tool_usage()
-#     except Exception as e:
-#         logging.error(f"Error while calculating tool usage: {str(e)}")
-#         raise HTTPException(status_code=500, detail="Internal Server Error")
