@@ -19,7 +19,7 @@ import {
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
+export default function AgentCreate({sendAgentData, knowledge, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -63,6 +63,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
+
+  const [selectedKnowledge, setSelectedKnowledge] = useState('');
+  const knowledgeRef = useRef(null);
+  const [knowledgeDropdown, setKnowledgeDropdown] = useState(false);
 
   const databases = ["Pinecone"]
   const [database, setDatabase] = useState(databases[0]);
@@ -156,6 +160,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setRollingDropdown(false)
       }
 
+      if (knowledgeRef.current && !knowledgeRef.current.contains(event.target)) {
+        setKnowledgeDropdown(false)
+      }
+
       if (databaseRef.current && !databaseRef.current.contains(event.target)) {
         setDatabaseDropdown(false)
       }
@@ -222,6 +230,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setDatabaseDropdown(false);
   };
 
+
+  const handleKnowledgeSelect = (index) => {
+    setLocalStorageValue("agent_knowledge_" + String(internalId), knowledge[index].name, setSelectedKnowledge);
+    setKnowledgeDropdown(false);
+  };
 
   const handleStepChange = (event) => {
     setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
@@ -350,6 +363,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
+    }
+
+    if(toolNames.includes('KnowledgeTool') && !selectedKnowledge) {
+      toast.error("Add atleast one knowledge", {autoClose: 1800});
+      return;
     }
 
     setCreateClickable(false);
@@ -590,6 +608,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     if(agent_files) {
       setInput(JSON.parse(agent_files));
     }
+
+    const agent_knowledge = localStorage.getItem("agent_knowledge_" + String(internalId));
+    if(agent_knowledge) {
+      setSelectedKnowledge(agent_knowledge);
+    }
   }, [internalId])
 
   return (<>
@@ -615,7 +638,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -628,7 +651,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
                 </div>{instructions.length > 1 && <div>
                   <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
-                    <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                    <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                   </button>
                 </div>}
               </div>))}
@@ -659,7 +682,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
                   {toolNames.map((tool, index) => (<div key={index} className="tool_container" style={{margin:'2px'}} onClick={preventDefault}>
                     <div className={styles.tool_text}>{tool}</div>
-                    <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
+                    <div><Image width={12} height={12} src='/images/close.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                   </div>))}
                   <input type="text" className="dropdown_search_text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)} onClick={(e) => e.stopPropagation()}/>
                 </div> : <div style={{color:'#666666'}}>Select Tools</div>}
@@ -741,7 +764,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                             <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
                             <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
                           </div>
-                          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close_light.svg' alt="close-icon" /></div>
+                          <div style={{cursor:'pointer'}} onClick={() => removeFile(index)}><Image width={20} height={20} src='/images/close.svg' alt="close-icon" /></div>
                         </div>
                       </div>
                     ))}
@@ -749,12 +772,32 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 </div>}
               </div>
               <div style={{marginTop: '5px'}}>
+                <label className={styles.form_label}>Add knowledge (optional)</label>
+                <div className="dropdown_container_search" style={{width:'100%'}}>
+                  <div className="custom_select_container" onClick={() => setKnowledgeDropdown(!knowledgeDropdown)} style={selectedKnowledge ? {width:'100%'} : {width:'100%', color:'#888888'}}>
+                    {selectedKnowledge || 'Select knowledge'}<Image width={20} height={21} src={!knowledgeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                  </div>
+                  <div>
+                    {knowledgeDropdown && knowledge.length > 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
+                      {knowledge.map((item, index) => (<div key={index} className="custom_select_option" onClick={() => handleKnowledgeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        {item.name}
+                      </div>))}
+                    </div>}
+                    {knowledgeDropdown && knowledge.length <= 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
+                      <div className="custom_no_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}>
+                        No knowledge found
+                      </div>
+                    </div>}
+                  </div>
+                </div>
+              </div>
+              <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
                 {constraints.map((constraint, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{flex:'1'}}><input className="input_medium" type="text" value={constraint} onChange={(event) => handleConstraintChange(index, event.target.value)}/></div>
                   <div>
                     <button className="secondary_button" style={{marginLeft:'4px',padding:'5px'}} onClick={() => handleConstraintDelete(index)}>
-                      <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                      <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                     </button>
                   </div>
                 </div>))}
