@@ -39,7 +39,7 @@ class Vectordb(DBBaseModel):
 
 
     @classmethod
-    def fetch_marketplace_list(cls, page):
+    def fetch_marketplace_list(cls):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + f"/vectordb/marketplace/list",

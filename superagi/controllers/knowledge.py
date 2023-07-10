@@ -73,12 +73,12 @@ def get_user_knowledge_list(Authorize: AuthJWT = Depends(), organisation = Depen
         user_knowledge["is_marketplace"] = Knowledge.check_if_marketplace(db.session, user_knowledge, marketplace_organisation_id)    
     return user_knowledge_list
 
-@router.get("get/user/list")
-def user_accessible_knowledge_list(organisation_id):
-    knowledge_list = db.session.query(Knowledge).filter(Knowledge.organisation_id == organisation_id)    
+@router.get("/get/user/list")
+def user_accessible_knowledge_list(organisation = Depends(get_user_organisation)):
+    knowledge_list = db.session.query(Knowledge).filter(Knowledge.organisation_id == organisation.id)    
     return knowledge_list
 
-@router.get("marketplace/get/details/{knowledge_id}")
+@router.get("/marketplace/get/details/{knowledge_id}")
 def get_knowledge_details(knowledge_id: int):
     knowledge_data = db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
     knowledge = {
@@ -91,7 +91,7 @@ def get_knowledge_details(knowledge_id: int):
     knowledge_with_config["install_number"] = MarketPlaceStats.get_knowledge_installation_number(db.session, knowledge_id)
     return knowledge_with_config
 
-@router.get("user/get/details/{knowledge_id}")
+@router.get("/user/get/details/{knowledge_id}")
 def get_user_knowledge_details(knowledge_id: int, organisation = Depends(get_user_organisation)):
     marketplace_organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     knowledge_data = db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()

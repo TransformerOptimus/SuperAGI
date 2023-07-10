@@ -79,19 +79,6 @@ class Knowledge(DBBaseModel):
             return response.json()
         else:
             return []
-
-    @classmethod
-    def fetch_marketplace_detail(cls, search_str, knowledge_name):
-        headers = {'Content-Type': 'application/json'}
-        search_str = search_str.replace(' ', '%20')
-        knowledge_name = knowledge_name.replace(' ', '%20')
-        response = requests.get(
-            marketplace_url + f"/knowledge/marketplace/{search_str}/{knowledge_name}",
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return None
         
     @classmethod
     def check_if_marketplace(cls, session, user_knowledge, marketplace_organisation_id):
