@@ -49,7 +49,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue"]
+  const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Action Based"]
   const [agentType, setAgentType] = useState(agentTypes[0]);
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
@@ -239,6 +239,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
+    if (models[index] == "google-palm-bison-001") {
+      setAgentType("Action Based")
+    }
     setModelDropdown(false);
   };
 
