@@ -1,5 +1,5 @@
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Query
+from fastapi import HTTPException, Depends, Query, status
 from fastapi_jwt_auth import AuthJWT
 from fastapi import APIRouter
 from superagi.config.config import get_config
@@ -9,6 +9,7 @@ from superagi.models.knowledge_config import KnowledgeConfig
 from superagi.models.vector_db_index_collection import VectorIndexCollection
 from superagi.models.vector_db import Vectordb
 from superagi.models.marketplace_stats import MarketPlaceStats
+from superagi.llms.openai import OpenAi
 from superagi.helper.auth import get_user_organisation
 
 router = APIRouter()
@@ -87,7 +88,13 @@ def get_user_knowledge_details(knowledge_id: int, organisation = Depends(get_use
 
 @router.post("/add_or_update/data")
 def add_new_user_knowledge(knowledge_data: dict, organisation = Depends(get_user_organisation)):
-    summary = ""
+    try:
+        llm = OpenAi(api_key=get_config("OPENAI_API_KEY"))
+        message = [{"role": "system", "content": "You are a helpful assistant that helps in content writing and summarising the information as precise and short as possible in not more than 100 words."},
+                   {"role": "user", "content": knowledge_data["description"]}]
+        summary = llm.chat_completion(messages=message)
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
     knowledge_data["summary"] = summary
     knowledge_data["organisation_id"] = organisation.id
     knowledge_data["contributed_by"] = organisation.name

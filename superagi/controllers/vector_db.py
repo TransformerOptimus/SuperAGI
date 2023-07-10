@@ -1,5 +1,5 @@
 from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Query
+from fastapi import HTTPException, Depends
 from fastapi import APIRouter
 from superagi.config.config import get_config
 from superagi.models.vector_db import Vectordb
