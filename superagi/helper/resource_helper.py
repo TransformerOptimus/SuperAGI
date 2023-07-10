@@ -8,8 +8,8 @@ from superagi.types.storage_types import StorageType
 
 class ResourceHelper:
 
-    @staticmethod
-    def make_written_file_resource(file_name: str, agent_id: int, channel: str):
+    @classmethod
+    def make_written_file_resource(cls, file_name: str, agent_id: int, channel: str):
         """
         Function to create a Resource object for a written file.
 
@@ -52,8 +52,8 @@ class ResourceHelper:
                             agent_id=agent_id)
         return resource
 
-    @staticmethod
-    def get_resource_path(file_name: str):
+    @classmethod
+    def get_resource_path(cls, file_name: str):
         """Get final path of the resource.
 
         Args:
@@ -61,8 +61,8 @@ class ResourceHelper:
         """
         return ResourceHelper.get_root_output_dir() + file_name
 
-    @staticmethod
-    def get_root_output_dir():
+    @classmethod
+    def get_root_output_dir(cls):
         """Get root dir of the resource.
         """
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
@@ -74,8 +74,8 @@ class ResourceHelper:
             root_dir = os.getcwd() + "/"
         return root_dir
 
-    @staticmethod
-    def get_root_input_dir():
+    @classmethod
+    def get_root_input_dir(cls):
         """Get root dir of the resource.
         """
         root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
@@ -87,8 +87,8 @@ class ResourceHelper:
             root_dir = os.getcwd() + "/"
         return root_dir
 
-    @staticmethod
-    def get_agent_resource_path(file_name: str, agent_id: int):
+    @classmethod
+    def get_agent_resource_path(cls, file_name: str, agent_id: int):
         """Get agent resource path
 
         Args:
