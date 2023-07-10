@@ -10,6 +10,8 @@ from superagi.models.vector_db_index_collection import VectorIndexCollection
 from superagi.models.vector_db import Vectordb
 from superagi.models.marketplace_stats import MarketPlaceStats
 from superagi.llms.openai import OpenAi
+from superagi.helper.pinecone_helper import PineconeHelper
+from superagi.helper.qdrant_helper import QdrantHelper
 from superagi.helper.auth import get_user_organisation
 
 router = APIRouter()
@@ -106,3 +108,24 @@ def delete_knowledge(knowledge_id: int):
     db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).delete()
     db.session.commit()
     return {"success": True}
+
+@router.post("/install/{knowledge_id}/index/{index_id}")
+def install_selected_knowledge(knowledge_id: int, index_id: int, organisation = Depends(get_user_organisation)):
+    selected_knoweldge = Knowledge.get_knowledge_from_id(db.session, knowledge_id)
+    knowledge_data = {
+        "name": selected_knoweldge.name,
+        "description": selected_knoweldge.description,
+        "summary": selected_knoweldge.summary,
+        "readme": selected_knoweldge.readme,
+        "index_id": index_id,
+        "organisation_id": organisation.id,
+        "contributed_by": selected_knoweldge.contributed_by
+    }
+    new_knowledge = Knowledge.add_update_knowledge(db.session, knowledge_data)
+    selected_knowledge_config = KnowledgeConfig.get_knowledge_config(db.session, knowledge_id, {})
+    KnowledgeConfig.add_knowledge_config(db.session, new_knowledge.id, selected_knowledge_config)
+    index = db.session.query(VectorIndexCollection).filter(VectorIndexCollection.id == index_id).first()
+    if index.db_type == "PINECONE":
+        PineconeHelper(db.session).install_pinecone_knowledge(index)
+    elif index.db_type == "QDRANT":
+        QdrantHelper(db.session).install_qdrant_knowledge(index)

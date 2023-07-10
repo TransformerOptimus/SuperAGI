@@ -32,17 +32,17 @@ class VectorIndexConfig(DBBaseModel):
         return f"VectorIndexConfiguration(id={self.id}, knowledge_id={self.vector_index_id}, key={self.key}, value={self.value})"
     
     @classmethod
-    def add_vector_index_config(session, vector_index_id, key, value):
+    def add_vector_index_config(cls, session, vector_index_id, key, value):
         index_config = VectorIndexConfig(vector_index_id=vector_index_id, key=key, value=value)
         session.add(index_config)
         session.commit()
 
     @classmethod
-    def delete_vector_index_config(session, vector_index_id):
+    def delete_vector_index_config(cls, session, vector_index_id):
         session.query(VectorIndexConfig).filter(VectorIndexConfig.vector_index_id == vector_index_id).delete()
         session.commit()
     
     @classmethod
-    def get_index_state(session, vector_index_id):
+    def get_index_state(cls, session, vector_index_id):
         index_config = session.query(VectorIndexConfig).filter(vector_index_id == vector_index_id, VectorIndexConfig.key == "INDEX_STATE").first()
         return index_config.value

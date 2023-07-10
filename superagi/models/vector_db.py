@@ -44,14 +44,14 @@ class Vectordb(DBBaseModel):
         return vector_dbs
     
     @classmethod
-    def add_database(session, name, db_type, organisation):
+    def add_database(cls, session, name, db_type, organisation):
         vector_db = Vectordb(name=name, db_type=db_type, organisation_id=organisation.id)
         session.add(vector_db)
         session.commit()
         return vector_db
     
     @classmethod
-    def get_vector_db_organisation(session, organisation):
+    def get_vector_db_organisation(cls, session, organisation):
         vector_db = session.query(Vectordb).filter(Vectordb.organisation_id == organisation.id).all()
         vector_db_list = []
         for vector in vector_db:
@@ -64,11 +64,11 @@ class Vectordb(DBBaseModel):
         return vector_db_list
     
     @classmethod
-    def delete_vector_db(session, vector_db_id):
+    def delete_vector_db(cls, session, vector_db_id):
         session.query(Vectordb).filter(Vectordb.id == vector_db_id).delete()
         session.commit()
     
     @classmethod
-    def get_vector_db_from_id(session, id):
+    def get_vector_db_from_id(cls, session, id):
         vector_db = session.query(Vectordb).filter(Vectordb.id == id).first()
         return vector_db

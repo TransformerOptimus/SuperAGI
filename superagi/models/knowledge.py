@@ -101,8 +101,8 @@ class Knowledge(DBBaseModel):
             return False
         
     @classmethod
-    def add_update_knowledge(session,knowledge_data):
-        knowledge = session.query(Knowledge).filter(Knowledge.id == knowledge_data["id"],Knowledge.organisation_id == knowledge_data["organisation_id"])
+    def add_update_knowledge(cls, session, knowledge_data):
+        knowledge = session.query(Knowledge).filter(Knowledge.name == knowledge_data["name"],Knowledge.organisation_id == knowledge_data["organisation_id"])
         if knowledge:
             knowledge.name = knowledge_data["name"]
             knowledge.description = knowledge_data["description"]
@@ -112,4 +112,9 @@ class Knowledge(DBBaseModel):
             knowledge = Knowledge(name=knowledge_data["name"], description=knowledge_data["description"], summary = knowledge_data["summary"], readme=None, index_id = knowledge_data["index_id"], organisation_id = knowledge_data["organisation_id"], contributed_by= knowledge_data["contibuted_by"])
             session.add(knowledge)
         session.commit()
+        return knowledge
     
+    @classmethod
+    def get_knowledge_from_id(cls, session, knowledge_id):
+        knowledge = session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
+        return knowledge

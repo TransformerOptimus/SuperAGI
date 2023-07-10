@@ -32,9 +32,16 @@ class KnowledgeConfig(DBBaseModel):
         return f"KnowledgeConfiguration(id={self.id}, knowledge_id={self.knowledge_id}, key={self.key}, value={self.value})"
     
     @classmethod
-    def get_knowledge_config(session, knowledge_id: int, knowledge):
+    def get_knowledge_config(cls, session, knowledge_id: int, knowledge):
         knowledge_configs = session.query(KnowledgeConfig).filter_by(KnowledgeConfig.knowledge_id == knowledge_id).all()
         for config in knowledge_configs:
             knowledge[config.key] = config.value
 
         return knowledge
+    
+    @classmethod
+    def add_knowledge_config(cls, session, knowledge_id, knowledge_config):
+        for key in knowledge_config.keys():
+            config = KnowledgeConfig(knowledge_id, key, knowledge_config[key])
+            session.add(config)
+            session.commit()
