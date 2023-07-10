@@ -42,7 +42,7 @@ class Vectordb(DBBaseModel):
     def fetch_marketplace_list(cls, page):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
-            marketplace_url + f"/vectordb/marketplace/list/{str(page)}",
+            marketplace_url + f"/vectordb/marketplace/list",
             headers=headers, timeout=10)
         if response.status_code == 200:
             return response.json()

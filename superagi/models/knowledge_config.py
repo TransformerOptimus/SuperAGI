@@ -37,4 +37,4 @@ class KnowledgeConfig(DBBaseModel):
         for config in knowledge_configs:
             knowledge[config.key] = config.value
 
-        return knowledge_configs
+        return knowledge

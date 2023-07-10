@@ -1,37 +1,20 @@
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Query
 from fastapi_jwt_auth import AuthJWT
-from superagi.models.agent import Agent
-from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.project import Project
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
-from superagi.models.agent_workflow import AgentWorkflow
 from superagi.config.config import get_config
-from superagi.models.types.agent_with_config import AgentWithConfig
-from superagi.models.agent_config import AgentConfiguration
-from superagi.models.agent_execution import AgentExecution
-from superagi.models.agent_execution_feed import AgentExecutionFeed
-from superagi.models.tool import Tool
-from jsonmerge import merge
-from superagi.worker import execute_agent
-from datetime import datetime
-import json
-from sqlalchemy import func
 from superagi.helper.auth import get_user_organisation
 from superagi.models.knowledge import Knowledge
 from superagi.models.knowledge_config import KnowledgeConfig
 from superagi.models.marketplace_stats import MarketPlaceStats
-from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.helper.auth import get_user_organisation
 
 router = APIRouter()
 
 
-@router.get("/get/list")
+@router.get("/get/list/{page}")
 def handle_marketplace_operations_list(
-        page: int = Query(None, title="Page Number"),
+        page: int,
         organisation = Depends(get_user_organisation)
 ):
     """
@@ -124,7 +107,7 @@ def get_user_knowledge_details(knowledge_id: int, organisation = Depends(get_use
     knowledge_with_config = KnowledgeConfig.get_knowledge_config(db.session, knowledge_id, knowledge)
     return knowledge_with_config
 
-@router.post("/add_or_update/data/{knowledge_data}")
+@router.post("/add_or_update/data")
 def add_new_user_knowledge(knowledge_data: dict, organisation = Depends(get_user_organisation)):
     summary = ""
     knowledge_data["summary"] = summary
