@@ -13,8 +13,7 @@ from superagi.helper.auth import get_user_organisation
 router = APIRouter()
 
 @router.get("/get/list")
-def handle_marketplace_operations_list(
-        page: int):
+def handle_marketplace_operations_list():
     """
     Handle marketplace operation list.
 
