@@ -65,7 +65,7 @@ def test_get_super_agi_single_prompt():
     prompt_mock = "Mocked prompt with {response_format}"
     with patch('superagi.helper.prompt_reader.PromptReader.read_agent_prompt', return_value=prompt_mock):
         # Act
-        result = AgentPromptBuilder.get_super_agi_single_prompt()
+        result = AgentPromptBuilder.get_super_agi_think_prompt()
 
         # Assert
         expected_response_format = {

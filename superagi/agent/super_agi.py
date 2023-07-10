@@ -19,6 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
 from superagi.agent.task_queue import TaskQueue
+from superagi.helper.json_cleaner import JsonCleaner
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
 from superagi.models.agent_config import AgentConfiguration
@@ -125,9 +126,9 @@ class SuperAgi:
         messages = []
         max_token_limit = 600
         # adding history to the messages
-        has_tools = "{tools}" in workflow_step.prompt
+        has_tools_output = workflow_step.output_type == "tools"
         functions_token_limit = 0
-        if has_tools and self.llm.support_functions_response():
+        if has_tools_output and self.llm.support_functions_response():
             functions_token_limit = self.count_tools_tokens(self.tools)
 
         print("functions_token_limit::" + str(functions_token_limit))
@@ -151,8 +152,8 @@ class SuperAgi:
             # agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
-
-        logger.info(messages)
+        print(prompt)
+        # logger.info(messages)
         if len(agent_feeds) <= 0:
             logger.info(prompt)
             for message in messages:
@@ -164,7 +165,7 @@ class SuperAgi:
                 session.commit()
 
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model()) + functions_token_limit
-        if has_tools and self.llm.support_functions_response():
+        if has_tools_output and self.llm.support_functions_response():
             functions_response = self.build_func_response(self.tools)
             response = self.llm.chat_completion(messages=messages, functions=functions_response,
                                                 max_tokens=token_limit - current_tokens)
@@ -175,7 +176,7 @@ class SuperAgi:
         self.update_agent_execution_tokens(current_calls, total_tokens)
         print(response)
         has_function_response = False
-        if 'function_call' in response:
+        if 'function_call' in response and response['function_call'] is not None:
             assistant_reply = response['function_call']
             has_function_response = self.llm.support_functions_response()
         else:
@@ -187,16 +188,16 @@ class SuperAgi:
         final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
             # check if permission is required for the tool in restricted mode
-            is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
-            if is_permission_required:
-                return response
+            # is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
+            # if is_permission_required:
+            #     return response
             if has_function_response:
-                tool_response = self.handle_tool_function_response(assistant_reply, has_function_response)
+                tool_response = self.handle_tool_function_response(assistant_reply)
             else:
                 tool_response = self.handle_tool_response(assistant_reply, has_function_response)
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      agent_id=self.agent_config["agent_id"], feed=str(assistant_reply),
                                                       role="assistant")
             session.add(agent_execution_feed)
             tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -217,6 +218,20 @@ class SuperAgi:
                 logger.info("Tasks reprioritized in order: " + str(tasks))
             current_tasks = task_queue.get_tasks()
             if len(current_tasks) == 0:
+                final_response = {"result": "COMPLETE", "pending_task_count": 0}
+            else:
+                final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
+        elif workflow_step.output_type == "json_tasks":
+            assistant_reply = JsonCleaner.check_and_clean_json(assistant_reply)
+            task_response = eval(assistant_reply)
+            task_queue.add_task(task_response["thoughts"]["reasoning"])
+            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+                                                      agent_id=self.agent_config["agent_id"],
+                                                      feed=str(task_response),
+                                                      role="system")
+            session.add(agent_execution_feed)
+            current_tasks = task_queue.get_tasks()
+            if str(task_response["thoughts"]["is_finished"]).upper() == "YES":
                 final_response = {"result": "COMPLETE", "pending_task_count": 0}
             else:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
@@ -258,11 +273,8 @@ class SuperAgi:
     def count_tools_tokens(self, tools: List[BaseTool]):
         return 500
 
-    def transform_function_response(self, response):
-        response["name"]
-        return response
 
-    def handle_tool_response(self, assistant_reply):
+    def handle_tool_response(self, assistant_reply, has_function_response):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         action_name = action.name.lower().replace(" ", "")
@@ -305,6 +317,7 @@ class SuperAgi:
     def handle_tool_function_response(self, functions_reply):
         action_name = functions_reply['name'] or ""
         arguments = functions_reply["arguments"] or "{}"
+        arguments = JsonCleaner.check_and_clean_json(arguments)
         arguments = json5.loads(arguments)
         print("Function arguments:")
         print(arguments)
@@ -406,3 +419,4 @@ class SuperAgi:
             session.commit()
             return True, {"result": "WAITING_FOR_PERMISSION", "permission_id": new_agent_execution_permission.id}
         return False, None
+    

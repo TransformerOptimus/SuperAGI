@@ -59,23 +59,15 @@ class AgentPromptBuilder:
     
 
     @classmethod
-    def get_super_agi_single_prompt(cls):
-        response_format = {
-            "thoughts": {
-                "text": "thought",
-                "reasoning": "short reasoning",
-                "plan": "- short bulleted\n- list that conveys\n- long-term plan",
-                "criticism": "constructive self-criticism",
-                "speak": "thoughts summary to say to user",
-            },
-            "tool": {"name": "tool name/task name", "args": {"arg name": "arg value(escape in case of string)"}}
-        }
-        formatted_response_format = json.dumps(response_format, indent=4)
-
+    def get_super_agi_think_prompt(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "superagi.txt")
 
-        super_agi_prompt = AgentPromptBuilder.clean_prompt(super_agi_prompt).replace("{response_format}",
-                                                                                     formatted_response_format)
+        return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "constraints", "tools"]}
+
+    @classmethod
+    def get_super_agi_execute_prompt(cls):
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "superagi_execute.txt")
+
         return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "constraints", "tools"]}
 
     @classmethod
@@ -111,7 +103,7 @@ class AgentPromptBuilder:
 
     @classmethod
     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
-                               tools: List[BaseTool], add_finish_tool: bool = True, support_functions_response: bool = False):
+                               tools: List[BaseTool], add_finish_tool: bool = True, replace_functions_response: bool = False):
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
             task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
@@ -126,10 +118,7 @@ class AgentPromptBuilder:
 
         # logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
-        if support_functions_response:
-            super_agi_prompt = super_agi_prompt.replace("{tools}", "")
-        else:
-            super_agi_prompt = super_agi_prompt.replace("{tools}", "TOOLS:\n" + tools_string)
+        super_agi_prompt = super_agi_prompt.replace("{tools}", "TOOLS:\n" + tools_string)
         return super_agi_prompt
 
     @classmethod

@@ -166,23 +166,41 @@ async def startup_event():
         # step will have a prompt
         # output of step is either tasks or set commands
         first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
-        output = AgentPromptBuilder.get_super_agi_single_prompt()
+        output = AgentPromptBuilder.get_super_agi_think_prompt()
         if first_step is None:
             first_step = AgentWorkflowStep(unique_id="gb1",
                                            prompt=output["prompt"], variables=str(output["variables"]),
-                                           agent_workflow_id=agent_workflow.id, output_type="tools",
+                                           agent_workflow_id=agent_workflow.id, output_type="json_tasks",
                                            step_type="TRIGGER",
                                            history_enabled=True,
-                                           completion_prompt="Determine which next tool to use, and respond using the format specified above:")
+                                           completion_prompt="Determine the next task to be executed and respond using the format specified above:")
             session.add(first_step)
             session.commit()
         else:
             first_step.prompt = output["prompt"]
             first_step.variables = str(output["variables"])
-            first_step.output_type = "tools"
-            first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
+            first_step.output_type = "json_tasks"
+            first_step.completion_prompt = "Determine the next task to be executed and respond using the format specified above:"
             session.commit()
-        first_step.next_step_id = first_step.id
+
+
+        workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb2").first()
+        output = AgentPromptBuilder.get_super_agi_execute_prompt()
+        if workflow_step2 is None:
+            workflow_step2 = AgentWorkflowStep(unique_id="gb2",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="NORMAL",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tools")
+            session.add(workflow_step2)
+        else:
+            workflow_step2.prompt = output["prompt"]
+            workflow_step2.variables = str(output["variables"])
+            workflow_step2.output_type = "tools"
+            session.commit()
+        session.commit()
+        first_step.next_step_id = workflow_step2.id
+        workflow_step2.next_step_id = first_step.id
         session.commit()
 
     def build_task_based_agents():
