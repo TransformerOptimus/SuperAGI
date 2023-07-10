@@ -12,10 +12,9 @@ from pytz import timezone
 
 client = TestClient(app)
 
-
 @pytest.fixture
 def mock_patch_schedule_input():
-    return {
+    return{
         "agent_id": 1,
         "start_time": "2023-02-02 01:00:00",
         "recurrence_interval": "2 Hours",
@@ -23,17 +22,14 @@ def mock_patch_schedule_input():
         "expiry_runs": -1
     }
 
-
 @pytest.fixture
 def mock_schedule():
     # Mock schedule data for testing
     return AgentSchedule(id=1, agent_id=1, status="SCHEDULED")
 
-
 @pytest.fixture
 def mock_agent_config():
     return AgentConfiguration(key="user_timezone", agent_id=1, value='GMT')
-
 
 @pytest.fixture
 def mock_schedule_get():
@@ -41,16 +37,13 @@ def mock_schedule_get():
         id=1,
         agent_id=1,
         status="SCHEDULED",
-        start_time=datetime(2022, 1, 1, 10, 30),
+        start_time= datetime(2022, 1, 1, 10, 30),
         recurrence_interval="5 Minutes",
         expiry_date=datetime(2022, 1, 1, 10, 30) + timedelta(days=10),
         expiry_runs=5
     )
 
-
 '''Test for Stopping Agent Scheduling'''
-
-
 def test_stop_schedule_success(mock_schedule):
     with patch('superagi.controllers.agent.db') as mock_db:
         # Set up the database query result
@@ -80,8 +73,6 @@ def test_stop_schedule_not_found():
 
 
 '''Test for editing agent schedule'''
-
-
 def test_edit_schedule_success(mock_schedule, mock_patch_schedule_input):
     with patch('superagi.controllers.agent.db') as mock_db:
         # Set up the database query result
@@ -114,14 +105,10 @@ def test_edit_schedule_not_found(mock_patch_schedule_input):
         assert response.status_code == 404
         assert response.json() == {"detail": "Schedule not found"}
 
-
 '''Test for getting agent schedule'''
-
-
 def test_get_schedule_data_success(mock_schedule_get, mock_agent_config):
     with patch('superagi.controllers.agent.db') as mock_db:
-        mock_db.session.query.return_value.filter.return_value.first.side_effect = [mock_schedule_get,
-                                                                                    mock_agent_config]
+        mock_db.session.query.return_value.filter.return_value.first.side_effect = [mock_schedule_get, mock_agent_config]
         response = client.get("agents/get/schedule_data/1")
         assert response.status_code == 200
 
@@ -185,7 +172,6 @@ def mock_agent_config_schedule():
         }
     }
 
-
 @pytest.fixture
 def mock_agent():
     agent = Agent(id=1, name="SmartAGI", project_id=1)
@@ -193,17 +179,19 @@ def mock_agent():
 
 
 def test_create_and_schedule_agent_success(mock_agent_config_schedule, mock_agent, mock_schedule):
-    with patch('superagi.models.agent.Agent') as AgentMock, \
-            patch('superagi.controllers.agent.Project') as ProjectMock, \
-            patch('superagi.controllers.agent.Tool') as ToolMock, \
-            patch('superagi.controllers.agent.Toolkit') as ToolkitMock, \
-            patch('superagi.controllers.agent.AgentSchedule') as AgentScheduleMock, \
-            patch('superagi.controllers.agent.db') as db_mock:
+
+    with patch('superagi.models.agent.Agent') as AgentMock,\
+         patch('superagi.controllers.agent.Project') as ProjectMock,\
+         patch('superagi.controllers.agent.Tool') as ToolMock,\
+         patch('superagi.controllers.agent.Toolkit') as ToolkitMock,\
+         patch('superagi.controllers.agent.AgentSchedule') as AgentScheduleMock,\
+         patch('superagi.controllers.agent.db') as db_mock:
+
         project_mock = Mock()
         ProjectMock.get.return_value = project_mock
 
         # AgentMock.create_agent_with_config.return_value = mock_agent
-        AgentMock.return_value = mock_agent
+        AgentMock.return_value =  mock_agent
 
         tool_mock = Mock()
         ToolMock.get_invalid_tools.return_value = []
