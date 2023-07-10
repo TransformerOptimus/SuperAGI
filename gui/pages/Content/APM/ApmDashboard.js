@@ -26,18 +26,19 @@ export default function ApmDashboard() {
     const [toolsUsed, setToolsUsed] = useState([]);
     const [averageRunTime, setAverageRunTime] = useState('');
     const initialLayout = [
-        {i: 'a', x: 0, y: 0, w: 4, h: 1.5},
-        {i: 'b', x: 4, y: 0, w: 4, h: 1.5},
-        {i: 'c', x: 8, y: 0, w: 4, h: 1.5},
-        {i: 'd', x: 0, y: 1, w: 8, h: 4.5},
-        {i: 'e', x: 8, y: 1, w: 4, h: 1.5},
-        {i: 'f', x: 8, y: 2, w: 4, h: 1.5},
-        {i: 'g', x: 8, y: 3, w: 4, h: 1.5},
-        {i: 'h', x: 0, y: 4, w: 5, h: 2},
-        {i: 'i', x: 5, y: 4, w: 5, h: 2},
-        {i: 'j', x: 0, y: 5, w: 5, h: 2},
-        {i: 'k', x: 5, y: 5, w: 5, h: 2},
-        {i: 'l', x: 10, y: 4, w:2, h: 4}
+        {i: 'total_tokens', x: 0, y: 0, w: 4, h: 1.5},
+        {i: 'total_runs', x: 4, y: 0, w: 4, h: 1.5},
+        {i: 'total_calls', x: 8, y: 0, w: 4, h: 1.5},
+        {i: 'agent_details', x: 0, y: 1, w: 8, h: 4.5},
+        {i: 'total_agents', x: 8, y: 1, w: 4, h: 1.5},
+        {i: 'average_tokens', x: 8, y: 2, w: 4, h: 1.5},
+        {i: 'average_calls', x: 8, y: 3, w: 4, h: 1.5},
+        {i: 'active_agents', x: 0, y: 4, w: 5, h: 2},
+        {i: 'used_tools', x: 5, y: 4, w: 5, h: 2},
+        {i: 'calls_per_run', x: 0, y: 5, w: 5, h: 2},
+        {i: 'tokens_per_run', x: 5, y: 5, w: 5, h: 2},
+        {i: 'active_runs', x: 10, y: 4, w: 2, h: 4},
+        {i: 'models_used', x: 0, y: 6, w: 8, h: 3},
     ];
     const storedLayout = localStorage.getItem('myLayoutKey');
     const [layout, setLayout] = useState(storedLayout !== null ? JSON.parse(storedLayout) : initialLayout);
@@ -51,6 +52,63 @@ export default function ApmDashboard() {
         localStorage.setItem('myLayoutKey',JSON.stringify(initialLayout))
         setLayout(initialLayout)
     }
+
+    const optionsGenerator = (allModels) => ({
+        yAxis: {
+            type: 'category',
+            data: allModels.map(item => item.model),
+            axisLine: { show: false },
+            axisLabel: {
+                show: true,
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#FFF',
+            },
+        },
+        xAxis: { type: 'value', show: false },
+        series: [{
+            data: allModels.map(item => item.agents),
+            type: 'bar',
+            barWidth: 50,
+            label: {
+                show: true,
+                position: 'right',
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#FFF',
+                formatter: (params) => params.data
+            },
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#7491EA' }, { offset: 1, color: '#9865D9' }], false),
+            },
+            emphasis: {
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#7491EA' }, { offset: 1, color: '#9865D9' }], false),
+                    shadowBlur: 20,
+                    shadowColor: 'rgba(0, 0, 0, 0.1)'
+                }
+            },
+            animationEasing: 'elasticOut',
+            animationDelayUpdate: (idx) => idx * 5
+        }],
+        grid: {
+            show: false,
+            height: allModels.length * 60
+        },
+        tooltip: {
+            show: true,
+            trigger: 'axis',
+            axisPointer: { type: 'line' },
+            formatter: (params) =>  `${params[0].name}: ${params[0].value}`
+        },
+    });
+
+    useEffect(() => {
+        const chartDom = document.getElementById('barChart');
+        const myChart = echarts.init(chartDom);
+        const options = optionsGenerator(allModels);
+        if(options) myChart.setOption(options);
+    }, [allModels]);
 
     useEffect(() => {
         if (!firstUpdate.current) {
@@ -110,27 +168,29 @@ export default function ApmDashboard() {
     return (
         <div className={style.apm_dashboard_container}>
             <div id="apm_dashboard" className={style.apm_dashboard}>
-                <span className="text_14 mt_10 ml_6">Agent Performance Monitoring</span>
-                <button onClick={() => onClickLayoutChange()} className="primary_button">Click</button>
+                <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%',alignItems:'center',padding:'0 8px'}}>
+                    <span className="text_14 mt_10 ml_6">Agent Performance Monitoring</span>
+                    <button onClick={() => onClickLayoutChange()} className="primary_button">Reset</button>
+                </div>
                 <ResponsiveGridLayout
                     className="layout"
                     layouts={{lg: layout}}
                     onLayoutChange={onLayoutChange}
                     breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
                     cols={{lg: 12, md: 12, sm: 12, xs: 12, xxs: 12}}>
-                    <div key="a" className="display_column_container">
+                    <div key="total_tokens" className="display_column_container">
                         <span className="text_14 mb_8">Total tokens consumed</span>
-                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalTokens)}</div>
+                        <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(totalTokens)}</div>
                     </div>
-                    <div key="b" className="display_column_container">
+                    <div key="total_runs" className="display_column_container">
                         <span className="text_14 mb_8">Total runs</span>
-                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalRuns)}</div>
+                        <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(totalRuns)}</div>
                     </div>
-                    <div key="c" className="display_column_container">
+                    <div key="total_calls" className="display_column_container">
                         <span className="text_14 mb_8">Total calls</span>
-                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalCalls)}</div>
+                        <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(totalCalls)}</div>
                     </div>
-                    <div key="d" className="display_column_container">
+                    <div key="agent_details" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
                             <span className="text_14 mb_8">Agent & Run details</span>
                             <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
@@ -179,19 +239,19 @@ export default function ApmDashboard() {
                                 </table>
                             </div>}
                     </div>
-                    <div key="e" className="display_column_container">
+                    <div key="total_agents" className="display_column_container">
                         <span className="text_14 mb_8">Number of Agents</span>
-                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{formatNumber(totalAgents)}</div>
+                        <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(totalAgents)}</div>
                     </div>
-                    <div key="f" className="display_column_container">
+                    <div key="average_tokens" className="display_column_container">
                         <span className="text_14 mb_8">Average tokens consumed per run</span>
-                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalTokens/totalRuns):'-'}</div>
+                        <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{totalRuns?formatNumber(totalTokens/totalRuns):'-'}</div>
                     </div>
-                    <div key="g" className="display_column_container">
+                    <div key="average_calls" className="display_column_container">
                         <span className="text_14 mb_8">Average calls made per run</span>
-                        <div className="text_60_bold display_flex justify_center w_100 mb_24 mt_24">{totalRuns?formatNumber(totalCalls/totalRuns):'-'}</div>
+                        <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{totalRuns?formatNumber(totalCalls/totalRuns):'-'}</div>
                     </div>
-                    <div key="h" className="display_column_container">
+                    <div key="active_agents" className="display_column_container">
                         <span className="text_14 mb_8">Most active agents</span>
                         {allAgents.length === 0 ?
                             <div className="vertical_container align_center mt_70 w_100">
@@ -222,7 +282,7 @@ export default function ApmDashboard() {
                                 </table>
                             </div>}
                     </div>
-                    <div key="i" className="display_column_container">
+                    <div key="used_tools" className="display_column_container">
                         <span className="text_14 mb_8">Most used tools</span>
                         {toolsUsed.length === 0 ?
                             <div className="vertical_container align_center mt_70 w_100">
@@ -249,7 +309,7 @@ export default function ApmDashboard() {
                                 </table>
                             </div>}
                     </div>
-                    <div key="j" className="display_column_container">
+                    <div key="calls_per_run" className="display_column_container">
                         <span className="text_14 mb_8">Calls per run</span>
                         {allAgents.length === 0 ?
                             <div className="vertical_container align_center mt_70 w_100">
@@ -274,7 +334,7 @@ export default function ApmDashboard() {
                                 </table>
                             </div>}
                     </div>
-                    <div key="k" className="display_column_container">
+                    <div key="tokens_per_run" className="display_column_container">
                         <span className="text_14 mb_8">Tokens per run</span>
                         {allAgents.length === 0 ?
                             <div className="vertical_container align_center mt_70 w_100">
@@ -299,7 +359,7 @@ export default function ApmDashboard() {
                                 </table>
                             </div>}
                     </div>
-                    <div key="l" className="display_column_container">
+                    <div key="active_runs" className="display_column_container">
                         <span className="text_14 mb_8">Active Runs</span>
                         <div className="scrollable_container gap_8">
                             {activeRuns.length === 0 ?
@@ -313,6 +373,10 @@ export default function ApmDashboard() {
                                     </div>
                                 ))}
                         </div>
+                    </div>
+                    <div key="models_used" className="display_column_container">
+                        <span className="text_14 mb_8">Models used by agents</span>
+                        <div id="barChart" style={{width: "50vw", height: 300}}></div>
                     </div>
                 </ResponsiveGridLayout>
             </div>
