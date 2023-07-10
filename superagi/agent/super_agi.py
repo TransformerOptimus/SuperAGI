@@ -46,7 +46,6 @@ S3 = "S3"
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
-session = Session()
 
 
 class SuperAgi:
