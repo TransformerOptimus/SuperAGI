@@ -47,6 +47,7 @@ def analytics_helper(mock_session):
         assert analytics_helper.calculate_run_completed_metrics() == {'total_tokens': 100, 'total_calls': 20, 'runs_completed': 10}
 
     def test_fetch_agent_data(self, mock_session, analytics_helper):
+        # Setup test data
         agent = MagicMock()
         agent.configure_mock(**{
             'agent_name': 'Agent1',
@@ -61,7 +62,31 @@ def analytics_helper(mock_session):
             'agents': 1
         })
 
+        # Mock SQL queries
         mock_session.query().all.return_value = [[agent], [model]]
+        mock_session.query().outerjoin().all.return_value = [agent]
+        mock_session.query().group_by().all.return_value = [model]
+
+        # Call function
+        result = analytics_helper.fetch_agent_data()
+
+        # Assert correct agent data received
+        assert result['agent_details'][0]['name'] == 'Agent1'
+        assert result['agent_details'][0]['agent_id'] == 1
+        assert result['agent_details'][0]['runs_completed'] == 5
+        assert result['agent_details'][0]['total_calls'] == 10
+        assert result['agent_details'][0]['total_tokens'] == 50
+
+        # Assert correct model data received
+        assert result['model_info'][0]['model'] == 'Model1'
+        assert result['model_info'][0]['agents'] == 1
+
+        # Assert correct handling of null result
+        agent.configure_mock(**{'runs_completed': None, 'total_calls': None, 'total_tokens': None})
+        result = analytics_helper.fetch_agent_data()
+        assert result['agent_details'][0]['runs_completed'] == 0
+        assert result['agent_details'][0]['total_calls'] == 0
+        assert result['agent_details'][0]['total_tokens'] == 0
 
         assert analytics_helper.fetch_agent_data() == {
             'agent_details': [{
