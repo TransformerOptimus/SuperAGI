@@ -138,6 +138,12 @@ class Agent(DBBaseModel):
             agent_workflow = db.session.query(AgentWorkflow).filter(
                 AgentWorkflow.name == "Task Queue Agent With Seed").first()
             db_agent.agent_workflow_id = agent_workflow.id
+        elif agent_with_config.agent_type == "Action Based":
+            agent_workflow = db.session.query(AgentWorkflow).filter(
+                AgentWorkflow.name == "Action Based").first()
+            db_agent.agent_workflow_id = agent_workflow.id
+
+
         db.session.commit()
 
         # Create Agent Configuration
@@ -152,7 +158,6 @@ class Agent(DBBaseModel):
             "model": agent_with_config.model,
             "permission_type": agent_with_config.permission_type,
             "LTM_DB": agent_with_config.LTM_DB,
-            "memory_window": agent_with_config.memory_window,
             "max_iterations": agent_with_config.max_iterations,
             "user_timezone": agent_with_config.user_timezone
         }

@@ -28,15 +28,16 @@ class ResourceSummarizer:
         agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
         organization = agent.get_agent_organisation(self.session)
         model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
+        model_source = Configuration.fetch_configuration(self.session, organization.id, "model_source")
         try:
-            ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key)
+            ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key, model_source)
         except Exception as e:
-            logger.error(e)
+            logger.error("add_to_vector_store_and_create_summary: Unable to save document to vector store.", e)
         summary = None
         try:
             summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents)
         except Exception as e:
-            logger.error(e)
+            logger.error("add_to_vector_store_and_create_summary - Unable to generate summary of document.", e)
         resource = self.session.query(Resource).filter(Resource.id == resource_id).first()
         resource.summary = summary
         self.session.commit()
@@ -53,6 +54,7 @@ class ResourceSummarizer:
         agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
         organization = agent.get_agent_organisation(self.session)
         model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
+        model_source = Configuration.fetch_configuration(self.session, organization.id, "model_source")
 
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
 
@@ -65,7 +67,7 @@ class ResourceSummarizer:
                     documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
                 else:
                     documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
-                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents))
+                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key, model_source=model_source).generate_summary_of_document(documents))
 
         agent_last_resource = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
