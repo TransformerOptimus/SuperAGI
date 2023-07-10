@@ -48,13 +48,15 @@ class AgentOutputParser(BaseOutputParser):
                 logger.info(format_prefix_yellow + "Reasoning: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
 
             if "plan" in parsed["thoughts"]:
-                logger.info(format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "\n")
+                logger.info(format_prefix_yellow + "Plan: " + format_suffix_yellow + str(parsed["thoughts"]["plan"]) + "\n")
 
             if "criticism" in parsed["thoughts"]:
                 logger.info(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
 
             logger.info(format_prefix_green + "Action : " + format_suffix_green)
             # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["tool"]["args"] + "\n")
+            if "tool" not in parsed:
+                raise Exception("No tool found in the response..")
             if parsed["tool"] is None or not parsed["tool"]:
                 return AgentGPTAction(name="", args="")
             if "name" in parsed["tool"]:
@@ -66,10 +68,11 @@ class AgentOutputParser(BaseOutputParser):
                 name=parsed["tool"]["name"],
                 args=args,
             )
-        except (KeyError, TypeError):
+        except (KeyError, TypeError) as e:
+            logger.error(f"Error parsing output:", e)
             # If the tool is null or incomplete, return an erroneous tool
             return AgentGPTAction(
-                name="ERROR", args={"error": f"Incomplete tool args: {parsed}"}
+                name="ERROR", args={"error": f"Unable to parse the output: {parsed}"}
             )
 
     def parse_tasks(self, text: str) -> AgentTasks:
@@ -93,5 +96,3 @@ class AgentOutputParser(BaseOutputParser):
             return AgentTasks(
                 error=f"Incomplete tool args: {parsed}",
             )
-
-
