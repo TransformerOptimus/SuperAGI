@@ -2,16 +2,24 @@
     "python.testing.pytestArgs": [
         "tests"
     ],
+<<<<<<< HEAD
     "python.testing.unittestEnabled": true,
     "python.testing.pytestEnabled": false,
+=======
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+>>>>>>> 9c9f97c6869b12d34f3ff490612a6263096ddd7b
     "python.testing.unittestArgs": [
         "-v",
         "-s",
         "./tests",
         "-p",
         "*test*.py"
+<<<<<<< HEAD
     ],
     "cSpell.words": [
         "restapi"
+=======
+>>>>>>> 9c9f97c6869b12d34f3ff490612a6263096ddd7b
     ]
 }
