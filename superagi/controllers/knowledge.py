@@ -6,6 +6,8 @@ from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.models.knowledge import Knowledge
 from superagi.models.knowledge_config import KnowledgeConfig
+from superagi.models.vector_db_index_collection import VectorIndexCollection
+from superagi.models.vector_db import Vectordb
 from superagi.models.marketplace_stats import MarketPlaceStats
 from superagi.helper.auth import get_user_organisation
 
@@ -67,9 +69,13 @@ def get_knowledge_details(knowledge_id: int):
 def get_user_knowledge_details(knowledge_id: int, organisation = Depends(get_user_organisation)):
     marketplace_organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     knowledge_data = db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
+    vector_database_index = VectorIndexCollection.get_vector_index_from_id(db.session, knowledge_data.index_id)
+    vector_database = Vectordb.get_vector_db_from_id(db.session, vector_database_index.vector_db_id)
     knowledge = {
         "name": knowledge_data.name,
-        "description": knowledge_data.description
+        "description": knowledge_data.description,
+        "vector_database_index": vector_database_index.name,
+        "vector_database": vector_database.name
     }
     is_installed = Knowledge.check_if_marketplace(db.session, knowledge_data, marketplace_organisation_id, knowledge)
     if is_installed:

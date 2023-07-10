@@ -67,3 +67,8 @@ class Vectordb(DBBaseModel):
     def delete_vector_db(session, vector_db_id):
         session.query(Vectordb).filter(Vectordb.id == vector_db_id).delete()
         session.commit()
+    
+    @classmethod
+    def get_vector_db_from_id(session, id):
+        vector_db = session.query(Vectordb).filter(Vectordb.id == id).first()
+        return vector_db
