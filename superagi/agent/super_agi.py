@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict
 from typing import Tuple
-
+import numpy as np
 from halo import Halo
 from pydantic import ValidationError
 from pydantic.types import List
@@ -90,16 +90,10 @@ class SuperAgi:
             tools=tools
         )
 
-    def fetch_agent_feeds(self, session, agent_execution_id, agent_id):
-        memory_window = session.query(AgentConfiguration).filter(
-            AgentConfiguration.key == "memory_window",
-            AgentConfiguration.agent_id == agent_id
-        ).order_by(desc(AgentConfiguration.updated_at)).first().value
-
+    def fetch_agent_feeds(self, session, agent_execution_id):
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
             .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
             .order_by(asc(AgentExecutionFeed.created_at)) \
-            .limit(memory_window) \
             .all()
         return agent_feeds[2:]
 
@@ -122,8 +116,7 @@ class SuperAgi:
         task_queue = TaskQueue(str(agent_execution_id))
 
         token_limit = TokenCounter.token_limit()
-        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"],
-                                             self.agent_config["agent_id"])
+        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"])
         current_calls = 0
         if len(agent_feeds) <= 0:
             task_queue.clear_tasks()
@@ -150,9 +143,9 @@ class SuperAgi:
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
 
-        logger.info(prompt)
-        # print(messages)
+        logger.info(messages)
         if len(agent_feeds) <= 0:
+            logger.info(prompt)
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
@@ -166,34 +159,33 @@ class SuperAgi:
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         self.update_agent_execution_tokens(current_calls, total_tokens)
-
+        logger.info("Response:", response)
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
 
-        final_response = {"result": "PENDING", "retry": False}
-
+        final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
-                                                      role="assistant")
-            session.add(agent_execution_feed)
-            session.commit()
-
             # check if permission is required for the tool in restricted mode
             is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
             if is_permission_required:
                 return response
 
             tool_response = self.handle_tool_response(assistant_reply)
+
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"],
-                                                      feed=tool_response["result"],
-                                                      role="system"
-                                                      )
+                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      role="assistant")
             session.add(agent_execution_feed)
+            tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+                                                    agent_id=self.agent_config["agent_id"],
+                                                    feed=tool_response["result"],
+                                                    role="system"
+                                                    )
+            session.add(tool_response_feed)
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
+            final_response["completed_task_count"] = len(task_queue.get_completed_tasks())
         elif workflow_step.output_type == "replace_tasks":
             tasks = eval(assistant_reply)
             task_queue.clear_tasks()
@@ -208,6 +200,7 @@ class SuperAgi:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
         elif workflow_step.output_type == "tasks":
             tasks = eval(assistant_reply)
+            tasks = np.array(tasks).flatten().tolist()
             for task in reversed(tasks):
                 task_queue.add_task(task)
             if len(tasks) > 0:
@@ -223,10 +216,11 @@ class SuperAgi:
                 final_response = {"result": "COMPLETE", "pending_task_count": 0}
             else:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
-
         if workflow_step.output_type == "tools" and final_response["retry"] == False:
             task_queue.complete_task(final_response["result"])
             current_tasks = task_queue.get_tasks()
+            if final_response["completed_task_count"] > 0 and len(current_tasks) == 0:
+                final_response["result"] = "COMPLETE"
             if len(current_tasks) > 0 and final_response["result"] == "COMPLETE":
                 final_response["result"] = "PENDING"
         session.commit()
@@ -237,29 +231,30 @@ class SuperAgi:
 
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
-        tools = {t.name.lower(): t for t in self.tools}
-
-        if action.name.lower() == FINISH or action.name == "":
+        tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
+        action_name = action.name.lower().replace(" ", "")
+        if action_name == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
             return output
-        if action.name.lower() in tools:
-            tool = tools[action.name.lower()]
+        if action_name in tools:
+            tool = tools[action_name]
+            retry = False
             try:
-                observation = tool.execute(action.args)
-                logger.info("Tool Observation : ")
-                logger.info(observation)
-
+                parsed_args = self.clean_tool_args(action.args)
+                observation = tool.execute(parsed_args)
             except ValidationError as e:
+                retry = True
                 observation = (
                     f"Validation Error in args: {str(e)}, args: {action.args}"
                 )
             except Exception as e:
+                retry = True
                 observation = (
                     f"Error1: {str(e)}, {type(e).__name__}, args: {action.args}"
                 )
             result = f"Tool {tool.name} returned: {observation}"
-            output = {"result": result, "retry": False}
+            output = {"result": result, "retry": retry}
         elif action.name == "ERROR":
             result = f"Error2: {action.args}. "
             output = {"result": result, "retry": False}
@@ -273,6 +268,14 @@ class SuperAgi:
 
         logger.info("Tool Response : " + str(output) + "\n")
         return output
+
+    def clean_tool_args(self, args):
+        parsed_args = {}
+        for key in args.keys():
+            parsed_args[key] = args[key]
+            if type(args[key]) is dict and "value" in args[key]:
+                parsed_args[key] = args[key]["value"]
+        return parsed_args
 
     def update_agent_execution_tokens(self, current_calls, total_tokens):
         agent_execution = session.query(AgentExecution).filter(
