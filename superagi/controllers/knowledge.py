@@ -12,9 +12,9 @@ from superagi.helper.auth import get_user_organisation
 router = APIRouter()
 
 
-@router.get("/get/list/{page}")
+@router.get("/get/list")
 def handle_marketplace_operations_list(
-        page: int,
+        page: int = Query(None, title="Page Number"),
         organisation = Depends(get_user_organisation)
 ):
     """

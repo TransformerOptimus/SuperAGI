@@ -37,3 +37,28 @@ def get_marketplace_valid_indices(knowledge_id: int, organisation = Depends(get_
     
     return vector_indices_data
 
+@router.get("/get/user/valid_indices")
+def get_user_valid_indices(organisation = Depends(get_user_organisation)):
+    vector_dbs = Vectordb.get_vector_db_organisation(db.session, organisation)
+    pinecone = []
+    qdrant = []
+    for vector in vector_dbs:
+        indices = Vectordb.get_vector_db_organisation(db.session, vector.id)
+        for index in indices:
+            data = {
+                "id": index.id,
+                "name": index.name
+            }
+            state = VectorIndexConfig.get_index_state(db.session, data["id"])
+            if state == "CUSTOM":
+                data["is_valid_state"] = True
+            if vector.db_type == "PINECONE":
+                pinecone.append(data)
+            else:
+                qdrant.append(data)
+    vector_indices_data = {
+        "pinecone": pinecone,
+        "qdrant": qdrant
+    }
+    
+    return vector_indices_data
