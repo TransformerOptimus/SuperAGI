@@ -7,6 +7,13 @@ from superagi.tools.base_tool import BaseTool
 from superagi.vector_store.base import VectorStore
 
 
+class MockSession:
+    def add(self, instance):
+        pass
+
+    def commit(self):
+        pass
+
 class MockTool(BaseTool):
     def __init__(self, name, permission_required=False):
         super().__init__(name=name, permission_required=permission_required, description="Mock tool")
@@ -34,7 +41,7 @@ def test_check_permission_in_restricted_mode_not_required(super_agi):
 
     super_agi.output_parser.parse = MagicMock(
         return_value=MockTool(name="NotRestrictedTool", permission_required=False))
-    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply)
+    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply, MockSession())
     assert not result
     assert output is None
 
@@ -47,15 +54,8 @@ def test_check_permission_in_restricted_mode_permission_required(super_agi, monk
     super_agi.output_parser.parse = MagicMock(
         return_value=mock_tool_requiring_permission)
 
-    class MockSession:
-        def add(self, instance):
-            pass
+    # monkeypatch.setattr("superagi.agent.super_agi.session", MockSession())
 
-        def commit(self):
-            pass
-
-    monkeypatch.setattr("superagi.agent.super_agi.session", MockSession())
-
-    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply)
+    result, output = super_agi.check_permission_in_restricted_mode(assistant_reply, MockSession())
     assert result
     assert output["result"] == "WAITING_FOR_PERMISSION"
