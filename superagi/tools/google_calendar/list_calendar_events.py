@@ -46,9 +46,6 @@ class ListCalendarEventsTool(BaseTool):
         return f"List of Google Calendar Events month successfully stored in {file_name}."
 
     def get_google_calendar_service(self):
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
         toolkit_id = self.toolkit_config.toolkit_id
         return GoogleCalendarCreds().get_credentials(toolkit_id)
 
