@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
 
 
 class SendEmailAttachmentInput(BaseModel):
@@ -47,7 +49,11 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             success or failure message
         """
-        final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id,self.agent_execution_id)
+        final_path = ResourceHelper.get_agent_resource_path(filename, agent=Agent.get_agent_from_id(self.session,
+                                                                                                    self.agent_id),
+                                                            agent_execution=AgentExecution
+                                                            .get_agent_execution_from_id(self.session,
+                                                                                         self.agent_execution_id))
 
         if final_path is None or not os.path.exists(final_path):
             final_path = ResourceHelper.get_root_input_dir() + filename

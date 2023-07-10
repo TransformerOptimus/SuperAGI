@@ -15,6 +15,7 @@ from superagi.lib.logger import logger
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 
+
 class Agent(DBBaseModel):
     """
     Represents an agent entity.
@@ -101,7 +102,8 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary"]:
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB",
+                   "resource_summary"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
@@ -142,7 +144,6 @@ class Agent(DBBaseModel):
             agent_workflow = db.session.query(AgentWorkflow).filter(
                 AgentWorkflow.name == "Action Based").first()
             db_agent.agent_workflow_id = agent_workflow.id
-
 
         db.session.commit()
 
@@ -251,3 +252,18 @@ class Agent(DBBaseModel):
         project = session.query(Project).filter(Project.id == self.project_id).first()
         organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
         return organisation
+
+    @classmethod
+    def get_agent_from_id(cls, session, agent_id):
+        """
+            Get Agent from agent_id
+
+            Args:
+                session: The database session.
+                agent_id(int) : Unique identifier of an Agent.
+
+            Returns:
+                Agent: Agent object is returned.
+        """
+        agent = session.query(Agent).filter(Agent.id == agent_id).first()
+        return agent

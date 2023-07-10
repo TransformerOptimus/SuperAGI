@@ -1,4 +1,6 @@
 from superagi.config.config import get_config
+from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
 from superagi.models.resource import Resource
 import os
 import datetime
@@ -7,21 +9,22 @@ from superagi.types.storage_types import StorageType
 
 
 class ResourceHelper:
-
     @classmethod
-    def make_written_file_resource(cls, file_name: str, agent_id: int, agent_execution_id: int, channel: str):
+    def make_written_file_resource(cls, file_name: str, agent: int, agent_execution: int, channel: str):
         """
         Function to create a Resource object for a written file.
 
         Args:
             file_name (str): The name of the file.
-            agent_id (int): The ID of the agent.
-            agent_execution_id(int): The ID of the agent under execution
+            agent (int): The ID of the agent.
+            agent_execution(int): The ID of the agent under execution
             channel (str): The channel of the file.
 
         Returns:
             Resource: The Resource object.
         """
+        print("______________________Making Resources!_______________")
+        print("AGENT EXEC : ", agent_execution)
         path = ResourceHelper.get_root_output_dir()
         storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
         file_extension = os.path.splitext(file_name)[1][1:]
@@ -33,11 +36,11 @@ class ResourceHelper:
         else:
             file_type = "application/misc"
 
-        if agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, agent_id, agent_execution_id)
-            path = path.replace("{agent_id}", str(agent_id))
-            if agent_execution_id is not None:
-                path = path.replace("{agent_execution_id}", str(agent_execution_id))
+        if agent is not None:
+            final_path = ResourceHelper.get_agent_resource_path(file_name, agent, agent_execution)
+            path = cls.get_formatted_agent_level_path(agent, path)
+            if agent_execution is not None:
+                path = cls.get_formatted_agent_execution_level_path(agent_execution, path)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
@@ -52,9 +55,17 @@ class ResourceHelper:
         resource = Resource(name=file_name, path=path + file_name, storage_type=storage_type.value, size=file_size,
                             type=file_type,
                             channel="OUTPUT",
-                            agent_id=agent_id,
-                            agent_execution_id=agent_execution_id)
+                            agent_id=agent,
+                            agent_execution_id=agent_execution)
         return resource
+
+    @classmethod
+    def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
+        return path.replace("{agent_id}", agent.name + '_' + str(agent.id))
+
+    @classmethod
+    def get_formatted_agent_execution_level_path(cls, agent_execution: AgentExecution, path):
+        return path.replace("{agent_execution_id}", (agent_execution.name + '_' + str(agent_execution.id)))
 
     @classmethod
     def get_resource_path(cls, file_name: str):
@@ -92,19 +103,21 @@ class ResourceHelper:
         return root_dir
 
     @classmethod
-    def get_agent_resource_path(cls, file_name: str, agent_id: int, agent_execution_id: int):
+    def get_agent_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
         """Get agent resource path
 
         Args:
             file_name (str): The name of the file.
-            agent_id (int): The unique identifier of the agent.
-            agent_execution_id (int): The unique identifier of the agent.
+            agent (Agent): The unique identifier of the agent.
+            agent_execution (AgentExecution): The unique identifier of the agent.
         """
         root_dir = ResourceHelper.get_root_output_dir()
-        if agent_id is not None and "{agent_id}" in root_dir:
-            root_dir = root_dir.replace("{agent_id}", str(agent_id))
-            if agent_execution_id is not None and "{agent_execution_id}" in root_dir:
-                root_dir = root_dir.replace("{agent_execution_id}", agent_execution_id)
+        if agent is not None and "{agent_id}" in root_dir:
+            # root_dir = root_dir.replace("{agent_id}", str(agent_id))
+            root_dir = ResourceHelper.get_formatted_agent_level_path(agent, root_dir)
+            if agent_execution is not None and "{agent_execution_id}" in root_dir:
+                # root_dir = root_dir.replace("{agent_execution_id}", str(agent_execution_id))
+                root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution=agent_execution)
                 directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
         final_path = root_dir + file_name

@@ -284,6 +284,8 @@ class AgentExecutor:
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             if hasattr(tool, 'resource_manager'):
+                print("Setting Resource Manager ------------->")
+                print("AGENT EXEC is -------> ",parsed_config["agent_execution_id"])
                 tool.resource_manager = FileManager(session=session, agent_id=agent_id,
                                                     agent_execution_id=parsed_config[
                                                         "agent_execution_id"])

@@ -26,7 +26,7 @@ class SendTweetsTool(BaseTool):
         creds = TwitterTokens(session).get_twitter_creds(toolkit_id)
         params = {}
         if is_media:
-            media_ids = TwitterHelper().get_media_ids(media_files, creds, self.agent_id,self.agent_execution_id)
+            media_ids = TwitterHelper().get_media_ids(session,media_files, creds, self.agent_id,self.agent_execution_id)
             params["media"] = {"media_ids": media_ids}
         if tweet_text is not None:
             params["text"] = tweet_text
