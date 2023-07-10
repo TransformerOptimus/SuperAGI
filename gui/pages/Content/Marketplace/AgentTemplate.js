@@ -152,7 +152,7 @@ export default function AgentTemplate({template, env}) {
                                   </div>))}
                               </div>
                           </div>
-                          {instructions.length>0 && <div className={styles2.left_container} style={{marginBottom: '8px'}}>
+                          {instructions && instructions.length>0 && <div className={styles2.left_container} style={{marginBottom: '8px'}}>
                               <div>
                                   <span className={styles2.description_heading} style={{fontWeight: '400'}}>{instructions.length} Instructions</span><br/><br/>
                                   {instructions.map((instruction, index) => (
