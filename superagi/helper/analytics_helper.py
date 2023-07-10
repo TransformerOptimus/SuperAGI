@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple, Optional, Iterator
+from typing import List, Dict, Tuple, Optional, Iterator, Union, Any
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.query import Query
 from superagi.models.events import Event
@@ -34,25 +34,50 @@ class AnalyticsHelper:
             logging.error(f"Error while creating event: {str(err)}")
             return None
 
-    def calculate_run_completed_metrics(self) -> Dict[str, int]:
-        metrics = {'total_tokens': 0, 'total_calls': 0, 'runs_completed': 0}
-        subquery = self.session.query(Event).filter_by(event_name="run_completed").subquery()
-        query = self.session.query(
-            func.sum(text("(json_property->>'tokens_consumed')::int")).label('total_tokens'),
-            func.sum(text("(json_property->>'calls')::int")).label('total_calls'),
-            func.count(subquery.c.id).label('runs_completed'),
-        )
-        result = query.one()
+    def calculate_run_completed_metrics(self) -> Dict[str, Dict[str, Union[int, List[Dict[str, int]]]]]:
 
-        metrics.update({
-            'total_tokens': result.total_tokens or 0,
-            'total_calls': result.total_calls or 0,
-            'runs_completed': result.runs_completed
-        })
+        agent_model_query = self.session.query(
+            Event.json_property['model'].label('model'),
+            Event.agent_id
+        ).filter_by(event_name="agent_created").subquery()
+
+        agent_runs_query = self.session.query(
+            agent_model_query.c.model,
+            func.count(Event.id).label('runs')
+        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter_by(event_name="run_completed").group_by(agent_model_query.c.model).subquery()
+
+        agent_tokens_query = self.session.query(
+            agent_model_query.c.model,
+            func.sum(text("(json_property->>'tokens_consumed')::int")).label('tokens')
+        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter_by(event_name="run_completed").group_by(agent_model_query.c.model).subquery()
+
+        agent_count_query = self.session.query(
+            agent_model_query.c.model,
+            func.count(agent_model_query.c.agent_id).label('agents')
+        ).group_by(agent_model_query.c.model).subquery()
+
+        agents = self.session.query(agent_count_query).all()
+        runs = self.session.query(agent_runs_query).all()
+        tokens = self.session.query(agent_tokens_query).all()
+
+        metrics = {
+            'agent_details': {
+                'total_agents': sum([item.agents for item in agents]),
+                'model_metrics': [{'name': item.model, 'value': item.agents} for item in agents]
+            },
+            'run_details': {
+                'total_runs': sum([item.runs for item in runs]),
+                'model_metrics': [{'name': item.model, 'value': item.runs} for item in runs]
+            },
+            'tokens_details': {
+                'total_tokens': sum([item.tokens for item in tokens]),
+                'model_metrics': [{'name': item.model, 'value': item.tokens} for item in tokens]
+            },
+        }
 
         return metrics
 
-    def fetch_agent_data(self) -> Dict[str, List[Dict[str, int]]]:
+    def fetch_agent_data(self) -> Dict[str, List[Dict[str, Any]]]:
         agent_subquery = self.session.query(
             Event.agent_id,
             Event.json_property['agent_name'].label('agent_name'),
@@ -66,14 +91,21 @@ class AnalyticsHelper:
             func.count(Event.id).label('runs_completed'),
         ).filter_by(event_name="run_completed").group_by(Event.agent_id).subquery()
 
+        tool_subquery = self.session.query(
+            Event.agent_id,
+            func.array_agg(Event.json_property['tool_name'].distinct()).label('tools_used'),
+        ).filter_by(event_name="tool_used").group_by(Event.agent_id).subquery()
+
         query = self.session.query(
             agent_subquery.c.agent_id,
             agent_subquery.c.agent_name,
             agent_subquery.c.model,
             run_subquery.c.total_tokens,
             run_subquery.c.total_calls,
-            run_subquery.c.runs_completed
-        ).outerjoin(run_subquery, run_subquery.c.agent_id == agent_subquery.c.agent_id)
+            run_subquery.c.runs_completed,
+            tool_subquery.c.tools_used
+        ).outerjoin(run_subquery, run_subquery.c.agent_id == agent_subquery.c.agent_id) \
+            .outerjoin(tool_subquery, tool_subquery.c.agent_id == agent_subquery.c.agent_id)
 
         result = query.all()
 
@@ -83,16 +115,11 @@ class AnalyticsHelper:
             "runs_completed": row.runs_completed if row.runs_completed else 0,
             "total_calls": row.total_calls if row.total_calls else 0,
             "total_tokens": row.total_tokens if row.total_tokens else 0,
+            "tools_used": row.tools_used if row.tools_used else [],
+            "model_name": row.model if row.model else "",
         } for row in result]
 
-        models_used = self.session.query(
-            agent_subquery.c.model,
-            func.count(agent_subquery.c.agent_id).label('agents')
-        ).group_by(agent_subquery.c.model).all()
-
-        model_info = [{"model": row.model, "agents": row.agents} for row in models_used]
-
-        return {'agent_details': agent_details, 'model_info': model_info}
+        return {'agent_details': agent_details}
 
     def fetch_agent_runs(self, agent_id: int) -> List[Dict[str, int]]:
         agent_runs = []
@@ -167,36 +194,36 @@ class AnalyticsHelper:
         } for row in result]
 
         return running_executions
-
-    def calculate_tool_usage(self) -> List[Dict[str, int]]:
-        tool_usage = []
-        tool_used_subquery = self.session.query(
-            Event.json_property['tool_name'].label('tool_name'),
-            Event.agent_id
-        ).filter_by(event_name="tool_used").subquery()
-
-        agent_count = self.session.query(
-            tool_used_subquery.c.tool_name,
-            func.count(func.distinct(tool_used_subquery.c.agent_id)).label('unique_agents')
-        ).group_by(tool_used_subquery.c.tool_name).subquery()
-
-        total_usage = self.session.query(
-            tool_used_subquery.c.tool_name,
-            func.count(tool_used_subquery.c.tool_name).label('total_usage')
-        ).group_by(tool_used_subquery.c.tool_name).subquery()
-
-        query = self.session.query(
-            agent_count.c.tool_name,
-            agent_count.c.unique_agents,
-            total_usage.c.total_usage
-        ).join(total_usage, total_usage.c.tool_name == agent_count.c.tool_name)
-
-        result = query.all()
-
-        tool_usage = [{
-            'tool_name': row.tool_name,
-            'unique_agents': row.unique_agents,
-            'total_usage': row.total_usage
-        } for row in result]
-
-        return tool_usage
+#
+#     def calculate_tool_usage(self) -> List[Dict[str, int]]:
+#         tool_usage = []
+#         tool_used_subquery = self.session.query(
+#             Event.json_property['tool_name'].label('tool_name'),
+#             Event.agent_id
+#         ).filter_by(event_name="tool_used").subquery()
+#
+#         agent_count = self.session.query(
+#             tool_used_subquery.c.tool_name,
+#             func.count(func.distinct(tool_used_subquery.c.agent_id)).label('unique_agents')
+#         ).group_by(tool_used_subquery.c.tool_name).subquery()
+#
+#         total_usage = self.session.query(
+#             tool_used_subquery.c.tool_name,
+#             func.count(tool_used_subquery.c.tool_name).label('total_usage')
+#         ).group_by(tool_used_subquery.c.tool_name).subquery()
+#
+#         query = self.session.query(
+#             agent_count.c.tool_name,
+#             agent_count.c.unique_agents,
+#             total_usage.c.total_usage
+#         ).join(total_usage, total_usage.c.tool_name == agent_count.c.tool_name)
+#
+#         result = query.all()
+#
+#         tool_usage = [{
+#             'tool_name': row.tool_name,
+#             'unique_agents': row.unique_agents,
+#             'total_usage': row.total_usage
+#         } for row in result]
+#
+#         return tool_usage
