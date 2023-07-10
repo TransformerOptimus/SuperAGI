@@ -142,9 +142,9 @@ class SuperAgi:
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
 
-        logger.info(messages)
+        logger.info(prompt)
+        # print(messages)
         if len(agent_feeds) <= 0:
-            logger.info(prompt)
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
@@ -157,13 +157,14 @@ class SuperAgi:
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
-        self.update_agent_execution_tokens(current_calls, total_tokens, session)
-        logger.info("Response:", response)
+        self.update_agent_execution_tokens(current_calls, total_tokens,session)
+
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
 
-        final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
+        final_response = {"result": "PENDING", "retry": False}
+
         if workflow_step.output_type == "tools":
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"], feed=assistant_reply,
