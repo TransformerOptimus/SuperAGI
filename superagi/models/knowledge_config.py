@@ -33,7 +33,7 @@ class KnowledgeConfig(DBBaseModel):
     
     @classmethod
     def get_knowledge_config(cls, session, knowledge_id: int, knowledge):
-        knowledge_configs = session.query(KnowledgeConfig).filter_by(KnowledgeConfig.knowledge_id == knowledge_id).all()
+        knowledge_configs = session.query(KnowledgeConfig).filter(KnowledgeConfig.knowledge_id == knowledge_id).all()
         for config in knowledge_configs:
             knowledge[config.key] = config.value
 
