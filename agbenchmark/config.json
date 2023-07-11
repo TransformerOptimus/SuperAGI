@@ -3,7 +3,6 @@
     "input": "workspace/input",
     "output": "workspace/output"
   },
-  "entry_path": "benchmarks.py",
-  "home_path": "",
+  "entry_path": "agbenchmark/benchmarks.py",
   "cutoff": 60
 }
