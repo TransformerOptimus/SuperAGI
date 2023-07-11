@@ -447,9 +447,9 @@ def get_agent_configuration(agent_id: int,
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
-    agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
+    agent = db.session.query(Agent).filter(agent_id == Agent.id, Agent.is_deleted == False).first()
 
-    if not agent or agent.is_deleted:
+    if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
     # Query the AgentConfiguration table for the specified keys
@@ -478,7 +478,7 @@ def get_agent_configuration(agent_id: int,
 
     return response
 
-@router.put("/delete/{agent_id}")
+@router.put("/delete/{agent_id}", status_code = 200)
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
         Delete an existing Agent
@@ -497,9 +497,7 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
-    db_agent_execution_permission = db.session.query(AgentExecutionPermission).filter(AgentExecutionPermission.agent_id == agent_id).first()
-    
+    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()    
     
     if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
@@ -510,12 +508,6 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         # Updating all the RUNNING executions to TERMINATED
         for db_agent_execution in db_agent_executions:
             db_agent_execution.status = "TERMINATED"
-            
-    if db_agent_execution_permission:
-        db_agent_execution_permission.status = "REJECTED"
     
     db.session.commit()
-    
-    return {"success": True}
-
     
