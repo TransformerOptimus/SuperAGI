@@ -23,11 +23,6 @@ class QdrantCreds:
 class KnowledgeToolDbHelper:
   def __init__(self,session):
      self.session = session
-  #   self.knowledge_api_key = knowledge_api_key
-  #   self.knowledge_index_or_collection = knowledge_index_or_collection
-  #   self.knowledge_url = knowledge_url
-  #   self.knowledge_environment = knowledge_environment
-  #   self.knowledge_names = knowledge_names
     
   
   def get_knowledge_details(self,knowledge):
@@ -54,7 +49,7 @@ class KnowledgeToolDbHelper:
     qdrant_api_key = self.session.query(VectordbConfig).filter(VectordbConfig.id == knowledge_vector_db_id,VectordbConfig.key=="api_key").first()
     qdrant_url = self.session.query(VectordbConfig).filter(VectordbConfig.id == knowledge_vector_db_id,VectordbConfig.key=="url").first()
     qdrant_port = self.session.query(VectordbConfig).filter(VectordbConfig.id == knowledge_vector_db_id,VectordbConfig.key=="port").first()
-    qdrant_config = PineconeCreds(qdrant_api_key.value,qdrant_url.value,qdrant_port.value)
+    qdrant_config = QdrantCreds(qdrant_api_key.value,qdrant_url.value,qdrant_port.value)
     return qdrant_config
     
 
