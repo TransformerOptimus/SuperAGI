@@ -432,6 +432,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       permission_type = "RESTRICTED";
     }
 
+    if(createModal && (startTime === ' ' || (isRecurring == true && (timeValue == null || (expiryType == "After certain number of runs" && (parseInt(expiryRuns,10)<1)) || (expiryType == "Specific date" && expiryDate == null) )))){
+      toast.error('Please input correct details')
+      return
+    }
+
     const agentData = {
       "name": agentName,
       "project_id": selectedProjectId,
@@ -458,7 +463,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         "start_time": startTime,	
         "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
         "expiry_date": expiryDate,	
-        "expiry_runs": expiryRuns,
+        "expiry_runs": parseInt(expiryRuns, 10),
       }
     }	
    
@@ -498,9 +503,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const finaliseAgentCreation = (agentId, name, executionId) => {
     toast.success('Agent created successfully', { autoClose: 1800 });
+    let timeoutValue = executionId ? 0 : 1500;
+    setTimeout(() => {
     sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
     setCreateClickable(true);
-    setCreateModal(false);
+    setCreateModal(false);},timeoutValue)
   }
 
   function runExecution(agentId, name, executionId, createModal) {

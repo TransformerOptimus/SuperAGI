@@ -5,7 +5,7 @@ import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal, agent }) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal, agent, }) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -13,6 +13,9 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
+  const [isScheduled, setScheduledTime] = useState(false)
+  const [refreshTime, setRefreshTime] = useState(0)
+
 
   useEffect(() => {
     loadingTextEffect('Thinking', setLoadingText, 250);
@@ -30,7 +33,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     getDateTime(agent.id)
     .then((response) => {
       const {start_date, start_time} = response.data;
-      console.log("hello:: "+response)
+      console.log(start_date)
+      console.log("hello:: "+response.data)
         setScheduleDate(start_date);
         setScheduleTime(start_time);
     })
@@ -93,22 +97,30 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         setRunStatus(eventData.status);
       }
     };
+    const refreshDate = () => {
+        console.log('refreshing')
+        setRefreshTime(refreshTime + 1)
+        fetchDateTime();
+        console.log(refreshTime)
+    };
 
     EventBus.on('updateRunStatus', updateRunStatus);
+    EventBus.on('refreshDate', refreshDate);
 
     return () => {
       EventBus.off('updateRunStatus', updateRunStatus);
+      EventBus.off('refreshDate', refreshDate);
     };
   });
 
   return (<>
-    <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
+    <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef} key={refreshTime}>
       <div style={{marginBottom:'55px'}}>
         
         {agent.is_scheduled && !agent.is_running ? 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <Image width={72} height={72} src="/images/eventSchedule.png" alt="github" />
-            <div style={{ color: 'white', fontSize: '14px' }}>
+            <div style={{ color: 'white', fontSize: '14px' }} >
               This agent is scheduled to start on {scheduleDate}, at {scheduleTime}
             </div>
         </div>:
@@ -155,7 +167,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
         </div>}
         
-        {!agent.is_scheduled && !agent.is_running &&
+        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 && 
         <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
           The Agent is not scheduled
         </div>

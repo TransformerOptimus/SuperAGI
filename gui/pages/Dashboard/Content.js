@@ -286,7 +286,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             {tabs.map((tab, index) => (
               <div key={index}>
                 {selectedTab === index && <div>
-                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView} agents={agents}/>}
+                  {tab.contentType === 'Agents' && <AgentWorkspace agentId={tab.id} selectedView={selectedView} agents={agents} fetchAgents={fetchAgents}/>}
                   {tab.contentType === 'Toolkits' && <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
