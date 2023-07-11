@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import patch
 from superagi.helper.resource_helper import ResourceHelper
 
-
 def test_make_written_file_resource(mocker):
     mocker.patch('os.getcwd', return_value='/')
     # mocker.patch('os.getcwd', return_value='/')
@@ -22,7 +21,6 @@ def test_make_written_file_resource(mocker):
     assert result.channel == 'OUTPUT'
     assert result.agent_id == 1
 
-
 def test_get_resource_path(mocker):
     mocker.patch('os.getcwd', return_value='/')
     mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/'])
@@ -30,7 +28,6 @@ def test_get_resource_path(mocker):
     result = ResourceHelper.get_resource_path('test.txt')
 
     assert result == '/test.txt'
-
 
 def test_get_agent_resource_path(mocker):
     mocker.patch('os.getcwd', return_value='/')

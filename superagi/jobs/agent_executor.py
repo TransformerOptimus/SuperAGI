@@ -234,6 +234,7 @@ class AgentExecutor:
             session.close()
             return
 
+
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
         agent_execution.current_step_id = agent_workflow_step.next_step_id
@@ -284,8 +285,6 @@ class AgentExecutor:
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             if hasattr(tool, 'resource_manager'):
-                print("Setting Resource Manager ------------->")
-                print("AGENT EXEC is -------> ",parsed_config["agent_execution_id"])
                 tool.resource_manager = FileManager(session=session, agent_id=agent_id,
                                                     agent_execution_id=parsed_config[
                                                         "agent_execution_id"])
@@ -334,15 +333,15 @@ class AgentExecutor:
     def get_agent_resource_summary(self, agent_id: int, session: Session, model_llm_source: str, default_summary: str):
         if ModelSourceType.GooglePalm.value in model_llm_source:
             return
-        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id, generate_all=True)
+        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id,generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
         resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
         return resource_summary
 
-    def check_for_resource(self, agent_id: int, session: Session):
-        resource = session.query(Resource).filter(Resource.agent_id == agent_id, Resource.channel == 'INPUT').first()
+    def check_for_resource(self,agent_id: int, session: Session):
+        resource = session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').first()
         if resource is None:
             return False
         return True
