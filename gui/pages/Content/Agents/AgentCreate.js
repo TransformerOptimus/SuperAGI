@@ -18,6 +18,8 @@ import {
   setLocalStorageArray, returnResourceIcon,
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import AgentSchedule from "./AgentSchedule"
+import styles1 from "@/pages/Content/Agents/Agents.module.css";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
@@ -81,6 +83,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit","Resource Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
+
+  const [scheduleModal, setScheduleModal] = useState(false);
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -325,6 +329,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   });
 
   const handleAddAgent = () => {
+    setScheduleModal(true)
+    return
+
     if(!hasAPIkey) {
       toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings");
@@ -834,6 +841,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       </div>
       <div className="col-3"></div>
     </div>
+    {scheduleModal && <AgentSchedule />}
     <ToastContainer/>
   </>)
 }

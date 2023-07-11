@@ -19,6 +19,8 @@
     "mitt": "^3.0.0",
     "next": "13.4.2",
     "react": "18.2.0",
+    "react-datepicker": "^4.15.0",
+    "react-datetime-picker": "^5.2.0",
     "react-dom": "18.2.0",
     "react-markdown": "^8.0.7",
     "react-toastify": "^9.1.3"
