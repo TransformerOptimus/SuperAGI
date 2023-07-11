@@ -14,17 +14,15 @@ export default function ApmDashboard() {
     const [agentDetails, setAgentDetails] = useState([]);
     const [tokenDetails, setTokenDetails] = useState([]);
     const [runDetails, setRunDetails] = useState(0);
-    const [totalAgents, setTotalAgents] = useState(0);
     const [allAgents, setAllAgents] = useState([]);
-    const [allModels, setAllModels] = useState([]);
-    const [dropdown, setDropDown] = useState(false);
+    const [dropdown1, setDropDown1] = useState(false);
+    const [dropdown2, setDropDown2] = useState(false);
+    const [dropdown3, setDropDown3] = useState(false);
     const [selectedAgent, setSelectedAgent] = useState('Select an Agent');
     const [selectedAgentIndex, setSelectedAgentIndex] = useState(-1);
     const [selectedAgentRun, setSelectedAgentRun] = useState([]);
     const [activeRuns, setActiveRuns] = useState([]);
     const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
-    const [toolsUsed, setToolsUsed] = useState([]);
-    const [averageRunTime, setAverageRunTime] = useState('');
     const initialLayout = [
         {i: 'total_agents', x: 0, y: 0, w: 3, h: 1.5},
         {i: 'total_tokens', x: 3, y: 0, w: 3, h: 1.5},
@@ -64,9 +62,6 @@ export default function ApmDashboard() {
             try {
                 const [metricsResponse, agentsResponse, activeRunsResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns()]);
                 setAgentDetails(metricsResponse.data.agent_details);
-                console.log("///////////////////////////")
-                console.log(agentDetails)
-                console.log(metricsResponse.data)
                 setTokenDetails(metricsResponse.data.tokens_details);
                 setRunDetails(metricsResponse.data.run_details);
                 setAllAgents(agentsResponse.data.agent_details);
@@ -82,7 +77,9 @@ export default function ApmDashboard() {
     }, []);
 
     const handleSelectedAgent = useCallback((index, name) => {
-        setDropDown(false)
+        setDropDown1(false)
+        setDropDown2(false)
+        setDropDown3(false)
         setSelectedAgent(name)
         setSelectedAgentIndex(index)
         const agentDetails = allAgents.find(agent => agent.agent_id === index);
@@ -91,8 +88,6 @@ export default function ApmDashboard() {
         getAgentRuns(index).then((response) => {
             const data = response.data;
             setSelectedAgentRun(data);
-            setAverageRunTime(averageAgentRunTime(data));
-            console.log(data)
         }).catch((error) => console.error(`Error in fetching agent runs: ${error}`));
     }, [allAgents]);
 
@@ -237,8 +232,8 @@ export default function ApmDashboard() {
                             <span className="text_14 mb_8">Total Tokens Consumed</span>
                             <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
                                 {allAgents.length > 0 && <div>
-                                    <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown(!dropdown)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
-                                    {dropdown &&
+                                    <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown2(!dropdown2)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
+                                    {dropdown2 &&
                                         <div className="custom_select_options" style={{padding:'8px'}}>
                                             {allAgents.map((agent,index) => (
                                                 <div key={index} className="custom_select_option" style={{padding: '8px'}} onClick={() => handleSelectedAgent(agent.agent_id,agent.name)}>{agent.name}</div>
@@ -260,7 +255,20 @@ export default function ApmDashboard() {
                     </div>
 
                     <div key="total_calls_made" className="display_column_container">
-                        <span className="text_14 mb_8">Total Calls Made</span>
+                        <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
+                            <span className="text_14 mb_8">Total Calls Made</span>
+                            <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
+                                {allAgents.length > 0 && <div>
+                                    <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown1(!dropdown1)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
+                                    {dropdown1 &&
+                                        <div className="custom_select_options" style={{padding:'8px'}}>
+                                            {allAgents.map((agent,index) => (
+                                                <div key={index} className="custom_select_option" style={{padding: '8px'}} onClick={() => handleSelectedAgent(agent.agent_id,agent.name)}>{agent.name}</div>
+                                            ))}
+                                        </div>}
+                                </div>}
+                            </div>
+                        </div>
                         {selectedAgentRun.length > 0
                             ? <><BarGraph data={selectedAgentRun} type="calls" color="#3DFF7F"/>
                                 <div className="horizontal_container mt_10">
@@ -273,7 +281,20 @@ export default function ApmDashboard() {
                             </div>}
                     </div>
                     <div key="tokens_consumed_per_call" className="display_column_container">
-                        <span className="text_14 mb_8">Tokens consumed per call</span>
+                        <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
+                            <span className="text_14 mb_8">Tokens consumed per call</span>
+                            <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
+                                {allAgents.length > 0 && <div>
+                                    <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown3(!dropdown3)}>{selectedAgent} <img width={18} height={16} src="/images/expand_more.svg" /></div>
+                                    {dropdown3 &&
+                                        <div className="custom_select_options" style={{padding:'8px'}}>
+                                            {allAgents.map((agent,index) => (
+                                                <div key={index} className="custom_select_option" style={{padding: '8px'}} onClick={() => handleSelectedAgent(agent.agent_id,agent.name)}>{agent.name}</div>
+                                            ))}
+                                        </div>}
+                                </div>}
+                            </div>
+                        </div>
                         {selectedAgentRun.length > 0
                             ? <><BarGraph data={selectedAgentRun} type="tokens_per_call" color="#3C7EFF"/>
                                 <div className="horizontal_container mt_10">
