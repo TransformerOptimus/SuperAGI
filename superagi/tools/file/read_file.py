@@ -4,6 +4,7 @@ from typing import Type, Optional
 from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.models.agent_execution import AgentExecution
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
@@ -41,7 +42,9 @@ class ReadFileTool(BaseTool):
             The file content and the file name
         """
         final_path = ResourceHelper.get_agent_read_resource_path(file_name, agent=Agent.get_agent_from_id(
-            session=self.toolkit_config.session, agent_id=self.agent_id))
+            session=self.toolkit_config.session, agent_id=self.agent_id), agent_execution=AgentExecution
+                                                                 .get_agent_execution_from_id(agent_execution_id=self
+                                                                                              .agent_execution_id))
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")
 
