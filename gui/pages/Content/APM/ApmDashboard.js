@@ -64,9 +64,11 @@ export default function ApmDashboard() {
             try {
                 const [metricsResponse, agentsResponse, activeRunsResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns()]);
                 setAgentDetails(metricsResponse.data.agent_details);
+                console.log("///////////////////////////")
+                console.log(agentDetails)
+                console.log(metricsResponse.data)
                 setTokenDetails(metricsResponse.data.tokens_details);
                 setRunDetails(metricsResponse.data.run_details);
-                setTotalAgents(agentsResponse.data.agent_details.length);
                 setAllAgents(agentsResponse.data.agent_details);
                 setActiveRuns(activeRunsResponse.data);
             } catch(error) {
@@ -131,28 +133,48 @@ export default function ApmDashboard() {
 
                     <div key="models_by_agents" className="display_column_container">
                         <span className="text_14 mb_8">Models used by Agents</span>
-                        {agentDetails.model_metrics && <BarGraph data={agentDetails.model_metrics} type="value" color="#8B6EFF"/>}
+                        {agentDetails.model_metrics && agentDetails.model_metrics.length > 0
+                            ? <><BarGraph data={agentDetails.model_metrics} type="value" color="#8B6EFF"/>
+                                <div className="horizontal_container mt_10">
+                                    <span className="bar_label_dot" style={{backgroundColor: '#8B6EFF'}}></span>
+                                    <span className="bar_label_text">Models</span>
+                                </div></>
+                            : <div className="vertical_container align_center mt_80 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Agents Found</span>
+                            </div>}
                     </div>
 
                     <div key="runs_by_model" className="display_column_container">
                         <span className="text_14 mb_8">Total runs by Models</span>
-                        {runDetails.model_metrics && <BarGraph data={runDetails.model_metrics} type="value" color="#FFE76A"/>}
+                        {runDetails.model_metrics && runDetails.model_metrics.length > 0
+                            ? <><BarGraph data={runDetails.model_metrics} type="value" color="#FFA141"/>
+                            <div className="horizontal_container mt_10">
+                                <span className="bar_label_dot" style={{backgroundColor: '#FFA141'}}></span>
+                                <span className="bar_label_text">Models</span>
+                            </div></>
+                            : <div className="vertical_container align_center mt_80 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Agents Found</span>
+                            </div>}
                     </div>
 
                     <div key="tokens_by_model" className="display_column_container">
                         <span className="text_14 mb_8">Total Tokens consumed by models</span>
-                        {tokenDetails.model_metrics && <BarGraph data={tokenDetails.model_metrics} type="value" color="#3C7EFF"/>}
+                        {tokenDetails.model_metrics && tokenDetails.model_metrics.length > 0
+                            ? <><BarGraph data={tokenDetails.model_metrics} type="value" color="#3C7EFF"/>
+                                <div className="horizontal_container mt_10">
+                                    <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
+                                    <span className="bar_label_text">Models</span>
+                                </div></>
+                            : <div className="vertical_container align_center mt_80 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Agents Found</span>
+                            </div>}
                     </div>
 
                     <div key="agent_details" className="display_column_container">
                         <span className="text_14 mb_8">Agent Details</span>
-                        {/*<div className="my_rows mt_24" style={{gap:'4px', padding:'0 7px'}}>*/}
-                        {/*    <div className="my_col_4 text_12 vertical_container">Agent <span className="text_20_bold mt_10">{selectedAgentDetails?.name || '-'}</span></div>*/}
-                        {/*    <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Total Runs <span className="text_20_bold mt_10">{selectedAgentDetails?.runs_completed || '-'}</span></div></div>*/}
-                        {/*    <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Total Calls <span className="text_20_bold mt_10">{selectedAgentDetails?.total_calls || '-'}</span></div></div>*/}
-                        {/*    <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Tokens Consumed <span className="text_20_bold mt_10">{selectedAgentDetails?.total_tokens ? formatNumber(selectedAgentDetails.total_tokens) : '-' }</span></div></div>*/}
-                        {/*    <div className="my_col_2 text_12 vertical_container align_end"><div className="vertical_container w_fit_content">Average run time <span className="text_20_bold mt_10">{averageRunTime !== '0.0 min' ? averageRunTime:'-'}</span></div></div>*/}
-                        {/*</div>*/}
                         {allAgents.length === 0 ?
                             <div className="vertical_container align_center mt_50 w_100">
                                 <img src="/images/no_permissions.svg" width={300} height={120} alt="No Data"/>
@@ -173,12 +195,12 @@ export default function ApmDashboard() {
                                     <tbody>
                                     {allAgents.map((run, i) => (
                                         <tr key={i}>
-                                            <td className="table_data" style={{width:'30%'}}>{run.name}</td>
+                                            <td className="table_data" style={{width:'22%'}}>{run.name}</td>
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.model_name}</td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_tokens}</td>
+                                            <td className="table_data text_align_right" style={{width:'10%'}}>{formatNumber(run.total_tokens)}</td>
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed}</td>
                                             <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
-                                            <td className="table_data text_align_right" style={{width:'20%'}}>
+                                            <td className="table_data text_align_right" style={{width:'28%'}}>
                                                 {run.tools_used &&
                                                     run.tools_used.slice(0, 2).map((tool,index) => (
                                                         <div className="tools_used">{tool}</div>
@@ -225,16 +247,43 @@ export default function ApmDashboard() {
                                 </div>}
                             </div>
                         </div>
-                        <BarGraph data={selectedAgentRun} type="tokens_consumed" color="#3C7EFF"/>
+                        {selectedAgentRun.length > 0
+                            ? <><BarGraph data={selectedAgentRun} type="tokens_consumed" color="#3C7EFF"/>
+                                <div className="horizontal_container mt_10">
+                                    <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
+                                    <span className="bar_label_text">Runs</span>
+                                </div></>
+                            : <div className="vertical_container align_center mt_80 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Runs Found</span>
+                            </div>}
                     </div>
 
                     <div key="total_calls_made" className="display_column_container">
                         <span className="text_14 mb_8">Total Calls Made</span>
-                        <BarGraph data={selectedAgentRun} type="calls" color="#3DFF7F"/>
+                        {selectedAgentRun.length > 0
+                            ? <><BarGraph data={selectedAgentRun} type="calls" color="#3DFF7F"/>
+                                <div className="horizontal_container mt_10">
+                                    <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
+                                    <span className="bar_label_text">Runs</span>
+                                </div></>
+                            : <div className="vertical_container align_center mt_80 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Runs Found</span>
+                            </div>}
                     </div>
                     <div key="tokens_consumed_per_call" className="display_column_container">
                         <span className="text_14 mb_8">Tokens consumed per call</span>
-                        <BarGraph data={selectedAgentRun} type="tokens_per_call" color="#3C7EFF"/>
+                        {selectedAgentRun.length > 0
+                            ? <><BarGraph data={selectedAgentRun} type="tokens_per_call" color="#3C7EFF"/>
+                                <div className="horizontal_container mt_10">
+                                    <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
+                                    <span className="bar_label_text">Runs</span>
+                                </div></>
+                            : <div className="vertical_container align_center mt_80 w_100">
+                                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                                <span className="text_12 color_white mt_6">No Runs Found</span>
+                            </div>}
                     </div>
                 </ResponsiveGridLayout>
             </div>

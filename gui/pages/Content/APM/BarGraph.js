@@ -24,11 +24,20 @@ export const BarGraph = ({ data, type, color }) => {
                 axisLabel: {
                     interval: 0,
                     rotate: 45,
-                    color: '#888' // Change the color of labels
+                    color: '#888'
                 }
             },
             yAxis: {
                 type: 'value',
+                axisLabel: {
+                    formatter: function(value) {
+                        if (value >= 1000) {
+                            return `${value / 1000}k`;
+                        } else {
+                            return value;
+                        }
+                    }
+                },
                 splitLine: {
                     lineStyle: {
                         color: 'rgba(255, 255, 255, 0.08)'

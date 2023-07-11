@@ -637,6 +637,7 @@ p {
 .mt_50{margin-top: 50px;}
 .mt_60{margin-top: 60px;}
 .mt_70{margin-top: 70px;}
+.mt_80{margin-top: 80px;}
 
 .mb_24{margin-bottom:24px;}
 .mb_6{margin-bottom: 6px;}
@@ -701,6 +702,11 @@ p {
     flex-direction: row;
     width: 100%;
     gap: 8px;
+}
+
+.horizontal_container{
+    display: inline-flex;
+    align-items: center;
 }
 
 .vertical_container{
@@ -903,4 +909,20 @@ tr{
     font-weight: 400;
     line-height: normal;
     margin: 2px;
+}
+
+.bar_label_dot{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 10px;
+}
+
+.bar_label_text{
+    color: #888;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin-left: 8px;
 }
