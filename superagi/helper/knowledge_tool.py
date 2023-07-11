@@ -25,8 +25,14 @@ class KnowledgeToolHelper:
     x_query = query_res['data'][0]['embedding']
     
     # get relevant contexts (including the questions)
-    search_res = index.query(x_query, top_k=5, include_metadata=True,filter={
-        "knowledge_name": {"$in": knowledge_details["knowledge_name"]}}) #, include_values=True)
+    if knowledge_details["knowledge_vector_db_index_state"] == "MARKETPLACE":
+    	search_res = index.query(x_query, top_k=5, include_metadata=True,filter={
+        "knowledge_name": {"$in": knowledge_details["knowledge_name"]}})
+    elif knowledge_details["knowledge_vector_db_index_state"] == "CUSTOM":
+    	search_res = index.query(x_query, top_k=5, include_metadata=True)
+    else:
+	search_res_appended = "The knowledge base does not contain any vectors"    
+    
     print(search_res)
     contexts = [item['metadata']['text'] for item in search_res['matches']]
     search_res_appended=''
