@@ -1,12 +1,10 @@
-import pinecone
-import openai
-from qdrant_client import models, QdrantClient
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
-from superagi.config.config import get_config
 from sqlalchemy.orm import Session
-
+from superagi.models.toolkit import Toolkit
+from superagi.models.knowledge import Knowledge
+from superagi.models.knowledge_config import KnowledgeConfig
+from superagi.models.vector_db_index_collection import VectorIndexCollection
+from superagi.models.vector_db import Vectordb
+from superagi.models.vector_db_config import VectordbConfig
 
 
 class PineconeCreds:
@@ -21,7 +19,7 @@ class QdrantCreds:
         self.port = port
 
 class KnowledgeToolDbHelper:
-  def __init__(self,session):
+  def __init__(self,session: Session):
      self.session = session
     
   
