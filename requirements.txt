@@ -66,6 +66,7 @@ jsonmerge==1.9.0
 jsonschema==4.17.3
 kombu==5.2.4
 llama-index==0.6.35
+lancedb==0.1.10
 log-symbols==0.0.14
 loguru==0.7.0
 lxml==4.9.2
