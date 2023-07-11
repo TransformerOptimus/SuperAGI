@@ -7,7 +7,7 @@ import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {downloadAllFiles} from "@/utils/utils";
 import ResourceList from "@/pages/Content/Agents/ResourceList";
 
-export default function ResourceManager({agentId}) {
+export default function ResourceManager({agentId, runs}) {
   const [output, setOutput] = useState([]);
   const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
@@ -127,7 +127,7 @@ export default function ResourceManager({agentId}) {
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
-      <ResourceList files={channel === 'output' ? output : input} channel={channel}/>
+      <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs}/>
     </div>
     <ToastContainer/>
   </>)
