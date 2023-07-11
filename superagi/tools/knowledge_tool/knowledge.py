@@ -6,19 +6,25 @@ import openai
 from typing import Type, List
 from pydantic import BaseModel, Field
 
-from superagi.helper.knowledge_tool import Knowledgetoolhelper
+from superagi.helper.knowledge_tool import KnowledgeToolHelper
+from superagi.helper.knowledge_db_helper import KnowledgeToolDbHelper
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.knowledge import Knowledge
 from superagi.tools.base_tool import BaseTool
 # from superagi.tools.file.read_file import ReadFileTool
 import pandas as pd
+
 
 # 1. define input schema
 class KnowledgeSearchSchema(BaseModel):
     query: str = Field(..., description="The search query for knowledge store search")
 
+
 # 2. setup name, arg, description
 class KnowledgeSearchTool(BaseTool):
     name: str = "Knowledge Search"
     args_schema: Type[BaseModel] = KnowledgeSearchSchema
+    agent_id: int = None
     description = (
         "A tool for performing a Knowledge search on knowledge base which might have knowledge of the task you are pursuing."
         "To find relevant info, use this tool first before using other tools."
@@ -28,24 +34,23 @@ class KnowledgeSearchTool(BaseTool):
     )
 
     def _execute(self, query: str):
-        print(query)
-        openai_api_key=""
-        knowledge_base=""
-        knowledge_api_key=""
-        knowledge_index_or_collection=""
-        knowledge_url=""
-        knowledge_environment=""
-        openai_api_key = get_config("OPENAI_API_KEY")
-        knowledge_base = get_config("KNOWLEDGE_BASE")#: QDRANT #PINECONE/CHROMA/WEAVIATE
-        knowledge_api_key = get_config("KNOWLEDGE_API_KEY") 
-        knowledge_index_or_collection = get_config("KNOWLEDGE_INDEX_OR_COLLECTION")
-        knowledge_url = get_config("KNOWLEDGE_URL")
-        knowledge_environment = get_config("KNOWLEDGE_ENVIRONMENT")
-        query_knowledge = Knowledgetoolhelper(openai_api_key,knowledge_api_key,knowledge_index_or_collection,knowledge_url,knowledge_environment)
-        if knowledge_base == 'PINECONE':
-          req_context = query_knowledge.pinecone_get_match_vectors(query)
-        elif knowledge_base == 'QDRANT':
-          req_context = query_knowledge.qdrant_get_match_vectors(query)
-        elif knowledge_base == 'CHROMA':
-          req_context = query_knowledge.chroma_get_match_vectors(query)    
+        session = self.toolkit_config.session
+        knowledge_id = session.query(AgentConfiguration).filter(
+            AgentConfiguration.agent_id == self.agent_id,
+            AgentConfiguration.key == "knowledge").first()
+        knowledge = session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
+        dbhelper = KnowledgeToolDbHelper(session)
+        knowledge_details=dbhelper.get_knowledge_details(knowledge)
+
+        if knowledge_details["knowledge_vector_db_type"] == "Pinecone":
+            vector_db_creds = dbhelper.get_pinecone_creds(knowledge_details["knowledge_vector_db_id"])
+            req_context = query_knowledge.pinecone_get_match_vectors(query,vector_db_creds,knowledge_details)
+        elif knowledge_details["knowledge_vector_db_type"] == "Qdrant":
+            vector_db_creds = dbhelper.get_qdrant_creds(knowledge_details["knowledge_vector_db_id"])
+            req_context = query_knowledge.pinecone_get_match_vectors(query,vector_db_creds,knowledge_details)
         return req_context
+
+
+
+        
+        
