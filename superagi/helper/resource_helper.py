@@ -131,11 +131,10 @@ class ResourceHelper:
         """
         output_root_dir = ResourceHelper.get_root_output_dir()
         final_path = ResourceHelper.get_root_input_dir() + file_name
-        # if "{agent_id}" in final_path:
-        #     final_path = ResourceHelper.get_formatted_agent_level_path(
-        #         agent=agent,
-        #         path=final_path)
-        final_path = final_path + "/" + agent.name + '_' + str(agent.id)
+        if "{agent_id}" in final_path:
+            final_path = ResourceHelper.get_formatted_agent_level_path(
+                agent=agent,
+                path=final_path)
         if final_path is None or not os.path.exists(final_path):
             if output_root_dir is not None:
                 final_path = ResourceHelper.get_root_output_dir() + file_name
