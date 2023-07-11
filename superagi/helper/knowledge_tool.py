@@ -29,11 +29,8 @@ class KnowledgeToolHelper:
     	search_res = index.query(x_query, top_k=5, include_metadata=True,filter={
         "knowledge_name": {"$in": knowledge_details["knowledge_name"]}})
     elif knowledge_details["knowledge_vector_db_index_state"] == "CUSTOM":
-    	search_res = index.query(x_query, top_k=5, include_metadata=True)
-    else:
-	search_res_appended = "The knowledge base does not contain any vectors"    
+    	search_res = index.query(x_query, top_k=5, include_metadata=True)   
     
-    print(search_res)
     contexts = [item['metadata']['text'] for item in search_res['matches']]
     search_res_appended=''
     search_res_appended+=f"\nQuery:{query}\n"
@@ -64,17 +61,24 @@ class KnowledgeToolHelper:
 	  
     # get relevant contexts (including the questions)  
     try:
-        search_res = qdrant_client.search(
-            collection_name=knowledge_details["knowledge_vector_db_index_name"],
-            query_vector=x_query,
-            query_filter=models.Filter(
-		        must=[
-			        models.FieldCondition(
-			        key='knowledge_name',
-              match=models.MatchAny(any=knowledge_details["knowledge_name"]))]),
-            limit=5
-        )
-     
+	if knowledge_details["knowledge_vector_db_index_state"] == "MARKETPLACE":    
+	        search_res = qdrant_client.search(
+	            collection_name=knowledge_details["knowledge_vector_db_index_name"],
+	            query_vector=x_query,
+	            query_filter=models.Filter(
+			        must=[
+				        models.FieldCondition(
+				        key='knowledge_name',
+	              match=models.MatchAny(any=knowledge_details["knowledge_name"]))]),
+	            limit=5
+	        )
+     	elif knowledge_details["knowledge_vector_db_index_state"] == "CUSTOM":
+		search_res = qdrant_client.search(
+	            collection_name=knowledge_details["knowledge_vector_db_index_name"],
+	            query_vector=x_query,
+	            limit=5
+		)	
+		
         contexts = [res.payload['text'] for res in search_res]
           
         search_res_appended = ''
