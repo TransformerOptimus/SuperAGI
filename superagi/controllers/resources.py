@@ -64,7 +64,6 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
     save_directory = ResourceHelper.get_root_input_dir() + "/"
     if "{agent_id}" in save_directory:
-        # save_directory = save_directory.replace("{agent_id}", str(agent_id))
         save_directory = ResourceHelper.get_formatted_agent_level_path(agent=Agent
                                                                        .get_agent_from_id(session=db.session,
                                                                                     agent_id=agent_id),

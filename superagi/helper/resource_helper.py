@@ -23,8 +23,6 @@ class ResourceHelper:
         Returns:
             Resource: The Resource object.
         """
-        print("______________________Making Resources!_______________")
-        print("AGENT EXEC : ", agent_execution)
         path = ResourceHelper.get_root_output_dir()
         storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
         file_extension = os.path.splitext(file_name)[1][1:]
@@ -37,7 +35,7 @@ class ResourceHelper:
             file_type = "application/misc"
 
         if agent is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, agent, agent_execution)
+            final_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
             path = cls.get_formatted_agent_level_path(agent, path)
             if agent_execution is not None:
                 path = cls.get_formatted_agent_execution_level_path(agent_execution, path)
@@ -103,8 +101,8 @@ class ResourceHelper:
         return root_dir
 
     @classmethod
-    def get_agent_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
-        """Get agent resource path
+    def get_agent_write_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
+        """Get agent resource path to write files
 
         Args:
             file_name (str): The name of the file.
@@ -113,12 +111,34 @@ class ResourceHelper:
         """
         root_dir = ResourceHelper.get_root_output_dir()
         if agent is not None and "{agent_id}" in root_dir:
-            # root_dir = root_dir.replace("{agent_id}", str(agent_id))
             root_dir = ResourceHelper.get_formatted_agent_level_path(agent, root_dir)
             if agent_execution is not None and "{agent_execution_id}" in root_dir:
-                # root_dir = root_dir.replace("{agent_execution_id}", str(agent_execution_id))
                 root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
                 directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
         final_path = root_dir + file_name
+        return final_path
+
+    @classmethod
+    def get_agent_read_resource_path(cls, file_name, agent: Agent):
+        """Get agent resource path to read files i.e. both input and output directory
+            at agent level.
+
+        Args:
+            file_name (str): The name of the file.
+            agent (Agent): The unique identifier of the agent.
+        """
+        output_root_dir = ResourceHelper.get_root_output_dir()
+        final_path = ResourceHelper.get_root_input_dir() + file_name
+        if "{agent_id}" in final_path:
+            final_path = ResourceHelper.get_formatted_agent_level_path(
+                agent=agent,
+                path=final_path)
+        if final_path is None or not os.path.exists(final_path):
+            if output_root_dir is not None:
+                final_path = ResourceHelper.get_root_output_dir() + file_name
+                if "{agent_id}" in final_path:
+                    final_path = ResourceHelper.get_formatted_agent_level_path(
+                        agent=agent,
+                        path=final_path)
         return final_path

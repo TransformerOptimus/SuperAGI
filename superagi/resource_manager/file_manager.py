@@ -24,10 +24,12 @@ class FileManager:
 
     def write_binary_file(self, file_name: str, data):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name,
-                                                                Agent.get_agent_from_id(self.session, self.agent_id),
-                                                                AgentExecution.get_agent_execution_from_id(self.session,
-                                                                                                           self.agent_execution_id))
+            final_path = ResourceHelper.get_agent_write_resource_path(file_name,
+                                                                      Agent.get_agent_from_id(self.session,
+                                                                                              self.agent_id),
+                                                                      AgentExecution.get_agent_execution_from_id(
+                                                                          self.session,
+                                                                          self.agent_execution_id))
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
@@ -63,12 +65,12 @@ class FileManager:
 
     def write_file(self, file_name: str, content):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name,
-                                                                agent=Agent.get_agent_from_id(self.session,
-                                                                                              self.agent_id),
-                                                                agent_execution=AgentExecution
-                                                                .get_agent_execution_from_id(self.session,
-                                                                                             self.agent_execution_id))
+            final_path = ResourceHelper.get_agent_write_resource_path(file_name,
+                                                                      agent=Agent.get_agent_from_id(self.session,
+                                                                                                    self.agent_id),
+                                                                      agent_execution=AgentExecution
+                                                                      .get_agent_execution_from_id(self.session,
+                                                                                                   self.agent_execution_id))
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
@@ -84,11 +86,12 @@ class FileManager:
 
     def write_csv_file(self, file_name: str, csv_data):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
-                                                                                                         self.agent_id),
-                                                                agent_execution=AgentExecution
-                                                                .get_agent_execution_from_id(self.session,
-                                                                                             self.agent_execution_id))
+            final_path = ResourceHelper.get_agent_write_resource_path(file_name,
+                                                                      agent=Agent.get_agent_from_id(self.session,
+                                                                                                    self.agent_id),
+                                                                      agent_execution=AgentExecution
+                                                                      .get_agent_execution_from_id(self.session,
+                                                                                                   self.agent_execution_id))
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
@@ -104,8 +107,8 @@ class FileManager:
             return f"Error write_csv_file: {err}"
 
     def get_agent_resource_path(self, file_name: str):
-        return ResourceHelper.get_agent_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
-                                                                                               self.agent_id),
-                                                      agent_execution=AgentExecution
-                                                      .get_agent_execution_from_id(self.session,
-                                                                                   self.agent_execution_id))
+        return ResourceHelper.get_agent_write_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
+                                                                                                     self.agent_id),
+                                                            agent_execution=AgentExecution
+                                                            .get_agent_execution_from_id(self.session,
+                                                                                         self.agent_execution_id))

@@ -34,6 +34,6 @@ def test_get_agent_resource_path(mocker):
     mocker.patch('os.makedirs')
     mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['/'])
 
-    result = ResourceHelper.get_agent_resource_path('test.txt', 1, 1)
+    result = ResourceHelper.get_agent_write_resource_path('test.txt', 1, 1)
 
     assert result == '/test.txt'

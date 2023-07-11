@@ -49,17 +49,20 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             success or failure message
         """
-        final_path = ResourceHelper.get_agent_resource_path(filename, agent=Agent.get_agent_from_id(self.toolkit_config
-                                                                                                    .session,
-                                                                                                    self.agent_id),
-                                                            agent_execution=AgentExecution
-                                                            .get_agent_execution_from_id(self.toolkit_config
-                                                                                         .session,
-                                                                                         self.agent_execution_id))
+        # final_path = ResourceHelper.get_agent_write_resource_path(filename, agent=Agent.get_agent_from_id(self.toolkit_config
+        #                                                                                                   .session,
+        #                                                                                                   self.agent_id),
+        #                                                           agent_execution=AgentExecution
+        #                                                           .get_agent_execution_from_id(self.toolkit_config
+        #                                                                                  .session,
+        #                                                                                  self.agent_execution_id))
 
-        if final_path is None or not os.path.exists(final_path):
-            final_path = ResourceHelper.get_root_input_dir() + filename
-
+        # if final_path is None or not os.path.exists(final_path):
+        #     final_path = ResourceHelper.get_root_input_dir() + filename
+        final_path = ResourceHelper.get_agent_read_resource_path(file_name=filename,
+                                                                 agent=Agent.get_agent_from_id(self.toolkit_config
+                                                                                               .session,
+                                                                                               self.agent_id))
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{filename}' not found.")
         attachment = os.path.basename(final_path)
