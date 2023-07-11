@@ -28,12 +28,14 @@ class KnowledgeToolDbHelper:
   def get_knowledge_details(self,knowledge):
     knowledge_name = knowledge.name
     knowledge_index_or_collection_id = knowledge.index_id
+    knowledge_vector_db_index_state = self.session.query(KnowledgeConfig).filter(KnowledgeConfig.knowledge_id == knowledge_index_or_collection_id,KnowledgeConfig.key=="state").first()
     knowledge_vector_db_index = self.session.query(VectorIndexCollection).filter(VectorIndexCollection.id == knowledge_index_or_collection_id).first()
     knowledge_vector_db = self.session.query(Vectordb).filter(Vectordb.id == knowledge_vector_db_index.vector_db_id).first()
     knowledge_vector_db_type = knowledge_vector_db.db_type
     knowledge_vector_db_id = knowledge_vector_db.id
     return {"knowledge_name" : knowledge_name,
             "knowledge_index_or_collection_id" : knowledge_index_or_collection_id,
+            "knowledge_vector_db_index_state" : knowledge_vector_db_index_state,
             "knowledge_vector_db_index_name" : knowledge_vector_db_index.name,
             "knowledge_vector_db_type" : knowledge_vector_db_type,
             "knowledge_vector_db_id" : knowledge_vector_db_id}
