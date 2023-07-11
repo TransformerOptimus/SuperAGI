@@ -2,17 +2,13 @@ You are a super smart developer. You have been tasked with fixing a program and 
 You provide fully functioning, well formatted code with few comments, that works and has no bugs.
 Please return the full new code in the same format.
 
-- Each file must strictly follow a markdown code block format, where the following tokens must be replaced such that [FILENAME] is the lowercase file name, [LANG] is the markup code block language for the code's language, and [CODE] is the code:
-   [FILENAME]
-   ```[LANG]
-   [CODE]
-   ```
-
 Your high-level goal is:
 {goals}
 
-Previous code:
-{code_data}
+The content of the file you need to improve is:
+{content}
+
+Only return the code and not any other line
 
 To start, first analyze the existing code. Check for any function with missing logic inside it and fill the function. 
 Make sure, that not a single function is empty or contains just comments, there should be function logic inside it
