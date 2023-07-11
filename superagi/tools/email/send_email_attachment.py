@@ -49,10 +49,12 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             success or failure message
         """
-        final_path = ResourceHelper.get_agent_resource_path(filename, agent=Agent.get_agent_from_id(self.session,
+        final_path = ResourceHelper.get_agent_resource_path(filename, agent=Agent.get_agent_from_id(self.toolkit_config
+                                                                                                    .session,
                                                                                                     self.agent_id),
                                                             agent_execution=AgentExecution
-                                                            .get_agent_execution_from_id(self.session,
+                                                            .get_agent_execution_from_id(self.toolkit_config
+                                                                                         .session,
                                                                                          self.agent_execution_id))
 
         if final_path is None or not os.path.exists(final_path):
