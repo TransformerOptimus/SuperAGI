@@ -46,8 +46,7 @@ class FileManager:
 
     def write_to_s3(self, file_name, final_path):
         with open(final_path, 'rb') as img:
-            resource = ResourceHelper.make_written_file_resource(session=self.session,
-                                                                 file_name=file_name,
+            resource = ResourceHelper.make_written_file_resource(file_name=file_name,
                                                                  agent=Agent.get_agent_from_id(self.session,
                                                                                                self.agent_id),
                                                                  agent_execution=AgentExecution

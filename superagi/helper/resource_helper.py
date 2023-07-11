@@ -117,7 +117,7 @@ class ResourceHelper:
             root_dir = ResourceHelper.get_formatted_agent_level_path(agent, root_dir)
             if agent_execution is not None and "{agent_execution_id}" in root_dir:
                 # root_dir = root_dir.replace("{agent_execution_id}", str(agent_execution_id))
-                root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution=agent_execution)
+                root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
                 directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
         final_path = root_dir + file_name
