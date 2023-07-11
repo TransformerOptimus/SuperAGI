@@ -44,7 +44,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k', 'gpt-4-32k']
+  const models = ['gpt-4', 'gpt-3.5-turbo','gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -61,8 +61,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const [stepTime, setStepTime] = useState(500);
 
-  const rollingWindows = ["5", "10", "15", "20"]
-  const [rollingWindow, setRollingWindow] = useState(rollingWindows[1]);
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
@@ -128,7 +126,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
             setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
             setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
-            setLocalStorageValue("agent_rolling_window_" + String(internalId), data.memory_window, setRollingWindow);
             setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
             setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
             setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
@@ -225,10 +222,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setDatabaseDropdown(false);
   };
 
-  const handleWindowSelect = (index) => {
-    setLocalStorageValue("agent_rolling_window_" + String(internalId), rollingWindows[index], setRollingWindow);
-    setRollingDropdown(false);
-  };
 
   const handleStepChange = (event) => {
     setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
@@ -333,7 +326,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const handleAddAgent = () => {
     if(!hasAPIkey) {
-      toast.error("Your OpenAI API key is empty!", {autoClose: 1800});
+      toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings");
       return
     }
@@ -382,7 +375,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "max_iterations": maxIterations,
       "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
-      "memory_window": rollingWindow
     };
 
     createAgent(agentData)
@@ -568,10 +560,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setAgentType(agent_type);
     }
 
-    const agent_rolling_window = localStorage.getItem("agent_rolling_window_" + String(internalId));
-    if(agent_rolling_window) {
-      setRollingWindow(agent_rolling_window);
-    }
 
     const agent_database = localStorage.getItem("agent_database_" + String(internalId));
     if(agent_database) {
@@ -797,21 +785,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Time between steps (in milliseconds)</label>
                 <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
-              </div>
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Short term memory - Rolling window</label>
-                <div className="dropdown_container_search" style={{width:'100%'}}>
-                  <div className="custom_select_container" onClick={() => setRollingDropdown(!rollingDropdown)} style={{width:'100%'}}>
-                    {rollingWindow} messages<Image width={20} height={21} src={!rollingDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {rollingDropdown && <div className="custom_select_options" ref={rollingRef} style={{width:'100%'}}>
-                      {rollingWindows.map((window, index) => (<div key={index} className="custom_select_option" onClick={() => handleWindowSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {window}
-                      </div>))}
-                    </div>}
-                  </div>
-                </div>
               </div>
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <div style={{display:'flex'}}>*/}
