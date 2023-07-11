@@ -42,5 +42,5 @@ class MarketPlaceStats(DBBaseModel):
     
     @classmethod
     def get_knowledge_installation_number(cls, session, knowledge_id: int):
-        installation_number = session.query(MarketPlaceStats).filter_by(MarketPlaceStats.reference_id == knowledge_id, MarketPlaceStats.reference_name == "KNOWLEDGE", MarketPlaceStats.key == "download_count").first()
+        installation_number = session.query(MarketPlaceStats).filter(MarketPlaceStats.reference_id == knowledge_id, MarketPlaceStats.reference_name == "KNOWLEDGE", MarketPlaceStats.key == "download_count").first()
         return installation_number.value

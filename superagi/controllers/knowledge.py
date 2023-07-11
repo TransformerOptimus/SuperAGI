@@ -38,7 +38,7 @@ def handle_marketplace_operations_list(
     marketplace_knowledges_with_install = Knowledge.get_knowledge_installed_details(db.session, marketplace_knowledges,
                                                                               organisation)
     for knowledge in marketplace_knowledges_with_install:
-        knowledge["install_number"] = MarketPlaceStats.get_knowledge_installation_number(db.session, knowledge.id)
+        knowledge["install_number"] = MarketPlaceStats.get_knowledge_installation_number(db.session, knowledge["id"])
     return marketplace_knowledges_with_install
 
 @router.get("/user/list")
