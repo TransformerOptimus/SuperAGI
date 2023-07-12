@@ -95,35 +95,48 @@ export const downloadFile = (fileId, fileName = null) => {
 export const downloadAllFiles = (files) => {
   const zip = new JSZip();
   const promises = [];
+  const fileNamesCount = {};
 
-  files.forEach(file => {
+  files.forEach((file, index) => {
+    fileNamesCount[file.name]
+        ? fileNamesCount[file.name]++
+        : (fileNamesCount[file.name] = 1);
+
+    let modifiedFileName = file.name;
+    if (fileNamesCount[file.name] > 1) {
+      const fileExtensionIndex = file.name.lastIndexOf(".");
+      const name = file.name.substring(0, fileExtensionIndex);
+      const extension = file.name.substring(fileExtensionIndex + 1);
+      modifiedFileName = `${name} (${fileNamesCount[file.name] - 1}).${extension}`;
+    }
+
     const promise = downloadFile(file.id)
-      .then(blob => {
-        const fileBlob = new Blob([blob], { type: file.type });
-        zip.file(file.name, fileBlob);
-      })
-      .catch(error => {
-        console.error('Error downloading file:', error);
-      });
+        .then((blob) => {
+          const fileBlob = new Blob([blob], { type: file.type });
+          zip.file(modifiedFileName, fileBlob);
+        })
+        .catch((error) => {
+          console.error("Error downloading file:", error);
+        });
 
     promises.push(promise);
   });
 
   Promise.all(promises)
-    .then(() => {
-      zip.generateAsync({ type: 'blob' })
-        .then(content => {
-          const timestamp = new Date().getTime();
-          const zipFilename = `files_${timestamp}.zip`;
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(content);
-          downloadLink.download = zipFilename;
-          downloadLink.click();
-        })
-        .catch(error => {
-          console.error('Error generating zip:', error);
-        });
-    });
+      .then(() => {
+        zip.generateAsync({ type: "blob" })
+            .then((content) => {
+              const timestamp = new Date().getTime();
+              const zipFilename = `files_${timestamp}.zip`;
+              const downloadLink = document.createElement("a");
+              downloadLink.href = URL.createObjectURL(content);
+              downloadLink.download = zipFilename;
+              downloadLink.click();
+            })
+            .catch((error) => {
+              console.error("Error generating zip:", error);
+            });
+      });
 };
 
 export const refreshUrl = () => {
