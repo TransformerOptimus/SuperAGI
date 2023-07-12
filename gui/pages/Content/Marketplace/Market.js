@@ -4,22 +4,16 @@ import styles from './Market.module.css';
 import Embeddings from './Embeddings';
 import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
-import SearchBox from './SearchBox';
-import EachTool from './EachTool';
+import ToolkitTemplate from './ToolkitTemplate';
 import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
 import {setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 
 export default function Market({env}) {
     const [activeTab, setActiveTab] = useState('market_tools');
-    const [searchTerm, setSearchTerm] = useState('');
     const [itemClicked, setItemClicked] = useState(false);
     const [templateData, setTemplateData] = useState([]);
     const [detailType, setDetailType] = useState('');
-
-    const handleSearch = (term) => {
-      setSearchTerm(term);
-    };
 
     useEffect(() => {
         const marketplace_tab = localStorage.getItem('marketplace_tab');
@@ -86,10 +80,6 @@ export default function Market({env}) {
                       </button>
                   </div>
               </div>
-
-                {/*<div>*/}
-                {/*<SearchBox onSearch={handleSearch} />*/}
-                {/*</div>*/}
             </div>
             <div>
               {activeTab === 'market_tools' && <MarketTools />}
@@ -99,7 +89,7 @@ export default function Market({env}) {
         </div>
         </div> : <div style={{padding:'0 3px'}}>
             {detailType === 'agent_template' && <AgentTemplate env={env} template={templateData}/>}
-            {detailType === 'tool_template' && <EachTool env={env} template={templateData} />}
+            {detailType === 'tool_template' && <ToolkitTemplate env={env} template={templateData} />}
         </div>}
     </div>
   );
