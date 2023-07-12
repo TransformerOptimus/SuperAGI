@@ -6,100 +6,100 @@ import styles from './Tool.module.css';
 import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon, convertToTitleCase} from "@/utils/utils";
 
 export default function ToolkitWorkspace({toolkitDetails, internalId}){
-    const [activeTab,setActiveTab] = useState('configuration')
-    const [showDescription,setShowDescription] = useState(false)
-    const [apiConfigs, setApiConfigs] = useState([]);
-    const [toolsIncluded, setToolsIncluded] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const authenticateToolkits = ['Google Calendar Toolkit', 'Twitter Toolkit'];
+  const [activeTab,setActiveTab] = useState('configuration')
+  const [showDescription,setShowDescription] = useState(false)
+  const [apiConfigs, setApiConfigs] = useState([]);
+  const [toolsIncluded, setToolsIncluded] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const authenticateToolkits = ['Google Calendar Toolkit', 'Twitter Toolkit'];
 
-    let handleKeyChange = (event, index) => {
-      const updatedData = [...apiConfigs];
-      updatedData[index].value = event.target.value;
-      setLocalStorageArray('api_configs_' + String(internalId), updatedData, setApiConfigs);
-    };
-    
-    function getGoogleToken(client_data){
-      const client_id = client_data.client_id 
-      const scope = 'https://www.googleapis.com/auth/calendar';
-      const redirect_uri = 'http://localhost:3000/api/oauth-calendar';
-      window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
-    }
-    
-    function getTwitterToken(oauth_data){
-      window.location.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_data.oauth_token}`
-    }
+  let handleKeyChange = (event, index) => {
+    const updatedData = [...apiConfigs];
+    updatedData[index].value = event.target.value;
+    setLocalStorageArray('api_configs_' + String(internalId), updatedData, setApiConfigs);
+  };
 
-    useEffect(() => {
-      if(toolkitDetails !== null) {
-        if (toolkitDetails.tools) {
-          setToolsIncluded(toolkitDetails.tools);
-        }
+  function getGoogleToken(client_data){
+    const client_id = client_data.client_id
+    const scope = 'https://www.googleapis.com/auth/calendar';
+    const redirect_uri = 'http://localhost:3000/api/oauth-calendar';
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+  }
 
-        getToolConfig(toolkitDetails.name)
-          .then((response) => {
-            const localStoredConfigs = localStorage.getItem('api_configs_' + String(internalId));
-            const apiConfigs = response.data || [];
-            setApiConfigs(localStoredConfigs ? JSON.parse(localStoredConfigs) : apiConfigs);
-          })
-          .catch((errPor) => {
-            console.log('Error fetching API data:', error);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+  function getTwitterToken(oauth_data){
+    window.location.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_data.oauth_token}`
+  }
+
+  useEffect(() => {
+    if(toolkitDetails !== null) {
+      if (toolkitDetails.tools) {
+        setToolsIncluded(toolkitDetails.tools);
       }
-    }, [toolkitDetails]);
 
-    const handleUpdateChanges = async () => {
-      const updatedConfigData = apiConfigs.map((config) => ({
-        key: config.key,
-        value: config.value,
-      }));
-      
-      updateToolConfig(toolkitDetails.name, updatedConfigData)
+      getToolConfig(toolkitDetails.name)
         .then((response) => {
-            toast.success('Toolkit configuration updated', {autoClose: 1800});
+          const localStoredConfigs = localStorage.getItem('api_configs_' + String(internalId));
+          const apiConfigs = response.data || [];
+          setApiConfigs(localStoredConfigs ? JSON.parse(localStoredConfigs) : apiConfigs);
+        })
+        .catch((errPor) => {
+          console.log('Error fetching API data:', error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [toolkitDetails]);
+
+  const handleUpdateChanges = async () => {
+    const updatedConfigData = apiConfigs.map((config) => ({
+      key: config.key,
+      value: config.value,
+    }));
+
+    updateToolConfig(toolkitDetails.name, updatedConfigData)
+      .then((response) => {
+        toast.success('Toolkit configuration updated', {autoClose: 1800});
+      })
+      .catch((error) => {
+        toast.error('Unable to update Toolkit configuration', {autoClose: 1800});
+        console.error('Error updating tool config:', error);
+      });
+  };
+
+  const handleAuthenticateClick = async (toolkitName) => {
+    if(toolkitName === 'Google Calendar Toolkit') {
+      authenticateGoogleCred(toolkitDetails.id)
+        .then((response) => {
+          getGoogleToken(response.data);
         })
         .catch((error) => {
-          toast.error('Unable to update Toolkit configuration', {autoClose: 1800});
-          console.error('Error updating tool config:', error);
+          console.error('Error fetching data:', error);
         });
-    };
+    } else if(toolkitName === 'Twitter Toolkit') {
+      authenticateTwitterCred(toolkitDetails.id)
+        .then((response) => {
+          localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
+          getTwitterToken(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching data: ', error);
+        });
+    }
+  };
 
-    const handleAuthenticateClick = async (toolkitName) => {
-      if(toolkitName === 'Google Calendar Toolkit') {
-        authenticateGoogleCred(toolkitDetails.id)
-          .then((response) => {
-            getGoogleToken(response.data);
-          })
-          .catch((error) => {
-            console.error('Error fetching data:', error);
-          });
-      } else if(toolkitName === 'Twitter Toolkit') {
-        authenticateTwitterCred(toolkitDetails.id)
-          .then((response) => {
-            localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
-            getTwitterToken(response.data);
-          })
-          .catch((error) => {
-            console.error('Error fetching data: ', error);
-          });
-      }
-    };
+  useEffect(() => {
+    const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
+    if(active_tab) {
+      setActiveTab(active_tab);
+    }
+  }, [internalId]);
 
-    useEffect(() => {
-      const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
-      if(active_tab) {
-        setActiveTab(active_tab);
-      }
-    }, [internalId]);
-
-    return (<>
-      <div className="row">
-        <div className="col-3"></div>
-        <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
-          <div className={styles.tools_container}>
+  return (<>
+    <div className="row">
+      <div className="col-3"></div>
+      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
+        <div className={styles.tools_container}>
           <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px',width:'95%'}}>
             <div>
               <Image src={returnToolkitIcon(toolkitDetails?.name)} alt="toolkit-icon" width={45} height={45} style={{borderRadius:'25px',background: 'black'}} />
@@ -141,11 +141,11 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
 
             {apiConfigs.length > 0 && (
               <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
-                {authenticateToolkits.includes(toolkitDetails.name) && <div>
-                  <button style={{width:'fit-content'}} className={styles.primary_button} onClick={() => handleAuthenticateClick(toolkitDetails.name)}>Authenticate Tool</button>
-                </div>}
+                <div>{authenticateToolkits.includes(toolkitDetails.name) &&
+                  <button style={{width:'fit-content'}} className="primary_button" onClick={() => handleAuthenticateClick(toolkitDetails.name)}>Authenticate Tool</button>
+                }</div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
+                  <button className="primary_button" onClick={handleUpdateChanges} >Update Changes</button>
                 </div>
               </div>)}
           </div>}
@@ -160,13 +160,12 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
             ))}
           </div>}
         </div>
-        </div>
-        <div className="col-3"></div>
       </div>
-      <ToastContainer/>
-    </>);
+      <div className="col-3"></div>
+    </div>
+    <ToastContainer/>
+  </>);
 }
-
 
 
 

@@ -170,18 +170,18 @@ export const setLocalStorageArray = (key, value, stateFunction) => {
   localStorage.setItem(key, arrayString);
 }
 
-export const removeInternalId = (internalId) => {
+const getInternalIds = () => {
   const internal_ids = localStorage.getItem("agi_internal_ids");
-  let idsArray = internal_ids ? internal_ids.split(",").map(Number) : [];
+  return internal_ids ? JSON.parse(internal_ids) : [];
+}
 
-  if(idsArray.length <= 0) {
-    return;
-  }
-
+const removeAgentInternalId = (internalId) => {
+  let idsArray = getInternalIds();
   const internalIdIndex = idsArray.indexOf(internalId);
+
   if (internalIdIndex !== -1) {
     idsArray.splice(internalIdIndex, 1);
-    localStorage.setItem('agi_internal_ids', idsArray.join(','));
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
     localStorage.removeItem("agent_create_click_" + String(internalId));
     localStorage.removeItem("agent_name_" + String(internalId));
     localStorage.removeItem("agent_description_" + String(internalId));
@@ -202,6 +202,110 @@ export const removeInternalId = (internalId) => {
     localStorage.removeItem("has_LTM_" + String(internalId));
     localStorage.removeItem("has_resource_" + String(internalId));
     localStorage.removeItem("agent_files_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_" + String(internalId));
+  }
+}
+
+const removeAddToolkitInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('tool_github_' + String(internalId));
+  }
+}
+
+const removeToolkitsInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('toolkit_tab_' + String(internalId));
+    localStorage.removeItem('api_configs_' + String(internalId));
+  }
+}
+
+const removeKnowledgeInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('knowledge_name_' + String(internalId));
+    localStorage.removeItem('knowledge_description_' + String(internalId));
+    localStorage.removeItem('knowledge_index_' + String(internalId));
+  }
+}
+
+const removeAddDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('add_database_tab_' + String(internalId));
+    localStorage.removeItem('selected_db_' + String(internalId));
+    localStorage.removeItem('db_name_' + String(internalId));
+    localStorage.removeItem('db_collections_' + String(internalId));
+    localStorage.removeItem('pincone_api_' + String(internalId));
+    localStorage.removeItem('pinecone_env_' + String(internalId));
+    localStorage.removeItem('qdrant_api_' + String(internalId));
+    localStorage.removeItem('qdrant_url_' + String(internalId));
+    localStorage.removeItem('qdrant_port_' + String(internalId));
+  }
+}
+
+const removeDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('db_details_collections_' + String(internalId));
+  }
+}
+
+export const resetLocalStorage = (contentType, internalId) => {
+  switch (contentType) {
+    case 'Create_Agent':
+      removeAgentInternalId(internalId);
+      break;
+    case 'Add_Toolkit':
+      removeAddToolkitInternalId(internalId);
+      break;
+    case 'Marketplace':
+      localStorage.removeItem('marketplace_tab');
+      localStorage.removeItem('market_item_clicked');
+      localStorage.removeItem('market_detail_type');
+      localStorage.removeItem('market_item');
+      break;
+    case 'Toolkits':
+      removeToolkitsInternalId(internalId);
+      break;
+    case 'Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Database':
+      removeAddDatabaseInternalId(internalId);
+      break;
+    case 'Database':
+      removeDatabaseInternalId(internalId);
+      break;
+    case 'Settings':
+      localStorage.removeItem('settings_tab');
+      break;
+    default:
+      break;
   }
 }
 
@@ -209,8 +313,7 @@ export const createInternalId = () => {
   let newId = 1;
 
   if (typeof window !== 'undefined') {
-    const internal_ids = localStorage.getItem("agi_internal_ids");
-    let idsArray = internal_ids ? internal_ids.split(",").map(Number) : [];
+    let idsArray = getInternalIds();
     let found = false;
 
     for (let i = 1; !found; i++) {
@@ -221,7 +324,7 @@ export const createInternalId = () => {
     }
 
     idsArray.push(newId);
-    localStorage.setItem('agi_internal_ids', idsArray.join(','));
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
   }
 
   return newId;
@@ -242,6 +345,7 @@ export const returnToolkitIcon = (toolkitName) => {
     { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
     { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
     { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
+    { name: 'Knowledge Search Toolkit', imageSrc: '/images/app-logo-light.png' },
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
@@ -259,7 +363,20 @@ export const returnResourceIcon = (file) => {
   return fileTypeIcons[file.type] || '/images/default_file.svg';
 };
 
-export const  convertToTitleCase = (str) => {
+export const returnDatabaseIcon = (database) => {
+  const dbTypeIcons = {
+    'Pinecone': '/images/pinecone.svg',
+    'Qdrant': '/images/qdrant.svg'
+  };
+
+  return dbTypeIcons[database]
+};
+
+export const convertToTitleCase = (str) => {
+  if(str === null || str === '') {
+    return '';
+  }
+
   const words = str.toLowerCase().split('_');
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
