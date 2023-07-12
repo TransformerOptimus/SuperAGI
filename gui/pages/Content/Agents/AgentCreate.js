@@ -402,16 +402,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     console.log(scheduleData)
     const scheduleAgentData = {
       "agent_config": agentData,
-<<<<<<< HEAD
       "schedule":{
         "start_time": startTime,
         "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
         "expiry_date": expiryDate,	
         "expiry_runs": parseInt(expiryRuns, 10),
       }
-=======
-      "schedule":scheduleData,
->>>>>>> f4038ff56f22410f66280681ce1aecab28ea8650
     }
     console.log(scheduleAgentData)
 
