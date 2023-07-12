@@ -37,7 +37,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   const [createModal, setCreateModal] = useState(false);
   const [createEditModal , setCreateEditModal] = useState(false);	
   const [createStopModal, setCreateStopModal] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(false);	
+  const [agentScheduleDetails, setAgentScheduleDetails] = useState(null)
 
 
   const closeCreateModal = () => {	
@@ -173,6 +173,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   useEffect(() => {
     fetchAgentDetails(agentId);
     fetchExecutions(agentId);
+    fetchAgentScheduleComponent()
   }, [agentId])
 
   useEffect(() => {
@@ -194,6 +195,19 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
         console.error('Error fetching agent details:', error);
       });
   }
+
+  function fetchAgentScheduleComponent() {
+    if(agent.is_scheduled) {
+      agentScheduleComponent(agentId)
+          .then((response) => {
+            console.log(response.data)
+            setAgentScheduleDetails(response.data)
+          })
+          .catch((error) => {
+            console.error('Error fetching agent data:', error);
+          });
+    }
+  };
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
@@ -359,7 +373,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
                 <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
               </div>
           )}
-          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0}/></div>}
+          {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0} agentScheduleDetails={agentScheduleDetails} agent={agent} /></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
         </div>
       </div>

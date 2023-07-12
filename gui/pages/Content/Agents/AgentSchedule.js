@@ -204,7 +204,9 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                 const {current_datetime, recurrence_interval, expiry_date, expiry_runs, start_date, start_time} = response.data;
                 setExpiryRuns(expiry_runs);
                 setExpiryDate(expiry_date);
-                if(expiry_date || expiry_runs != -1) {
+                if((expiry_date || expiry_runs != -1) && recurrence_interval !== null) {
+                    setTimeValue(parseInt(recurrence_interval.substring(0,1),10))
+                    setTimeUnit(recurrence_interval.substring(2,))
                     setIsRecurring(true);
                     setExpiryType(expiry_date ? 'Specific Date' : 'After certain number of runs');
                 } else {

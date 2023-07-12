@@ -4,11 +4,12 @@ import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
 import { EventBus } from "@/utils/eventBus";
 
-export default function Details({agentDetails, runCount, goals, instructions}) {
+export default function Details({agentDetails, runCount, goals, instructions, agentScheduleDetails, agent}) {
   const [showGoals, setShowGoals] = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [filteredInstructions, setFilteredInstructions] = useState(false);
+  const [scheduleText, setScheduletest] = useState('Agent is not Scheduled')
 
   useEffect(() => {
     setFilteredInstructions(instructions?.filter(instruction => instruction.trim() !== ''));
@@ -17,6 +18,26 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
   const info_text = {
     marginLeft:'7px',
   };
+  useEffect(() => {
+    console.log(agentScheduleDetails)
+    if(agent.is_scheduled){
+      if(agentScheduleDetails?.recurrence_interval !== null){
+          if((agentScheduleDetails?.expiry_runs == -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null)
+          {
+            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after '+ agentScheduleDetails?.expiry_date)
+          }
+          else if((agentScheduleDetails?.expiry_runs > 0) && agentScheduleDetails?.expiry_date == null){
+            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after '+ agentScheduleDetails?.expiry_runs + ' runs')
+          }
+          else {
+            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will never expire')
+          }
+      }
+      else {
+        setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time )
+      }
+    }
+  }, [agentScheduleDetails]);
 
   const info_text_secondary = {
     marginLeft:'3px',
@@ -135,6 +156,10 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
       {agentDetails?.max_iterations && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
         <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
+      </div>}
+      {agent.is_scheduled && <div className={styles.agent_info_box}>
+        <div><Image width={15} height={15} src="/images/event_repeat.svg" alt="info-icon"/></div>
+        <div style={info_text}>{scheduleText}</div>
       </div>}
     </div>
   </>)
