@@ -62,7 +62,7 @@ class ResourceManager:
 
             documents = SimpleDirectoryReader(input_files=[temporary_file_path]).load_data()
         except Exception as e:
-            logger.error(e)
+            logger.error("superagi/resource_manager/resource_manager.py - create_llama_document_s3 threw : ", e)
         finally:
             if os.path.exists(temporary_file_path):
                 os.remove(temporary_file_path)
