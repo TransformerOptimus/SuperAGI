@@ -3,6 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
 import { EventBus } from "@/utils/eventBus";
+import moment from 'moment';
 
 export default function Details({agentDetails, runCount, goals, instructions, agentScheduleDetails, agent}) {
   const [showGoals, setShowGoals] = useState(false);
@@ -23,17 +24,17 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       if(agentScheduleDetails?.recurrence_interval !== null){
           if((agentScheduleDetails?.expiry_runs == -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null)
           {
-            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after '+ agentScheduleDetails?.expiry_date)
+            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' GMT and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after '+ agentScheduleDetails?.expiry_date)
           }
           else if((agentScheduleDetails?.expiry_runs > 0) && agentScheduleDetails?.expiry_date == null){
-            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after '+ agentScheduleDetails?.expiry_runs + ' runs')
+            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' GMT and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after '+ agentScheduleDetails?.expiry_runs + ' runs')
           }
           else {
-            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will never expire')
+            setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' GMT and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will never expire')
           }
       }
       else {
-        setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time )
+        setScheduletest('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' GMT')
       }
     }
   }, [agentScheduleDetails]);

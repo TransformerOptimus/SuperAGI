@@ -253,10 +253,16 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       }
     };
 
+    const refreshDate = () => {
+      fetchAgentScheduleComponent()
+    };
+
     EventBus.on('resetRunStatus', resetRunStatus);
+    EventBus.on('refreshDate', refreshDate);
 
     return () => {
       EventBus.off('resetRunStatus', resetRunStatus);
+      EventBus.off('refreshDate', refreshDate);
     };
   });
 
