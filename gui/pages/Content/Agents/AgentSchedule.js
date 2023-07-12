@@ -21,7 +21,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
 
     const expiryTypeArray = ['Specific Date', 'After certain number of runs', 'No expiry'];
     const [expiryType, setExpiryType] = useState(expiryTypeArray[1]);
-    const [expiryRuns, setExpiryRuns] = useState(-1);
+    const [expiryRuns, setExpiryRuns] = useState(0);
     const [expiryDate, setExpiryDate] = useState(null);
 
     const timeRef = useRef(null);
@@ -126,6 +126,10 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
     const preventDefault = (e) => {
         e.stopPropagation();
     };
+    function convertToLocalTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString();
+    }
     const addScheduledAgent = () => {
         if((startTime === '' || (isRecurring == true && (timeValue == null || (expiryType == "After certain number of runs" && (parseInt(expiryRuns,10) < 1)) || (expiryType == "Specific date" && expiryDate == null) )))){
             toast.error('Please input correct details')
@@ -135,8 +139,8 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
             const scheduleData = {
                 "start_time": startTime,
                 "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-                "expiry_date": expiryDate,
-                "expiry_runs": parseInt(expiryRuns, 10),
+                "expiry_runs":expiryType == 'After certain number of runs' ? parseInt(expiryRuns) : -1,
+                "expiry_date":expiryType == 'Specific Date' ? expiryDate : null ,
             }
             EventBus.emit('handleAgentScheduling', scheduleData);
         }
@@ -270,7 +274,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                                 {expiryType === 'Specific Date' && (
                                     <div style={{width:'100%', marginTop:'10px'}}>
                                         {type !== "edit_schedule_agent" && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
-                                        {type === "edit_schedule_agent" && expiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {expiryDate}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setExpiryDate(null)}>Edit</div></div>}
+                                        {type === "edit_schedule_agent" && expiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {(new Date(`${expiryDate}Z`).toLocaleString()).substring(0,10)}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setExpiryDate(null)}>Edit</div></div>}
                                         {type === "edit_schedule_agent" && !expiryDate && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
                                     </div>
                                 )}
