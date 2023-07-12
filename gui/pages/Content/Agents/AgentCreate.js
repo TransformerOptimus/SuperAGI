@@ -454,13 +454,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "schedule":{
         "start_time": startTime,
         "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-<<<<<<< HEAD
         "expiry_date": expiryDate,	
         "expiry_runs": parseInt(expiryRuns, 10),
-=======
-        "expiry_date": expiryDate,
-        "expiry_runs": expiryRuns,
->>>>>>> 95c1b9b62e5f8ee27a79fdda0da0aec16401accc
       }
     }
 
