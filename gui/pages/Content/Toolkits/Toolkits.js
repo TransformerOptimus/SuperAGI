@@ -2,7 +2,6 @@ import React from 'react';
 import Image from "next/image";
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
-import 'react-toastify/dist/ReactToastify.css';
 import {createInternalId, returnToolkitIcon} from "@/utils/utils";
 
 export default function Toolkits({ sendToolkitData, toolkits, env }) {
@@ -24,22 +23,22 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
             <div className={styles.tool_container}>
               {toolkits.map((tool, index) =>
                   tool.name !== null && !excludedToolkits.includes(tool.name) && (
-                  <div key={index} className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
-                    <div className="row">
-                      <div className="col-12">
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
-                          <div>
-                            <Image className={styles.image_class} style={{background: 'black'}} width={30} height={30} src={returnToolkitIcon(tool.name)}
-                                   alt="tool-icon" />
-                          </div>
-                          <div style={{ marginLeft: '8px' }}>
-                            <div className={styles.tool_name}>{tool.name}</div>
-                            <div className={styles.tool_publisher}>by SuperAGI</div>
+                    <div key={index} className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
+                      <div className="row">
+                        <div className="col-12">
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
+                            <div>
+                              <Image className={styles.image_class} style={{background: 'black'}} width={30} height={30} src={returnToolkitIcon(tool.name)}
+                                     alt="tool-icon" />
+                            </div>
+                            <div style={{ marginLeft: '8px' }}>
+                              <div className={styles.tool_name}>{tool.name}</div>
+                              <div className={styles.tool_publisher}>by SuperAGI</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
                   )
               )}
             </div>
@@ -55,4 +54,3 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
     </>
   );
 }
-
