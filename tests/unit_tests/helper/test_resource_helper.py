@@ -15,7 +15,7 @@ def test_make_written_file_resource(mocker):
     mock_agent_execution = AgentExecution(id=1, name='TestExecution')
 
     with patch('superagi.helper.resource_helper.logger') as logger_mock:
-        result = ResourceHelper.make_written_file_resource('test.txt', mock_agent, mock_agent_execution, 'INPUT')
+        result = ResourceHelper.make_written_file_resource('test.txt', mock_agent, mock_agent_execution)
 
     assert result.name == 'test.txt'
     assert result.path == 'resources/test.txt'

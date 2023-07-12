@@ -1,19 +1,13 @@
 import csv
-import os
 
-from llama_index import SimpleDirectoryReader
-from llama_index.indices.response import ResponseMode
-from llama_index.schema import Document
 from sqlalchemy.orm import Session
 
-from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
+from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
-from superagi.models.agent import Agent
-from superagi.types.vector_store_types import VectorStoreType
 
 
 class FileManager:
@@ -33,9 +27,6 @@ class FileManager:
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
 
-        # if self.agent_id is not None:
-        #     directory = os.path.dirname(final_path + "/" + str(self.agent_id) + "/")
-        #     os.makedirs(directory, exist_ok=True)
         try:
             with open(final_path, mode="wb") as img:
                 img.write(data)

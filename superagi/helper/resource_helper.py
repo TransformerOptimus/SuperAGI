@@ -10,7 +10,7 @@ from superagi.types.storage_types import StorageType
 
 class ResourceHelper:
     @classmethod
-    def make_written_file_resource(cls, file_name: str, agent: Agent, agent_execution: AgentExecution, channel: str):
+    def make_written_file_resource(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
         """
         Function to create a Resource object for a written file.
 
