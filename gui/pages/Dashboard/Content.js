@@ -29,14 +29,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   function fetchAgents() {
     getAgents(selectedProjectId)
       .then((response) => {
-        console.log("///////////////////////////////")
-        console.log(response)
         const data = response.data || [];
         const updatedData = data.map(item => {
           return { ...item, contentType: "Agents" };
         });
         setAgents(updatedData);
-        console.log(agents);
       })
       .catch((error) => {
         console.error('Error fetching agents:', error);

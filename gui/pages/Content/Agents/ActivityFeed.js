@@ -14,7 +14,6 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
   const [isScheduled, setScheduledTime] = useState(false)
-  const [refreshTime, setRefreshTime] = useState(0)
 
 
   useEffect(() => {
@@ -33,8 +32,6 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     getDateTime(agent.id)
     .then((response) => {
       const {start_date, start_time} = response.data;
-      console.log(start_date)
-      console.log("hello:: "+response.data)
         setScheduleDate(start_date);
         setScheduleTime(start_time);
     })
@@ -98,10 +95,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
       }
     };
     const refreshDate = () => {
-        console.log('refreshing')
-        setRefreshTime(refreshTime + 1)
         fetchDateTime();
-        console.log(refreshTime)
     };
 
     EventBus.on('updateRunStatus', updateRunStatus);
@@ -114,7 +108,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   });
 
   return (<>
-    <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef} key={refreshTime}>
+    <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom:'55px'}}>
         
         {agent.is_scheduled && !agent.is_running ?

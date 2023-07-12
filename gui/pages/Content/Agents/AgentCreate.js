@@ -399,17 +399,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
     };
-    console.log(scheduleData)
     const scheduleAgentData = {
       "agent_config": agentData,
-      "schedule":{
-        "start_time": startTime,
-        "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-        "expiry_date": expiryDate,	
-        "expiry_runs": parseInt(expiryRuns, 10),
-      }
+      "schedule":scheduleData,
     }
-    console.log(scheduleAgentData)
 
     createAgent(createModal ? scheduleAgentData : agentData, createModal)
       .then((response) => {
@@ -877,12 +870,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           <button style={{ marginRight: '7px' }} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
               <div style={{ display: 'flex', position: 'relative' }}>
                 {createDropdown && (
-                <div className="custom_select_option" style={{ 
+                <div className="custom_select_option" style={{background:'#3B3B49',borderRadius:'8px',
                 position: 'absolute', top: '-40px', right: '0', zIndex: '1', boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)', height: '40px',width:'150px',paddingTop:'10px',textAlign:'center'}}
                 onClick={() => { setCreateModal(true); setCreateDropdown(false);}}>Create & Schedule Run
                 </div>)}
                 <div className="primary_button" style={{ backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px' }}>
-                <button disabled={!createClickable} className="primary_button" style={{ paddingRight: '5px' }} onClick={handleAddAgent}>Create and Run</button>
+                <button disabled={!createClickable} className="primary_button" style={{ paddingRight: '5px' }} onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
                 <button onClick={() => setCreateDropdown(!createDropdown)} style={{ border: 'none', backgroundColor: 'white' }}>
                   <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon" />
                 </button>

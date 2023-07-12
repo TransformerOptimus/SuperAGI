@@ -271,7 +271,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                                     <div style={{width:'100%', marginTop:'10px'}}>
                                         {type !== "edit_schedule_agent" && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
                                         {type === "edit_schedule_agent" && expiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {expiryDate}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setExpiryDate(null)}>Edit</div></div>}
-                                        {type === "edit_schedule_agent" && !expiryDate && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }}/>}
+                                        {type === "edit_schedule_agent" && !expiryDate && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
                                     </div>
                                 )}
                             </div>
