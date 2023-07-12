@@ -10,10 +10,10 @@ export default function MarketKnowledge() {
   const [knowledgeTemplates, setKnowledgeTemplates] = useState([])
   const [showMarketplace, setShowMarketplace] = useState(false);
   const [isLoading, setIsLoading] = useState(true)
-  const [loadingText, setLoadingText] = useState("Loading Templates");
+  const [loadingText, setLoadingText] = useState("Loading Knowledge Templates");
 
   useEffect(() => {
-    loadingTextEffect('Loading Templates', setLoadingText, 500);
+    loadingTextEffect('Loading Knowledge Templates', setLoadingText, 500);
 
     if(window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);
