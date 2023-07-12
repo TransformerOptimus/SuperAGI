@@ -33,7 +33,7 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     Returns:
         Organisation: Instance of Organisation class to which the authenticated user belongs.
     """
-    user = get_current_user()
+    user = get_current_user(Authorize)
     if user is None:
         raise HTTPException(status_code=401, detail="Unauthenticated")
     organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
