@@ -110,13 +110,6 @@ export default function ResourceManager({agentId, runs}) {
             </button>
           </div>
         </div>
-        <div style={{order:1}}>
-          {channel === 'output' && output.length > 0 && (
-            <button onClick={() => downloadAllFiles(output)} className={styles.tab_button} style={{background:'transparent',padding:'5px 10px',height:'30px',color:'#888888'}}>
-              <Image src="/images/download_icon.svg" width={20} height={20} alt="download-icon"/>&nbsp;Download
-            </button>
-          )}
-        </div>
       </div>
     </div>
     <div className={styles.detail_body} style={{height:'auto'}}>
