@@ -1,6 +1,7 @@
 import os
 
 from llama_index import SimpleDirectoryReader
+from sqlalchemy.orm import Session
 
 from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
@@ -8,6 +9,7 @@ from superagi.lib.logger import logger
 from superagi.resource_manager.llama_vector_store_factory import LlamaVectorStoreFactory
 from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
+from superagi.models.agent import Agent
 
 
 class ResourceManager:
@@ -39,27 +41,31 @@ class ResourceManager:
         :param file_path: The file path to create the document index from.
         :return: A list of documents.
         """
+        try:
+            if file_path is None:
+                raise Exception("file_path must be provided")
 
-        if file_path is None:
-            raise Exception("file_path must be provided")
+            import boto3
+            s3 = boto3.client(
+                's3',
+                aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+                aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+            )
+            bucket_name = get_config("BUCKET_NAME")
+            file = s3.get_object(Bucket=bucket_name, Key=file_path)
+            file_name = file_path.split("/")[-1]
+            save_directory = "/"
+            temperory_file_path = save_directory + file_name
+            with open(temperory_file_path, "wb") as f:
+                contents = file['Body'].read()
+                f.write(contents)
 
-        import boto3
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
-        )
-        bucket_name = get_config("BUCKET_NAME")
-        file = s3.get_object(Bucket=bucket_name, Key=file_path)
-        file_name = file_path.split("/")[-1]
-        save_directory = ResourceHelper.get_root_input_dir() + "/"
-        file_path = save_directory + file_name
-        with open(file_path, "wb") as f:
-            contents = file['Body'].read()
-            f.write(contents)
-
-        documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
-        os.remove(file_path)
+            documents = SimpleDirectoryReader(input_files=[temperory_file_path]).load_data()
+        except Exception as e:
+            logger.error(e)
+        finally:
+            if os.path.exists(temperory_file_path):
+                os.remove(temperory_file_path)
         return documents
 
     def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None,
