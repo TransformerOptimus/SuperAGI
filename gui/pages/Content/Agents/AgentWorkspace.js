@@ -89,17 +89,17 @@ export default function AgentWorkspace({agentId, selectedView}) {
     }
 
     addExecution(executionData)
-        .then((response) => {
-          setRunModal(false);
-          fetchExecutions(agentId, response.data);
-          fetchAgentDetails(agentId);
-          EventBus.emit('reFetchAgents', {});
-          toast.success("New run created", {autoClose: 1800});
-        })
-        .catch((error) => {
-          console.error('Error creating execution:', error);
-          toast.error("Could not create run", {autoClose: 1800});
-        });
+      .then((response) => {
+        setRunModal(false);
+        fetchExecutions(agentId, response.data);
+        fetchAgentDetails(agentId);
+        EventBus.emit('reFetchAgents', {});
+        toast.success("New run created", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error creating execution:', error);
+        toast.error("Could not create run", {autoClose: 1800});
+      });
   };
 
   const closeRunModal = () => {
@@ -111,18 +111,18 @@ export default function AgentWorkspace({agentId, selectedView}) {
     const executionData = {"status": status};
 
     updateExecution(selectedRun.id, executionData)
-        .then((response) => {
-          EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
-          if(status !== 'TERMINATED') {
-            fetchExecutions(agentId, response.data);
-          } else {
-            fetchExecutions(agentId);
-          }
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating execution:', error);
-        });
+      .then((response) => {
+        EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
+        if(status !== 'TERMINATED') {
+          fetchExecutions(agentId, response.data);
+        } else {
+          fetchExecutions(agentId);
+        }
+        EventBus.emit('reFetchAgents', {});
+      })
+      .catch((error) => {
+        console.error('Error updating execution:', error);
+      });
 
     setDropdown(false);
   };
@@ -158,15 +158,15 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
-        .then((response) => {
-          let data = response.data
-          data = data.filter((run) => run.status !== 'TERMINATED');
-          setAgentExecutions(data);
-          setSelectedRun(currentRun ? currentRun : data[0]);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent executions:', error);
-        });
+      .then((response) => {
+        let data = response.data
+        data = data.filter((run) => run.status !== 'TERMINATED');
+        setAgentExecutions(data);
+        setSelectedRun(currentRun ? currentRun : data[0]);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent executions:', error);
+      });
   }
 
   function fetchExecutionDetails(executionId) {
@@ -184,12 +184,14 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   function saveAgentTemplate() {
     saveAgentAsTemplate(agentId)
-        .then((response) => {
-          toast.success("Agent saved as template successfully", {autoClose: 1800});
-        })
-        .catch((error) => {
-          console.error('Error saving agent as template:', error);
-        });
+      .then((response) => {
+        toast.success("Agent saved as template successfully", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error saving agent as template:', error);
+      });
+
+    setDropdown(false);
   }
 
   useEffect(() => {
@@ -235,9 +237,9 @@ export default function AgentWorkspace({agentId, selectedView}) {
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {<button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
-            </button>}
+            </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container" style={{marginTop:'31px',marginLeft:'-32px'}}>
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
@@ -287,9 +289,9 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
-              <div className={styles.detail_content}>
-                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
-              </div>
+            <div className={styles.detail_content}>
+              <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
+            </div>
           )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
@@ -310,7 +312,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -322,7 +324,7 @@ export default function AgentWorkspace({agentId, selectedView}) {
               <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
               </div>{instructions.length > 1 && <div>
               <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
-                <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
               </button>
             </div>}
             </div>))}
