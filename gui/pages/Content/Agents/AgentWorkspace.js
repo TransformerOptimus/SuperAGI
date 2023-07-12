@@ -11,13 +11,13 @@ import Details from "./Details";
 import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, createAndScheduleRun, AgentScheduleComponent, updateSchedule } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import axios from 'axios';
 import { convertToGMT } from "@/utils/utils";
 import Datetime from "react-datetime";
 import styles1 from './react-datetime.css';
 import 'moment-timezone';
+import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, selectedView, agents}) {
+export default function AgentWorkspace({agentId, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -48,7 +48,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
   const [showDateTime, setShowDateTime] = useState(null);
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
- 
+
   const [expiry, setExpiry] = useState(expiryArray[1]);
   const timeRef = useRef(null);	
   const expiryRef = useRef(null);
@@ -64,7 +64,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
 
   const [showExpirytDate, setShowExpiryDate]=useState(false)
 
-  const handleTimeChange = (momentObj) => {	
+  const handleTimeChange = (momentObj) => {
     const startTime = convertToGMT(momentObj);
     setStartTime(startTime);
   };
@@ -94,7 +94,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
     setTimeDropdown(false);
   }
 
-  const handleDateTimeChange = (momentObj) => {	
+  const handleDateTimeChange = (momentObj) => {
     const expiryDate = convertToGMT(momentObj);
     setExpiryDate(expiryDate);
   };
@@ -120,9 +120,9 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
     setCreateStopModal(false);
   };
 
-  const handleExpirySelect = (index) => {	
+  const handleExpirySelect = (index) => {
     setExpiry(expiryArray[index]);
-    setExpiryDropdown(false);	
+    setExpiryDropdown(false);
   }
   const handleEditExpirySelect = (index) => {
     seteditExpiry(expiryArray[index]);	
@@ -150,33 +150,6 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
       .catch((error) => {
         console.error('Error stopping agent schedule:', error);
       });
-  };
-
-  function fetchScheduleRun() {
-    if(startTime === ' ' || (isRecurring == true && (timeValue == null || (expiry == "After certain number of runs" && (parseInt(expiryRuns)<1)) || (expiry == "Specific date" && expiryDate == null) ))){
-      toast.error('Please input correct details')
-      return
-    }
-
-    const requestData = {
-      "agent_id": agentId,
-      "start_time": startTime,
-      "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
-      "expiry_runs":expiry == 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-      "expiry_date":expiry == 'Specific Date' ? expiryDate : null ,
-    };
-    createAndScheduleRun(requestData)
-    .then(response => {
-      const { schedule_id } = response.data;
-      toast.success('Scheduled successfully!');
-      setCreateModal(false);
-      console.log('Schedule ID:', schedule_id);
-      EventBus.emit('refreshDate', {});
-      EventBus.emit('reFetchAgents', {});
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
   };
 
   function fetchAgentScheduleComponent() {//get data
@@ -347,7 +320,6 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
   };
 
   useEffect(() => {
-    console.log(agentDetails)
     fetchAgentDetails(agentId);
     fetchExecutions(agentId);
   }, [agentId])
@@ -471,6 +443,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
               </ul>
             </div>}
 
+<<<<<<< HEAD
             {createModal && (
             <div className="modal" onClick={closeCreateModal}>
             <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
@@ -549,6 +522,11 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             </div>
           </div>
         </div>)}
+=======
+            {createModal &&
+                <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent" agentId={agentId} setCreateModal={() => setCreateModal(false)} />
+            }
+>>>>>>> f4038ff56f22410f66280681ce1aecab28ea8650
 
             {createEditModal && (
             <div className="modal" onClick={closeCreateModal}>
