@@ -115,10 +115,14 @@ export default function Model({organisationId}) {
             </div>
           </div>
         </div><br/>
-        <div>
-          <label className={agentStyles.form_label}>Open-AI/Palm API Key</label>
-          <input placeholder="Enter your Open-AI/Palm API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
-        </div>
+        {source === 'OpenAi' && <div>
+          <label className={agentStyles.form_label}>Open-AI API Key</label>
+          <input placeholder="Enter your Open-AI API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
+        </div>}
+        {source === 'Google Palm' && <div>
+          <label className={agentStyles.form_label}>Palm API Key</label>
+          <input placeholder="Enter your Palm API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
+        </div>}
         {/*<div style={{marginTop:'15px'}}>*/}
         {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
         {/*  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
