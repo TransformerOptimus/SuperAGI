@@ -55,9 +55,9 @@ def create_agent_config(agent_config: AgentConfigurationIn,
         HTTPException (Status Code=404): If the associated agent is not found or deleted.
     """
 
-    agent = db.session.query(Agent).get(agent_config.agent_id)
+    agent = db.session.query(Agent).filter(Agent.id == agent_config.agent_id, Agent.is_deleted == False).first()
 
-    if not agent or agent.is_deleted:
+    if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
     db_agent_config = AgentConfiguration(agent_id=agent_config.agent_id, key=agent_config.key, value=agent_config.value)
@@ -163,7 +163,6 @@ def get_agent_configurations(agent_id: int,
         "model": None,
         "permission_type": None,
         "LTM_DB": None,
-        "is_deleted": agent.is_deleted,
     }
 
     for item in agent_configurations:
@@ -196,7 +195,5 @@ def get_agent_configurations(agent_id: int,
             parsed_response["permission_type"] = value
         elif key == "LTM_DB":
             parsed_response["LTM_DB"] = value
-        elif key == "is_deleted":
-            parsed_response["is_deleted"] = value
-
+            
     return parsed_response
