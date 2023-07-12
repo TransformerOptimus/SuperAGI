@@ -790,13 +790,13 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                         {item.name}
                       </div>))}
                       <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
-                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%',borderRadius:'0'}}
                              onClick={() => sendKnowledgeData({ id: -6, name: "new knowledge", contentType: "Add_Knowledge", internalId: createInternalId() })}>
                           <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon" />&nbsp;&nbsp;Add new knowledge
                         </div>
                       </div>
                       <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
-                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%',borderTopLeftRadius:'0',borderTopRightRadius:'0'}}
                              onClick={openMarketplace}>
                           <Image width={15} height={15} src="/images/widgets.svg" alt="marketplace" />&nbsp;&nbsp;Browse knowledge from marketplace
                         </div>
@@ -808,13 +808,13 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                         <span className={styles1.feed_title} style={{marginTop: '8px'}}>No knowledge found</span>
                       </div>
                       <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
-                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%',borderRadius:'0'}}
                              onClick={() => sendKnowledgeData({ id: -6, name: "new knowledge", contentType: "Add_Knowledge", internalId: createInternalId() })}>
                           <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon" />&nbsp;&nbsp;Add new knowledge
                         </div>
                       </div>
                       <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
-                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%',borderTopLeftRadius:'0',borderTopRightRadius:'0'}}
                              onClick={openMarketplace}>
                           <Image width={15} height={15} src="/images/widgets.svg" alt="marketplace" />&nbsp;&nbsp;Browse knowledge from marketplace
                         </div>
