@@ -40,7 +40,6 @@ class ListFileTool(BaseTool):
         input_directory = ResourceHelper.get_root_input_dir()
         #output_directory = ResourceHelper.get_root_output_dir()
         if "{agent_id}" in input_directory:
-            # input_directory = input_directory.replace("{agent_id}", str(self.agent_id))
             input_directory = ResourceHelper.get_formatted_agent_level_path(agent=Agent
                                                                             .get_agent_from_id(session=self
                                                                                                .toolkit_config.session,

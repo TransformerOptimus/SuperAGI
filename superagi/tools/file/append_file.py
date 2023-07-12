@@ -42,7 +42,6 @@ class AppendFileTool(BaseTool):
         """
         final_path = ResourceHelper.get_root_output_dir() + file_name
         if "{agent_id}" in final_path:
-            # final_path = final_path.replace("{agent_id}", str(self.agent_id))
             final_path = ResourceHelper.get_formatted_agent_level_path(agent=Agent
                                                                        .get_agent_from_id(session=self.toolkit_config.session,
                                                                                           agent_id=self.agent_id),
