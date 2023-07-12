@@ -45,15 +45,10 @@ def handle_marketplace_operations_list(
 def get_user_knowledge_list(Authorize: AuthJWT = Depends(), organisation = Depends(get_user_organisation)):
     organisation_id = organisation.id
     marketplace_organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    user_knowledge_list = Knowledge.get_user_knowledge_list(organisation_id)
+    user_knowledge_list = Knowledge.get_user_knowledge_list(db.session, organisation_id)
     for user_knowledge in user_knowledge_list:
         user_knowledge["is_marketplace"] = Knowledge.check_if_marketplace(db.session, user_knowledge, marketplace_organisation_id)    
     return user_knowledge_list
-
-@router.get("/get/user/list")
-def user_accessible_knowledge_list(organisation = Depends(get_user_organisation)):
-    knowledge_list = db.session.query(Knowledge).filter(Knowledge.organisation_id == organisation.id)    
-    return knowledge_list
 
 @router.get("/marketplace/get/details/{knowledge_id}")
 def get_knowledge_details(knowledge_id: int):
@@ -63,13 +58,14 @@ def get_knowledge_details(knowledge_id: int):
         "descriptiom": knowledge_data.description,
         "readme": knowledge_data.readme,
         "contributed_by": knowledge_data.contributed_by,
+        "updated_at": knowledge_data.updated_at
     }
     knowledge_with_config = KnowledgeConfig.get_knowledge_config(db.session, knowledge_id, knowledge)
     knowledge_with_config["install_number"] = MarketPlaceStats.get_knowledge_installation_number(db.session, knowledge_id)
     return knowledge_with_config
 
 @router.get("/user/get/details/{knowledge_id}")
-def get_user_knowledge_details(knowledge_id: int, organisation = Depends(get_user_organisation)):
+def get_user_knowledge_details(knowledge_id: int):
     marketplace_organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     knowledge_data = db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
     vector_database_index = VectorIndexCollection.get_vector_index_from_id(db.session, knowledge_data.index_id)
@@ -77,10 +73,13 @@ def get_user_knowledge_details(knowledge_id: int, organisation = Depends(get_use
     knowledge = {
         "name": knowledge_data.name,
         "description": knowledge_data.description,
-        "vector_database_index": vector_database_index.name,
+        "vector_database_index": {
+            "id": vector_database_index.id,
+            "name": vector_database_index.name
+        },
         "vector_database": vector_database.name
     }
-    is_installed = Knowledge.check_if_marketplace(db.session, knowledge_data, marketplace_organisation_id, knowledge)
+    is_installed = Knowledge.check_if_marketplace(db.session, knowledge, marketplace_organisation_id)
     if is_installed:
         knowledge["installation_type"] = "Marketplace"
     else:
@@ -97,11 +96,11 @@ def add_new_user_knowledge(knowledge_data: dict, organisation = Depends(get_user
         summary = llm.chat_completion(messages=message)
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
-    knowledge_data["summary"] = summary
+    knowledge_data["summary"] = summary["content"]
     knowledge_data["organisation_id"] = organisation.id
     knowledge_data["contributed_by"] = organisation.name
-    Knowledge.add_update_knowledge(db.session, knowledge_data)
-    return {"success": True}
+    knowledge = Knowledge.add_update_knowledge(db.session, knowledge_data)
+    return {"success": True, "id": knowledge.id}
 
 @router.post("/delete/{knowledge_id}")
 def delete_knowledge(knowledge_id: int):
@@ -125,7 +124,7 @@ def install_selected_knowledge(knowledge_id: int, index_id: int, organisation = 
     selected_knowledge_config = KnowledgeConfig.get_knowledge_config(db.session, knowledge_id, {})
     KnowledgeConfig.add_knowledge_config(db.session, new_knowledge.id, selected_knowledge_config)
     index = db.session.query(VectorIndexCollection).filter(VectorIndexCollection.id == index_id).first()
-    if index.db_type == "PINECONE":
+    if index.db_type == "Pinecone":
         PineconeHelper(db.session).install_pinecone_knowledge(index)
-    elif index.db_type == "QDRANT":
+    elif index.db_type == "Qdrant":
         QdrantHelper(db.session).install_qdrant_knowledge(index)

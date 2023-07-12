@@ -44,5 +44,5 @@ class VectorIndexConfig(DBBaseModel):
     
     @classmethod
     def get_index_state(cls, session, vector_index_id):
-        index_config = session.query(VectorIndexConfig).filter(vector_index_id == vector_index_id, VectorIndexConfig.key == "INDEX_STATE").first()
+        index_config = session.query(VectorIndexConfig).filter(vector_index_id == vector_index_id, VectorIndexConfig.key == "index_state").first()
         return index_config.value

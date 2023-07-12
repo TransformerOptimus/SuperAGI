@@ -46,12 +46,12 @@ class VectorIndexCollection(DBBaseModel):
         return vector_indices
     
     @classmethod
-    def delete_vector_index(session, id):
+    def delete_vector_index(cls, session, id):
         session.query(VectorIndexCollection).filter(VectorIndexCollection.id == id).delete()
         session.commit()
 
     @classmethod
-    def get_vector_index_from_id(session, id):
+    def get_vector_index_from_id(cls, session, id):
         index = session.query(VectorIndexCollection).filter(VectorIndexCollection.id == id).first()
         return index
         

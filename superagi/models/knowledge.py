@@ -82,19 +82,22 @@ class Knowledge(DBBaseModel):
         return marketplace_knowledges
     
     @classmethod
-    def get_user_knowledge_list(cls, organisation_id):
-        headers = {'Content-Type': 'application/json'}
-        response = requests.get(
-            marketplace_url + f"/knowledge/get/user/list/{organisation_id}",
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return []
+    def get_user_knowledge_list(cls, session, organisation_id):
+        knowledge_list = session.query(Knowledge).filter(Knowledge.organisation_id == organisation_id)
+        knowledge_data = []
+        for knowledge in knowledge_list:
+            data = {
+                "id": knowledge.id,
+                "name": knowledge.name,
+                "contributed_by": knowledge.contributed_by
+            }
+            knowledge_data.append(data)
+        return knowledge_data
         
     @classmethod
     def check_if_marketplace(cls, session, user_knowledge, marketplace_organisation_id):
         marketplace_knowledge = session.query(Knowledge).filter(Knowledge.organisation_id == marketplace_organisation_id, Knowledge.name == user_knowledge["name"]).first()
+        print(marketplace_knowledge)
         if marketplace_knowledge:
             return True
         else:
@@ -102,14 +105,14 @@ class Knowledge(DBBaseModel):
         
     @classmethod
     def add_update_knowledge(cls, session, knowledge_data):
-        knowledge = session.query(Knowledge).filter(Knowledge.name == knowledge_data["name"],Knowledge.organisation_id == knowledge_data["organisation_id"])
+        knowledge = session.query(Knowledge).filter(Knowledge.id == knowledge_data["id"],Knowledge.organisation_id == knowledge_data["organisation_id"]).first()
         if knowledge:
             knowledge.name = knowledge_data["name"]
             knowledge.description = knowledge_data["description"]
             knowledge.summary = knowledge_data["summary"]
             knowledge.index_id = knowledge_data["index_id"]
         else:
-            knowledge = Knowledge(name=knowledge_data["name"], description=knowledge_data["description"], summary = knowledge_data["summary"], readme=None, index_id = knowledge_data["index_id"], organisation_id = knowledge_data["organisation_id"], contributed_by= knowledge_data["contibuted_by"])
+            knowledge = Knowledge(name=knowledge_data["name"], description=knowledge_data["description"], summary = knowledge_data["summary"], readme=None, index_id = knowledge_data["index_id"], organisation_id = knowledge_data["organisation_id"], contributed_by= knowledge_data["contributed_by"])
             session.add(knowledge)
         session.commit()
         return knowledge

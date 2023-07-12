@@ -6,19 +6,13 @@ class QdrantHelper:
     
     def __init__(self, session, vector_db):
         self.session = session
-
-    def get_qdrant_client(self, vector_db):
-        api_key = self.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == vector_db.id, VectordbConfig.key == "API_KEY").first()
-        url = self.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == vector_db.id, VectordbConfig.key == "URL").first()
-        qdrant_client = QdrantClient(
-            api_key=api_key.value,
-            url=url.value
-        )
-        return qdrant_client
     
-    def get_dimensions(self, vector_db, vector_index):
+    def get_dimensions(self, api_key, url, port, vector_index):
         try:
-            qdrant_client = self.get_qdrant_client(vector_db)
+            qdrant_client = QdrantClient(
+                api_key=api_key,
+                url=url
+            )
             collection_info = qdrant_client.get_collection(collection_name=vector_index.name)
             dimensions = collection_info.config.params.vectors.size
             data = {
@@ -32,9 +26,12 @@ class QdrantHelper:
             }
         return data
     
-    def get_qdrant_index_state(self, vector_db, vector_index):
+    def get_qdrant_index_state(self, api_key, url, port, vector_index):
         try:
-            qdrant_client = self.get_qdrant_client(vector_db)
+            qdrant_client = QdrantClient(
+                api_key=api_key,
+                url=url
+            )
             collection_info = qdrant_client.get_collection(collection_name=vector_index.name)
             total_vector_count = collection_info.vectors_count
             if total_vector_count > 0:
