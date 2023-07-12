@@ -5,7 +5,7 @@ import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal, agent, }) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal, agent}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);

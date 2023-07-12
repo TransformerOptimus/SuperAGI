@@ -5,10 +5,10 @@ import styles1 from "@/pages/Content/Agents/react-datetime.css";
 import Image from "next/image";
 import Datetime from "react-datetime";
 import {toast} from "react-toastify";
-import {createAgent, createAndScheduleRun} from "@/pages/api/DashboardService";
+import {AgentScheduleComponent, createAgent, createAndScheduleRun, updateSchedule} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentSchedule({internalId, closeCreateModal, type, agentId, setCreateModal}) {
+export default function AgentSchedule({internalId, closeCreateModal, type, agentId, setCreateModal, setCreateEditModal}) {
     const [isRecurring, setIsRecurring] = useState(false);
     const [timeDropdown, setTimeDropdown] = useState(false);
     const [expiryDropdown, setExpiryDropdown] = useState(false);
@@ -27,6 +27,9 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
     const timeRef = useRef(null);
     const expiryRef = useRef(null);
 
+    const [modalHeading, setModalHeading] = useState('Schedule Run')
+    const [modalButton, setModalButton] = useState('Create and Schedule Run')
+
     useEffect(() => {
         function handleClickOutside(event) {
             if(timeRef.current && !timeRef.current.contains(event.target))
@@ -42,6 +45,14 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
+    }, []);
+
+    useEffect(() => {
+        if(type === "edit_schedule_agent"){
+            setModalHeading('Edit Schedule')
+            setModalButton("Update Schedule")
+            fetchAgentScheduleComponent();
+        }
     }, []);
 
     useEffect(() => {
@@ -151,17 +162,63 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                         console.error('Error:', error);
                     });
             }
+            else
+                if(type === "edit_schedule_agent"){
+                    fetchUpdateSchedule();
+                }
+    };
+    function fetchUpdateSchedule() {//Update Schedule
+        const requestData = {
+            "agent_id": agentId,
+            "start_time": startTime,
+            "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
+            "expiry_runs":expiryType == 'After certain number of runs' ? parseInt(expiryRuns) : -1,
+            "expiry_date":expiryType == 'Specific Date' ? expiryDate : null ,
+        };
+        updateSchedule(requestData)
+            .then((response) => {
+                if (response.status === 200) {
+                    toast.success('Schedule updated successfully');
+                    EventBus.emit('refreshDate', {});
+                    setCreateEditModal();
+                    EventBus.emit('reFetchAgents', {});
+                } else {
+                    toast.error('Error updating agent schedule');
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating agent schedule:', error);
+            });
+    };
+
+    function fetchAgentScheduleComponent() {
+        AgentScheduleComponent(agentId)
+            .then((response) => {
+                console.log(response.data)
+                const {current_datetime, recurrence_interval, expiry_date, expiry_runs, start_date, start_time} = response.data;
+                setExpiryRuns(expiry_runs);
+                setExpiryDate(expiry_date);
+                if(expiry_date || expiry_runs != -1) {
+                    setIsRecurring(true);
+                    setExpiryType(expiry_date ? 'Specific Date' : 'After certain number of runs');
+                } else {
+                    setExpiryType('No expiry');
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching agent data:', error);
+            });
     };
 
     return (
         <div>
             <div className="modal" onClick={closeCreateModal}>
                 <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-                    <div className={styles.detail_name}>Schedule Run</div>
+                    <div className={styles.detail_name}>{modalHeading}</div>
                     <div>
                         <label className={styles.form_label}>Select a date and time</label>
                         <div>
-                            <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>
+                            <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleTimeChange} inputProps={{ placeholder: new Date() }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>
                         </div>
                     </div>
                     <div style={{display:'flex',marginTop:'20px'}}>
@@ -212,7 +269,9 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                                 )}
                                 {expiryType === 'Specific Date' && (
                                     <div style={{width:'100%', marginTop:'10px'}}>
-                                        <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>
+                                        {type !== "edit_schedule_agent" && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }} isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
+                                        {type === "edit_schedule_agent" && expiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {expiryDate}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setExpiryDate(null)}>Edit</div></div>}
+                                        {type === "edit_schedule_agent" && !expiryDate && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: new Date() }}/>}
                                     </div>
                                 )}
                             </div>
@@ -223,7 +282,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                             Cancel
                         </button>
                         <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'15px',height:'32px'}} onClick={addScheduledAgent}>
-                            Create and Schedule Run
+                            {modalButton}
                         </button>
                     </div>
                 </div>
@@ -231,5 +290,3 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
         </div>
     );
 };
-
-
