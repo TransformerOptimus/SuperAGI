@@ -3,21 +3,23 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
-import styles1 from './react-datetime.css';
-import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploadFile, updateExecution} from "@/pages/api/DashboardService";
+import {
+  createAgent,
+  fetchAgentTemplateConfigLocal,
+  getOrganisationConfig,
+  updateExecution,
+  uploadFile
+} from "@/pages/api/DashboardService";
 import {
   formatBytes,
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray,
-  getUserTimezone,
-  convertToGMT,
-  returnResourceIcon,
+  setLocalStorageArray, returnResourceIcon, getUserTimezone,
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
-import Datetime from "react-datetime";
 import 'moment-timezone';
+import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
@@ -84,60 +86,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const [createDropdown, setCreateDropdown] = useState(false);
   const [createModal, setCreateModal] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [timeDropdown, setTimeDropdown] = useState(false);
-  const [expiryDropdown, setExpiryDropdown] = useState(false);
 
-  const [startTime, setStartTime] = useState('');
-
-  const timeUnitArray = ['Days', 'Hours', 'Minutes'];
-  const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
-  const [timeValue, setTimeValue] = useState(null);
-
-  const expiryTypeArray = ['Specific Date', 'After certain number of runs', 'No expiry'];
-  const [expiryType, setExpiryType] = useState(expiryTypeArray[1]);
-  const [expiryRuns, setExpiryRuns] = useState(-1);
-  const [expiryDate, setExpiryDate] = useState(null);
-
-  const timeRef = useRef(null);
-  const expiryRef = useRef(null);
-
-  const handleDateTimeChange = (momentObj) => {
-    const expiryDate = convertToGMT(momentObj);
-    setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
-  };
-
-  const handleTimeChange = (momentObj) => {
-    const startTime = convertToGMT(momentObj);
-    setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
-  };
-
-  const toggleRecurring = () => {
-    setLocalStorageValue("agent_is_recurring_" + String(internalId), !isRecurring, setIsRecurring);
-  };
-
-  const closeCreateModal = () => {
-    setCreateModal(false);
-    setCreateDropdown(false);
-  };
-
-  const handleTimeSelect = (index) => {
-    setLocalStorageValue("agent_time_unit_" + String(internalId), timeUnitArray[index], setTimeUnit);
-    setTimeDropdown(false);
-  }
-
-  const handleExpirySelect = (index) => {
-    setLocalStorageValue("agent_expiry_type_" + String(internalId), expiryTypeArray[index], setExpiryType);
-    setExpiryDropdown(false);
-  }
-
-  const handleDateChange = (event) => {
-    setLocalStorageValue("agent_time_value_" + String(internalId), event.target.value, setTimeValue);
-  };
-
-  const handleExpiryRuns = (event) => {
-    setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
-  };
+  const [scheduleData, setScheduleData] = useState(null);
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -197,15 +147,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if(timeRef.current && !timeRef.current.contains(event.target))
-      {
-        setTimeDropdown(false)
-      }
-      if(expiryRef.current && !expiryRef.current.contains(event.target))
-      {
-        setExpiryDropdown(false);
-      }
-
       if (modelRef.current && !modelRef.current.contains(event.target)) {
         setModelDropdown(false)
       }
@@ -363,7 +304,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleDescriptionChange = (event) => {
     setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
-
+  const closeCreateModal = () => {
+    setCreateModal(false);
+    setCreateDropdown(false);
+  };
   const preventDefault = (e) => {
     e.stopPropagation();
   };
@@ -383,12 +327,24 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setHasAPIkey(true);
     };
 
+    const handleAgentScheduling = (item) => {
+      setScheduleData(item)
+    };
+
     EventBus.on('keySet', keySet);
+    EventBus.on('handleAgentScheduling', handleAgentScheduling);
 
     return () => {
       EventBus.off('keySet', keySet);
+      EventBus.off('handleAgentScheduling', handleAgentScheduling);
     };
   });
+
+  useEffect(() => {
+    if(scheduleData){
+      handleAddAgent()
+    }
+  }, [scheduleData]);
 
   const handleAddAgent = () => {
     if(!hasAPIkey) {
@@ -425,11 +381,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       permission_type = "RESTRICTED";
     }
 
-    if(createModal && (startTime === ' ' || (isRecurring == true && (timeValue == null || (expiryType == "After certain number of runs" && (parseInt(expiryRuns,10)<1)) || (expiryType == "Specific date" && expiryDate == null) )))){
-      toast.error('Please input correct details')
-      return
-    }
-
     const agentData = {
       "name": agentName,
       "project_id": selectedProjectId,
@@ -448,21 +399,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
     };
-
+    console.log(scheduleData)
     const scheduleAgentData = {
       "agent_config": agentData,
-      "schedule":{
-        "start_time": startTime,
-        "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-<<<<<<< HEAD
-        "expiry_date": expiryDate,	
-        "expiry_runs": parseInt(expiryRuns, 10),
-=======
-        "expiry_date": expiryDate,
-        "expiry_runs": expiryRuns,
->>>>>>> 95c1b9b62e5f8ee27a79fdda0da0aec16401accc
-      }
+      "schedule":scheduleData,
     }
+    console.log(scheduleAgentData)
 
     createAgent(createModal ? scheduleAgentData : agentData, createModal)
       .then((response) => {
@@ -470,7 +412,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         const name = response.data.name;
         const executionId = response.data.execution_id;
         fetchAgents();
-        console.log(response);
+
         if (addResources && input.length > 0) {
           const uploadPromises = input.map(fileData => {
             return uploadResource(agentId, fileData)
@@ -614,11 +556,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setAdvancedOptions(JSON.parse(advanced_options));
     }
 
-    const agent_is_recurring = localStorage.getItem("agent_is_recurring_" + String(internalId));
-    if(agent_is_recurring) {
-      setIsRecurring(JSON.parse(agent_is_recurring));
-    }
-
     const agent_name = localStorage.getItem("agent_name_" + String(internalId));
     if(agent_name) {
       setAgentName(agent_name);
@@ -693,36 +630,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     const agent_files = localStorage.getItem("agent_files_" + String(internalId));
     if(agent_files) {
       setInput(JSON.parse(agent_files));
-    }
-
-    const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
-    if(agent_time_unit) {
-      setTimeUnit(agent_time_unit);
-    }
-
-    const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
-    if(agent_time_value) {
-      setTimeValue(Number(agent_time_value));
-    }
-
-    const agent_expiry_type = localStorage.getItem("agent_expiry_type_" + String(internalId));
-    if(agent_expiry_type) {
-      setExpiryType(agent_expiry_type);
-    }
-
-    const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
-    if(agent_expiry_runs) {
-      setExpiryRuns(Number(agent_expiry_runs));
-    }
-
-    const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
-    if(agent_start_time) {
-      setStartTime(agent_start_time);
-    }
-
-    const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
-    if(agent_expiry_date) {
-      setExpiryDate(agent_expiry_date);
     }
   }, [internalId])
 
@@ -901,12 +808,48 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
                 </div>
               </div>
-
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <label className={styles.form_label}>Exit criterion</label>*/}
+              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+              {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
+              {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+              {/*    </div>*/}
+              {/*    <div>*/}
+              {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
+              {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+              {/*          {exit}*/}
+              {/*        </div>))}*/}
+              {/*      </div>}*/}
+              {/*    </div>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Time between steps (in milliseconds)</label>
                 <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
               </div>
-
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <div style={{display:'flex'}}>*/}
+              {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
+              {/*    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>*/}
+              {/*      Long term memory*/}
+              {/*    </label>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
+              {/*{longTermMemory === true && <div style={{marginTop: '10px'}}>*/}
+              {/*  <label className={styles.form_label}>Choose an LTM database</label>*/}
+              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+              {/*    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>*/}
+              {/*      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+              {/*    </div>*/}
+              {/*    <div>*/}
+              {/*      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>*/}
+              {/*        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+              {/*          {data}*/}
+              {/*        </div>))}*/}
+              {/*      </div>}*/}
+              {/*    </div>*/}
+              {/*  </div>*/}
+              {/*</div>}*/}
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Permission Type</label>
                 <div className="dropdown_container_search" style={{width:'100%'}}>
@@ -940,79 +883,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           </div>
 
           {createModal && (
-            <div className="modal" onClick={closeCreateModal}>
-              <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-                <div className={styles.detail_name}>Schedule Run</div>
-                <div>
-                  <label className={styles.form_label}>Select a date and time</label>
-                  <div>
-                    <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
-                  </div>
-                </div>
-                <div style={{display:'flex',marginTop:'20px'}}>
-                  <input className="checkbox" type="checkbox" checked={isRecurring} onChange={toggleRecurring} />
-                  <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={toggleRecurring}>
-                    Recurring run
-                  </label>
-                </div>
-                {isRecurring && (<div style={{marginTop:'20px'}}>
-                  <div style={{color:"white", marginBottom:'10px'}}>Recurring run details</div>
-                  <label className={styles.form_label}>Repeat every</label>
-                  <div style={{display:'flex',marginBottom:'20px'}}>
-                    <div style={{width:'70%', marginRight:'5px'}}>
-                      <input className="input_medium" type="number" value={timeValue} onChange={handleDateChange} placeholder='Enter here'/>
-                    </div>
-                    <div style={{width:'30%'}}>
-                      <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
-                        {timeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                      </div>
-                      <div>
-                        {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'137px'}}>
-                          {timeUnitArray.map((timeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                            {timeUnit}
-                          </div>))}
-                        </div>}
-                      </div>
-                    </div>
-                  </div>
-                  <label className={styles.form_label}>Recurring expiry</label>
-                  <div>
-                    <div style={{display:'inline'}}>
-                      <div style={{width:'100%', marginRight:'5px'}}>
-                        <div className="custom_select_container" onClick={() => setExpiryDropdown(!expiryDropdown)} style={{width:'100%'}}>
-                          {expiryType}<Image width={20} height={21} src={!expiryDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                        </div>
-                        <div>
-                          {expiryDropdown && <div className="custom_select_options" ref={expiryRef}>
-                            {expiryTypeArray.map((expiryType, index) => (<div key={index} className="custom_select_option" onClick={() => handleExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                              {expiryType}
-                            </div>))}
-                          </div>}
-                        </div>
-                      </div>
-                      {expiryType === 'After certain number of runs' && (
-                        <div style={{width:'100%', marginTop:'10px'}}>
-                          <input className="input_medium" type="number" value={expiryRuns} onChange={handleExpiryRuns} placeholder="Enter the number of runs" />
-                        </div>
-                      )}
-                      {expiryType === 'Specific Date' && (
-                        <div style={{width:'100%', marginTop:'10px'}}>
-                          <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>)}
-                <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
-                  <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
-                    Cancel
-                  </button>
-                  <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'15px',height:'32px'}} onClick={handleAddAgent}>
-                    Create and Schedule Run
-                  </button>
-                </div>
-              </div>
-            </div>
+            <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent" />
           )}
 
         </div>
