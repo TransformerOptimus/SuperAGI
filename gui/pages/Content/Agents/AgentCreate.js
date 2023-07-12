@@ -878,7 +878,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div style={{ display: 'flex', position: 'relative' }}>
                 {createDropdown && (
                 <div className="custom_select_option" style={{ 
-                position: 'absolute', top: '-40px', right: '0', zIndex: '1', boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)', height: '40px',width:'150px',paddingTop:'10px'}}
+                position: 'absolute', top: '-40px', right: '0', zIndex: '1', boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)', height: '40px',width:'150px',paddingTop:'10px',textAlign:'center'}}
                 onClick={() => { setCreateModal(true); setCreateDropdown(false);}}>Create & Schedule Run
                 </div>)}
                 <div className="primary_button" style={{ backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px' }}>

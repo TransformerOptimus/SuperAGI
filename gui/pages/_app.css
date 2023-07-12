@@ -425,12 +425,11 @@ input[type="range"]::-moz-range-track {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: center;
 }
 
 .custom_select_option:hover {
     background: #3B3B49;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .custom_select_option:active {
