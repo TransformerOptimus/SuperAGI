@@ -6,6 +6,9 @@ from superagi.vector_store import weaviate
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.types.vector_store_types import VectorStoreType
+from superagi.vector_store import qdrant
+from qdrant_client.models import Distance, VectorParams
+from qdrant_client.http.exceptions import UnexpectedResponse
 
 
 class VectorFactory:
@@ -60,5 +63,19 @@ class VectorFactory:
                 api_key=api_key
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
+
+        if vector_store == VectorStoreType.QDRANT:
+
+            client = qdrant.create_qdrant_client()
+            try:
+                client.get_collection(collection_name=index_name)
+            except UnexpectedResponse as e:
+                if '404' in str(e):
+                    client.create_collection(
+                        collection_name=index_name,
+                        vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
+                    )
+
+            return qdrant.Qdrant(client, embedding_model, index_name)
 
         raise ValueError(f"Vector store {vector_store} not supported")
