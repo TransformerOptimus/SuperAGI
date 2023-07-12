@@ -17,7 +17,7 @@ class ResourceHelper:
         Args:
             file_name (str): The name of the file.
             agent (Agent): Agent related to resource.
-            agent_execution(int): Agent Execution related to a resource
+            agent_execution(AgentExecution): Agent Execution related to a resource
             channel (str): The channel of the file.
 
         Returns:
