@@ -455,20 +455,19 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             {<button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>}
+            
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container" style={{marginTop:'31px',marginLeft:'-32px'}}>
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {updateRunStatus("PAUSED")}}>Pause</li>}
                 {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') && <li className="dropdown_item" onClick={() => {updateRunStatus("RUNNING")}}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {updateRunStatus("TERMINATED")}}>Delete</li>}
-
                 {agent && agent.is_scheduled ? (<div>
                 <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                 <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>):(<div>
                 {agent && !agent.is_running && !agent.is_scheduled && <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
                 </div>)} 
-
               </ul>
             </div>}
 
@@ -481,7 +480,6 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
               <label className={styles.form_label}>Select a date and time</label>
               <div >
               <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
-              <h6>{handleTimeChange}</h6>
               </div>          
             </div>
              
@@ -558,7 +556,7 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
             <div className={styles.detail_name}>Edit Schedule</div>
 
             <div style={{marginBottom:'10px'}}>
-              <div >
+              <div>
              <div>
                 <label className={styles.form_label}>Select a date and time</label>
                 <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
@@ -619,7 +617,11 @@ export default function AgentWorkspace({agentId, selectedView, agents}) {
 
               {editExpiry==='Specific Date' && (
                 <div style={{width:'100%', marginTop:'10px'}}>
-                  {editExpiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {editExpiryDate}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setEditExpiryDate(null)}>Edit</div></div>}
+                  {editExpiryDate && (<div className={styles.form_label} style={{ display: 'flex', fontSize: '14px', justifyContent: 'space-between' }}>
+                  <div>The expiry date of the run is {new Date(editExpiryDate).toLocaleDateString()}</div>
+                  <div className="secondary_button" style={{ cursor: 'pointer', height: '20px', fontSize: '12px' }} onClick={() => setEditExpiryDate(null)}>Edit</div>
+              </div>)}
+                  {/* {editExpiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {editExpiryDate}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setEditExpiryDate(null)}>Edit</div></div>} */}
                   {/* <input className="input_medium" type="text" placeholder="Select the date" /> */}
                   { !editExpiryDate && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>}
                 </div>
