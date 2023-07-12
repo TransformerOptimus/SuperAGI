@@ -127,7 +127,7 @@ export default function ResourceManager({agentId, runs}) {
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
-      <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs} downloadAllFiles={downloadAllFiles}/>
+      <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs}/>
     </div>
     <ToastContainer/>
   </>)

@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
-import {downloadFile, formatBytes, returnResourceIcon} from "@/utils/utils";
+import {downloadFile, downloadAllFiles, formatBytes, returnResourceIcon} from "@/utils/utils";
 
-export default function ResourceList({files, channel, runs, downloadAllFiles}) {
+export default function ResourceList({files, channel, runs}) {
   const [selectedRun, setSelectedRun] = useState(null);
   const [filesByRun, setFilesByRun] = useState([]);
 
