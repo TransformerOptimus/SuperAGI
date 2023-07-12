@@ -42,6 +42,7 @@ class KnowledgeConfig(DBBaseModel):
     @classmethod
     def add_knowledge_config(cls, session, knowledge_id, knowledge_config):
         for key in knowledge_config.keys():
-            config = KnowledgeConfig(knowledge_id, key, knowledge_config[key])
+            config = KnowledgeConfig(knowledge_id=knowledge_id,key=key,value=knowledge_config[key])
             session.add(config)
             session.commit()
+    

@@ -160,3 +160,21 @@ def uninstall_selected_knowledge(knowledge_id: int):
         environment = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "environment").first()
         pinecone_helper = PineconeHelper(db.session, api_key.value, environment.value)
         deleted_knowledge = pinecone_helper.uninstall_pinecone_knowledge(index, vector_ids)
+    
+    elif index.db_type == "Qdrant":
+        api_key = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "api_key").first()
+        url = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "url").first()
+        port = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "port").first()
+        qdrant_helper = QdrantHelper(db.session, api_key.value, url.value, port.value)
+        deleted_knowledge = qdrant_helper.uninstall_qdrant_knowledge(index, vector_ids)
+    
+    if not deleted_knowledge["success"]:
+        return {"success": False}
+    
+    else:
+        db.session.query(KnowledgeConfig).filter(KnowledgeConfig.knowledge_id == knowledge_id).delete()
+        db.session.commit()
+        db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).delete()
+        db.session.commit()
+    return {"success": True}
+        
