@@ -51,10 +51,11 @@ export default function Database({sendDatabaseData}) {
     });
   }
 
-  const openDeleteModal = (index) => {
+  const openDeleteModal = (e, index) => {
+    e.stopPropagation();
     setDeleteModal(true);
-    setDropdownWithIndex(index, false);
     setSelectedDatabase(vectorDB[index]);
+    setDropdownWithIndex(index, false);
   }
 
   const deleteDatabase = (databaseId) => {
@@ -69,11 +70,6 @@ export default function Database({sendDatabaseData}) {
         toast.error("Unable to delete database", {autoClose: 1800});
         console.error('Error fetching knowledge templates:', error);
       });
-  }
-
-  const openDatabase = (e, database) => {
-    e.stopPropagation();
-    sendDatabaseData({id: database.id, name: database.name, contentType: "Database", internalId: createInternalId()})
   }
 
   return (<>
@@ -91,7 +87,7 @@ export default function Database({sendDatabaseData}) {
           <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
             {!isLoading ? <div>
               {vectorDB && vectorDB.length > 0 ? <div className={knowledgeStyles.database_wrapper}>
-                {vectorDB.map((item, index) => (<div key={index} className={knowledgeStyles.database_container} onClick={(e) => openDatabase(e, item)}>
+                {vectorDB.map((item, index) => (<div key={index} className={knowledgeStyles.database_container} onClick={() => sendDatabaseData({id: item.id, name: item.name, contentType: "Database", internalId: createInternalId()})}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                     <div style={{display:'flex',order:'0'}}>
                       <div className={styles.text_block}>{item.name}</div>
@@ -102,7 +98,7 @@ export default function Database({sendDatabaseData}) {
                       </button>
                       {dropdown[index] && <div onMouseEnter={() => setDropdownWithIndex(index, true)} onMouseLeave={() => setDropdownWithIndex(index, false)}>
                         <ul className="dropdown_container" style={{marginLeft:'-15px'}}>
-                          <li className="dropdown_item" onClick={() => openDeleteModal(index)}>Delete database</li>
+                          <li className="dropdown_item" onClick={(e) => openDeleteModal(e, index)}>Delete database</li>
                         </ul>
                       </div>}
                     </div>

@@ -125,13 +125,15 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   };
 
   const connectResponse = (data) => {
-    if(data) {
-      if(data.success) {
-        toast.success("Database connected successfully", {autoClose: 1800});
-        sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
-      } else {
-        toast.error(data.message, {autoClose: 1800});
-      }
+    if(!data) {
+      return;
+    }
+
+    if(data.success) {
+      toast.success("Database connected successfully", {autoClose: 1800});
+      sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
+    } else {
+      toast.error(data.message, {autoClose: 1800});
     }
   }
 
@@ -161,8 +163,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectPinecone(pineconeData)
         .then((response) => {
-          const data = response.data || [];
-          connectResponse(data);
+          connectResponse(response.data);
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
@@ -196,8 +197,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectQdrant(qdrantData)
         .then((response) => {
-          const data = response.data || [];
-          connectResponse(data);
+          connectResponse(response.data);
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
