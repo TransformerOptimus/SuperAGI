@@ -4,7 +4,7 @@ import {ToastContainer, toast} from "react-toastify";
 import styles from "@/pages/Content/Toolkits/Tool.module.css";
 import Image from "next/image";
 import KnowledgeForm from "@/pages/Content/Knowledge/KnowledgeForm";
-import {deleteKnowledge, getKnowledgeDetails} from "@/pages/api/DashboardService";
+import {deleteCustomKnowledge, deleteMarketplaceKnowledge, getKnowledgeDetails} from "@/pages/api/DashboardService";
 import { removeTab } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
@@ -28,16 +28,29 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
   const uninstallKnowledge = () => {
     setDropdown(false);
 
-    deleteKnowledge(knowledgeId)
-      .then((response) => {
-        toast.success("Knowledge deleted successfully", {autoClose: 1800});
-        removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-        EventBus.emit('reFetchKnowledge', {});
-      })
-      .catch((error) => {
-        toast.error("Unable to delete knowledge", {autoClose: 1800});
-        console.error('Error deleting knowledge:', error);
-      });
+    if(installationType === 'Marketplace') {
+      deleteMarketplaceKnowledge(knowledgeId)
+        .then((response) => {
+          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+          EventBus.emit('reFetchKnowledge', {});
+        })
+        .catch((error) => {
+          toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+          console.error('Error uninstalling knowledge:', error);
+        });
+    } else {
+      deleteCustomKnowledge(knowledgeId)
+        .then((response) => {
+          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+          EventBus.emit('reFetchKnowledge', {});
+        })
+        .catch((error) => {
+          toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+          console.error('Error uninstalling knowledge:', error);
+        });
+    }
   }
 
   const viewKnowledge = () => {

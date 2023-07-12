@@ -196,8 +196,12 @@ export const getKnowledgeDetails = (knowledgeId) => {
   return api.get(`/knowledge/user/get/details/${knowledgeId}`);
 }
 
-export const deleteKnowledge = (knowledgeId) => {
+export const deleteCustomKnowledge = (knowledgeId) => {
   return api.post(`/knowledge/delete/${knowledgeId}`);
+}
+
+export const deleteMarketplaceKnowledge = (knowledgeId) => {
+  return api.post(`/knowledge/uninstall/${knowledgeId}`);
 }
 
 export const addUpdateKnowledge = (knowledgeData) => {

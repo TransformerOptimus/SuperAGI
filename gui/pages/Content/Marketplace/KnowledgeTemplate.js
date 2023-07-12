@@ -10,10 +10,12 @@ import {EventBus} from "@/utils/eventBus";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import {
+  deleteMarketplaceKnowledge,
   fetchKnowledgeTemplateOverview,
   getValidMarketplaceIndices,
   installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
+import {removeTab} from "@/utils/utils";
 
 export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('');
@@ -118,7 +120,15 @@ export default function KnowledgeTemplate({template, env}) {
   }
 
   const uninstallKnowledge = () => {
-
+    deleteMarketplaceKnowledge(template.id)
+      .then((response) => {
+        toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+        handleBackClick()
+      })
+      .catch((error) => {
+        toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+        console.error('Error uninstalling knowledge:', error);
+      });
   }
 
   const checkIndexValidity = (validState, validDimension) => {
