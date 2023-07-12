@@ -44,8 +44,7 @@ class FileManager:
                                                                                                self.agent_id),
                                                                  agent_execution=AgentExecution
                                                                  .get_agent_execution_from_id(self.session,
-                                                                                              self.agent_execution_id),
-                                                                 channel="OUTPUT")
+                                                                                              self.agent_execution_id))
             if resource is not None:
                 self.session.add(resource)
                 self.session.commit()
