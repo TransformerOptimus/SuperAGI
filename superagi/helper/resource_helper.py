@@ -59,11 +59,13 @@ class ResourceHelper:
 
     @classmethod
     def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
-        return path.replace("{agent_id}", agent.name + '_' + str(agent.id))
+        formatted_agent_name = agent.name.replace(" ", "")
+        return path.replace("{agent_id}", formatted_agent_name + '_' + str(agent.id))
 
     @classmethod
     def get_formatted_agent_execution_level_path(cls, agent_execution: AgentExecution, path):
-        return path.replace("{agent_execution_id}", (agent_execution.name + '_' + str(agent_execution.id)))
+        formatted_agent_execution_name = agent_execution.name.replace(" ", "")
+        return path.replace("{agent_execution_id}", (formatted_agent_execution_name + '_' + str(agent_execution.id)))
 
     @classmethod
     def get_resource_path(cls, file_name: str):
