@@ -23,7 +23,7 @@ class ResourceHelper:
         Returns:
             Resource: The Resource object.
         """
-        path = ResourceHelper.get_root_output_dir()
+        # path = ResourceHelper.get_root_output_dir()
         storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
         file_extension = os.path.splitext(file_name)[1][1:]
 
@@ -36,21 +36,19 @@ class ResourceHelper:
 
         if agent is not None:
             final_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
-            path = cls.get_formatted_agent_level_path(agent, path)
-            if agent_execution is not None:
-                path = cls.get_formatted_agent_execution_level_path(agent_execution, path)
+            # path = cls.get_formatted_agent_level_path(agent, path)
+            # if agent_execution is not None:
+            #     path = cls.get_formatted_agent_execution_level_path(agent_execution, path)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
 
         if storage_type == StorageType.S3:
-            file_name_parts = file_name.split('.')
-            file_name = file_name_parts[0] + '_' + str(datetime.datetime.now()).replace(' ', '') \
-                .replace('.', '').replace(':', '') + '.' + file_name_parts[1]
-            path = 'input/' if (channel == "INPUT") else 'output/'
+            file_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
 
         logger.info(final_path)
-        resource = Resource(name=file_name, path=path + file_name, storage_type=storage_type.value, size=file_size,
+        resource = Resource(name=file_name, path="resources" + file_path, storage_type=storage_type.value,
+                            size=file_size,
                             type=file_type,
                             channel="OUTPUT",
                             agent_id=agent.id,
