@@ -173,7 +173,7 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
         <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => setIsEditing(false)}>Cancel</button>
         <button disabled={!addClickable} className="primary_button" onClick={handleUpdateKnowledge}>Update Changes</button>
       </div> : <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-        <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-6, "new knowledge", "Add_Knowledge")}>Cancel</button>
+        <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-6, "new knowledge", "Add_Knowledge", internalId)}>Cancel</button>
         <button disabled={!addClickable} className="primary_button" onClick={handleAddKnowledge}>Add knowledge</button>
       </div>}
     </div>

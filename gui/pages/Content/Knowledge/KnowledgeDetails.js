@@ -31,7 +31,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     deleteKnowledge(knowledgeId)
       .then((response) => {
         toast.success("Knowledge deleted successfully", {autoClose: 1800});
-        removeTab(knowledgeId, knowledgeName, "Knowledge");
+        removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
         EventBus.emit('reFetchKnowledge', {});
       })
       .catch((error) => {

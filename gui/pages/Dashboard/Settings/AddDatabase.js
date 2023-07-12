@@ -233,7 +233,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
             </div>))}
         </div>
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button onClick={() => removeTab(-7, "new database", "Add_Database")} className="secondary_button" style={{marginRight: '10px'}}>
+          <button onClick={() => removeTab(-7, "new database", "Add_Database", internalId)} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={proceedAddDatabase}>
@@ -303,7 +303,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
           </div>
         </div>}
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button onClick={() => removeTab(-7, "new database", "Add_Database")} className="secondary_button" style={{marginRight: '10px'}}>
+          <button onClick={() => removeTab(-7, "new database", "Add_Database", internalId)} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={connectDatabase}>

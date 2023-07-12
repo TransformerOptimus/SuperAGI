@@ -69,7 +69,7 @@ export default function DatabaseDetails({internalId, databaseId}) {
     deleteVectorDB(databaseId)
       .then((response) => {
         toast.success("Database deleted successfully", {autoClose: 1800});
-        removeTab(databaseId, databaseDetails?.name, "Database")
+        removeTab(databaseId, databaseDetails?.name, "Database", internalId);
       })
       .catch((error) => {
         toast.error("Unable to delete database", {autoClose: 1800});
