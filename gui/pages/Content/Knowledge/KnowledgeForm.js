@@ -71,7 +71,7 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
     }
 
     const knowledgeData = {
-      "id": "",
+      "id": 0,
       "name": knowledgeName,
       "description": knowledgeDescription,
       "index_id": selectedIndex.id

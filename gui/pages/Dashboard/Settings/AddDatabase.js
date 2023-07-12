@@ -124,6 +124,17 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     setLocalStorageArray("db_collections_" + String(internalId), updatedCollections, setCollections);
   };
 
+  const connectResponse = (data) => {
+    if(data) {
+      if(data.success) {
+        toast.success("Database connected successfully", {autoClose: 1800});
+        sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
+      } else {
+        toast.error(data.message, {autoClose: 1800});
+      }
+    }
+  }
+
   const connectDatabase = () => {
     if(databaseName.replace(/\s/g, '') === '') {
       toast.error("Database name can't be blank", {autoClose: 1800});
@@ -150,8 +161,8 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectPinecone(pineconeData)
         .then((response) => {
-          toast.success("Database connected successfully", {autoClose: 1800});
-          sendDatabaseDetailsData({id: response.data.id, name: response.data.name, contentType: "Database", internalId: createInternalId()});
+          const data = response.data || [];
+          connectResponse(data);
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
@@ -185,8 +196,8 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectQdrant(qdrantData)
         .then((response) => {
-          toast.success("Database connected successfully", {autoClose: 1800});
-          sendDatabaseDetailsData({id: response.data.id, name:  response.data.name, contentType: "Database", internalId: createInternalId()});
+          const data = response.data || [];
+          connectResponse(data);
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
