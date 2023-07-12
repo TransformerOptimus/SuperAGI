@@ -69,8 +69,7 @@ export default function ResourceList({ files, channel, runs }) {
         {channel === 'input' &&
             <div className={styles.resources}>
               {files.map((file, index) => <File file={file} index={index} />)}
-            </div>
-        }
+            </div>}
       </div>
   )
 }
