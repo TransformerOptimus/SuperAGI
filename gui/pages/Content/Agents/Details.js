@@ -19,7 +19,6 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
     marginLeft:'7px',
   };
   useEffect(() => {
-    console.log(agentScheduleDetails)
     if(agent.is_scheduled){
       if(agentScheduleDetails?.recurrence_interval !== null){
           if((agentScheduleDetails?.expiry_runs == -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null)
@@ -86,7 +85,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       </div>
       {goals && goals.length > 0 && <div>
         <div className={styles.large_text_box} style={!showGoals ? {overflow:'hidden',display:'-webkit-box'} : {}}>
-          {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
+          {agentDetails.goal.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
             <div>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}
           </div>))}
         </div>

@@ -200,7 +200,6 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
     if(agent.is_scheduled) {
       agentScheduleComponent(agentId)
           .then((response) => {
-            console.log(response.data)
             setAgentScheduleDetails(response.data)
           })
           .catch((error) => {
