@@ -148,3 +148,15 @@ def install_selected_knowledge(knowledge_id: int, index_id: int, organisation = 
     selected_knowledge_config.pop("file_path")
     KnowledgeConfig.add_knowledge_config(db.session, new_knowledge.id, selected_knowledge_config)
     return {"success": True}
+
+@router.post("/uninstall/{knowledge_id}")
+def uninstall_selected_knowledge(knowledge_id: int):
+    knowledge = db.session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
+    vector_ids = db.session.query(KnowledgeConfig).filter(KnowledgeConfig.knowledge_id == knowledge_id, KnowledgeConfig.key == "vector_ids").first()
+    vector_ids = list(vector_ids.value)
+    index = db.session.query(VectorIndexCollection).filter(VectorIndexCollection.id == knowledge.index_id).first()
+    if index.db_type == "Pinecone":
+        api_key = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "api_key").first()
+        environment = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "environment").first()
+        pinecone_helper = PineconeHelper(db.session, api_key.value, environment.value)
+        deleted_knowledge = pinecone_helper.uninstall_pinecone_knowledge(index, vector_ids)

@@ -94,3 +94,24 @@ class QdrantHelper:
             data = {"success": True}
         except:
             data = {"success": False}
+        return data
+    
+    def uninstall_qdrant_knowledge(self, index, vector_ids):
+        try:
+            qdrant_client = QdrantClient(
+                api_key = self.api_key,
+                url = self.url
+            )
+
+            qdrant_client.delete(
+                collection_name = index.name,
+                points_selector = models.PointIdsList(
+                    points = vector_ids
+                ),
+            )
+            
+            data = {"success": True}
+        except:
+            data = {"success": False}
+
+        return data

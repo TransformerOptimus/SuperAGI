@@ -74,3 +74,13 @@ class PineconeHelper:
         except:
             data = {"success": False}
         return data
+    
+    def uninstall_pinecone_knowledge(self, index, vector_ids):
+        try:
+            pinecone.init(api_key=self.api_key, environment=self.environment)
+            pinecone_index = pinecone.Index(index.name)
+            pinecone_index.delete(ids=vector_ids)
+            data = {"success": True}
+        except:
+            data = {"success": False}
+        return data
