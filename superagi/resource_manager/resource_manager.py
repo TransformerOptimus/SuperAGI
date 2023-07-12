@@ -18,6 +18,7 @@ class ResourceManager:
 
     :param agent_id: The agent id to use when saving resources to the vector store.
     """
+
     def __init__(self, agent_id: str = None):
         self.agent_id = agent_id
 
@@ -41,10 +42,9 @@ class ResourceManager:
         :param file_path: The file path to create the document index from.
         :return: A list of documents.
         """
+        if file_path is None:
+            raise Exception("file_path must be provided")
         try:
-            if file_path is None:
-                raise Exception("file_path must be provided")
-
             import boto3
             s3 = boto3.client(
                 's3',
@@ -55,17 +55,17 @@ class ResourceManager:
             file = s3.get_object(Bucket=bucket_name, Key=file_path)
             file_name = file_path.split("/")[-1]
             save_directory = "/"
-            temperory_file_path = save_directory + file_name
-            with open(temperory_file_path, "wb") as f:
+            temporary_file_path = save_directory + file_name
+            with open(temporary_file_path, "wb") as f:
                 contents = file['Body'].read()
                 f.write(contents)
 
-            documents = SimpleDirectoryReader(input_files=[temperory_file_path]).load_data()
+            documents = SimpleDirectoryReader(input_files=[temporary_file_path]).load_data()
         except Exception as e:
             logger.error(e)
         finally:
-            if os.path.exists(temperory_file_path):
-                os.remove(temperory_file_path)
+            if os.path.exists(temporary_file_path):
+                os.remove(temporary_file_path)
         return documents
 
     def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None,
