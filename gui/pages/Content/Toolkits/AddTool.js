@@ -47,9 +47,11 @@ export default function AddTool({internalId}) {
   };
 
   useEffect(() => {
-    const github_url = localStorage.getItem("tool_github_" + String(internalId))
-    if(github_url) {
-      setGithubURl(github_url);
+    if(internalId !== null) {
+      const github_url = localStorage.getItem("tool_github_" + String(internalId))
+      if(github_url) {
+        setGithubURl(github_url);
+      }
     }
   }, [internalId])
 
@@ -67,7 +69,7 @@ export default function AddTool({internalId}) {
             <input placeholder="Enter URL here" className="input_medium" type="text" value={githubURL} onChange={handleURLChange}/>
           </div>
           <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-2, "new tool", "Add_Toolkit")}>Cancel</button>
+            <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-2, "new tool", "Add_Toolkit", internalId)}>Cancel</button>
             <button disabled={!addClickable} className="primary_button" onClick={handleAddTool}>Add tool</button>
           </div>
         </div>

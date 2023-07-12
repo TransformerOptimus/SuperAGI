@@ -125,7 +125,7 @@ export default function Settings({organisationId}) {
         {/*  </div>*/}
         {/*</div>*/}
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button onClick={() => removeTab(-3, "Settings", "Settings")} className="secondary_button" style={{marginRight: '10px'}}>
+          <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={saveSettings}>
