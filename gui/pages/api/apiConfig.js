@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || 'eaaf029abe1165e23c1e';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `http://localhost:3000/api`;
-// const API_BASE_URL = `http://192.168.1.62:3000/api`;
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
 
 export const baseUrl = () => {
   return API_BASE_URL;

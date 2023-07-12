@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, createAndScheduleRun, AgentScheduleComponent, updateSchedule } from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, createAndScheduleRun, agentScheduleComponent, updateSchedule } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import { convertToGMT } from "@/utils/utils";
 import 'moment-timezone';

@@ -164,7 +164,7 @@ export const createAndScheduleRun = (requestData) => {
   return api.post(`/agentexecutions/schedule`, requestData);
 }
 
-export const AgentScheduleComponent = (agentId) => {
+export const agentScheduleComponent = (agentId) => {
   return api.get(`/agents/get/schedule_data/${agentId}`);
 }
 

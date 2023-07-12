@@ -5,7 +5,7 @@ import styles1 from "@/pages/Content/Agents/react-datetime.css";
 import Image from "next/image";
 import Datetime from "react-datetime";
 import {toast} from "react-toastify";
-import {AgentScheduleComponent, createAgent, createAndScheduleRun, updateSchedule} from "@/pages/api/DashboardService";
+import {agentScheduleComponent, createAgent, createAndScheduleRun, updateSchedule} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentSchedule({internalId, closeCreateModal, type, agentId, setCreateModal, setCreateEditModal}) {
@@ -56,39 +56,41 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
     }, []);
 
     useEffect(() => {
-        const agent_is_recurring = localStorage.getItem("agent_is_recurring_" + String(internalId));
-        if(agent_is_recurring) {
-            setIsRecurring(JSON.parse(agent_is_recurring));
-        }
+        if(internalId !== null) {
+            const agent_is_recurring = localStorage.getItem("agent_is_recurring_" + String(internalId));
+            if (agent_is_recurring) {
+                setIsRecurring(JSON.parse(agent_is_recurring));
+            }
 
-        const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
-        if(agent_time_unit) {
-            setTimeUnit(agent_time_unit);
-        }
+            const agent_time_unit = localStorage.getItem("agent_time_unit_" + String(internalId));
+            if (agent_time_unit) {
+                setTimeUnit(agent_time_unit);
+            }
 
-        const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
-        if(agent_time_value) {
-            setTimeValue(Number(agent_time_value));
-        }
+            const agent_time_value = localStorage.getItem("agent_time_value_" + String(internalId));
+            if (agent_time_value) {
+                setTimeValue(Number(agent_time_value));
+            }
 
-        const agent_expiry_type = localStorage.getItem("agent_expiry_type_" + String(internalId));
-        if(agent_expiry_type) {
-            setExpiryType(agent_expiry_type);
-        }
+            const agent_expiry_type = localStorage.getItem("agent_expiry_type_" + String(internalId));
+            if (agent_expiry_type) {
+                setExpiryType(agent_expiry_type);
+            }
 
-        const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
-        if(agent_expiry_runs) {
-            setExpiryRuns(Number(agent_expiry_runs));
-        }
+            const agent_expiry_runs = localStorage.getItem("agent_expiry_runs_" + String(internalId));
+            if (agent_expiry_runs) {
+                setExpiryRuns(Number(agent_expiry_runs));
+            }
 
-        const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
-        if(agent_start_time) {
-            setStartTime(agent_start_time);
-        }
+            const agent_start_time = localStorage.getItem("agent_start_time_" + String(internalId));
+            if (agent_start_time) {
+                setStartTime(agent_start_time);
+            }
 
-        const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
-        if(agent_expiry_date) {
-            setExpiryDate(agent_expiry_date);
+            const agent_expiry_date = localStorage.getItem("agent_expiry_date_" + String(internalId));
+            if (agent_expiry_date) {
+                setExpiryDate(agent_expiry_date);
+            }
         }
     }, [internalId])
 
@@ -196,7 +198,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
     };
 
     function fetchAgentScheduleComponent() {
-        AgentScheduleComponent(agentId)
+        agentScheduleComponent(agentId)
             .then((response) => {
                 console.log(response.data)
                 const {current_datetime, recurrence_interval, expiry_date, expiry_runs, start_date, start_time} = response.data;
