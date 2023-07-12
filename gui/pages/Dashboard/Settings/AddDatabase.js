@@ -13,11 +13,12 @@ import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 import styles1 from "@/pages/Content/Agents/Agents.module.css";
+import {connectPinecone, connectQdrant, fetchVectorDBList} from "@/pages/api/DashboardService";
 
 export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const [activeView, setActiveView] = useState('select_database');
-  const vectorDatabases = ["Pinecone", "Qdrant"];
-  const [selectedDB, setSelectedDB] = useState(vectorDatabases[0]);
+  const [vectorDatabases, setVectorDatabases] = useState(null);
+  const [selectedDB, setSelectedDB] = useState('');
   const [databaseName, setDatabaseName] = useState('database name');
   const [collections, setCollections] = useState(['collection name']);
 
@@ -34,14 +35,14 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
       setActiveView(active_view);
     }
 
-    const selected_db = localStorage.getItem('selected_db_' +  String(internalId));
-    if(selected_db) {
-      setSelectedDB(selected_db);
-    }
-
     const db_name = localStorage.getItem('db_name_' +  String(internalId));
     if(db_name) {
       setDatabaseName(db_name);
+    }
+
+    const db_collections = localStorage.getItem('db_collections_' +  String(internalId));
+    if(db_collections) {
+      setCollections(JSON.parse(db_collections));
     }
 
     const pinecone_api = localStorage.getItem('pincone_api_' +  String(internalId));
@@ -68,7 +69,20 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     if(qdrant_port) {
       setQdrantPort(Number(qdrant_port));
     }
-  }, []);
+  }, [internalId]);
+
+  useEffect(() => {
+    fetchVectorDBList()
+      .then((response) => {
+        const data = response.data || [];
+        setVectorDatabases(data);
+        const selected_db = localStorage.getItem('selected_db_' +  String(internalId));
+        setSelectedDB(selected_db ? selected_db : data[0].name || '');
+      })
+      .catch((error) => {
+        console.error('Error fetching vector databases:', error);
+      });
+  }, [internalId]);
 
   const handleNameChange = (event) => {
     setLocalStorageValue('db_name_' +  String(internalId), event.target.value, setDatabaseName);
@@ -126,6 +140,23 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         toast.error("Pinecone environment is empty", {autoClose: 1800});
         return;
       }
+
+      const pineconeData = {
+        "name": databaseName,
+        "collections": collections,
+        "api_key": pineconeApiKey,
+        "environment": pineconeEnvironment,
+      }
+
+      connectPinecone(pineconeData)
+        .then((response) => {
+          toast.success("Database connected successfully", {autoClose: 1800});
+          sendDatabaseDetailsData({id: response.data.id, name: response.data.name, contentType: "Database", internalId: createInternalId()});
+        })
+        .catch((error) => {
+          toast.error("Unable to connect database", {autoClose: 1800});
+          console.error('Error fetching vector databases:', error);
+        });
     }
 
     if(selectedDB === 'Qdrant') {
@@ -139,24 +170,38 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         return;
       }
 
-      if(qdrantPort.replace(/\s/g, '') === '') {
+      if(String(qdrantPort).replace(/\s/g, '') === '') {
         toast.error("Qdrant port can't be blank", {autoClose: 1800});
         return;
       }
+
+      const qdrantData = {
+        "name": databaseName,
+        "collections": collections,
+        "api_key": qdrantApiKey,
+        "url": qdrantURL,
+        "port": qdrantPort
+      }
+
+      connectQdrant(qdrantData)
+        .then((response) => {
+          toast.success("Database connected successfully", {autoClose: 1800});
+          sendDatabaseDetailsData({id: response.data.id, name:  response.data.name, contentType: "Database", internalId: createInternalId()});
+        })
+        .catch((error) => {
+          toast.error("Unable to connect database", {autoClose: 1800});
+          console.error('Error fetching vector databases:', error);
+        });
+    }
+  }
+
+  const proceedAddDatabase = () => {
+    if(selectedDB === null) {
+      toast.error("Please select a database", {autoClose: 1800});
+      return;
     }
 
-    sendDatabaseDetailsData({
-      id: -8,
-      name: databaseName,
-      contentType: "Database",
-      database: selectedDB,
-      collections: collections,
-      pineconeApiKey: pineconeApiKey,
-      pineconeEnvironment: pineconeEnvironment,
-      qdrantApiKey: qdrantApiKey,
-      qdrantURL: qdrantURL,
-      qdrantPort: qdrantPort
-    })
+    setLocalStorageValue('add_database_tab_' + String(internalId), 'form_database', setActiveView)
   }
 
   return (<>
@@ -167,20 +212,20 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
           <div className={agentStyles.page_title}>Choose a vector database</div>
         </div>
         <div className={knowledgeStyles.database_wrapper}>
-          {vectorDatabases.map((item, index) => (
-            <div key={index} style={item === selectedDB ? {border:'1px solid #9B9AA1'} : {border:'1px solid rgb(39, 35, 53)'}} className={knowledgeStyles.database_container}
-                 onClick={() => setLocalStorageValue('selected_db_' + String(internalId), item, setSelectedDB)}>
+          {vectorDatabases?.map((item, index) => (
+            <div key={index} style={item.name === selectedDB ? {border:'1px solid #9B9AA1'} : {border:'1px solid rgb(39, 35, 53)'}} className={knowledgeStyles.database_container}
+                 onClick={() => setLocalStorageValue('selected_db_' + String(internalId), item.name, setSelectedDB)}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'center',margin:'20px'}}>
-                <Image width={40} height={40} src={returnDatabaseIcon(item)} alt=""/>
+                <Image width={40} height={40} src={returnDatabaseIcon(item.name)} alt=""/>
               </div>
-              <div className={styles.text_block} style={{width:'100%',marginBottom:'10px',textAlign:'center'}}>{item}</div>
+              <div className={styles.text_block} style={{width:'100%',marginBottom:'10px',textAlign:'center'}}>{item.name}</div>
             </div>))}
         </div>
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
           <button onClick={() => removeTab(-7, "new database", "Add_Database")} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
-          <button className="primary_button" onClick={() => setLocalStorageValue('add_database_tab_' + String(internalId), 'form_database', setActiveView)}>
+          <button className="primary_button" onClick={proceedAddDatabase}>
             Proceed
           </button>
         </div>

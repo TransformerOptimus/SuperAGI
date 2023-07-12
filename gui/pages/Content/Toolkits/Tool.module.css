@@ -194,13 +194,13 @@
 }
 
 .search_box input {
-  width: 600px;
-  height: 25px;
-  font-size: x-small;
-  padding: 5px;
-  border: 1px solid rgb(96, 96, 96);
-  border-radius: 6px;
-  background-color: #454254;
+    width: 600px;
+    height: 25px;
+    font-size: x-small;
+    padding: 5px;
+    border: 1px solid rgb(96, 96, 96);
+    border-radius: 6px;
+    background-color: #454254;
 }
 
 .show_more_button {
@@ -218,4 +218,3 @@
     padding:13px;
     margin-bottom: 6px;
 }
-

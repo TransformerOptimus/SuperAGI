@@ -29,7 +29,7 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
   const openToolkitTab = (toolId) => {
     EventBus.emit('openToolkitTab', {toolId: toolId});
   }
-  
+
   return (<>
     <div className={styles.history_box} style={{background:'#272335',padding:'15px',cursor:'default'}}>
       <div className={styles.detail_name}>{agentDetails?.name || ''}</div>
@@ -89,26 +89,26 @@ export default function Details({agentDetails, runCount, goals, instructions}) {
         </div>
       </div>}
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div><div className={styles.separator}></div>
-      <div className={styles.agent_info_box}>
-        <div><Image width={15} height={15} src="/images/tools_dark.svg" alt="tools-icon"/></div>
-        <div style={info_text}>Tools assigned</div>
-      </div>
-      <div className={styles.agent_info_tools}>
-        {agentDetails.tools.map((tool, index) =>
-          (<div onClick={() => openToolkitTab(tool.id)} key={index} className="tool_container" style={{marginTop:'0',marginBottom:'5px',cursor:'pointer'}}>
-          <div className={styles.tool_text}>{tool.name || ''}</div>
-        </div>))}
-      </div></div>}</div>}
+        <div className={styles.agent_info_box}>
+          <div><Image width={15} height={15} src="/images/tools_dark.svg" alt="tools-icon"/></div>
+          <div style={info_text}>Tools assigned</div>
+        </div>
+        <div className={styles.agent_info_tools}>
+          {agentDetails.tools.map((tool, index) =>
+            (<div onClick={() => openToolkitTab(tool.id)} key={index} className="tool_container" style={{marginTop:'0',marginBottom:'5px',cursor:'pointer'}}>
+              <div className={styles.tool_text}>{tool.name || ''}</div>
+            </div>))}
+        </div></div>}</div>}
       {agentDetails && <div>{agentDetails.constraints && agentDetails.constraints.length > 0 && <div><div className={styles.separator}></div>
-      <div className={styles.agent_info_box}>
-        <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
-        <div style={info_text}>{agentDetails?.constraints.length || 0} Constraints</div>
-      </div>
-      <div className={styles.large_text_box} style={!showConstraints ? {overflow:'hidden',display:'-webkit-box'} : {}}>
-        {agentDetails.constraints.map((constraint, index) => (<div key={index} style={{marginTop:'0'}}>
-          <div>{index + 1}. {constraint || ''}</div>{index !== agentDetails.constraints.length - 1 && <br/>}
-        </div>))}
-      </div>
+        <div className={styles.agent_info_box}>
+          <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
+          <div style={info_text}>{agentDetails?.constraints.length || 0} Constraints</div>
+        </div>
+        <div className={styles.large_text_box} style={!showConstraints ? {overflow:'hidden',display:'-webkit-box'} : {}}>
+          {agentDetails.constraints.map((constraint, index) => (<div key={index} style={{marginTop:'0'}}>
+            <div>{index + 1}. {constraint || ''}</div>{index !== agentDetails.constraints.length - 1 && <br/>}
+          </div>))}
+        </div>
         <div className={styles.show_more_button} onClick={() => setShowConstraints(!showConstraints)}>{showConstraints ? 'Show Less' : 'Show More'}</div>
       </div>}</div>}
       <div className={styles.separator}></div>

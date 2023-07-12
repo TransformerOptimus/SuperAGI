@@ -6,14 +6,9 @@ import {createInternalId, loadingTextEffect} from "@/utils/utils";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import Image from "next/image";
+import {deleteVectorDB, getVectorDatabases} from "@/pages/api/DashboardService";
 
-export default function Database({organisationId, sendDatabaseData}) {
-  const databases = [
-    {id: 0, name: 'database name 1', database: 'Pinecone', date_added: '1yr ago'},
-    {id: 2, name: 'database name 2', database: 'Qdrant', date_added: '1yr ago'},
-    {id: 3, name: 'database name 3', database: 'Pinecone', date_added: '1yr ago'},
-    {id: 4, name: 'database name 4', database: 'Qdrant', date_added: '1yr ago'}
-  ]
+export default function Database({sendDatabaseData}) {
   const [vectorDB, setVectorDB] = useState([]);
   const [isLoading, setIsLoading] = useState(true)
   const [loadingText, setLoadingText] = useState("Loading Databases");
@@ -25,11 +20,23 @@ export default function Database({organisationId, sendDatabaseData}) {
     e.stopPropagation();
   };
 
+  function fetchDatabases() {
+    setIsLoading(true);
+
+    getVectorDatabases()
+      .then((response) => {
+        const data = response.data || [];
+        setVectorDB(data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching vector databases:', error);
+      });
+  }
+
   useEffect(() => {
     loadingTextEffect('Loading Databases', setLoadingText, 500);
-    setTimeout(() => {
-      loadDatabases();
-    }, 1000);
+    fetchDatabases();
   }, []);
 
   useEffect(() => {
@@ -44,11 +51,6 @@ export default function Database({organisationId, sendDatabaseData}) {
     });
   }
 
-  const loadDatabases = () => {
-    setIsLoading(false);
-    setVectorDB(databases);
-  }
-
   const openDeleteModal = (index) => {
     setDeleteModal(true);
     setDropdownWithIndex(index, false);
@@ -57,6 +59,21 @@ export default function Database({organisationId, sendDatabaseData}) {
 
   const deleteDatabase = (databaseId) => {
     setDeleteModal(false);
+
+    deleteVectorDB(databaseId)
+      .then((response) => {
+        toast.success("Database deleted successfully", {autoClose: 1800});
+        fetchDatabases();
+      })
+      .catch((error) => {
+        toast.error("Unable to delete database", {autoClose: 1800});
+        console.error('Error fetching knowledge templates:', error);
+      });
+  }
+
+  const openDatabase = (e, database) => {
+    e.stopPropagation();
+    sendDatabaseData({id: database.id, name: database.name, contentType: "Database", internalId: createInternalId()})
   }
 
   return (<>
@@ -74,7 +91,7 @@ export default function Database({organisationId, sendDatabaseData}) {
           <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto'}}>
             {!isLoading ? <div>
               {vectorDB && vectorDB.length > 0 ? <div className={knowledgeStyles.database_wrapper}>
-                {vectorDB.map((item, index) => (<div key={index} className={knowledgeStyles.database_container}>
+                {vectorDB.map((item, index) => (<div key={index} className={knowledgeStyles.database_container} onClick={(e) => openDatabase(e, item)}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                     <div style={{display:'flex',order:'0'}}>
                       <div className={styles.text_block}>{item.name}</div>
@@ -96,7 +113,7 @@ export default function Database({organisationId, sendDatabaseData}) {
                         <Image width={12} height={12} src="/images/stack.svg" alt="database-icon"/>
                       </div>
                       <div className={styles.history_info}>
-                        {item.database}
+                        {item.db_type}
                       </div>
                     </div>
                     <div style={{display:'flex',alignItems:'center',marginLeft:'10px'}}>
@@ -104,7 +121,7 @@ export default function Database({organisationId, sendDatabaseData}) {
                         <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
                       </div>
                       <div className={styles.history_info}>
-                        Added {item.date_added}
+                        Added {item.created_at}
                       </div>
                     </div>
                   </div>

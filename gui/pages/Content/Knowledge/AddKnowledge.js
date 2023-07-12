@@ -1,20 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import KnowledgeForm from "@/pages/Content/Knowledge/KnowledgeForm";
 
-export default function AddKnowledge({internalId}) {
+export default function AddKnowledge({internalId, sendKnowledgeData}) {
   const [knowledgeName, setKnowledgeName] = useState('');
   const [knowledgeDescription, setKnowledgeDescription] = useState('');
-  const collections = [
-    {
-      name: 'database name • Pinecone',
-      indices: ['index name 1', 'index name 2', 'index name 3']
-    },
-    {
-      name: 'database name • Qdrant',
-      indices: ['index name 4', 'index name 5']
-    }
-  ];
-  const [selectedIndex, setSelectedIndex] = useState(collections[0].indices[0]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     const knowledge_name = localStorage.getItem("knowledge_name_" + String(internalId))
@@ -29,7 +19,7 @@ export default function AddKnowledge({internalId}) {
 
     const knowledge_index = localStorage.getItem("knowledge_index_" + String(internalId))
     if(knowledge_index) {
-      setSelectedIndex(knowledge_index);
+      setSelectedIndex(JSON.parse(knowledge_index));
     }
   }, [internalId])
 
@@ -38,7 +28,7 @@ export default function AddKnowledge({internalId}) {
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
         <KnowledgeForm internalId={internalId}
-                       collections={collections}
+                       knowledgeId={null}
                        knowledgeName={knowledgeName}
                        setKnowledgeName={setKnowledgeName}
                        knowledgeDescription={knowledgeDescription}
@@ -47,6 +37,7 @@ export default function AddKnowledge({internalId}) {
                        setSelectedIndex={setSelectedIndex}
                        isEditing={false}
                        setIsEditing={null}
+                       sendKnowledgeData={sendKnowledgeData}
         />
       </div>
       <div className="col-3"></div>

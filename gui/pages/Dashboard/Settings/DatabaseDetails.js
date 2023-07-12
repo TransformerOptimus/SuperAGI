@@ -2,38 +2,36 @@ import React, {useState, useEffect} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {returnDatabaseIcon, setLocalStorageArray} from "@/utils/utils";
+import {removeTab, returnDatabaseIcon, setLocalStorageArray} from "@/utils/utils";
 import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
+import {deleteVectorDB, getVectorDBDetails, updateVectorDB} from "@/pages/api/DashboardService";
 
-export default function DatabaseDetails({internalId, databaseDetails}) {
+export default function DatabaseDetails({internalId, databaseId}) {
   const [dropdown,setDropdown] = useState(false);
   const [deleteModal,setDeleteModal] = useState(false);
-  const [selectedDB, setSelectedDB] = useState('');
-  const [databaseName, setDatabaseName] = useState('');
   const [collections, setCollections] = useState([]);
   const [initialCollections, setInitialCollections] = useState([]);
   const [hasChanges, setHasChanges] = useState(false);
-
-  const [pineconeApiKey, setPineconeApiKey] = useState('');
-  const [pineconeEnvironment, setPineconeEnvironment] = useState('');
-
-  const [qdrantApiKey, setQdrantApiKey] = useState('');
-  const [qdrantURL, setQdrantURL] = useState('');
-  const [qdrantPort, setQdrantPort] = useState(8001);
+  const [databaseDetails, setDatabaseDetails] = useState([]);
 
   useEffect(() => {
-    if(databaseDetails) {
-      setSelectedDB(databaseDetails.database);
-      setDatabaseName(databaseDetails.name);
-      setCollections(databaseDetails.collections);
-      setInitialCollections(databaseDetails.collections);
-      setPineconeApiKey(databaseDetails.pineconeApiKey);
-      setPineconeEnvironment(databaseDetails.pineconeEnvironment);
-      setQdrantApiKey(databaseDetails.qdrantApiKey);
-      setQdrantURL(databaseDetails.qdrantURL);
-      setQdrantPort(databaseDetails.qdrantPort);
+    if(databaseId) {
+      getVectorDBDetails(databaseId)
+        .then((response) => {
+          const data = response.data || [];
+          setDatabaseDetails(data);
+          if(data) {
+            const localIndices = localStorage.getItem("db_details_collections_" + String(internalId));
+            const indices = data.indices || [];
+            setCollections(localIndices ? JSON.parse(localIndices) : indices);
+            setInitialCollections(indices);
+          }
+        })
+        .catch((error) => {
+          console.error('Error deleting database:', error);
+        });
     }
   }, [internalId]);
 
@@ -67,6 +65,16 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
 
   const deleteDatabase = () => {
     setDeleteModal(false);
+
+    deleteVectorDB(databaseId)
+      .then((response) => {
+        toast.success("Database deleted successfully", {autoClose: 1800});
+        removeTab(databaseId, databaseDetails?.name, "Database")
+      })
+      .catch((error) => {
+        toast.error("Unable to delete database", {autoClose: 1800});
+        console.error('Error deleting database:', error);
+      });
   }
 
   const revertChanges = () => {
@@ -75,8 +83,16 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
   };
 
   const updateChanges = () => {
-    setInitialCollections(collections);
-    setHasChanges(false);
+    updateVectorDB(databaseId, collections)
+      .then((response) => {
+        toast.success("Database updated successfully", {autoClose: 1800});
+        setInitialCollections(collections);
+        setHasChanges(false);
+      })
+      .catch((error) => {
+        toast.error("Unable to update database", {autoClose: 1800});
+        console.error('Error fetching knowledge templates:', error);
+      });
   };
 
   return (<>
@@ -84,7 +100,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
       <div className="col-3"></div>
       <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
         <div className="title_wrapper">
-          <div className={agentStyles.page_title}>{databaseName}</div>
+          <div className={agentStyles.page_title}>{databaseDetails?.name}</div>
           <div>
             <button className="secondary_button" style={{padding:'8px',height:'31px',marginTop:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
@@ -99,9 +115,9 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
         <div className="database_box">
           <div style={{display:'flex',justifyContent:'flex-start',order:'0',alignItems:'center'}}>
             <div style={{marginLeft:'15px'}}>
-              <Image src={returnDatabaseIcon(selectedDB)} alt="database-icon" width={40} height={40}/>
+              <Image src={returnDatabaseIcon(databaseDetails?.db_type)} alt="database-icon" width={40} height={40}/>
             </div>
-            <div style={{marginLeft:'15px',fontSize:'14px',marginTop:'23px'}} className={agentStyles.page_title}>{selectedDB}</div>
+            <div style={{marginLeft:'15px',fontSize:'14px',marginTop:'23px'}} className={agentStyles.page_title}>{databaseDetails?.db_type}</div>
           </div>
         </div>
         <div style={{marginTop: '15px'}}>
@@ -120,28 +136,28 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
           </div>))}
           <div><button className="secondary_button" onClick={addCollection}>+ Add</button></div>
         </div>
-        {selectedDB === 'Pinecone' && <div>
+        {databaseDetails?.db_type === 'Pinecone' && <div>
           <div style={{marginTop:'15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Pinecone API key</label>
-            <div className={knowledgeStyles.knowledge_info}>{pineconeApiKey}</div>
+            <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.api_key}</div>
           </div>
           <div style={{marginTop:'15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Pinecone environment</label>
-            <div className={knowledgeStyles.knowledge_info}>{pineconeEnvironment}</div>
+            <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.environment}</div>
           </div>
         </div>}
-        {selectedDB === 'Qdrant' && <div>
+        {databaseDetails?.db_type === 'Qdrant' && <div>
           <div style={{marginTop:'15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Qdrant API key</label>
-            <div className={knowledgeStyles.knowledge_info}>{qdrantApiKey}</div>
+            <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.api_key}</div>
           </div>
           <div style={{marginTop:'15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Qdrant URL</label>
-            <div className={knowledgeStyles.knowledge_info}>{qdrantURL}</div>
+            <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.url}</div>
           </div>
           <div style={{marginTop:'15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Port</label>
-            <div className={knowledgeStyles.knowledge_info}>{qdrantPort}</div>
+            <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.port}</div>
           </div>
         </div>}
         {hasChanges && <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
@@ -158,7 +174,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
 
     {deleteModal && (<div className="modal" onClick={() => setDeleteModal(false)}>
       <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-        <div className={styles.detail_name}>Delete {databaseName}</div>
+        <div className={styles.detail_name}>Delete {databaseDetails?.name}</div>
         <div>
           <label className={styles.form_label}>Are you sure you want to delete this database?</label>
         </div>
@@ -172,7 +188,7 @@ export default function DatabaseDetails({internalId, databaseDetails}) {
         </div>
       </div>
     </div>)}
-    
+
     <ToastContainer/>
   </>)
 }

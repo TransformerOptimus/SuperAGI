@@ -15,11 +15,13 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon,
+  setLocalStorageArray, returnResourceIcon, createInternalId,
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import styles1 from "@/pages/Content/Agents/Agents.module.css";
+import styles2 from "@/pages/Content/Knowledge/Knowledge.module.css";
 
-export default function AgentCreate({sendAgentData, knowledge, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId}) {
+export default function AgentCreate({sendAgentData, knowledge, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, sendKnowledgeData}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -123,22 +125,22 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
       setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
 
       fetchAgentTemplateConfigLocal(template.id)
-          .then((response) => {
-            const data = response.data || [];
-            setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-            setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
-            setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
-            setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
-            setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
-            setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
-            setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
-            setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
-            setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
-            setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
-          })
-          .catch((error) => {
-            console.error('Error fetching template details:', error);
-          });
+        .then((response) => {
+          const data = response.data || [];
+          setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+          setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+          setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+          setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+          setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+          setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+          setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+          setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+          setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+          setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
+        })
+        .catch((error) => {
+          console.error('Error fetching template details:', error);
+        });
     }
   }, []);
 
@@ -209,7 +211,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
     setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     setSearchValue('');
   }
-  
+
   const removeTool = (indexToDelete) => {
     const updatedToolIds = [...selectedTools];
     updatedToolIds.splice(indexToDelete, 1);
@@ -615,6 +617,11 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
     }
   }, [internalId])
 
+  function openMarketplace() {
+    openNewTab(-4, "Marketplace", "Marketplace");
+    localStorage.setItem('marketplace_tab', 'market_knowledge');
+  }
+
   return (<>
     <div className="row">
       <div className="col-3"></div>
@@ -647,27 +654,27 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
 
           <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Instructions<span style={{fontSize:'9px'}}>&nbsp;(optional)</span></label></div>
-              {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
-                </div>{instructions.length > 1 && <div>
-                  <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
-                    <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
-                  </button>
-                </div>}
-              </div>))}
-              <div>
-                <button className="secondary_button" onClick={addInstruction}>+ Add</button>
-              </div>
+            {instructions?.map((goal, index) => (<div key={index} style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+              <div style={{flex: '1'}}><input className="input_medium" type="text" value={goal} onChange={(event) => handleInstructionChange(index, event.target.value)}/>
+              </div>{instructions.length > 1 && <div>
+              <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={() => handleInstructionDelete(index)}>
+                <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
+              </button>
+            </div>}
+            </div>))}
+            <div>
+              <button className="secondary_button" onClick={addInstruction}>+ Add</button>
+            </div>
           </div>
 
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
             <div className="dropdown_container_search" style={{width:'100%'}}>
-                <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
-                  {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-                </div>
-                <div>
-                  {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
+              <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)} style={{width:'100%'}}>
+                {model}<Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+              </div>
+              <div>
+                {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width:'100%'}}>
                   {models.map((model, index) => (<div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                     {model}
                   </div>))}
@@ -695,24 +702,24 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width:'100%'}}>
                   {toolkitList && toolkitList.filter((toolkit) => toolkit.tools ? toolkit.tools.some((tool) => tool.name.toLowerCase().includes(searchValue.toLowerCase())) : false).map((toolkit, index) => (<div key={index}>
                     {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
-                        <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                          <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
-                            <div onClick={(e) => toggleToolkit(e, toolkit.id)} style={{marginLeft:'-8px',marginRight:'8px'}}>
-                              <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
-                            </div>
-                            <div style={{width:'100%'}}>{toolkit.name}</div>
+                      <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{padding:'10px 14px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                        <div style={{display:'flex',alignItems:'center',justifyContent:'flex-start'}}>
+                          <div onClick={(e) => toggleToolkit(e, toolkit.id)} style={{marginLeft:'-8px',marginRight:'8px'}}>
+                            <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"} width={11} height={11} alt="expand-arrow"/>
                           </div>
-                          {checkSelectedToolkit(toolkit) && <div style={{order:'1',marginLeft:'10px'}}>
-                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
-                          </div>}
+                          <div style={{width:'100%'}}>{toolkit.name}</div>
                         </div>
-                        {toolkit.isOpen && toolkit.tools.filter((tool) => tool.name ? tool.name.toLowerCase().includes(searchValue.toLowerCase()) : true).map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 14px 10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                          <div>{tool.name}</div>
-                          {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) && <div style={{order:'1',marginLeft:'10px'}}>
-                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
-                          </div>}
-                        </div>))}
-                      </div>}
+                        {checkSelectedToolkit(toolkit) && <div style={{order:'1',marginLeft:'10px'}}>
+                          <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
+                        </div>}
+                      </div>
+                      {toolkit.isOpen && toolkit.tools.filter((tool) => tool.name ? tool.name.toLowerCase().includes(searchValue.toLowerCase()) : true).map((tool, index) => (<div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{padding:'10px 14px 10px 40px',maxWidth:'100%',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                        <div>{tool.name}</div>
+                        {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) && <div style={{order:'1',marginLeft:'10px'}}>
+                          <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
+                        </div>}
+                      </div>))}
+                    </div>}
                   </div>))}
                 </div>}
               </div>
@@ -778,14 +785,39 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
                     {selectedKnowledge || 'Select knowledge'}<Image width={20} height={21} src={!knowledgeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                   </div>
                   <div>
-                    {knowledgeDropdown && knowledge.length > 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
+                    {knowledgeDropdown && knowledge && knowledge.length > 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
                       {knowledge.map((item, index) => (<div key={index} className="custom_select_option" onClick={() => handleKnowledgeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
                         {item.name}
                       </div>))}
+                      <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                             onClick={() => sendKnowledgeData({ id: -6, name: "new knowledge", contentType: "Add_Knowledge", internalId: createInternalId() })}>
+                          <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon" />&nbsp;&nbsp;Add new knowledge
+                        </div>
+                      </div>
+                      <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                             onClick={openMarketplace}>
+                          <Image width={15} height={15} src="/images/widgets.svg" alt="marketplace" />&nbsp;&nbsp;Browse knowledge from marketplace
+                        </div>
+                      </div>
                     </div>}
-                    {knowledgeDropdown && knowledge.length <= 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%'}}>
-                      <div className="custom_no_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        No knowledge found
+                    {knowledgeDropdown && knowledge && knowledge.length <= 0 && <div className="custom_select_options" ref={knowledgeRef} style={{width:'100%',maxHeight:'400px'}}>
+                      <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'30px',marginBottom:'20px',width:'100%'}}>
+                        <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+                        <span className={styles1.feed_title} style={{marginTop: '8px'}}>No knowledge found</span>
+                      </div>
+                      <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                             onClick={() => sendKnowledgeData({ id: -6, name: "new knowledge", contentType: "Add_Knowledge", internalId: createInternalId() })}>
+                          <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon" />&nbsp;&nbsp;Add new knowledge
+                        </div>
+                      </div>
+                      <div className={styles2.knowledge_db} style={{maxWidth:'100%',borderTop:'1px solid #3F3A4E'}}>
+                        <div className="custom_select_option" style={{padding:'12px 14px',maxWidth:'100%'}}
+                             onClick={openMarketplace}>
+                          <Image width={15} height={15} src="/images/widgets.svg" alt="marketplace" />&nbsp;&nbsp;Browse knowledge from marketplace
+                        </div>
                       </div>
                     </div>}
                   </div>

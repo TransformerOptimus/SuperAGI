@@ -89,17 +89,17 @@ export default function AgentWorkspace({agentId, selectedView}) {
     }
 
     addExecution(executionData)
-        .then((response) => {
-          setRunModal(false);
-          fetchExecutions(agentId, response.data);
-          fetchAgentDetails(agentId);
-          EventBus.emit('reFetchAgents', {});
-          toast.success("New run created", {autoClose: 1800});
-        })
-        .catch((error) => {
-          console.error('Error creating execution:', error);
-          toast.error("Could not create run", {autoClose: 1800});
-        });
+      .then((response) => {
+        setRunModal(false);
+        fetchExecutions(agentId, response.data);
+        fetchAgentDetails(agentId);
+        EventBus.emit('reFetchAgents', {});
+        toast.success("New run created", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error creating execution:', error);
+        toast.error("Could not create run", {autoClose: 1800});
+      });
   };
 
   const closeRunModal = () => {
@@ -111,18 +111,18 @@ export default function AgentWorkspace({agentId, selectedView}) {
     const executionData = {"status": status};
 
     updateExecution(selectedRun.id, executionData)
-        .then((response) => {
-          EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
-          if(status !== 'TERMINATED') {
-            fetchExecutions(agentId, response.data);
-          } else {
-            fetchExecutions(agentId);
-          }
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating execution:', error);
-        });
+      .then((response) => {
+        EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
+        if(status !== 'TERMINATED') {
+          fetchExecutions(agentId, response.data);
+        } else {
+          fetchExecutions(agentId);
+        }
+        EventBus.emit('reFetchAgents', {});
+      })
+      .catch((error) => {
+        console.error('Error updating execution:', error);
+      });
 
     setDropdown(false);
   };
@@ -158,15 +158,15 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
-        .then((response) => {
-          let data = response.data
-          data = data.filter((run) => run.status !== 'TERMINATED');
-          setAgentExecutions(data);
-          setSelectedRun(currentRun ? currentRun : data[0]);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent executions:', error);
-        });
+      .then((response) => {
+        let data = response.data
+        data = data.filter((run) => run.status !== 'TERMINATED');
+        setAgentExecutions(data);
+        setSelectedRun(currentRun ? currentRun : data[0]);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent executions:', error);
+      });
   }
 
   function fetchExecutionDetails(executionId) {
@@ -184,12 +184,12 @@ export default function AgentWorkspace({agentId, selectedView}) {
 
   function saveAgentTemplate() {
     saveAgentAsTemplate(agentId)
-        .then((response) => {
-          toast.success("Agent saved as template successfully", {autoClose: 1800});
-        })
-        .catch((error) => {
-          console.error('Error saving agent as template:', error);
-        });
+      .then((response) => {
+        toast.success("Agent saved as template successfully", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error saving agent as template:', error);
+      });
 
     setDropdown(false);
   }
@@ -289,9 +289,9 @@ export default function AgentWorkspace({agentId, selectedView}) {
         </div>
         <div className={styles.detail_body} style={{paddingRight:'0'}}>
           {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
-              <div className={styles.detail_content}>
-                <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
-              </div>
+            <div className={styles.detail_content}>
+              <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData} pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
+            </div>
           )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0}/></div>}
           {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}

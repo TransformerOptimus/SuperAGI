@@ -252,11 +252,23 @@ const removeAddDatabaseInternalId = (internalId) => {
     localStorage.removeItem('add_database_tab_' + String(internalId));
     localStorage.removeItem('selected_db_' + String(internalId));
     localStorage.removeItem('db_name_' + String(internalId));
+    localStorage.removeItem('db_collections_' + String(internalId));
     localStorage.removeItem('pincone_api_' + String(internalId));
     localStorage.removeItem('pinecone_env_' + String(internalId));
     localStorage.removeItem('qdrant_api_' + String(internalId));
     localStorage.removeItem('qdrant_url_' + String(internalId));
     localStorage.removeItem('qdrant_port_' + String(internalId));
+  }
+}
+
+const removeDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('db_details_collections_' + String(internalId));
   }
 }
 
@@ -280,8 +292,14 @@ export const resetLocalStorage = (contentType, internalId) => {
     case 'Knowledge':
       removeKnowledgeInternalId(internalId);
       break;
+    case 'Add_Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
     case 'Add_Database':
       removeAddDatabaseInternalId(internalId);
+      break;
+    case 'Database':
+      removeDatabaseInternalId(internalId);
       break;
     case 'Settings':
       localStorage.removeItem('settings_tab');
@@ -327,6 +345,7 @@ export const returnToolkitIcon = (toolkitName) => {
     { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
     { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
     { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
+    { name: 'Knowledge Search Toolkit', imageSrc: '/images/app-logo-light.png' },
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
@@ -353,7 +372,11 @@ export const returnDatabaseIcon = (database) => {
   return dbTypeIcons[database]
 };
 
-export const  convertToTitleCase = (str) => {
+export const convertToTitleCase = (str) => {
+  if(str === null || str === '') {
+    return '';
+  }
+
   const words = str.toLowerCase().split('_');
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');

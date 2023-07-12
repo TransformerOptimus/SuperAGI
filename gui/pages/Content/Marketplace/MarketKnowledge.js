@@ -4,34 +4,9 @@ import styles from './Market.module.css';
 import {EventBus} from "@/utils/eventBus";
 import {loadingTextEffect} from "@/utils/utils";
 import axios from 'axios';
+import {fetchKnowledgeTemplateList} from "@/pages/api/DashboardService";
 
 export default function MarketKnowledge() {
-  const templates = [
-    {
-      name: "knowledge name 1", model: "text-embedding-ada-002", datatype: "Text", tokenizer: "Tiktoken", is_installed: false,
-      contributor: "Google", chunk_size: "256", chunk_overlap: "20", text_splitter: "Fixed size", dimension: "1536",
-      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      updated_at: "23 Jun 2023"
-    },
-    {
-      name: "knowledge name 2", model: "text-embedding-ada-002", datatype: "Text", tokenizer: "Tiktoken", is_installed: false,
-      contributor: "random", chunk_size: "256", chunk_overlap: "20", text_splitter: "Fixed size", dimension: "1536",
-      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      updated_at: "23 Jun 2023"
-    },
-    {
-      name: "knowledge name 3", model: "text-embedding-ada-002", datatype: "Text", tokenizer: "Tiktoken", is_installed: true,
-      contributor: "Google", chunk_size: "256", chunk_overlap: "20", text_splitter: "Fixed size", dimension: "1536",
-      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      updated_at: "23 Jun 2023"
-    },
-    {
-      name: "knowledge name 4", model: "text-embedding-ada-002", datatype: "Text", tokenizer: "Tiktoken", is_installed: false,
-      contributor: "random", chunk_size: "256", chunk_overlap: "20", text_splitter: "Fixed size", dimension: "1536",
-      description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      updated_at: "23 Jun 2023"
-    },
-  ];
   const [knowledgeTemplates, setKnowledgeTemplates] = useState([])
   const [showMarketplace, setShowMarketplace] = useState(false);
   const [isLoading, setIsLoading] = useState(true)
@@ -42,17 +17,27 @@ export default function MarketKnowledge() {
 
     if(window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);
+      axios.get(`https://app.superagi.com/api/knowledge/get/list?page=0`)
+        .then((response) => {
+          const data = response.data || [];
+          setKnowledgeTemplates(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching knowledge templates:', error);
+        });
     } else {
-      setTimeout(() => {
-        loadTemplates();
-      }, 1000);
+      fetchKnowledgeTemplateList()
+        .then((response) => {
+          const data = response.data || [];
+          setKnowledgeTemplates(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching knowledge templates:', error);
+        });
     }
   }, []);
-
-  const loadTemplates = () => {
-    setIsLoading(false);
-    setKnowledgeTemplates(templates);
-  }
 
   function handleTemplateClick(item) {
     const contentType = 'knowledge_template';
@@ -68,7 +53,7 @@ export default function MarketKnowledge() {
               <div style={{display: 'inline',overflow:'auto'}}>
                 {/*<Image style={{borderRadius: '25px',background:'black',position:'absolute'}} width={40} height={40} src="/images/app-logo-light.png" alt="tool-icon"/>*/}
                 <div>{item.name}</div>
-                <div style={{color: '#888888',lineHeight:'16px'}}>by {item.contributor}</div>
+                <div style={{color: '#888888',lineHeight:'16px'}}>by {item.contributed_by}</div>
                 <div className={styles.tool_description}>{item.description}</div>
               </div>
             </div>
