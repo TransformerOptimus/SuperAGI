@@ -40,7 +40,8 @@ class KnowledgeSearchTool(BaseTool):
             AgentConfiguration.key == "knowledge").first()
         knowledge = session.query(Knowledge).filter(Knowledge.id == knowledge_id).first()
         dbhelper = KnowledgeToolDbHelper(session)
-        knowledge_details=dbhelper.get_knowledge_details(knowledge)
+        knowledge_details = dbhelper.get_knowledge_details(knowledge)
+        query_knowledge = KnowledgeToolHelper()
 
         if knowledge_details["knowledge_vector_db_type"] == "Pinecone":
             vector_db_creds = dbhelper.get_pinecone_creds(knowledge_details["knowledge_vector_db_id"])

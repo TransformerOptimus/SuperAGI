@@ -21,7 +21,7 @@ class MarketPlaceStats(DBBaseModel):
         value (int): The value for the specified key.
     """
 
-    __tablename__ = 'marketplace_state'
+    __tablename__ = 'marketplace_stats'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     reference_id = Column(Integer)
