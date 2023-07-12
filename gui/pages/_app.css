@@ -626,6 +626,14 @@ p {
     cursor: pointer;
 }
 
+.resource_manager_tip{
+    display: flex;
+    padding: 2px 4px;
+    align-items: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.10);
+}
+
 .mt_6{margin-top: 6px;}
 .mt_8{margin-top: 8px;}
 .mt_10{margin-top: 10px;}
@@ -636,3 +644,38 @@ p {
 .mb_8{margin-bottom: 8px;}
 .mb_16{margin-bottom: 16px;}
 .mb_20{margin-bottom: 20px;}
+
+.ml_8{margin-left: 8px;}
+
+.text_12{
+    color: #FFF;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.text_9{
+    color: #FFF;
+    font-family: Inter;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.horizontal_container{
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+}
+
+.vertical_container{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.justify_space_between{justify-content: space-between}
+.cursor_pointer{cursor: pointer;}

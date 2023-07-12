@@ -7,7 +7,7 @@ import {getResources, uploadFile} from "@/pages/api/DashboardService";
 import {downloadAllFiles} from "@/utils/utils";
 import ResourceList from "@/pages/Content/Agents/ResourceList";
 
-export default function ResourceManager({agentId}) {
+export default function ResourceManager({agentId, runs}) {
   const [output, setOutput] = useState([]);
   const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
@@ -110,13 +110,6 @@ export default function ResourceManager({agentId}) {
             </button>
           </div>
         </div>
-        <div style={{order:1}}>
-          {channel === 'output' && output.length > 0 && (
-            <button onClick={() => downloadAllFiles(output)} className={styles.tab_button} style={{background:'transparent',padding:'5px 10px',height:'30px',color:'#888888'}}>
-              <Image src="/images/download_icon.svg" width={20} height={20} alt="download-icon"/>&nbsp;Download
-            </button>
-          )}
-        </div>
       </div>
     </div>
     <div className={styles.detail_body} style={{height:'auto'}}>
@@ -127,7 +120,7 @@ export default function ResourceManager({agentId}) {
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
-      <ResourceList files={channel === 'output' ? output : input} channel={channel}/>
+      <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs}/>
     </div>
     <ToastContainer/>
   </>)
