@@ -121,6 +121,18 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
     setIndexDropdown(false);
   }
 
+  const checkIndexValidity = (validState) => {
+    let errorMessage = "";
+    let isValid = true;
+
+    if(!validState) {
+      isValid = false;
+      errorMessage = "The configured index is either empty or has marketplace knowledge";
+    }
+
+    return [isValid, errorMessage];
+  }
+
   return (<>
     <div>
       <div className={styles.page_title}>{isEditing ? 'Edit knowledge' : 'Add a new knowledge'}</div>
@@ -155,14 +167,24 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
               <div className={styles1.knowledge_label} style={{padding:'12px 14px',maxWidth:'100%'}}>Select an existing vector database collection/index to install the knowledge</div>
               {pinconeIndices && pinconeIndices.length > 0 && <div className={styles1.knowledge_db} style={{maxWidth:'100%'}}>
                 <div className={styles1.knowledge_db_name}>Pinecone</div>
-                {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleIndexSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                  {index.name}
+                {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option index_options" onClick={() => handleIndexSelect(index)}>
+                  <div style={!checkIndexValidity(index.is_valid_state)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
+                  {!checkIndexValidity(index.is_valid_state)[0] &&
+                    <div>
+                      <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                             title={checkIndexValidity(index.is_valid_state)[1]}/>
+                    </div>}
                 </div>))}
               </div>}
               {qdrantIndices && qdrantIndices.length > 0 && <div className={styles1.knowledge_db} style={{maxWidth:'100%'}}>
                 <div className={styles1.knowledge_db_name}>Qdrant</div>
-                {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleIndexSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                  {index.name}
+                {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option index_options" onClick={() => handleIndexSelect(index)}>
+                  <div style={!checkIndexValidity(index.is_valid_state)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
+                  {!checkIndexValidity(index.is_valid_state)[0] &&
+                    <div>
+                      <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                             title={checkIndexValidity(index.is_valid_state)[1]}/>
+                    </div>}
                 </div>))}
               </div>}
             </div>}

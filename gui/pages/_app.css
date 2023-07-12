@@ -671,6 +671,13 @@ p {
     background-color: #282437;
 }
 
+.index_options {
+    padding: 12px 14px;
+    max-width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
 
 .mt_6{margin-top: 6px;}
 .mt_8{margin-top: 8px;}

@@ -121,6 +121,21 @@ export default function KnowledgeTemplate({template, env}) {
 
   }
 
+  const checkIndexValidity = (validState, validDimension) => {
+    let errorMessage = "";
+    let isValid = true;
+
+    if(!validState && validDimension) {
+      isValid = false;
+      errorMessage = "The configured index already consists of custom knowledge";
+    } else if((!validState && !validDimension) || (validState && !validDimension)) {
+      isValid = false;
+      errorMessage = "The dimension of the configured index does not match the dimensions of the selected knowledge";
+    }
+
+    return [isValid, errorMessage];
+  }
+
   return (
     <>
       <div>
@@ -145,14 +160,24 @@ export default function KnowledgeTemplate({template, env}) {
                     <div className={styles3.knowledge_label} style={{padding:'12px 14px',maxWidth:'100%'}}>Select an existing vector database collection/index to install the knowledge</div>
                     {pinconeIndices && pinconeIndices.length > 0 && <div className={styles3.knowledge_db} style={{maxWidth:'100%'}}>
                       <div className={styles3.knowledge_db_name}>Pinecone</div>
-                      {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleInstallClick(index.id)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {index.name}
+                      {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleInstallClick(index.id)} style={{padding:'12px 14px',maxWidth:'100%',display:'flex',justifyContent:'space-between'}}>
+                        <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
+                        {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
+                          <div>
+                            <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                                   title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
+                          </div>}
                       </div>))}
                     </div>}
                     {qdrantIndices && qdrantIndices.length > 0 && <div className={styles3.knowledge_db} style={{maxWidth:'100%'}}>
                       <div className={styles3.knowledge_db_name}>Qdrant</div>
-                      {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleInstallClick(index.id)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                        {index.name}
+                      {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleInstallClick(index.id)} style={{padding:'12px 14px',maxWidth:'100%',display:'flex',justifyContent:'space-between'}}>
+                        <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
+                        {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
+                          <div>
+                            <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                                   title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
+                          </div>}
                       </div>))}
                     </div>}
                   </div>}
