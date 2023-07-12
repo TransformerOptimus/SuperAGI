@@ -1,0 +1,1 @@
+REDIS_VECTOR_STORE_URL: "redis://10.1.1.38:8000"
