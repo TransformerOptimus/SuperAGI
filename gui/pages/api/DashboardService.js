@@ -167,3 +167,6 @@ export const getAgentRuns = (agent_id) => {
 export const getActiveRuns = () => {
   return api.get(`analytics/runs/active`);
 }
+export const getToolsUsage = () => {
+  return api.get(`analytics/tools/used`);
+}

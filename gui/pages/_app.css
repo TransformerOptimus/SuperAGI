@@ -724,7 +724,7 @@ p {
 .align_start{align-items: flex-start}
 .align_end{align-items: flex-end}
 .text_align_right{text-align: right}
-
+.position_relative{position: relative}
 .cursor_pointer{cursor: pointer}
 
 .gap_8{gap:8px;}
