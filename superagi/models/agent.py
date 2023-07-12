@@ -249,8 +249,7 @@ class Agent(DBBaseModel):
 
         """
         project = session.query(Project).filter(Project.id == self.project_id).first()
-        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
-        return organisation
+        return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
 
     @classmethod
     def get_agent_from_id(cls, session, agent_id):
@@ -264,5 +263,4 @@ class Agent(DBBaseModel):
             Returns:
                 Agent: Agent object is returned.
         """
-        agent = session.query(Agent).filter(Agent.id == agent_id).first()
-        return agent
+        return session.query(Agent).filter(Agent.id == agent_id).first()

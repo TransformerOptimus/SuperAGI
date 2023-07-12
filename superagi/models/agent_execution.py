@@ -114,5 +114,4 @@ class AgentExecution(DBBaseModel):
             Returns:
                 AgentExecution: AgentExecution object is returned.
         """
-        agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-        return agent_execution
+        return session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
