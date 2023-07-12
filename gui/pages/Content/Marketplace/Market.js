@@ -21,10 +21,6 @@ export default function Market({env}) {
       setSearchTerm(term);
     };
 
-    const handleToolClick = (clicked) => {
-        setLocalStorageValue('market_item_clicked', clicked, setItemClicked);
-    };
-
     useEffect(() => {
         const marketplace_tab = localStorage.getItem('marketplace_tab');
         if(marketplace_tab) {
@@ -96,7 +92,7 @@ export default function Market({env}) {
                 {/*</div>*/}
             </div>
             <div>
-              {activeTab === 'market_tools' && <MarketTools onToolClick={handleToolClick} />}
+              {activeTab === 'market_tools' && <MarketTools />}
               {activeTab === 'market_embeddings' && <Embeddings />}
               {activeTab === 'market_agents' && <MarketAgent />}
             </div>
