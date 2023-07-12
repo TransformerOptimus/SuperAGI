@@ -12,8 +12,6 @@ import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, createAndScheduleRun, AgentScheduleComponent, updateSchedule } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import { convertToGMT } from "@/utils/utils";
-import Datetime from "react-datetime";
-import styles1 from './react-datetime.css';
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
@@ -36,100 +34,17 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
 
   const agent = agents.find(agent => agent.id === agentId);
 
-  const [timeValue, setTimeValue] = useState(null);
-  const [expiryRuns, setExpiryRuns] = useState(-1);
-  const [editExpiryRuns, seteditExpiryRuns] = useState(null);
   const [createModal, setCreateModal] = useState(false);
   const [createEditModal , setCreateEditModal] = useState(false);	
   const [createStopModal, setCreateStopModal] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);	
-  const [timeDropdown, setTimeDropdown] = useState(false);	
-  const [expiryDropdown, setExpiryDropdown] = useState(false);
-  const timeUnitArray = ['Days', 'Hours', 'Minutes']
-  const expiryArray = ['Specific Date', 'After certain number of runs', 'No expiry'];
-  const [showDateTime, setShowDateTime] = useState(null);
-  const [scheduleDate, setScheduleDate] = useState(null);
-  const [scheduleTime, setScheduleTime] = useState(null);
 
-  const [expiry, setExpiry] = useState(expiryArray[1]);
-  const timeRef = useRef(null);	
-  const expiryRef = useRef(null);
-  const [startTime, setStartTime] = useState('');
-  const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
-  const [editTimeUnit, setEditTimeUnit] = useState(timeUnitArray[1]);
-  const [expiryDate, setExpiryDate] = useState(null);
-  const [editExpiryDate, setEditExpiryDate] = useState(null);
-  const [editStartTime, setEditStartTime] = useState(new Date());
-  const [editTimeValue, setEditTimeValue] = useState('');
-  const [gmtStartTime, setGmtStartTime] = useState(null);
-  const [editExpiry, seteditExpiry] = useState(expiryArray[1]);
-
-  const [showExpirytDate, setShowExpiryDate]=useState(false)
-
-  const handleTimeChange = (momentObj) => {
-    const startTime = convertToGMT(momentObj);
-    setStartTime(startTime);
-  };
-  const handleEditTimeChange = (momentObj) => {
-    console.log(momentObj+'/////');
-    const gmtStartTime = convertToGMT(momentObj);
-    console.log("gmtstarttime "+ gmtStartTime);
-    setGmtStartTime(gmtStartTime);
-    setEditStartTime(momentObj);
-    console.log("editStartTime "+editStartTime);
-  }
-
-  const handleDateChange = (event) => {
-    setTimeValue(event.target.value);
-  };
-  const handleEditDateChange = (event) => {
-    setEditTimeValue(event.target.value);
-  }
-
-  const handleTimeSelect = (index) => {
-    setTimeUnit(timeUnitArray[index]);
-    setTimeDropdown(false);
-  };
-
-  const handleEditTimeSelect = (index) => {
-    setEditTimeUnit(timeUnitArray[index]);
-    setTimeDropdown(false);
-  }
-
-  const handleDateTimeChange = (momentObj) => {
-    const expiryDate = convertToGMT(momentObj);
-    setExpiryDate(expiryDate);
-  };
-  const handleEditDateTimeChange = (momentObj) => {
-    const editExpiryDate = convertToGMT(momentObj);
-    setEditExpiryDate(editExpiryDate);
-  }
-
-  const handleExpiryRuns = (event) => {
-    setExpiryRuns(event.target.value);
-  };
-  const handleEditExpiryRuns = (event) => {
-    seteditExpiryRuns(event.target.value);
-  }
-
-  const toggleRecurring = () => {	
-    setIsRecurring(!isRecurring);	
-  };
 
   const closeCreateModal = () => {	
     setCreateModal(false);
     setCreateEditModal(false);	
     setCreateStopModal(false);
   };
-
-  const handleExpirySelect = (index) => {
-    setExpiry(expiryArray[index]);
-    setExpiryDropdown(false);
-  }
-  const handleEditExpirySelect = (index) => {
-    seteditExpiry(expiryArray[index]);	
-    setExpiryDropdown(false);	
-  }
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
@@ -280,13 +195,12 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       });
   }
 
-  function fetchExecutions(agentId, currentRun = null){
+  function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
         .then((response) => {
           let data = response.data
           data = data.filter((run) => run.status !== 'TERMINATED');
           setAgentExecutions(data);
-          console.log("agent Executions:" + (agentExecutions));
           setSelectedRun(currentRun ? currentRun : data[0]);
         })
         .catch((error) => {
@@ -382,96 +296,8 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
 
             {createModal &&
                 <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent" agentId={agentId} setCreateModal={() => setCreateModal(false)} />}
-
             {createEditModal &&
-                <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent" agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)} />
-        //     <div className="modal" onClick={closeCreateModal}>
-        //     <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-        //     <div className={styles.detail_name}>Edit Schedule</div>
-        //
-        //     <div style={{marginBottom:'10px'}}>
-        //       <div >
-        //      <div>
-        //         <label className={styles.form_label}>Select a date and time</label>
-        //         <Datetime className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditTimeChange} inputProps={{ placeholder: 'Enter here' }}/>
-        //       </div>
-        //       </div>
-        //     </div>
-        //     {/* editStartTime */}
-        //     <div style={{marginBottom:'20px', display:'flex'}}>
-        //     <input type="checkbox" className="checkbox" checked={isRecurring} onChange={toggleRecurring} style={{ marginRight: '5px'}}/>
-        //     <label className={styles.form_label}>Recurring run</label>
-        //     </div>
-        //
-        //     {isRecurring && (
-        //         <div>
-        //     <div style={{color:"white", marginBottom:'20px'}}>Recurring run details</div>
-        //     <label className={styles.form_label}>Repeat every</label>
-        //
-        //     <div style={{display:'flex',marginBottom:'20px'}}>
-        //       <div style={{width:'70%', marginRight:'5px'}}>
-        //         <input className="input_medium" type="text" value={editTimeValue} onChange={handleEditDateChange} placeholder='Enter here'/>
-        //       </div>
-        //       {/* editTimeValue */}
-        //       <div style={{width:'30%'}} >
-        //         <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)} style={{width:'100%'}}>
-        //         {editTimeUnit}<Image width={20} height={21} src={!timeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-        //         </div>
-        //         <div>
-        //         {timeDropdown && <div className="custom_select_options" ref={timeRef} style={{width:'30%'}}>
-        //         {timeUnitArray.map((editTimeUnit, index) => (<div key={index} className="custom_select_option" onClick={() => handleEditTimeSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-        //           {editTimeUnit}
-        //         </div>))}
-        //         </div>}
-        //         </div>
-        //       </div>
-        //       </div>
-        //       {/* editTimeUnit */}
-        //     <label className={styles.form_label}>Recurring expiry</label>
-        //     <div>
-        //     <div style={{display:'inline'}}>
-        //       <div style={{width:'100%', marginRight:'5px'}}>
-        //       <div className="custom_select_container" onClick={() => setExpiryDropdown(!expiryDropdown)} style={{width:'100%'}}>
-        //         {editExpiry}<Image width={20} height={21} src={!expiryDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
-        //         </div>
-        //         <div>
-        //         {expiryDropdown && <div className="custom_select_options" ref={expiryRef} style={{width:'30%'}}>
-        //         {expiryArray.map((editExpiry, index) => (<div key={index} className="custom_select_option" onClick={() => handleEditExpirySelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-        //           {editExpiry}
-        //         </div>))}
-        //         </div>}
-        //         </div>
-        //         {/* editExpiry */}
-        //       </div>
-        //       {editExpiry==='After certain number of runs' && (
-        //         <div style={{width:'100%', marginTop:'10px'}}>
-        //           <input className="input_medium" type="text" value={editExpiryRuns} onChange={handleEditExpiryRuns} placeholder="Enter the number of runs" />
-        //         </div>
-        //       )}
-        //       {/* editExpiryRuns */}
-        //
-        //       {editExpiry==='Specific Date' && (
-        //         <div style={{width:'100%', marginTop:'10px'}}>
-        //           {editExpiryDate && <div className={styles.form_label} style={{ display:'flex',fontSize: '14px', justifyContent: 'space-between' }}><div>The expiry date of the run is {editExpiryDate}</div><div className="secondary_button" style={{cursor:'pointer', height:'20px', fontSize:'12px'}} onClick={() => setEditExpiryDate(null)}>Edit</div></div>}
-        //           { !editExpiryDate && <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`} onChange={handleEditDateTimeChange} inputProps={{ placeholder: 'Enter here' }}/>}
-        //         </div>
-        //       )}
-        //       {/* editExpiryDate */}
-        //     </div>
-        //     </div>
-        //     </div>)}
-        //     <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
-        //       <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
-        //         Cancel
-        //       </button>
-        //       <button className={styles.run_button} onClick={fetchUpdateSchedule} style={{paddingLeft:'15px',paddingRight:'25px'}}>
-        //         Update Schedule
-        //       </button>
-        //     </div>
-        //   </div>
-        // </div>
-            }
-
+                <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent" agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)} />}
         {createStopModal && (
           <div className="modal" onClick={closeCreateModal}>
             <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
