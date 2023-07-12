@@ -349,7 +349,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleAddAgent = () => {
     if(!hasAPIkey) {
       toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
-      openNewTab(-3, "Settings", "Settings");
+      openNewTab(-3, "Settings", "Settings", false);
       return
     }
 
@@ -539,95 +539,96 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   useEffect(() => {
-    const has_resource = localStorage.getItem("has_resource_" + String(internalId));
-    if(has_resource) {
-      setAddResources(JSON.parse(has_resource));
-    }
+    if(internalId !== null) {
+      const has_resource = localStorage.getItem("has_resource_" + String(internalId)) || 'true';
+      if(has_resource) {
+        setAddResources(JSON.parse(has_resource));
+      }
 
-    const has_LTM = localStorage.getItem("has_LTM_" + String(internalId));
-    if(has_LTM) {
-      setLongTermMemory(JSON.parse(has_LTM));
-    }
+      const has_LTM = localStorage.getItem("has_LTM_" + String(internalId)) || 'true';
+      if(has_LTM) {
+        setLongTermMemory(JSON.parse(has_LTM));
+      }
 
-    const advanced_options = localStorage.getItem("advanced_options_" + String(internalId));
-    if(advanced_options) {
-      setAdvancedOptions(JSON.parse(advanced_options));
-    }
+      const advanced_options = localStorage.getItem("advanced_options_" + String(internalId)) || 'false';
+      if(advanced_options) {
+        setAdvancedOptions(JSON.parse(advanced_options));
+      }
 
-    const agent_name = localStorage.getItem("agent_name_" + String(internalId));
-    if(agent_name) {
-      setAgentName(agent_name);
-    }
+      const agent_name = localStorage.getItem("agent_name_" + String(internalId));
+      if(agent_name) {
+        setAgentName(agent_name);
+      }
 
-    const agent_description = localStorage.getItem("agent_description_" + String(internalId));
-    if(agent_description) {
-      setAgentDescription(agent_description);
-    }
+      const agent_description = localStorage.getItem("agent_description_" + String(internalId));
+      if(agent_description) {
+        setAgentDescription(agent_description);
+      }
 
-    const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
-    if(agent_goals) {
-      setGoals(JSON.parse(agent_goals));
-    }
+      const agent_goals = localStorage.getItem("agent_goals_" + String(internalId));
+      if(agent_goals) {
+        setGoals(JSON.parse(agent_goals));
+      }
 
-    const tool_ids = localStorage.getItem("tool_ids_" + String(internalId));
-    if(tool_ids) {
-      setSelectedTools(JSON.parse(tool_ids));
-    }
+      const tool_ids = localStorage.getItem("tool_ids_" + String(internalId));
+      if(tool_ids) {
+        setSelectedTools(JSON.parse(tool_ids));
+      }
 
-    const tool_names = localStorage.getItem("tool_names_" + String(internalId));
-    if(tool_names) {
-      setToolNames(JSON.parse(tool_names));
-    }
+      const tool_names = localStorage.getItem("tool_names_" + String(internalId));
+      if(tool_names) {
+        setToolNames(JSON.parse(tool_names));
+      }
 
-    const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
-    if(agent_instructions) {
-      setInstructions(JSON.parse(agent_instructions));
-    }
+      const agent_instructions = localStorage.getItem("agent_instructions_" + String(internalId));
+      if(agent_instructions) {
+        setInstructions(JSON.parse(agent_instructions));
+      }
 
-    const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
-    if(agent_constraints) {
-      setConstraints(JSON.parse(agent_constraints));
-    }
+      const agent_constraints = localStorage.getItem("agent_constraints_" + String(internalId));
+      if(agent_constraints) {
+        setConstraints(JSON.parse(agent_constraints));
+      }
 
-    const agent_model = localStorage.getItem("agent_model_" + String(internalId));
-    if(agent_model) {
-      setModel(agent_model);
-    }
+      const agent_model = localStorage.getItem("agent_model_" + String(internalId));
+      if(agent_model) {
+        setModel(agent_model);
+      }
 
-    const agent_type = localStorage.getItem("agent_type_" + String(internalId));
-    if(agent_type) {
-      setAgentType(agent_type);
-    }
+      const agent_type = localStorage.getItem("agent_type_" + String(internalId));
+      if(agent_type) {
+        setAgentType(agent_type);
+      }
 
+      const agent_database = localStorage.getItem("agent_database_" + String(internalId));
+      if(agent_database) {
+        setDatabase(agent_database);
+      }
 
-    const agent_database = localStorage.getItem("agent_database_" + String(internalId));
-    if(agent_database) {
-      setDatabase(agent_database);
-    }
+      const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
+      if(agent_permission) {
+        setPermission(agent_permission);
+      }
 
-    const agent_permission = localStorage.getItem("agent_permission_" + String(internalId));
-    if(agent_permission) {
-      setPermission(agent_permission);
-    }
+      const exit_criterion = localStorage.getItem("agent_exit_criterion_" + String(internalId));
+      if(exit_criterion) {
+        setExitCriterion(exit_criterion);
+      }
 
-    const exit_criterion = localStorage.getItem("agent_exit_criterion_" + String(internalId));
-    if(exit_criterion) {
-      setExitCriterion(exit_criterion);
-    }
+      const iterations = localStorage.getItem("agent_iterations_" + String(internalId));
+      if(iterations) {
+        setIterations(Number(iterations));
+      }
 
-    const iterations = localStorage.getItem("agent_iterations_" + String(internalId));
-    if(iterations) {
-      setIterations(Number(iterations));
-    }
+      const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
+      if(step_time) {
+        setStepTime(Number(step_time));
+      }
 
-    const step_time = localStorage.getItem("agent_step_time_" + String(internalId));
-    if(step_time) {
-      setStepTime(Number(step_time));
-    }
-
-    const agent_files = localStorage.getItem("agent_files_" + String(internalId));
-    if(agent_files) {
-      setInput(JSON.parse(agent_files));
+      const agent_files = localStorage.getItem("agent_files_" + String(internalId));
+      if(agent_files) {
+        setInput(JSON.parse(agent_files));
+      }
     }
   }, [internalId])
 
@@ -867,7 +868,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           }
 
           <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button style={{ marginRight: '7px' }} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent")}>Cancel</button>
+          <button style={{ marginRight: '7px' }} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel</button>
               <div style={{ display: 'flex', position: 'relative' }}>
                 {createDropdown && (
                 <div className="custom_select_option" style={{background:'#3B3B49',borderRadius:'8px',
