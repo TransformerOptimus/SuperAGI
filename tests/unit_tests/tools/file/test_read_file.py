@@ -44,5 +44,6 @@ def test_read_file_file_not_found(read_file_tool):
             patch('superagi.models.agent.Agent.get_agent_from_id', return_value=Agent(id=1, name='TestAgent')), \
             patch('superagi.models.agent_execution.AgentExecution.get_agent_execution_from_id',
                   return_value=AgentExecution(id=1, name='TestExecution')):
+        read_file_tool.toolkit_config.session = MagicMock()
         with pytest.raises(FileNotFoundError):
             read_file_tool._execute('file.txt')
