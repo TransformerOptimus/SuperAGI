@@ -8,6 +8,7 @@ import styles2 from "./Market.module.css"
 import {fetchAgentTemplateConfig, installAgentTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
+import {loadingTextEffect} from "@/utils/utils";
 
 export default function AgentTemplate({template, env}) {
     const [tools, setTools] = useState([])
@@ -18,8 +19,11 @@ export default function AgentTemplate({template, env}) {
     const [instructions, setInstructions] = useState([])
     const [installed, setInstalled] = useState('')
     const [constraints, setConstraints] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [loadingText, setLoadingText] = useState("Loading Template Details");
 
     useEffect(() => {
+        loadingTextEffect('Loading Template Details', setLoadingText, 500);
         if(window.location.href.toLowerCase().includes('marketplace')) {
             setInstalled('Sign in to install')
             axios.get(`https://app.superagi.com/api/agent_templates/marketplace/template_details/${template.id}`)
@@ -50,7 +54,8 @@ export default function AgentTemplate({template, env}) {
         setGoals(data.configs.goal.value)
         setConstraints(data.configs.constraints.value)
         setTools(data.configs.tools.value)
-        setInstructions(data.configs.instructions.value)
+        setInstructions(data.configs.instructions ? data.configs.instructions.value : null);
+        setIsLoading(false)
     }
 
     function handleInstallClick(){
@@ -86,7 +91,7 @@ export default function AgentTemplate({template, env}) {
     return (
       <>
           <div>
-              <div className="row" style={{marginLeft:'auto'}}>
+              {!isLoading ? <div className="row" style={{marginLeft:'auto'}}>
                   <div className={styles2.back_button} style={{margin: '8px 0',padding: '2px'}} onClick={() => handleBackClick()}>
                       <Image src="/images/arrow_back.svg" alt="back_button" width={14} height={12}/>
                       <span className={styles2.back_button_text}>Back</span>
@@ -147,7 +152,7 @@ export default function AgentTemplate({template, env}) {
                                   </div>))}
                               </div>
                           </div>
-                          {instructions.length>0 && <div className={styles2.left_container} style={{marginBottom: '8px'}}>
+                          {instructions && instructions.length>0 && <div className={styles2.left_container} style={{marginBottom: '8px'}}>
                               <div>
                                   <span className={styles2.description_heading} style={{fontWeight: '400'}}>{instructions.length} Instructions</span><br/><br/>
                                   {instructions.map((instruction, index) => (
@@ -167,7 +172,9 @@ export default function AgentTemplate({template, env}) {
                           </div>
                       </div>
                   </div>
-              </div>
+              </div> : <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'75vh'}}>
+                  <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
+              </div>}
           </div>
           <ToastContainer/>
       </>
