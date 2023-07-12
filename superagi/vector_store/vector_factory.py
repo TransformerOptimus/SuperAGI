@@ -5,6 +5,7 @@ from pinecone import UnauthorizedException
 
 from superagi.vector_store.pinecone import Pinecone
 from superagi.vector_store import weaviate
+from superagi.vector_store import qdrant
 from superagi.config.config import get_config
 
 
@@ -57,6 +58,12 @@ class VectorFactory:
                 api_key=api_key
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
+
+        if vector_store == "Qdrant":
+
+            client = qdrant.create_qdrant_client()
+            collection_name = index_name
+            return qdrant.Qdrant(client, embedding_model, collection_name)
 
         else:
             raise Exception("Vector store not supported")
