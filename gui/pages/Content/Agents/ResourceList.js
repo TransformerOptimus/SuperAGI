@@ -3,7 +3,7 @@ import styles from './Agents.module.css';
 import Image from "next/image";
 import {downloadFile, formatBytes, returnResourceIcon} from "@/utils/utils";
 
-export default function ResourceList({files, channel, runs}) {
+export default function ResourceList({files, channel, runs, downloadAllFiles}) {
   const [selectedRun, setSelectedRun] = useState(null);
   const [filesByRun, setFilesByRun] = useState([]);
 
@@ -15,8 +15,18 @@ export default function ResourceList({files, channel, runs}) {
         filesGroupedByRun.push({"run": run, "files": relatedFiles});
       }
     })
+
     setFilesByRun(filesGroupedByRun);
   }, [files, runs]);
+
+  const downloadRunFiles = (run_id) =>{
+    let runFiles = files.filter(file => file.agent_execution_id === run_id);
+    if(runFiles.length === 0){
+      console.log("No files to download for this run");
+      return;
+    }
+    downloadAllFiles(runFiles);
+  }
 
   const isAnyFileWithAgentId = files.some(file => file.agent_execution_id !== null)
 
@@ -34,7 +44,7 @@ export default function ResourceList({files, channel, runs}) {
                   <span className="text_12 ml_8">{filesRun.run.name}</span>
                   <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10} height={10} /> <span className="text_9">Run {index+1}</span></div>
                 </div>
-                <Image src="/images/download.svg" alt="download_icon" width={16} height={16} />
+                <Image src="/images/download.svg" alt="download_icon" width={16} height={16} onClick={() => downloadRunFiles(filesRun.run.id)}/>
               </div>
 
               {selectedRun === filesRun.run && (
