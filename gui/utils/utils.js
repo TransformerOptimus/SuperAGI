@@ -102,7 +102,6 @@ export const downloadAllFiles = (files) => {
         ? fileNamesCount[file.name]++
         : (fileNamesCount[file.name] = 1);
 
-    // If a file with the same name exists, append a counter at the end of the name
     let modifiedFileName = file.name;
     if (fileNamesCount[file.name] > 1) {
       const fileExtensionIndex = file.name.lastIndexOf(".");
