@@ -166,8 +166,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         </div>}
 
         </div>}
-
-        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 &&
+        
+        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 && 
         <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
           The Agent is not scheduled
         </div>
