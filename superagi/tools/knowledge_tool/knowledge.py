@@ -7,7 +7,7 @@ from typing import Type, List
 from pydantic import BaseModel, Field
 
 from superagi.helper.knowledge_tool import KnowledgeToolHelper
-from superagi.helper.knowledge_db_helper import KnowledgeToolDbHelper
+from superagi.helper.knowledge_tool_db_helper import KnowledgeToolDbHelper
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.knowledge import Knowledge
 from superagi.tools.base_tool import BaseTool

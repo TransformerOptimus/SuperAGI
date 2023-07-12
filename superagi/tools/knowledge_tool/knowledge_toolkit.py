@@ -12,11 +12,4 @@ class KnowledgeSearchToolkit(BaseToolkit, ABC):
         return [KnowledgeSearchTool()]
 
     def get_env_keys(self) -> List[str]:
-        return [
-            "KNOWLEDGE_BASE",
-            "KNOWLEDGE_API_KEY",
-            "KNOWLEDGE_INDEX_OR_COLLECTION",
-            "KNOWLEDGE_URL",
-            "KNOWLEDGE_ENVIRONMENT"
-            # Add more config keys specific to your project
-        ]
+        return []
