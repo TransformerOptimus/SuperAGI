@@ -33,7 +33,7 @@ export default function ApmDashboard() {
         {i: 'models_by_agents', x: 0, y: 1, w: 3, h: 2.5},
         {i: 'runs_by_model', x: 3, y: 1, w: 3, h: 2.5},
         {i: 'tokens_by_model', x: 6, y: 1, w: 3, h: 2.5},
-        {i: 'agent_details', x: 0, y: 2, w: 12, h: 3},
+        {i: 'agent_details', x: 0, y: 2, w: 12, h: 2.5},
         {i: 'total_tokens_consumed', x: 0, y: 3, w: 4, h: 2},
         {i: 'total_calls_made', x: 4, y: 3, w: 4, h: 2},
         {i: 'tokens_consumed_per_call', x: 8, y: 3, w: 4, h: 2},
