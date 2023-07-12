@@ -12,6 +12,8 @@ from superagi.models.marketplace_stats import MarketPlaceStats
 from superagi.llms.openai import OpenAi
 from superagi.helper.pinecone_helper import PineconeHelper
 from superagi.helper.qdrant_helper import QdrantHelper
+from superagi.helper.knowledge_helper import KnowledgeHelper
+from superagi.models.vector_db_config import VectordbConfig
 from superagi.helper.auth import get_user_organisation
 
 router = APIRouter()
@@ -110,8 +112,29 @@ def delete_knowledge(knowledge_id: int):
 
 @router.post("/install/{knowledge_id}/index/{index_id}")
 def install_selected_knowledge(knowledge_id: int, index_id: int, organisation = Depends(get_user_organisation)):
+    index = db.session.query(VectorIndexCollection).filter(VectorIndexCollection.id == index_id).first()
+    file_path = db.session.query(KnowledgeConfig).filter(KnowledgeConfig.knowledge_id == knowledge_id, KnowledgeConfig.key == "file_path").first()
+    chunk_data = KnowledgeHelper(db.session).get_json_from_s3(file_path)
+    if index.db_type == "Pinecone":
+        api_key = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "api_key").first()
+        environment = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "environment").first()
+        pinecone_helper = PineconeHelper(db.session, api_key.value, environment.value)
+        upsert_data = pinecone_helper.get_upsert_data(chunk_data)
+        installed_knowledge = pinecone_helper.install_pinecone_knowledge(index, upsert_data)
+
+    elif index.db_type == "Qdrant":
+        api_key = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "api_key").first()
+        url = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "url").first()
+        port = db.session.query(VectordbConfig).filter(VectordbConfig.vector_db_id == index.vector_db_id, VectordbConfig.key == "port").first()
+        qdrant_helper = QdrantHelper(db.session, api_key.value, url.value, port.value)
+        upsert_data = qdrant_helper.get_upsert_data(chunk_data)
+        installed_knowledge = qdrant_helper.install_qdrant_knowledge(index, upsert_data)
+    
+    if not installed_knowledge["success"]:
+        return {"success": False}
+    
     selected_knoweldge = Knowledge.get_knowledge_from_id(db.session, knowledge_id)
-    knowledge_data = {
+    selected_knowledge_data = {
         "name": selected_knoweldge.name,
         "description": selected_knoweldge.description,
         "summary": selected_knoweldge.summary,
@@ -120,11 +143,8 @@ def install_selected_knowledge(knowledge_id: int, index_id: int, organisation = 
         "organisation_id": organisation.id,
         "contributed_by": selected_knoweldge.contributed_by
     }
-    new_knowledge = Knowledge.add_update_knowledge(db.session, knowledge_data)
+    new_knowledge = Knowledge.add_update_knowledge(db.session, selected_knowledge_data)
     selected_knowledge_config = KnowledgeConfig.get_knowledge_config(db.session, knowledge_id, {})
+    selected_knowledge_config.pop("file_path")
     KnowledgeConfig.add_knowledge_config(db.session, new_knowledge.id, selected_knowledge_config)
-    index = db.session.query(VectorIndexCollection).filter(VectorIndexCollection.id == index_id).first()
-    if index.db_type == "Pinecone":
-        PineconeHelper(db.session).install_pinecone_knowledge(index)
-    elif index.db_type == "Qdrant":
-        QdrantHelper(db.session).install_qdrant_knowledge(index)
+    return {"success": True}
