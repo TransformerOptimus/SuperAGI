@@ -7,8 +7,7 @@ from chromadb import Settings
 from superagi.config.config import get_config
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
-from superagi.vector_store.embedding.openai import BaseEmbedding
-
+from superagi.vector_store.embedding.base import BaseEmbedding
 
 def _build_chroma_client():
     chroma_host_name = get_config("CHROMA_HOST_NAME") or "localhost"
