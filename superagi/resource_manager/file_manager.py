@@ -86,7 +86,7 @@ class FileManager:
         except Exception as err:
             return f"Error write_csv_file: {err}"
     def get_agent_resource_path(self, file_name: str):
-         return ResourceHelper.get_agent_write_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
+        return ResourceHelper.get_agent_write_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
                                                                                                      self.agent_id),
                                                             agent_execution=AgentExecution
                                                             .get_agent_execution_from_id(self.session,

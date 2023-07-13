@@ -249,5 +249,18 @@ class Agent(DBBaseModel):
 
         """
         project = session.query(Project).filter(Project.id == self.project_id).first()
-        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
-        return organisation
+        return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+
+    @classmethod
+    def get_agent_from_id(cls, session, agent_id):
+        """
+            Get Agent from agent_id
+
+            Args:
+                session: The database session.
+                agent_id(int) : Unique identifier of an Agent.
+
+            Returns:
+                Agent: Agent object is returned.
+        """
+        return session.query(Agent).filter(Agent.id == agent_id).first()

@@ -206,7 +206,7 @@ class AgentExecutor:
         if resource_summary is not None:
             tools.append(QueryResourceTool())
 
-        tools = self.set_default_params_tools(tools, parsed_config,parsed_execution_config, agent_execution.agent_id,
+        tools = self.set_default_params_tools(tools, parsed_config, parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
                                               session=session)
@@ -284,8 +284,12 @@ class AgentExecutor:
                 tool.llm = get_model(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
+            if hasattr(tool, 'agent_execution_id'):
+                tool.agent_execution_id = parsed_config["agent_execution_id"]
             if hasattr(tool, 'resource_manager'):
-                tool.resource_manager = FileManager(session=session, agent_id=agent_id)
+                tool.resource_manager = FileManager(session=session, agent_id=agent_id,
+                                                    agent_execution_id=parsed_config[
+                                                        "agent_execution_id"])
             if hasattr(tool, 'tool_response_manager'):
                 tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
                     "agent_execution_id"])
