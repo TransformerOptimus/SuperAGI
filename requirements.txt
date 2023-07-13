@@ -66,7 +66,6 @@ jsonmerge==1.9.0
 jsonschema==4.17.3
 kombu==5.2.4
 llama-index==0.6.35
-lancedb==0.1.8
 log-symbols==0.0.14
 loguru==0.7.0
 lxml==4.9.2
@@ -153,3 +152,4 @@ Pillow==9.5.0
 EbookLib==0.18
 html2text==2020.1.16
 duckduckgo-search==3.8.3 
+google-generativeai==0.1.0

@@ -39,6 +39,7 @@ from superagi.controllers.tool import router as tool_router
 from superagi.controllers.tool_config import router as tool_config_router
 from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
+from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.helper.tool_helper import register_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
@@ -58,6 +59,7 @@ database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
+env = get_config('ENV', "DEV")
 
 if db_username is None:
     db_url = f'postgresql://{database_url}/{db_name}'
@@ -106,6 +108,7 @@ app.include_router(config_router, prefix="/configs")
 app.include_router(agent_template_router, prefix="/agent_templates")
 app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
+app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 
 
 # in production you can use Settings management
@@ -259,6 +262,49 @@ async def startup_event():
         workflow_step4.next_step_id = workflow_step3.id
         session.commit()
 
+    def build_action_based_agents():
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Action Based").first()
+        if agent_workflow is None:
+            agent_workflow = AgentWorkflow(name="Action Based", description="Action Based")
+            session.add(agent_workflow)
+            session.commit()
+
+        output = AgentPromptBuilder.start_task_based()
+
+        workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "ab1").first()
+        if workflow_step1 is None:
+            workflow_step1 = AgentWorkflowStep(unique_id="ab1",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="TRIGGER",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tasks")
+            session.add(workflow_step1)
+        else:
+            workflow_step1.prompt = output["prompt"]
+            workflow_step1.variables = str(output["variables"])
+            workflow_step1.output_type = "tasks"
+            session.commit()
+
+        workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "ab2").first()
+        output = AgentPromptBuilder.analyse_task()
+        if workflow_step2 is None:
+            workflow_step2 = AgentWorkflowStep(unique_id="ab2",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="NORMAL",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tools")
+            session.add(workflow_step2)
+        else:
+            workflow_step2.prompt = output["prompt"]
+            workflow_step2.variables = str(output["variables"])
+            workflow_step2.output_type = "tools"
+            session.commit()
+
+        session.commit()
+        workflow_step1.next_step_id = workflow_step2.id
+        workflow_step2.next_step_id = workflow_step2.id
+        session.commit()
+
     def check_toolkit_registration():
         organizations = session.query(Organisation).all()
         for organization in organizations:
@@ -267,7 +313,9 @@ async def startup_event():
 
     build_single_step_agent()
     build_task_based_agents()
-    check_toolkit_registration()
+    build_action_based_agents()
+    if env != "PROD":
+        check_toolkit_registration()
     session.close()
 
 

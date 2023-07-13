@@ -100,3 +100,12 @@ class Tool(DBBaseModel):
 
         tools = db.session.query(Tool).filter(Tool.id.in_(tool_ids)).all()
         return [str(tool.name) for tool in tools]
+    
+    @classmethod
+    def get_invalid_tools(cls, tool_ids, session):
+        invalid_tool_ids = []
+        for tool_id in tool_ids:
+            tool = session.query(Tool).get(tool_id)
+            if tool is None:
+                invalid_tool_ids.append(tool_id)
+        return invalid_tool_ids
