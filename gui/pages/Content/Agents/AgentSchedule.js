@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {setLocalStorageValue, setLocalStorageArray, convertToGMT, openNewTab, getUserTimezone} from "@/utils/utils";
+import {setLocalStorageValue, convertToGMT} from "@/utils/utils";
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import styles1 from "@/pages/Content/Agents/react-datetime.css";
 import Image from "next/image";
 import Datetime from "react-datetime";
 import {toast} from "react-toastify";
-import {agentScheduleComponent, createAgent, createAndScheduleRun, updateSchedule} from "@/pages/api/DashboardService";
+import {agentScheduleComponent, createAndScheduleRun, updateSchedule} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function AgentSchedule({internalId, closeCreateModal, type, agentId, setCreateModal, setCreateEditModal}) {
@@ -32,15 +32,15 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if(timeRef.current && !timeRef.current.contains(event.target))
-            {
+            if(timeRef.current && !timeRef.current.contains(event.target)) {
                 setTimeDropdown(false)
             }
-            if(expiryRef.current && !expiryRef.current.contains(event.target))
-            {
+
+            if(expiryRef.current && !expiryRef.current.contains(event.target)) {
                 setExpiryDropdown(false);
             }
         }
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -125,77 +125,79 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
     const handleExpiryRuns = (event) => {
         setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
     };
+
     const preventDefault = (e) => {
         e.stopPropagation();
     };
-    function convertToLocalTime(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleString();
-    }
+
     const addScheduledAgent = () => {
-        if((startTime === '' || (isRecurring == true && (timeValue == null || (expiryType == "After certain number of runs" && (parseInt(expiryRuns,10) < 1)) || (expiryType == "Specific date" && expiryDate == null) )))){
-            toast.error('Please input correct details')
-            return
+        if((startTime === '' || (isRecurring === true && (timeValue == null || (expiryType === "After certain number of runs" && (parseInt(expiryRuns,10) < 1)) || (expiryType === "Specific date" && expiryDate == null) )))){
+            toast.error('Please input correct details', {autoClose: 1800});
+            return;
         }
+
         if(type === "create_agent") {
             const scheduleData = {
                 "start_time": startTime,
                 "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-                "expiry_runs":expiryType == 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-                "expiry_date":expiryType == 'Specific Date' ? expiryDate : null ,
+                "expiry_runs":expiryType === 'After certain number of runs' ? parseInt(expiryRuns) : -1,
+                "expiry_date":expiryType === 'Specific Date' ? expiryDate : null ,
             }
             EventBus.emit('handleAgentScheduling', scheduleData);
-        }
-        else
-            if(type === "schedule_agent"){
+        } else {
+            if (type === "schedule_agent") {
                 const requestData = {
                     "agent_id": agentId,
                     "start_time": startTime,
-                    "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
-                    "expiry_runs":expiryType == 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-                    "expiry_date":expiryType == 'Specific Date' ? expiryDate : null ,
+                    "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
+                    "expiry_runs": expiryType === 'After certain number of runs' ? parseInt(expiryRuns) : -1,
+                    "expiry_date": expiryType === 'Specific Date' ? expiryDate : null,
                 };
+
                 createAndScheduleRun(requestData)
-                    .then(response => {
-                        const { schedule_id } = response.data;
-                        toast.success('Scheduled successfully!');
-                        setCreateModal();
-                        console.log('Schedule ID:', schedule_id);
-                        EventBus.emit('refreshDate', {});
-                        EventBus.emit('reFetchAgents', {});
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            }
-            else
-                if(type === "edit_schedule_agent"){
+                  .then(response => {
+                      const {schedule_id} = response.data;
+                      toast.success('Scheduled successfully!', {autoClose: 1800});
+                      setCreateModal();
+                      console.log('Schedule ID:', schedule_id);
+                      EventBus.emit('refreshDate', {});
+                      EventBus.emit('reFetchAgents', {});
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                  });
+            } else {
+                if (type === "edit_schedule_agent") {
                     fetchUpdateSchedule();
                 }
+            }
+        }
     };
+
     function fetchUpdateSchedule() {//Update Schedule
         const requestData = {
             "agent_id": agentId,
             "start_time": startTime,
             "recurrence_interval": timeValue? `${timeValue} ${timeUnit}` : null,
-            "expiry_runs":expiryType == 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-            "expiry_date":expiryType == 'Specific Date' ? expiryDate : null ,
+            "expiry_runs": expiryType === 'After certain number of runs' ? parseInt(expiryRuns) : -1,
+            "expiry_date": expiryType === 'Specific Date' ? expiryDate : null ,
         };
+
         updateSchedule(requestData)
             .then((response) => {
                 if (response.status === 200) {
-                    toast.success('Schedule updated successfully');
+                    toast.success('Schedule updated successfully', {autoClose: 1800});
                     EventBus.emit('refreshDate', {});
                     setCreateEditModal();
                     EventBus.emit('reFetchAgents', {});
                 } else {
-                    toast.error('Error updating agent schedule');
+                    toast.error('Error updating agent schedule', {autoClose: 1800});
                 }
             })
             .catch((error) => {
                 console.error('Error updating agent schedule:', error);
             });
-    };
+    }
 
     function fetchAgentScheduleComponent() {
         agentScheduleComponent(agentId)
@@ -204,7 +206,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
                 const {current_datetime, recurrence_interval, expiry_date, expiry_runs, start_date, start_time} = response.data;
                 setExpiryRuns(expiry_runs);
                 setExpiryDate(expiry_date);
-                if((expiry_date || expiry_runs != -1) && recurrence_interval !== null) {
+                if((expiry_date || expiry_runs !== -1) && recurrence_interval !== null) {
                     setTimeValue(parseInt(recurrence_interval.substring(0,1),10))
                     setTimeUnit(recurrence_interval.substring(2,))
                     setIsRecurring(true);
@@ -216,7 +218,7 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
             .catch((error) => {
                 console.error('Error fetching agent data:', error);
             });
-    };
+    }
 
     return (
         <div>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, runModal, agent}) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -13,12 +13,6 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
-  const [isScheduled, setScheduledTime] = useState(false)
-
-
-  useEffect(() => {
-    loadingTextEffect('Thinking', setLoadingText, 250);
-  }, []);
 
   useEffect(() => {
     const interval = window.setInterval(function(){
@@ -30,16 +24,19 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchDateTime(){
     getDateTime(agent.id)
-    .then((response) => {
-      const {start_date, start_time} = response.data;
-        setScheduleDate(start_date);
-        setScheduleTime(start_time);
-    })
-    .catch((error) => {
-      console.error('Error fetching agent data:', error);
-    });
-  };
+      .then((response) => {
+        const {start_date, start_time} = response.data;
+          setScheduleDate(start_date);
+          setScheduleTime(start_time);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent data:', error);
+      });
+  }
+
   useEffect(() => {
+    loadingTextEffect('Thinking', setLoadingText, 250);
+
     if (agent.is_scheduled && !agent.is_running) {
       fetchDateTime();
     }
@@ -76,16 +73,16 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchFeeds() {
     getExecutionFeeds(selectedRunId)
-        .then((response) => {
-          const data = response.data;
-          setFeeds(data.feeds);
-          setRunStatus(data.status);
-          setFetchedData(data.permissions);
-          EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
-        })
-        .catch((error) => {
-          console.error('Error fetching execution feeds:', error);
-        });
+      .then((response) => {
+        const data = response.data;
+        setFeeds(data.feeds);
+        setRunStatus(data.status);
+        setFetchedData(data.permissions);
+        EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
+      })
+      .catch((error) => {
+        console.error('Error fetching execution feeds:', error);
+      });
   }
 
   useEffect(() => {
@@ -110,63 +107,58 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   return (<>
     <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom:'55px'}}>
-        
         {agent.is_scheduled && !agent.is_running && !selectedRunId ?
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <Image width={72} height={72} src="/images/eventSchedule.png" alt="github" />
             <div style={{ color: 'white', fontSize: '14px' }} >
               This agent is scheduled to start on {scheduleDate}, at {scheduleTime}
             </div>
-        </div>:
-        <div>
-
-        {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
-          <div style={{display:'flex'}}>
-            {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
-            {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
-            {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
-            <div className={styles.feed_title}>{f?.feed || ''}</div>
-          </div>
-          <div className={styles.more_details_wrapper}>
-            {f.time_difference && <div className={styles.more_details}>
-              <div style={{display: 'flex', alignItems: 'center'}}>
-                <div>
-                  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
-                </div>
-                <div className={styles.history_info}>
-                  {formatTimeDifference(f.time_difference)}
-                </div>
+          </div> : <div>
+            {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
+              <div style={{display:'flex'}}>
+                {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
+                {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
+                {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
+                <div className={styles.feed_title}>{f?.feed || ''}</div>
+              </div>
+              <div className={styles.more_details_wrapper}>
+                {f.time_difference && <div className={styles.more_details}>
+                  <div style={{display: 'flex', alignItems: 'center'}}>
+                    <div>
+                      <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
+                    </div>
+                    <div className={styles.history_info}>
+                      {formatTimeDifference(f.time_difference)}
+                    </div>
+                  </div>
+                </div>}
+              </div>
+            </div>))}
+            {runStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div style={{display: 'flex'}}>
+                <div style={{fontSize: '20px'}}>🧠</div>
+                <div className={styles.feed_title}><i>{loadingText}</i></div>
+              </div>
+            </div>}
+            {runStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div style={{display: 'flex'}}>
+                <div style={{fontSize: '20px'}}>🏁</div>
+                <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
+              </div>
+            </div>}
+            {runStatus === 'ITERATION_LIMIT_EXCEEDED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div style={{display: 'flex'}}>
+                <div style={{fontSize: '20px'}}>⚠️</div>
+                <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
               </div>
             </div>}
           </div>
-        </div>))}
-        {runStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-          <div style={{display: 'flex'}}>
-            <div style={{fontSize: '20px'}}>🧠</div>
-            <div className={styles.feed_title}><i>{loadingText}</i></div>
-          </div>
-        </div>}
-        {runStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-          <div style={{display: 'flex'}}>
-            <div style={{fontSize: '20px'}}>🏁</div>
-            <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
-          </div>
-        </div>}
-        {runStatus === 'ITERATION_LIMIT_EXCEEDED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-          <div style={{display: 'flex'}}>
-            <div style={{fontSize: '20px'}}>⚠️</div>
-            <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
-          </div>
-        </div>}
-
-        </div>}
-        
-        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 && 
-        <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
-          The Agent is not scheduled
-        </div>
         }
-
+        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 && 
+          <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
+            The Agent is not scheduled
+          </div>
+        }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
           <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>

@@ -15,7 +15,7 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone,
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
@@ -444,10 +444,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const finaliseAgentCreation = (agentId, name, executionId) => {
     toast.success('Agent created successfully', { autoClose: 1800 });
     let timeoutValue = executionId ? 0 : 1500;
+
     setTimeout(() => {
-    sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId });
-    setCreateClickable(true);
-    setCreateModal(false);},timeoutValue)
+      sendAgentData({ id: agentId, name: name, contentType: "Agents", execution_id: executionId, internalId: createInternalId() });
+      setCreateClickable(true);
+      setCreateModal(false);
+    },timeoutValue)
   }
 
   function runExecution(agentId, name, executionId, createModal) {
@@ -873,16 +875,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
           <button style={{ marginRight: '7px' }} className="secondary_button" onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel</button>
               <div style={{ display: 'flex', position: 'relative' }}>
-                {createDropdown && (
-                <div className="custom_select_option" style={{background:'#3B3B49',borderRadius:'8px',
-                position: 'absolute', top: '-40px', right: '0', zIndex: '1', boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)', height: '40px',width:'150px',paddingTop:'10px',textAlign:'center'}}
-                onClick={() => { setCreateModal(true); setCreateDropdown(false);}}>Create & Schedule Run
+                {createDropdown && (<div className="custom_select_option" style={{background:'#3B3B49',borderRadius:'8px',
+                                          position: 'absolute', top: '-40px', right: '0', zIndex: '1', boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)', height: '40px',width:'150px',paddingTop:'10px',textAlign:'center'}}
+                                          onClick={() => { setCreateModal(true); setCreateDropdown(false);}}>Create & Schedule Run
                 </div>)}
                 <div className="primary_button" style={{ backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px' }}>
-                <button disabled={!createClickable} className="primary_button" style={{ paddingRight: '5px' }} onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
-                <button onClick={() => setCreateDropdown(!createDropdown)} style={{ border: 'none', backgroundColor: 'white' }}>
-                  <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon" />
-                </button>
+                  <button disabled={!createClickable} className="primary_button" style={{ paddingRight: '5px' }} onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
+                  <button onClick={() => setCreateDropdown(!createDropdown)} style={{ border: 'none', backgroundColor: 'white' }}>
+                    <Image width={20} height={21} src={!createDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon" />
+                  </button>
                 </div>
               </div>
           </div>

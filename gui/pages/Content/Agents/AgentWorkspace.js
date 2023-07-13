@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo, useRef} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,9 +9,8 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, createAndScheduleRun, agentScheduleComponent, updateSchedule, getDateTime} from "@/pages/api/DashboardService";
+import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, stopSchedule, getDateTime} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import { convertToGMT } from "@/utils/utils";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
@@ -39,7 +38,6 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   const [createStopModal, setCreateStopModal] = useState(false);
   const [agentScheduleDetails, setAgentScheduleDetails] = useState(null)
 
-
   const closeCreateModal = () => {	
     setCreateModal(false);
     setCreateEditModal(false);	
@@ -48,7 +46,8 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
-  }; 
+  };
+
   const handleStopScheduleClick = () => {
     setCreateStopModal(true);
     setCreateModal(false);
@@ -58,7 +57,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
     stopSchedule(agentId)
       .then((response) => {
         if (response.status === 200) {
-          toast.success('Schedule stopped successfully!');
+          toast.success('Schedule stopped successfully!', {autoClose: 1800});
           setCreateStopModal(false);
           EventBus.emit('reFetchAgents', {});
         }
@@ -128,17 +127,17 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
     }
 
     addExecution(executionData)
-        .then((response) => {
-          setRunModal(false);
-          fetchExecutions(agentId, response.data);
-          fetchAgentDetails(agentId);
-          EventBus.emit('reFetchAgents', {});
-          toast.success("New run created", {autoClose: 1800});
-        })
-        .catch((error) => {
-          console.error('Error creating execution:', error);
-          toast.error("Could not create run", {autoClose: 1800});
-        });
+      .then((response) => {
+        setRunModal(false);
+        fetchExecutions(agentId, response.data);
+        fetchAgentDetails(agentId);
+        EventBus.emit('reFetchAgents', {});
+        toast.success("New run created", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error creating execution:', error);
+        toast.error("Could not create run", {autoClose: 1800});
+      });
   };
 
   const closeRunModal = () => {
@@ -150,18 +149,18 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
     const executionData = {"status": status};
 
     updateExecution(selectedRun.id, executionData)
-        .then((response) => {
-          EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
-          if(status !== 'TERMINATED') {
-            fetchExecutions(agentId, response.data);
-          } else {
-            fetchExecutions(agentId);
-          }
-          EventBus.emit('reFetchAgents', {});
-        })
-        .catch((error) => {
-          console.error('Error updating execution:', error);
-        });
+      .then((response) => {
+        EventBus.emit('updateRunStatus', {selectedRunId: selectedRun.id, status: status});
+        if(status !== 'TERMINATED') {
+          fetchExecutions(agentId, response.data);
+        } else {
+          fetchExecutions(agentId);
+        }
+        EventBus.emit('reFetchAgents', {});
+      })
+      .catch((error) => {
+        console.error('Error updating execution:', error);
+      });
 
     setDropdown(false);
   };
@@ -199,26 +198,26 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   function fetchAgentScheduleComponent() {
     if(agent.is_scheduled) {
       getDateTime(agentId)
-          .then((response) => {
-            setAgentScheduleDetails(response.data)
-          })
-          .catch((error) => {
-            console.error('Error fetching agent data:', error);
-          });
+        .then((response) => {
+          setAgentScheduleDetails(response.data)
+        })
+        .catch((error) => {
+          console.error('Error fetching agent data:', error);
+        });
     }
   };
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
-        .then((response) => {
-          let data = response.data
-          data = data.filter((run) => run.status !== 'TERMINATED');
-          setAgentExecutions(data);
-          setSelectedRun(currentRun ? currentRun : data[0]);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent executions:', error);
-        });
+      .then((response) => {
+        let data = response.data
+        data = data.filter((run) => run.status !== 'TERMINATED');
+        setAgentExecutions(data);
+        setSelectedRun(currentRun ? currentRun : data[0]);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent executions:', error);
+      });
   }
 
   function fetchExecutionDetails(executionId) {
@@ -236,12 +235,12 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
 
   function saveAgentTemplate() {
     saveAgentAsTemplate(agentId)
-        .then((response) => {
-          toast.success("Agent saved as template successfully", {autoClose: 1800});
-        })
-        .catch((error) => {
-          console.error('Error saving agent as template:', error);
-        });
+      .then((response) => {
+        toast.success("Agent saved as template successfully", {autoClose: 1800});
+      })
+      .catch((error) => {
+        console.error('Error saving agent as template:', error);
+      });
   }
 
   useEffect(() => {
@@ -283,7 +282,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>
             </div>
-            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type == "Action Based")  && <div style={{marginLeft:'7px'}}>
+            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Action Based")  && <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button} style={leftPanel === 'agent_type' ? {background:'#454254'} : {background:'transparent'}}>Task Queue</button>
             </div>}
           </div>
@@ -313,31 +312,29 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
               </ul>
             </div>}
 
-            {createModal &&
-                <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent" agentId={agentId} setCreateModal={() => setCreateModal(false)} />}
-            {createEditModal &&
-                <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent" agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)} />}
-        {createStopModal && (
-          <div className="modal" onClick={closeCreateModal}>
-            <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
-            <div className={styles.detail_name}>Stop Schedule</div>
-            <label className={styles.form_label}>All further schedules of this agent will be stopped. Are you sure you want to proceed?</label>
-            <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
-              <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
-                Cancel
-              </button>
-              <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={fetchStopSchedule}>
-                Stop Schedule
-              </button>
-            </div>
-            </div>
+            {createModal && <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent" agentId={agentId} setCreateModal={() => setCreateModal(false)} />}
+            {createEditModal && <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent" agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)} />}
+            {createStopModal && (
+              <div className="modal" onClick={closeCreateModal}>
+                <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+                <div className={styles.detail_name}>Stop Schedule</div>
+                <label className={styles.form_label}>All further schedules of this agent will be stopped. Are you sure you want to proceed?</label>
+                <div style={{display: 'flex', justifyContent: 'flex-end',marginTop: '20px'}}>
+                  <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeCreateModal}>
+                    Cancel
+                  </button>
+                  <button className={styles.run_button} style={{paddingLeft:'15px',paddingRight:'25px'}} onClick={fetchStopSchedule}>
+                    Stop Schedule
+                  </button>
+                </div>
+                </div>
+              </div>
+              )}
           </div>
-          )}
-        </div>
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed runModal={runModal} selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData} agent={agent}/>
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0} setFetchedData={setFetchedData} agent={agent}/>
           </div>}
           {leftPanel === 'agent_type' && <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
