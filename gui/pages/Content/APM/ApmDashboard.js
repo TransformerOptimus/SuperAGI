@@ -297,7 +297,7 @@ export default function ApmDashboard() {
                     <div key="total_calls_made" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
                             <span className="text_14 mb_8">Calls Made by Runs</span>
-                            <div className="vertical_container position_relative">
+                            <div className="vertical_containers position_relative">
                                 {allAgents.length > 0 && <div>
                                     <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown1(!dropdown1)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg" /></div>
                                     {dropdown1 && <div className="custom_select_options" style={{padding:'8px', position: 'absolute', right: 0}}>
@@ -321,7 +321,7 @@ export default function ApmDashboard() {
                     <div key="tokens_consumed_per_call" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
                             <span className="text_14 mb_8">Average Tokens consumed in all calls per run </span>
-                            <div className="vertical_container position_relative">
+                            <div className="vertical_containers position_relative">
                                 {allAgents.length > 0 && <div>
                                     <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown3(!dropdown3)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg" /></div>
                                     {dropdown3 && <div className="custom_select_options" style={{padding:'8px', position: 'absolute', right: 0}}>

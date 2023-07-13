@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('event_name', sa.String(), nullable=False),
     sa.Column('event_value', sa.Integer(), nullable=False),
-    sa.Column('json_property', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('event_property', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
     sa.Column('agent_id', sa.Integer(), nullable=True),
     sa.Column('org_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
@@ -32,10 +32,10 @@ def upgrade() -> None:
     # Use naming convention similar to the reference code for the index creation
     op.create_index(op.f('ix_events_agent_id'), 'events', ['agent_id'], unique=False)
     op.create_index(op.f('ix_events_org_id'), 'events', ['org_id'], unique=False)
-    op.create_index(op.f('ix_events_json_property'), 'events', ['json_property'], unique=False)
+    op.create_index(op.f('ix_events_event_property'), 'events', ['event_property'], unique=False)
 
 def downgrade() -> None:
-    op.drop_index(op.f('ix_events_json_property'), table_name='events')
+    op.drop_index(op.f('ix_events_event_property'), table_name='events')
     op.drop_index(op.f('ix_events_org_id'), table_name='events')
     op.drop_index(op.f('ix_events_agent_id'), table_name='events')
     op.drop_table('events')

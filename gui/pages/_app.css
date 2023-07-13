@@ -707,6 +707,11 @@ p {
     width: 100%;
 }
 
+.vertical_containers{
+    display: flex;
+    flex-direction: column;
+}
+
 .vertical_container{
     display: flex;
     flex-direction: column;

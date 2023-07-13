@@ -12,12 +12,12 @@ class AnalyticsHelper:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_event(self, event_name: str, event_value: int, json_property: dict, agent_id: int, org_id: int) -> Optional[Event]:
+    def create_event(self, event_name: str, event_value: int, event_property: dict, agent_id: int, org_id: int) -> Optional[Event]:
         try:
             event = Event(
                 event_name=event_name,
                 event_value=event_value,
-                json_property=json_property,
+                event_property=event_property,
                 agent_id=agent_id,
                 org_id=org_id,
             )
@@ -31,7 +31,7 @@ class AnalyticsHelper:
     def calculate_run_completed_metrics(self) -> Dict[str, Dict[str, Union[int, List[Dict[str, int]]]]]:
 
         agent_model_query = self.session.query(
-            Event.json_property['model'].label('model'),
+            Event.event_property['model'].label('model'),
             Event.agent_id
         ).filter_by(event_name="agent_created").subquery()
 
@@ -42,7 +42,7 @@ class AnalyticsHelper:
 
         agent_tokens_query = self.session.query(
             agent_model_query.c.model,
-            func.sum(text("(json_property->>'tokens_consumed')::int")).label('tokens')
+            func.sum(text("(event_property->>'tokens_consumed')::int")).label('tokens')
         ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter_by(event_name="run_completed").group_by(agent_model_query.c.model).subquery()
 
         agent_count_query = self.session.query(
@@ -74,25 +74,25 @@ class AnalyticsHelper:
     def fetch_agent_data(self) -> Dict[str, List[Dict[str, Any]]]:
         agent_subquery = self.session.query(
             Event.agent_id,
-            Event.json_property['agent_name'].label('agent_name'),
-            Event.json_property['model'].label('model')
+            Event.event_property['agent_name'].label('agent_name'),
+            Event.event_property['model'].label('model')
         ).filter_by(event_name="agent_created").subquery()
 
         run_subquery = self.session.query(
             Event.agent_id,
-            func.sum(text("(json_property->>'tokens_consumed')::int")).label('total_tokens'),
-            func.sum(text("(json_property->>'calls')::int")).label('total_calls'),
+            func.sum(text("(event_property->>'tokens_consumed')::int")).label('total_tokens'),
+            func.sum(text("(event_property->>'calls')::int")).label('total_calls'),
             func.count(Event.id).label('runs_completed'),
         ).filter_by(event_name="run_completed").group_by(Event.agent_id).subquery()
 
         tool_subquery = self.session.query(
             Event.agent_id,
-            func.array_agg(Event.json_property['tool_name'].distinct()).label('tools_used'),
+            func.array_agg(Event.event_property['tool_name'].distinct()).label('tools_used'),
         ).filter_by(event_name="tool_used").group_by(Event.agent_id).subquery()
 
         runs = self.session.query(
             Event.agent_id,
-            Event.json_property['agent_execution_id'],
+            Event.event_property['agent_execution_id'],
             Event.created_at, Event.event_name
         ).filter(Event.event_name.in_(["run_created", "run_completed"])).all()
 
@@ -138,15 +138,15 @@ class AnalyticsHelper:
     def fetch_agent_runs(self, agent_id: int) -> List[Dict[str, int]]:
         agent_runs = []
         completed_subquery = self.session.query(
-            Event.json_property['agent_execution_id'].label('completed_agent_execution_id'),
-            Event.json_property['tokens_consumed'].label('tokens_consumed'),
-            Event.json_property['calls'].label('calls'),
+            Event.event_property['agent_execution_id'].label('completed_agent_execution_id'),
+            Event.event_property['tokens_consumed'].label('tokens_consumed'),
+            Event.event_property['calls'].label('calls'),
             Event.updated_at
         ).filter_by(event_name="run_completed", agent_id=agent_id).subquery()
 
         created_subquery = self.session.query(
-            Event.json_property['agent_execution_id'].label('created_agent_execution_id'),
-            Event.json_property['agent_execution_name'].label('agent_execution_name'),
+            Event.event_property['agent_execution_id'].label('created_agent_execution_id'),
+            Event.event_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at
         ).filter_by(event_name="run_created", agent_id=agent_id).subquery()
 
@@ -174,18 +174,18 @@ class AnalyticsHelper:
     def get_active_runs(self) -> List[Dict[str, str]]:
         running_executions = []
         completed_subquery = self.session.query(
-            Event.json_property['agent_execution_id'].label('agent_execution_id'),
+            Event.event_property['agent_execution_id'].label('agent_execution_id'),
         ).filter_by(event_name="run_completed").subquery()
 
         start_subquery = self.session.query(
-            Event.json_property['agent_execution_id'].label('agent_execution_id'),
-            Event.json_property['agent_execution_name'].label('agent_execution_name'),
+            Event.event_property['agent_execution_id'].label('agent_execution_id'),
+            Event.event_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at,
             Event.agent_id
         ).filter_by(event_name="run_created").subquery()
 
         agent_created_subquery = self.session.query(
-            Event.json_property['agent_name'].label('agent_name'),
+            Event.event_property['agent_name'].label('agent_name'),
             Event.agent_id
         ).filter_by(event_name="agent_created").subquery()
 
@@ -212,7 +212,7 @@ class AnalyticsHelper:
     def calculate_tool_usage(self) -> List[Dict[str, int]]:
             tool_usage = []
             tool_used_subquery = self.session.query(
-                Event.json_property['tool_name'].label('tool_name'),
+                Event.event_property['tool_name'].label('tool_name'),
                 Event.agent_id
             ).filter_by(event_name="tool_used").subquery()
 

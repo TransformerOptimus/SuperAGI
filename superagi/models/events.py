@@ -13,7 +13,7 @@ class Event(DBBaseModel):
         id (Integer): The unique identifier of the event.
         event_name (String): The name of the event.
         event_value (Integer): The value of the event.
-        json_property (JSONB): The JSON object representing additional attributes of the event.
+        event_property (JSONB): The JSON object representing additional attributes of the event.
         agent_id (Integer): The ID of the agent.
         org_id (Integer): The ID of the organisation.
     """
@@ -22,7 +22,7 @@ class Event(DBBaseModel):
     id = Column(Integer, primary_key=True)
     event_name = Column(String, nullable=False)
     event_value = Column(Integer, nullable=False)
-    json_property = Column(JSONB, nullable=True)
+    event_property = Column(JSONB, nullable=True)
     agent_id = Column(Integer, nullable=True)
     org_id = Column(Integer, nullable=True)
 
