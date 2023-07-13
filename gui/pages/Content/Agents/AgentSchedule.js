@@ -36,6 +36,8 @@ export default function AgentSchedule({
 
   const [modalHeading, setModalHeading] = useState('Schedule Run')
   const [modalButton, setModalButton] = useState('Create and Schedule Run')
+  const [isExpiryCorrect, setExpiryCorrect] = useState(false)
+
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -105,8 +107,10 @@ export default function AgentSchedule({
         const expiryDate = convertToGMT(momentObj);
         if((new Date(expiryDate) < (new Date(startTime)))) {
             toast.error('Expiry Date of agent is before Start Date')
+            setExpiryCorrect(false)
             return;
         }
+        setExpiryCorrect(true)
         setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
     };
 
@@ -142,6 +146,10 @@ export default function AgentSchedule({
   };
 
   const addScheduledAgent = () => {
+    if(expiryType === 'Specific Date' && !isExpiryCorrect){
+      toast.error('Expiry Date of agent is before start date')
+      return;
+    }
     if ((startTime === '' || (isRecurring === true && (timeValue == null || (expiryType === "After certain number of runs" && (parseInt(expiryRuns, 10) < 1)) || (expiryType === "Specific date" && expiryDate == null))))) {
       toast.error('Please input correct details', {autoClose: 1800});
       return;
