@@ -61,7 +61,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if not name.endswith(accepted_file_types):
         raise HTTPException(status_code=400, detail="File type not supported!")
 
-    storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
+    storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
     save_directory = ResourceHelper.get_root_input_dir()
     if "{agent_id}" in save_directory:
         save_directory = ResourceHelper.get_formatted_agent_level_path(agent=Agent
