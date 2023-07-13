@@ -94,7 +94,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       </div>
       {goals && goals.length > 0 && <div>
         <div className={styles.large_text_box} style={!showGoals ? {overflow:'hidden',display:'-webkit-box'} : {}}>
-          {agentDetails.goal.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
+          {goals.map((goal, index) => (<div key={index} style={{marginTop:'0'}}>
             <div>{index + 1}. {goal || ''}</div>{index !== goals.length - 1 && <br/>}
           </div>))}
         </div>
