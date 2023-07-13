@@ -91,24 +91,23 @@ class AnalyticsHelper:
             func.array_agg(Event.event_property['tool_name'].distinct()).label('tools_used'),
         ).filter_by(event_name="tool_used").group_by(Event.agent_id).subquery()
 
-        runs = self.session.query(
+        start_time_subquery = self.session.query(
             Event.agent_id,
-            Event.event_property['agent_execution_id'],
-            Event.created_at, Event.event_name
-        ).filter(Event.event_name.in_(["run_created", "run_completed"])).all()
+            (Event.event_property['agent_execution_id']).label('agent_execution_id'),
+            func.min(func.extract('epoch', Event.created_at)).label('start_time')
+        ).filter_by(event_name="run_created").group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
 
-        run_times = defaultdict(lambda: defaultdict(list))
-        for agent_id, agent_execution_id, timestamp, event_name in runs:
-            run_times[agent_id][agent_execution_id].append((event_name, timestamp))
+        end_time_subquery = self.session.query(
+            Event.agent_id,
+            (Event.event_property['agent_execution_id']).label('agent_execution_id'),
+            func.max(func.extract('epoch', Event.created_at)).label('end_time')
+        ).filter_by(event_name="run_completed").group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
 
-        avg_run_times = defaultdict(list)
-        for agent_id, events in run_times.items():
-            for agent_execution_id, agent_events in events.items():
-                if 'run_created' in [event_name for event_name, _ in agent_events] and \
-                    'run_completed' in [event_name for event_name, _ in agent_events]:
-                    run_created_time = next(time for event_name, time in agent_events if event_name == 'run_created')
-                    run_completed_time = next(time for event_name, time in agent_events if event_name == 'run_completed')
-                    avg_run_times[agent_id].append((run_completed_time - run_created_time).total_seconds())
+        time_diff_subquery = self.session.query(
+            start_time_subquery.c.agent_id,
+            (func.avg(end_time_subquery.c.end_time - start_time_subquery.c.start_time)).label('avg_run_time')
+        ).join(end_time_subquery, start_time_subquery.c.agent_execution_id == end_time_subquery.c.agent_execution_id). \
+            group_by(start_time_subquery.c.agent_id).subquery()
 
         query = self.session.query(
             agent_subquery.c.agent_id,
@@ -117,24 +116,27 @@ class AnalyticsHelper:
             run_subquery.c.total_tokens,
             run_subquery.c.total_calls,
             run_subquery.c.runs_completed,
-            tool_subquery.c.tools_used
+            tool_subquery.c.tools_used,
+            time_diff_subquery.c.avg_run_time
         ).outerjoin(run_subquery, run_subquery.c.agent_id == agent_subquery.c.agent_id) \
-            .outerjoin(tool_subquery, tool_subquery.c.agent_id == agent_subquery.c.agent_id)
+            .outerjoin(tool_subquery, tool_subquery.c.agent_id == agent_subquery.c.agent_id) \
+            .outerjoin(time_diff_subquery, time_diff_subquery.c.agent_id == agent_subquery.c.agent_id)
 
         result = query.all()
 
         agent_details = [{
             "name": row.agent_name,
             "agent_id": row.agent_id,
-            "runs_completed": row.runs_completed,
-            "total_calls": row.total_calls,
-            "total_tokens": row.total_tokens,
+            "runs_completed": row.runs_completed if row.runs_completed else 0,
+            "total_calls": row.total_calls if row.total_calls else 0,
+            "total_tokens": row.total_tokens if row.total_tokens else 0,
             "tools_used": row.tools_used,
             "model_name": row.model,
-            "avg_run_time": sum(avg_run_times[row.agent_id]) / len(avg_run_times[row.agent_id]) if avg_run_times[row.agent_id] else 0
+            "avg_run_time": row.avg_run_time if row.avg_run_time else 0,
         } for row in result]
 
         return {'agent_details': agent_details}
+
 
     def fetch_agent_runs(self, agent_id: int) -> List[Dict[str, int]]:
         agent_runs = []
