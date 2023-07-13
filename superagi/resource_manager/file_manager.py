@@ -118,9 +118,6 @@ class FileManager:
             with open(final_path, mode="r") as file:
                 content = file.read()
             logger.info(f"{file_name} - File read successfully")
-            print("@@###@@@###^^^&&&&&&@@@")
-            print(content)
-            print("CONTENT_END---------------------------------------------------")
             return content
         except Exception as err:
             return f"Error while reading file {file_name}: {err}"

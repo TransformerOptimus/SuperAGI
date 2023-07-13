@@ -52,19 +52,15 @@ class ImproveCodeTool(BaseTool):
         """
         # Get all file names that the CodingTool has written
         file_names = self.resource_manager.get_files()
-        print("******************************************************************************************")
         print(file_names)
-        print("777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777")
         # Loop through each file
         for file_name in file_names:
             if '.txt' not in file_name and '.sh' not in file_name and '.json' not in file_name:
-                print("#############################$$$$$$$$$$$$$$$$$$$$$@")
                 # Read the file content
                 content = self.resource_manager.read_file(file_name)
 
                 # Generate a prompt from improve_code.txt
                 prompt = PromptReader.read_tools_prompt(__file__, "improve_code.txt")
-                print("#############################$$$$$$$$$$$$$$$$$$$$$@")
 
                 # Combine the hint from the file, goals, and content
                 prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
@@ -81,18 +77,15 @@ class ImproveCodeTool(BaseTool):
                 # Extract the response first
                 response = result.get('response')
                 if not response: 
-                    print("REAPONSE NOT AVAILABLE2222222222222222222222222222222222222222222")
+                    print("REAPONSE NOT AVAILABLE")
 
                 # Now extract the choices from response
                 choices = response.get('choices')
                 if not choices: 
-                    print("CHOICES NOT AVAILABLE =333333333333333333333333333333333333333333333")
+                    print("CHOICES NOT AVAILABLE")
 
                 # Now you can safely extract the message content
                 improved_content = choices[0]["message"]["content"]
-                print("IMPROVED CONTENT 9999999999999999999999999999999999999")
-                print(improved_content)
-                print("END IMPROVED CONTENT 9999999999999999999999999999999999999")
                 # improved_content = result["messages"][0]["content"]
                 parsed_content = re.findall("```(?:\w*\n)?(.*?)```", improved_content, re.DOTALL)
                 parsed_content_code = "\n".join(parsed_content)
