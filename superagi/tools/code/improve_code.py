@@ -50,7 +50,7 @@ class ImproveCodeTool(BaseTool):
         """
         # Get all file names that the CodingTool has written
         file_names = self.resource_manager.get_files()
-        print(file_names)
+        logger.info(file_names)
         # Loop through each file
         for file_name in file_names:
             if '.txt' not in file_name and '.sh' not in file_name and '.json' not in file_name:
