@@ -19,7 +19,7 @@ class Vectordb(DBBaseModel):
         organisation_id (int): The identifier of the associated organisation.
     """
 
-    __tablename__ = 'vector_db'
+    __tablename__ = 'vector_dbs'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
