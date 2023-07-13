@@ -10,16 +10,28 @@ from qdrant_client.conversions import common_types
 
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
+from superagi.config.config import get_config
 
 DictFilter = Dict[str, Union[str, int, bool, dict, list]]
 MetadataFilter = Union[DictFilter, common_types.Filter]
 
 def create_qdrant_client(
 ) -> QdrantClient:
-    client = QdrantClient(host="localhost", port=6333)
-    return client
+    qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
+    qdrant_port = get_config("QDRANT_PORT") or 6333
+    return QdrantClient(host=qdrant_host_name, port=qdrant_port)
 
 class Qdrant(VectorStore):
+    """
+    Qdrant vector store.
+
+    Attributes:
+        client : The Qdrant client.
+        embedding_model : The embedding model.
+        collection_name : The Qdrant collection.
+        text_field_payload_key : Name of the field where the corresponding text for point is stored in the collection.
+        metadata_payload_key : Name of the field where the corresponding metadata for point is stored in the collection.
+    """
     TEXT_FIELD_KEY = "text_field"
     METADATA_KEY = "metadata"
 
@@ -27,8 +39,8 @@ class Qdrant(VectorStore):
         self,
         client: QdrantClient,
         embedding_model: Any,
-        collection_name: str
-        ,text_field_payload_key: str = TEXT_FIELD_KEY,
+        collection_name: str,
+        text_field_payload_key: str = TEXT_FIELD_KEY,
         metadata_payload_key: str = METADATA_KEY,
     ):
         self.client = client
@@ -44,7 +56,18 @@ class Qdrant(VectorStore):
             id_list: Optional[Sequence[str]] = None,
             batch_limit: int = 64,
     ) -> List[str]:
+        """
+        Add texts to the vector store.
 
+        Args:
+            input_texts : The texts to add.
+            metadata_list : The metadatas to add.
+            id_list : The ids to add.
+            batch_limit : The batch size to add.
+
+        Returns:
+            The list of ids vectors stored in Qdrant.
+        """
         collected_ids = []
         metadata_list = metadata_list or []
         id_list = id_list or [uuid.uuid4().hex for _ in input_texts]
@@ -85,6 +108,24 @@ class Qdrant(VectorStore):
             consistency: Optional[common_types.ReadConsistency] = None,
             **kwargs: Any,
     ) -> List[Tuple[Document, float]]:
+        """
+        Return docs most similar to query using specified search type.
+
+        Args:
+            embedding: Embedding vector to look up documents similar to.
+            k: Number of Documents to return.
+            text : The text to search.
+            filter: Filter by metadata.
+            search_params: Additional search params
+            offset: Offset of the first result to return.
+            score_threshold: Define a minimal score threshold for the result.
+            consistency: Read consistency of the search. Defines how many replicas
+                         should be queried before returning the result.
+            **kwargs : The keyword arguments to search.
+
+        Returns:
+            The list of documents most similar to the query
+        """
         if embedding is not None and text is not None:
             raise ValueError("Only provide embedding or text")
         if text is not None:
@@ -110,6 +151,7 @@ class Qdrant(VectorStore):
             self,
             texts: Iterable[str]
     ) -> List[List[float]]:
+        """Return embeddings for a list of texts using the embedding model."""
         if self.embedding_model is not None:
             query_vectors = []
             for text in texts:
@@ -127,6 +169,10 @@ class Qdrant(VectorStore):
             text_field_payload_key: str,
             metadata_payload_key: str,
     ) -> List[dict]:
+        """
+        Builds and returns a list of payloads containing text and
+        corresponding metadata for each text in the input iterable.
+        """
         payloads = []
         for i, text in enumerate(texts):
             if text is None:
@@ -148,6 +194,7 @@ class Qdrant(VectorStore):
             self,
             results: List[Dict]
     ) -> List[Document]:
+        """Return the document version corresponding to each result."""
         documents = []
         for result in results:
             documents.append(
