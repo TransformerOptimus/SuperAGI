@@ -21,7 +21,7 @@ class ImproveCodeSchema(BaseModel):
     # )
 class ImproveCodeTool(BaseTool):
     """
-    Used to improve the already generated code.
+    Used to improve the already generated code by reading the code from the files
 
     Attributes:
         llm: LLM used for code generation.
@@ -35,6 +35,7 @@ class ImproveCodeTool(BaseTool):
     description = (
         "This tool improves the generated code."
     )
+    args_schema: Type[ImproveCodeSchema] = ImproveCodeSchema
     resource_manager: Optional[FileManager] = None
     tool_response_manager: Optional[ToolResponseQueryManager] = None
     goals: List[str] = []
