@@ -12,21 +12,22 @@ class AnalyticsHelper:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_event(self, event_name: str, event_value: int, event_property: dict, agent_id: int, org_id: int) -> Optional[Event]:
-        try:
-            event = Event(
-                event_name=event_name,
-                event_value=event_value,
-                event_property=event_property,
-                agent_id=agent_id,
-                org_id=org_id,
-            )
-            self.session.add(event)
-            self.session.commit()
-            return event
-        except SQLAlchemyError as err:
-            logging.error(f"Error while creating event: {str(err)}")
-            return None
+    def create_event(self, event_name: str, event_property: dict, agent_id: int, org_id: int, event_value: int = 1) -> Optional[Event]:
+            try:
+                event = Event(
+                    event_name=event_name,
+                    event_value=event_value,
+                    event_property=event_property,
+                    agent_id=agent_id,
+                    org_id=org_id,
+                )
+                self.session.add(event)
+                self.session.commit()
+                return event
+            except SQLAlchemyError as err:
+                logging.error(f"Error while creating event: {str(err)}")
+                return None
+
 
     def calculate_run_completed_metrics(self) -> Dict[str, Dict[str, Union[int, List[Dict[str, int]]]]]:
 
