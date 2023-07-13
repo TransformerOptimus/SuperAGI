@@ -47,7 +47,7 @@ class DeleteFileTool(BaseTool):
               session=self.toolkit_config.session,
               agent_execution_id=self.agent_execution_id))
         try:
-            os.remove(final_path + file_name)
+            os.remove(final_path)
             return "File deleted successfully."
         except Exception as err:
             return f"Error: {err}"
