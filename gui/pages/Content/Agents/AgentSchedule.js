@@ -105,7 +105,7 @@ export default function AgentSchedule({
 
     const handleDateTimeChange = (momentObj) => {
         const expiryDate = convertToGMT(momentObj);
-        if((new Date(expiryDate) < (new Date(startTime)))) {
+        if(((new Date(expiryDate).setHours(0, 0, 0, 0)) <= (new Date(startTime)).setHours(0, 0, 0, 0))) {
             toast.error('Expiry Date of agent is before Start Date')
             setExpiryCorrect(false)
             return;
@@ -178,7 +178,6 @@ export default function AgentSchedule({
             const {schedule_id} = response.data;
             toast.success('Scheduled successfully!', {autoClose: 1800});
             setCreateModal();
-            console.log('Schedule ID:', schedule_id);
             EventBus.emit('refreshDate', {});
             EventBus.emit('reFetchAgents', {});
           })
@@ -221,7 +220,6 @@ export default function AgentSchedule({
   function fetchAgentScheduleComponent() {
     agentScheduleComponent(agentId)
       .then((response) => {
-        console.log(response.data)
         const {current_datetime, recurrence_interval, expiry_date, expiry_runs, start_date, start_time} = response.data;
         setExpiryRuns(expiry_runs);
         setExpiryDate(expiry_date);
@@ -323,7 +321,7 @@ export default function AgentSchedule({
                       justifyContent: 'space-between'
                     }}>
                       <div>The expiry date of the run
-                        is {(new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10)}</div>
+                        is {(new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10) == "Invalid Da" ? expiryDate : (new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10) }</div>
                       <div className="secondary_button" style={{cursor: 'pointer', height: '20px', fontSize: '12px'}}
                            onClick={() => setExpiryDate(null)}>Edit
                       </div>
