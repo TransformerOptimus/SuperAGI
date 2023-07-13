@@ -32,7 +32,7 @@ from superagi.vector_store.base import VectorStore
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
 from superagi.config.config import get_config
-from superagi.apm.analytics_helper import AnalyticsHelper
+from superagi.apm.event_handler import EventHandler
 import os
 from superagi.lib.logger import logger
 
@@ -239,12 +239,12 @@ class SuperAgi:
         if action_name == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
-            AnalyticsHelper(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             return output
         if action_name in tools:
             tool = tools[action_name]
             retry = False
-            AnalyticsHelper(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             try:
                 parsed_args = self.clean_tool_args(action.args)
                 observation = tool.execute(parsed_args)

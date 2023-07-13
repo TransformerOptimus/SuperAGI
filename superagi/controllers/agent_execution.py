@@ -19,7 +19,7 @@ from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
-from superagi.apm.analytics_helper import AnalyticsHelper
+from superagi.apm.event_handler import EventHandler
 
 router = APIRouter()
 
@@ -95,7 +95,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                                      agent_execution_configs=agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
-    AnalyticsHelper(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
+    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
                                  agent_execution.agent_id, organisation.id if organisation else 0)
 
     if db_agent_execution.status == "RUNNING":

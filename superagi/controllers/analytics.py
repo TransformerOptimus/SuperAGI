@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from superagi.helper.auth import check_auth
 from superagi.apm.analytics_helper import AnalyticsHelper
+from superagi.apm.event_handler import EventHandler
+from superagi.apm.tools_handler import ToolsHandler
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 import logging
@@ -53,7 +55,7 @@ def get_active_runs(Authorize: AuthJWT = Depends(check_auth)):
 @router.get("/tools/used", status_code=200)
 def get_tools_used(Authorize: AuthJWT = Depends(check_auth)):
     try:
-        return AnalyticsHelper(session=db.session).calculate_tool_usage()
+        return ToolsHandler(session=db.session).calculate_tool_usage()
     except Exception as e:
         logging.error(f"Error while calculating tool usage: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

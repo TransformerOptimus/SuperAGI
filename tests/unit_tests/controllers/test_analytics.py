@@ -34,8 +34,8 @@ def test_get_active_runs_success():
         assert response.json() == ["mock_run_1", "mock_run_2"]
 
 def test_get_tools_user_success():
-    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
-        mock_helper().calculate_tool_usage.return_value = ["tool1", "tool2"]
+    with patch('superagi.controllers.analytics.ToolsHandler') as mock_handler:
+        mock_handler().calculate_tool_usage.return_value = ["tool1", "tool2"]
         response = client.get("analytics/tools/used")
         assert response.status_code == 200
         assert response.json() == ["tool1", "tool2"]
