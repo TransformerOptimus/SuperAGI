@@ -96,6 +96,10 @@ export default function AgentSchedule({internalId, closeCreateModal, type, agent
 
     const handleDateTimeChange = (momentObj) => {
         const expiryDate = convertToGMT(momentObj);
+        if((new Date(expiryDate) < (new Date(startTime)))) {
+            toast.error('Expiry Date of agent is before Start Date')
+            return;
+        }
         setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
     };
 
