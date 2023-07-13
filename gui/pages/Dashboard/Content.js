@@ -313,7 +313,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   <div key={index}>
                   {selectedTab === index && <div>
                     {tab.contentType === 'Agents' &&
-                      <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} selectedView={selectedView}
+                      <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name} selectedView={selectedView}
                                       agents={agents} fetchAgents={fetchAgents}/>}
                     {tab.contentType === 'Toolkits' &&
                       <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}

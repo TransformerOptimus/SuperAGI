@@ -23,7 +23,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, selectedView, agents, internalId}) {
+export default function AgentWorkspace({agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -157,7 +157,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
         console.log(response);
         if (response.status === 200) {
           EventBus.emit('reFetchAgents', {});
-          EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents", internalId: agentInternalId})
+          EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents", internalId: internalId})
           toast.success("Agent Deleted Successfully", {autoClose: 1800});
         }
         else{
@@ -369,7 +369,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
                   {agent && !agent.is_running && !agent.is_scheduled &&
                     <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
                 </div>)}
-
+                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
               </ul>
             </div>}
 
