@@ -229,7 +229,10 @@ class AgentExecutor:
 
 
         if "retry" in response and response["retry"]:
-            response = spawned_agent.execute(agent_workflow_step)
+            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
+            session.close()
+            return
+
         agent_execution.current_step_id = agent_workflow_step.next_step_id
         session.commit()
         if response["result"] == "COMPLETE":
