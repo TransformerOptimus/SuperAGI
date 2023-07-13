@@ -200,8 +200,8 @@ export const deleteCustomKnowledge = (knowledgeId) => {
   return api.post(`/knowledge/delete/${knowledgeId}`);
 }
 
-export const deleteMarketplaceKnowledge = (knowledgeId) => {
-  return api.post(`/knowledge/uninstall/${knowledgeId}`);
+export const deleteMarketplaceKnowledge = (knowledgeName) => {
+  return api.post(`/knowledge/uninstall/${knowledgeName}`);
 }
 
 export const addUpdateKnowledge = (knowledgeData) => {
@@ -212,14 +212,14 @@ export const getValidIndices = () => {
   return api.get(`/vector_index/get/user/valid_indices`);
 }
 
-export const getValidMarketplaceIndices = (knowledgeId) => {
-  return api.get(`/vector_index/get/marketplace/valid_indices/${knowledgeId}`);
+export const getValidMarketplaceIndices = (knowledgeName) => {
+  return api.get(`/vector_index/get/marketplace/valid_indices/${knowledgeName}`);
 }
 
-export const fetchKnowledgeTemplateOverview = (knowledgeId) => {
-  return api.get(`/knowledge/marketplace/get/details/${knowledgeId}`);
+export const fetchKnowledgeTemplateOverview = (knowledgeName) => {
+  return api.get(`/knowledge/marketplace/get/details/${knowledgeName}`);
 }
 
-export const installKnowledgeTemplate = (knowledgeId, indexId) => {
-  return api.get(`/knowledge/install/${knowledgeId}/index/${indexId}`);
+export const installKnowledgeTemplate = (knowledgeName, indexId) => {
+  return api.get(`/knowledge/install/${knowledgeName}/index/${indexId}`);
 }

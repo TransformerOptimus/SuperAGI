@@ -27,7 +27,7 @@ export default function KnowledgeTemplate({template, env}) {
   const [qdrantIndices, setQdrantIndices] = useState([]);
 
   useEffect(() => {
-    getValidMarketplaceIndices(template.id)
+    getValidMarketplaceIndices(template.name)
       .then((response) => {
         const data = response.data || [];
         if (data) {
@@ -60,7 +60,7 @@ export default function KnowledgeTemplate({template, env}) {
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
       setInstalled('Sign in to install');
-      axios.get(`https://app.superagi.com/api/knowledge/marketplace/get/details/${template.id}`)
+      axios.get(`https://app.superagi.com/api/knowledge/marketplace/get/details/${template.name}`)
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
@@ -72,7 +72,7 @@ export default function KnowledgeTemplate({template, env}) {
           console.error('Error fetching template details:', error);
         });
     } else {
-      fetchKnowledgeTemplateOverview(template.id)
+      fetchKnowledgeTemplateOverview(template.name)
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
@@ -88,7 +88,7 @@ export default function KnowledgeTemplate({template, env}) {
 
   const handleInstallClick = (indexId) => {
     if (window.location.href.toLowerCase().includes('marketplace')) {
-      localStorage.setItem('knowledge_to_install', template.id);
+      localStorage.setItem('knowledge_to_install', template.name);
       localStorage.setItem('knowledge_index_to_install', indexId);
 
       if (env === 'PROD') {
@@ -104,7 +104,7 @@ export default function KnowledgeTemplate({template, env}) {
       return;
     }
 
-    installKnowledgeTemplate(template.id, indexId)
+    installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
         toast.success("Template installed", {autoClose: 1800});
         setInstalled('Installed');
@@ -119,7 +119,7 @@ export default function KnowledgeTemplate({template, env}) {
   }
 
   const uninstallKnowledge = () => {
-    deleteMarketplaceKnowledge(template.id)
+    deleteMarketplaceKnowledge(template.name)
       .then((response) => {
         toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
         handleBackClick()
