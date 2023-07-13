@@ -15,10 +15,8 @@ from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
 class ImproveCodeSchema(BaseModel):
     pass
-    # code_data: str = Field(
-    #     ...,
-    #     description="Data generated previously by CodingTool",
-    # )
+
+
 class ImproveCodeTool(BaseTool):
     """
     Used to improve the already generated code by reading the code from the files
