@@ -54,6 +54,7 @@ services:
 #    uncomment to expose postgres port to host
 #    ports:
 #      - "5432:5432"
+  
   proxy:
     image: nginx:stable-alpine
     ports:
