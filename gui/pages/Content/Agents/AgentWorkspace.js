@@ -17,7 +17,8 @@ import {
   getExecutionDetails,
   saveAgentAsTemplate,
   stopSchedule,
-  getDateTime
+  getDateTime,
+  deleteAgent
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
@@ -154,7 +155,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
     deleteAgent(agentId)
       .then((response) => {
         setDeleteModal(false);
-        console.log(response);
         if (response.status === 200) {
           EventBus.emit('reFetchAgents', {});
           EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents", internalId: internalId})
