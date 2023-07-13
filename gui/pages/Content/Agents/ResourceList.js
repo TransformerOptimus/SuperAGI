@@ -1,25 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import { downloadFile, downloadAllFiles, formatBytes, returnResourceIcon } from "@/utils/utils";
 
 export default function ResourceList({ files, channel, runs }) {
-
   const [selectedRun, setSelectedRun] = useState(null);
-  const [filesByRun, setFilesByRun] = useState([]);
+  const filesByRun = useMemo(() => runs.map(run => {
+    const relatedFiles = files.filter(file => file.agent_execution_id === run.id);
+    return relatedFiles.length !== 0 && { "run": run, "files": relatedFiles };
+  }).filter(Boolean), [files, runs]);
 
-  useEffect(() => {
-    const filesGroupedByRun = runs.map(run => {
-      const relatedFiles = files.filter(file => file.agent_execution_id === run.id);
-      return relatedFiles.length !== 0 && { "run": run, "files": relatedFiles };
-    }).filter(Boolean);
-
-    setFilesByRun(filesGroupedByRun);
-  }, [files, runs]);
-
-  const downloadRunFiles = (run_id) => {
+  const downloadRunFiles = (run_id,name) => {
     const runFiles = files.filter(file => file.agent_execution_id === run_id);
-    runFiles.length !== 0 && downloadAllFiles(runFiles);
+    runFiles.length !== 0 && downloadAllFiles(runFiles,name);
   }
 
   const isAnyFileWithAgentId = files.some(file => file.agent_execution_id !== null)
@@ -53,7 +46,7 @@ export default function ResourceList({ files, channel, runs }) {
                             <span className="text_12 ml_8">{filesRun.run.name}</span>
                             <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10} height={10} /> <span className="text_9">Run {index + 1}</span></div>
                           </div>
-                          <Image src="/images/download.svg" alt="download_icon" width={16} height={16} onClick={() => downloadRunFiles(filesRun.run.id)} />
+                          <Image src="/images/download.svg" alt="download_icon" width={16} height={16} onClick={() => downloadRunFiles(filesRun.run.id,filesRun.run.name)} />
                         </div>
 
                         {selectedRun === filesRun.run && (

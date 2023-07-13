@@ -70,7 +70,7 @@ export const downloadFile = (fileId, fileName = null) => {
       Authorization: `Bearer ${authToken}`,
     };
 
-    return fetch(url, {headers})
+    return fetch(url, { headers })
       .then((response) => response.blob())
       .then((blob) => {
         if (fileName) {
@@ -100,7 +100,7 @@ export const downloadFile = (fileId, fileName = null) => {
   }
 };
 
-export const downloadAllFiles = (files) => {
+export const downloadAllFiles = (files,run_name) => {
   const zip = new JSZip();
   const promises = [];
   const fileNamesCount = {};
@@ -131,20 +131,21 @@ export const downloadAllFiles = (files) => {
   });
 
   Promise.all(promises)
-    .then(() => {
-      zip.generateAsync({type: "blob"})
-        .then((content) => {
-          const timestamp = new Date().getTime();
-          const zipFilename = `files_${timestamp}.zip`;
-          const downloadLink = document.createElement("a");
-          downloadLink.href = URL.createObjectURL(content);
-          downloadLink.download = zipFilename;
-          downloadLink.click();
-        })
-        .catch((error) => {
-          console.error("Error generating zip:", error);
-        });
-    });
+      .then(() => {
+        zip.generateAsync({ type: "blob" })
+            .then((content) => {
+              const now = new Date();
+              const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
+              const zipFilename = `${run_name}_${timestamp}.zip`;
+              const downloadLink = document.createElement("a");
+              downloadLink.href = URL.createObjectURL(content);
+              downloadLink.download = zipFilename;
+              downloadLink.click();
+            })
+            .catch((error) => {
+              console.error("Error generating zip:", error);
+            });
+      });
 };
 
 export const refreshUrl = () => {
@@ -332,7 +333,7 @@ export const returnResourceIcon = (file) => {
 };
 
 export const convertToTitleCase = (str) => {
-  if (str === null || str === '') {
+  if(str === null || str === '') {
     return '';
   }
 
