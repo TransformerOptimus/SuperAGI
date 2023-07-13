@@ -225,15 +225,7 @@ class AgentExecutor:
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
 
-        try:
-            response = spawned_agent.execute(agent_workflow_step)
-        except RuntimeError as e:
-            # If our execution encounters an error we return and attempt to retry
-            logger.error("Error executing the agent:", e)
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
-            session.close()
-            return
-
+        response = spawned_agent.execute(agent_workflow_step)
 
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
