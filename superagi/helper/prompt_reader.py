@@ -8,6 +8,7 @@ class PromptReader:
         try:
             f = open(file_path, "r")
             file_content = f.read()
+            f.close()
         except FileNotFoundError as e:
             print(e.__str__())
             raise e
@@ -19,6 +20,7 @@ class PromptReader:
         try:
             f = open(file_path, "r")
             file_content = f.read()
+            f.close()
         except FileNotFoundError as e:
             print(e.__str__())
             raise e
