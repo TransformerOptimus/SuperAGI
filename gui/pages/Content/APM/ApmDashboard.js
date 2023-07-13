@@ -59,15 +59,30 @@ export default function ApmDashboard() {
         }
     }, [layout]);
 
+    const assignDefaultDataPerModel = (data, modelList) => {
+        const modelsInData = data.map(item => item.name);
+        modelList.forEach((model) => {
+            if (!modelsInData.includes(model)) {
+                data.push({name: model, value: 0});
+            }
+        });
+    };
+
+// Use this function in useEffect:
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [metricsResponse, agentsResponse, activeRunsResponse, toolsUsageResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns(), getToolsUsage()]);
+                const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001'];
+
+                assignDefaultDataPerModel(metricsResponse.data.agent_details.model_metrics, models);
+                assignDefaultDataPerModel(metricsResponse.data.tokens_details.model_metrics, models);
+                assignDefaultDataPerModel(metricsResponse.data.run_details.model_metrics, models);
+
                 setAgentDetails(metricsResponse.data.agent_details);
                 setTokenDetails(metricsResponse.data.tokens_details);
                 setRunDetails(metricsResponse.data.run_details);
-                console.log("//////////////////////////////////////")
-                console.log(agentsResponse.data)
+
                 setAllAgents(agentsResponse.data.agent_details);
                 setActiveRuns(activeRunsResponse.data);
                 setToolsUsed(toolsUsageResponse.data);
