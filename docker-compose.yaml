@@ -27,17 +27,17 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=/api
     networks:
       - super_network
-#    volumes:
-#      - ./gui:/app
-#      - /app/node_modules/
-#      - /app/.next/
+  #    volumes:
+  #      - ./gui:/app
+  #      - /app/node_modules/
+  #      - /app/.next/
   super__redis:
     image: "redis/redis-stack-server:latest"
     networks:
       - super_network
-#    uncomment to expose redis port to host
-#    ports:
-#      - "6379:6379"
+    #    uncomment to expose redis port to host
+    #    ports:
+    #      - "6379:6379"
     volumes:
       - redis_data:/data
 
@@ -51,9 +51,10 @@ services:
       - superagi_postgres_data:/var/lib/postgresql/data/
     networks:
       - super_network
-#    uncomment to expose postgres port to host
-#    ports:
-#      - "5432:5432"
+  #    uncomment to expose postgres port to host
+  #    ports:
+  #      - "5432:5432"
+
   proxy:
     image: nginx:stable-alpine
     ports:
