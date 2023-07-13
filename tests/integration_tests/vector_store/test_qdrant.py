@@ -6,10 +6,12 @@ from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from qdrant_client.models import Distance, VectorParams
 from qdrant_client import QdrantClient
 
+
 @pytest.fixture
 def client():
     client = QdrantClient(":memory:")
     yield client
+
 
 @pytest.fixture
 def mock_openai_embedding(monkeypatch):
@@ -19,6 +21,7 @@ def mock_openai_embedding(monkeypatch):
         lambda self, text: np.random.random(3).tolist(),
     )
 
+
 @pytest.fixture
 def store(client, mock_openai_embedding):
     client.create_collection(
@@ -27,6 +30,7 @@ def store(client, mock_openai_embedding):
     )
     yield qdrant.Qdrant(client, OpenAiEmbedding(api_key="test_api_key"), "Test_collection")
     client.delete_collection("Test_collection")
+
 
 def test_add_texts(store):
     car_companies = [
@@ -43,6 +47,7 @@ def test_add_texts(store):
     ]
     assert len(store.add_texts(car_companies)) == len(car_companies)
 
+
 def test_get_matching_text(store):
     car_companies = [
         "Rolls-Royce",
@@ -57,4 +62,4 @@ def test_get_matching_text(store):
         "Mercedes-Benz"
     ]
     store.add_texts(car_companies)
-    assert len(store.get_matching_text(k=2,text="McLaren")) == 2
+    assert len(store.get_matching_text(k=2, text="McLaren")) == 2

@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Sequence, Union
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from qdrant_client.conversions import common_types
+from qdrant_client.models import Distance, VectorParams
 
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
@@ -15,11 +16,13 @@ from superagi.config.config import get_config
 DictFilter = Dict[str, Union[str, int, bool, dict, list]]
 MetadataFilter = Union[DictFilter, common_types.Filter]
 
+
 def create_qdrant_client(
 ) -> QdrantClient:
     qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
     qdrant_port = get_config("QDRANT_PORT") or 6333
     return QdrantClient(host=qdrant_host_name, port=qdrant_port)
+
 
 class Qdrant(VectorStore):
     """
@@ -36,12 +39,12 @@ class Qdrant(VectorStore):
     METADATA_KEY = "metadata"
 
     def __init__(
-        self,
-        client: QdrantClient,
-        embedding_model: Any,
-        collection_name: str,
-        text_field_payload_key: str = TEXT_FIELD_KEY,
-        metadata_payload_key: str = METADATA_KEY,
+            self,
+            client: QdrantClient,
+            embedding_model: Any,
+            collection_name: str,
+            text_field_payload_key: str = TEXT_FIELD_KEY,
+            metadata_payload_key: str = METADATA_KEY,
     ):
         self.client = client
         self.embedding_model = embedding_model
@@ -115,7 +118,7 @@ class Qdrant(VectorStore):
             embedding: Embedding vector to look up documents similar to.
             k: Number of Documents to return.
             text : The text to search.
-            filter: Filter by metadata.
+            filter: Filter by metadata. (Please refer https://qdrant.tech/documentation/concepts/filtering/)
             search_params: Additional search params
             offset: Offset of the first result to return.
             score_threshold: Define a minimal score threshold for the result.
@@ -205,3 +208,23 @@ class Qdrant(VectorStore):
             )
 
         return documents
+
+    @classmethod
+    def create_collection(cls,
+                          client: QdrantClient,
+                          collection_name: str,
+                          vector_params: VectorParams = VectorParams(size=1536, distance=Distance.COSINE)
+                          ):
+        """
+        Create a new collection in Qdrant if it does not exist.
+
+        Args:
+            client : The Qdrant client.
+            collection_name: The name of the collection to create.
+            vector_params: The vector parameters for the new collection.
+        """
+        if not any(collection.name == collection_name for collection in client.get_collections().collections):
+            client.create_collection(
+                collection_name=collection_name,
+                vectors_config=vector_params,
+            )
