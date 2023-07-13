@@ -224,7 +224,6 @@ class Qdrant(VectorStore):
             size: The size for the new collection.
         """
         if not any(collection.name == collection_name for collection in client.get_collections().collections):
-            print("here")
             client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=size, distance=Distance.COSINE),
