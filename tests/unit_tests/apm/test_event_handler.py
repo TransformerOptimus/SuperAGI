@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from superagi.models.events import Event
 from unittest.mock import MagicMock
 
-from event_handler import EventHandler
+from superagi.apm.event_handler import EventHandler
 
 @pytest.fixture
 def mock_session():

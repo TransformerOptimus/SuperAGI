@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 
-from tools_handler import ToolsHandler
+from superagi.apm.tools_handler import ToolsHandler
 
 @pytest.fixture
 def mock_session():
