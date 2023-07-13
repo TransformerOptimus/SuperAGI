@@ -291,22 +291,16 @@ export default function KnowledgeTemplate({template, env}) {
             </div>
           </div>
           <div className="col-9" style={{paddingLeft: '8px'}}>
-            <div className={styles2.left_container} style={{marginBottom: '8px'}}>
-              <div className={styles2.markdown_container}>
-                {markdownContent && markdownContent !== '' ? <ReactMarkdown
-                    className={styles2.markdown_style}>{markdownContent}</ReactMarkdown> :
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginTop: '40px',
-                    width: '100%'
-                  }}>
-                    <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-                    <span className={styles1.feed_title} style={{marginTop: '8px'}}>No Overview to display!</span>
-                  </div>
-                }
+            <div style={{overflowY: 'scroll', height: '84vh'}}>
+              <div className={styles2.left_container}
+                   style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
+                <span className={styles2.description_text}>Introduction</span><br/>
+                <span className={styles2.sub_text}>{template.introduction}</span>
+              </div>
+              <div className={styles2.left_container}
+                   style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
+                <span className={styles2.description_text}>Use cases</span><br/>
+                <span className={styles2.sub_text}>{template.use_cases}</span>
               </div>
             </div>
           </div>
