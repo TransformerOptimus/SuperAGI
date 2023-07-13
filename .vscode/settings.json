@@ -1,0 +1,17 @@
+{
+    "DockerRun.DisableDockerrc": true,
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "*test*.py"
+], "cSpell.words": ["DONT", "googleapis", "IMAP", "OPENAI", "QDRANT", "SERP", "storywriter", "superagi", "Tarmey", "WEAVIATE" ]}
