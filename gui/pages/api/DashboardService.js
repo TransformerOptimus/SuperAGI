@@ -144,6 +144,10 @@ export const fetchToolTemplateList = () => {
   return api.get(`/toolkits/get/list?page=0`);
 }
 
+export const fetchKnowledgeTemplateList = () => {
+  return api.get(`/knowledge/get/list?page=0`);
+}
+
 export const fetchToolTemplateOverview = (toolTemplateName) => {
   return api.get(`/toolkits/marketplace/readme/${toolTemplateName}`);
 }
@@ -176,4 +180,66 @@ export const getDateTime = (agentId) => {
   return api.get(`/agents/get/schedule_data/${agentId}`);
 }
 
+export const fetchVectorDBList = () => {
+  return api.get(`/vector_db/get/list`);
+}
 
+export const getVectorDatabases = () => {
+  return api.get(`/vector_db/user/list`);
+}
+
+export const getVectorDBDetails = (vectorDBId) => {
+  return api.get(`/vector_db/get/db/details/${vectorDBId}`);
+}
+
+export const deleteVectorDB = (vectorDBId) => {
+  return api.post(`/vector_db/delete/${vectorDBId}`);
+}
+
+export const updateVectorDB = (vectorDBId, newIndices) => {
+  return api.put(`/vector_db/update/vector_db/${vectorDBId}`, newIndices);
+}
+
+export const connectPinecone = (pineconeData) => {
+  return api.post(`/vector_db/connect/pinecone`, pineconeData);
+}
+
+export const connectQdrant = (qdrantData) => {
+  return api.post(`/vector_db/connect/qdrant`, qdrantData);
+}
+
+export const getKnowledge = () => {
+  return api.get(`/knowledge/user/list`);
+}
+
+export const getKnowledgeDetails = (knowledgeId) => {
+  return api.get(`/knowledge/user/get/details/${knowledgeId}`);
+}
+
+export const deleteCustomKnowledge = (knowledgeId) => {
+  return api.post(`/knowledge/delete/${knowledgeId}`);
+}
+
+export const deleteMarketplaceKnowledge = (knowledgeName) => {
+  return api.post(`/knowledge/uninstall/${knowledgeName}`);
+}
+
+export const addUpdateKnowledge = (knowledgeData) => {
+  return api.post(`/knowledge/add_or_update/data`, knowledgeData);
+}
+
+export const getValidIndices = () => {
+  return api.get(`/vector_index/get/user/valid_indices`);
+}
+
+export const getValidMarketplaceIndices = (knowledgeName) => {
+  return api.get(`/vector_index/get/marketplace/valid_indices/${knowledgeName}`);
+}
+
+export const fetchKnowledgeTemplateOverview = (knowledgeName) => {
+  return api.get(`/knowledge/marketplace/get/details/${knowledgeName}`);
+}
+
+export const installKnowledgeTemplate = (knowledgeName, indexId) => {
+  return api.get(`/knowledge/install/${knowledgeName}/index/${indexId}`);
+}
