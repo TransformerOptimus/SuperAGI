@@ -32,6 +32,7 @@ from superagi.vector_store.base import VectorStore
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
 from superagi.config.config import get_config
+from superagi.apm.event_handler import EventHandler
 import os
 from superagi.lib.logger import logger
 
@@ -233,13 +234,17 @@ class SuperAgi:
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         action_name = action.name.lower().replace(" ", "")
+        agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
+        organisation = agent.get_agent_organisation(session)
         if action_name == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             return output
         if action_name in tools:
             tool = tools[action_name]
             retry = False
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             try:
                 parsed_args = self.clean_tool_args(action.args)
                 observation = tool.execute(parsed_args)

@@ -4,6 +4,7 @@ import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
+import ApmDashboard from "../Content/APM/ApmDashboard";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
@@ -219,11 +220,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   }, []);
 
   return (<>
-      <div style={{display: 'flex', height: '100%'}}>
-        <div className={styles.item_list} style={selectedView === '' ? {width: '0vw'} : {width: '13vw'}}>
-          {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-          {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
-        </div>
+        <div style={{display:'flex',height:'100%'}}>
+          {(selectedView === 'agents' || selectedView === 'toolkits') && <div className={styles.item_list} style={{width:'13vw'}}>
+            {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+          </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
           width: '93.5vw',
@@ -271,9 +272,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               </div>
             </div>
           </div>
-        </div> : <div className={styles.main_workspace}
-                      style={selectedView === '' ? {width: '93.5vw', paddingLeft: '10px'} : {width: '80.5vw'}}>
-          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        </div> : <div className={styles.main_workspace} style={{paddingLeft:'10px'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (
                 <div data-tab-id={index} key={index}
@@ -294,6 +294,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {tab.contentType === 'Marketplace' &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg"
                                                                 alt="marketplace-icon"/></div>}
+                    {tab.contentType === 'APM' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/apm.svg" alt="apm-icon"/></div>}
                     <div style={{marginLeft: '8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                   </div>
                   <div onClick={(e) => {
@@ -306,11 +307,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               ))}
             </div>
           </div>
-          <div className={styles.tab_detail}
-               style={tabs.length > 0 ? {backgroundColor: '#2F2C40', overflowX: 'hidden'} : {}}>
-            <div style={{padding: '0 5px 5px 5px'}}>
+          <div className={styles.tab_detail} style={tabs.length > 0 ? {backgroundColor:'#2F2C40',overflowX:'hidden'} : {}}>
+            <div style={{padding:'0 5px 5px 5px'}}>
               {tabs.map((tab, index) => (
-                <div key={index}>
+                  <div key={index}>
                   {selectedTab === index && <div>
                     {tab.contentType === 'Agents' &&
                       <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} selectedView={selectedView}
@@ -324,6 +324,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                    {tab.contentType === 'APM' && <ApmDashboard />}
                   </div>}
                 </div>
               ))}
