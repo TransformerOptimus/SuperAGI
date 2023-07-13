@@ -254,7 +254,7 @@ export default function AgentCreate({sendAgentData, knowledge, selectedProjectId
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
-    if (models[index] == "google-palm-bison-001") {
+    if (models[index] === "google-palm-bison-001") {
       setAgentType("Action Based")
     }
     setModelDropdown(false);
