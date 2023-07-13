@@ -85,6 +85,8 @@ class FileManager:
             return f"{file_name} - File written successfully"
         except Exception as err:
             return f"Error write_csv_file: {err}"
+        
+
     def get_agent_resource_path(self, file_name: str):
         return ResourceHelper.get_agent_write_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
                                                                                                      self.agent_id),
@@ -93,7 +95,7 @@ class FileManager:
                                                                                          self.agent_execution_id))
     def overwrite_file(self, file_name: str, content):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+            final_path = self.get_agent_resource_path(file_name, self.agent_id)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         try:
@@ -107,7 +109,7 @@ class FileManager:
             return f"Error: {err}"
     def read_file(self, file_name: str):
         if self.agent_id is not None:
-            final_path = ResourceHelper.get_agent_resource_path(file_name, self.agent_id)
+            final_path = self.get_agent_resource_path(file_name, self.agent_id)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         try:
@@ -124,7 +126,7 @@ class FileManager:
                 A list of file names.
             """
             if self.agent_id is not None:
-                final_path = ResourceHelper.get_agent_resource_path("", self.agent_id)
+                final_path = self.get_agent_resource_path("", self.agent_id)
             else:
                 final_path = ResourceHelper.get_resource_path("")
             try:
