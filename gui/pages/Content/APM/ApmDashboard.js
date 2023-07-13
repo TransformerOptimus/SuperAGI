@@ -66,6 +66,8 @@ export default function ApmDashboard() {
                 setAgentDetails(metricsResponse.data.agent_details);
                 setTokenDetails(metricsResponse.data.tokens_details);
                 setRunDetails(metricsResponse.data.run_details);
+                console.log("//////////////////////////////////////")
+                console.log(agentsResponse.data)
                 setAllAgents(agentsResponse.data.agent_details);
                 setActiveRuns(activeRunsResponse.data);
                 setToolsUsed(toolsUsageResponse.data);
@@ -130,7 +132,7 @@ export default function ApmDashboard() {
                     </div>
 
                     <div key="models_by_agents" className="display_column_container">
-                        <span className="text_14 mb_8">Models used by Agents</span>
+                        <span className="text_14 mb_8">Number of Agents per model</span>
                         {agentDetails.model_metrics && agentDetails.model_metrics.length > 0
                             ? <><BarGraph data={agentDetails.model_metrics} type="value" color="#3C7EFF"/>
                                 <div className="horizontal_container mt_10">
@@ -144,7 +146,7 @@ export default function ApmDashboard() {
                     </div>
 
                     <div key="runs_by_model" className="display_column_container">
-                        <span className="text_14 mb_8">Total runs by Models</span>
+                        <span className="text_14 mb_8">Number of Runs per Model</span>
                         {runDetails.model_metrics && runDetails.model_metrics.length > 0
                             ? <><BarGraph data={runDetails.model_metrics} type="value" color="#3C7EFF"/>
                             <div className="horizontal_container mt_10">
@@ -178,69 +180,78 @@ export default function ApmDashboard() {
                                 <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                 <span className="text_12 color_white mt_6">No Used Tools Found</span>
                             </div> : <div className="scrollable_container">
-                                <table className="table_css mt_10">
+                                <table className="table_css mt_10" style={{margin:0, padding:0}}>
                                     <thead>
                                     <tr style={{borderTop:'none'}}>
-                                        <th className="table_header">Tool</th>
-                                        <th className="table_header text_align_right">Agents <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right">Iterations</th>
+                                        <th className="table_header" style={{width:'58%'}}>Tool</th>
+                                        <th className="table_header text_align_right" style={{width:'21%'}}>Agents <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'21%'}}>Calls</th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-                                    {toolsUsed.map((tool, index) => (
-                                        <tr key={index}>
-                                            <td className="table_data" style={{width:'58%'}}>{tool.tool_name}</td>
-                                            <td className="table_data text_align_right" style={{width:'21%'}}>{tool.unique_agents}</td>
-                                            <td className="table_data text_align_right" style={{width:'21%'}}>{tool.total_usage}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
                                 </table>
+
+                                <div className="overflow_auto w_100">
+                                    <table className="table_css mt_10" style={{margin:0}}>
+                                        <tbody>
+                                        {toolsUsed.map((tool, index) => (
+                                            <tr key={index}>
+                                                <td className="table_data" style={{width:'58%'}}>{tool.tool_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'21%'}}>{tool.unique_agents}</td>
+                                                <td className="table_data text_align_right" style={{width:'21%'}}>{tool.total_usage}</td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>}
                     </div>
 
                     <div key="agent_details" className="display_column_container">
-                        <span className="text_14 mb_8">Agent Details</span>
+                        <span className="text_14 mb_8">Agent Overview</span>
                         {allAgents.length === 0 ?
                             <div className="vertical_container align_center mt_50 w_100">
                                 <img src="/images/no_permissions.svg" width={300} height={120} alt="No Data"/>
                                 <span className="text_12 color_white mt_6">{selectedAgent === 'Select an Agent' ? 'Please Select an Agent' : <React.Fragment>No Runs found for <b>{selectedAgent}</b></React.Fragment>}</span>
                             </div> : <div className="scrollable_container mt_16">
-                                <table className="table_css mt_10">
+                                <table className="table_css mt_10" style={{margin:0, padding:0}}>
                                     <thead>
                                     <tr style={{borderTop:'none'}}>
-                                        <th className="table_header">Agent Name</th>
-                                        <th className="table_header text_align_right">Model <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right">Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right">Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right">Avg tokens per run <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right">Tools <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right">Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header" style={{width:'20%'}}>Agent Name</th>
+                                        <th className="table_header text_align_right" style={{width:'10%'}}>Model <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'10%'}}>Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'10%'}}>Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'10%'}}>Avg tokens per run <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'20%'}}>Tools <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'10%'}}>Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'10%'}}>Avg Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-                                    {allAgents.map((run, i) => (
-                                        <tr key={i}>
-                                            <td className="table_data" style={{width:'22%'}}>{run.name}</td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.model_name}</td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{formatNumber(run.total_tokens)}</td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed}</td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
-                                            <td className="table_data text_align_right" style={{width:'28%'}}>
-                                                {run.tools_used &&
-                                                    run.tools_used.slice(0, 2).map((tool,index) => (
-                                                        <div className="tools_used">{tool}</div>
-                                                    ))
-                                                }
-                                                {run.tools_used && run.tools_used.length > 2 &&
-                                                    <div className="tools_used">+{run.tools_used.length - 2}</div>
-                                                }
-                                            </td>
-                                            <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_calls}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
                                 </table>
+
+                                <div className="overflow_auto w_100">
+                                    <table className="table_css mt_10" style={{margin:0}}>
+                                        <tbody>
+                                        {allAgents.map((run, i) => (
+                                            <tr key={i}>
+                                                <td className="table_data" style={{width:'20%'}}>{run.name}</td>
+                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.model_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'10%'}}>{formatNumber(run.total_tokens)}</td>
+                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed}</td>
+                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
+                                                <td className="table_data text_align_right" style={{width:'20%'}}>
+                                                    {run.tools_used &&
+                                                        run.tools_used.slice(0, 3).map((tool,index) => (
+                                                            <div className="tools_used">{tool}</div>))}
+                                                    {run.tools_used && run.tools_used.length > 2 &&
+                                                        <div className="tools_used">+{run.tools_used.length - 2}</div>
+                                                    }
+                                                </td>
+                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_calls}</td>
+                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.avg_run_time === 0 ? '-' : `${parseFloat((run.avg_run_time/60).toFixed(1))} mins`}</td>
+                                            </tr>))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>}
                     </div>
                     <div key="active_runs" className="display_column_container">
@@ -260,7 +271,7 @@ export default function ApmDashboard() {
                     </div>
                     <div key="total_tokens_consumed" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
-                            <span className="text_14 mb_8">Total Tokens Consumed by Runs</span>
+                            <span className="text_14 mb_8">Tokens Consumed by Runs</span>
                             <div style={{position:'relative',display:'flex',flexDirection:'column'}}>
                                 {allAgents.length > 0 && <div>
                                     <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown2(!dropdown2)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg" /></div>
@@ -285,7 +296,7 @@ export default function ApmDashboard() {
 
                     <div key="total_calls_made" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
-                            <span className="text_14 mb_8">Total Calls Made by Runs</span>
+                            <span className="text_14 mb_8">Calls Made by Runs</span>
                             <div className="vertical_container position_relative">
                                 {allAgents.length > 0 && <div>
                                     <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown1(!dropdown1)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg" /></div>
@@ -309,7 +320,7 @@ export default function ApmDashboard() {
                     </div>
                     <div key="tokens_consumed_per_call" className="display_column_container">
                         <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%'}}>
-                            <span className="text_14 mb_8">Tokens consumed per call</span>
+                            <span className="text_14 mb_8">Average Tokens consumed in all calls per run </span>
                             <div className="vertical_container position_relative">
                                 {allAgents.length > 0 && <div>
                                     <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown3(!dropdown3)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg" /></div>

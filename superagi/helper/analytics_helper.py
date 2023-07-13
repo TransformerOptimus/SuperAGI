@@ -3,20 +3,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.query import Query
 from superagi.models.events import Event
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import text, func
+from sqlalchemy import text, func, Integer
+from collections import defaultdict
 import logging
 
 class AnalyticsHelper:
 
     def __init__(self, session: Session):
         self.session = session
-
-    def _run_query(self, query: Query) -> Iterator:
-         try:
-            return iter(query.yield_per(100).all())
-         except SQLAlchemyError as err:
-            logging.error(f"Database error: {str(err)}")
-            return iter([])
 
     def create_event(self, event_name: str, event_value: int, json_property: dict, agent_id: int, org_id: int) -> Optional[Event]:
         try:
@@ -96,6 +90,25 @@ class AnalyticsHelper:
             func.array_agg(Event.json_property['tool_name'].distinct()).label('tools_used'),
         ).filter_by(event_name="tool_used").group_by(Event.agent_id).subquery()
 
+        runs = self.session.query(
+            Event.agent_id,
+            Event.json_property['agent_execution_id'],
+            Event.created_at, Event.event_name
+        ).filter(Event.event_name.in_(["run_created", "run_completed"])).all()
+
+        run_times = defaultdict(lambda: defaultdict(list))
+        for agent_id, agent_execution_id, timestamp, event_name in runs:
+            run_times[agent_id][agent_execution_id].append((event_name, timestamp))
+
+        avg_run_times = defaultdict(list)
+        for agent_id, events in run_times.items():
+            for agent_execution_id, agent_events in events.items():
+                if 'run_created' in [event_name for event_name, _ in agent_events] and \
+                    'run_completed' in [event_name for event_name, _ in agent_events]:
+                    run_created_time = next(time for event_name, time in agent_events if event_name == 'run_created')
+                    run_completed_time = next(time for event_name, time in agent_events if event_name == 'run_completed')
+                    avg_run_times[agent_id].append((run_completed_time - run_created_time).total_seconds())
+
         query = self.session.query(
             agent_subquery.c.agent_id,
             agent_subquery.c.agent_name,
@@ -112,11 +125,12 @@ class AnalyticsHelper:
         agent_details = [{
             "name": row.agent_name,
             "agent_id": row.agent_id,
-            "runs_completed": row.runs_completed if row.runs_completed else 0,
-            "total_calls": row.total_calls if row.total_calls else 0,
-            "total_tokens": row.total_tokens if row.total_tokens else 0,
-            "tools_used": row.tools_used if row.tools_used else [],
-            "model_name": row.model if row.model else "",
+            "runs_completed": row.runs_completed,
+            "total_calls": row.total_calls,
+            "total_tokens": row.total_tokens,
+            "tools_used": row.tools_used,
+            "model_name": row.model,
+            "avg_run_time": sum(avg_run_times[row.agent_id]) / len(avg_run_times[row.agent_id]) if avg_run_times[row.agent_id] else 0
         } for row in result]
 
         return {'agent_details': agent_details}

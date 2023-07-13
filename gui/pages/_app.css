@@ -726,6 +726,7 @@ p {
 .text_align_right{text-align: right}
 .position_relative{position: relative}
 .cursor_pointer{cursor: pointer}
+.overflow_auto{overflow: auto}
 
 .gap_8{gap:8px;}
 .gap_4{gap:4px;}
