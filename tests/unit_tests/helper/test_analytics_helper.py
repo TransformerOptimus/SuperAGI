@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text, func
 from superagi.models.events import Event
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 from sqlalchemy.orm import Session
 
 @pytest.fixture

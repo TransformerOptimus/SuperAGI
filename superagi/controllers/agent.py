@@ -33,7 +33,7 @@ from superagi.models.toolkit import Toolkit
 from sqlalchemy import func
 # from superagi.types.db import AgentOut, AgentIn
 from superagi.helper.auth import check_auth, get_user_organisation
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 
 router = APIRouter()
 
