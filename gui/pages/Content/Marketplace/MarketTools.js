@@ -13,7 +13,7 @@ export default function MarketTools(){
   const [loadingText, setLoadingText] = useState("Loading Toolkits");
 
   useEffect(() => {
-    loadingTextEffect('Loading Templates', setLoadingText, 500);
+    loadingTextEffect('Loading Toolkits', setLoadingText, 500);
 
     if(window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);

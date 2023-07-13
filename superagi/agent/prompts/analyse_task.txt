@@ -18,9 +18,9 @@ TOOLS:
 RESPONSE FORMAT:
 {
     "thoughts": {
-        "reasoning": "reasoning"
+        "reasoning": "short reasoning"
     },
-    "tool": {"name": "tool name", "args": {"arg name": "string value"}}
+    "tool": {"name": "tool name", "args": {"arg name": "arg value(escape in case of string)"}}
 }
 
 Your answer must be something that JSON.parse() can read, and nothing else.

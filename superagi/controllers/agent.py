@@ -177,7 +177,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
             - model (str): Model information for the agent.
             - permission_type (str): Permission type for the agent.
             - LTM_DB (str): LTM database for the agent.
-            - memory_window (int): Memory window size for the agent.
             - max_iterations (int): Maximum number of iterations for the agent.
             - user_timezone (string): Timezone of the user
 

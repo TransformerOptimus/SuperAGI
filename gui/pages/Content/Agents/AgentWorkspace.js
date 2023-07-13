@@ -259,7 +259,7 @@ export default function AgentWorkspace({agentId, selectedView, agentName}) {
             <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('activity_feed')} className={styles.tab_button} style={leftPanel === 'activity_feed' ? {background:'#454254'} : {background:'transparent'}}>Activity Feed</button>
             </div>
-            {agentDetails && agentDetails.agent_type === 'Maintain Task Queue' && <div style={{marginLeft:'7px'}}>
+            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type == "Action Based")  && <div style={{marginLeft:'7px'}}>
               <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button} style={leftPanel === 'agent_type' ? {background:'#454254'} : {background:'transparent'}}>Task Queue</button>
             </div>}
           </div>
@@ -327,7 +327,7 @@ export default function AgentWorkspace({agentId, selectedView, agentName}) {
               </div>
           )}
           {rightPanel === 'details' && <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals} instructions={currentInstructions} runCount={agentExecutions?.length || 0}/></div>}
-          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId}/></div>}
+          {rightPanel === 'resource_manager' && <div className={styles.detail_content}><ResourceManager agentId={agentId} runs={agentExecutions}/></div>}
         </div>
       </div>
 
