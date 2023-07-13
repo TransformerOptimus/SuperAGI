@@ -134,11 +134,13 @@ def update_agent_template(agent_template_id: int,
 
     for key, value in agent_configs.items():
         agent_template_config = db.session.query(AgentTemplateConfig).filter(
-            AgentTemplateConfig.agent_template_id == agent_template_id, AgentTemplateConfig.key == key).first()
+            AgentTemplateConfig.agent_template_id == agent_template_id, 
+            AgentTemplateConfig.key == key).first()
         if agent_template_config is None:
-            # create the template config
             agent_template_config = AgentTemplateConfig(agent_template_id=agent_template_id, key=key)
-        agent_template_config.value = value["value"]
+        
+        agent_template_config.value = value
+
         db.session.add(agent_template_config)
     db.session.commit()
 
