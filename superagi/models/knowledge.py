@@ -75,7 +75,7 @@ class Knowledge(DBBaseModel):
     def get_knowledge_installed_details(cls, session, marketplace_knowledges, organisation):
         installed_knowledges = session.query(Knowledge).filter(Knowledge.organisation_id == organisation.id).all()
         for knowledge in marketplace_knowledges:
-            if knowledge['name'] in [installed_knowledges.name for installed_knowledge in installed_knowledges]:
+            if knowledge['name'] in [installed_knowledge.name for installed_knowledge in installed_knowledges]:
                 knowledge["is_installed"] = True
             else:
                 knowledge["is_installed"] = False
