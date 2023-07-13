@@ -113,3 +113,7 @@ ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 ## To use chroma for vector store in resources manager
 #CHROMA_HOST_NAME: YOUR_CHROMA_HOST_NAME
 #CHROMA_PORT: YOUR_CHROMA_PORT
+
+## To use Qdrant for vector store
+#QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
+#QDRANT_PORT: YOUR_QDRANT_PORT
