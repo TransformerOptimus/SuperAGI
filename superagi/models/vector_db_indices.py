@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
 
 
-class VectorIndexCollection(DBBaseModel):
+class VectordbIndices(DBBaseModel):
     """
     Represents an vector db index.
     Attributes:
@@ -15,7 +15,7 @@ class VectorIndexCollection(DBBaseModel):
         vector_db_id (int): The identifier of the associated vector db.
     """
 
-    __tablename__ = 'vector_db_index_collection'
+    __tablename__ = 'vector_db_indices'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -29,4 +29,4 @@ class VectorIndexCollection(DBBaseModel):
         Returns:
             str: String representation of the Vector db index.
         """
-        return f"VectorDBIndexCollection(id={self.id}, name='{self.name}', vector_db_id={self.vector_db_id}, dimensions={self.dimensions}, state={self.state})"
+        return f"VectordbIndices(id={self.id}, name='{self.name}', vector_db_id={self.vector_db_id}, dimensions={self.dimensions}, state={self.state})"

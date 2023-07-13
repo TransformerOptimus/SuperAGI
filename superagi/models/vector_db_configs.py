@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, Text, String
 from superagi.models.base_model import DBBaseModel
 
 
-class VectordbConfig(DBBaseModel):
+class VectordbConfigs(DBBaseModel):
     """
     Vector db related configurations like api_key, environment, and url are stored here
     Attributes:

@@ -9,7 +9,7 @@ from superagi.models.base_model import DBBaseModel
 #marketplace_url = "https://app.superagi.com/api"
 marketplace_url = "http://localhost:3000/api"
 
-class Vectordb(DBBaseModel):
+class Vectordbs(DBBaseModel):
     """
     Represents an vector db entity.
     Attributes:

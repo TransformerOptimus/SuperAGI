@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, Text, String
 from superagi.models.base_model import DBBaseModel
 
 
-class KnowledgeConfig(DBBaseModel):
+class KnowledgeConfigs(DBBaseModel):
     """
     Knowledge related configurations such as model, data_type, tokenizer, chunk_size, chunk_overlap, text_splitter, etc. are stored here.
     Attributes:
