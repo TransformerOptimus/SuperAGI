@@ -13,6 +13,6 @@ class InstagramToolkit(BaseToolkit, ABC):
     def get_env_keys(self) -> List[str]:
         return [
             "META_USER_ACCESS_TOKEN",
-            "INSTAGRAM_BUSINESS_ACCOUNT_ID"
+            "FACEBOOK_PAGE_ID"
             # Add more config keys specific to your project
         ]
