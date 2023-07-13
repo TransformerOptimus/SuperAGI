@@ -41,7 +41,9 @@ class ResourceHelper:
         file_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
 
         logger.info(final_path)
-        resource = Resource(name=file_name, path="resources" + file_path, storage_type=storage_type.value,
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE")) == StorageType.S3:
+            file_path = "resources" + file_path
+        resource = Resource(name=file_name, path=file_path, storage_type=storage_type.value,
                             size=file_size,
                             type=file_type,
                             channel="OUTPUT",
