@@ -97,3 +97,17 @@ class OpenAi(BaseLlm):
             size=f"{size}x{size}"
         )
         return response
+
+    def summarize_conversation(self, request, max_tokens=800):
+        try:
+            response = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=request,
+                max_tokens=max_tokens,
+                temperature=0
+            )
+            content = response.choices[0].text
+            return {"response": response, "content": content}
+        except Exception as exception:
+            print("Exception:", exception)
+            return {"error": exception}
