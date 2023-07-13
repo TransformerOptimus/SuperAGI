@@ -104,19 +104,19 @@ export const updateToolConfig = (toolKitName, configData) => {
   return api.post(`/tool_configs/add/${toolKitName}`, configData);
 }
 
-export const fetchAgentTemplateListLocal = () => {	
-  return api.get('/agent_templates/list?template_source=local');	
+export const fetchAgentTemplateListLocal = () => {
+  return api.get('/agent_templates/list?template_source=local');
 }
 
-export const saveAgentAsTemplate = (agentId) => {	
+export const saveAgentAsTemplate = (agentId) => {
   return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
 }
 
-export const fetchAgentTemplateConfig = (templateId) => {	
+export const fetchAgentTemplateConfig = (templateId) => {
   return api.get(`/agent_templates/get/${templateId}?template_source=marketplace`);
 }
 
-export const installAgentTemplate = (templateId) => {	
+export const installAgentTemplate = (templateId) => {
   return api.post(`/agent_templates/download?agent_template_id=${templateId}`);
 }
 
@@ -168,11 +168,11 @@ export const agentScheduleComponent = (agentId) => {
   return api.get(`/agents/get/schedule_data/${agentId}`);
 }
 
-export const  updateSchedule= (requestData) => {
-  return api.put(`/agents/edit/schedule`,requestData);
+export const updateSchedule = (requestData) => {
+  return api.put(`/agents/edit/schedule`, requestData);
 }
 
-export const  getDateTime = (agentId) => {
+export const getDateTime = (agentId) => {
   return api.get(`/agents/get/schedule_data/${agentId}`);
 }
 

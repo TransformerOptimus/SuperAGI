@@ -15,19 +15,19 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [scheduleTime, setScheduleTime] = useState(null);
 
   useEffect(() => {
-    const interval = window.setInterval(function(){
-        fetchFeeds();
+    const interval = window.setInterval(function () {
+      fetchFeeds();
     }, 10000);
 
     return () => clearInterval(interval);
   }, [selectedRunId]);
 
-  function fetchDateTime(){
+  function fetchDateTime() {
     getDateTime(agent.id)
       .then((response) => {
         const {start_date, start_time} = response.data;
-          setScheduleDate(start_date);
-          setScheduleTime(start_time);
+        setScheduleDate(start_date);
+        setScheduleTime(start_time);
       })
       .catch((error) => {
         console.error('Error fetching agent data:', error);
@@ -46,8 +46,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     if (feeds.length !== prevFeedsLength) {
       if (feedContainerRef.current) {
         setTimeout(() => {
-          if(feedContainerRef.current !== null) {
-            feedContainerRef.current.scrollTo({ top: feedContainerRef.current.scrollHeight, behavior: 'smooth' });
+          if (feedContainerRef.current !== null) {
+            feedContainerRef.current.scrollTo({top: feedContainerRef.current.scrollHeight, behavior: 'smooth'});
             setPrevFeedsLength(feeds.length);
           }
         }, 100);
@@ -58,7 +58,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   function scrollToTop() {
     if (feedContainerRef.current) {
       setTimeout(() => {
-        feedContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        feedContainerRef.current.scrollTo({top: 0, behavior: 'smooth'});
       }, 100);
     }
   }
@@ -87,12 +87,12 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   useEffect(() => {
     const updateRunStatus = (eventData) => {
-      if(eventData.selectedRunId === selectedRunId) {
+      if (eventData.selectedRunId === selectedRunId) {
         setRunStatus(eventData.status);
       }
     };
     const refreshDate = () => {
-        fetchDateTime();
+      fetchDateTime();
     };
 
     EventBus.on('updateRunStatus', updateRunStatus);
@@ -105,17 +105,18 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   });
 
   return (<>
-    <div style={{overflowY: "auto",maxHeight:'80vh',position:'relative'}} ref={feedContainerRef}>
-      <div style={{marginBottom:'55px'}}>
+    <div style={{overflowY: "auto", maxHeight: '80vh', position: 'relative'}} ref={feedContainerRef}>
+      <div style={{marginBottom: '55px'}}>
         {agent.is_scheduled && !agent.is_running && !selectedRunId ?
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <Image width={72} height={72} src="/images/eventSchedule.png" alt="github" />
-            <div style={{ color: 'white', fontSize: '14px' }} >
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
+            <Image width={72} height={72} src="/images/eventSchedule.png" alt="github"/>
+            <div style={{color: 'white', fontSize: '14px'}}>
               This agent is scheduled to start on {scheduleDate}, at {scheduleTime}
             </div>
           </div> : <div>
-            {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background:'#272335',padding:'20px',cursor:'default'}}>
-              <div style={{display:'flex'}}>
+            {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box}
+                                                    style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div style={{display: 'flex'}}>
                 {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
                 {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
                 {f.role === 'assistant' && <div className={styles.feed_icon}>💡</div>}
@@ -134,36 +135,47 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 </div>}
               </div>
             </div>))}
-            {runStatus === 'RUNNING' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-              <div style={{display: 'flex'}}>
-                <div style={{fontSize: '20px'}}>🧠</div>
-                <div className={styles.feed_title}><i>{loadingText}</i></div>
-              </div>
-            </div>}
-            {runStatus === 'COMPLETED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-              <div style={{display: 'flex'}}>
-                <div style={{fontSize: '20px'}}>🏁</div>
-                <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
-              </div>
-            </div>}
-            {runStatus === 'ITERATION_LIMIT_EXCEEDED' && <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
-              <div style={{display: 'flex'}}>
-                <div style={{fontSize: '20px'}}>⚠️</div>
-                <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
-              </div>
-            </div>}
+            {runStatus === 'RUNNING' &&
+              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+                <div style={{display: 'flex'}}>
+                  <div style={{fontSize: '20px'}}>🧠</div>
+                  <div className={styles.feed_title}><i>{loadingText}</i></div>
+                </div>
+              </div>}
+            {runStatus === 'COMPLETED' &&
+              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+                <div style={{display: 'flex'}}>
+                  <div style={{fontSize: '20px'}}>🏁</div>
+                  <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
+                </div>
+              </div>}
+            {runStatus === 'ITERATION_LIMIT_EXCEEDED' &&
+              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+                <div style={{display: 'flex'}}>
+                  <div style={{fontSize: '20px'}}>⚠️</div>
+                  <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
+                </div>
+              </div>}
           </div>
         }
-        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 && 
-          <div style={{ color:'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
+        {!agent.is_scheduled && !agent.is_running && feeds.length < 1 &&
+          <div style={{
+            color: 'white',
+            fontSize: '14px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center'
+          }}>
             The Agent is not scheduled
           </div>
         }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&
-          <div className="back_to_top" onClick={scrollToTop} style={selectedView !== '' ? {right:'calc(39% - 5vw)'} : {right:'39%'}}>
-            <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
-          </div>}
+        <div className="back_to_top" onClick={scrollToTop}
+             style={selectedView !== '' ? {right: 'calc(39% - 5vw)'} : {right: '39%'}}>
+          <Image width={15} height={15} src="/images/backtotop.svg" alt="back-to-top"/>
+        </div>}
     </div>
   </>)
 }
