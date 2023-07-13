@@ -89,7 +89,6 @@ export default function ApmDashboard() {
                 console.log(`Error in fetching data: ${error}`);
             }
         }
-
         fetchData();
         const interval = setInterval(fetchData, 10000);
         return () => clearInterval(interval);
