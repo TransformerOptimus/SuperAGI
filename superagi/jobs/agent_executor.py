@@ -184,11 +184,11 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
-            else:
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
+            elif parsed_config["LTM_DB"] == "LanceDB":
+                memory = VectorFactory.get_vector_storage(VectorStoreType.LANCEDB, "super-agent-index1",
                                                           OpenAiEmbedding(model_api_key))
         except:
-            logger.info("Unable to setup the pinecone connection...")
+            logger.info("Unable to setup the connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
@@ -218,7 +218,7 @@ class AgentExecutor:
 
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
-        
+
         try:
             response = spawned_agent.execute(agent_workflow_step)
         except RuntimeError as e:
