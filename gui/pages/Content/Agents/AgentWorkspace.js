@@ -222,7 +222,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   }
 
   function fetchExecutionDetails(executionId) {
-    getExecutionDetails(executionId)
+    getExecutionDetails(executionId || -1,agentId)
       .then((response) => {
         setGoals(response.data.goal);
         setCurrentGoals(response.data.goal);
