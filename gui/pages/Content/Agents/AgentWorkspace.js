@@ -12,7 +12,7 @@ import ResourceManager from "./ResourceManager";
 import {getAgentDetails, getAgentExecutions, updateExecution, addExecution, getExecutionDetails, saveAgentAsTemplate, deleteAgent, updateAgents} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentWorkspace({agentId, selectedView, agentName}) {
+export default function AgentWorkspace({agentId, selectedView, agentName, agentInternalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -122,15 +122,21 @@ export default function AgentWorkspace({agentId, selectedView, agentName}) {
     deleteAgent(agentId)
       .then((response) => {
         setDeleteModal(false);
-        EventBus.emit('reFetchAgents', {});
-        EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents"})
-        toast.success("Agent Deleted Successfully", {autoClose: 1800});
+        console.log(response);
+        if (response.status === 200) {
+          EventBus.emit('reFetchAgents', {});
+          EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents", internalId: agentInternalId})
+          toast.success("Agent Deleted Successfully", {autoClose: 1800});
+        }
+        else{
+          toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        }
       })
       .catch((error) => {
         setDeleteModal(false);
-        toast.error("Agent Could not be Deleted", {autoClose: 1800});
-        console.error("Agent could not be deleted: ", error)
-      })
+        toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        console.error("Agent could not be deleted: ", error);
+      });
   }
   const closeRunModal = () => {
     setRunName("New Run");

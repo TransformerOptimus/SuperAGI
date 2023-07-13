@@ -1,8 +1,8 @@
-"""is_delete column is added in agents table
+"""delete_agent_feature
 
-Revision ID: 61257b93d83e
-Revises: 1d54db311055
-Create Date: 2023-06-28 15:26:43.626146
+Revision ID: 8bc7b3eaed55
+Revises: 467e85d5e1cd
+Create Date: 2023-07-13 12:39:28.781355
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '61257b93d83e'
-down_revision = 'ba60b12ae109'
+revision = '8bc7b3eaed55'
+down_revision = '467e85d5e1cd'
 branch_labels = None
 depends_on = None
 

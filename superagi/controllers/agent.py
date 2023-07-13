@@ -509,4 +509,3 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
             db_agent_execution.status = "TERMINATED"
     
     db.session.commit()
-    
