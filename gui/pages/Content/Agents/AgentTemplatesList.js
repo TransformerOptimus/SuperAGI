@@ -5,20 +5,20 @@ import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 import {setLocalStorageValue, openNewTab} from "@/utils/utils";
 
-export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId}){
+export default function AgentTemplatesList({sendAgentData, knowledge, selectedProjectId, fetchAgents, toolkits, organisationId, internalId, sendKnowledgeData}){
     const [agentTemplates, setAgentTemplates] = useState([])
     const [createAgentClicked, setCreateAgentClicked] = useState(false)
     const [sendTemplate, setSendTemplate] = useState(null)
 
     useEffect(() => {
         fetchAgentTemplateListLocal()
-            .then((response) => {
-                const data = response.data || [];
-                setAgentTemplates(data);
-            })
-            .catch((error) => {
-                console.error('Error fetching agent templates:', error);
-            });
+          .then((response) => {
+              const data = response.data || [];
+              setAgentTemplates(data);
+          })
+          .catch((error) => {
+              console.error('Error fetching agent templates:', error);
+          });
     }, [])
 
     useEffect(() => {
@@ -45,9 +45,9 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
     }
 
     return (
-        <div>
-            {!createAgentClicked ?
-                <div>
+      <div>
+          {!createAgentClicked ?
+            <div>
                 <div className='row' style={{marginTop: '10px'}}>
                     <div className='col-12'>
                         <span className={styles.description_heading}
@@ -60,13 +60,13 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                 <div className={styles.rowContainer} style={{maxHeight: '78vh',overflowY: 'auto',marginTop:'10px',marginLeft:'3px'}}>
                     {agentTemplates.length > 0 ? <div className={styles.resources}>
                         {agentTemplates.map((item) => (
-                            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'85px'}}
-                                 onClick={() => handleTemplateClick(item)}>
-                                <div style={{display: 'inline',overflow:'auto'}}>
-                                    <div>{item.name}</div>
-                                    <div className={styles.tool_description}>{item.description}</div>
-                                </div>
-                            </div>
+                          <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',height:'85px'}}
+                               onClick={() => handleTemplateClick(item)}>
+                              <div style={{display: 'inline',overflow:'auto'}}>
+                                  <div>{item.name}</div>
+                                  <div className={styles.tool_description}>{item.description}</div>
+                              </div>
+                          </div>
                         ))}
                         <div className={styles.market_tool} style={{cursor: 'pointer',height:'85px',background:'#413C4F'}}
                              onClick={openMarketplace}>
@@ -90,7 +90,7 @@ export default function AgentTemplatesList({sendAgentData, selectedProjectId, fe
                         </div>
                     </div>}
                 </div>
-            </div> : <AgentCreate internalId={internalId} organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
-        </div>
+            </div> : <AgentCreate sendKnowledgeData={sendKnowledgeData} knowledge={knowledge} internalId={internalId} organisationId={organisationId} sendAgentData={sendAgentData} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} template={sendTemplate} />}
+      </div>
     )
 };
