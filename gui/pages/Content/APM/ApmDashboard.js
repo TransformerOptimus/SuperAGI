@@ -82,7 +82,6 @@ export default function ApmDashboard() {
                 setAgentDetails(metricsResponse.data.agent_details);
                 setTokenDetails(metricsResponse.data.tokens_details);
                 setRunDetails(metricsResponse.data.run_details);
-
                 setAllAgents(agentsResponse.data.agent_details);
                 setActiveRuns(activeRunsResponse.data);
                 setToolsUsed(toolsUsageResponse.data);
