@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Agents from '../Content/Agents/Agents';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
@@ -7,15 +7,15 @@ import Settings from "./Settings/Settings";
 import ApmDashboard from "../Content/APM/ApmDashboard";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
-import { EventBus } from "@/utils/eventBus";
-import {getAgents, getToolKit, getLastActiveAgent, sendTwitterCreds} from "@/pages/api/DashboardService";
+import {EventBus} from "@/utils/eventBus";
+import {getAgents, getLastActiveAgent, getToolKit, sendTwitterCreds} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
-import { useRouter } from 'next/router';
+import {useRouter} from 'next/router';
 import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
-import {createInternalId, removeInternalId} from "@/utils/utils";
+import {createInternalId, resetLocalStorage} from "@/utils/utils";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -26,6 +26,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit'];
 
   function fetchAgents() {
     getAgents(selectedProjectId)
@@ -64,11 +65,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     fetchToolkits();
   }, [selectedProjectId])
 
-  const closeTab = (e, index, contentType, internalId) => {
-    e.stopPropagation();
-    cancelTab(index, contentType, internalId);
-  };
-
   const cancelTab = (index, contentType, internalId) => {
     let updatedTabs = [...tabs];
 
@@ -89,21 +85,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       updatedTabs.splice(index, 1);
     }
 
-    if(contentType === 'Create_Agent') {
-      removeInternalId(internalId);
-    } else if(contentType === 'Add_Toolkit') {
-      console.log(localStorage.getItem('tool_github_' + String(internalId)))
-      localStorage.removeItem('tool_github_' + String(internalId));
-    } else if(contentType === 'Marketplace') {
-      localStorage.removeItem('marketplace_tab');
-      localStorage.removeItem('market_item_clicked');
-      localStorage.removeItem('market_detail_type');
-      localStorage.removeItem('market_item');
-    } else if(contentType === 'Toolkits') {
-      localStorage.removeItem('toolkit_tab_' + String(internalId));
-      localStorage.removeItem('api_configs_' + String(internalId));
-    }
-
+    resetLocalStorage(contentType, internalId);
     setTabs(updatedTabs);
   };
 
@@ -114,7 +96,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
 
     const isExistingTab = tabs.some(
-      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !['Create_Agent', 'Add_Toolkit'].includes(element.contentType)
+      (tab) => tab.id === element.id && tab.name === element.name && tab.contentType === element.contentType && !multipleTabContentTypes.includes(element.contentType)
     );
 
     if (!isExistingTab) {
@@ -150,12 +132,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         }
       }
     }
+
     const queryParams = router.asPath.split('?')[1];
     const parsedParams = querystring.parse(queryParams);
     parsedParams["toolkit_id"] = toolkitDetails.toolkit_id;
+
     if (window.location.href.indexOf("twitter_creds") > -1){
-      const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
-      parsedParams["toolkit_id"] = toolkit_id;
+      parsedParams["toolkit_id"] = localStorage.getItem("twitter_toolkit_id") || null;
       const params = JSON.stringify(parsedParams)
       sendTwitterCreds(params)
       .then((response) => {
@@ -181,10 +164,14 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
 
     const removeTab = (eventData) => {
-      const newAgentTabIndex = tabs.findIndex(
-        (tab) => tab.id === eventData.id && tab.name === eventData.name && tab.contentType === eventData.contentType
+      const element = eventData.element;
+      const tabIndex = tabs.findIndex(
+        (tab) => tab.id === element.id &&
+          tab.name === element.name &&
+          tab.contentType === element.contentType &&
+          tab.internalId === element.internalId
       );
-      cancelTab(newAgentTabIndex, eventData.contentType, ['Create_Agent', 'Toolkits', 'Add_Toolkit'].includes(eventData.contentType) ? eventData.internalId : 0);
+      cancelTab(tabIndex, element.contentType, element.internalId);
     };
 
     EventBus.on('openNewTab', openNewTab);
@@ -277,7 +264,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'APM' && <div className={styles.tab_active}><Image width={13} height={13} src="/images/apm.svg" alt="apm-icon"/></div>}
                   <div style={{marginLeft:'8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                 </div>
-                <div onClick={(e) => closeTab(e, index, tab.contentType, ['Create_Agent', 'Toolkits', 'Add_Toolkit'].includes(tab.contentType) ? tab.internalId : 0)} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
+                <div onClick={(e) => {e.stopPropagation();cancelTab(index, tab.contentType, tab.internalId || 0)}} className={styles.tab_active} style={{order:'1'}}><Image width={13} height={13} src="/images/close_light.svg" alt="close-icon"/></div>
               </div>
             ))}
           </div>
