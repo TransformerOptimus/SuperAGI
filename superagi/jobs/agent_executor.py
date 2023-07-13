@@ -32,7 +32,7 @@ from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()

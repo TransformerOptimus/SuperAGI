@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from superagi.helper.auth import check_auth
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 import logging

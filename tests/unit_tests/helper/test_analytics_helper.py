@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text, func
 from superagi.models.events import Event
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 from sqlalchemy.orm import Session
 
 @pytest.fixture
@@ -11,7 +11,7 @@ def mock_session(monkeypatch):
     # Create an autospec mock for the Session
     # (A mock which simulates all methods and attributes of the actual class)
     mock_session = create_autospec(Session)
-    monkeypatch.setattr('superagi.helper.analytics_helper.Session', lambda: mock_session)
+    monkeypatch.setattr('superagi.apm.analytics_helper.Session', lambda: mock_session)
     return mock_session
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def analytics_helper(mock_session):
         mock_session.add.assert_called_once_with(event)
         mock_session.commit.assert_called_once()
 
-    @patch('superagi.helper.analytics_helper.logging')
+    @patch('superagi.apm.analytics_helper.logging')
     def test_analytics_helper_create_event_failure(self, mock_logging, analytics_helper, mock_session):
         mock_session.commit = MagicMock(side_effect=SQLAlchemyError())
 

@@ -32,7 +32,7 @@ from superagi.vector_store.base import VectorStore
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
 from superagi.config.config import get_config
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 import os
 from superagi.lib.logger import logger
 

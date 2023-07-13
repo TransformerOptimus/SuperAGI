@@ -19,7 +19,7 @@ from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
-from superagi.helper.analytics_helper import AnalyticsHelper
+from superagi.apm.analytics_helper import AnalyticsHelper
 
 router = APIRouter()
 
