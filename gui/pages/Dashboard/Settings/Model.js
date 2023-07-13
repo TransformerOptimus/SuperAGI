@@ -96,32 +96,40 @@ export default function Model({organisationId}) {
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
+      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
         <div>
           <div className={agentStyles.page_title}>Settings</div>
         </div>
         <div>
           <label className={agentStyles.form_label}>Model Source</label>
-          <div className="dropdown_container_search" style={{width:'100%'}}>
-            <div className="custom_select_container" onClick={() => setSourceDropdown(!sourceDropdown)} style={{width:'100%'}}>
-              {source}<Image width={20} height={21} src={!sourceDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+          <div className="dropdown_container_search" style={{width: '100%'}}>
+            <div className="custom_select_container" onClick={() => setSourceDropdown(!sourceDropdown)}
+                 style={{width: '100%'}}>
+              {source}<Image width={20} height={21}
+                             src={!sourceDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                             alt="expand-icon"/>
             </div>
             <div>
-              {sourceDropdown && <div className="custom_select_options" ref={sourceRef} style={{width:'100%'}}>
-                {sources.map((source, index) => (<div key={index} className="custom_select_option" onClick={() => handleSourceSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
-                  {source}
-                </div>))}
+              {sourceDropdown && <div className="custom_select_options" ref={sourceRef} style={{width: '100%'}}>
+                {sources.map((source, index) => (
+                  <div key={index} className="custom_select_option" onClick={() => handleSourceSelect(index)}
+                       style={{padding: '12px 14px', maxWidth: '100%'}}>
+                    {source}
+                  </div>))}
               </div>}
             </div>
           </div>
-        </div><br/>
+        </div>
+        <br/>
         {source === 'OpenAi' && <div>
           <label className={agentStyles.form_label}>Open-AI API Key</label>
-          <input placeholder="Enter your Open-AI API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
+          <input placeholder="Enter your Open-AI API key" className="input_medium" type="password" value={modelApiKey}
+                 onChange={handleModelApiKey}/>
         </div>}
         {source === 'Google Palm' && <div>
           <label className={agentStyles.form_label}>Palm API Key</label>
-          <input placeholder="Enter your Palm API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
+          <input placeholder="Enter your Palm API key" className="input_medium" type="password" value={modelApiKey}
+                 onChange={handleModelApiKey}/>
         </div>}
         {/*<div style={{marginTop:'15px'}}>*/}
         {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
@@ -130,8 +138,9 @@ export default function Model({organisationId}) {
         {/*    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={temperature}/>*/}
         {/*  </div>*/}
         {/*</div>*/}
-        <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button" style={{marginRight: '10px'}}>
+        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '15px'}}>
+          <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button"
+                  style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={saveSettings}>

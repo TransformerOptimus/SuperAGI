@@ -15,12 +15,11 @@ import {
   getValidMarketplaceIndices,
   installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
-import {removeTab} from "@/utils/utils";
 
 export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('');
-  const [dropdown,setDropdown] = useState(false);
-  const [templateData,setTemplateData] = useState([]);
+  const [dropdown, setDropdown] = useState(false);
+  const [templateData, setTemplateData] = useState([]);
   const [markdownContent, setMarkdownContent] = useState('');
   const indexRef = useRef(null);
   const [indexDropdown, setIndexDropdown] = useState(false);
@@ -31,7 +30,7 @@ export default function KnowledgeTemplate({template, env}) {
     getValidMarketplaceIndices(template.id)
       .then((response) => {
         const data = response.data || [];
-        if(data) {
+        if (data) {
           setPineconeIndices(data.pinecone || []);
           setQdrantIndices(data.qdrant || []);
         }
@@ -55,7 +54,7 @@ export default function KnowledgeTemplate({template, env}) {
   }, []);
 
   useEffect(() => {
-    if(template) {
+    if (template) {
       setInstalled(template.is_installed ? 'Installed' : 'Install');
     }
 
@@ -65,7 +64,7 @@ export default function KnowledgeTemplate({template, env}) {
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
-          if(data) {
+          if (data) {
             setMarkdownContent(data.readme);
           }
         })
@@ -77,7 +76,7 @@ export default function KnowledgeTemplate({template, env}) {
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
-          if(data) {
+          if (data) {
             setMarkdownContent(data.readme);
           }
         })
@@ -135,10 +134,10 @@ export default function KnowledgeTemplate({template, env}) {
     let errorMessage = "";
     let isValid = true;
 
-    if(!validState && validDimension) {
+    if (!validState && validDimension) {
       isValid = false;
       errorMessage = "The configured index already consists of custom knowledge";
-    } else if((!validState && !validDimension) || (validState && !validDimension)) {
+    } else if ((!validState && !validDimension) || (validState && !validDimension)) {
       isValid = false;
       errorMessage = "The dimension of the configured index does not match the dimensions of the selected knowledge";
     }
@@ -158,100 +157,134 @@ export default function KnowledgeTemplate({template, env}) {
           <div className="col-3" style={{maxHeight: '84vh', overflowY: 'auto', padding: '0'}}>
             <div className={styles2.left_container}>
               <span className={styles2.top_heading}>{templateData?.name}</span>
-              <span style={{fontSize: '12px',marginTop: '15px',}} className={styles.tool_publisher}>by {templateData?.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/>{templateData?.install_number || 0}</span>
+              <span style={{fontSize: '12px', marginTop: '15px',}}
+                    className={styles.tool_publisher}>by {templateData?.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
+                width={14} height={14} src="/images/upload_icon.svg"
+                alt="upload-icon"/>{templateData?.install_number || 0}</span>
 
-              {!template?.is_installed && <div className="dropdown_container_search" style={{width:'100%'}}>
+              {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
                 <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
-                     style={{marginTop:'15px',cursor: 'pointer',width:'100%'}}>
+                     style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}
                 </div>
                 <div>
-                  {indexDropdown && <div className="custom_select_options" ref={indexRef} style={{width:'100%',maxHeight:'500px'}}>
-                    <div className={styles3.knowledge_label} style={{padding:'12px 14px',maxWidth:'100%'}}>Select an existing vector database collection/index to install the knowledge</div>
-                    {pinconeIndices && pinconeIndices.length > 0 && <div className={styles3.knowledge_db} style={{maxWidth:'100%'}}>
-                      <div className={styles3.knowledge_db_name}>Pinecone</div>
-                      {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleInstallClick(index.id)} style={{padding:'12px 14px',maxWidth:'100%',display:'flex',justifyContent:'space-between'}}>
-                        <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
-                        {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
-                          <div>
-                            <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
-                                   title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
-                          </div>}
-                      </div>))}
+                  {indexDropdown &&
+                    <div className="custom_select_options" ref={indexRef} style={{width: '100%', maxHeight: '500px'}}>
+                      <div className={styles3.knowledge_label} style={{padding: '12px 14px', maxWidth: '100%'}}>Select
+                        an existing vector database collection/index to install the knowledge
+                      </div>
+                      {pinconeIndices && pinconeIndices.length > 0 &&
+                        <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
+                          <div className={styles3.knowledge_db_name}>Pinecone</div>
+                          {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option"
+                                                               onClick={() => handleInstallClick(index.id)} style={{
+                            padding: '12px 14px',
+                            maxWidth: '100%',
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                          }}>
+                            <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
+                              color: '#888888',
+                              textDecoration: 'line-through'
+                            } : {}}>{index.name}</div>
+                            {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
+                              <div>
+                                <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                                       title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
+                              </div>}
+                          </div>))}
+                        </div>}
+                      {qdrantIndices && qdrantIndices.length > 0 &&
+                        <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
+                          <div className={styles3.knowledge_db_name}>Qdrant</div>
+                          {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option"
+                                                              onClick={() => handleInstallClick(index.id)} style={{
+                            padding: '12px 14px',
+                            maxWidth: '100%',
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                          }}>
+                            <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
+                              color: '#888888',
+                              textDecoration: 'line-through'
+                            } : {}}>{index.name}</div>
+                            {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
+                              <div>
+                                <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                                       title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
+                              </div>}
+                          </div>))}
+                        </div>}
                     </div>}
-                    {qdrantIndices && qdrantIndices.length > 0 && <div className={styles3.knowledge_db} style={{maxWidth:'100%'}}>
-                      <div className={styles3.knowledge_db_name}>Qdrant</div>
-                      {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option" onClick={() => handleInstallClick(index.id)} style={{padding:'12px 14px',maxWidth:'100%',display:'flex',justifyContent:'space-between'}}>
-                        <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
-                        {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
-                          <div>
-                            <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
-                                   title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
-                          </div>}
-                      </div>))}
-                    </div>}
-                  </div>}
                 </div>
               </div>}
 
-              {template?.is_installed && <div style={{width:'100%',display:'flex',justifyContent:'flex-start',marginTop:'15px'}}>
-                <div className="secondary_button" style={{cursor: 'default',width:'85%'}}>
-                  <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/>&nbsp;{installed}
-                </div>
-                <div style={{width:'5%',marginLeft:'10px'}}>
-                  <button className="secondary_button" style={{padding:'8px',height:'31px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-                    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
-                  </button>
-                  {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-                    <ul className="dropdown_container" style={{marginTop:'0',width:'165px'}}>
-                      <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
-                    </ul>
-                  </div>}
-                </div>
-              </div>}
+              {template?.is_installed &&
+                <div style={{width: '100%', display: 'flex', justifyContent: 'flex-start', marginTop: '15px'}}>
+                  <div className="secondary_button" style={{cursor: 'default', width: '85%'}}>
+                    <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/>&nbsp;{installed}
+                  </div>
+                  <div style={{width: '5%', marginLeft: '10px'}}>
+                    <button className="secondary_button" style={{padding: '8px', height: '31px'}}
+                            onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                      <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+                    </button>
+                    {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                      <ul className="dropdown_container" style={{marginTop: '0', width: '165px'}}>
+                        <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
+                      </ul>
+                    </div>}
+                  </div>
+                </div>}
 
-              <hr className={styles2.horizontal_line} />
+              <hr className={styles2.horizontal_line}/>
 
               <span className={styles2.description_text}>{templateData?.description}</span>
 
-              <hr className={styles2.horizontal_line} />
+              <hr className={styles2.horizontal_line}/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.model}</div>
-              </div><br />
+              </div>
+              <br/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Knowledge datatype</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.data_type}</div>
-              </div><br />
+              </div>
+              <br/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Tokenizer</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.tokenizer}</div>
-              </div><br />
+              </div>
+              <br/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Chunk size</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.chunk_size}</div>
-              </div><br />
+              </div>
+              <br/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Chunk overlap</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.chunk_overlap}</div>
-              </div><br />
+              </div>
+              <br/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Text splitter</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.text_splitter}</div>
-              </div><br />
+              </div>
+              <br/>
 
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Dimensions</span>
-              <div className="tool_container" style={{marginTop:'10px',width: 'fit-content'}}>
+              <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.dimensions}</div>
               </div>
 
-              <hr className={styles2.horizontal_line} />
+              <hr className={styles2.horizontal_line}/>
 
               <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Last updated</span>
               <span className={styles2.description_text}>{templateData?.updated_at}</span>
@@ -262,8 +295,15 @@ export default function KnowledgeTemplate({template, env}) {
               <div className={styles2.markdown_container}>
                 {markdownContent && markdownContent !== '' ? <ReactMarkdown
                     className={styles2.markdown_style}>{markdownContent}</ReactMarkdown> :
-                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
-                    <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: '40px',
+                    width: '100%'
+                  }}>
+                    <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
                     <span className={styles1.feed_title} style={{marginTop: '8px'}}>No Overview to display!</span>
                   </div>
                 }

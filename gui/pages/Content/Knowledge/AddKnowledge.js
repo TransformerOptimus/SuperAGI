@@ -8,17 +8,17 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
 
   useEffect(() => {
     const knowledge_name = localStorage.getItem("knowledge_name_" + String(internalId))
-    if(knowledge_name) {
+    if (knowledge_name) {
       setKnowledgeName(knowledge_name);
     }
 
     const knowledge_description = localStorage.getItem("knowledge_description_" + String(internalId))
-    if(knowledge_description) {
+    if (knowledge_description) {
       setKnowledgeDescription(knowledge_description);
     }
 
     const knowledge_index = localStorage.getItem("knowledge_index_" + String(internalId))
-    if(knowledge_index) {
+    if (knowledge_index) {
       setSelectedIndex(JSON.parse(knowledge_index));
     }
   }, [internalId])
@@ -26,7 +26,7 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
+      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
         <KnowledgeForm internalId={internalId}
                        knowledgeId={null}
                        knowledgeName={knowledgeName}

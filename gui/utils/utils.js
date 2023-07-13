@@ -2,7 +2,7 @@ import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 
-export const  getUserTimezone = () => {
+export const getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
@@ -62,7 +62,7 @@ export const downloadFile = (fileId, fileName = null) => {
       Authorization: `Bearer ${authToken}`,
     };
 
-    return fetch(url, { headers })
+    return fetch(url, {headers})
       .then((response) => response.blob())
       .then((blob) => {
         if (fileName) {
@@ -99,8 +99,8 @@ export const downloadAllFiles = (files) => {
 
   files.forEach((file, index) => {
     fileNamesCount[file.name]
-        ? fileNamesCount[file.name]++
-        : (fileNamesCount[file.name] = 1);
+      ? fileNamesCount[file.name]++
+      : (fileNamesCount[file.name] = 1);
 
     let modifiedFileName = file.name;
     if (fileNamesCount[file.name] > 1) {
@@ -111,32 +111,32 @@ export const downloadAllFiles = (files) => {
     }
 
     const promise = downloadFile(file.id)
-        .then((blob) => {
-          const fileBlob = new Blob([blob], { type: file.type });
-          zip.file(modifiedFileName, fileBlob);
-        })
-        .catch((error) => {
-          console.error("Error downloading file:", error);
-        });
+      .then((blob) => {
+        const fileBlob = new Blob([blob], {type: file.type});
+        zip.file(modifiedFileName, fileBlob);
+      })
+      .catch((error) => {
+        console.error("Error downloading file:", error);
+      });
 
     promises.push(promise);
   });
 
   Promise.all(promises)
-      .then(() => {
-        zip.generateAsync({ type: "blob" })
-            .then((content) => {
-              const timestamp = new Date().getTime();
-              const zipFilename = `files_${timestamp}.zip`;
-              const downloadLink = document.createElement("a");
-              downloadLink.href = URL.createObjectURL(content);
-              downloadLink.download = zipFilename;
-              downloadLink.click();
-            })
-            .catch((error) => {
-              console.error("Error generating zip:", error);
-            });
-      });
+    .then(() => {
+      zip.generateAsync({type: "blob"})
+        .then((content) => {
+          const timestamp = new Date().getTime();
+          const zipFilename = `files_${timestamp}.zip`;
+          const downloadLink = document.createElement("a");
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch((error) => {
+          console.error("Error generating zip:", error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
@@ -345,20 +345,20 @@ export const createInternalId = () => {
 
 export const returnToolkitIcon = (toolkitName) => {
   const toolkitData = [
-    { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
-    { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
-    { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
-    { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
-    { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
-    { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
-    { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
-    { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
-    { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
-    { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
-    { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
-    { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
-    { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
-    { name: 'Knowledge Search Toolkit', imageSrc: '/images/app-logo-light.png' },
+    {name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg'},
+    {name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg'},
+    {name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg'},
+    {name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg'},
+    {name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg'},
+    {name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg'},
+    {name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg'},
+    {name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg'},
+    {name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg'},
+    {name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg'},
+    {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
+    {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Knowledge Search Toolkit', imageSrc: '/images/app-logo-light.png'},
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
@@ -386,7 +386,7 @@ export const returnDatabaseIcon = (database) => {
 };
 
 export const convertToTitleCase = (str) => {
-  if(str === null || str === '') {
+  if (str === null || str === '') {
     return '';
   }
 

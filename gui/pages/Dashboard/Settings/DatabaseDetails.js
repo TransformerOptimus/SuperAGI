@@ -9,20 +9,20 @@ import Image from "next/image";
 import {deleteVectorDB, getVectorDBDetails, updateVectorDB} from "@/pages/api/DashboardService";
 
 export default function DatabaseDetails({internalId, databaseId}) {
-  const [dropdown,setDropdown] = useState(false);
-  const [deleteModal,setDeleteModal] = useState(false);
+  const [dropdown, setDropdown] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const [collections, setCollections] = useState([]);
   const [initialCollections, setInitialCollections] = useState([]);
   const [hasChanges, setHasChanges] = useState(false);
   const [databaseDetails, setDatabaseDetails] = useState([]);
 
   useEffect(() => {
-    if(databaseId) {
+    if (databaseId) {
       getVectorDBDetails(databaseId)
         .then((response) => {
           const data = response.data || [];
           setDatabaseDetails(data);
-          if(data) {
+          if (data) {
             const localIndices = localStorage.getItem("db_details_collections_" + String(internalId));
             const indices = data.indices || [];
             setCollections(localIndices ? JSON.parse(localIndices) : indices);
@@ -98,32 +98,43 @@ export default function DatabaseDetails({internalId, databaseId}) {
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
+      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
         <div className="title_wrapper">
           <div className={agentStyles.page_title}>{databaseDetails?.name}</div>
           <div>
-            <button className="secondary_button" style={{padding:'8px',height:'31px',marginTop:'-20px'}} onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <button className="secondary_button" style={{padding: '8px', height: '31px', marginTop: '-20px'}}
+                    onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container">
-                <li className="dropdown_item" onClick={() => {setDropdown(false);setDeleteModal(true)}}>Delete database</li>
+                <li className="dropdown_item" onClick={() => {
+                  setDropdown(false);
+                  setDeleteModal(true)
+                }}>Delete database
+                </li>
               </ul>
             </div>}
           </div>
         </div>
         <div className="database_box">
-          <div style={{display:'flex',justifyContent:'flex-start',order:'0',alignItems:'center'}}>
-            <div style={{marginLeft:'15px'}}>
+          <div style={{display: 'flex', justifyContent: 'flex-start', order: '0', alignItems: 'center'}}>
+            <div style={{marginLeft: '15px'}}>
               <Image src={returnDatabaseIcon(databaseDetails?.db_type)} alt="database-icon" width={40} height={40}/>
             </div>
-            <div style={{marginLeft:'15px',fontSize:'14px',marginTop:'23px'}} className={agentStyles.page_title}>{databaseDetails?.db_type}</div>
+            <div style={{marginLeft: '15px', fontSize: '14px', marginTop: '23px'}}
+                 className={agentStyles.page_title}>{databaseDetails?.db_type}</div>
           </div>
         </div>
         <div style={{marginTop: '15px'}}>
           <div><label className={styles.form_label}>Collection i.e, Index</label></div>
-          {collections.map((collection, index) => (<div key={index} style={{marginBottom:'10px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div style={{flex:'1'}}>
+          {collections.map((collection, index) => (<div key={index} style={{
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{flex: '1'}}>
               <input className="input_medium" type="text" value={collection}
                      onChange={(event) => handleCollectionChange(index, event.target.value)}/>
             </div>
@@ -134,33 +145,35 @@ export default function DatabaseDetails({internalId, databaseId}) {
               </button>
             </div>}
           </div>))}
-          <div><button className="secondary_button" onClick={addCollection}>+ Add</button></div>
+          <div>
+            <button className="secondary_button" onClick={addCollection}>+ Add</button>
+          </div>
         </div>
         {databaseDetails?.db_type === 'Pinecone' && <div>
-          <div style={{marginTop:'15px'}}>
+          <div style={{marginTop: '15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Pinecone API key</label>
             <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.api_key}</div>
           </div>
-          <div style={{marginTop:'15px'}}>
+          <div style={{marginTop: '15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Pinecone environment</label>
             <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.environment}</div>
           </div>
         </div>}
         {databaseDetails?.db_type === 'Qdrant' && <div>
-          <div style={{marginTop:'15px'}}>
+          <div style={{marginTop: '15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Qdrant API key</label>
             <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.api_key}</div>
           </div>
-          <div style={{marginTop:'15px'}}>
+          <div style={{marginTop: '15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Qdrant URL</label>
             <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.url}</div>
           </div>
-          <div style={{marginTop:'15px'}}>
+          <div style={{marginTop: '15px'}}>
             <label className={knowledgeStyles.knowledge_label}>Port</label>
             <div className={knowledgeStyles.knowledge_info}>{databaseDetails?.port}</div>
           </div>
         </div>}
-        {hasChanges && <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
+        {hasChanges && <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '15px'}}>
           <button className="secondary_button" style={{marginRight: '10px'}} onClick={revertChanges}>
             Cancel
           </button>
@@ -178,7 +191,7 @@ export default function DatabaseDetails({internalId, databaseId}) {
         <div>
           <label className={styles.form_label}>Are you sure you want to delete this database?</label>
         </div>
-        <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'20px'}}>
+        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '20px'}}>
           <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setDeleteModal(false)}>
             Cancel
           </button>

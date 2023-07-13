@@ -10,7 +10,7 @@ export default function Settings({organisationId, sendDatabaseData}) {
 
   useEffect(() => {
     const settings_tab = localStorage.getItem('settings_tab');
-    if(settings_tab) {
+    if (settings_tab) {
       setActiveTab(settings_tab);
     }
   }, []);
@@ -22,17 +22,26 @@ export default function Settings({organisationId, sendDatabaseData}) {
 
   return (<>
     <div className={styles.empty_state}>
-      <div style={{width:'100%',display:'flex',flexDirection:'column'}}>
+      <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
         <div className={styles.detail_top}>
-          <div style={{display:'flex',overflowX:'scroll',marginLeft:'8px'}}>
+          <div style={{display: 'flex', overflowX: 'scroll', marginLeft: '8px'}}>
             <div>
-              <button onClick={() => switchTab('model')} className={styles.tab_button} style={activeTab === 'model' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
-                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/model_light.svg" alt="model-icon"/>&nbsp;Model
+              <button onClick={() => switchTab('model')} className={styles.tab_button} style={activeTab === 'model' ? {
+                background: '#454254',
+                paddingRight: '15px'
+              } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/model_light.svg"
+                       alt="model-icon"/>&nbsp;Model
               </button>
             </div>
             <div>
-              <button onClick={() => switchTab('database')} className={styles.tab_button} style={activeTab === 'database' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>
-                <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/database.svg" alt="database-icon"/>&nbsp;Database
+              <button onClick={() => switchTab('database')} className={styles.tab_button}
+                      style={activeTab === 'database' ? {
+                        background: '#454254',
+                        paddingRight: '15px'
+                      } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/database.svg"
+                       alt="database-icon"/>&nbsp;Database
               </button>
             </div>
           </div>

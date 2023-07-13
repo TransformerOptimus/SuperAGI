@@ -7,7 +7,19 @@ import {ToastContainer, toast} from "react-toastify";
 import {addUpdateKnowledge, getValidIndices} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
-export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, setKnowledgeName, knowledgeDescription, setKnowledgeDescription, selectedIndex, setSelectedIndex, isEditing, setIsEditing, sendKnowledgeData}) {
+export default function KnowledgeForm({
+                                        internalId,
+                                        knowledgeId,
+                                        knowledgeName,
+                                        setKnowledgeName,
+                                        knowledgeDescription,
+                                        setKnowledgeDescription,
+                                        selectedIndex,
+                                        setSelectedIndex,
+                                        isEditing,
+                                        setIsEditing,
+                                        sendKnowledgeData
+                                      }) {
   const [addClickable, setAddClickable] = useState(true);
   const indexRef = useRef(null);
   const [indexDropdown, setIndexDropdown] = useState(false);
@@ -18,7 +30,7 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
     getValidIndices()
       .then((response) => {
         const data = response.data || [];
-        if(data) {
+        if (data) {
           setPineconeIndices(data.pinecone || []);
           setQdrantIndices(data.qdrant || []);
         }
@@ -80,7 +92,12 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
     addUpdateKnowledge(knowledgeData)
       .then((response) => {
         toast.success("Knowledge added successfully", {autoClose: 1800});
-        sendKnowledgeData({id: response.data.id, name: knowledgeName, contentType: "Knowledge", internalId: createInternalId()});
+        sendKnowledgeData({
+          id: response.data.id,
+          name: knowledgeName,
+          contentType: "Knowledge",
+          internalId: createInternalId()
+        });
         EventBus.emit('reFetchKnowledge', {});
       })
       .catch((error) => {
@@ -125,7 +142,7 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
     let errorMessage = "";
     let isValid = true;
 
-    if(!validState) {
+    if (!validState) {
       isValid = false;
       errorMessage = "The configured index is either empty or has marketplace knowledge";
     }
@@ -137,16 +154,17 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
     <div>
       <div className={styles.page_title}>{isEditing ? 'Edit knowledge' : 'Add a new knowledge'}</div>
     </div>
-    <div style={{marginTop:'10px'}}>
+    <div style={{marginTop: '10px'}}>
       <div className={styles1.knowledge_alert}>
-        <div style={{marginRight:'5px',marginLeft:'-5px'}}>
+        <div style={{marginRight: '5px', marginLeft: '-5px'}}>
           <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
         </div>
         <div>
-          Currently we support Open AI “text-knowledge-ada-002” model knowledge only. Please make sure you add the same.</div>
+          Currently we support Open AI “text-knowledge-ada-002” model knowledge only. Please make sure you add the same.
+        </div>
       </div>
     </div>
-    <div style={{marginTop:'10px'}}>
+    <div style={{marginTop: '10px'}}>
       <div>
         <label className={styles.form_label}>Knowledge name</label>
         <input className="input_medium" type="text" value={knowledgeName} onChange={handleNameChange}/>
@@ -158,44 +176,63 @@ export default function KnowledgeForm({internalId, knowledgeId, knowledgeName, s
       </div>
       <div style={{marginTop: '15px'}}>
         <label className={styles.form_label}>Collection i.e, Index</label><br/>
-        <div className="dropdown_container_search" style={{width:'100%'}}>
-          <div className="custom_select_container" onClick={() => setIndexDropdown(!indexDropdown)} style={{width:'100%',color: !selectedIndex ? '#888888' : ''}}>
-            {selectedIndex?.name || 'Select Index'}<Image width={20} height={21} src={!indexDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+        <div className="dropdown_container_search" style={{width: '100%'}}>
+          <div className="custom_select_container" onClick={() => setIndexDropdown(!indexDropdown)}
+               style={{width: '100%', color: !selectedIndex ? '#888888' : ''}}>
+            {selectedIndex?.name || 'Select Index'}<Image width={20} height={21}
+                                                          src={!indexDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                                          alt="expand-icon"/>
           </div>
           <div>
-            {indexDropdown && <div className="custom_select_options" ref={indexRef} style={{width:'100%'}}>
-              <div className={styles1.knowledge_label} style={{padding:'12px 14px',maxWidth:'100%'}}>Select an existing vector database collection/index to install the knowledge</div>
-              {pinconeIndices && pinconeIndices.length > 0 && <div className={styles1.knowledge_db} style={{maxWidth:'100%'}}>
-                <div className={styles1.knowledge_db_name}>Pinecone</div>
-                {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option index_options" onClick={() => handleIndexSelect(index)}>
-                  <div style={!checkIndexValidity(index.is_valid_state)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
-                  {!checkIndexValidity(index.is_valid_state)[0] &&
-                    <div>
-                      <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
-                             title={checkIndexValidity(index.is_valid_state)[1]}/>
-                    </div>}
-                </div>))}
-              </div>}
-              {qdrantIndices && qdrantIndices.length > 0 && <div className={styles1.knowledge_db} style={{maxWidth:'100%'}}>
-                <div className={styles1.knowledge_db_name}>Qdrant</div>
-                {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option index_options" onClick={() => handleIndexSelect(index)}>
-                  <div style={!checkIndexValidity(index.is_valid_state)[0] ? {color:'#888888',textDecoration:'line-through'} : {}}>{index.name}</div>
-                  {!checkIndexValidity(index.is_valid_state)[0] &&
-                    <div>
-                      <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
-                             title={checkIndexValidity(index.is_valid_state)[1]}/>
-                    </div>}
-                </div>))}
-              </div>}
+            {indexDropdown && <div className="custom_select_options" ref={indexRef} style={{width: '100%'}}>
+              <div className={styles1.knowledge_label} style={{padding: '12px 14px', maxWidth: '100%'}}>Select an
+                existing vector database collection/index to install the knowledge
+              </div>
+              {pinconeIndices && pinconeIndices.length > 0 &&
+                <div className={styles1.knowledge_db} style={{maxWidth: '100%'}}>
+                  <div className={styles1.knowledge_db_name}>Pinecone</div>
+                  {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option index_options"
+                                                       onClick={() => handleIndexSelect(index)}>
+                    <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
+                      color: '#888888',
+                      textDecoration: 'line-through'
+                    } : {}}>{index.name}</div>
+                    {!checkIndexValidity(index.is_valid_state)[0] &&
+                      <div>
+                        <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                               title={checkIndexValidity(index.is_valid_state)[1]}/>
+                      </div>}
+                  </div>))}
+                </div>}
+              {qdrantIndices && qdrantIndices.length > 0 &&
+                <div className={styles1.knowledge_db} style={{maxWidth: '100%'}}>
+                  <div className={styles1.knowledge_db_name}>Qdrant</div>
+                  {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option index_options"
+                                                      onClick={() => handleIndexSelect(index)}>
+                    <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
+                      color: '#888888',
+                      textDecoration: 'line-through'
+                    } : {}}>{index.name}</div>
+                    {!checkIndexValidity(index.is_valid_state)[0] &&
+                      <div>
+                        <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                               title={checkIndexValidity(index.is_valid_state)[1]}/>
+                      </div>}
+                  </div>))}
+                </div>}
             </div>}
           </div>
         </div>
       </div>
       {isEditing ? <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-        <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => setIsEditing(false)}>Cancel</button>
-        <button disabled={!addClickable} className="primary_button" onClick={handleUpdateKnowledge}>Update Changes</button>
+        <button style={{marginRight: '7px'}} className="secondary_button" onClick={() => setIsEditing(false)}>Cancel
+        </button>
+        <button disabled={!addClickable} className="primary_button" onClick={handleUpdateKnowledge}>Update Changes
+        </button>
       </div> : <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-        <button style={{marginRight:'7px'}} className="secondary_button" onClick={() => removeTab(-6, "new knowledge", "Add_Knowledge", internalId)}>Cancel</button>
+        <button style={{marginRight: '7px'}} className="secondary_button"
+                onClick={() => removeTab(-6, "new knowledge", "Add_Knowledge", internalId)}>Cancel
+        </button>
         <button disabled={!addClickable} className="primary_button" onClick={handleAddKnowledge}>Add knowledge</button>
       </div>}
     </div>
