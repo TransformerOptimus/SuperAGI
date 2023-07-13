@@ -13,7 +13,7 @@ def test_get_metrics_success():
         assert response.json() == {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
 
 def test_get_agents_success():
-    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
+    with patch('superagi.apm.analytics.AnalyticsHelper') as mock_helper:
         mock_helper().fetch_agent_data.return_value = {"agent_details": "mock_details", "model_info": "mock_info"}
         response = client.get("analytics/agents/all")
         assert response.status_code == 200
