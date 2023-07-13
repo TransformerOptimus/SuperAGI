@@ -32,7 +32,7 @@ from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-
+from superagi.apm.event_handler import EventHandler
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
@@ -137,6 +137,25 @@ class AgentExecutor:
             return GooglePalm(api_key=model_api_key)
         return None
 
+    @staticmethod
+    def get_organisation(agent_execution,session):
+        """
+        Get the model API key from the agent execution.
+
+        Args:
+            agent_execution (AgentExecution): The agent execution.
+            session (Session): The database session.
+
+        Returns:
+             str: The model API key.
+        """
+        agent_id = agent_execution.agent_id
+        agent = session.query(Agent).filter(Agent.id == agent_id).first()
+        organisation = agent.get_agent_organisation(session)
+
+        return organisation
+
+
     def execute_next_action(self, agent_execution_id):
         """
         Execute the next action of the agent execution.
@@ -184,6 +203,7 @@ class AgentExecutor:
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(parsed_config["model"], agent_execution, session)
         model_llm_source = ModelSourceType.get_model_source_from_model(parsed_config["model"]).value
+        organisation = AgentExecutor.get_organisation(agent_execution, session)
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
@@ -225,15 +245,7 @@ class AgentExecutor:
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
 
-        try:
-            response = spawned_agent.execute(agent_workflow_step)
-        except RuntimeError as e:
-            # If our execution encounters an error we return and attempt to retry
-            logger.error("Error executing the agent:", e)
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
-            session.close()
-            return
-
+        response = spawned_agent.execute(agent_workflow_step)
 
         if "retry" in response and response["retry"]:
             response = spawned_agent.execute(agent_workflow_step)
@@ -243,6 +255,7 @@ class AgentExecutor:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "COMPLETED"
             session.commit()
+            EventHandler(session=session).create_event('run_completed', {'agent_execution_id':db_agent_execution.id,'name': db_agent_execution.name,'tokens_consumed':db_agent_execution.num_of_tokens,"calls":db_agent_execution.num_of_calls}, db_agent_execution.agent_id, organisation.id)
         elif response["result"] == "WAITING_FOR_PERMISSION":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "WAITING_FOR_PERMISSION"
