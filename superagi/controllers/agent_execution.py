@@ -73,8 +73,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
         HTTPException (Status Code=404): If the agent is not found.
     """
 
-    agent = db.session.query(Agent).get(agent_execution.agent_id)
-
+    agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
@@ -182,10 +181,14 @@ def get_agent_execution(agent_execution_id: int,
         HTTPException (Status Code=404): If the agent execution is not found.
     """
 
-    db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-    if not db_agent_execution:
+    if (
+        db_agent_execution := db.session.query(AgentExecution)
+        .filter(AgentExecution.id == agent_execution_id)
+        .first()
+    ):
+        return db_agent_execution
+    else:
         raise HTTPException(status_code=404, detail="Agent execution not found")
-    return db_agent_execution
 
 
 @router.put("/update/{agent_execution_id}", response_model=AgentExecutionOut)
@@ -202,11 +205,17 @@ def update_agent_execution(agent_execution_id: int,
         raise HTTPException(status_code=404, detail="Agent Execution not found")
 
     if agent_execution.agent_id:
-        agent = db.session.query(Agent).get(agent_execution.agent_id)
-        if not agent:
+        if agent := db.session.query(Agent).get(agent_execution.agent_id):
+            db_agent_execution.agent_id = agent.id
+        else:
             raise HTTPException(status_code=404, detail="Agent not found")
-        db_agent_execution.agent_id = agent.id
-    if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED" and agent_execution.status != "TERMINATED":
+    if agent_execution.status not in [
+        "CREATED",
+        "RUNNING",
+        "PAUSED",
+        "COMPLETED",
+        "TERMINATED",
+    ]:
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
 

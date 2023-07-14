@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 
 import superagi.models
 from superagi.models.agent_config import AgentConfiguration
@@ -25,6 +25,7 @@ class Agent(DBBaseModel):
         project_id (int): The identifier of the associated project.
         description (str): The description of the agent.
         agent_workflow_id (int): The identifier of the associated agent workflow.
+        is_deleted (bool): The flag associated for agent deletion
     """
 
     __tablename__ = 'agents'
@@ -34,7 +35,8 @@ class Agent(DBBaseModel):
     project_id = Column(Integer)
     description = Column(String)
     agent_workflow_id = Column(Integer)
-
+    is_deleted = Column(Boolean, default = False)
+    
     def __repr__(self):
         """
         Returns a string representation of the Agent object.
@@ -44,8 +46,9 @@ class Agent(DBBaseModel):
 
         """
         return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
-               f"description='{self.description}', agent_workflow_id={self.agent_workflow_id})"
-
+               f"description='{self.description}', agent_workflow_id={self.agent_workflow_id}," \
+               f"is_deleted='{self.is_deleted}')" 
+               
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
         """
@@ -79,7 +82,8 @@ class Agent(DBBaseModel):
             "permission_type": None,
             "LTM_DB": None,
             "memory_window": None,
-            "max_iterations": None
+            "max_iterations": None,
+            "is_deleted": agent.is_deleted,
         }
         if not agent_configurations:
             return parsed_config
@@ -105,7 +109,7 @@ class Agent(DBBaseModel):
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
-        elif key == "goal" or key == "constraints" or key == "instruction":
+        elif key in ["goal", "constraints", "instruction", "is_deleted"]:
             return eval(value)
         elif key == "tools":
             return [int(x) for x in json.loads(value)]
@@ -197,9 +201,12 @@ class Agent(DBBaseModel):
         configs = db.session.query(AgentTemplateConfig).filter(
             AgentTemplateConfig.agent_template_id == agent_template.id).all()
 
-        agent_configurations = []
-        for config in configs:
-            agent_configurations.append(AgentConfiguration(agent_id=db_agent.id, key=config.key, value=config.value))
+        agent_configurations = [
+            AgentConfiguration(
+                agent_id=db_agent.id, key=config.key, value=config.value
+            )
+            for config in configs
+        ]
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()
@@ -229,9 +236,10 @@ class Agent(DBBaseModel):
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        agent_configurations = []
-        for key, value in agent_template["configs"].items():
-            agent_configurations.append(AgentConfiguration(agent_id=db_agent.id, key=key, value=value["value"]))
+        agent_configurations = [
+            AgentConfiguration(agent_id=db_agent.id, key=key, value=value["value"])
+            for key, value in agent_template["configs"].items()
+        ]
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()

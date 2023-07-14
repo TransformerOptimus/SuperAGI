@@ -52,10 +52,10 @@ def create_agent_config(agent_config: AgentConfigurationIn,
         AgentConfiguration: The created agent configuration.
 
     Raises:
-        HTTPException (Status Code=404): If the associated agent is not found.
+        HTTPException (Status Code=404): If the associated agent is not found or deleted.
     """
 
-    agent = db.session.query(Agent).get(agent_config.agent_id)
+    agent = db.session.query(Agent).filter(Agent.id == agent_config.agent_id, Agent.is_deleted == False).first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -82,10 +82,14 @@ def get_agent(agent_config_id: int,
         HTTPException (Status Code=404): If the agent configuration is not found.
     """
 
-    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
-    if not db_agent_config:
+    if (
+        db_agent_config := db.session.query(AgentConfiguration)
+        .filter(AgentConfiguration.id == agent_config_id)
+        .first()
+    ):
+        return db_agent_config
+    else:
         raise HTTPException(status_code=404, detail="Agent Configuration not found")
-    return db_agent_config
 
 
 @router.put("/update", response_model=AgentConfigurationOut)
@@ -133,10 +137,10 @@ def get_agent_configurations(agent_id: int,
         dict: The parsed response containing agent configurations.
 
     Raises:
-        HTTPException (Status Code=404): If the agent or agent configurations are not found.
+        HTTPException (Status Code=404): If the agent or agent configurations are not found or deleted.
     """
 
-    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
@@ -191,5 +195,5 @@ def get_agent_configurations(agent_id: int,
             parsed_response["permission_type"] = value
         elif key == "LTM_DB":
             parsed_response["LTM_DB"] = value
-
+            
     return parsed_response
