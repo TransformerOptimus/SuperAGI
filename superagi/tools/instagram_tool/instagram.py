@@ -1,7 +1,10 @@
 import json
 import urllib
+import boto3
+import os
+from superagi.config.config import get_config
+from superagi.helper.resource_helper import ResourceHelper
 from typing import Type, Optional
-
 from pydantic import BaseModel, Field
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
@@ -72,13 +75,34 @@ class InstagramTool(BaseTool):
 
         if response.status_code != 200:
             return f"Non-200 response: {str(response.text)}"
-        print("business_id found****************************")
-        data = response.json()
-        insta_bussiness_account_id=data["instagram_business_account"]["id"]
 
-        image_url="https://images-cdn.ubuy.co.in/6353b235df14022c3858e456-petfon-pet-gps-tracker-no-monthly-fee.jpg"
+        data = response.json()
+        insta_business_account_id=data["instagram_business_account"]["id"]
+
+        import boto3
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+        )
+        bucket_name = get_config("INSTAGRAM_TOOL_BUCKET_NAME")
+        object_key="image/F35.jpeg"
+        input_root_dir = ResourceHelper.get_root_input_dir()
+        
+        image_path=input_root_dir+"F35.jpeg"
+        # response=s3.upload_file(image_path, bucket_name, object_key)
+
+        response = s3.list_objects_v2(
+            Bucket=bucket_name,
+        )
+
+        for content in response.get('Contents', []):
+            print(content['Key'])
+        
+        image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
+
         encoded_caption=urllib. parse. quote(caption[1:-1])
-        container_gen_url="https://graph.facebook.com/v17.0/"+insta_bussiness_account_id+"/media?image_url="+image_url+"&caption="+encoded_caption+"&access_token="+meta_user_access_token
+        container_gen_url=f"https://graph.facebook.com/v17.0/{insta_business_account_id}/media?image_url={image_url}&caption={encoded_caption}&access_token={meta_user_access_token}"
 
         response = requests.post(
             container_gen_url
@@ -86,12 +110,11 @@ class InstagramTool(BaseTool):
 
         if response.status_code != 200:
             return f"Non-200 response: {str(response.text)}"
-        print("container_ID generated****************************")
 
         data = response.json()
         container_ID=data["id"]
         response = requests.post(
-            f"https://graph.facebook.com/v17.0/{insta_bussiness_account_id}/media_publish?creation_id={container_ID}&access_token={meta_user_access_token}",
+            f"https://graph.facebook.com/v17.0/{insta_business_account_id}/media_publish?creation_id={container_ID}&access_token={meta_user_access_token}",
         )
         
         if response.status_code != 200:
