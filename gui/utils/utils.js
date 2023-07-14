@@ -1,3 +1,5 @@
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
@@ -46,7 +48,29 @@ export const formatNumber = (number) => {
 
   return scaledNumber.toFixed(1) + suffix;
 };
+export const formatTime = (lastExecutionTime) => {
+  try {
+    const parsedTime = new Date(lastExecutionTime + 'Z'); // append 'Z' to indicate UTC
+    if (isNaN(parsedTime.getTime())) {
+      throw new Error('Invalid time value');
+    }
 
+    const timeZone = 'Asia/Kolkata';
+    const zonedTime = utcToZonedTime(parsedTime, timeZone);
+
+    return formatDistanceToNow(zonedTime, {
+      addSuffix: true,
+      includeSeconds: true
+    }).replace(/about\s/, '')
+        .replace(/minutes?/, 'min')
+        .replace(/hours?/, 'hrs')
+        .replace(/days?/, 'day')
+        .replace(/weeks?/, 'week');
+  } catch (error) {
+    console.error('Error formatting time:', error);
+    return 'Invalid Time';
+  }
+};
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
     return '0 Bytes';

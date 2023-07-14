@@ -22,7 +22,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     function getGoogleToken(client_data){
       const client_id = client_data.client_id 
       const scope = 'https://www.googleapis.com/auth/calendar';
-      const redirect_uri = 'http://localhost:3000/api/oauth-calendar';
+      const redirect_uri = 'http://localhost:3000/api/google/oauth-tokens';
       window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
     }
     
@@ -68,24 +68,25 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     };
 
     const handleAuthenticateClick = async (toolkitName) => {
-      if(toolkitName === 'Google Calendar Toolkit') {
-        authenticateGoogleCred(toolkitDetails.id)
-          .then((response) => {
+        if (toolkitName === "Google Calendar Toolkit"){
+      authenticateGoogleCred(toolkitDetails.id)
+        .then((response) => {
+          localStorage.setItem("google_calendar_toolkit_id", toolkitDetails.id)
             getGoogleToken(response.data);
-          })
-          .catch((error) => {
-            console.error('Error fetching data:', error);
-          });
-      } else if(toolkitName === 'Twitter Toolkit') {
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    }else if(toolkitName === "Twitter Toolkit"){
         authenticateTwitterCred(toolkitDetails.id)
-          .then((response) => {
-            localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
-            getTwitterToken(response.data);
-          })
-          .catch((error) => {
-            console.error('Error fetching data: ', error);
-          });
-      }
+            .then((response) => {
+                localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
+                getTwitterToken(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching data: ', error);
+            });
+    }
     };
 
     useEffect(() => {
