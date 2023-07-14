@@ -37,7 +37,7 @@ export default function AgentSchedule({
 
   const [modalHeading, setModalHeading] = useState('Schedule Run')
   const [modalButton, setModalButton] = useState('Create and Schedule Run')
-  const [localStartTime, setLocalStartTime] = useState(null)
+  const [localStartTime, setLocalStartTime] = useState('')
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -110,7 +110,7 @@ export default function AgentSchedule({
 
   const handleTimeChange = (momentObj) => {
     const startTime = convertToGMT(momentObj);
-    setLocalStartTime(momentObj.toDate())
+    setLocalStartTime( typeof momentObj === 'string' ? '' : momentObj.toDate())
     setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
   };
 
@@ -159,9 +159,9 @@ export default function AgentSchedule({
         const requestData = {
           "agent_id": agentId,
           "start_time": startTime,
-          "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-          "expiry_runs": expiryType === 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-          "expiry_date": expiryType === 'Specific Date' ? expiryDate : null,
+          "recurrence_interval": timeValue && isRecurring  ? `${timeValue} ${timeUnit}` : null,
+          "expiry_runs": expiryType === 'After certain number of runs' && isRecurring  ? parseInt(expiryRuns) : -1,
+          "expiry_date": expiryType === 'Specific Date' && isRecurring  ? expiryDate : null,
         };
 
         createAndScheduleRun(requestData)
@@ -214,9 +214,9 @@ export default function AgentSchedule({
     const requestData = {
       "agent_id": agentId,
       "start_time": startTime,
-      "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
-      "expiry_runs": expiryType === 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-      "expiry_date": expiryType === 'Specific Date' ? (expiryDate && expiryDate.includes('/') ? convertToGMT(moment(expiryDate, 'DD/MM/YYYY').toDate()): expiryDate ) : null,
+      "recurrence_interval": timeValue && isRecurring ? `${timeValue} ${timeUnit}` : null,
+      "expiry_runs": expiryType === 'After certain number of runs' && isRecurring  ? parseInt(expiryRuns) : -1,
+      "expiry_date": expiryType === 'Specific Date' && isRecurring  ? (expiryDate && expiryDate.includes('/') ? convertToGMT(moment(expiryDate, 'DD/MM/YYYY').toDate()): expiryDate ) : null,
     };
 
     updateSchedule(requestData)

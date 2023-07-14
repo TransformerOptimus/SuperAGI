@@ -959,6 +959,7 @@ tr{
     z-index: 100;
     border-radius: 8px;
     background: #2E293F;
+    margin-bottom: 4px;
 }
 
 .tools_used, .tools_used_tooltip{
