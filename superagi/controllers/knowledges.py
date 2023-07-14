@@ -66,8 +66,11 @@ def get_user_knowledge_list(organisation = Depends(get_user_organisation)):
 @router.get("/marketplace/get/details/{knowledge_name}")
 def get_knowledge_details(knowledge_name: str):
     knowledge_data = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
-    knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data["id"])
-    knowledge_data_with_config = knowledge_data | knowledge_config_data
+    knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data[0]["id"])
+    configs = []
+    for knowledge_config in knowledge_config_data:
+        configs[knowledge_config["key"]] = knowledge_config["value"]
+    knowledge_data_with_config = knowledge_data[0] | configs
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")
@@ -109,8 +112,8 @@ def delete_user_knowledge(knowledge_id: int):
     except:
         return f"No Knowledge found for {knowledge_id}."
 
-@router.post("/install/knowledge/{knowledge_id}/index/{vector_db_index_id}")
-def install_selected_knowledge(knowledge_id: int, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
+@router.post("/install/knowledge/{knowledge_name}/index/{vector_db_index_id}")
+def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, vector_db_index_id)
     filepath = db.session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id, KnowledgeConfigs.key == "file_path").first().value
     file_chunks = S3Helper().get_json_file(filepath)
@@ -118,4 +121,23 @@ def install_selected_knowledge(knowledge_id: int, vector_db_index_id: int, organ
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     upsert_data = VectorEmbeddingFactory.convert_final_chunks_to_embeddings(vector.db_type, file_chunks)
     try:
-        VectorFactory.add_embeddings_to_vector_db(upsert_data, db_creds) 
+        VectorFactory.add_embeddings_to_vector_db(vector_db_index.name, upsert_data, **db_creds)
+    except:
+        return {"success": False}
+    selected_knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
+    selected_knowledge_data = {
+        "name": selected_knowledge[0]["name"],
+        "description": selected_knowledge[0]["description"],
+        "index_id": selected_knowledge[0]["vector_db_index_id"],
+        "organisation_id": organisation.id,
+        "contributed_by": selected_knowledge[0]["contributed_by"],
+    }
+    new_knowledge = Knowledges.add_update_knowledges(db.session, selected_knowledge_data)
+    selected_knowledge_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(db.session, selected_knowledge.id)
+    configs = {}
+    for knowledge_config in selected_knowledge_config:
+        if knowledge_config["key"] != "file_path":
+            configs[knowledge_config["key"]] = knowledge_config["value"]
+    KnowledgeConfigs.add_update_knowledge_config(db.session, new_knowledge.id, configs)
+    return {"success": True}
+    
