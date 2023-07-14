@@ -5,8 +5,9 @@ from sqlalchemy import func
 from superagi.models.events import Event
 class ToolsHandler:
 
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, organisation_id: int):
         self.session = session
+        self.organisation_id = organisation_id
 
     def calculate_tool_usage(self) -> List[Dict[str, int]]:
         tool_usage = []
