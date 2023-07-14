@@ -105,18 +105,13 @@ class Pinecone(VectorStore):
 
         return documents
     
-    def get_index_dimensions(self) -> int:
+    def get_index_stats(self) -> dict:
         """
         Returns:
-            Index dimensions
+            Stats or Information about an index
         """
-        dimensions = self.index.describe_index_stats().dimension
-        return dimensions
-    
-    def get_index_vector_count(self) -> int:
-        """
-        Returns:
-            Index vector count
-        """
-        vector_count = self.index.describe_index_stats().total_vector_count
-        return vector_count
+        index_stats = self.index.describe_index_stats()
+        dimensions = index_stats.dimensions
+        vector_count = index_stats.total_vector_count
+        
+        return {"dimensions": dimensions, "vecttor_count": vector_count}

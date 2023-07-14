@@ -26,9 +26,5 @@ class VectorStore(ABC):
         return self.add_texts(texts, metadatas, **kwargs)
     
     @abstractmethod
-    def get_index_dimensions(self) -> int:
-        """Returns dimensions of an index"""
-
-    @abstractmethod
-    def get_index_vector_count(self) -> int:
-        """Returns vector count of an index"""
+    def get_index_stats(self) -> dict:
+        """Returns stats or information of an index"""

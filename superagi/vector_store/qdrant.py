@@ -153,6 +153,17 @@ class Qdrant(VectorStore):
         )
 
         return self.__build_documents(results)
+    
+    def get_index_stats(self) -> dict:
+        """
+        Returns:
+            Stats or Information about a collection
+        """
+        collection_info = self.client.get_collection(collection_name=self.collection_name)
+        dimensions = collection_info.config.params.vectors.size
+        vector_count = collection_info.vectors_count
+        
+        return {"dimensions": dimensions, "vector_count": vector_count}
 
     def __get_embeddings(
             self,

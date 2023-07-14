@@ -81,16 +81,18 @@ class VectorFactory:
                 pinecone.init(api_key=api_key, environment=environment)
                 index = pinecone.Index(index_name)
                 pinecone_object = Pinecone(index=index)
-                dimensions = pinecone_object.get_index_dimensions()
-                vector_count = pinecone_object.get_index_vector_count()
-                return {"dimensions": dimensions, "vector_count": vector_count}
+                index_stats = pinecone_object.get_index_stats()
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
+            return index_stats
         
         if vector_store == VectorStoreType.QDRANT:
-            client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
-            qdrant_object = Qdrant(client=client, collection_name=index_name)
-            dimensions = qdrant_object.get_index_dimensions()
-            vector_count = qdrant_object.get_index_vector_count()
+            try:
+                client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
+                qdrant_object = Qdrant(client=client, collection_name=index_name)
+                index_stats = qdrant_object.get_index_stats()
+            except UnauthorizedException:
+                raise ValueError("Qdrant API key not found")
+            return index_stats
 
                 

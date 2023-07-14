@@ -60,5 +60,5 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
         "api_key": data["api_key"],
         "environment": data["environment"]
     }
-    db_connect = 
+    db_connect = VectorFactory.get
 
