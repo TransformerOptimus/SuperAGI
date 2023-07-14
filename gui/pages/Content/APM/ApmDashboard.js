@@ -121,7 +121,7 @@ export default function ApmDashboard() {
         <div className={style.apm_dashboard_container}>
             <div id="apm_dashboard" className={style.apm_dashboard}>
                 <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%',alignItems:'center',padding:'0 8px'}}>
-                    <span className="text_14 mt_10 ml_6">Agent Performance Monitoring</span>
+                    <span className="text_14 mt_6 ml_6">Agent Performance Monitoring</span>
                     <button onClick={() => onClickLayoutChange()} className="primary_button">Reset</button>
                 </div>
                 <ResponsiveGridLayout
