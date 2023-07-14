@@ -11,6 +11,7 @@ from superagi.models.vector_dbs import Vectordbs
 from superagi.helper.s3_helper import S3Helper
 from superagi.models.vector_db_configs import VectordbConfigs
 from superagi.vector_store.vector_factory import VectorFactory
+from superagi.vector_embeddings.vector_embedding_factory import VectorEmbeddingFactory
 
 router = APIRouter()
 
@@ -113,5 +114,8 @@ def install_selected_knowledge(knowledge_id: int, vector_db_index_id: int, organ
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, vector_db_index_id)
     filepath = db.session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id, KnowledgeConfigs.key == "file_path").first().value
     file_chunks = S3Helper().get_json_file(filepath)
-    db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector_db_index.vector_db_id)
-    
+    vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
+    db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
+    upsert_data = VectorEmbeddingFactory.convert_final_chunks_to_embeddings(vector.db_type, file_chunks)
+    try:
+        VectorFactory.add_embeddings_to_vector_db(upsert_data, db_creds) 
