@@ -7,6 +7,7 @@ import Datetime from "react-datetime";
 import {toast} from "react-toastify";
 import {agentScheduleComponent, createAndScheduleRun, updateSchedule} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
+import moment from 'moment';
 
 export default function AgentSchedule({
                                         internalId,
@@ -36,8 +37,7 @@ export default function AgentSchedule({
 
   const [modalHeading, setModalHeading] = useState('Schedule Run')
   const [modalButton, setModalButton] = useState('Create and Schedule Run')
-  const [isExpiryCorrect, setExpiryCorrect] = useState(false)
-
+  const [localStartTime, setLocalStartTime] = useState(null)
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -105,17 +105,12 @@ export default function AgentSchedule({
 
     const handleDateTimeChange = (momentObj) => {
         const expiryDate = convertToGMT(momentObj);
-        if(((new Date(expiryDate).setHours(0, 0, 0, 0)) <= (new Date(startTime)).setHours(0, 0, 0, 0))) {
-            toast.error('Expiry Date of agent is before Start Date')
-            setExpiryCorrect(false)
-            return;
-        }
-        setExpiryCorrect(true)
         setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
     };
 
   const handleTimeChange = (momentObj) => {
     const startTime = convertToGMT(momentObj);
+    setLocalStartTime(momentObj.toDate())
     setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
   };
 
@@ -146,10 +141,6 @@ export default function AgentSchedule({
   };
 
   const addScheduledAgent = () => {
-    if(expiryType === 'Specific Date' && !isExpiryCorrect){
-      toast.error('Expiry Date of agent is before start date')
-      return;
-    }
     if ((startTime === '' || (isRecurring === true && (timeValue == null || (expiryType === "After certain number of runs" && (parseInt(expiryRuns, 10) < 1)) || (expiryType === "Specific date" && expiryDate == null))))) {
       toast.error('Please input correct details', {autoClose: 1800});
       return;
@@ -192,13 +183,40 @@ export default function AgentSchedule({
     }
   };
 
-  function fetchUpdateSchedule() {//Update Schedule
+  function checkTime() {
+    if(expiryDate === null){
+      return true;
+    }
+    let date1 = expiryDate;
+    if (typeof expiryDate === 'string' && expiryDate.includes('/')) {
+      date1 = moment(expiryDate, 'DD/MM/YYYY').toDate();
+    } else if (typeof expiryDate === 'string') {
+      date1 = moment.utc(expiryDate,'YYYY-MM-DD HH:mm:ss').local().toDate();
+    }
+    else
+      return
+    let date2 = moment.utc(startTime,'YYYY-MM-DD HH:mm:ss').local().toDate();
+
+    date1.setHours(0, 0, 0, 0);
+    date2.setHours(0, 0, 0, 0);
+
+    date1 = convertToGMT(date1);
+    date2 = convertToGMT(date2);
+
+    return date1 <= date2;
+  }
+
+  function fetchUpdateSchedule() {
+    if(expiryType === 'Specific Date' && checkTime()){
+      toast.error('Expiry Date of agent is before Start Date')
+      return;
+    }
     const requestData = {
       "agent_id": agentId,
       "start_time": startTime,
       "recurrence_interval": timeValue ? `${timeValue} ${timeUnit}` : null,
       "expiry_runs": expiryType === 'After certain number of runs' ? parseInt(expiryRuns) : -1,
-      "expiry_date": expiryType === 'Specific Date' ? expiryDate : null,
+      "expiry_date": expiryType === 'Specific Date' ? (expiryDate && expiryDate.includes('/') ? convertToGMT(moment(expiryDate, 'DD/MM/YYYY').toDate()): expiryDate ) : null,
     };
 
     updateSchedule(requestData)
@@ -314,7 +332,7 @@ export default function AgentSchedule({
                     {type !== "edit_schedule_agent" &&
                       <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`}
                                 onChange={handleDateTimeChange} inputProps={{placeholder: new Date()}}
-                                isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
+                                isValidDate={current => current.isAfter(moment(localStartTime))}/>}
                     {type === "edit_schedule_agent" && expiryDate && <div className={styles.form_label} style={{
                       display: 'flex',
                       fontSize: '14px',
@@ -329,7 +347,7 @@ export default function AgentSchedule({
                     {type === "edit_schedule_agent" && !expiryDate &&
                       <Datetime timeFormat={false} className={`${styles1.className} ${styles.rdtPicker}`}
                                 onChange={handleDateTimeChange} inputProps={{placeholder: new Date()}}
-                                isValidDate={current => current.isAfter(Datetime.moment().subtract(1, 'day'))}/>}
+                                isValidDate={current => current.isAfter(moment(localStartTime))}/>}
                   </div>
                 )}
               </div>
