@@ -14,7 +14,7 @@ class ToolsHandler:
         tool_used_subquery = self.session.query(
             Event.event_property['tool_name'].label('tool_name'),
             Event.agent_id
-        ).filter_by(event_name="tool_used").subquery()
+        ).filter_by(event_name="tool_used", org_id=self.organisation_id).subquery()
 
         agent_count = self.session.query(
             tool_used_subquery.c.tool_name,

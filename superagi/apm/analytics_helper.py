@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.query import Query
 from superagi.models.events import Event
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import text, func, Integer
+from sqlalchemy import text, func, Integer, and_
 from collections import defaultdict
 import logging
 
@@ -18,17 +18,17 @@ class AnalyticsHelper:
         agent_model_query = self.session.query(
             Event.event_property['model'].label('model'),
             Event.agent_id
-        ).filter_by(event_name="agent_created").subquery()
+        ).filter_by(event_name="agent_created", org_id=self.organisation_id).subquery()
 
         agent_runs_query = self.session.query(
             agent_model_query.c.model,
             func.count(Event.id).label('runs')
-        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(agent_model_query.c.model).subquery()
+        ).join(Event, and_(Event.agent_id == agent_model_query.c.agent_id, Event.org_id == self.organisation_id)).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(agent_model_query.c.model).subquery()
 
         agent_tokens_query = self.session.query(
             agent_model_query.c.model,
             func.sum(text("(event_property->>'tokens_consumed')::int")).label('tokens')
-        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(agent_model_query.c.model).subquery()
+        ).join(Event, and_(Event.agent_id == agent_model_query.c.agent_id, Event.org_id == self.organisation_id)).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(agent_model_query.c.model).subquery()
 
         agent_count_query = self.session.query(
             agent_model_query.c.model,
@@ -61,31 +61,31 @@ class AnalyticsHelper:
             Event.agent_id,
             Event.event_property['agent_name'].label('agent_name'),
             Event.event_property['model'].label('model')
-        ).filter_by(event_name="agent_created").subquery()
+        ).filter_by(event_name="agent_created", org_id=self.organisation_id).subquery()
 
         run_subquery = self.session.query(
             Event.agent_id,
             func.sum(text("(event_property->>'tokens_consumed')::int")).label('total_tokens'),
             func.sum(text("(event_property->>'calls')::int")).label('total_calls'),
             func.count(Event.id).label('runs_completed'),
-        ).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(Event.agent_id).subquery()
+        ).filter(and_(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed']), Event.org_id == self.organisation_id)).group_by(Event.agent_id).subquery()
 
         tool_subquery = self.session.query(
             Event.agent_id,
             func.array_agg(Event.event_property['tool_name'].distinct()).label('tools_used'),
-        ).filter_by(event_name="tool_used").group_by(Event.agent_id).subquery()
+        ).filter_by(event_name="tool_used", org_id=self.organisation_id).group_by(Event.agent_id).subquery()
 
         start_time_subquery = self.session.query(
             Event.agent_id,
-            (Event.event_property['agent_execution_id']).label('agent_execution_id'),
+            Event.event_property['agent_execution_id'].label('agent_execution_id'),
             func.min(func.extract('epoch', Event.created_at)).label('start_time')
-        ).filter_by(event_name="run_created").group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
+        ).filter_by(event_name="run_created", org_id=self.organisation_id).group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
 
         end_time_subquery = self.session.query(
             Event.agent_id,
-            (Event.event_property['agent_execution_id']).label('agent_execution_id'),
+            Event.event_property['agent_execution_id'].label('agent_execution_id'),
             func.max(func.extract('epoch', Event.created_at)).label('end_time')
-        ).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
+        ).filter(and_(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed']), Event.org_id == self.organisation_id)).group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
 
         time_diff_subquery = self.session.query(
             start_time_subquery.c.agent_id,
@@ -129,13 +129,13 @@ class AnalyticsHelper:
             Event.event_property['tokens_consumed'].label('tokens_consumed'),
             Event.event_property['calls'].label('calls'),
             Event.updated_at
-        ).filter(Event.event_name.in_(['run_completed','run_iteration_limit_crossed']), Event.agent_id==agent_id).subquery()
+        ).filter(Event.event_name.in_(['run_completed','run_iteration_limit_crossed']), Event.agent_id == agent_id, Event.org_id == self.organisation_id).subquery()
 
         created_subquery = self.session.query(
             Event.event_property['agent_execution_id'].label('created_agent_execution_id'),
             Event.event_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at
-        ).filter(Event.event_name=="run_created", Event.agent_id==agent_id).subquery()
+        ).filter(Event.event_name == "run_created", Event.agent_id == agent_id, Event.org_id == self.organisation_id).subquery()
 
         query = self.session.query(
             created_subquery.c.agent_execution_name,
@@ -164,7 +164,8 @@ class AnalyticsHelper:
         end_event_subquery = self.session.query(
             Event.event_property['agent_execution_id'].label('agent_execution_id'),
         ).filter(
-            Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])
+            Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed']),
+            Event.org_id == self.organisation_id
         ).subquery()
 
         start_subquery = self.session.query(
@@ -172,12 +173,12 @@ class AnalyticsHelper:
             Event.event_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at,
             Event.agent_id
-        ).filter_by(event_name="run_created").subquery()
+        ).filter_by(event_name="run_created", org_id = self.organisation_id).subquery()
 
         agent_created_subquery = self.session.query(
             Event.event_property['agent_name'].label('agent_name'),
             Event.agent_id
-        ).filter_by(event_name="agent_created").subquery()
+        ).filter_by(event_name="agent_created", org_id = self.organisation_id).subquery()
 
         query = self.session.query(
             start_subquery.c.agent_execution_name,

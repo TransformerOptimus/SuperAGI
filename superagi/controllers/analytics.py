@@ -19,7 +19,7 @@ def get_metrics(organisation=Depends(get_user_organisation)):
 
     """
     try:
-        return AnalyticsHelper(session=db.session, organisation_id=organisation.id).calculate_run_completed_metrics(organisation.id)
+        return AnalyticsHelper(session=db.session, organisation_id=organisation.id).calculate_run_completed_metrics()
     except Exception as e:
         logging.error(f"Error while calculating metrics: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -28,7 +28,7 @@ def get_metrics(organisation=Depends(get_user_organisation)):
 @router.get("/agents/all", status_code=200)
 def get_agents(organisation=Depends(get_user_organisation)):
     try:
-        return AnalyticsHelper(session=db.session, organisation_id=organisation.id).fetch_agent_data(organisation.id)
+        return AnalyticsHelper(session=db.session, organisation_id=organisation.id).fetch_agent_data()
     except Exception as e:
         logging.error(f"Error while fetching agent data: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
