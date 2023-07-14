@@ -191,11 +191,13 @@ class AgentExecutor:
         parsed_execution_config = AgentExecutionConfiguration.fetch_configuration(session, agent_execution)
         max_iterations = (parsed_config["max_iterations"])
         total_calls = agent_execution.num_of_calls
+        organisation = AgentExecutor.get_organisation(agent_execution, session)
 
         if max_iterations <= total_calls:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
             session.commit()
+            EventHandler(session=session).create_event('run_iteration_limit_crossed', {'agent_execution_id':db_agent_execution.id,'name': db_agent_execution.name,'tokens_consumed':db_agent_execution.num_of_tokens,"calls":db_agent_execution.num_of_calls}, db_agent_execution.agent_id, organisation.id)
             logger.info("ITERATION_LIMIT_CROSSED")
             return "ITERATION_LIMIT_CROSSED"
 
@@ -203,7 +205,6 @@ class AgentExecutor:
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(parsed_config["model"], agent_execution, session)
         model_llm_source = ModelSourceType.get_model_source_from_model(parsed_config["model"]).value
-        organisation = AgentExecutor.get_organisation(agent_execution, session)
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
