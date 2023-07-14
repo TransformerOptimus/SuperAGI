@@ -35,3 +35,13 @@ class VectordbIndices(DBBaseModel):
     def get_vector_index_from_id(cls, session, vector_db_index_id):
         vector_db_index = session.query(VectordbIndices).filter(VectordbIndices.id == vector_db_index_id).first()
         return vector_db_index
+    
+    @classmethod
+    def get_vector_indices_from_vectordb(cls, session, vector_db_id):
+        vector_indices = session.query(VectordbIndices).filter(VectordbIndices.vector_db_id == vector_db_id).all()
+        return vector_indices
+
+    @classmethod
+    def delete_vector_db_index(cls, session, vector_index_id):
+        session.query(VectordbIndices).filter(VectordbIndices.id == vector_index_id).delete()
+        session.commit()

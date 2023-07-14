@@ -25,7 +25,7 @@ def get_user_connected_vector_db_list(organisation = Depends(get_user_organisati
     vector_db_list = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
     return vector_db_list
 
-@router.post("/get/db/details/{vector_db_id}")
+@router.get("/get/db/details/{vector_db_id}")
 def get_vector_db_details(vector_db_id: int):
     vector_db = Vectordbs.get_vector_db_from_id(vector_db_id)
     vector_db_data = {
@@ -42,8 +42,14 @@ def get_vector_db_details(vector_db_id: int):
     vector_db_with_config["indices"] = vector_indices
     return vector_db_with_config
 
-# @router.post("/delete/{vector_db_id}")
-# def delete_vector_db(vector_db_id: int):
-#     try:
-#         vector_indices = VectordbIndices.get_vector_
+@router.post("/delete/{vector_db_id}")
+def delete_vector_db(vector_db_id: int):
+    try:
+        vector_indices = VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db_id)
+        for vector_index in vector_indices:
+            VectordbIndices.delete_vector_db_index(db.session, vector_index.id)
+        VectordbConfigs.delete_vector_db_configs(db.session, vector_db_id)
+        Vectordbs.delete_vector_db(db.session, vector_db_id)
+    except:
+        raise HTTPException(status_code=404, detail="VectorDb not found")
 
