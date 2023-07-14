@@ -251,11 +251,14 @@ export default function ApmDashboard() {
                                                 <td className="table_data text_align_right" style={{width:'6%'}}>{run.runs_completed}</td>
                                                 <td className="table_data text_align_right" style={{width:'12%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
                                                 <td className="table_data text_align_right" style={{width:'20%'}}>
-                                                    {run.tools_used &&
-                                                        run.tools_used.slice(0, 3).map((tool,index) => (
-                                                            <div className="tools_used">{tool}</div>))}
-                                                    {run.tools_used && run.tools_used.length > 2 &&
-                                                        <div className="tools_used">+{run.tools_used.length - 2}</div>
+                                                    {run.tools_used && run.tools_used.slice(0, 3).map((tool,index) => (
+                                                        <div className="tools_used">{tool}</div>
+                                                    ))}
+                                                    {run.tools_used && run.tools_used.length > 3 &&
+                                                        <div className="tools_used_tooltip"
+                                                             data-tooltip={run.tools_used.slice(3).join(", ")}>
+                                                            +{run.tools_used.length - 3}
+                                                        </div>
                                                     }
                                                 </td>
                                                 <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_calls}</td>
