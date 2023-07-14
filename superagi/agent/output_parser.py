@@ -29,7 +29,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
             response = "```".join(response.split("```")[1:-1])
         # OpenAI returns `str(content_dict)`, literal_eval reverses this
         try:
-            logger.info(response)
+            logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
             return AgentGPTAction(
                 name=response_obj['tool']['name'],
