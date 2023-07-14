@@ -24,3 +24,11 @@ class VectorStore(ABC):
         texts = [doc.text_content for doc in documents]
         metadatas = [doc.metadata for doc in documents]
         return self.add_texts(texts, metadatas, **kwargs)
+    
+    @abstractmethod
+    def get_index_dimensions(self) -> int:
+        """Returns dimensions of an index"""
+
+    @abstractmethod
+    def get_index_vector_count(self) -> int:
+        """Returns vector count of an index"""

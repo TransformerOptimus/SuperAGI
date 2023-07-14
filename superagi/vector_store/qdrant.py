@@ -17,11 +17,15 @@ DictFilter = Dict[str, Union[str, int, bool, dict, list]]
 MetadataFilter = Union[DictFilter, common_types.Filter]
 
 
-def create_qdrant_client(
+def create_qdrant_client(api_key: Optional[str], url: Optional[str], port: Optional[int]
 ) -> QdrantClient:
-    qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
-    qdrant_port = get_config("QDRANT_PORT") or 6333
-    return QdrantClient(host=qdrant_host_name, port=qdrant_port)
+    if api_key is None:
+        qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
+        qdrant_port = get_config("QDRANT_PORT") or 6333
+        qdrant_client = QdrantClient(host=qdrant_host_name, port=qdrant_port)
+    else:
+        qdrant_client = QdrantClient(api_key=api_key, url=url, port=port)
+    return qdrant_client
 
 
 class Qdrant(VectorStore):
@@ -41,7 +45,7 @@ class Qdrant(VectorStore):
     def __init__(
             self,
             client: QdrantClient,
-            embedding_model: Any,
+            embedding_model: Optional[Any],
             collection_name: str,
             text_field_payload_key: str = TEXT_FIELD_KEY,
             metadata_payload_key: str = METADATA_KEY,

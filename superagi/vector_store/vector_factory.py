@@ -69,3 +69,28 @@ class VectorFactory:
             return qdrant.Qdrant(client, embedding_model, index_name)
 
         raise ValueError(f"Vector store {vector_store} not supported")
+
+
+    @classmethod
+    def get_vector_index_stats(cls, vector_store: VectorStoreType, index_name, **creds):
+        vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        if vector_store == VectorStoreType.PINECONE:
+            api_key = creds["api_key"]
+            environment = creds["environment"]
+            try:
+                pinecone.init(api_key=api_key, environment=environment)
+                index = pinecone.Index(index_name)
+                pinecone_object = Pinecone(index=index)
+                dimensions = pinecone_object.get_index_dimensions()
+                vector_count = pinecone_object.get_index_vector_count()
+                return {"dimensions": dimensions, "vector_count": vector_count}
+            except UnauthorizedException:
+                raise ValueError("PineCone API key not found")
+        
+        if vector_store == VectorStoreType.QDRANT:
+            client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
+            qdrant_object = Qdrant(client=client, collection_name=index_name)
+            dimensions = qdrant_object.get_index_dimensions()
+            vector_count = qdrant_object.get_index_vector_count()
+
+                

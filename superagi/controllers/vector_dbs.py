@@ -6,6 +6,7 @@ from superagi.models.vector_dbs import Vectordbs
 from superagi.helper.auth import get_user_organisation
 from superagi.models.vector_db_configs import VectordbConfigs
 from superagi.models.vector_db_indices import VectordbIndices
+from superagi.vector_store.vector_factory import VectorFactory
 
 router = APIRouter()
 
@@ -52,4 +53,12 @@ def delete_vector_db(vector_db_id: int):
         Vectordbs.delete_vector_db(db.session, vector_db_id)
     except:
         raise HTTPException(status_code=404, detail="VectorDb not found")
+    
+@router.post("/connect/pinecone")
+def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organisation)):
+    db_creds = {
+        "api_key": data["api_key"],
+        "environment": data["environment"]
+    }
+    db_connect = 
 
