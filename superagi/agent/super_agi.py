@@ -232,7 +232,6 @@ class SuperAgi:
 
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
-        print(action)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         action_name = action.name.lower().replace(" ", "")
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
