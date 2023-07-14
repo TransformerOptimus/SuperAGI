@@ -127,7 +127,7 @@ class AgentExecutor:
 
     @classmethod
     def get_llm_source(cls, agent_execution, session):
-        return Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_source")
+        return Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_source") or "OpenAi"
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):
