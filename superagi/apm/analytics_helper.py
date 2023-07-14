@@ -22,12 +22,12 @@ class AnalyticsHelper:
         agent_runs_query = self.session.query(
             agent_model_query.c.model,
             func.count(Event.id).label('runs')
-        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter_by(event_name="run_completed").group_by(agent_model_query.c.model).subquery()
+        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(agent_model_query.c.model).subquery()
 
         agent_tokens_query = self.session.query(
             agent_model_query.c.model,
             func.sum(text("(event_property->>'tokens_consumed')::int")).label('tokens')
-        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter_by(event_name="run_completed").group_by(agent_model_query.c.model).subquery()
+        ).join(Event, Event.agent_id == agent_model_query.c.agent_id).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(agent_model_query.c.model).subquery()
 
         agent_count_query = self.session.query(
             agent_model_query.c.model,
@@ -67,7 +67,7 @@ class AnalyticsHelper:
             func.sum(text("(event_property->>'tokens_consumed')::int")).label('total_tokens'),
             func.sum(text("(event_property->>'calls')::int")).label('total_calls'),
             func.count(Event.id).label('runs_completed'),
-        ).filter_by(event_name="run_completed").group_by(Event.agent_id).subquery()
+        ).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(Event.agent_id).subquery()
 
         tool_subquery = self.session.query(
             Event.agent_id,
@@ -84,7 +84,7 @@ class AnalyticsHelper:
             Event.agent_id,
             (Event.event_property['agent_execution_id']).label('agent_execution_id'),
             func.max(func.extract('epoch', Event.created_at)).label('end_time')
-        ).filter_by(event_name="run_completed").group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
+        ).filter(Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])).group_by(Event.agent_id, Event.event_property['agent_execution_id']).subquery()
 
         time_diff_subquery = self.session.query(
             start_time_subquery.c.agent_id,
@@ -128,13 +128,13 @@ class AnalyticsHelper:
             Event.event_property['tokens_consumed'].label('tokens_consumed'),
             Event.event_property['calls'].label('calls'),
             Event.updated_at
-        ).filter_by(event_name="run_completed", agent_id=agent_id).subquery()
+        ).filter(Event.event_name.in_(['run_completed','run_iteration_limit_crossed']), Event.agent_id==agent_id).subquery()
 
         created_subquery = self.session.query(
             Event.event_property['agent_execution_id'].label('created_agent_execution_id'),
             Event.event_property['agent_execution_name'].label('agent_execution_name'),
             Event.created_at
-        ).filter_by(event_name="run_created", agent_id=agent_id).subquery()
+        ).filter(Event.event_name=="run_created", Event.agent_id==agent_id).subquery()
 
         query = self.session.query(
             created_subquery.c.agent_execution_name,
@@ -159,9 +159,12 @@ class AnalyticsHelper:
 
     def get_active_runs(self) -> List[Dict[str, str]]:
         running_executions = []
-        completed_subquery = self.session.query(
+
+        end_event_subquery = self.session.query(
             Event.event_property['agent_execution_id'].label('agent_execution_id'),
-        ).filter_by(event_name="run_completed").subquery()
+        ).filter(
+            Event.event_name.in_(['run_completed', 'run_iteration_limit_crossed'])
+        ).subquery()
 
         start_subquery = self.session.query(
             Event.event_property['agent_execution_id'].label('agent_execution_id'),
@@ -181,7 +184,7 @@ class AnalyticsHelper:
             agent_created_subquery.c.agent_name
         ).select_from(start_subquery)
 
-        query = query.outerjoin(completed_subquery, start_subquery.c.agent_execution_id == completed_subquery.c.agent_execution_id).filter(completed_subquery.c.agent_execution_id == None)
+        query = query.outerjoin(end_event_subquery, start_subquery.c.agent_execution_id == end_event_subquery.c.agent_execution_id).filter(end_event_subquery.c.agent_execution_id == None)
 
         query = query.join(agent_created_subquery, start_subquery.c.agent_id == agent_created_subquery.c.agent_id)
 

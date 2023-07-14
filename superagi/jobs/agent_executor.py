@@ -191,11 +191,13 @@ class AgentExecutor:
         parsed_execution_config = AgentExecutionConfiguration.fetch_configuration(session, agent_execution)
         max_iterations = (parsed_config["max_iterations"])
         total_calls = agent_execution.num_of_calls
+        organisation = AgentExecutor.get_organisation(agent_execution, session)
 
         if max_iterations <= total_calls:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
             session.commit()
+            EventHandler(session=session).create_event('run_iteration_limit_crossed', {'agent_execution_id':db_agent_execution.id,'name': db_agent_execution.name,'tokens_consumed':db_agent_execution.num_of_tokens,"calls":db_agent_execution.num_of_calls}, db_agent_execution.agent_id, organisation.id)
             logger.info("ITERATION_LIMIT_CROSSED")
             return "ITERATION_LIMIT_CROSSED"
 
