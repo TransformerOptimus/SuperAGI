@@ -1,4 +1,5 @@
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
@@ -49,38 +50,27 @@ export const formatNumber = (number) => {
 };
 export const formatTime = (lastExecutionTime) => {
   try {
-    const parsedTime = parseISO(lastExecutionTime);
+    const parsedTime = new Date(lastExecutionTime + 'Z'); // append 'Z' to indicate UTC
     if (isNaN(parsedTime.getTime())) {
       throw new Error('Invalid time value');
     }
-    return formatDistanceToNow(parsedTime, {
+
+    const timeZone = 'Asia/Kolkata';
+    const zonedTime = utcToZonedTime(parsedTime, timeZone);
+
+    return formatDistanceToNow(zonedTime, {
       addSuffix: true,
-      includeSeconds: true,
-    }).replace(/about\s/, '');
+      includeSeconds: true
+    }).replace(/about\s/, '')
+        .replace(/minutes?/, 'min')
+        .replace(/hours?/, 'hrs')
+        .replace(/days?/, 'day')
+        .replace(/weeks?/, 'week');
   } catch (error) {
     console.error('Error formatting time:', error);
     return 'Invalid Time';
   }
 };
-export const formatRunTimeDifference = (updated_at, created_at) => {
-  let date1 = new Date(updated_at);
-  let date2 = new Date(created_at);
-
-  let differenceInMilliseconds = date1.getTime() - date2.getTime();
-  let diffInSeconds = differenceInMilliseconds / 1000;
-  let diffInMinutes = diffInSeconds / 60;
-  let diffInHours = diffInMinutes / 60;
-
-  if (diffInHours >= 1) {
-    return Math.round(diffInHours) + ' hr';
-  } else if (diffInMinutes >=1) {
-    return Math.round(diffInMinutes) + ' min';
-  } else {
-    return Math.round(diffInSeconds) + ' sec';
-  }
-}
-
-
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
     return '0 Bytes';
@@ -374,28 +364,4 @@ export const convertToTitleCase = (str) => {
   const words = str.toLowerCase().split('_');
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
-}
-
-export const averageAgentRunTime = (runs) => {
-  var total = 0;
-  for (var i=0; i<runs.length; i++) {
-    const timeDifference = formatRunTimeDifference(runs[i].updated_at, runs[i].created_at);
-    var time = 0;
-
-    if(timeDifference.includes('day')) {
-      time = parseFloat(timeDifference.replace('day', '')) * 24 * 60;
-    }
-    if(timeDifference.includes('hr')) {
-      time = parseFloat(timeDifference.replace('hr', '')) * 60;
-    }
-    if(timeDifference.includes('min')) {
-      time = parseFloat(timeDifference.replace('min', ''));
-    }
-    if(timeDifference.includes('sec')) {
-      time = parseFloat(timeDifference.replace('sec', '')) / 60;
-    }
-    total += isNaN(time) ? 0 : time;
-  }
-  const avg = runs.length > 0 ? total / runs.length : 0;
-  return (`${avg.toFixed(1)} min`);
 }

@@ -3,7 +3,7 @@ import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
 import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
-import {formatNumber, formatTime, formatRunTimeDifference, averageAgentRunTime} from "@/utils/utils";
+import {formatNumber, formatTime} from "@/utils/utils";
 import {BarGraph} from "./BarGraph.js";
 import { WidthProvider, Responsive } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';

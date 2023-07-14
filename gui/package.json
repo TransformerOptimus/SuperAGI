@@ -13,6 +13,7 @@
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.0",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",
     "eslint": "8.40.0",
