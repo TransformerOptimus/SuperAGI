@@ -232,6 +232,7 @@ class SuperAgi:
 
     def handle_tool_response(self, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
+        print(action)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         action_name = action.name.lower().replace(" ", "")
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
@@ -315,7 +316,10 @@ class SuperAgi:
         return prompt
 
     def check_permission_in_restricted_mode(self, assistant_reply: str):
-        action = self.output_parser.parse(assistant_reply)
+        try:
+            action = self.output_parser.parse(assistant_reply)
+        except Exception:
+            return False, None
         tools = {t.name: t for t in self.tools}
 
         excluded_tools = [FINISH, '', None]
