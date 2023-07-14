@@ -6,6 +6,7 @@ from superagi.helper.tool_helper import handle_tools_import
 from superagi.lib.logger import logger
 
 from celery import Celery
+from honeybadger.contrib import CeleryHoneybadger
 
 from superagi.config.config import get_config
 from superagi.models.db import connect_db
@@ -18,6 +19,12 @@ app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
 app.conf.accept_content = ['application/x-python-serialize', 'application/json']
 
+if get_config("ENV") == "PROD":
+    app.conf.update(
+      HONEYBADGER_API_KEY=get_config("HONEYBADGER_API_KEY"),
+      HONEYBADGER_ENVIRONMENT='production'
+    )
+    CeleryHoneybadger(app, report_exceptions=True)
 
 @app.task(name="execute_agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def execute_agent(agent_execution_id: int, time):
