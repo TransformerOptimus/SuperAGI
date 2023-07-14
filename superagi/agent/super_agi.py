@@ -42,7 +42,6 @@ S3 = "S3"
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
-session = Session()
 
 
 class SuperAgi:
@@ -151,8 +150,9 @@ class SuperAgi:
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
-        self.update_agent_execution_tokens(current_calls, total_tokens)
-        logger.debug("Response:", response)
+
+        self.update_agent_execution_tokens(current_calls, total_tokens, session)
+        
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
@@ -160,7 +160,7 @@ class SuperAgi:
         final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
             # check if permission is required for the tool in restricted mode
-            is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
+            is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply, session)
             if is_permission_required:
                 return response
 
@@ -275,7 +275,8 @@ class SuperAgi:
                 parsed_args[key] = args[key]["value"]
         return parsed_args
 
-    def update_agent_execution_tokens(self, current_calls, total_tokens):
+
+    def update_agent_execution_tokens(self, current_calls, total_tokens, session):
         agent_execution = session.query(AgentExecution).filter(
             AgentExecution.id == self.agent_config["agent_execution_id"]).first()
         agent_execution.num_of_calls += current_calls
@@ -307,7 +308,7 @@ class SuperAgi:
                                                                  pending_tasks, completed_tasks, token_limit)
         return prompt
 
-    def check_permission_in_restricted_mode(self, assistant_reply: str):
+    def check_permission_in_restricted_mode(self, assistant_reply: str, session):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
