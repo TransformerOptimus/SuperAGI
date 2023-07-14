@@ -4,7 +4,7 @@ import requests
 from sqlalchemy import Column, Integer, String, Boolean
 
 from superagi.models.base_model import DBBaseModel
-
+from superagi.models.tool import Tool
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
@@ -127,3 +127,14 @@ class Toolkit(DBBaseModel):
             else:
                 toolkit["is_installed"] = False
         return marketplace_toolkits
+
+    @classmethod
+    def fetch_tool_ids_from_toolkit(cls, session, toolkit_ids):
+        agent_toolkit_tools = []
+        for toolkit_id in toolkit_ids:
+            toolkit_tools = session.query(Tool).filter(Tool.toolkit_id == toolkit_id).all()
+            for tool in toolkit_tools:
+                tool = session.query(Tool).filter(Tool.id == tool.id).first()
+                if tool is not None:
+                    agent_toolkit_tools.append(tool.id)
+        return agent_toolkit_tools

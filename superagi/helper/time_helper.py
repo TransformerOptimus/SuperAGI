@@ -31,3 +31,11 @@ def get_time_difference(timestamp1, timestamp2):
         "minutes": minutes
     }
     return time_difference_dict
+
+
+def parse_interval_to_seconds(interval: str) -> int:
+    units = {"Minutes": 60, "Hours": 3600, "Days": 86400, "Weeks": 604800, "Months": 2592000}
+    value, unit = interval.split(" ")
+    return int(value) * units[unit]
+
+

@@ -92,7 +92,7 @@ class SendEmailAttachmentTool(BaseTool):
             with open(attachment_path, "rb") as file:
                 message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
 
-        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE')
+        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":
             send_to_draft = True
         else:

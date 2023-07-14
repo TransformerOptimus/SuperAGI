@@ -27,7 +27,7 @@ class BaseOutputParser(ABC):
 class AgentOutputParser(BaseOutputParser):
     def parse(self, text: str) -> AgentGPTAction:
         try:
-            logger.info(text)
+            # logger.info(text)
             text = JsonCleaner.check_and_clean_json(text)
             parsed = json5.loads(text)
         except json.JSONDecodeError:
@@ -48,7 +48,7 @@ class AgentOutputParser(BaseOutputParser):
                 logger.info(format_prefix_yellow + "Reasoning: " + format_suffix_yellow + parsed["thoughts"]["reasoning"] + "\n")
 
             if "plan" in parsed["thoughts"]:
-                logger.info(format_prefix_yellow + "Plan: " + format_suffix_yellow + parsed["thoughts"]["plan"] + "\n")
+                logger.info(format_prefix_yellow + "Plan: " + format_suffix_yellow + str(parsed["thoughts"]["plan"]) + "\n")
 
             if "criticism" in parsed["thoughts"]:
                 logger.info(format_prefix_yellow + "Criticism: " + format_suffix_yellow + parsed["thoughts"]["criticism"] + "\n")
@@ -66,10 +66,11 @@ class AgentOutputParser(BaseOutputParser):
                 name=parsed["tool"]["name"],
                 args=args,
             )
-        except (KeyError, TypeError):
+        except (KeyError, TypeError) as e:
+            logger.error(f"Error parsing output:", e)
             # If the tool is null or incomplete, return an erroneous tool
             return AgentGPTAction(
-                name="ERROR", args={"error": f"Incomplete tool args: {parsed}"}
+                name="ERROR", args={"error": f"Unable to parse the output: {parsed}"}
             )
 
     def parse_tasks(self, text: str) -> AgentTasks:
@@ -93,5 +94,3 @@ class AgentOutputParser(BaseOutputParser):
             return AgentTasks(
                 error=f"Incomplete tool args: {parsed}",
             )
-
-

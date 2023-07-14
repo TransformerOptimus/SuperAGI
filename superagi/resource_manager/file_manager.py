@@ -36,7 +36,7 @@ class FileManager:
             logger.info(f"Binary {file_name} saved successfully")
             return f"Binary {file_name} saved successfully"
         except Exception as err:
-            return f"Error: {err}"
+            return f"Error write_binary_file: {err}"
 
     def write_to_s3(self, file_name, final_path):
         with open(final_path, 'rb') as img:
@@ -64,7 +64,7 @@ class FileManager:
             logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
         except Exception as err:
-            return f"Error: {err}"
+            return f"Error write_file: {err}"
 
     def write_csv_file(self, file_name: str, csv_data):
         if self.agent_id is not None:
@@ -81,7 +81,7 @@ class FileManager:
             logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
         except Exception as err:
-            return f"Error: {err}"
+            return f"Error write_csv_file: {err}"
 
     def get_agent_resource_path(self, file_name: str):
         return ResourceHelper.get_agent_resource_path(file_name, self.agent_id)

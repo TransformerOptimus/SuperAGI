@@ -2,8 +2,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 from superagi.vector_store.chromadb import ChromaDB
 from superagi.vector_store.document import Document
-from superagi.vector_store.embedding.openai import BaseEmbedding, OpenAiEmbedding
-
+from superagi.vector_store.embedding.openai import OpenAiEmbedding
+from superagi.vector_store.embedding.base import BaseEmbedding
 
 @pytest.fixture
 def mock_embedding_model():

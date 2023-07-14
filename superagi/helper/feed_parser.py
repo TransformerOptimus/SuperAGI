@@ -29,7 +29,7 @@ def parse_feed(feed):
             if "reasoning" in parsed["thoughts"]:
                 final_output = "Thoughts: " + parsed["thoughts"]["reasoning"] + "\n"
             if "plan" in parsed["thoughts"]:
-                final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n"
+                final_output += "Plan: " + str(parsed["thoughts"]["plan"]) + "\n"
             if "criticism" in parsed["thoughts"]:
                 final_output += "Criticism: " + parsed["thoughts"]["criticism"] + "\n"
             if "tool" in parsed:

@@ -4,7 +4,7 @@ from superagi.vector_store.document import Document
 from superagi.vector_store.base import VectorStore
 from typing import Any, Callable, Optional, Iterable, List
 
-from superagi.vector_store.embedding.openai import BaseEmbedding
+from superagi.vector_store.embedding.base import BaseEmbedding
 
 
 class Pinecone(VectorStore):

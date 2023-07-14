@@ -10,8 +10,8 @@ You have following incomplete tasks `{pending_tasks}`. You have following comple
 Task History:
 `{task_history}`
 
-Based on this, create a single task to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your high level goal.
+Based on this, create a single task in plain english to be completed by your AI system ONLY IF REQUIRED to get closer to or fully reach your high level goal.
 Don't create any task if it is already covered in incomplete or completed tasks.
 Ensure your new task are not deviated from completing the goal.
 
-Your answer should be an array of strings that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.
+Your answer should be an array of tasks in plain english that can be used with JSON.parse() and NOTHING ELSE. Return empty array if no new task is required.

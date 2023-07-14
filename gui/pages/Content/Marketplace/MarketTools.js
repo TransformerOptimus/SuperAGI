@@ -10,7 +10,7 @@ export default function MarketTools(){
   const [toolTemplates, setToolTemplates] = useState([])
   const [showMarketplace, setShowMarketplace] = useState(false);
   const [isLoading, setIsLoading] = useState(true)
-  const [loadingText, setLoadingText] = useState("Loading Templates");
+  const [loadingText, setLoadingText] = useState("Loading Toolkits");
 
   useEffect(() => {
     loadingTextEffect('Loading Templates', setLoadingText, 500);

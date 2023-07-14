@@ -22,28 +22,26 @@ export default function Toolkits({ sendToolkitData, toolkits, env }) {
         {toolkits && toolkits.length > 0 ? (
           <div style={{ overflowY: 'scroll', height: '80vh' }}>
             <div className={styles.tool_container}>
-              {toolkits.map((tool) => (
-                <div key={tool.id} style={{ width: '100%' }}>
-                  {tool.name !== null && !excludedToolkits.includes(tool.name) && (
-                    <div className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
-                      <div className="row">
-                        <div className="col-12">
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
-                            <div>
-                              <Image className={styles.image_class} style={{background: 'black'}} width={30} height={30} src={returnToolkitIcon(tool.name)}
-                                     alt="tool-icon" />
-                            </div>
-                            <div style={{ marginLeft: '8px' }}>
-                              <div className={styles.tool_name}>{tool.name}</div>
-                              <div className={styles.tool_publisher}>by SuperAGI</div>
-                            </div>
+              {toolkits.map((tool, index) =>
+                  tool.name !== null && !excludedToolkits.includes(tool.name) && (
+                  <div key={index} className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
+                    <div className="row">
+                      <div className="col-12">
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px' }}>
+                          <div>
+                            <Image className={styles.image_class} style={{background: 'black'}} width={30} height={30} src={returnToolkitIcon(tool.name)}
+                                   alt="tool-icon" />
+                          </div>
+                          <div style={{ marginLeft: '8px' }}>
+                            <div className={styles.tool_name}>{tool.name}</div>
+                            <div className={styles.tool_publisher}>by SuperAGI</div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                  )
+              )}
             </div>
           </div>
         ) : (
