@@ -7,6 +7,7 @@ from superagi.lib.logger import logger
 
 from datetime import timedelta
 from celery import Celery
+from honeybadger.contrib import CeleryHoneybadger
 
 from superagi.config.config import get_config
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
@@ -22,7 +23,11 @@ app.conf.broker_url = "redis://" + redis_url + "/0"
 app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
 app.conf.accept_content = ['application/x-python-serialize', 'application/json']
-
+app.conf.update(
+  HONEYBADGER_API_KEY=get_config("HONEY_BADGER_API_KEY"),
+  HONEYBADGER_ENVIRONMENT='production'
+)
+CeleryHoneybadger(app, report_exceptions=True)
 
 beat_schedule = {
     'initialize-schedule-agent': {

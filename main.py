@@ -3,7 +3,7 @@ import pickle
 from datetime import datetime, timedelta
 
 import requests
-from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import RedirectResponse
@@ -13,6 +13,8 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from honeybadger import honeybadger
+from honeybadger.contrib.fastapi import HoneybadgerRoute
 
 import superagi
 import urllib.parse
@@ -55,7 +57,11 @@ from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 
+honeybadger.configure(api_key=get_config("HONEY_BADGER_API_KEY"))
 app = FastAPI()
+app.router.route_class = HoneybadgerRoute
+
+router = APIRouter(route_class=HoneybadgerRoute)
 
 database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')
