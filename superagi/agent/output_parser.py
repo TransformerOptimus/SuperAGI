@@ -27,6 +27,8 @@ class AgentSchemaOutputParser(BaseOutputParser):
     def parse(self, response: str) -> AgentGPTAction:
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])
+            response = JsonCleaner.extract_json_section(response)
+
         # OpenAI returns `str(content_dict)`, literal_eval reverses this
         try:
             logger.debug("AgentSchemaOutputParser: ", response)

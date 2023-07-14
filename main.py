@@ -287,6 +287,7 @@ async def startup_event():
             workflow_step1.prompt = output["prompt"]
             workflow_step1.variables = str(output["variables"])
             workflow_step1.output_type = "tasks"
+            workflow_step1.agent_workflow_id = agent_workflow.id
             session.commit()
 
         workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "ab2").first()
@@ -302,6 +303,7 @@ async def startup_event():
             workflow_step2.prompt = output["prompt"]
             workflow_step2.variables = str(output["variables"])
             workflow_step2.output_type = "tools"
+            workflow_step2.agent_workflow_id = agent_workflow.id
             session.commit()
 
         session.commit()
