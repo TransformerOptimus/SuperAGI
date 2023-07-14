@@ -70,3 +70,5 @@ export const BarGraph = ({ data, type, color }) => {
         </div>
     );
 }
+
+export default BarGraph;
