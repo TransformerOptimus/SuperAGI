@@ -85,5 +85,5 @@ class Configuration(DBBaseModel):
         config = session.query(Configuration).filter(Configuration.organisation_id == organisation.id,
                                                      Configuration.key == key).first()
         if not config:
-            raise HTTPException(status_code=404, detail="Configuration not found")
+            return None
         return config.value if config else None
