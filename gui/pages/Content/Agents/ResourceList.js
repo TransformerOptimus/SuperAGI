@@ -51,6 +51,7 @@ export default function ResourceList({ files, channel, runs }) {
 
                         {selectedRun === filesRun.run && (
                             <div className={styles.resources} style={{padding: '2px 8px'}}>
+                              {/* eslint-disable-next-line react/jsx-key */}
                               {filesRun.files.map((file, index) => <File file={file} index={index} />)}
                             </div>
                         )}
@@ -61,6 +62,7 @@ export default function ResourceList({ files, channel, runs }) {
 
         {channel === 'input' &&
             <div className={styles.resources}>
+              {/* eslint-disable-next-line react/jsx-key */}
               {files.map((file, index) => <File file={file} index={index} />)}
             </div>}
       </div>

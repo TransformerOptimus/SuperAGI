@@ -252,7 +252,7 @@ export default function ApmDashboard() {
                                                 <td className="table_data text_align_right" style={{width:'12%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
                                                 <td className="table_data text_align_right" style={{width:'20%'}}>
                                                     {run.tools_used && run.tools_used.slice(0, 3).map((tool,index) => (
-                                                        <div className="tools_used">{tool}</div>
+                                                        <div key={index} className="tools_used">{tool}</div>
                                                     ))}
                                                     {run.tools_used && run.tools_used.length > 3 &&
                                                         <div className="tools_used_tooltip"
@@ -277,7 +277,7 @@ export default function ApmDashboard() {
                                     <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                     <span className="text_12 color_white mt_6">No active runs found</span>
                                 </div> : activeRuns.map((run,index) => (
-                                    <div className="active_runs">
+                                    <div key={index} className="active_runs">
                                         <span className="text_14">{run.name}</span>
                                         <div style={{display:'inline-flex',alignItems:'center'}}><span className="text_12 mt_6">{run.agent_name}  ·  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" /> {formatTime(run.created_at)}</span></div>
                                     </div>
