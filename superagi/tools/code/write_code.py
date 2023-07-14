@@ -40,7 +40,7 @@ class CodingTool(BaseTool):
         "Make sure that every detail of the architecture is, in the end, implemented as code. "
         "Think step by step and reason yourself to the right decisions to make sure we get it right. "
         "You will first lay out the names of the core classes, functions, methods that will be necessary, "
-        "as well as a quick comment on their purpose. Then you will output the content of each file including ALL code."
+        "as well as a quick comment on their purpose. Then you will output the content of each file including each function and class and ALL code."
     )
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
