@@ -8,7 +8,9 @@ from superagi.models.marketplace_stats import MarketPlaceStats
 from superagi.models.knowledge_configs import KnowledgeConfigs
 from superagi.models.vector_db_indices import VectordbIndices
 from superagi.models.vector_dbs import Vectordbs
-from superagi.llms.openai import OpenAi
+from superagi.helper.s3_helper import S3Helper
+from superagi.models.vector_db_configs import VectordbConfigs
+from superagi.vector_store.vector_factory import VectorFactory
 
 router = APIRouter()
 
@@ -106,3 +108,10 @@ def delete_user_knowledge(knowledge_id: int):
     except:
         return f"No Knowledge found for {knowledge_id}."
 
+@router.post("/install/knowledge/{knowledge_id}/index/{vector_db_index_id}")
+def install_selected_knowledge(knowledge_id: int, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
+    vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, vector_db_index_id)
+    filepath = db.session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id, KnowledgeConfigs.key == "file_path").first().value
+    file_chunks = S3Helper().get_json_file(filepath)
+    db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector_db_index.vector_db_id)
+    
