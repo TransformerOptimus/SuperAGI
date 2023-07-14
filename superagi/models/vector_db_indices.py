@@ -30,3 +30,8 @@ class VectordbIndices(DBBaseModel):
             str: String representation of the Vector db index.
         """
         return f"VectordbIndices(id={self.id}, name='{self.name}', vector_db_id={self.vector_db_id}, dimensions={self.dimensions}, state={self.state})"
+    
+    @classmethod
+    def get_vector_index_from_id(cls, session, vector_db_index_id):
+        vector_db_index = session.query(VectordbIndices).filter(VectordbIndices.id == vector_db_index_id).first()
+        return vector_db_index

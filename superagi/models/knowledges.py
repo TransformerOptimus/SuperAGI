@@ -30,7 +30,6 @@ class Knowledges(DBBaseModel):
     name = Column(String)
     description = Column(String)
     summary = Column(String)
-    readme = Column(String)
     vector_db_index_id = Column(Integer)
     organisation_id = Column(Integer)
     contributed_by = Column(String)
@@ -46,3 +45,53 @@ class Knowledges(DBBaseModel):
         return f"Knowledge(id={self.id}, name='{self.name}', description='{self.description}', " \
                f"summary='{self.summary}', readme='{self.readme}', index_id={self.index_id}), " \
                f"organisation_id={self.organisation_id}), contributed_by={self.contributed_by}"
+
+    @classmethod
+    def fetch_marketplace_list(cls, page):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + f"/knowledges/marketplace/list/{str(page)}",
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []
+    
+    @classmethod
+    def get_knowledge_install_details(cls, session, marketplace_knowledges, organisation):
+        installed_knowledges = session.query(Knowledges).filter(Knowledges.organisation_id == organisation.id).all()
+        for knowledge in marketplace_knowledges:
+            if knowledge["name"] in [installed_knowledge.name for installed_knowledge in installed_knowledges]:
+                knowledge["is_installed"] = True
+            else:
+                knowledge["is_installed"] = False
+        return marketplace_knowledges
+    
+    @classmethod
+    def get_organisation_knowledges(cls, session, organisation):
+        knowledges = session.query(Knowledges).filter(Knowledges.organisation_id == organisation.id).all()
+        knowledge_data = []
+        for knowledge in knowledges:
+            data = {
+                "id": knowledge.id,
+                "name": knowledge.name,
+                "contributed_by": knowledge.contributed_by
+            }
+            knowledge_data.append(data)
+        return knowledge_data
+    
+    @classmethod
+    def fetch_knowledge_details_marketplace(cls, knowledge_name):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + f"/knowledges/marketplace/details/{knowledge_name}",
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []
+    
+    @classmethod
+    def get_knowledge_from_id(cls, session, knowledge_id):
+        knowledge = session.query(Knowledges).filter(Knowledges.id == knowledge_id).first()
+        return knowledge

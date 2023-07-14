@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, Text, String
-
+import requests
 from superagi.models.base_model import DBBaseModel
+#marketplace_url = "https://app.superagi.com/api"
+marketplace_url = "http://localhost:8001"
 
 
 class KnowledgeConfigs(DBBaseModel):
@@ -27,3 +29,14 @@ class KnowledgeConfigs(DBBaseModel):
             str: String representation of the Knowledge Configuration.
         """
         return f"KnowledgeConfiguration(id={self.id}, knowledge_id={self.knowledge_id}, key={self.key}, value={self.value})"
+    
+    @classmethod
+    def fetch_knowledge_config_details_marketplace(knowledge_id: int):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + f"/knowledge_configs/marketplace/details/{str(knowledge_id)}",
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []

@@ -33,3 +33,14 @@ class MarketPlaceStats(DBBaseModel):
         """
         return f"Knowledge(id={self.id}, reference_id='{self.reference_id}', reference_name='{self.reference_name}', " \
                f"key='{self.key}', value='{self.value}'"
+
+    @classmethod
+    def get_knowledge_installation_number(cls, knowledge_id: int):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + f"/marketplace/knowledge/downloads/{str(knowledge_id)}",
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []

@@ -33,3 +33,24 @@ class Vectordbs(DBBaseModel):
             str: String representation of the Vector db.
         """
         return f"Vector(id={self.id}, name='{self.name}', db_type='{self.db_type}' organisation_id={self.organisation_id}"
+    
+    @classmethod
+    def get_vector_db_from_id(cls, session, vector_db_id):
+        vector_db = session.query(Vectordbs).filter(Vectordbs.id == vector_db_id).filter()
+        return vector_db
+    
+    @classmethod
+    def fetch_marketplace_list(cls):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + f"/vector_dbs/marketplace/list",
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []
+        
+    @classmethod
+    def get_vector_db_from_organisation(cls, session, organisation):
+        vector_db_list = session.query(Vectordbs).filter(Vectordbs.organisation_id == organisation.id).all()
+        return vector_db_list
