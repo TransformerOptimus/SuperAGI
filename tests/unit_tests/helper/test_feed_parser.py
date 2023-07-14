@@ -11,7 +11,7 @@ class TestParseFeed(unittest.TestCase):
         current_time = datetime.now()
 
         # Create a sample AgentExecutionFeed object with a system role
-        sample_feed = AgentExecutionFeed(id=2, agent_execution_id=100, agent_id=200, role="system",
+        sample_feed = AgentExecutionFeed(id=2, agent_execution_id=100, agent_id=200, role="assistant",
                                          feed='System message',
                                          updated_at=current_time)
 
