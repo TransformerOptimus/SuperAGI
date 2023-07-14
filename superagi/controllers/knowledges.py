@@ -92,14 +92,6 @@ def get_user_knowledge_details(knowledge_id: int):
 
 @router.post("/add_or_update/data")
 def add_update_user_knowledge(knowledge_data: dict, organisation = Depends(get_user_organisation)):
-    try:
-        llm = OpenAi(api_key=get_config("OPENAI_API_KEY"))
-        message = [{"role": "system", "content": "You are a helpful assistant that helps in content writing and summarising the information as precise and short as possible in not more than 100 words."},
-                   {"role": "user", "content": knowledge_data["description"]}]
-        summary = llm.chat_completion(messages=message)
-    except:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
-    knowledge_data["summary"] = summary["content"]
     knowledge_data["organisation_id"] = organisation.id
     knowledge_data["contributed_by"] = organisation.name
     knowledge = Knowledges.add_update_knowledge(db.session, knowledge_data)

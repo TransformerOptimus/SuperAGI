@@ -1,8 +1,8 @@
-"""Knowledges and Vector DBs
+"""knowledges and vector dbs
 
-Revision ID: 80bb0a180403
+Revision ID: e9830f1add4e
 Revises: 467e85d5e1cd
-Create Date: 2023-07-13 11:33:19.474302
+Create Date: 2023-07-14 11:37:46.352118
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '80bb0a180403'
+revision = 'e9830f1add4e'
 down_revision = '467e85d5e1cd'
 branch_labels = None
 depends_on = None
@@ -31,8 +31,6 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
-    sa.Column('summary', sa.String(), nullable=True),
-    sa.Column('readme', sa.String(), nullable=True),
     sa.Column('vector_db_index_id', sa.Integer(), nullable=True),
     sa.Column('organisation_id', sa.Integer(), nullable=True),
     sa.Column('contributed_by', sa.String(), nullable=True),
@@ -62,7 +60,7 @@ def upgrade() -> None:
     op.create_table('vector_db_indices',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('vector_db_id', sa.Integer(), nullable=False),
+    sa.Column('vector_db_id', sa.Integer(), nullable=True),
     sa.Column('dimensions', sa.Integer(), nullable=True),
     sa.Column('state', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),

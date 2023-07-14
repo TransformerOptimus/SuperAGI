@@ -29,7 +29,6 @@ class Knowledges(DBBaseModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     description = Column(String)
-    summary = Column(String)
     vector_db_index_id = Column(Integer)
     organisation_id = Column(Integer)
     contributed_by = Column(String)
@@ -43,8 +42,7 @@ class Knowledges(DBBaseModel):
 
         """
         return f"Knowledge(id={self.id}, name='{self.name}', description='{self.description}', " \
-               f"summary='{self.summary}', readme='{self.readme}', index_id={self.index_id}), " \
-               f"organisation_id={self.organisation_id}), contributed_by={self.contributed_by}"
+               f"index_id={self.index_id}), organisation_id={self.organisation_id}), contributed_by={self.contributed_by}"
 
     @classmethod
     def fetch_marketplace_list(cls, page):
