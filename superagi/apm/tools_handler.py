@@ -5,15 +5,16 @@ from sqlalchemy import func
 from superagi.models.events import Event
 class ToolsHandler:
 
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, organisation_id: int):
         self.session = session
+        self.organisation_id = organisation_id
 
     def calculate_tool_usage(self) -> List[Dict[str, int]]:
         tool_usage = []
         tool_used_subquery = self.session.query(
             Event.event_property['tool_name'].label('tool_name'),
             Event.agent_id
-        ).filter_by(event_name="tool_used").subquery()
+        ).filter_by(event_name="tool_used", org_id=self.organisation_id).subquery()
 
         agent_count = self.session.query(
             tool_used_subquery.c.tool_name,
