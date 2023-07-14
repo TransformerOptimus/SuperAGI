@@ -90,9 +90,11 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     };
 
     useEffect(() => {
-      const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
-      if(active_tab) {
-        setActiveTab(active_tab);
+      if(internalId !== null) {
+        const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
+        if(active_tab) {
+          setActiveTab(active_tab);
+        }
       }
     }, [internalId]);
 
@@ -142,9 +144,9 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
 
             {apiConfigs.length > 0 && (
               <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
-                {authenticateToolkits.includes(toolkitDetails.name) && <div>
+                <div>{authenticateToolkits.includes(toolkitDetails.name) &&
                   <button style={{width:'fit-content'}} className={styles.primary_button} onClick={() => handleAuthenticateClick(toolkitDetails.name)}>Authenticate Tool</button>
-                </div>}
+                }</div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
                 </div>

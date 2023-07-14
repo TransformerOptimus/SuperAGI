@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
 
 
 class SendEmailAttachmentInput(BaseModel):
@@ -31,8 +33,9 @@ class SendEmailAttachmentTool(BaseTool):
     name: str = "Send Email with Attachment"
     args_schema: Type[BaseModel] = SendEmailAttachmentInput
     description: str = "Send an Email with a file attached to it"
-    agent_id: int  = None
-    
+    agent_id: int = None
+    agent_execution_id: int = None
+
     def _execute(self, to: str, subject: str, body: str, filename: str) -> str:
         """
         Execute the send email tool with attachment.
@@ -46,11 +49,10 @@ class SendEmailAttachmentTool(BaseTool):
         Returns:
             success or failure message
         """
-        final_path = ResourceHelper.get_agent_resource_path(filename, self.agent_id)
-
-        if final_path is None or not os.path.exists(final_path):
-            final_path = ResourceHelper.get_root_input_dir() + filename
-
+        final_path = ResourceHelper.get_agent_read_resource_path(file_name=filename,
+                                                                 agent=Agent.get_agent_from_id(self.toolkit_config
+                                                                                               .session,
+                                                                                               self.agent_id))
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{filename}' not found.")
         attachment = os.path.basename(final_path)
@@ -92,7 +94,7 @@ class SendEmailAttachmentTool(BaseTool):
             with open(attachment_path, "rb") as file:
                 message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
 
-        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE')
+        send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":
             send_to_draft = True
         else:

@@ -270,3 +270,13 @@ def add_tool_to_json(repo_link):
     # Write the updated JSON object back to tools.json
     with open('tools.json', 'w') as file:
         json.dump(tools_data, file, indent=2)
+
+
+def handle_tools_import():
+    folder_path = get_config("TOOLS_DIR")
+    if folder_path is None:
+        folder_path = "superagi/tools"
+    for folder_name in os.listdir(folder_path):
+        folder_dir = os.path.join(folder_path, folder_name)
+        if os.path.isdir(folder_dir):
+            sys.path.append(folder_dir)
