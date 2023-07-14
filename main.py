@@ -58,6 +58,7 @@ from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 
 app = FastAPI()
+env = get_config("ENV")
 
 if get_config("ENV") == "PROD":
     honeybadger.configure(api_key=get_config("HONEYBADGER_API_KEY"), environment='production')
