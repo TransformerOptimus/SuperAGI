@@ -157,7 +157,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
         setDeleteModal(false);
         if (response.status === 200) {
           EventBus.emit('reFetchAgents', {});
-          EventBus.emit('removeTab',{id: agentId, name: agentName, contentType: "Agents", internalId: internalId})
+          EventBus.emit('removeTab',{element: {id: agentId, name: agentName, contentType: "Agents", internalId: internalId}})
           toast.success("Agent Deleted Successfully", {autoClose: 1800});
         }
         else{
