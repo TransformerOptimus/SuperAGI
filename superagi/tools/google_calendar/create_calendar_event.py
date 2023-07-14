@@ -22,9 +22,7 @@ class CreateEventCalendarTool(BaseTool):
     description: str = "Create an event for Google Calendar"
 
     def _execute(self, event_name: str, description: str, attendees: list, start_date: str = 'None', start_time: str = 'None', end_date: str = 'None', end_time: str = 'None', location: str = 'None'):
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        session = self.toolkit_config.session
         toolkit_id = self.toolkit_config.toolkit_id
         service = GoogleCalendarCreds(session).get_credentials(toolkit_id)
         if service["success"]:

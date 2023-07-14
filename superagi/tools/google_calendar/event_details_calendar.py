@@ -15,11 +15,7 @@ class EventDetailsCalendarTool(BaseTool):
     description: str = "Fetch an event from Google Calendar"
 
     def _execute(self, event_id: str):
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        toolkit_id = self.toolkit_config.toolkit_id
-        service = GoogleCalendarCreds(session).get_credentials(toolkit_id)
+        service = GoogleCalendarCreds(self.toolkit_config.session).get_credentials(self.toolkit_config.toolkit_id)
         if service["success"]:
             service = service["service"]
         else:

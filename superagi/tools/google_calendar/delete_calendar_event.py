@@ -16,9 +16,7 @@ class DeleteCalendarEventTool(BaseTool):
 
 
     def _execute(self, event_id: str):
-        session = self.toolkit_config.session
-        toolkit_id = self.toolkit_config.toolkit_id
-        service = GoogleCalendarCreds(session).get_credentials(toolkit_id)
+        service = GoogleCalendarCreds(self.toolkit_config.session).get_credentials(self.toolkit_config.toolkit_id)
         if service["success"]:
             service = service["service"]
         else:
