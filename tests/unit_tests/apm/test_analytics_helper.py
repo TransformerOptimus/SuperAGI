@@ -1,7 +1,9 @@
-import pytest
-from superagi.models.events import Event
-from superagi.apm.analytics_helper import AnalyticsHelper
 from unittest.mock import MagicMock
+
+import pytest
+import superagi
+from superagi.apm.analytics_helper import AnalyticsHelper
+
 
 @pytest.fixture
 def organisation_id():

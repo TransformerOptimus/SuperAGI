@@ -1,8 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
-
 from superagi.apm.tools_handler import ToolsHandler
-from sqlalchemy.orm import Session
+
 
 @pytest.fixture
 def organisation_id():
