@@ -1,6 +1,8 @@
 from typing import Any, Type
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
 from superagi.helper.google_calendar_creds import GoogleCalendarCreds
 
 class DeleteCalendarEventInput(BaseModel):
@@ -11,9 +13,10 @@ class DeleteCalendarEventTool(BaseTool):
     args_schema: Type[BaseModel] = DeleteCalendarEventInput
     description: str = "Delete an event from Google Calendar"
 
+
+
     def _execute(self, event_id: str):
-        toolkit_id = self.toolkit_config.toolkit_id
-        service = GoogleCalendarCreds().get_credentials(toolkit_id)
+        service = GoogleCalendarCreds(self.toolkit_config.session).get_credentials(self.toolkit_config.toolkit_id)
         if service["success"]:
             service = service["service"]
         else:
