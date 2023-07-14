@@ -3,7 +3,7 @@ import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {updateToolConfig, getToolConfig, authenticateGoogleCred, authenticateTwitterCred} from "@/pages/api/DashboardService";
 import styles from './Tool.module.css';
-import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon} from "@/utils/utils";
+import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon, convertToTitleCase} from "@/utils/utils";
 
 export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const [activeTab,setActiveTab] = useState('configuration')
@@ -11,6 +11,7 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
     const [apiConfigs, setApiConfigs] = useState([]);
     const [toolsIncluded, setToolsIncluded] = useState([]);
     const [loading, setLoading] = useState(true);
+    const authenticateToolkits = ['Google Calendar Toolkit', 'Twitter Toolkit'];
 
     let handleKeyChange = (event, index) => {
       const updatedData = [...apiConfigs];
@@ -18,18 +19,15 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
       setLocalStorageArray('api_configs_' + String(internalId), updatedData, setApiConfigs);
     };
     
-    function getToken(client_data){
+    function getGoogleToken(client_data){
       const client_id = client_data.client_id 
       const scope = 'https://www.googleapis.com/auth/calendar';
-      const redirect_uri = 'http://localhost:3000/api/oauth-calendar';
+      const redirect_uri = 'http://localhost:3000/api/google/oauth-tokens';
       window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
     }
     
     function getTwitterToken(oauth_data){
-      const oauth_token = oauth_data.oauth_token
-      const oauth_token_secret = oauth_data.oauth_token_secret
-      const authUrl = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`
-      window.location.href = authUrl
+      window.location.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_data.oauth_token}`
     }
 
     useEffect(() => {
@@ -69,37 +67,43 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
         });
     };
 
-    const handleAuthenticateClick = async () => {
+    const handleAuthenticateClick = async (toolkitName) => {
+        if (toolkitName === "Google Calendar Toolkit"){
       authenticateGoogleCred(toolkitDetails.id)
         .then((response) => {
-          getToken(response.data);
+          localStorage.setItem("google_calendar_toolkit_id", toolkitDetails.id)
+            getGoogleToken(response.data);
         })
         .catch((error) => {
           console.error('Error fetching data:', error);
         });
-    };
-
-    const handleTwitterAuthClick = async () => {
-      authenticateTwitterCred(toolkitDetails.id)
-      .then((response) => {
-        localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
-          getTwitterToken(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching data: ', error);
-      });
+    }else if(toolkitName === "Twitter Toolkit"){
+        authenticateTwitterCred(toolkitDetails.id)
+            .then((response) => {
+                localStorage.setItem("twitter_toolkit_id", toolkitDetails.id)
+                getTwitterToken(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching data: ', error);
+            });
+    }
     };
 
     useEffect(() => {
-      const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
-      if(active_tab) {
-        setActiveTab(active_tab);
+      if(internalId !== null) {
+        const active_tab = localStorage.getItem('toolkit_tab_' + String(internalId));
+        if(active_tab) {
+          setActiveTab(active_tab);
+        }
       }
     }, [internalId]);
 
     return (<>
-        <div className={styles.tools_container}>
-          <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px', width:'600px'}}>
+      <div className="row">
+        <div className="col-3"></div>
+        <div className="col-6" style={{overflowY:'scroll',height:'calc(100vh - 92px)',padding:'25px 20px'}}>
+          <div className={styles.tools_container}>
+          <div style={{display: 'flex',justifyContent:'flex-start',marginBottom:'20px',width:'95%'}}>
             <div>
               <Image src={returnToolkitIcon(toolkitDetails?.name)} alt="toolkit-icon" width={45} height={45} style={{borderRadius:'25px',background: 'black'}} />
             </div>
@@ -107,8 +111,8 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
               <div style={{ marginLeft: '15px',textAlign:'left',paddingRight:'10px' }}>
                 <div style={{fontSize:'17px',marginTop:'-3px'}}>{toolkitDetails.name}</div>
                 <div className={styles.toolkit_description} style={!showDescription ? { overflow: 'hidden' } : {display:'block'}}>
-                  {`${showDescription ? toolkitDetails.description : toolkitDetails.description.slice(0, 80)}`}
-                  {toolkitDetails.description.length > 80 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
+                  {`${showDescription ? toolkitDetails.description : toolkitDetails.description.slice(0, 70)}`}
+                  {toolkitDetails.description.length > 70 && <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
                       {showDescription ? '...less' : '...more'}
                   </span>}
                 </div>
@@ -124,41 +128,43 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}){
             </div>
           </div>
           {!loading && activeTab === 'configuration' && <div>
-          {apiConfigs.length > 0 ? (apiConfigs.map((config, index) => (
+            {apiConfigs.length > 0 ? (apiConfigs.map((config, index) => (
               <div key={index}>
                 <div style={{ color: '#888888', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
-                  <label style={{ marginBottom: '6px' }}>{config.key}</label>
+                  <label style={{ marginBottom: '6px' }}>{convertToTitleCase(config.key)}</label>
                   <div className={styles.search_box}>
                     <input type="text" style={{ color: 'white',width:'100%' }} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>
                   </div>
                 </div>
               </div>
             ))) : (<div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',marginTop:'40px',width:'100%'}}>
-            <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
-            <span className={styles.feed_title} style={{marginTop: '8px'}}>No Keys found!</span>
-          </div>)}
-
-          {apiConfigs.length > 0 && (
-            <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
-              <div>
-                {toolkitDetails.name === 'Google Calendar Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleAuthenticateClick}>Authenticate Tool</button>}
-                {toolkitDetails.name === 'Twitter Toolkit' && <button style={{width:'200px'}} className={styles.primary_button} onClick={handleTwitterAuthClick}>Authenticate Tool</button>}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
-              </div>
+              <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions" />
+              <span className={styles.feed_title} style={{marginTop: '8px'}}>No Keys found!</span>
             </div>)}
+
+            {apiConfigs.length > 0 && (
+              <div style={{ marginLeft: 'auto', display: 'flex', justifyContent:'space-between'}}>
+                <div>{authenticateToolkits.includes(toolkitDetails.name) &&
+                  <button style={{width:'fit-content'}} className={styles.primary_button} onClick={() => handleAuthenticateClick(toolkitDetails.name)}>Authenticate Tool</button>
+                }</div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className={styles.primary_button} onClick={handleUpdateChanges} >Update Changes</button>
+                </div>
+              </div>)}
           </div>}
           {activeTab === 'tools_included' && <div>
             {toolsIncluded.map((tool, index) => (
               <div key={index} className={styles.tools_included}>
                 <div>
-                    <div style={{color:'white'}}>{tool.name}</div>
-                    <div style={{color:'#888888',marginTop:'5px'}}>{tool.description}</div>
+                  <div style={{color:'white'}}>{tool.name}</div>
+                  <div style={{color:'#888888',marginTop:'5px'}}>{tool.description}</div>
                 </div>
               </div>
             ))}
           </div>}
+        </div>
+        </div>
+        <div className="col-3"></div>
       </div>
       <ToastContainer/>
     </>);

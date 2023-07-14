@@ -4,6 +4,8 @@ from typing import Type
 from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent import Agent
 from superagi.tools.base_tool import BaseTool
 
 
@@ -24,6 +26,7 @@ class DeleteFileTool(BaseTool):
     """
     name: str = "Delete File"
     agent_id: int = None
+    agent_execution_id:int = None
     args_schema: Type[BaseModel] = DeleteFileInput
     description: str = "Delete a file"
 
@@ -37,11 +40,14 @@ class DeleteFileTool(BaseTool):
         Returns:
             success or error message.
         """
-        final_path = ResourceHelper.get_root_output_dir()
-        if "{agent_id}" in final_path:
-            final_path = final_path.replace("{agent_id}", str(self.agent_id))
+        final_path = ResourceHelper.get_agent_write_resource_path(file_name, Agent.get_agent_from_id(
+            session=self.toolkit_config.session,
+            agent_id=self.agent_id),
+          AgentExecution.get_agent_execution_from_id(
+              session=self.toolkit_config.session,
+              agent_execution_id=self.agent_execution_id))
         try:
-            os.remove(final_path + file_name)
+            os.remove(final_path)
             return "File deleted successfully."
         except Exception as err:
             return f"Error: {err}"

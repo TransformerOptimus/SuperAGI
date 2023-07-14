@@ -61,31 +61,30 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if not name.endswith(accepted_file_types):
         raise HTTPException(status_code=400, detail="File type not supported!")
 
-    storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
-    save_directory = ResourceHelper.get_root_input_dir() + "/"
+    storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
+    save_directory = ResourceHelper.get_root_input_dir()
     if "{agent_id}" in save_directory:
-        save_directory = save_directory.replace("{agent_id}", str(agent_id))
-    path = ""
-    os.makedirs(save_directory, exist_ok=True)
+        save_directory = ResourceHelper.get_formatted_agent_level_path(agent=Agent
+                                                                       .get_agent_from_id(session=db.session,
+                                                                                    agent_id=agent_id),
+                                                                       path=save_directory)
     file_path = os.path.join(save_directory, file.filename)
     if storage_type == StorageType.FILE:
-        path = file_path
+        os.makedirs(save_directory, exist_ok=True)
         with open(file_path, "wb") as f:
             contents = await file.read()
             f.write(contents)
             file.file.close()
     elif storage_type == StorageType.S3:
         bucket_name = get_config("BUCKET_NAME")
-        file_name = file.filename.split('.')
-        path = 'input/' + file_name[0] + '_' + str(datetime.datetime.now()).replace(' ', '').replace('.', '').replace(
-            ':', '') + '.' + file_name[1]
+        file_path = 'resources' + file_path
         try:
-            s3.upload_fileobj(file.file, bucket_name, path)
+            s3.upload_fileobj(file.file, bucket_name, file_path)
             logger.info("File uploaded successfully!")
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
-    resource = Resource(name=name, path=path, storage_type=storage_type.value, size=size, type=type, channel="INPUT",
+    resource = Resource(name=name, path=file_path, storage_type=storage_type.value, size=size, type=type, channel="INPUT",
                         agent_id=agent.id)
 
     db.session.add(resource)

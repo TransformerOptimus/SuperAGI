@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
+import {refreshUrl, openNewTab} from "@/utils/utils";
 
 export default function SideBar({onSelectEvent}) {
   const [sectionSelected, setSelection] = useState('');
@@ -8,6 +9,8 @@ export default function SideBar({onSelectEvent}) {
   const handleClick = (value) => {
     setSelection(value);
     onSelectEvent(value);
+    if(value === 'apm')
+      openNewTab(-9, "APM", "APM")
   };
     return (
     <div className={styles.side_bar}>
@@ -31,12 +34,12 @@ export default function SideBar({onSelectEvent}) {
       {/*    <div>Google Calendar</div>*/}
       {/*  </div>*/}
       {/*</div>*/}
-      {/*<div className={styles.selection_section}>*/}
-      {/*  <div onClick={() => handleClick(sectionSelected !== 'apm' ? 'apm' : '')} className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>*/}
-      {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm_light.svg" alt="apm-icon"/></div>*/}
-      {/*    <div>APM</div>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
+      <div className={styles.selection_section}>
+        <div onClick={() => handleClick(sectionSelected !== 'apm' ? 'apm' : '')} className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>
+          <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm.svg" alt="apm-icon"/></div>
+          <div>APM</div>
+        </div>
+      </div>
       {/*<div className={styles.selection_section}>*/}
       {/*  <div onClick={() => handleClick(sectionSelected !== 'embeddings' ? 'embeddings' : '')} className={`${styles.section} ${sectionSelected === 'embeddings' ? styles.selected : ''}`}>*/}
       {/*    <div className={styles.button_icon}><Image width={17} height={17} src="/images/embedding_light.svg" alt="embedding-icon"/></div>*/}

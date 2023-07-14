@@ -3,6 +3,8 @@ import SideBar from './Dashboard/SideBar';
 import Content from './Dashboard/Content';
 import TopBar from './Dashboard/TopBar';
 import 'bootstrap/dist/css/bootstrap.css';
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
@@ -31,7 +33,7 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
-  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install'];
+  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install', 'google_calendar_toolkit_id', 'myLayoutKey'];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
