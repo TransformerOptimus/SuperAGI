@@ -286,8 +286,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
               </div>
             </div>
           </div>
-        </div> : <div className={styles.main_workspace} style={{paddingLeft:'10px'}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+        </div> : <div className={styles.main_workspace} style={(selectedView === 'agents' || selectedView === 'toolkits') ? {width: '80.5vw'} : {width: '100%'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (
                 <div data-tab-id={index} key={index}
