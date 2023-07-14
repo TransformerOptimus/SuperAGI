@@ -4,11 +4,10 @@ import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
-import ApmDashboard from "../Content/APM/ApmDashboard";
 import styles from './Dashboard.module.css';
 import Image from "next/image";
-import {EventBus} from "@/utils/eventBus";
-import {getAgents, getLastActiveAgent, getToolKit, sendTwitterCreds} from "@/pages/api/DashboardService";
+import { EventBus } from "@/utils/eventBus";
+import {getAgents, getToolKit, getLastActiveAgent, sendTwitterCreds, sendGoogleCreds} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import {useRouter} from 'next/router';
@@ -114,7 +113,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   const selectTab = (element, index) => {
     setSelectedTab(index);
-    if (element.contentType === "Toolkits") {
+    if(element.contentType === "Toolkits") {
       setToolkitDetails(element);
     }
   };
@@ -139,16 +138,30 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
     if (window.location.href.indexOf("twitter_creds") > -1) {
       parsedParams["toolkit_id"] = localStorage.getItem("twitter_toolkit_id") || null;
+    if (window.location.href.indexOf("twitter_creds") > -1){
+      const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
+      parsedParams["toolkit_id"] = toolkit_id;
       const params = JSON.stringify(parsedParams)
       sendTwitterCreds(params)
-        .then((response) => {
-          console.log("Authentication completed successfully");
-        })
-        .catch((error) => {
-          console.error("Error fetching data: ", error);
-        })
-    }
-    ;
+      .then((response) => {
+        console.log("Authentication completed successfully");
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ",error);
+      })
+    };
+    if (window.location.href.indexOf("google_calendar_creds") > -1){
+      const toolkit_id = localStorage.getItem("google_calendar_toolkit_id") || null;
+      var data = Object.keys(parsedParams)[0];
+      var params = JSON.parse(data)
+      sendGoogleCreds(params, toolkit_id)
+      .then((response) => {
+        console.log("Authentication completed successfully");
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      })
+    };
   }, [selectedTab]);
 
   useEffect(() => {
