@@ -4,22 +4,23 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict
+from typing import Any
 from typing import Tuple
+import json
 import numpy as np
-from halo import Halo
 from pydantic import ValidationError
 from pydantic.types import List
-from sqlalchemy import desc, asc
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import asc
 from sqlalchemy.orm import sessionmaker
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
+from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser, AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
+from superagi.apm.event_handler import EventHandler
 from superagi.helper.token_counter import TokenCounter
+from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
-from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
@@ -27,14 +28,8 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.db import connect_db
 from superagi.tools.base_tool import BaseTool
-from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from superagi.types.common import BaseMessage
 from superagi.vector_store.base import VectorStore
-from superagi.models.agent import Agent
-from superagi.models.resource import Resource
-from superagi.config.config import get_config
-from superagi.apm.event_handler import EventHandler
-import os
-from superagi.lib.logger import logger
 
 FINISH = "finish"
 WRITE_FILE = "Write File"
@@ -59,7 +54,7 @@ class SuperAgi:
                  tools: List[BaseTool],
                  agent_config: Any,
                  agent_execution_config: Any,
-                 output_parser: BaseOutputParser = AgentOutputParser(),
+                 output_parser: BaseOutputParser = AgentSchemaOutputParser(),
                  ):
         self.ai_name = ai_name
         self.ai_role = ai_role
@@ -70,8 +65,6 @@ class SuperAgi:
         self.tools = tools
         self.agent_config = agent_config
         self.agent_execution_config = agent_execution_config
-        # Init Log
-        # print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 
     @classmethod
     def from_llm_and_tools(
@@ -144,9 +137,8 @@ class SuperAgi:
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
 
-        logger.info(messages)
+        logger.debug("Prompt messages:", messages)
         if len(agent_feeds) <= 0:
-            logger.info(prompt)
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
@@ -160,7 +152,7 @@ class SuperAgi:
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         self.update_agent_execution_tokens(current_calls, total_tokens)
-        logger.info("Response:", response)
+        logger.debug("Response:", response)
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
@@ -175,7 +167,8 @@ class SuperAgi:
             tool_response = self.handle_tool_response(assistant_reply)
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      agent_id=self.agent_config["agent_id"],
+                                                      feed=assistant_reply,
                                                       role="assistant")
             session.add(agent_execution_feed)
             tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
