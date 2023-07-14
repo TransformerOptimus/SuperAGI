@@ -205,6 +205,7 @@ class AgentExecutor:
 
         model_api_key = AgentExecutor.get_model_api_key_from_execution(parsed_config["model"], agent_execution, session)
         model_llm_source = ModelSourceType.get_model_source_from_model(parsed_config["model"]).value
+        organisation = AgentExecutor.get_organisation(agent_execution, session)
         try:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
@@ -246,18 +247,13 @@ class AgentExecutor:
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
 
-        try:
-            response = spawned_agent.execute(agent_workflow_step)
-        except RuntimeError as e:
-            # If our execution encounters an error we return and attempt to retry
-            logger.error("Error executing the agent:", e)
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
+        response = spawned_agent.execute(agent_workflow_step)
+
+        if "retry" in response and response["retry"]:
+            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
             session.close()
             return
 
-
-        if "retry" in response and response["retry"]:
-            response = spawned_agent.execute(agent_workflow_step)
         agent_execution.current_step_id = agent_workflow_step.next_step_id
         session.commit()
         if response["result"] == "COMPLETE":

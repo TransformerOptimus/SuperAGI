@@ -57,6 +57,8 @@ def create_function_schema(
 
 
 class BaseToolkitConfiguration:
+    def __init__(self):
+        self.session = None
 
     def get_tool_config(self, key: str):
         # Default implementation of the tool configuration retrieval logic
