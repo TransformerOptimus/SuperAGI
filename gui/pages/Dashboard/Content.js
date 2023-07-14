@@ -136,9 +136,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     const queryParams = router.asPath.split('?')[1];
     const parsedParams = querystring.parse(queryParams);
     parsedParams["toolkit_id"] = toolkitDetails.toolkit_id;
-
-    if (window.location.href.indexOf("twitter_creds") > -1) {
-      parsedParams["toolkit_id"] = localStorage.getItem("twitter_toolkit_id") || null;
     if (window.location.href.indexOf("twitter_creds") > -1){
       const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
       parsedParams["toolkit_id"] = toolkit_id;
@@ -163,7 +160,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         console.error("Error fetching data: ", error);
       })
     };
-  }}, [selectedTab]);
+  }, [selectedTab]);
 
   useEffect(() => {
     const openNewTab = (eventData) => {
