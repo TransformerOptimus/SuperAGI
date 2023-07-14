@@ -164,7 +164,7 @@ class SuperAgi:
             if is_permission_required:
                 return response
 
-            tool_response = self.handle_tool_response(assistant_reply)
+            tool_response = self.handle_tool_response(session, assistant_reply)
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
@@ -223,7 +223,7 @@ class SuperAgi:
         session.close()
         return final_response
 
-    def handle_tool_response(self, assistant_reply):
+    def handle_tool_response(self, session, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         action_name = action.name.lower().replace(" ", "")
