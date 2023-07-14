@@ -9,8 +9,9 @@ import logging
 
 class AnalyticsHelper:
 
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, organisation_id: int):
         self.session = session
+        self.organisation_id = organisation_id
 
     def calculate_run_completed_metrics(self) -> Dict[str, Dict[str, Union[int, List[Dict[str, int]]]]]:
 
