@@ -267,9 +267,9 @@ async def startup_event():
         session.commit()
 
     def build_action_based_agents():
-        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Action Based").first()
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Fixed Task Queue").first()
         if agent_workflow is None:
-            agent_workflow = AgentWorkflow(name="Action Based", description="Action Based")
+            agent_workflow = AgentWorkflow(name="Fixed Task Queue", description="Fixed Task Queue")
             session.add(agent_workflow)
             session.commit()
 

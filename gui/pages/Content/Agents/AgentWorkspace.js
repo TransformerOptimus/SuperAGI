@@ -305,7 +305,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
                 Feed
               </button>
             </div>
-            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Action Based") &&
+            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Fixed Task Queue") &&
               <div style={{marginLeft: '7px'}}>
                 <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button}
                         style={leftPanel === 'agent_type' ? {background: '#454254'} : {background: 'transparent'}}>Task
