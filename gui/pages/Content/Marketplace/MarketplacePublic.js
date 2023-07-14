@@ -24,7 +24,7 @@ export default function MarketplacePublic({env}) {
          </div>
      </div>
       <div className={styles.marketplace_public_content}>
-        <Market/>
+        <Market env={env}/>
       </div>
     </div>
   );

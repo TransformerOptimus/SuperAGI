@@ -97,7 +97,7 @@ class AgentTemplate(DBBaseModel):
         """
 
         keys_to_fetch = ["goal", "instruction", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
-                         "permission_type", "LTM_DB", "memory_window", "max_iterations"]
+                         "permission_type", "LTM_DB", "max_iterations"]
         return keys_to_fetch
 
     @classmethod

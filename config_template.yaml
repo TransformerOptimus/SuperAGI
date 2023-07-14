@@ -3,6 +3,7 @@ PINECONE_API_KEY: YOUR_PINECONE_API_KEY
 PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
 OPENAI_API_KEY: YOUR_OPEN_API_KEY
+PALM_API_KEY: YOUR_PALM_API_KEY
 
 # For locally hosted LLMs comment out the next line and uncomment the one after
 # to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
@@ -11,6 +12,7 @@ OPENAI_API_BASE: https://api.openai.com/v1
 
 # "gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-4-32k": 32768, "gpt-4-32k-0314": 32768, "llama":2048, "mpt-7b-storywriter":45000
 MODEL_NAME: "gpt-3.5-turbo-0301"
+# "gpt-3.5-turbo", , "gpt-4", "models/chat-bison-001"
 RESOURCES_SUMMARY_MODEL_NAME: "gpt-3.5-turbo"
 MAX_TOOL_TOKEN_LIMIT: 800
 MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
@@ -31,7 +33,8 @@ TOOLS_DIR: "superagi/tools"
 
 #STORAGE INFO FOR FILES
 RESOURCES_INPUT_ROOT_DIR: workspace/input/{agent_id}
-RESOURCES_OUTPUT_ROOT_DIR: workspace/output/{agent_id}
+RESOURCES_OUTPUT_ROOT_DIR: workspace/output/{agent_id}/{agent_execution_id} # For keeping resources at agent execution level
+#RESOURCES_OUTPUT_ROOT_DIR: workspace/output/{agent_id}  # For keeping resources at agent level
 
 #S3 RELATED DETAILS ONLY WHEN STORAGE_TYPE IS "S3"
 BUCKET_NAME:
@@ -111,3 +114,7 @@ ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 ## To use chroma for vector store in resources manager
 #CHROMA_HOST_NAME: YOUR_CHROMA_HOST_NAME
 #CHROMA_PORT: YOUR_CHROMA_PORT
+
+## To use Qdrant for vector store
+#QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
+#QDRANT_PORT: YOUR_QDRANT_PORT

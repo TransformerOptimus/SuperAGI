@@ -1,14 +1,19 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {getOrganisationConfig, updateOrganisationConfig} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {removeTab} from "@/utils/utils";
+import {removeTab, setLocalStorageValue} from "@/utils/utils";
+import Image from "next/image";
 
 export default function Settings({organisationId}) {
-  const [openAIKey, setKey] = useState('');
+  const [modelApiKey, setKey] = useState('');
   const [temperature, setTemperature] = useState(0.5);
+  const [sourceDropdown, setSourceDropdown] = useState(false);
+  const [source, setSource] = useState('OpenAi');
+  const sourceRef = useRef(null);
+  const sources = ['OpenAi', 'Google Palm']
 
   function getKey(key) {
     getOrganisationConfig(organisationId, key)
@@ -20,8 +25,30 @@ export default function Settings({organisationId}) {
         });
   }
 
+  function getSource(key) {
+    getOrganisationConfig(organisationId, key)
+        .then((response) => {
+          setSource(response.data.value);
+        })
+        .catch((error) => {
+          console.error('Error fetching project:', error);
+        });
+  }
+
   useEffect(() => {
     getKey("model_api_key");
+    getSource("model_source");
+
+    function handleClickOutside(event) {
+      if (sourceRef.current && !sourceRef.current.contains(event.target)) {
+        setSourceDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [organisationId]);
 
   function updateKey(key, value) {
@@ -37,8 +64,13 @@ export default function Settings({organisationId}) {
         });
   }
 
-  const handleOpenAIKey = (event) => {
+  const handleModelApiKey = (event) => {
     setKey(event.target.value);
+  };
+
+  const handleSourceSelect = (index) => {
+    setSource(sources[index]);
+    setSourceDropdown(false);
   };
 
   const preventDefault = (e) => {
@@ -46,12 +78,13 @@ export default function Settings({organisationId}) {
   };
 
   const saveSettings = () => {
-    if (openAIKey === null || openAIKey.replace(/\s/g, '') === '') {
+    if (modelApiKey === null || modelApiKey.replace(/\s/g, '') === '') {
       toast.error("API key is empty", {autoClose: 1800});
       return
     }
 
-    updateKey("model_api_key", openAIKey);
+    updateKey("model_api_key", modelApiKey);
+    updateKey("model_source", source);
   };
 
   const handleTemperatureChange = (event) => {
@@ -66,8 +99,23 @@ export default function Settings({organisationId}) {
           <div className={agentStyles.page_title}>Settings</div>
         </div>
         <div>
-          <label className={agentStyles.form_label}>Open-AI API Key</label>
-          <input placeholder="Enter your Open-AI API key" className="input_medium" type="password" value={openAIKey} onChange={handleOpenAIKey}/>
+            <label className={agentStyles.form_label}>Model Source</label>
+            <div className="dropdown_container_search" style={{width:'100%'}}>
+                <div className="custom_select_container" onClick={() => setSourceDropdown(!sourceDropdown)} style={{width:'100%'}}>
+                  {source}<Image width={20} height={21} src={!sourceDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
+                </div>
+              <div>
+                {sourceDropdown && <div className="custom_select_options" ref={sourceRef} style={{width:'100%'}}>
+                  {sources.map((source, index) => (<div key={index} className="custom_select_option" onClick={() => handleSourceSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>
+                    {source}
+                  </div>))}
+                </div>}
+              </div>
+            </div>
+        </div><br/>
+        <div>
+          <label className={agentStyles.form_label}>Open-AI/Palm API Key</label>
+          <input placeholder="Enter your Open-AI/Palm API key" className="input_medium" type="password" value={modelApiKey} onChange={handleModelApiKey}/>
         </div>
         {/*<div style={{marginTop:'15px'}}>*/}
         {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
@@ -77,7 +125,7 @@ export default function Settings({organisationId}) {
         {/*  </div>*/}
         {/*</div>*/}
         <div style={{display: 'flex', justifyContent: 'flex-end',marginTop:'15px'}}>
-          <button onClick={() => removeTab(-3, "Settings", "Settings")} className="secondary_button" style={{marginRight: '10px'}}>
+          <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button" style={{marginRight: '10px'}}>
             Cancel
           </button>
           <button className="primary_button" onClick={saveSettings}>
