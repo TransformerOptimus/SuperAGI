@@ -3,6 +3,7 @@ from superagi.config.config import get_config
 from fastapi import HTTPException
 from superagi.lib.logger import logger
 
+
 class S3Helper:
     def __init__(self):
         """
@@ -35,3 +36,17 @@ class S3Helper:
             logger.info("File uploaded to S3 successfully!")
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
+    @classmethod
+    def get_s3_client(cls):
+        """
+        Get an S3 client.
+
+        Returns:
+            s3 (S3Helper): The S3Helper object.
+        """
+        return boto3.client(
+            's3',
+            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+        )

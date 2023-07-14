@@ -1,13 +1,16 @@
 import csv
 
+import boto3
 from sqlalchemy.orm import Session
 
+from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
+from superagi.helper.s3_helper import S3Helper
 
 
 class FileManager:
@@ -52,6 +55,14 @@ class FileManager:
                 if resource.storage_type == StorageType.S3.value:
                     s3_helper = S3Helper()
                     s3_helper.upload_file(img, path=resource.path)
+
+    def read_from_s3(self, file_path):
+        file_path = "resources" + file_path
+        logger.info(f"Reading file from s3: {file_path}")
+        response = S3Helper.get_s3_client().get_object(Bucket=get_config("BUCKET_NAME"), Key=file_path)
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            return response['Body'].read().decode('utf-8')
+        raise Exception(f"Error read_from_s3: {response}")
 
     def write_file(self, file_name: str, content):
         if self.agent_id is not None:

@@ -8,6 +8,8 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
+from superagi.types.storage_types import StorageType
+from superagi.config.config import get_config
 
 
 class ReadFileSchema(BaseModel):
@@ -47,9 +49,12 @@ class ReadFileTool(BaseTool):
                                                                                               .toolkit_config.session,
                                                                                               agent_execution_id=self
                                                                                               .agent_execution_id))
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+            print("FINAL PATH : ",final_path)
+            return self.resource_manager.read_from_s3(final_path)
+
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")
-
         directory = os.path.dirname(final_path)
         os.makedirs(directory, exist_ok=True)
 
