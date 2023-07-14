@@ -68,7 +68,6 @@ export default function ApmDashboard() {
         });
     };
 
-// Use this function in useEffect:
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -83,8 +82,6 @@ export default function ApmDashboard() {
                 setTokenDetails(metricsResponse.data.tokens_details);
                 setRunDetails(metricsResponse.data.run_details);
                 setAllAgents(agentsResponse.data.agent_details);
-                console.log("////////////////////////////////////")
-                console.log(activeRunsResponse.data)
                 setActiveRuns(activeRunsResponse.data);
                 setToolsUsed(toolsUsageResponse.data);
             } catch(error) {

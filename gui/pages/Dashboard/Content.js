@@ -5,6 +5,7 @@ import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
+import ApmDashboard from "../Content/APM/ApmDashboard";
 import Image from "next/image";
 import { EventBus } from "@/utils/eventBus";
 import {getAgents, getToolKit, getLastActiveAgent, sendTwitterCreds, sendGoogleCreds} from "@/pages/api/DashboardService";
@@ -162,7 +163,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         console.error("Error fetching data: ", error);
       })
     };
-  }, [selectedTab]);
+  }}, [selectedTab]);
 
   useEffect(() => {
     const openNewTab = (eventData) => {
