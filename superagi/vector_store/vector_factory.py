@@ -91,7 +91,7 @@ class VectorFactory:
                 client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
                 qdrant_object = Qdrant(client=client, collection_name=index_name)
                 index_stats = qdrant_object.get_index_stats()
-            except UnauthorizedException:
+            except:
                 raise ValueError("Qdrant API key not found")
             return index_stats
 

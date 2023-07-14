@@ -35,7 +35,7 @@ def get_vector_db_details(vector_db_id: int):
         "db_type": vector_db.db_type
     }
     vector_db_config = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector_db_id)
-    vector_db_with_config = vector_db | vector_db_config
+    vector_db_with_config = vector_db_data | vector_db_config
     indices = db.session.query(VectordbIndices).filter(VectordbIndices.vector_db_id == vector_db_id).all()
     vector_indices = []
     for index in indices:
@@ -60,5 +60,63 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
         "api_key": data["api_key"],
         "environment": data["environment"]
     }
-    db_connect = VectorFactory.get
+    for collection in data["collections"]:
+        try:
+            db_connect_for_index = VectorFactory.get_vector_index_stats("pinecone", collection, **db_creds)
+            index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
+        except:
+            return {"success": False}
+    pinecone_db = Vectordbs.add_vector_db(db.session, data["name"], "Pinecone", organisation)
+    for key, value in db_creds:
+        VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, key, value)
+    for collection in data["collections"]:
+        VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, db_connect_for_index["dimensions"], index_state)
+    
+    return {"success": True, "id": pinecone_db.id, "name": pinecone_db.name}
+
+@router.post("/connect/qdrant")
+def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organisation)):
+    db_creds = {
+        "api_key": data["api_key"],
+        "url": data["url"],
+        "port": data["port"]
+    }
+    for collection in data["collections"]:
+        try:
+            db_connect_for_index = VectorFactory.get_vector_index_stats("qdrant", collection, **db_creds)
+            index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
+        except:
+            return {"success": False}
+    qdrant_db = Vectordbs.add_vector_db(db.session, data["name"], "Qdrant", organisation)
+    VectordbConfigs.add_vector_db_config(db.session, qdrant_db.id, db_creds)
+    for collection in data["collections"]:
+        VectordbIndices.add_vector_index(db.session, collection, qdrant_db.id, db_connect_for_index["dimensions"], index_state)
+    
+    return {"success": True, "id": qdrant_db.id, "name": qdrant_db.name}
+
+@router.post("/update/vector_db/{vector_db_id}")
+def update_vector_db(new_indices: list, vector_db_id: int):
+    vector_db = Vectordbs.get_vector_db_from_id(db.session, vector_db_id)
+    existing_indices = VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db_id)
+    existing_index_names = []
+    for index in existing_indices:
+        if index.name not in new_indices:
+            VectordbIndices.delete_vector_db_index(db.session, vector_index_id=index.id)
+        existing_index_names.append(index.name)
+    existing_index_names = set(existing_index_names)
+    new_indices_names = set(new_indices)
+    added_indices = new_indices_names - existing_index_names
+    for index in added_indices:
+        db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector_db_id)
+        try:
+            vector_db_index_stats = VectorFactory.get_vector_index_stats(vector_db.db_type, index, **db_creds)
+            index_state = "Custom" if vector_db_index_stats["vector_count"] > 0 else "None"
+        except:
+            return {"success": False}
+        VectordbIndices.add_vector_index(db.session, index, vector_db_id, vector_db_index_stats["dimensions"], vector_db_index_stats["vector_count"])
+    return {"success": True}
+
+
+
+        
 

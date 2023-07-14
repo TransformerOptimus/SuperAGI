@@ -45,3 +45,9 @@ class VectordbIndices(DBBaseModel):
     def delete_vector_db_index(cls, session, vector_index_id):
         session.query(VectordbIndices).filter(VectordbIndices.id == vector_index_id).delete()
         session.commit()
+
+    @classmethod
+    def add_vector_index(cls, session, index_name, vector_db_id, dimensions, state):
+        vector_index = VectordbIndices(name=index_name, vector_db_id=vector_db_id, dimensions=dimensions, state=state)
+        session.add(vector_index)
+        session.commit()

@@ -54,3 +54,9 @@ class Vectordbs(DBBaseModel):
     def get_vector_db_from_organisation(cls, session, organisation):
         vector_db_list = session.query(Vectordbs).filter(Vectordbs.organisation_id == organisation.id).all()
         return vector_db_list
+    
+    @classmethod
+    def add_vector_db(cls, session, name, db_type, organisation):
+        vector_db = Vectordbs(name=name, db_type=db_type, organisation_id=organisation.id)
+        session.add(vector_db)
+        session.commit()
