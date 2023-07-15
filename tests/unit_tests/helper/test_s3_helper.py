@@ -56,3 +56,17 @@ def test_upload_file_exception(mock_boto3_client):
         aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY")
     )
     mock_s3_client.upload_fileobj.assert_called_with(mock_file, get_config("BUCKET_NAME"), path)
+
+
+def test_get_s3_client(mock_boto3_client, monkeypatch):
+    with patch('superagi.config.config.get_config') as mock_get_config:
+        # Mock the S3 client
+        mock_s3_client = MagicMock()
+        mock_get_config.side_effect = ["mock-access-key", "mock-secret-key"]
+        mock_boto3_client.return_value = mock_s3_client
+
+        # Call the method under test
+        s3_client = S3Helper.get_s3_client()
+
+        # Assert the expected behavior
+        assert s3_client == mock_s3_client

@@ -123,7 +123,6 @@ class ResourceHelper:
     def check_file_exists_in_s3(cls, file_path):
         s3_client = S3Helper.get_s3_client()
         response = s3_client.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix="resources" + file_path)
-        print("EXISTS : ",'Contents' in response)
         return 'Contents' in response
 
     @classmethod
@@ -148,7 +147,6 @@ class ResourceHelper:
                 StorageType.get_storage_type(
                     get_config("STORAGE_TYPE", StorageType.FILE.value)) is StorageType.FILE
                 and not os.path.exists(final_path)):
-            logger.info("___________File not found in input directory, checking in output directory___________")
             if output_root_dir is not None:
                 final_path = ResourceHelper.get_root_output_dir() + file_name
                 if "{agent_id}" in final_path:
