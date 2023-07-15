@@ -63,7 +63,7 @@ def test_read_from_s3_success(resource_manager, mock_get_s3_client):
     mock_get_s3_client.assert_called_once()
 
 
-def test_read_from_s3_error(resource_manager,mock_get_s3_client):
+def test_read_from_s3_error(resource_manager, mock_get_s3_client):
     # Mock S3 client and response
     mock_s3_client = MagicMock()
     mock_response = {
