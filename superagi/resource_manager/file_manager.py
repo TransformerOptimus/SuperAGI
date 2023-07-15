@@ -1,6 +1,5 @@
 import csv
 
-import boto3
 from sqlalchemy.orm import Session
 
 from superagi.config.config import get_config
@@ -10,7 +9,6 @@ from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
-from superagi.helper.s3_helper import S3Helper
 
 
 class FileManager:

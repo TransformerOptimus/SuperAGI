@@ -121,10 +121,8 @@ class ResourceHelper:
 
     @classmethod
     def check_file_exists_in_s3(cls, file_path):
-        print("________________Checking S3 File Exists_________________")
         s3_client = S3Helper.get_s3_client()
         response = s3_client.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix="resources" + file_path)
-        print("________________S3 File Exists: _________________", response)
         return 'Contents' in response
 
     @classmethod
