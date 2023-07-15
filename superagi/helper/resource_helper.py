@@ -1,10 +1,11 @@
+import os
+
 from superagi.config.config import get_config
+from superagi.helper.s3_helper import S3Helper
+from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.resource import Resource
-import os
-import datetime
-from superagi.lib.logger import logger
 from superagi.types.storage_types import StorageType
 
 
@@ -119,6 +120,14 @@ class ResourceHelper:
         return final_path
 
     @classmethod
+    def check_file_exists_in_s3(cls, file_path):
+        print("________________Checking S3 File Exists_________________")
+        s3_client = S3Helper.get_s3_client()
+        response = s3_client.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix="resources" + file_path)
+        print("________________S3 File Exists: _________________", response)
+        return 'Contents' in response
+
+    @classmethod
     def get_agent_read_resource_path(cls, file_name, agent: Agent, agent_execution: AgentExecution):
         """Get agent resource path to read files i.e. both input and output directory
             at agent level.
@@ -128,13 +137,18 @@ class ResourceHelper:
             agent (Agent): The agent corresponding to resource.
             agent_execution (AgentExecution): The agent execution corresponding to the resource.
         """
-        output_root_dir = ResourceHelper.get_root_output_dir()
         final_path = ResourceHelper.get_root_input_dir() + file_name
         if "{agent_id}" in final_path:
             final_path = ResourceHelper.get_formatted_agent_level_path(
                 agent=agent,
                 path=final_path)
-        if final_path is None or not os.path.exists(final_path):
+        output_root_dir = ResourceHelper.get_root_output_dir()
+        if final_path is None or (StorageType.get_storage_type(get_config("STORAGE_TYPE",
+                                                                          StorageType.FILE.value)) is StorageType.S3 and
+                                  not ResourceHelper.check_file_exists_in_s3(final_path)) or (
+                StorageType.get_storage_type(
+                    get_config("STORAGE_TYPE", StorageType.FILE.value)) is StorageType.FILE
+                and not os.path.exists(final_path)):
             if output_root_dir is not None:
                 final_path = ResourceHelper.get_root_output_dir() + file_name
                 if "{agent_id}" in final_path:
