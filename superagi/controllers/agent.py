@@ -405,7 +405,7 @@ def get_agents_by_project_id(project_id: int,
 
     agents = db.session.query(Agent).filter(Agent.project_id == project_id).all()
 
-    new_agents, new_agents_sorted = [],[]
+    new_agents, new_agents_sorted = [], []
     for agent in agents:
         agent_dict = vars(agent)
         agent_id = agent.id

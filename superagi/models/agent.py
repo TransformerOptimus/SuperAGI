@@ -138,9 +138,9 @@ class Agent(DBBaseModel):
             agent_workflow = db.session.query(AgentWorkflow).filter(
                 AgentWorkflow.name == "Task Queue Agent With Seed").first()
             db_agent.agent_workflow_id = agent_workflow.id
-        elif agent_with_config.agent_type == "Action Based":
+        elif agent_with_config.agent_type == "Fixed Task Queue":
             agent_workflow = db.session.query(AgentWorkflow).filter(
-                AgentWorkflow.name == "Action Based").first()
+                AgentWorkflow.name == "Fixed Task Queue").first()
             db_agent.agent_workflow_id = agent_workflow.id
 
 

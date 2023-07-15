@@ -121,7 +121,7 @@ export default function ApmDashboard() {
         <div className={style.apm_dashboard_container}>
             <div id="apm_dashboard" className={style.apm_dashboard}>
                 <div style={{display:'inline-flex',justifyContent:'space-between',width:'100%',alignItems:'center',padding:'0 8px'}}>
-                    <span className="text_14 mt_10 ml_6">Agent Performance Monitoring</span>
+                    <span className="text_14 mt_6 ml_6">Agent Performance Monitoring</span>
                     <button onClick={() => onClickLayoutChange()} className="primary_button">Reset</button>
                 </div>
                 <ResponsiveGridLayout
@@ -195,9 +195,9 @@ export default function ApmDashboard() {
                                 <table className="table_css mt_10" style={{margin:0, padding:0}}>
                                     <thead>
                                     <tr style={{borderTop:'none'}}>
-                                        <th className="table_header" style={{width:'58%'}}>Tool</th>
-                                        <th className="table_header text_align_right" style={{width:'21%'}}>Agents <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'21%'}}>Calls</th>
+                                        <th className="table_header" style={{width:'56%'}}>Tool</th>
+                                        <th className="table_header text_align_right" style={{width:'22%'}}>Agents</th>
+                                        <th className="table_header text_align_right" style={{width:'22%'}}>Calls</th>
                                     </tr>
                                     </thead>
                                 </table>
@@ -207,9 +207,9 @@ export default function ApmDashboard() {
                                         <tbody>
                                         {toolsUsed.map((tool, index) => (
                                             <tr key={index}>
-                                                <td className="table_data" style={{width:'58%'}}>{tool.tool_name}</td>
-                                                <td className="table_data text_align_right" style={{width:'21%'}}>{tool.unique_agents}</td>
-                                                <td className="table_data text_align_right" style={{width:'21%'}}>{tool.total_usage}</td>
+                                                <td className="table_data" style={{width:'56%'}}>{tool.tool_name}</td>
+                                                <td className="table_data text_align_right" style={{width:'22%'}}>{tool.unique_agents}</td>
+                                                <td className="table_data text_align_right" style={{width:'22%'}}>{tool.total_usage}</td>
                                             </tr>
                                         ))}
                                         </tbody>
@@ -230,9 +230,9 @@ export default function ApmDashboard() {
                                     <tr style={{borderTop:'none'}}>
                                         <th className="table_header" style={{width:'20%'}}>Agent Name</th>
                                         <th className="table_header text_align_right" style={{width:'10%'}}>Model <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'10%'}}>Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'10%'}}>Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'10%'}}>Avg tokens per run <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'12%'}}>Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'6%'}}>Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right" style={{width:'12%'}}>Avg tokens per run <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                         <th className="table_header text_align_right" style={{width:'20%'}}>Tools <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                         <th className="table_header text_align_right" style={{width:'10%'}}>Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                         <th className="table_header text_align_right" style={{width:'10%'}}>Avg Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
@@ -247,15 +247,18 @@ export default function ApmDashboard() {
                                             <tr key={i}>
                                                 <td className="table_data" style={{width:'20%'}}>{run.name}</td>
                                                 <td className="table_data text_align_right" style={{width:'10%'}}>{run.model_name}</td>
-                                                <td className="table_data text_align_right" style={{width:'10%'}}>{formatNumber(run.total_tokens)}</td>
-                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed}</td>
-                                                <td className="table_data text_align_right" style={{width:'10%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
+                                                <td className="table_data text_align_right" style={{width:'12%'}}>{formatNumber(run.total_tokens)}</td>
+                                                <td className="table_data text_align_right" style={{width:'6%'}}>{run.runs_completed}</td>
+                                                <td className="table_data text_align_right" style={{width:'12%'}}>{run.runs_completed?(run.total_tokens/run.runs_completed).toFixed(1) : '-'}</td>
                                                 <td className="table_data text_align_right" style={{width:'20%'}}>
-                                                    {run.tools_used &&
-                                                        run.tools_used.slice(0, 3).map((tool,index) => (
-                                                            <div className="tools_used">{tool}</div>))}
-                                                    {run.tools_used && run.tools_used.length > 2 &&
-                                                        <div className="tools_used">+{run.tools_used.length - 2}</div>
+                                                    {run.tools_used && run.tools_used.slice(0, 3).map((tool,index) => (
+                                                        <div key={index} className="tools_used">{tool}</div>
+                                                    ))}
+                                                    {run.tools_used && run.tools_used.length > 3 &&
+                                                        <div className="tools_used_tooltip"
+                                                             data-tooltip={run.tools_used.slice(3).join(", ")}>
+                                                            +{run.tools_used.length - 3}
+                                                        </div>
                                                     }
                                                 </td>
                                                 <td className="table_data text_align_right" style={{width:'10%'}}>{run.total_calls}</td>
@@ -274,7 +277,7 @@ export default function ApmDashboard() {
                                     <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                                     <span className="text_12 color_white mt_6">No active runs found</span>
                                 </div> : activeRuns.map((run,index) => (
-                                    <div className="active_runs">
+                                    <div key={index} className="active_runs">
                                         <span className="text_14">{run.name}</span>
                                         <div style={{display:'inline-flex',alignItems:'center'}}><span className="text_12 mt_6">{run.agent_name}  ·  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon" /> {formatTime(run.created_at)}</span></div>
                                     </div>
