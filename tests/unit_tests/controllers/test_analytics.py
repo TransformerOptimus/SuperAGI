@@ -1,39 +1,85 @@
-# test_analytics.py
-import pytest
 from fastapi.testclient import TestClient
-from superagi.apm.analytics import app
-from superapi.helper.auth import AuthException
+from unittest.mock import patch
+import pytest
+
+from superagi.apm.analytics import router as analytics_router
+from superagi.models.organisation import Organisation
+from superagi.apm.analytics_helper import AnalyticsHelper
+from fastapi import FastAPI
+
+app = FastAPI()
+app.include_router(analytics_router)
+
+client = TestClient(app)
+
+organisation = Organisation(id=1)
+metrics = {"total_tokens": 1000, "total_calls": 500, "runs_completed": 80}
+agents = [{"id": 1, "name": "agent1"}, {"id": 2, "name": "agent2"}]
+runs = [{"id": 1, "run_name": "run1"}, {"id": 2, "run_name": "run2"}]
+active_runs = [{"id": 1, "run_name": "run1", "status": "active"}, {"id": 2, "run_name": "run2", "status": "active"}]
+tools_used = [{"tool_id": 1, "tool_name": "tool1"}, {"tool_id": 2, "tool_name": "tool2"}]
+
+class MockAnalyticsHelper:
+    def __init__(self, session, organisation_id):
+        pass
+
+    def calculate_run_completed_metrics(self):
+        return metrics
+
+    def fetch_agent_data(self):
+        return agents
+
+    def fetch_agent_runs(self, agent_id):
+        return runs
+
+    def get_active_runs(self):
+        return active_runs
+
+
+class MockToolsHandler:
+    def __init__(self, session, organisation_id):
+        pass
+
+    def calculate_tool_usage(self):
+        return tools_used
+
 
 @pytest.fixture
-def client():
-    return TestClient(app)
+def mock_get_user_organisation():
+    return organisation
 
-
-def test_get_metrics(client):
-    # Assuming you have a valid get_user_organisation object
-    response = client.get("/metrics", dependencies=[Depends(get_user_organisation)])
+@patch("superagi.apm.analytics.AnalyticsHelper", new=MockAnalyticsHelper)
+@patch("superagi.apm.analytics.ToolsHandler", new=MockToolsHandler)
+@patch("superagi.apm.analytics.get_user_organisation", mock_get_user_organisation)
+def test_route_metrics():
+    response = client.get("/metrics")
     assert response.status_code == 200
-    assert "total_tokens" in response.json()
-    assert "total_calls" in response.json()
-    assert "runs_completed" in response.json()
+    assert response.json() == metrics
 
-def test_get_agents(client):
-    # Assuming you have a valid get_user_organisation object
-    response = client.get("/agents/all", dependencies=[Depends(get_user_organisation)])
+@patch("superagi.apm.analytics.AnalyticsHelper", new=MockAnalyticsHelper)
+@patch("superagi.apm.analytics.get_user_organisation", mock_get_user_organisation)
+def test_route_agents():
+    response = client.get("/agents/all")
     assert response.status_code == 200
-    assert "agents" in response.json()
+    assert response.json() == agents
 
-def test_get_agent_runs(client):
-    response = client.get("/agents/1", dependencies=[Depends(get_user_organisation)])
+@patch("superagi.apm.analytics.AnalyticsHelper", new=MockAnalyticsHelper)
+@patch("superagi.apm.analytics.get_user_organisation", mock_get_user_organisation)
+def test_route_agents_runs():
+    response = client.get("/agents/1")
     assert response.status_code == 200
-    assert "runs" in response.json()
+    assert response.json() == runs
 
-def test_get_active_runs(client):
-    response = client.get("/runs/active", dependencies=[Depends(get_user_organisation)])
+@patch("superagi.apm.analytics.AnalyticsHelper", new=MockAnalyticsHelper)
+@patch("superagi.apm.analytics.get_user_organisation", mock_get_user_organisation)
+def test_route_active_runs():
+    response = client.get("/runs/active")
     assert response.status_code == 200
-    assert "active_runs" in response.json()
+    assert response.json() == active_runs
 
-def test_get_tools_used(client):
-    response = client.get("/tools/used", dependencies=[Depends(get_user_organisation)])
+@patch("superagi.apm.analytics.ToolsHandler", new=MockToolsHandler)
+@patch("superagi.apm.analytics.get_user_organisation", mock_get_user_organisation)
+def test_route_tools_used():
+    response = client.get("/tools/used")
     assert response.status_code == 200
-    assert "tools" in response.json()
+    assert response.json() == tools_used
