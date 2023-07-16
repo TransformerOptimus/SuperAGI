@@ -94,7 +94,7 @@ export const downloadFile = (fileId, fileName = null) => {
       Authorization: `Bearer ${authToken}`,
     };
 
-    return fetch(url, { headers })
+    return fetch(url, {headers})
       .then((response) => response.blob())
       .then((blob) => {
         if (fileName) {
@@ -124,7 +124,7 @@ export const downloadFile = (fileId, fileName = null) => {
   }
 };
 
-export const downloadAllFiles = (files,run_name) => {
+export const downloadAllFiles = (files, run_name) => {
   const zip = new JSZip();
   const promises = [];
   const fileNamesCount = {};
@@ -155,21 +155,21 @@ export const downloadAllFiles = (files,run_name) => {
   });
 
   Promise.all(promises)
-      .then(() => {
-        zip.generateAsync({ type: "blob" })
-            .then((content) => {
-              const now = new Date();
-              const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
-              const zipFilename = `${run_name}_${timestamp}.zip`;
-              const downloadLink = document.createElement("a");
-              downloadLink.href = URL.createObjectURL(content);
-              downloadLink.download = zipFilename;
-              downloadLink.click();
-            })
-            .catch((error) => {
-              console.error("Error generating zip:", error);
-            });
-      });
+    .then(() => {
+      zip.generateAsync({type: "blob"})
+        .then((content) => {
+          const now = new Date();
+          const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
+          const zipFilename = `${run_name}_${timestamp}.zip`;
+          const downloadLink = document.createElement("a");
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch((error) => {
+          console.error("Error generating zip:", error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
@@ -255,6 +255,7 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("agent_time_unit_" + String(internalId));
     localStorage.removeItem("agent_time_value_" + String(internalId));
     localStorage.removeItem("agent_is_recurring_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_" + String(internalId));
   }
 }
 
@@ -281,6 +282,49 @@ const removeToolkitsInternalId = (internalId) => {
   }
 }
 
+const removeKnowledgeInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('knowledge_name_' + String(internalId));
+    localStorage.removeItem('knowledge_description_' + String(internalId));
+    localStorage.removeItem('knowledge_index_' + String(internalId));
+  }
+}
+
+const removeAddDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('add_database_tab_' + String(internalId));
+    localStorage.removeItem('selected_db_' + String(internalId));
+    localStorage.removeItem('db_name_' + String(internalId));
+    localStorage.removeItem('db_collections_' + String(internalId));
+    localStorage.removeItem('pincone_api_' + String(internalId));
+    localStorage.removeItem('pinecone_env_' + String(internalId));
+    localStorage.removeItem('qdrant_api_' + String(internalId));
+    localStorage.removeItem('qdrant_url_' + String(internalId));
+    localStorage.removeItem('qdrant_port_' + String(internalId));
+  }
+}
+
+const removeDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('db_details_collections_' + String(internalId));
+  }
+}
+
 export const resetLocalStorage = (contentType, internalId) => {
   switch (contentType) {
     case 'Create_Agent':
@@ -297,6 +341,21 @@ export const resetLocalStorage = (contentType, internalId) => {
       break;
     case 'Toolkits':
       removeToolkitsInternalId(internalId);
+      break;
+    case 'Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Database':
+      removeAddDatabaseInternalId(internalId);
+      break;
+    case 'Database':
+      removeDatabaseInternalId(internalId);
+      break;
+    case 'Settings':
+      localStorage.removeItem('settings_tab');
       break;
     default:
       break;
@@ -339,6 +398,7 @@ export const returnToolkitIcon = (toolkitName) => {
     {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
     {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
     {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Knowledge Search Toolkit', imageSrc: '/images/app-logo-light.png'},
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
@@ -356,8 +416,17 @@ export const returnResourceIcon = (file) => {
   return fileTypeIcons[file.type] || '/images/default_file.svg';
 };
 
+export const returnDatabaseIcon = (database) => {
+  const dbTypeIcons = {
+    'Pinecone': '/images/pinecone.svg',
+    'Qdrant': '/images/qdrant.svg'
+  };
+
+  return dbTypeIcons[database]
+};
+
 export const convertToTitleCase = (str) => {
-  if(str === null || str === '') {
+  if (str === null || str === '') {
     return '';
   }
 
