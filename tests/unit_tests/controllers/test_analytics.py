@@ -1,11 +1,24 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 from main import app
 
 client = TestClient(app)
 
-@patch('fastapi_sqlalchemy.db.session', new=MagicMock())
+class MockSession:
+    def __init__(self):
+        pass
+
+    def query(self, *args, **kwargs):
+        pass
+
+    def commit(self):
+        pass
+
+    def rollback(self):
+        pass
+
+@patch('fastapi_sqlalchemy.db.session', new_callable=lambda: MockSession())
 def test_get_metrics_success():
     with patch('superagi.helper.analytics.AnalyticsHelper') as mock_helper:
         mock_helper().calculate_run_completed_metrics.return_value = {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
@@ -13,7 +26,7 @@ def test_get_metrics_success():
         assert response.status_code == 200
         assert response.json() == {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
 
-@patch('fastapi_sqlalchemy.db.session', new=MagicMock())
+@patch('fastapi_sqlalchemy.db.session', new_callable=lambda: MockSession())
 def test_get_agents_success():
     with patch('superagi.helper.analytics.AnalyticsHelper') as mock_helper:
         mock_helper().fetch_agent_data.return_value = {"agent_details": "mock_details", "model_info": "mock_info"}
@@ -21,7 +34,7 @@ def test_get_agents_success():
         assert response.status_code == 200
         assert response.json() == {"agent_details": "mock_details", "model_info": "mock_info"}
 
-@patch('fastapi_sqlalchemy.db.session', new=MagicMock())
+@patch('fastapi_sqlalchemy.db.session', new_callable=lambda: MockSession())
 def test_get_agent_runs_success():
     with patch('superagi.helper.analytics.AnalyticsHelper') as mock_helper:
         mock_helper().fetch_agent_runs.return_value = "mock_agent_runs"
@@ -29,7 +42,7 @@ def test_get_agent_runs_success():
         assert response.status_code == 200
         assert response.json() == "mock_agent_runs"
 
-@patch('fastapi_sqlalchemy.db.session', new=MagicMock())
+@patch('fastapi_sqlalchemy.db.session', new_callable=lambda: MockSession())
 def test_get_active_runs_success():
     with patch('superagi.helper.analytics.AnalyticsHelper') as mock_helper:
         mock_helper().get_active_runs.return_value = ["mock_run_1", "mock_run_2"]
@@ -37,7 +50,7 @@ def test_get_active_runs_success():
         assert response.status_code == 200
         assert response.json() == ["mock_run_1", "mock_run_2"]
 
-@patch('fastapi_sqlalchemy.db.session', new=MagicMock())
+@patch('fastapi_sqlalchemy.db.session', new_callable=lambda: MockSession())
 def test_get_tools_user_success():
     with patch('superagi.helper.analytics.ToolsHandler') as mock_handler:
         mock_handler().calculate_tool_usage.return_value = ["tool1", "tool2"]
