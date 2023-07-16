@@ -10,7 +10,6 @@ from superagi.models.agent_execution import AgentExecution
 
 
 class TwitterHelper:
-
     def get_media_ids(self, session, media_files, creds, agent_id, agent_execution_id):
         media_ids = []
         oauth = OAuth1(creds.api_key,
@@ -34,7 +33,7 @@ class TwitterHelper:
         final_path = ResourceHelper().get_agent_write_resource_path(file_name,
                                                                     agent=Agent.get_agent_from_id(session, agent_id),
                                                                     agent_execution=AgentExecution.get_agent_execution_from_id(
-                                                                  session, agent_execution_id))
+                                                                        session, agent_execution_id))
         return final_path
 
     def send_tweets(self, params, creds):
@@ -46,3 +45,4 @@ class TwitterHelper:
 
         response = oauth.post(tweet_endpoint, json=params)
         return response
+
