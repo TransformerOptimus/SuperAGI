@@ -5,7 +5,7 @@ from main import app
 
 client = TestClient(app)
 
-@patch('main.get_db')
+@patch('your_project.database.get_db')
 def test_get_metrics_success(mock_get_db):
     mock_db = MagicMock()
     mock_get_db.return_value.__enter__.return_value = mock_db
@@ -15,7 +15,7 @@ def test_get_metrics_success(mock_get_db):
         assert response.status_code == 200
         assert response.json() == {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
 
-@patch('main.get_db')
+@patch('your_project.database.get_db')
 def test_get_agents_success(mock_get_db):
     mock_db = MagicMock()
     mock_get_db.return_value.__enter__.return_value = mock_db
@@ -25,7 +25,7 @@ def test_get_agents_success(mock_get_db):
         assert response.status_code == 200
         assert response.json() == {"agent_details": "mock_details", "model_info": "mock_info"}
 
-@patch('main.get_db')
+@patch('your_project.database.get_db')
 def test_get_agent_runs_success(mock_get_db):
     mock_db = MagicMock()
     mock_get_db.return_value.__enter__.return_value = mock_db
@@ -35,7 +35,7 @@ def test_get_agent_runs_success(mock_get_db):
         assert response.status_code == 200
         assert response.json() == "mock_agent_runs"
 
-@patch('main.get_db')
+@patch('your_project.database.get_db')
 def test_get_active_runs_success(mock_get_db):
     mock_db = MagicMock()
     mock_get_db.return_value.__enter__.return_value = mock_db
@@ -45,7 +45,7 @@ def test_get_active_runs_success(mock_get_db):
         assert response.status_code == 200
         assert response.json() == ["mock_run_1", "mock_run_2"]
 
-@patch('main.get_db')
+@patch('your_project.database.get_db')
 def test_get_tools_user_success(mock_get_db):
     mock_db = MagicMock()
     mock_get_db.return_value.__enter__.return_value = mock_db
