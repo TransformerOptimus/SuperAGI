@@ -31,9 +31,9 @@ import json
 from superagi.models.toolkit import Toolkit
 
 from sqlalchemy import func
-from superagi.helper.auth import check_auth
-
 # from superagi.types.db import AgentOut, AgentIn
+from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.apm.event_handler import EventHandler
 
 router = APIRouter()
 
@@ -172,7 +172,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
             - model (str): Model information for the agent.
             - permission_type (str): Permission type for the agent.
             - LTM_DB (str): LTM database for the agent.
-            - memory_window (int): Memory window size for the agent.
             - max_iterations (int): Maximum number of iterations for the agent.
             - user_timezone (string): Timezone of the user
 
@@ -210,7 +209,15 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     db.session.flush()
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
+
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id,).first()
+    organisation = agent.get_agent_organisation(db.session)
+    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,'agent_execution_name':execution.name}, db_agent.id, organisation.id if organisation else 0),
+    EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name, 'model': agent_with_config.model}, db_agent.id, organisation.id if organisation else 0)
+
     # execute_agent.delay(execution.id, datetime.now())
+
+    db.session.commit()
 
     return {
         "id": db_agent.id,
@@ -398,7 +405,7 @@ def get_agents_by_project_id(project_id: int,
 
     agents = db.session.query(Agent).filter(Agent.project_id == project_id).all()
 
-    new_agents, new_agents_sorted = [],[]
+    new_agents, new_agents_sorted = [], []
     for agent in agents:
         agent_dict = vars(agent)
         agent_id = agent.id

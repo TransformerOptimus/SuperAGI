@@ -2,5 +2,6 @@
   "tools": {
     "rabbitmq": "https://github.com/zhound420/rabbitmq",
     "SuperAGI-Tools": "https://github.com/COLONAYUSH/SuperAGI-Tools"
+  
   }
 }

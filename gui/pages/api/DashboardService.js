@@ -40,8 +40,8 @@ export const getExecutionTasks = (executionId) => {
   return api.get(`/agentexecutionfeeds/get/tasks/${executionId}`);
 };
 
-export const createAgent = (agentData) => {
-  return api.post(`/agents/create`, agentData);
+export const createAgent = (agentData, scheduledCreate) => {
+  return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
 export const addTool = (toolData) => {
@@ -104,19 +104,19 @@ export const updateToolConfig = (toolKitName, configData) => {
   return api.post(`/tool_configs/add/${toolKitName}`, configData);
 }
 
-export const fetchAgentTemplateListLocal = () => {	
-  return api.get('/agent_templates/list?template_source=local');	
+export const fetchAgentTemplateListLocal = () => {
+  return api.get('/agent_templates/list?template_source=local');
 }
 
-export const saveAgentAsTemplate = (agentId) => {	
+export const saveAgentAsTemplate = (agentId) => {
   return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
 }
 
-export const fetchAgentTemplateConfig = (templateId) => {	
+export const fetchAgentTemplateConfig = (templateId) => {
   return api.get(`/agent_templates/get/${templateId}?template_source=marketplace`);
 }
 
-export const installAgentTemplate = (templateId) => {	
+export const installAgentTemplate = (templateId) => {
   return api.post(`/agent_templates/download?agent_template_id=${templateId}`);
 }
 
@@ -140,6 +140,10 @@ export const sendTwitterCreds = (twitter_creds) => {
   return api.post(`/twitter/send_twitter_creds/${twitter_creds}`);
 }
 
+export const sendGoogleCreds = (google_creds, toolkit_id) => {
+  return api.post(`/google/send_google_creds/toolkit_id/${toolkit_id}`, google_creds);
+}
+
 export const fetchToolTemplateList = () => {
   return api.get(`/toolkits/get/list?page=0`);
 }
@@ -152,6 +156,42 @@ export const installToolkitTemplate = (templateName) => {
   return api.get(`/toolkits/get/install/${templateName}`);
 }
 
-export const getExecutionDetails = (executionId) => {
-  return api.get(`/agent_executions_configs/details/${executionId}`);
+export const getExecutionDetails = (executionId, agentId) => {
+  return api.get(`/agent_executions_configs/details/agent/${agentId}/agent_execution/${executionId}`);
+}
+
+export const stopSchedule = (agentId) => {
+  return api.post(`/agents/stop/schedule?agent_id=${agentId}`);
+}
+
+export const createAndScheduleRun = (requestData) => {
+  return api.post(`/agentexecutions/schedule`, requestData);
+}
+
+export const agentScheduleComponent = (agentId) => {
+  return api.get(`/agents/get/schedule_data/${agentId}`);
+}
+
+export const updateSchedule = (requestData) => {
+  return api.put(`/agents/edit/schedule`, requestData);
+}
+
+export const getDateTime = (agentId) => {
+  return api.get(`/agents/get/schedule_data/${agentId}`);
+}
+
+export const getMetrics = () => {
+  return api.get(`/analytics/metrics`)
+}
+export const getAllAgents = () => {
+  return api.get(`/analytics/agents/all`)
+}
+export const getAgentRuns = (agent_id) => {
+  return api.get(`analytics/agents/${agent_id}`);
+}
+export const getActiveRuns = () => {
+  return api.get(`analytics/runs/active`);
+}
+export const getToolsUsage = () => {
+  return api.get(`analytics/tools/used`);
 }

@@ -2,6 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Dict, NamedTuple, List
 import re
+import ast
 import json5
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
@@ -22,12 +23,28 @@ class BaseOutputParser(ABC):
     def parse(self, text: str) -> AgentGPTAction:
         """Return AgentGPTAction"""
 
+class AgentSchemaOutputParser(BaseOutputParser):
+    def parse(self, response: str) -> AgentGPTAction:
+        if response.startswith("```") and response.endswith("```"):
+            response = "```".join(response.split("```")[1:-1])
+            response = JsonCleaner.extract_json_section(response)
 
+        # OpenAI returns `str(content_dict)`, literal_eval reverses this
+        try:
+            logger.debug("AgentSchemaOutputParser: ", response)
+            response_obj = ast.literal_eval(response)
+            return AgentGPTAction(
+                name=response_obj['tool']['name'],
+                args=response_obj['tool']['args'],
+            )
+        except BaseException as e:
+            logger.info(f"AgentSchemaOutputParser: Error parsing JSON respons {e}")
+            return {}
 
 class AgentOutputParser(BaseOutputParser):
     def parse(self, text: str) -> AgentGPTAction:
         try:
-            # logger.info(text)
+            logger.info(text)
             text = JsonCleaner.check_and_clean_json(text)
             parsed = json5.loads(text)
         except json.JSONDecodeError:
@@ -55,6 +72,8 @@ class AgentOutputParser(BaseOutputParser):
 
             logger.info(format_prefix_green + "Action : " + format_suffix_green)
             # print(format_prefix_yellow + "Args: "+ format_suffix_yellow + parsed["tool"]["args"] + "\n")
+            if "tool" not in parsed:
+                raise Exception("No tool found in the response..")
             if parsed["tool"] is None or not parsed["tool"]:
                 return AgentGPTAction(name="", args="")
             if "name" in parsed["tool"]:

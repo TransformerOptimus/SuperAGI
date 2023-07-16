@@ -10,8 +10,10 @@ from celery import Celery
 
 from superagi.config.config import get_config
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
+from superagi.models.configuration import Configuration
 
 from superagi.models.db import connect_db
+from superagi.types.model_source_types import ModelSourceType
 
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
 
@@ -58,6 +60,9 @@ def summarize_resource(agent_id: int, resource_id: int):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
+    model_source = Configuration.fetch_value_by_agent_id(session, agent_id, "model_source")
+    if ModelSourceType.GooglePalm.value in model_source:
+        return
 
     resource = session.query(Resource).filter(Resource.id == resource_id).first()
     file_path = resource.path
