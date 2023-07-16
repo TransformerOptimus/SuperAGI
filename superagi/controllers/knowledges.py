@@ -67,10 +67,7 @@ def get_user_knowledge_list(organisation = Depends(get_user_organisation)):
 def get_knowledge_details(knowledge_name: str):
     knowledge_data = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
     knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data[0]["id"])
-    configs = []
-    for knowledge_config in knowledge_config_data:
-        configs[knowledge_config["key"]] = knowledge_config["value"]
-    knowledge_data_with_config = knowledge_data[0] | configs
+    knowledge_data_with_config = knowledge_data[0] | knowledge_config_data
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")
@@ -106,8 +103,7 @@ def add_update_user_knowledge(knowledge_data: dict, organisation = Depends(get_u
 @router.post("/user/delete/{knowledge_id}")
 def delete_user_knowledge(knowledge_id: int):
     try:
-        db.session.query(Knowledges).filter(Knowledges.id == knowledge_id).delete()
-        db.session.commit()
+        Knowledges.delete_knowledge(db.session, knowledge_id)
         return {"success": True}
     except:
         return f"No Knowledge found for {knowledge_id}."
@@ -115,16 +111,16 @@ def delete_user_knowledge(knowledge_id: int):
 @router.post("/install/knowledge/{knowledge_name}/index/{vector_db_index_id}")
 def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, vector_db_index_id)
-    filepath = db.session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id, KnowledgeConfigs.key == "file_path").first().value
-    file_chunks = S3Helper().get_json_file(filepath)
+    selected_knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
+    selected_knowledge_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(db.session, selected_knowledge.id)
+    file_chunks = S3Helper().get_json_file(selected_knowledge_config["file_path"])
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     upsert_data = VectorEmbeddingFactory.convert_final_chunks_to_embeddings(vector.db_type, file_chunks)
     try:
-        VectorFactory.add_embeddings_to_vector_db(vector_db_index.name, upsert_data, **db_creds)
+        VectorFactory.add_embeddings_to_vector_db(vector.db_type,vector_db_index.name, upsert_data, **db_creds)
     except:
         return {"success": False}
-    selected_knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
     selected_knowledge_data = {
         "name": selected_knowledge[0]["name"],
         "description": selected_knowledge[0]["description"],
@@ -133,11 +129,23 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
         "contributed_by": selected_knowledge[0]["contributed_by"],
     }
     new_knowledge = Knowledges.add_update_knowledges(db.session, selected_knowledge_data)
-    selected_knowledge_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(db.session, selected_knowledge.id)
-    configs = {}
-    for knowledge_config in selected_knowledge_config:
-        if knowledge_config["key"] != "file_path":
-            configs[knowledge_config["key"]] = knowledge_config["value"]
+    selected_knowledge_config.pop("file_path")
+    configs = selected_knowledge_config
     KnowledgeConfigs.add_update_knowledge_config(db.session, new_knowledge.id, configs)
     return {"success": True}
-    
+
+@router.post("/uninstall/{knowledge_id}")
+def uninstall_selected_knowledge(knowledge_id: int):
+    knowledge = Knowledges.get_knowledge_from_id(db.session, knowledge_id)
+    knowledge_config = KnowledgeConfigs.get_knowledge_config_from_knowledge_id(db.session, knowledge_id)
+    vector_ids = eval(knowledge_config["vector_ids"])
+    vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, knowledge.vector_db_index_id)
+    vector = Vectordbs.get_vector_db_from_id(db.session, knowledge.vector_db_index_id)
+    db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
+    try:
+        VectorFactory.delete_embeddings_from_vector_db(vector.db_type,vector_db_index.name, vector_ids, **db_creds)
+    except:
+        return {"success": False}
+    KnowledgeConfigs.delete_knowledge_config(db.session, knowledge_id)
+    Knowledges.delete_knowledge(db.session, knowledge_id)
+    return {"success": True}

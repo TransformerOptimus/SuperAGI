@@ -37,6 +37,30 @@ class KnowledgeConfigs(DBBaseModel):
             marketplace_url + f"/knowledge_configs/marketplace/details/{str(knowledge_id)}",
             headers=headers, timeout=10)
         if response.status_code == 200:
-            return response.json()
+            knowledge_config_data = response.json()
+            configs = {}
+            for knowledge_config in knowledge_config_data:
+                configs[knowledge_config["key"]] = knowledge_config["value"]
+            return configs
         else:
             return []
+        
+    @classmethod
+    def add_update_knowledge_config(cls, session, knowledge_id, knowledge_configs):
+        for key, value in knowledge_configs.items():
+            config = KnowledgeConfigs(knowledge_id=knowledge_id, key=key, value=value)
+            session.add(config)
+            session.commit()
+    
+    @classmethod
+    def get_knowledge_config_from_knowledge_id(cls, session, knowledge_id):
+        knowledge_configs = session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id).all()
+        configs = {}
+        for knowledge_config in knowledge_configs:
+            configs[knowledge_config.key] = knowledge_config.value
+        return configs
+    
+    @classmethod
+    def delete_knowledge_config(cls, session, knowledge_id):
+        session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id).delete()
+        session.commit()

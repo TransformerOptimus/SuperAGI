@@ -106,3 +106,8 @@ class Knowledges(DBBaseModel):
             session.add(knowledge)
         session.commit()
         return knowledge
+    
+    @classmethod
+    def delete_knowledge(cls, session, knowledge_id):
+        session.query(Knowledges).filter(Knowledges.id == knowledge_id).delete()
+        session.commit()
