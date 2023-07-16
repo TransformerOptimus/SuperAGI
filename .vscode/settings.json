@@ -1,14 +1,4 @@
 {
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
-
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-
     "python.testing.unittestArgs": [
         "-v",
         "-s",
@@ -16,7 +6,9 @@
         "-p",
         "*test*.py"
     ],
-    "cSpell.words": [
-        "restapi"
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
     ]
 }
