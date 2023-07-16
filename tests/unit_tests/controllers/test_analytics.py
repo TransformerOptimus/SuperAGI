@@ -1,52 +1,39 @@
-from unittest.mock import patch
+# test_analytics.py
 import pytest
 from fastapi.testclient import TestClient
-from main import app
-from sqlalchemy.orm import sessionmaker, Session
+from superagi.apm.analytics import app
+from superapi.helper.auth import AuthException
 
-client = TestClient(app)
+@pytest.fixture
+def client():
+    return TestClient(app)
 
-@patch('sqlalchemy.orm.sessionmaker')
-def test_get_metrics_success(mock_ses_maker: Session):
-    mock_ses_maker.return_value = Session
-    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
-        mock_helper().calculate_run_completed_metrics.return_value = {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
-        response = client.get("analytics/metrics")
-        assert response.status_code == 200
-        assert response.json() == {'total_tokens': 10, 'total_calls': 5, 'runs_completed': 2}
 
-@patch('sqlalchemy.orm.sessionmaker')
-def test_get_agents_success(mock_ses_maker: Session):
-    mock_ses_maker.return_value = Session
-    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
-        mock_helper().fetch_agent_data.return_value = {"agent_details": "mock_details", "model_info": "mock_info"}
-        response = client.get("analytics/agents/all")
-        assert response.status_code == 200
-        assert response.json() == {"agent_details": "mock_details", "model_info": "mock_info"}
+def test_get_metrics(client):
+    # Assuming you have a valid get_user_organisation object
+    response = client.get("/metrics", dependencies=[Depends(get_user_organisation)])
+    assert response.status_code == 200
+    assert "total_tokens" in response.json()
+    assert "total_calls" in response.json()
+    assert "runs_completed" in response.json()
 
-@patch('sqlalchemy.orm.sessionmaker')
-def test_get_agent_runs_success(mock_ses_maker: Session):
-    mock_ses_maker.return_value = Session
-    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
-        mock_helper().fetch_agent_runs.return_value = "mock_agent_runs"
-        response = client.get("analytics/agents/1")
-        assert response.status_code == 200
-        assert response.json() == "mock_agent_runs"
+def test_get_agents(client):
+    # Assuming you have a valid get_user_organisation object
+    response = client.get("/agents/all", dependencies=[Depends(get_user_organisation)])
+    assert response.status_code == 200
+    assert "agents" in response.json()
 
-@patch('sqlalchemy.orm.sessionmaker')
-def test_get_active_runs_success(mock_ses_maker: Session):
-    mock_ses_maker.return_value = Session
-    with patch('superagi.controllers.analytics.AnalyticsHelper') as mock_helper:
-        mock_helper().get_active_runs.return_value = ["mock_run_1", "mock_run_2"]
-        response = client.get("analytics/runs/active")
-        assert response.status_code == 200
-        assert response.json() == ["mock_run_1", "mock_run_2"]
+def test_get_agent_runs(client):
+    response = client.get("/agents/1", dependencies=[Depends(get_user_organisation)])
+    assert response.status_code == 200
+    assert "runs" in response.json()
 
-@patch('sqlalchemy.orm.sessionmaker')
-def test_get_tools_user_success(mock_ses_maker: Session):
-    mock_ses_maker.return_value = Session
-    with patch('superagi.controllers.analytics.ToolsHandler') as mock_handler:
-        mock_handler().calculate_tool_usage.return_value = ["tool1", "tool2"]
-        response = client.get("analytics/tools/used")
-        assert response.status_code == 200
-        assert response.json() == ["tool1", "tool2"]
+def test_get_active_runs(client):
+    response = client.get("/runs/active", dependencies=[Depends(get_user_organisation)])
+    assert response.status_code == 200
+    assert "active_runs" in response.json()
+
+def test_get_tools_used(client):
+    response = client.get("/tools/used", dependencies=[Depends(get_user_organisation)])
+    assert response.status_code == 200
+    assert "tools" in response.json()
