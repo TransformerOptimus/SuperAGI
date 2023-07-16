@@ -3,8 +3,8 @@
         "tests"
     ],
 
-    "python.testing.unittestEnabled": true,
-    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -15,7 +15,6 @@
         "./tests",
         "-p",
         "*test*.py"
-
     ],
     "cSpell.words": [
         "restapi"
