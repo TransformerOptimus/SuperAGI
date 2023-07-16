@@ -30,23 +30,17 @@ class RabbitMQTool(BaseTool, BaseModel):
         self.logger.debug("Connection params built.")
         return pika.ConnectionParameters(host=self.rabbitmq_server, credentials=credentials)
 
-    # rest of the code is the same
-
-    def build_connection_params(self):
-        credentials = pika.PlainCredentials(self.rabbitmq_username, self.rabbitmq_password)
-        return pika.ConnectionParameters(host=self.rabbitmq_server, credentials=credentials)
-
     def _execute(self, *args, **kwargs):
         tool_input = kwargs.get("tool_input", {})
         if isinstance(tool_input, str):
             try:
                 tool_input = json.loads(tool_input)
             except json.JSONDecodeError:
-                tool_input = {"operation": "send_message", "receiver": "Linda", "message": tool_input}
-        
+                tool_input = {"operation": "send_message", "queue_name": self.name, "message": tool_input}
+
         operation = tool_input.get("operation")
         if operation == "send_message":
-            receiver = tool_input.get("receiver")
+            queue_name = tool_input.get("queue_name")
             message = tool_input.get("message")
             return self._execute_send(receiver, message)
         elif operation == "receive_message":
