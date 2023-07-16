@@ -127,7 +127,7 @@ class AgentExecutor:
 
     @classmethod
     def get_llm_source(cls, agent_execution, session):
-        return Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_source")
+        return Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_source") or "OpenAi"
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):
@@ -247,7 +247,14 @@ class AgentExecutor:
         agent_workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.id == agent_execution.current_step_id).first()
 
-        response = spawned_agent.execute(agent_workflow_step)
+        try:
+            response = spawned_agent.execute(agent_workflow_step)
+        except RuntimeError as e:
+            # If our execution encounters an error we return and attempt to retry
+            logger.error("Error executing the agent:", e)
+            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
+            session.close()
+            return
 
         if "retry" in response and response["retry"]:
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
