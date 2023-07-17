@@ -76,7 +76,7 @@ class Pinecone(VectorStore):
         self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = {}, **kwargs: Any) -> List[Document]:
         """
         Return docs most similar to query using specified search type.
 
@@ -89,9 +89,11 @@ class Pinecone(VectorStore):
             The list of documents most similar to the query
         """
         namespace = kwargs.get("namespace", self.namespace)
-
+        filters = {}
+        for key in metadata.keys():
+            filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, top_k=top_k, namespace=namespace, include_metadata=True)
+        res = self.index.query(embed_text, filters=filters, top_k=top_k, namespace=namespace, include_metadata=True)
 
         documents = []
 
