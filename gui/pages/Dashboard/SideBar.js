@@ -10,7 +10,7 @@ export default function SideBar({onSelectEvent}) {
     setSelection(value);
     onSelectEvent(value);
     if (value === 'apm') {
-      openNewTab(-9, "APM", "APM");
+      openNewTab(-9, "APM", "APM", false);
     }
   };
 

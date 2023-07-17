@@ -678,7 +678,7 @@ export default function AgentCreate({
   }, [internalId])
 
   function openMarketplace() {
-    openNewTab(-4, "Marketplace", "Marketplace");
+    openNewTab(-4, "Marketplace", "Marketplace", false);
     localStorage.setItem('marketplace_tab', 'market_knowledge');
   }
 
