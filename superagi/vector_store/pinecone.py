@@ -115,3 +115,17 @@ class Pinecone(VectorStore):
         vector_count = index_stats.total_vector_count
         
         return {"dimensions": dimensions, "vecttor_count": vector_count}
+    
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        """Upserts embeddings to the given vector store"""
+        try:
+            self.index.upsert(vectors=embeddings["vectors"])
+        except Exception as err:
+            raise err
+    
+    def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
+        """Deletes embeddings from the given vector store"""
+        try:
+            self.index.delete(ids=ids)
+        except Exception as err:
+            raise err
