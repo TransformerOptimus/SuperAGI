@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from typing import Any
 from typing import Tuple
-import json
+
 import numpy as np
 from pydantic import ValidationError
 from pydantic.types import List
@@ -14,7 +14,7 @@ from sqlalchemy import asc
 from sqlalchemy.orm import sessionmaker
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser, AgentSchemaOutputParser
+from superagi.agent.output_parser import BaseOutputParser, AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
 from superagi.apm.event_handler import EventHandler
 from superagi.helper.token_counter import TokenCounter
@@ -65,23 +65,6 @@ class SuperAgi:
         self.agent_config = agent_config
         self.agent_execution_config = agent_execution_config
 
-    @classmethod
-    def from_llm_and_tools(
-            cls,
-            ai_name: str,
-            ai_role: str,
-            memory: VectorStore,
-            tools: List[BaseTool],
-            llm: BaseLlm
-    ) -> SuperAgi:
-        return cls(
-            ai_name=ai_name,
-            ai_role=ai_role,
-            llm=llm,
-            memory=memory,
-            output_parser=AgentOutputParser(),
-            tools=tools
-        )
 
     def fetch_agent_feeds(self, session, agent_execution_id):
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
