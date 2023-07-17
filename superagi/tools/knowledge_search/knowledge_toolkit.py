@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 from superagi.tools.base_tool import BaseTool, BaseToolkit
-from superagi.tools.knowledge_search import KnowledgeSearchTool
+from superagi.tools.knowledge_search.knowledge_search import KnowledgeSearchTool
 
 
 class KnowledgeSearchToolkit(BaseToolkit, ABC):
