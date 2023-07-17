@@ -45,6 +45,7 @@ def get_vector_db_details(vector_db_id: int):
 
 @router.post("/delete/{vector_db_id}")
 def delete_vector_db(vector_db_id: int):
+    print("///////////////////////////////")
     try:
         vector_indices = VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db_id)
         for vector_index in vector_indices:
@@ -93,7 +94,7 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
     
     return {"success": True, "id": qdrant_db.id, "name": qdrant_db.name}
 
-@router.post("/update/vector_db/{vector_db_id}")
+@router.put("/update/vector_db/{vector_db_id}")
 def update_vector_db(new_indices: list, vector_db_id: int):
     vector_db = Vectordbs.get_vector_db_from_id(db.session, vector_db_id)
     existing_indices = VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db_id)
@@ -112,7 +113,7 @@ def update_vector_db(new_indices: list, vector_db_id: int):
             index_state = "Custom" if vector_db_index_stats["vector_count"] > 0 else "None"
         except:
             return {"success": False}
-        VectordbIndices.add_vector_index(db.session, index, vector_db_id, vector_db_index_stats["dimensions"], vector_db_index_stats["vector_count"])
+        VectordbIndices.add_vector_index(db.session, index, vector_db_id, vector_db_index_stats["dimensions"], index_state)
     return {"success": True}
 
 

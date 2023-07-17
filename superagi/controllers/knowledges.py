@@ -69,9 +69,7 @@ def get_knowledge_details(knowledge_name: str):
     knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data["id"])
     knowledge_config_data["introduction"] = eval(knowledge_config_data["introduction"])
     # knowledge_config_data["use_cases"] = eval(knowledge_config_data["use_cases"])
-    # knowledge_data_with_config = knowledge_data | knowledge_config_data
-    print("///////////////////////////////")
-    print(knowledge_data_with_config)
+    knowledge_data_with_config = knowledge_data | knowledge_config_data
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")
