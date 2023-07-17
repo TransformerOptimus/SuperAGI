@@ -45,8 +45,8 @@ class Qdrant(VectorStore):
     def __init__(
             self,
             client: QdrantClient,
-            embedding_model: Optional[Any],
-            collection_name: str,
+            embedding_model: Optional[Any] = None,
+            collection_name: str = None,
             text_field_payload_key: str = TEXT_FIELD_KEY,
             metadata_payload_key: str = METADATA_KEY,
     ):
