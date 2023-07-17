@@ -45,7 +45,6 @@ def get_vector_db_details(vector_db_id: int):
 
 @router.post("/delete/{vector_db_id}")
 def delete_vector_db(vector_db_id: int):
-    print("///////////////////////////////")
     try:
         vector_indices = VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db_id)
         for vector_index in vector_indices:

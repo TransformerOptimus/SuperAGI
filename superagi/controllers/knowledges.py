@@ -102,7 +102,7 @@ def add_update_user_knowledge(knowledge_data: dict, organisation = Depends(get_u
     knowledge = Knowledges.add_update_knowledges(db.session, knowledge_data)
     return {"success": True, "id": knowledge.id}
 
-@router.post("/user/delete/{knowledge_id}")
+@router.post("/delete/{knowledge_id}")
 def delete_user_knowledge(knowledge_id: int):
     try:
         Knowledges.delete_knowledge(db.session, knowledge_id)
