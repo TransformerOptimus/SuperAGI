@@ -347,14 +347,20 @@ export const returnToolkitIcon = (toolkitName) => {
 }
 
 export const returnResourceIcon = (file) => {
+  let fileIcon;
   const fileTypeIcons = {
     'application/pdf': '/images/pdf_file.svg',
     'application/txt': '/images/txt_file.svg',
     'text/plain': '/images/txt_file.svg',
-    'image': '/images/img_file.svg',
   };
 
-  return fileTypeIcons[file.type] || '/images/default_file.svg';
+  if (file.type.includes('image')) {
+    fileIcon = '/images/img_file.svg';
+  } else {
+    fileIcon = fileTypeIcons[file.type] || '/images/default_file.svg';
+  }
+
+  return fileIcon;
 };
 
 export const convertToTitleCase = (str) => {
