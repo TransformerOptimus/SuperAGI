@@ -1,8 +1,13 @@
 from fastapi import HTTPException
 from sqlalchemy import Column, Integer, Text, String
+from sqlalchemy.orm import sessionmaker
 
 from superagi.models.base_model import DBBaseModel
+from superagi.models.db import connect_db
 from superagi.models.tool import Tool
+
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 
 
 class AgentConfiguration(DBBaseModel):
@@ -46,3 +51,26 @@ class AgentConfiguration(DBBaseModel):
                 else:
                     agent_toolkit_tools.append(tool.id)
         return agent_toolkit_tools
+
+    @classmethod
+    def update_agent_config_key(cls, agent_id, key, value):
+        """
+        Updates the agent configuration for the given agent id.
+
+        Args:
+            agent_id (int): The identifier of the agent.
+            key (str): The key of the configuration setting.
+            value (str): The value of the configuration setting.
+
+        Returns:
+            AgentConfiguration: The updated agent configuration.
+        """
+        session = Session()
+        agent_config = session.query(cls).filter(cls.agent_id == agent_id).filter(cls.key == key).first()
+        if agent_config is None:
+            agent_config = AgentConfiguration(agent_id=agent_id, key=key, value=value)
+            session.add(agent_config)
+        else:
+            agent_config.value = value
+        session.commit()
+        session.close()

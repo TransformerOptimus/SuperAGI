@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from superagi.models.cluster_agent import ClusterAgent
 from superagi.models.cluster_configuration import ClusterConfiguration
 from superagi.models.base_model import DBBaseModel
+from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.db import connect_db
 
 engine = connect_db()
@@ -114,3 +115,20 @@ class Cluster(DBBaseModel):
         ClusterAgent.create_cluster_agents(cluster_id, agent_ids)
         return cluster
 
+    @classmethod
+    def get_cluster_by_execution_id(cls, cluster_execution_id):
+        """
+        Gets the cluster associated with a cluster execution.
+
+        Args:
+            cluster_execution_id (int): The identifier of the cluster execution.
+
+        Returns:
+            Cluster: The cluster associated with the cluster execution.
+        """
+
+        session = Session()
+        cluster_execution = session.query(ClusterExecution).filter(ClusterExecution.id == cluster_execution_id).first()
+        cluster = cls.get_cluster_by_id(cluster_execution.cluster_id)
+        session.close()
+        return cluster
