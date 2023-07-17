@@ -652,9 +652,9 @@ export default function AgentCreate({
   }, [internalId])
 
   return (<>
-    <div className="row">
+    <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+      <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
         </div>
