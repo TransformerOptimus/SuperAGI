@@ -66,10 +66,12 @@ def get_user_knowledge_list(organisation = Depends(get_user_organisation)):
 @router.get("/marketplace/get/details/{knowledge_name}")
 def get_knowledge_details(knowledge_name: str):
     knowledge_data = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
-    print("////////////////////////////")
-    print(knowledge_data)
     knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data["id"])
-    knowledge_data_with_config = knowledge_data[0] | knowledge_config_data
+    knowledge_config_data["introduction"] = eval(knowledge_config_data["introduction"])
+    # knowledge_config_data["use_cases"] = eval(knowledge_config_data["use_cases"])
+    # knowledge_data_with_config = knowledge_data | knowledge_config_data
+    print("///////////////////////////////")
+    print(knowledge_data_with_config)
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")

@@ -36,8 +36,6 @@ class KnowledgeConfigs(DBBaseModel):
         response = requests.get(
             marketplace_url + f"/knowledge_configs/marketplace/details/{str(knowledge_id)}",
             headers=headers, timeout=10)
-        print("//////////////////////")
-        print(response)
         if response.status_code == 200:
             knowledge_config_data = response.json()
             configs = {}

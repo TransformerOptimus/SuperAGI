@@ -9,9 +9,5 @@ router = APIRouter()
 
 @router.get("/marketplace/details/{knowledge_id}")
 def get_marketplace_knowledge_configs_details(knowledge_id: int):
-    print("///////////////////////")
-    print(knowledge_id)
     knowledge_configs = db.session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id).all()
-    print("////////////////////////////")
-    print(knowledge_configs)
     return knowledge_configs
