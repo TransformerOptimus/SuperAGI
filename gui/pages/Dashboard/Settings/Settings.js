@@ -73,10 +73,6 @@ export default function Settings({organisationId}) {
     setSourceDropdown(false);
   };
 
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
-
   const saveSettings = () => {
     if (modelApiKey === null || modelApiKey.replace(/\s/g, '') === '') {
       toast.error("API key is empty", {autoClose: 1800});

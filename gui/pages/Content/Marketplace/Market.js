@@ -1,7 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import Image from "next/image";
 import styles from './Market.module.css';
-import Embeddings from './Embeddings';
 import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
 import ToolkitTemplate from './ToolkitTemplate';
@@ -74,11 +73,6 @@ export default function Market({env}) {
                          alt="tools-icon"/>&nbsp;Tools
                 </button>
               </div>
-              {/*<div>*/}
-              {/*    <button onClick={() => switchTab('market_embeddings')} className={styles.tab_button} style={activeTab === 'market_embeddings' ? {background:'#454254',paddingRight:'15px'} : {background:'transparent',paddingRight:'15px'}}>*/}
-              {/*        <Image style={{marginTop:'-1px'}} width={14} height={14} src="/images/embedding_light.svg" alt="embeddings-icon"/>&nbsp;Embeddings*/}
-              {/*    </button>*/}
-              {/*</div>*/}
               <div>
                 <button onClick={() => switchTab('market_agents')} className={styles.tab_button}
                         style={activeTab === 'market_agents' ? {
@@ -93,7 +87,6 @@ export default function Market({env}) {
           </div>
           <div>
             {activeTab === 'market_tools' && <MarketTools/>}
-            {activeTab === 'market_embeddings' && <Embeddings/>}
             {activeTab === 'market_agents' && <MarketAgent/>}
           </div>
         </div>

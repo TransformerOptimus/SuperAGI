@@ -183,15 +183,19 @@ export const getDateTime = (agentId) => {
 export const getMetrics = () => {
   return api.get(`/analytics/metrics`)
 }
+
 export const getAllAgents = () => {
   return api.get(`/analytics/agents/all`)
 }
+
 export const getAgentRuns = (agent_id) => {
   return api.get(`analytics/agents/${agent_id}`);
 }
+
 export const getActiveRuns = () => {
   return api.get(`analytics/runs/active`);
 }
+
 export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
 }
