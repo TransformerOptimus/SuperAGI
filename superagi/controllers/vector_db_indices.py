@@ -20,7 +20,7 @@ def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(ge
         indices =  VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db.id)
         for index in indices:
             data = {"id": index.id, "name": index.name}
-            data["is_valid_dimension"] = True if index.dimensions == knowledge_with_config["dimensions"] else False
+            data["is_valid_dimension"] = True if index.dimensions == int(knowledge_with_config["dimensions"]) else False
             data["is_valid_state"] = True if index.state != "Custom" else False
             if vector_db.type == "Pinecone":
                 pinecone.append(data)
