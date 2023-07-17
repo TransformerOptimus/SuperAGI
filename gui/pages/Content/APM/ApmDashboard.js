@@ -23,7 +23,10 @@ export default function ApmDashboard() {
     const [selectedAgentRun, setSelectedAgentRun] = useState([]);
     const [activeRuns, setActiveRuns] = useState([]);
     const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
+    const [asc, setAsc] = useState(true);
+    const [sortOrder, setSortOrder] = useState('asc');
     const [toolsUsed, setToolsUsed] = useState([]);
+    const [sortType, setSortType] = useState('');
     const initialLayout = [
         {i: 'total_agents', x: 0, y: 0, w: 3, h: 1.5},
         {i: 'total_tokens', x: 3, y: 0, w: 3, h: 1.5},
@@ -72,7 +75,7 @@ export default function ApmDashboard() {
         const fetchData = async () => {
             try {
                 const [metricsResponse, agentsResponse, activeRunsResponse, toolsUsageResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns(), getToolsUsage()]);
-                const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001'];
+                const models = ['gpt-4', 'gpt-3.5 turbo', 'gpt-3.5 turbo-16k', 'gpt-4-32k', 'google palm bison-001'];
 
                 assignDefaultDataPerModel(metricsResponse.data.agent_details.model_metrics, models);
                 assignDefaultDataPerModel(metricsResponse.data.tokens_details.model_metrics, models);
@@ -108,7 +111,9 @@ export default function ApmDashboard() {
         }).catch((error) => console.error(`Error in fetching agent runs: ${error}`));
     }, [allAgents]);
 
-    useEffect(() => handleSelectedAgent(selectedAgentIndex,selectedAgent),[allAgents]);
+    useEffect(() => {
+        handleSelectedAgent(selectedAgentIndex,selectedAgent)
+    },[allAgents]);
 
     useEffect(() => {
         if(allAgents.length > 0 && selectedAgent === 'Select an Agent') {
@@ -116,6 +121,22 @@ export default function ApmDashboard() {
             handleSelectedAgent(lastAgent.agent_id, lastAgent.name);
         }
     }, [allAgents, selectedAgent, handleSelectedAgent]);
+
+    const sortByTotalTokens = (type) => {
+        setSortType(type)
+        let sortedAgents = [...allAgents];
+
+        sortedAgents.sort((a, b) => {
+            if (sortOrder === 'asc') {  // updated
+                return a[sortType] - b[sortType];
+            } else {
+                return b[sortType] - a[sortType];
+            }
+        })
+
+        setAllAgents(sortedAgents);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');  // new
+    }
 
     return (
         <div className={style.apm_dashboard_container}>
@@ -230,12 +251,12 @@ export default function ApmDashboard() {
                                     <tr style={{borderTop:'none'}}>
                                         <th className="table_header" style={{width:'20%'}}>Agent Name</th>
                                         <th className="table_header text_align_right" style={{width:'10%'}}>Model <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'12%'}}>Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'6%'}}>Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right cursor_pointer" style={{width:'12%'}} onClick={() => sortByTotalTokens('total_tokens')}>Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right cursor_pointer" style={{width:'6%'}} onClick={() => sortByTotalTokens('runs_completed')}>Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                         <th className="table_header text_align_right" style={{width:'12%'}}>Avg tokens per run <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                         <th className="table_header text_align_right" style={{width:'20%'}}>Tools <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'10%'}}>Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                                        <th className="table_header text_align_right" style={{width:'10%'}}>Avg Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right cursor_pointer" style={{width:'10%'}} onClick={() => sortByTotalTokens('total_calls')}>Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                                        <th className="table_header text_align_right cursor_pointer" style={{width:'10%'}} onClick={() => sortByTotalTokens('avg_run_time')}>Avg Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
                                     </tr>
                                     </thead>
                                 </table>

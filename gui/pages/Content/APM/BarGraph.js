@@ -23,7 +23,29 @@ export const BarGraph = ({ data, type, color }) => {
                 data: data.map(item => item.name),
                 axisLabel: {
                     interval: 0,
-                    rotate: 45,
+                    rotate: 0,
+                    formatter: function (value) {
+                        let ret = ""; // plain string
+                        let chartWidth = containerRef.current.clientWidth; // get chart width
+                        let barWidth = chartWidth / data.length - 20; // bar width with padding
+                        let maxLengthPerRow = Math.floor(barWidth / 10); // number of characters per line
+
+                        let words = value.split(' ');
+                        let currentLine = words[0];
+                        for (let i = 1; i < words.length; i++) {
+                            if ((currentLine + ' ' + words[i]).length <= maxLengthPerRow) {
+                                // Append to current line
+                                currentLine += ' ' + words[i];
+                            } else {
+                                // Begin new line
+                                ret += currentLine + "\n";
+                                currentLine = words[i];
+                            }
+                        }
+                        ret += currentLine;  // Add remainder
+
+                        return ret;
+                    },
                     color: '#888'
                 }
             },
