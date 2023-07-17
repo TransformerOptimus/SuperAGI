@@ -1,8 +1,11 @@
 from typing import List, Dict
-from sqlalchemy.orm import Session
-from sqlalchemy.orm.query import Query
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from superagi.models.events import Event
+
+
 class ToolsHandler:
 
     def __init__(self, session: Session, organisation_id: int):

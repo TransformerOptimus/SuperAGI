@@ -427,6 +427,18 @@ input[type="range"]::-moz-range-track {
     text-overflow: ellipsis;
 }
 
+.custom_no_select_option {
+    pointer-events: none;
+    font-size: 12px;
+    color: #888888;
+    font-weight: normal;
+    height: auto;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .custom_select_option:hover {
     background: #3B3B49;
     border-radius: 8px;
@@ -517,6 +529,25 @@ p {
 
 .secondary_button:hover {
     background-color: transparent;
+}
+
+.three_dots_vertical {
+    width: 32px;
+    border: none;
+    font-size: 14px;
+    color: white;
+    height: 32px;
+    background: transparent;
+    padding: 15px;
+    display: -webkit-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sideBarStyle {
@@ -632,6 +663,27 @@ p {
     align-items: center;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.10);
+}
+
+.title_wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.database_box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+    background-color: #282437;
+}
+
+.index_options {
+    padding: 12px 14px;
+    max-width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .mt_6{margin-top: 6px;}
@@ -983,3 +1035,6 @@ tr{
     position: relative;
     cursor: pointer;
 }
+
+.justify_space_between{justify-content: space-between}
+.cursor_pointer{cursor: pointer;}
