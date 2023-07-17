@@ -1,5 +1,10 @@
 #!/bin/bash
-Xvfb :0 -screen 0 1280x1024x24 &
-x11vnc -display :0 -N -forever -shared &
 
-exec "$@"
+# Downloads the tools
+python superagi/tool_manager.py
+
+# Set executable permissions for install_tool_dependencies.sh
+chmod +x install_tool_dependencies.sh
+
+# Install dependencies
+./install_tool_dependencies.sh
