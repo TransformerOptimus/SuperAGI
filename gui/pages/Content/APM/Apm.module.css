@@ -1,0 +1,10 @@
+.apm_dashboard_container {
+    display: flex;
+    flex-direction: column;
+}
+
+.apm_dashboard {
+    margin-top: 16px;
+    height: calc(100vh - 16vh);
+    overflow-y: auto;
+}

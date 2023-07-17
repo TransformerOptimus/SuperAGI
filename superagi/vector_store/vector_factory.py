@@ -6,6 +6,9 @@ from superagi.vector_store import weaviate
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.types.vector_store_types import VectorStoreType
+from superagi.vector_store import qdrant
+
+from superagi.vector_store.qdrant import Qdrant
 
 
 class VectorFactory:
@@ -23,7 +26,8 @@ class VectorFactory:
         Returns:
             The vector storage object.
         """
-        vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        if isinstance(vector_store, str):
+            vector_store = VectorStoreType.get_vector_store_type(vector_store)
         if vector_store == VectorStoreType.PINECONE:
             try:
                 api_key = get_config("PINECONE_API_KEY")
@@ -48,8 +52,7 @@ class VectorFactory:
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
 
-        
-        if vector_store == "Weaviate":
+        if vector_store == VectorStoreType.WEAVIATE:
             use_embedded = get_config("WEAVIATE_USE_EMBEDDED")
             url = get_config("WEAVIATE_URL")
             api_key = get_config("WEAVIATE_API_KEY")
@@ -60,5 +63,14 @@ class VectorFactory:
                 api_key=api_key
             )
             return weaviate.Weaviate(client, embedding_model, index_name, 'text')
+
+        if vector_store == VectorStoreType.QDRANT:
+            client = qdrant.create_qdrant_client()
+            sample_embedding = embedding_model.get_embedding("sample")
+            if "error" in sample_embedding:
+                logger.error(f"Error in embedding model {sample_embedding}")
+
+            Qdrant.create_collection(client, index_name, len(sample_embedding))
+            return qdrant.Qdrant(client, embedding_model, index_name)
 
         raise ValueError(f"Vector store {vector_store} not supported")

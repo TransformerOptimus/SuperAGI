@@ -101,3 +101,17 @@ class AgentExecution(DBBaseModel):
             num_of_tokens=data['num_of_tokens'],
             current_step_id=data['current_step_id'],
         )
+
+    @classmethod
+    def get_agent_execution_from_id(cls, session, agent_execution_id):
+        """
+            Get Agent from agent_id
+
+            Args:
+                session: The database session.
+                agent_execution_id(int) : Unique identifier of an Agent Execution.
+
+            Returns:
+                AgentExecution: AgentExecution object is returned.
+        """
+        return session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
