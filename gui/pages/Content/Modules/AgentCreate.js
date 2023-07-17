@@ -108,7 +108,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
   useEffect(() => {
     setPageTitle(isCluster ? 'Create new cluster' : 'Create new agent');
-    setAdvancedOptions(isCluster ? true : false)
+    setGoals(['Enter agent cluster goals here'])
   }, []);
 
   useEffect(() => {
@@ -369,7 +369,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return;
     }
 
-    if (selectedTools.length <= 0) {
+    if (selectedTools.length <= 0 && !isCluster) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
@@ -711,7 +711,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           </div>
-          <div style={{marginTop: '15px'}}>
+          {!isCluster && <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Tools</label>
             <div className="dropdown_container_search" style={{width:'100%'}}>
               <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)} style={{width:'100%',alignItems:'flex-start'}}>
@@ -753,7 +753,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 </div>}
               </div>
             </div>
-          </div>
+          </div>}
           {!isCluster && <div style={{marginTop: '15px'}}>
             <button className="medium_toggle"
                     onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)}
@@ -765,7 +765,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                        alt="expand-icon"/>}
             </button>
           </div>}
-          {advancedOptions &&
+          {!isCluster && advancedOptions &&
             <div>
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Agent Type</label><br/>
@@ -816,14 +816,14 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 <label className={styles.form_label}>Exit criterion</label>
                 <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
               </div>
-              {!isCluster && <div style={{marginTop: '15px'}}>
+              <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Max iterations</label>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <input style={{width:'90%'}} type="range" min={5} max={100} value={maxIterations} onChange={handleIterationChange}/>
                   <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={maxIterations}/>
                 </div>
-              </div>}
-              {isCluster && <div style={{marginTop: '15px'}}>
+              </div>
+              <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Exit criterion</label>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)}
@@ -842,7 +842,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                     </div>}
                   </div>
                 </div>
-              </div>}
+              </div>
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Time between steps (in milliseconds)</label>
                 <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
