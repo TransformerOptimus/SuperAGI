@@ -115,8 +115,7 @@ class Pinecone(VectorStore):
         index_stats = self.index.describe_index_stats()
         dimensions = index_stats.dimension
         vector_count = index_stats.total_vector_count
-        
-        return {"dimensions": dimensions, "vecttor_count": vector_count}
+        return {"dimensions": dimensions, "vector_count": vector_count}
     
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
         """Upserts embeddings to the given vector store"""
