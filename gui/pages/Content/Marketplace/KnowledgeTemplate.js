@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
 import styles3 from "../Knowledge/Knowledge.module.css"
 import {EventBus} from "@/utils/eventBus";
-import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import {
   deleteMarketplaceKnowledge,
@@ -119,7 +118,7 @@ export default function KnowledgeTemplate({template, env}) {
   }
 
   const uninstallKnowledge = () => {
-    deleteMarketplaceKnowledge(template.name)
+    deleteMarketplaceKnowledge(template.id)
       .then((response) => {
         toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
         handleBackClick()
