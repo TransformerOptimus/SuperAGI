@@ -14,10 +14,10 @@ import {
   validateAccessToken,
   checkEnvironment,
   addUser,
-  installToolkitTemplate, installAgentTemplate
+  installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
-import { githubClientId } from "@/pages/api/apiConfig";
-import { useRouter } from 'next/router';
+import {githubClientId} from "@/pages/api/apiConfig";
+import {useRouter} from 'next/router';
 import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
@@ -33,7 +33,18 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
-  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install', 'google_calendar_toolkit_id', 'myLayoutKey'];
+  const excludedKeys = [
+    'repo_starred',
+    'popup_closed_time',
+    'twitter_toolkit_id',
+    'accessToken',
+    'agent_to_install',
+    'toolkit_to_install',
+    'google_calendar_toolkit_id',
+    'knowledge_to_install',
+    'knowledge_index_to_install',
+    'myLayoutKey'
+  ];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -48,8 +59,22 @@ export default function App() {
   const installFromMarketplace = () => {
     const toolkitName = localStorage.getItem('toolkit_to_install') || null;
     const agentTemplateId = localStorage.getItem('agent_to_install') || null;
-    
-    if(toolkitName !== null) {
+    const knowledgeTemplateName = localStorage.getItem('knowledge_to_install') || null;
+    const knowledgeIndexId = localStorage.getItem('knowledge_index_to_install') || null;
+
+    if (knowledgeTemplateName !== null && knowledgeIndexId !== null) {
+      installKnowledgeTemplate(knowledgeTemplateName, knowledgeIndexId)
+        .then((response) => {
+          toast.success("Template installed", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error installing template:', error);
+        });
+      localStorage.removeItem('knowledge_to_install');
+      localStorage.removeItem('knowledge_index_to_install');
+    }
+
+    if (toolkitName !== null) {
       installToolkitTemplate(toolkitName)
         .then((response) => {
           toast.success("Template installed", {autoClose: 1800});
@@ -60,7 +85,7 @@ export default function App() {
       localStorage.removeItem('toolkit_to_install');
     }
 
-    if(agentTemplateId !== null) {
+    if (agentTemplateId !== null) {
       installAgentTemplate(agentTemplateId)
         .then((response) => {
           toast.success("Template installed", {autoClose: 1800});
@@ -73,7 +98,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if(window.location.href.toLowerCase().includes('marketplace')) {
+    if (window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);
     } else {
       installFromMarketplace();
@@ -86,7 +111,7 @@ export default function App() {
         const env = response.data.env;
         setEnv(env);
 
-        if(typeof window !== 'undefined') {
+        if (typeof window !== 'undefined') {
           localStorage.setItem('applicationEnvironment', env);
         }
 
@@ -96,7 +121,7 @@ export default function App() {
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
 
-          if(typeof window !== 'undefined' && access_token) {
+          if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
             refreshUrl();
           }
@@ -110,10 +135,10 @@ export default function App() {
               console.error('Error validating access token:', error);
             });
         } else {
-          const userData =  {
-            "name" : "SuperAGI User",
-            "email" : "super6@agi.com",
-            "password" : "pass@123",
+          const userData = {
+            "name": "SuperAGI User",
+            "email": "super6@agi.com",
+            "password": "pass@123",
           }
 
           addUser(userData)
@@ -132,7 +157,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if(organisationId !== null) {
+    if (organisationId !== null) {
       getProject(organisationId)
         .then((response) => {
           setSelectedProject(response.data[0]);
@@ -144,11 +169,11 @@ export default function App() {
   }, [organisationId]);
 
   useEffect(() => {
-    if(selectedProject !== null) {
+    if (selectedProject !== null) {
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
-  
+
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
   };
@@ -176,7 +201,6 @@ export default function App() {
     };
   }, []);
 
-
   return (
     <div className="app">
       <Head>
@@ -184,10 +208,11 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+              rel="stylesheet"/>
       </Head>
-      {showMarketplace && <div className="projectStyle"> <MarketplacePublic env={env} /> </div>}
-      {applicationState === 'AUTHENTICATED' && !showMarketplace ? ( <div className="projectStyle">
+      {showMarketplace && <div className="projectStyle"><MarketplacePublic env={env}/></div>}
+      {applicationState === 'AUTHENTICATED' && !showMarketplace ? (<div className="projectStyle">
         <div className="sideBarStyle">
           <SideBar onSelectEvent={handleSelectionEvent}/>
         </div>
@@ -196,12 +221,14 @@ export default function App() {
             <TopBar selectedProject={selectedProject} organisationId={organisationId} userName={userName} env={env}/>
           </div>
           <div className="contentStyle">
-            <Content env={env} organisationId={organisationId} selectedView={selectedView} selectedProjectId={selectedProject?.id || ''}/>
+            <Content env={env} organisationId={organisationId} selectedView={selectedView}
+                     selectedProjectId={selectedProject?.id || ''}/>
           </div>
         </div>
-      </div> ) : !showMarketplace ? ( <div className="signInStyle">
+      </div>) : !showMarketplace ? (<div className="signInStyle">
         <div className="signInTopBar">
-          <div className="superAgiLogo"><Image width={132} height={72} src="/images/sign-in-logo.svg" alt="super-agi-logo"/></div>
+          <div className="superAgiLogo"><Image width={132} height={72} src="/images/sign-in-logo.svg"
+                                               alt="super-agi-logo"/></div>
         </div>
         <div className="signInCenter">
           {applicationState === 'NOT_AUTHENTICATED' && !showMarketplace ? <div className="signInWrapper">
@@ -209,13 +236,14 @@ export default function App() {
               <Image width={20} height={20} src="/images/github.svg" alt="github"/>&nbsp;Continue with Github
             </button>
             <div className="signInInfo">
-              By continuing, you agree to Super AGI’s Terms of Service and Privacy Policy, and to receive important updates.
+              By continuing, you agree to Super AGI’s Terms of Service and Privacy Policy, and to receive important
+              updates.
             </div>
-          </div> : <div className="signInWrapper" style={{background:'transparent'}}>
-            <div className="signInInfo" style={{fontSize:'16px',fontFamily:'Source Code Pro'}}>{loadingText}</div>
+          </div> : <div className="signInWrapper" style={{background: 'transparent'}}>
+            <div className="signInInfo" style={{fontSize: '16px', fontFamily: 'Source Code Pro'}}>{loadingText}</div>
           </div>}
         </div>
-      </div>) : true }
+      </div>) : true}
     </div>
   );
 }

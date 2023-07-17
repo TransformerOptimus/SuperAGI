@@ -128,6 +128,10 @@ export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
 }
 
+export const deleteAgent = (agentId) => {
+  return api.put(`/agents/delete/${agentId}`)
+}
+
 export const authenticateGoogleCred = (toolKitId) => {
   return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
 }
@@ -146,6 +150,10 @@ export const sendGoogleCreds = (google_creds, toolkit_id) => {
 
 export const fetchToolTemplateList = () => {
   return api.get(`/toolkits/get/list?page=0`);
+}
+
+export const fetchKnowledgeTemplateList = () => {
+  return api.get(`/knowledges/get/list?page=0`);
 }
 
 export const fetchToolTemplateOverview = (toolTemplateName) => {
@@ -183,15 +191,83 @@ export const getDateTime = (agentId) => {
 export const getMetrics = () => {
   return api.get(`/analytics/metrics`)
 }
+
 export const getAllAgents = () => {
   return api.get(`/analytics/agents/all`)
 }
+
 export const getAgentRuns = (agent_id) => {
   return api.get(`analytics/agents/${agent_id}`);
 }
+
 export const getActiveRuns = () => {
   return api.get(`analytics/runs/active`);
 }
+
 export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
+}
+
+export const fetchVectorDBList = () => {
+  return api.get(`/vector_dbs/get/list`);
+}
+
+export const getVectorDatabases = () => {
+  return api.get(`/vector_dbs/user/list`);
+}
+
+export const getVectorDBDetails = (vectorDBId) => {
+  return api.get(`/vector_dbs/get/db/details/${vectorDBId}`);
+}
+
+export const deleteVectorDB = (vectorDBId) => {
+  return api.post(`/vector_dbs/delete/${vectorDBId}`);
+}
+
+export const updateVectorDB = (vectorDBId, newIndices) => {
+  return api.put(`/vector_dbs/update/vector_db/${vectorDBId}`, newIndices);
+}
+
+export const connectPinecone = (pineconeData) => {
+  return api.post(`/vector_dbs/connect/pinecone`, pineconeData);
+}
+
+export const connectQdrant = (qdrantData) => {
+  return api.post(`/vector_dbs/connect/qdrant`, qdrantData);
+}
+
+export const getKnowledge = () => {
+  return api.get(`/knowledges/user/list`);
+}
+
+export const getKnowledgeDetails = (knowledgeId) => {
+  return api.get(`/knowledges/user/get/details/${knowledgeId}`);
+}
+
+export const deleteCustomKnowledge = (knowledgeId) => {
+  return api.post(`/knowledges/delete/${knowledgeId}`);
+}
+
+export const deleteMarketplaceKnowledge = (knowledgeId) => {
+  return api.post(`/knowledges/uninstall/${knowledgeId}`);
+}
+
+export const addUpdateKnowledge = (knowledgeData) => {
+  return api.post(`/knowledges/add_or_update/data`, knowledgeData);
+}
+
+export const getValidIndices = () => {
+  return api.get(`/vector_db_indices/get/user/valid_indices`);
+}
+
+export const getValidMarketplaceIndices = (knowledgeName) => {
+  return api.get(`/vector_db_indices/get/marketplace/valid_indices/${knowledgeName}`);
+}
+
+export const fetchKnowledgeTemplateOverview = (knowledgeName) => {
+  return api.get(`/knowledges/marketplace/get/details/${knowledgeName}`);
+}
+
+export const installKnowledgeTemplate = (knowledgeName, indexId) => {
+  return api.get(`/knowledges/install/${knowledgeName}/index/${indexId}`);
 }
