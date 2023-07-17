@@ -67,8 +67,7 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
         except:
             return {"success": False}
     pinecone_db = Vectordbs.add_vector_db(db.session, data["name"], "Pinecone", organisation)
-    for key, value in db_creds:
-        VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, key, value)
+    VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, db_creds)
     for collection in data["collections"]:
         VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, db_connect_for_index["dimensions"], index_state)
     
