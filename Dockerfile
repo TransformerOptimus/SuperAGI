@@ -12,4 +12,13 @@ COPY entrypoint.sh ./entrypoint.sh
 COPY wait-for-it.sh ./wait-for-it.sh
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh
 
+# Downloads the tools
+RUN python superagi/tool_manager.py
+
+# Set executable permissions for install_tool_dependencies.sh
+RUN chmod +x install_tool_dependencies.sh
+
+# Install dependencies
+RUN ./install_tool_dependencies.sh
+
 CMD ["./wait-for-it.sh", "super__postgres:5432","-t","60","--","./entrypoint.sh"]

@@ -3,7 +3,9 @@ services:
   backend:
     volumes:
       - "./:/app"
-    build: .
+    build:
+      context: .
+      target: backend
     depends_on:
       - super__redis
       - super__postgres
@@ -15,7 +17,7 @@ services:
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
     build:
       context: .
-      dockerfile: DockerfileCelery
+      target: celery
     depends_on:
       - super__redis
       - super__postgres
