@@ -9,7 +9,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-COPY config.yaml .
 
 # Downloads the tools
 RUN python superagi/tool_manager.py
