@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from jsonmerge import merge
 from pytz import timezone
 from sqlalchemy import func
+from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.worker import execute_agent
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
@@ -105,13 +106,17 @@ def get_agent(agent_id: int,
             Agent: An object of Agent representing the retrieved Agent.
 
         Raises:
-            HTTPException (Status Code=404): If the Agent is not found.
+            HTTPException (Status Code=404): If the Agent is not found or deleted.
     """
 
-    db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if not db_agent:
+    if (
+        db_agent := db.session.query(Agent)
+        .filter(Agent.id == agent_id, Agent.is_deleted == False)
+        .first()
+    ):
+        return db_agent
+    else:
         raise HTTPException(status_code=404, detail="agent not found")
-    return db_agent
 
 
 @router.put("/update/{agent_id}", response_model=AgentOut)
@@ -136,15 +141,15 @@ def update_agent(agent_id: int, agent: AgentIn,
             HTTPException (Status Code=404): If the Agent or associated Project is not found.
     """
 
-    db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    db_agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
     if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
     if agent.project_id:
-        project = db.session.query(Project).get(agent.project_id)
-        if not project:
+        if project := db.session.query(Project).get(agent.project_id):
+            db_agent.project_id = project.id
+        else:
             raise HTTPException(status_code=404, detail="Project not found")
-        db_agent.project_id = project.id
     db_agent.name = agent.name
     db_agent.description = agent.description
 
@@ -369,7 +374,7 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     current_datetime = datetime.now(tzone).strftime("%d/%m/%Y %I:%M %p")
 
-    response_data = {
+    return {
         "current_datetime": current_datetime,
         "start_date": agent.start_time.astimezone(tzone).strftime("%d %b %Y"),
         "start_time": agent.start_time.astimezone(tzone).strftime("%I:%M %p"),
@@ -377,8 +382,6 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         "expiry_date": agent.expiry_date.astimezone(tzone).strftime("%d/%m/%Y") if agent.expiry_date else None,
         "expiry_runs": agent.expiry_runs if agent.expiry_runs != -1 else None
     }
-
-    return response_data
 
 
 @router.get("/get/project/{project_id}")
@@ -403,11 +406,12 @@ def get_agents_by_project_id(project_id: int,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    agents = db.session.query(Agent).filter(Agent.project_id == project_id).all()
+    agents = db.session.query(Agent).filter(Agent.project_id == project_id, Agent.is_deleted == False).all()
 
     new_agents, new_agents_sorted = [], []
     for agent in agents:
         agent_dict = vars(agent)
+
         agent_id = agent.id
 
         # Query the AgentExecution table using the agent ID
@@ -445,12 +449,12 @@ def get_agent_configuration(agent_id: int,
         dict: Agent configuration including its details.
 
     Raises:
-        HTTPException (status_code=404): If the agent is not found.
+        HTTPException (status_code=404): If the agent is not found or deleted.
     """
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
-    agent = db.session.query(Agent).filter(agent_id == Agent.id).first()
+    agent = db.session.query(Agent).filter(agent_id == Agent.id, Agent.is_deleted == False).first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -480,3 +484,36 @@ def get_agent_configuration(agent_id: int,
     db.session.close()
 
     return response
+
+@router.put("/delete/{agent_id}", status_code = 200)
+def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
+    """
+        Delete an existing Agent
+            - Updates the is_deleted flag: Executes a soft delete
+            - AgentExecutions are updated to: "TERMINATED" if agentexecution is created, All the agent executions are updated
+            - AgentExecutionPermission is set to: "REJECTED" if agentexecutionpersmision is created
+            
+        Args:
+            agent_id (int): Identifier of the Agent to delete
+
+        Returns:
+            A dictionary containing a "success" key with the value True to indicate a successful delete.
+
+        Raises:
+            HTTPException (Status Code=404): If the Agent or associated Project is not found or deleted already.
+    """
+    
+    db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()    
+    
+    if not db_agent or db_agent.is_deleted:
+        raise HTTPException(status_code=404, detail="agent not found")
+    
+    # Deletion Procedure 
+    db_agent.is_deleted = True
+    if db_agent_executions:
+        # Updating all the RUNNING executions to TERMINATED
+        for db_agent_execution in db_agent_executions:
+            db_agent_execution.status = "TERMINATED"
+    
+    db.session.commit()
