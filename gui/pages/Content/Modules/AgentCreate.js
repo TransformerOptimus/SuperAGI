@@ -7,7 +7,7 @@ import {createAgent, fetchAgentTemplateConfigLocal, getOrganisationConfig, uploa
 import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, isCluster}) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, isCluster, agents}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -74,7 +74,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit"];
   const [myAgents, setMyAgents] = useState([]);
-  const [agentNames, setAgentNames] = useState(['Agent 1', 'Agent 2 ', 'Agent 3']);
+  const [agentNames, setAgentNames] = useState([]);
   const agentRef1 = useRef(null);
   const [agentDropdown1, setAgentDropdown1] = useState(false);
 
@@ -179,6 +179,14 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     };
   }, []);
 
+  const addAgent = (agent) => {
+    if (!agentNames.includes(agent.id) && !agentNames.includes(agent.name)) {
+      const updatedAgents = [...agentNames, agent];
+      setAgentNames(updatedAgents)
+    }
+  };
+
+
   const addTool = (tool) => {
     if (!selectedTools.includes(tool.id) && !toolNames.includes(tool.name)) {
       const updatedToolIds = [...selectedTools, tool.id];
@@ -188,6 +196,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setLocalStorageArray("tool_names_" + String(internalId), updatedToolNames, setToolNames);
     }
     setSearchValue('');
+  };
+
+  const removeAgent = (indexToDelete) => {
+    const updatedAgents = [...agentNames];
+    updatedAgents.splice(indexToDelete, 1);
+    setAgentNames(updatedAgents)
   };
 
   const addToolkit = (toolkit) => {
@@ -636,18 +650,17 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               <div className="custom_select_container" onClick={() => setAgentDropdown1(!agentDropdown1)} style={{width:'100%'}}>
                 {agentNames && agentNames.length > 0 ? <div style={{display:'flex',overflowX:'scroll'}}>
                   {agentNames.map((tool, index) => (<div key={index} className="tool_container" style={{marginTop:'0'}} onClick={preventDefault}>
-                    <div className={styles.tool_text}>{tool}</div>
+                    <div className={styles.tool_text}>{tool.name}</div>
                     <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon" style={{margin:'-2px -5px 0 2px'}} onClick={() => removeAgent(index)}/></div>
                   </div>))}
-                </div> : <div style={{color:'#666666'}}>Select Tools</div>}
-                {/*<Image width={20} height={21} src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+                </div> : <div style={{color:'#666666'}}>Select Agents</div>}
+                <Image width={20} height={21} src={!agentDropdown1 ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
               </div>
               <div>
                 {agentDropdown1 && <div className="custom_select_options" ref={agentRef1} style={{width:'100%'}}>
-                  {toolkits && toolkits.map((tool, index) => (<div key={index}>
-                    {tool.name !== null && tool.name !== 'LlmThinkingTool' && <div className="custom_select_option" onClick={() => addTool(tool)}
-                                                                                   style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {tool.name}
+                  {agents && agents.map((agent, index) => (<div key={index}>
+                    {agent.name !== null && <div className="custom_select_option" style={{padding: '12px 14px', maxWidth: '100%'}} onClick={() => addAgent(agent)}>
+                      {agent.name}
                     </div>}
                   </div>))}
                 </div>}

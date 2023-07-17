@@ -221,7 +221,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {tab.contentType === 'Settings' && <Settings organisationId={organisationId} />}
                   {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                   {tab.contentType === 'Create_Agent' && <AgentTemplatesList internalId={tab.internalId || tab.id} organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}/>}
-                  {tab.contentType === 'Create_Agent_Cluster' && <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} isCluster={true} />}
+                  {tab.contentType === 'Create_Agent_Cluster' && <AgentCreate organisationId={organisationId} sendAgentData={addTab} selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} isCluster={true} agents={agents} />}
                   {tab.contentType === 'AgentCluster' && <AgentClusterWorkspace agentId={tab.id}/>}
                 </div>}
               </div>
