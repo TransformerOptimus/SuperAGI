@@ -60,3 +60,4 @@ class Vectordbs(DBBaseModel):
         vector_db = Vectordbs(name=name, db_type=db_type, organisation_id=organisation.id)
         session.add(vector_db)
         session.commit()
+        return vector_db
