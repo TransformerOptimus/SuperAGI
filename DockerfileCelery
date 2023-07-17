@@ -12,4 +12,6 @@ WORKDIR /app
 COPY . .
 COPY config.yaml .
 
+RUN chmod +x ./entrypoirnt_celery.sh
+
 CMD ["celery", "-A", "superagi.worker", "worker", "--beat","--loglevel=info"]
