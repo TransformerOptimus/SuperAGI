@@ -15,6 +15,7 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_workflow_step import AgentWorkflowStep
+from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
@@ -210,6 +211,11 @@ class AgentExecutor:
         session.commit()
         if response["result"] == "COMPLETE":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+            if db_agent_execution.cluster_execution_id is not None:
+                cluster_execution = session.query(ClusterExecution).filter(
+                    ClusterExecution.id == db_agent_execution.cluster_execution_id).first()
+                cluster_execution.status = "READY"
+                session.commit()
             db_agent_execution.status = "COMPLETED"
             session.commit()
         elif response["result"] == "WAITING_FOR_PERMISSION":

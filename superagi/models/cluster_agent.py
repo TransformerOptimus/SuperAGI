@@ -2,7 +2,6 @@ from sqlalchemy import Integer, Column
 from sqlalchemy.orm import sessionmaker
 
 from superagi.models.base_model import DBBaseModel
-from superagi.models.cluster import Cluster
 from superagi.models.db import connect_db
 
 engine = connect_db()
@@ -62,9 +61,6 @@ class ClusterAgent(DBBaseModel):
         """
 
         session = Session()
-        cluster = session.query(Cluster).filter(Cluster.cluster_id == cluster_id).first()
-        if cluster is None:
-            raise Exception(f"Cluster with id {cluster_id} does not exist.")
         for agent_id in agent_ids:
             cluster_agent = ClusterAgent(cluster_id=cluster_id, agent_id=agent_id)
             session.add(cluster_agent)

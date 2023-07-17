@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
 
 from superagi.models.base_model import DBBaseModel
-from superagi.models.cluster import Cluster
 from superagi.models.db import connect_db
 
 engine = connect_db()
@@ -58,9 +57,6 @@ class ClusterExecution(DBBaseModel):
             ClusterExecution: The newly created cluster execution.
         """
         session = Session()
-        cluster = Cluster.get_cluster_by_id(cluster_id)
-        if cluster is None:
-            raise ValueError(f"Cluster with id {cluster_id} does not exist.")
         cluster_execution = ClusterExecution(
             status='CREATED',
             cluster_id=cluster_id,
@@ -160,20 +156,3 @@ class ClusterExecution(DBBaseModel):
         session.close()
         return cluster_execution
 
-    @classmethod
-    def get_cluster_by_execution_id(cls, cluster_execution_id):
-        """
-        Gets the cluster associated with a cluster execution.
-
-        Args:
-            cluster_execution_id (int): The identifier of the cluster execution.
-
-        Returns:
-            Cluster: The cluster associated with the cluster execution.
-        """
-
-        session = Session()
-        cluster_execution = session.query(cls).filter(cls.id == cluster_execution_id).first()
-        cluster = Cluster.get_cluster_by_id(cluster_execution.cluster_id)
-        session.close()
-        return cluster

@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, Text, String
 from sqlalchemy.orm import sessionmaker
 
 from superagi.models.base_model import DBBaseModel
-from superagi.models.cluster import Cluster
 from superagi.models.db import connect_db
 
 engine = connect_db()
@@ -38,26 +37,23 @@ class ClusterConfiguration(DBBaseModel):
         return f"ClusterConfiguration(id={self.id}, key={self.key}, value={self.value})"
 
     @classmethod
-    def fetch_cluster_configuration(cls, cluster_id):
+    def fetch_cluster_configuration(cls, cluster):
         """
         Fetches the cluster configuration for the given cluster id.
 
         Args:
-            cluster_id (int): The identifier of the cluster.
+            cluster (Cluster): The cluster object.
 
         Returns:
             list: List of cluster configurations.
 
         """
         session = Session()
-        cluster = session.query(Cluster).filter(Cluster.cluster_id == cluster_id).all()
-        if not cluster:
-            return None
-        cluster_configurations = session.query(cls).filter(cls.cluster_id == cluster_id).all()
+        cluster_configurations = session.query(cls).filter(cls.cluster_id == cluster.id).all()
         session.close()
 
         config = {
-            "cluster_id": cluster_id,
+            "cluster_id": cluster.id,
             "name": cluster.name,
             "project_id": cluster.project_id,
             "description": cluster.description,

@@ -47,33 +47,33 @@ class ClusterPromptBuilder:
     def initialize_tasks_prompt(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "initialize_tasks.txt")
 
-        return {"prompt": ClusterPromptBuilder.clean_prompt(super_agi_prompt), "variables":
+        return {"prompt": cls.clean_prompt(super_agi_prompt), "variables":
             ["goals", "instructions", "agents"]}
 
     @classmethod
     def decide_agent_prompt(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "decide_agent.txt")
 
-        return {"prompt": ClusterPromptBuilder.clean_prompt(super_agi_prompt), "variables":
+        return {"prompt": cls.clean_prompt(super_agi_prompt), "variables":
             ["goals", "instructions", "current_task", "agents"]}
 
     @classmethod
     def replace_main_variables(cls, super_agi_cluster_prompt: str, goals: List[str], instructions: List[str],
                                agents: List[Agent]):
         super_agi_cluster_prompt = super_agi_cluster_prompt.replace("{goals}",
-                                                                    ClusterPromptBuilder.add_list_items_to_string(
+                                                                    cls.add_list_items_to_string(
                                                                         goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
             task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next " \
                        "steps for achieving the task):"
             super_agi_cluster_prompt = super_agi_cluster_prompt.replace("{task_instructions}", task_str + '\n' +
-                                                                        ClusterPromptBuilder.add_list_items_to_string(
+                                                                        cls.add_list_items_to_string(
                                                                             instructions))
         else:
             super_agi_cluster_prompt = super_agi_cluster_prompt.replace("{instructions}", '')
 
         logger.info(agents)
-        agents_string = ClusterPromptBuilder.add_agents_to_prompt(agents)
+        agents_string = cls.add_agents_to_prompt(agents)
         super_agi_cluster_prompt = super_agi_cluster_prompt.replace("{agents}", agents_string)
         return super_agi_cluster_prompt
 

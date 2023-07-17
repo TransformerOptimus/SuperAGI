@@ -16,6 +16,7 @@ class AgentExecution(DBBaseModel):
             'COMPLETED', 'TERMINATED'.
         name (str): The name of the agent execution.
         agent_id (int): The identifier of the associated agent.
+        cluster_execution_id (int): The identifier of the associated cluster.
         last_execution_time (datetime): The timestamp of the last execution time.
         num_of_calls (int): The number of calls made during the execution.
         num_of_tokens (int): The number of tokens used during the execution.
@@ -28,6 +29,7 @@ class AgentExecution(DBBaseModel):
     status = Column(String)  # like ('CREATED', 'RUNNING', 'PAUSED', 'COMPLETED', 'TERMINATED')
     name = Column(String)
     agent_id = Column(Integer)
+    cluster_execution_id = Column(Integer)
     last_execution_time = Column(DateTime)
     num_of_calls = Column(Integer, default=0)
     num_of_tokens = Column(Integer, default=0)
@@ -45,7 +47,7 @@ class AgentExecution(DBBaseModel):
         return (
             f"AgentExecution(id={self.id}, name={self.name}, status='{self.status}', "
             f"last_execution_time='{self.last_execution_time}', current_step_id={self.current_step_id}, "
-            f"agent_id={self.agent_id}, num_of_calls={self.num_of_calls})"
+            f"agent_id={self.agent_id}, cluster_execution_id={self.cluster_id}, num_of_calls={self.num_of_calls})"
         )
 
     def to_dict(self):
@@ -61,6 +63,7 @@ class AgentExecution(DBBaseModel):
             'status': self.status,
             'name': self.name,
             'agent_id': self.agent_id,
+            'cluster_execution_id': self.cluster_id,
             'last_execution_time': self.last_execution_time.isoformat(),
             'num_of_calls': self.num_of_calls,
             'num_of_tokens': self.num_of_tokens,
@@ -96,6 +99,7 @@ class AgentExecution(DBBaseModel):
             status=data['status'],
             name=data['name'],
             agent_id=data['agent_id'],
+            cluster_execution_id=data['cluster_execution_id'],
             last_execution_time=last_execution_time,
             num_of_calls=data['num_of_calls'],
             num_of_tokens=data['num_of_tokens'],

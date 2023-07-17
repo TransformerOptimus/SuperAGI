@@ -1,9 +1,9 @@
 from superagi.cluster.cluster_prompt_builder import ClusterPromptBuilder
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.openai import OpenAi
+from superagi.models.cluster import Cluster
 from superagi.models.cluster_agent import ClusterAgent
 from superagi.models.cluster_configuration import ClusterConfiguration
-from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 
@@ -11,8 +11,8 @@ from superagi.models.organisation import Organisation
 class SuperAgiCluster:
     @classmethod
     def get_tasks(cls, cluster_execution_id):
-        cluster = ClusterExecution.get_cluster_by_execution_id(cluster_execution_id)
-        cluster_config = ClusterConfiguration.fetch_cluster_configuration(cluster.id)
+        cluster = Cluster.get_cluster_by_execution_id(cluster_execution_id)
+        cluster_config = ClusterConfiguration.fetch_cluster_configuration(cluster)
         goals = cluster_config['goals']
         instructions = cluster_config['instructions']
         agents = ClusterAgent.get_cluster_agents_by_cluster_id(cluster.id)
@@ -24,7 +24,7 @@ class SuperAgiCluster:
 
     @classmethod
     def get_agent_for_task(cls, cluster_execution_id, task):
-        cluster = ClusterExecution.get_cluster_by_execution_id(cluster_execution_id)
+        cluster = Cluster.get_cluster_by_execution_id(cluster_execution_id)
         agents = ClusterAgent.get_cluster_agents_by_cluster_id(cluster.id)
         cluster_config = ClusterConfiguration.fetch_cluster_configuration(cluster.id)
         prompt_dict = ClusterPromptBuilder.decide_agent_prompt()
