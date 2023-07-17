@@ -3,7 +3,7 @@ import pickle
 from datetime import datetime, timedelta
 
 import requests
-from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import RedirectResponse
@@ -13,6 +13,8 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from honeybadger import honeybadger
+from honeybadger.contrib.fastapi import HoneybadgerRoute
 
 import superagi
 import urllib.parse
@@ -56,12 +58,17 @@ from superagi.models.types.login_request import LoginRequest
 from superagi.models.user import User
 
 app = FastAPI()
+env = get_config("ENV")
+
+if get_config("ENV") == "PROD":
+    honeybadger.configure(api_key=get_config("HONEYBADGER_API_KEY"), environment='production')
+    app.router.route_class = HoneybadgerRoute
+    router = APIRouter(route_class=HoneybadgerRoute)
 
 database_url = get_config('POSTGRES_URL')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
-env = get_config('ENV', "DEV")
 
 if db_username is None:
     db_url = f'postgresql://{database_url}/{db_name}'
@@ -92,28 +99,32 @@ app.add_middleware(
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
-app.include_router(user_router, prefix="/users")
-app.include_router(tool_router, prefix="/tools")
-app.include_router(organisation_router, prefix="/organisations")
-app.include_router(project_router, prefix="/projects")
-app.include_router(budget_router, prefix="/budgets")
-app.include_router(agent_router, prefix="/agents")
-app.include_router(agent_config_router, prefix="/agentconfigs")
-app.include_router(agent_execution_router, prefix="/agentexecutions")
-app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
-app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
-app.include_router(resources_router, prefix="/resources")
-app.include_router(config_router, prefix="/configs")
-app.include_router(toolkit_router, prefix="/toolkits")
-app.include_router(tool_config_router, prefix="/tool_configs")
-app.include_router(config_router, prefix="/configs")
-app.include_router(agent_template_router, prefix="/agent_templates")
-app.include_router(agent_workflow_router, prefix="/agent_workflows")
-app.include_router(twitter_oauth_router, prefix="/twitter")
-app.include_router(agent_execution_config, prefix="/agent_executions_configs")
-app.include_router(analytics_router, prefix="/analytics")
+app.include_router(user_router, prefix="/api/users")
+app.include_router(tool_router, prefix="/api/tools")
+app.include_router(organisation_router, prefix="/api/organisations")
+app.include_router(project_router, prefix="/api/projects")
+app.include_router(budget_router, prefix="/api/budgets")
+app.include_router(agent_router, prefix="/api/agents")
+app.include_router(agent_config_router, prefix="/api/agentconfigs")
+app.include_router(agent_execution_router, prefix="/api/agentexecutions")
+app.include_router(agent_execution_feed_router, prefix="/api/agentexecutionfeeds")
+app.include_router(agent_execution_permission_router, prefix="/api/agentexecutionpermissions")
+app.include_router(resources_router, prefix="/api/resources")
+app.include_router(config_router, prefix="/api/configs")
+app.include_router(toolkit_router, prefix="/api/toolkits")
+app.include_router(tool_config_router, prefix="/api/tool_configs")
+app.include_router(config_router, prefix="/api/configs")
+app.include_router(agent_template_router, prefix="/api/agent_templates")
+app.include_router(agent_workflow_router, prefix="/api/agent_workflows")
+app.include_router(twitter_oauth_router, prefix="/api/twitter")
+app.include_router(agent_execution_config, prefix="/api/agent_executions_configs")
 
-app.include_router(google_oauth_router, prefix="/google")
+app.include_router(analytics_router, prefix="/api/analytics")
+app.include_router(google_oauth_router, prefix="/api/google")
+# add a health route to check if the server is up and return 200
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
@@ -325,7 +336,7 @@ async def startup_event():
     session.close()
 
 
-@app.post('/login')
+@app.post('/api/login')
 def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
     """Login API for email and password based login"""
 
@@ -344,7 +355,7 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 #     access_token = Authorize.create_access_token(subject=user_email)
 #     return access_token
 
-@app.get('/github-login')
+@app.get('/api/github-login')
 def github_login():
     """GitHub login"""
 
@@ -352,13 +363,13 @@ def github_login():
     return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
 
 
-@app.get('/github-auth')
+@app.get('/api/github-auth')
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
     github_token_url = 'https://github.com/login/oauth/access_token'
-    github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
-    github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
+    github_client_id = os.getenv("GITHUB_CLIENT_ID",superagi.config.config.get_config("GITHUB_CLIENT_ID"))
+    github_client_secret = os.getenv("GITHUB_CLIENT_SECRET",superagi.config.config.get_config("GITHUB_CLIENT_SECRET"))
 
     frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
     params = {
@@ -404,7 +415,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
         return RedirectResponse(url=redirect_url_failure)
 
 
-@app.get('/user')
+@app.get('/api/user')
 def user(Authorize: AuthJWT = Depends()):
     """API to get current logged in User"""
 
@@ -413,7 +424,7 @@ def user(Authorize: AuthJWT = Depends()):
     return {"user": current_user}
 
 
-@app.get("/validate-access-token")
+@app.get("/api/validate-access-token")
 async def root(Authorize: AuthJWT = Depends()):
     """API to validate access token"""
 
@@ -438,8 +449,8 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
 
 
 # #Unprotected route
-@app.get("/hello/{name}")
-async def say_hello(name: str, Authorize: AuthJWT = Depends()):
+@app.get("/api/hello/{name}")
+async def say_hello(name: str,Authorize:AuthJWT=Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
 

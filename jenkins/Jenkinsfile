@@ -1,0 +1,5 @@
+#!groovy
+
+@Library('contlo_ci_cd') _
+
+superagiK8()

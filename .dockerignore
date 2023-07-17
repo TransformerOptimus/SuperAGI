@@ -1,2 +1,3 @@
 venv/
-gui/
+gui/node_modules/
+gui/.next/

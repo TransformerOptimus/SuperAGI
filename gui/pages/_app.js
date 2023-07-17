@@ -33,18 +33,7 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
-  const excludedKeys = [
-    'repo_starred',
-    'popup_closed_time',
-    'twitter_toolkit_id',
-    'accessToken',
-    'agent_to_install',
-    'toolkit_to_install',
-    'google_calendar_toolkit_id',
-    'knowledge_to_install',
-    'knowledge_index_to_install',
-    'myLayoutKey'
-  ];
+  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install', 'google_calendar_toolkit_id', 'myLayoutKey'];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -208,8 +197,7 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-              rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
       </Head>
       {showMarketplace && <div className="projectStyle"><MarketplacePublic env={env}/></div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? (<div className="projectStyle">
