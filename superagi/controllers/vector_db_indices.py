@@ -12,8 +12,8 @@ router = APIRouter()
 @router.get("/get/marketplace/valid_indices/{knowledge_name}")
 def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(get_user_organisation)):
     vector_dbs = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
-    knowledge = Knowledges.fetch_knowledge_details_marketplace(db.session, knowledge_name)
-    knowledge_with_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(db.session, knowledge.id)
+    knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
+    knowledge_with_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge.id)
     pinecone = []
     qdrant = []
     for vector_db in vector_dbs:
