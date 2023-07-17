@@ -23,4 +23,4 @@ class Pinecone(VectorEmbeddings):
             metadata.append(data)
         
         vectors = list(zip(uuid, embeds, metadata))
-        return vectors
+        return {"vectors": vectors}

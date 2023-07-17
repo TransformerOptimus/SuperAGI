@@ -164,6 +164,32 @@ class Qdrant(VectorStore):
         vector_count = collection_info.vectors_count
         
         return {"dimensions": dimensions, "vector_count": vector_count}
+    
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        """Upserts embeddings to the given vector store"""
+        try:
+            self.client.upsert(
+                collection_name=self.collection_name,
+                points=models.Batch(
+                    ids=embeddings["ids"],
+                    vectors=embeddings["vectors"],
+                    payloads=embeddings["payloads"]
+                ),
+            )
+        except Exception as err:
+            raise err
+
+    def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
+        """Deletes embeddings from the given vector store"""
+        try:
+            self.client.delete(
+                collection_name=self.collection_name,
+                point_selector = models.PointIdsList(
+                    points = ids
+                ),
+            )
+        except Exception as err:
+            raise err
 
     def __get_embeddings(
             self,

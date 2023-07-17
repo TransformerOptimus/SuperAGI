@@ -117,8 +117,9 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     upsert_data = VectorEmbeddingFactory.convert_final_chunks_to_embeddings(vector.db_type, file_chunks)
+    upsert_data_with_creds = {"embeddings": upsert_data, "creds": db_creds}
     try:
-        VectorFactory.add_embeddings_to_vector_db(vector.db_type,vector_db_index.name, upsert_data, **db_creds)
+        VectorFactory.add_embeddings_to_vector_store(vector.db_type, vector_db_index.name, **upsert_data_with_creds)
     except:
         return {"success": False}
     selected_knowledge_data = {
@@ -143,7 +144,7 @@ def uninstall_selected_knowledge(knowledge_id: int):
     vector = Vectordbs.get_vector_db_from_id(db.session, knowledge.vector_db_index_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     try:
-        VectorFactory.delete_embeddings_from_vector_db(vector.db_type,vector_db_index.name, vector_ids, **db_creds)
+        VectorFactory.delete_embeddings_from_vector_store(vector.db_type,vector_db_index.name, vector_ids, **db_creds)
     except:
         return {"success": False}
     KnowledgeConfigs.delete_knowledge_config(db.session, knowledge_id)

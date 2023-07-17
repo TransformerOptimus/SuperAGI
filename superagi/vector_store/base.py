@@ -28,3 +28,11 @@ class VectorStore(ABC):
     @abstractmethod
     def get_index_stats(self) -> dict:
         """Returns stats or information of an index"""
+    
+    @abstractmethod
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        """Add embeddings to the vector store."""
+    
+    @abstractmethod
+    def delete_embeddings_from_vector_db(self,ids: List[str]) -> None:
+        """Delete embeddings from the vector store."""
