@@ -20,8 +20,8 @@ class Pinecone(VectorStore):
     def __init__(
             self,
             index: Any,
-            embedding_model: BaseEmbedding,
-            text_field: str,
+            embedding_model: Optional[Any],
+            text_field: Optional[str],
             namespace: Optional[str] = '',
     ):
         try:
@@ -104,3 +104,14 @@ class Pinecone(VectorStore):
             )
 
         return documents
+    
+    def get_index_stats(self) -> dict:
+        """
+        Returns:
+            Stats or Information about an index
+        """
+        index_stats = self.index.describe_index_stats()
+        dimensions = index_stats.dimensions
+        vector_count = index_stats.total_vector_count
+        
+        return {"dimensions": dimensions, "vecttor_count": vector_count}

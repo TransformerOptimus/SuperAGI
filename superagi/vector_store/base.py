@@ -24,3 +24,7 @@ class VectorStore(ABC):
         texts = [doc.text_content for doc in documents]
         metadatas = [doc.metadata for doc in documents]
         return self.add_texts(texts, metadatas, **kwargs)
+    
+    @abstractmethod
+    def get_index_stats(self) -> dict:
+        """Returns stats or information of an index"""

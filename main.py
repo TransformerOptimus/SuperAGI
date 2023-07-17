@@ -42,6 +42,8 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.knowledges import router as knowledges_router
+from superagi.controllers.marketplace_stats import router as marketplace_stats_router
 from superagi.helper.tool_helper import register_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.openai import OpenAi
@@ -112,8 +114,9 @@ app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
 app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 app.include_router(analytics_router, prefix="/analytics")
-
 app.include_router(google_oauth_router, prefix="/google")
+app.include_router(knowledges_router, prefix="/knowledges")
+app.include_router(marketplace_stats_router, prefix="/marketplace")
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
