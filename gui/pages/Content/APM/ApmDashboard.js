@@ -10,6 +10,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
+
 export default function ApmDashboard() {
   const [agentDetails, setAgentDetails] = useState([]);
   const [tokenDetails, setTokenDetails] = useState([]);
@@ -47,8 +48,8 @@ export default function ApmDashboard() {
   };
 
   const onClickLayoutChange = () => {
-    localStorage.setItem('myLayoutKey', JSON.stringify(initialLayout))
-    setLayout(initialLayout)
+    localStorage.setItem('myLayoutKey', JSON.stringify(initialLayout));
+    setLayout(initialLayout);
   }
 
   useEffect(() => {
@@ -88,6 +89,7 @@ export default function ApmDashboard() {
         console.log(`Error in fetching data: ${error}`);
       }
     }
+
     fetchData();
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
@@ -128,7 +130,7 @@ export default function ApmDashboard() {
           padding: '0 8px'
         }}>
           <span className="text_14 mt_6 ml_6">Agent Performance Monitoring</span>
-          <button onClick={() => onClickLayoutChange()} className="primary_button">Reset</button>
+          <button onClick={onClickLayoutChange} className="primary_button">Reset</button>
         </div>
         <ResponsiveGridLayout
           className="layout"
