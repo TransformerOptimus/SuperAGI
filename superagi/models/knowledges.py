@@ -17,9 +17,7 @@ class Knowledges(DBBaseModel):
         id (int): The unique identifier of the knowledge.
         name (str): The name of the knowledge.
         description (str): The description of the knowledge.
-        summary (str): The summary of the knowledge description.
-        readme (str): The readme associated with the embedding.
-        index_id (int): The index associated with the knowledge.
+        vector_db_index_id (int): The index associated with the knowledge.
         is_deleted (int): The flag for deletion/uninstallation of a knowledge.
         organisation_id (int): The identifier of the associated organisation.
     """
