@@ -1,9 +1,15 @@
 #####################------------------SYSTEM KEYS-------------------------########################
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
 PINECONE_API_KEY: YOUR_PINECONE_API_KEY
 PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
 OPENAI_API_KEY: YOUR_OPEN_API_KEY
-PALM_API_KEY: YOUR_PALM_API_KEY
 
 # For locally hosted LLMs comment out the next line and uncomment the one after
 # to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
@@ -51,7 +57,7 @@ GITHUB_CLIENT_ID:
 GITHUB_CLIENT_SECRET:
 FRONTEND_URL: "http://localhost:3000"
 
-#ENCRPYTION KEY
+#ENCRYPTION KEY
 ENCRYPTION_KEY: secret
 
 #WEAVIATE
@@ -64,14 +70,20 @@ WEAVIATE_USE_EMBEDDED: true
 
 #####################------------------TOOLS KEY-------------------------########################
 #If you have google api key and CSE key, use this
+# trunk-ignore(checkov/CKV_SECRET_6)
 GOOGLE_API_KEY: YOUR_GOOGLE_API_KEY
-SEARCH_ENGINE_ID: YOUR_SEARCH_ENIGNE_ID
+SEARCH_ENGINE_ID: YOUR_SEARCH_ENGINE_ID
 
 # IF YOU DONT HAVE GOOGLE SEARCH KEY, USE THIS
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
+# trunk-ignore(checkov/CKV_SECRET_6)
 SERP_API_KEY: YOUR_SERP_API_KEY
 
 #ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
 EMAIL_ADDRESS: YOUR_EMAIL_ADDRESS
+# trunk-ignore(checkov/CKV_SECRET_6)
 EMAIL_PASSWORD: YOUR_EMAIL_APP_PASSWORD #get the app password from (https://myaccount.google.com/apppasswords)
 EMAIL_SMTP_HOST: smtp.gmail.com #Change the SMTP host if not using Gmail
 EMAIL_SMTP_PORT: 587 #Change the SMTP port if not using Gmail
@@ -82,19 +94,24 @@ EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
 
 # GITHUB
 GITHUB_USERNAME: YOUR_GITHUB_USERNAME
+# trunk-ignore(checkov/CKV_SECRET_6)
 GITHUB_ACCESS_TOKEN: YOUR_GITHUB_ACCESS_TOKEN
 
 #JIRA
 JIRA_INSTANCE_URL: YOUR_JIRA_INSTANCE_URL
 JIRA_USERNAME: YOUR_JIRA_EMAIL
+# trunk-ignore(checkov/CKV_SECRET_6)
 JIRA_API_TOKEN: YOUR_JIRA_API_TOKEN
 
 #SLACK
+# trunk-ignore(checkov/CKV_SECRET_6)
 SLACK_BOT_TOKEN: YOUR_SLACK_BOT_TOKEN
 
 # For running stable diffusion
+# trunk-ignore(checkov/CKV_SECRET_6)
 STABILITY_API_KEY: YOUR_STABILITY_API_KEY
 #Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
+# trunk-ignore(yamllint/quoted-strings)
 ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 
 ## To config a vector store for resources manager uncomment config below
