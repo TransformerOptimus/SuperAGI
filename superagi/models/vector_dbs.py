@@ -36,7 +36,7 @@ class Vectordbs(DBBaseModel):
     
     @classmethod
     def get_vector_db_from_id(cls, session, vector_db_id):
-        vector_db = session.query(Vectordbs).filter(Vectordbs.id == vector_db_id).filter()
+        vector_db = session.query(Vectordbs).filter(Vectordbs.id == vector_db_id).first()
         return vector_db
     
     @classmethod

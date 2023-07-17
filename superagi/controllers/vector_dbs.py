@@ -28,7 +28,7 @@ def get_user_connected_vector_db_list(organisation = Depends(get_user_organisati
 
 @router.get("/get/db/details/{vector_db_id}")
 def get_vector_db_details(vector_db_id: int):
-    vector_db = Vectordbs.get_vector_db_from_id(vector_db_id)
+    vector_db = Vectordbs.get_vector_db_from_id(db.session, vector_db_id)
     vector_db_data = {
         "id": vector_db.id,
         "name": vector_db.name,
