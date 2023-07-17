@@ -13,7 +13,7 @@ router = APIRouter()
 def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(get_user_organisation)):
     vector_dbs = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
     knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
-    knowledge_with_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge.id)
+    knowledge_with_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge['id'])
     pinecone = []
     qdrant = []
     for vector_db in vector_dbs:
@@ -22,9 +22,9 @@ def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(ge
             data = {"id": index.id, "name": index.name}
             data["is_valid_dimension"] = True if index.dimensions == int(knowledge_with_config["dimensions"]) else False
             data["is_valid_state"] = True if index.state != "Custom" else False
-            if vector_db.type == "Pinecone":
+            if vector_db.db_type == "Pinecone":
                 pinecone.append(data)
-            if vector_db.type == "Qdrant":
+            if vector_db.db_type == "Qdrant":
                 qdrant.append(data)
     return {"pinecone": pinecone, "qdrant": qdrant}
 
@@ -38,8 +38,8 @@ def get_user_valid_indices(organisation = Depends(get_user_organisation)):
         for index in indices:
             data = {"id": index.id, "name": index.name}
             data["is_valid_state"] = True if index.state == "Custom" else False
-            if vector_db.type == "Pinecone":
+            if vector_db.db_type == "Pinecone":
                 pinecone.append(data)
-            if vector_db.type == "Qdrant":
+            if vector_db.db_type == "Qdrant":
                 qdrant.append(data)
     return {"pinecone": pinecone, "qdrant": qdrant}
