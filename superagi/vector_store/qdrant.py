@@ -108,7 +108,7 @@ class Qdrant(VectorStore):
             embedding: List[float] = None,
             k: int = 4,
             text: str = None,
-            filter: Optional[MetadataFilter] = None,
+            metadata: Optional[dict] = None,
             search_params: Optional[common_types.SearchParams] = None,
             offset: int = 0,
             score_threshold: Optional[float] = None,
@@ -137,6 +137,17 @@ class Qdrant(VectorStore):
             raise ValueError("Only provide embedding or text")
         if text is not None:
             embedding = self.__get_embeddings(text)[0]
+
+        if metadata is not None:
+            filter_conditions = []
+            for key, value in metadata.items():
+                metadata_filter = {}
+                metadata_filter["key"] = key
+                metadata_filter["match"] = {"value": value}
+                filter_conditions.append(metadata_filter)
+            filter = models.Filter(
+                must = filter_conditions
+            )
 
         results = self.client.search(
             collection_name=self.collection_name,

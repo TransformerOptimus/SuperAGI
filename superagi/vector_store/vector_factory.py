@@ -144,3 +144,25 @@ class VectorFactory:
                 qdrant_object.delete_embeddings_from_vector_db(vector_ids=vector_ids)
             except:
                 raise ValueError("Qdrant API key not found")
+    
+    @classmethod
+    def match_query_with_text(cls, vector_store: VectorStoreType, index_name, query, filters, embedding_model, **creds):
+        vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        if vector_store == VectorStoreType.PINECONE:
+            try:
+                pinecone.init(api_key=creds["api_key"], environment=creds["environment"])
+                index = pinecone.Index(index_name)
+                pinecone_object = Pinecone(index=index, embedding_model=embedding_model)
+                search_result = pinecone_object.get_matching_text(query=query, metadata=filters)
+            except UnauthorizedException:
+                raise ValueError("PineCone API key not found")
+        
+        if vector_store == VectorStoreType.QDRANT:
+            try:
+                client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
+                qdrant_object = Qdrant(client=client, collection_name=index_name, embedding_model=embedding_model)
+                search_result = qdrant_object.get_matching_text(query=query, filters=filters)
+            except:
+                raise ValueError("Qdrant API key not found")
+        
+        return search_result
