@@ -254,7 +254,7 @@ class Qdrant(VectorStore):
     def create_collection(cls,
                           client: QdrantClient,
                           collection_name: str,
-                          vector_params: VectorParams = VectorParams(size=1536, distance=Distance.COSINE)
+                          size: int
                           ):
         """
         Create a new collection in Qdrant if it does not exist.
@@ -262,10 +262,10 @@ class Qdrant(VectorStore):
         Args:
             client : The Qdrant client.
             collection_name: The name of the collection to create.
-            vector_params: The vector parameters for the new collection.
+            size: The size for the new collection.
         """
         if not any(collection.name == collection_name for collection in client.get_collections().collections):
             client.create_collection(
                 collection_name=collection_name,
-                vectors_config=vector_params,
+                vectors_config=VectorParams(size=size, distance=Distance.COSINE),
             )

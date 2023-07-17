@@ -91,11 +91,14 @@
 
 .item_list {
     height: 100%;
+    position: relative;
 }
 
 .main_workspace {
     height: 100%;
-    padding: 0 10px 10px 0;
+    padding: 0 10px 10px 10px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .tab_detail {

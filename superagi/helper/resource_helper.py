@@ -22,7 +22,10 @@ class ResourceHelper:
         Returns:
             Resource: The Resource object.
         """
-        storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE"))
+        storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
+        file_parts = os.path.splitext(file_name)
+        if len(file_parts) <= 1:
+            file_name = file_name + ".txt"
         file_extension = os.path.splitext(file_name)[1][1:]
 
         if file_extension in ["png", "jpg", "jpeg"]:
@@ -40,8 +43,10 @@ class ResourceHelper:
 
         file_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
 
-        logger.info(final_path)
-        resource = Resource(name=file_name, path="resources" + file_path, storage_type=storage_type.value,
+        logger.info("make_written_file_resource:", final_path)
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+            file_path = "resources" + file_path
+        resource = Resource(name=file_name, path=file_path, storage_type=storage_type.value,
                             size=file_size,
                             type=file_type,
                             channel="OUTPUT",

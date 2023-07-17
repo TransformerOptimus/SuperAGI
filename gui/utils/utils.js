@@ -1,10 +1,20 @@
+import {formatDistanceToNow} from 'date-fns';
+import {utcToZonedTime} from 'date-fns-tz';
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
+import moment from 'moment';
 
-export const  getUserTimezone = () => {
+export const getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
+
+export const convertToGMT = (dateTime) => {
+  if (!dateTime) {
+    return null;
+  }
+  return moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');
+};
 
 export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
@@ -39,6 +49,30 @@ export const formatNumber = (number) => {
   return scaledNumber.toFixed(1) + suffix;
 };
 
+export const formatTime = (lastExecutionTime) => {
+  try {
+    const parsedTime = new Date(lastExecutionTime + 'Z'); // append 'Z' to indicate UTC
+    if (isNaN(parsedTime.getTime())) {
+      throw new Error('Invalid time value');
+    }
+
+    const timeZone = 'Asia/Kolkata';
+    const zonedTime = utcToZonedTime(parsedTime, timeZone);
+
+    return formatDistanceToNow(zonedTime, {
+      addSuffix: true,
+      includeSeconds: true
+    }).replace(/about\s/, '')
+      .replace(/minutes?/, 'min')
+      .replace(/hours?/, 'hrs')
+      .replace(/days?/, 'day')
+      .replace(/weeks?/, 'week');
+  } catch (error) {
+    console.error('Error formatting time:', error);
+    return 'Invalid Time';
+  }
+};
+
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
     return '0 Bytes';
@@ -62,7 +96,7 @@ export const downloadFile = (fileId, fileName = null) => {
       Authorization: `Bearer ${authToken}`,
     };
 
-    return fetch(url, { headers })
+    return fetch(url, {headers})
       .then((response) => response.blob())
       .then((blob) => {
         if (fileName) {
@@ -92,15 +126,15 @@ export const downloadFile = (fileId, fileName = null) => {
   }
 };
 
-export const downloadAllFiles = (files) => {
+export const downloadAllFiles = (files, run_name) => {
   const zip = new JSZip();
   const promises = [];
   const fileNamesCount = {};
 
   files.forEach((file, index) => {
     fileNamesCount[file.name]
-        ? fileNamesCount[file.name]++
-        : (fileNamesCount[file.name] = 1);
+      ? fileNamesCount[file.name]++
+      : (fileNamesCount[file.name] = 1);
 
     let modifiedFileName = file.name;
     if (fileNamesCount[file.name] > 1) {
@@ -111,32 +145,33 @@ export const downloadAllFiles = (files) => {
     }
 
     const promise = downloadFile(file.id)
-        .then((blob) => {
-          const fileBlob = new Blob([blob], { type: file.type });
-          zip.file(modifiedFileName, fileBlob);
-        })
-        .catch((error) => {
-          console.error("Error downloading file:", error);
-        });
+      .then((blob) => {
+        const fileBlob = new Blob([blob], {type: file.type});
+        zip.file(modifiedFileName, fileBlob);
+      })
+      .catch((error) => {
+        console.error("Error downloading file:", error);
+      });
 
     promises.push(promise);
   });
 
   Promise.all(promises)
-      .then(() => {
-        zip.generateAsync({ type: "blob" })
-            .then((content) => {
-              const timestamp = new Date().getTime();
-              const zipFilename = `files_${timestamp}.zip`;
-              const downloadLink = document.createElement("a");
-              downloadLink.href = URL.createObjectURL(content);
-              downloadLink.download = zipFilename;
-              downloadLink.click();
-            })
-            .catch((error) => {
-              console.error("Error generating zip:", error);
-            });
-      });
+    .then(() => {
+      zip.generateAsync({type: "blob"})
+        .then((content) => {
+          const now = new Date();
+          const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
+          const zipFilename = `${run_name}_${timestamp}.zip`;
+          const downloadLink = document.createElement("a");
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch((error) => {
+          console.error("Error generating zip:", error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
@@ -215,6 +250,13 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("has_LTM_" + String(internalId));
     localStorage.removeItem("has_resource_" + String(internalId));
     localStorage.removeItem("agent_files_" + String(internalId));
+    localStorage.removeItem("agent_start_time_" + String(internalId));
+    localStorage.removeItem("agent_expiry_date_" + String(internalId));
+    localStorage.removeItem("agent_expiry_type_" + String(internalId));
+    localStorage.removeItem("agent_expiry_runs_" + String(internalId));
+    localStorage.removeItem("agent_time_unit_" + String(internalId));
+    localStorage.removeItem("agent_time_value_" + String(internalId));
+    localStorage.removeItem("agent_is_recurring_" + String(internalId));
   }
 }
 
@@ -286,19 +328,20 @@ export const createInternalId = () => {
 
 export const returnToolkitIcon = (toolkitName) => {
   const toolkitData = [
-    { name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg' },
-    { name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg' },
-    { name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg' },
-    { name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg' },
-    { name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg' },
-    { name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg' },
-    { name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg' },
-    { name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg' },
-    { name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg' },
-    { name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg' },
-    { name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg' },
-    { name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png' },
-    { name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png' },
+    {name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg'},
+    {name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg'},
+    {name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg'},
+    {name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg'},
+    {name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg'},
+    {name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg'},
+    {name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg'},
+    {name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg'},
+    {name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg'},
+    {name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg'},
+    {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
+    {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'DuckDuckGo Search Toolkit', imageSrc: '/images/duckduckgo_icon.png'},
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
@@ -306,18 +349,24 @@ export const returnToolkitIcon = (toolkitName) => {
 }
 
 export const returnResourceIcon = (file) => {
+  let fileIcon;
   const fileTypeIcons = {
     'application/pdf': '/images/pdf_file.svg',
     'application/txt': '/images/txt_file.svg',
     'text/plain': '/images/txt_file.svg',
-    'image': '/images/img_file.svg',
   };
 
-  return fileTypeIcons[file.type] || '/images/default_file.svg';
+  if (file.type.includes('image')) {
+    fileIcon = '/images/img_file.svg';
+  } else {
+    fileIcon = fileTypeIcons[file.type] || '/images/default_file.svg';
+  }
+
+  return fileIcon;
 };
 
 export const convertToTitleCase = (str) => {
-  if(str === null || str === '') {
+  if (str === null || str === '') {
     return '';
   }
 

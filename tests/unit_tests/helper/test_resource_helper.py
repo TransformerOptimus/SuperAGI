@@ -10,7 +10,7 @@ def test_make_written_file_resource(mocker):
     mocker.patch('os.makedirs', return_value=None)
     mocker.patch('os.path.getsize', return_value=1000)
     mocker.patch('os.path.splitext', return_value=("", ".txt"))
-    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['FILE','/','/'])
+    mocker.patch('superagi.helper.resource_helper.get_config', side_effect=['FILE','/','/','FILE'])
     mock_agent = Agent(id=1, name='TestAgent')
     mock_agent_execution = AgentExecution(id=1, name='TestExecution')
 
@@ -18,7 +18,7 @@ def test_make_written_file_resource(mocker):
         result = ResourceHelper.make_written_file_resource('test.txt', mock_agent, mock_agent_execution)
 
     assert result.name == 'test.txt'
-    assert result.path == 'resources/test.txt'
+    assert result.path == '/test.txt'
     assert result.storage_type == 'FILE'
     assert result.size == 1000
     assert result.type == 'application/txt'

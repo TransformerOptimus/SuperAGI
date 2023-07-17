@@ -26,7 +26,8 @@ class VectorFactory:
         Returns:
             The vector storage object.
         """
-        vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        if isinstance(vector_store, str):
+            vector_store = VectorStoreType.get_vector_store_type(vector_store)
         if vector_store == VectorStoreType.PINECONE:
             try:
                 api_key = get_config("PINECONE_API_KEY")
@@ -51,7 +52,7 @@ class VectorFactory:
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
 
-        if vector_store == "Weaviate":
+        if vector_store == VectorStoreType.WEAVIATE:
             use_embedded = get_config("WEAVIATE_USE_EMBEDDED")
             url = get_config("WEAVIATE_URL")
             api_key = get_config("WEAVIATE_API_KEY")
@@ -65,7 +66,11 @@ class VectorFactory:
 
         if vector_store == VectorStoreType.QDRANT:
             client = qdrant.create_qdrant_client()
-            Qdrant.create_collection(client, index_name)
+            sample_embedding = embedding_model.get_embedding("sample")
+            if "error" in sample_embedding:
+                logger.error(f"Error in embedding model {sample_embedding}")
+
+            Qdrant.create_collection(client, index_name, len(sample_embedding))
             return qdrant.Qdrant(client, embedding_model, index_name)
 
         raise ValueError(f"Vector store {vector_store} not supported")
@@ -85,7 +90,7 @@ class VectorFactory:
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
             return index_stats
-        
+
         if vector_store == VectorStoreType.QDRANT:
             try:
                 client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
@@ -94,7 +99,7 @@ class VectorFactory:
             except:
                 raise ValueError("Qdrant API key not found")
             return index_stats
-    
+
     @classmethod
     def add_embeddings_to_vector_store(self, vector_store: VectorStoreType, index_name, **upsert_data_with_creds):
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
@@ -108,7 +113,7 @@ class VectorFactory:
                 pinecone_object.add_embeddings_to_vector_db(embeddings=upsert_data_with_creds["embeddings"])
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
-        
+
         if vector_store == VectorStoreType.QDRANT:
             try:
                 api_key = upsert_data_with_creds["creds"]["api_key"] if upsert_data_with_creds.has_key("creds") else None
@@ -131,7 +136,7 @@ class VectorFactory:
                 pinecone_object.delete_embeddings_from_vector_db(vector_ids=vector_ids)
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
-        
+
         if vector_store == VectorStoreType.QDRANT:
             try:
                 client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
