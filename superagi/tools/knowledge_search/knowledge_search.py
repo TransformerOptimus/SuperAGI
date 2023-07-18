@@ -53,7 +53,8 @@ class KnowledgeSearchTool(BaseTool):
                 filters = {}
             if vector_db_index.state == "Marketplace":
                 filters = {"knowledge_name": knowledge.name}
-            search_result = VectorFactory.match_query_with_text(vector_db.db_type, vector_db_index.name, query, filters, embedding_model, **db_creds)
+            vector_db_storage = VectorFactory.build_vector_storage(vector_db.db_type, vector_db_index.name, embedding_model, **db_creds)
+            search_result = vector_db_storage.get_matching_text(query, filters=filters)
             return f"Result: \n{search_result}"
         except Exception as err:
             return f"Error fetching text: {err}"

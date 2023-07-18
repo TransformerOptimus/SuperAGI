@@ -31,8 +31,6 @@ def get_user_connected_vector_db_list(organisation = Depends(get_user_organisati
         for vector in vector_db_list:
             update_time = get_time_difference(vector.updated_at, str(datetime.now()))
             vector.updated_at = update_time["years"]
-    print("/////////////////////")
-    print(vector_db_list)
     return vector_db_list
 
 @router.get("/get/db/details/{vector_db_id}")
@@ -71,7 +69,8 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
     }
     for collection in data["collections"]:
         try:
-            db_connect_for_index = VectorFactory.get_vector_index_stats("pinecone", collection, **db_creds)
+            vector_db_storage = VectorFactory.build_vector_storage("pinecone", collection, **db_creds)
+            db_connect_for_index = vector_db_storage.get_index_stats()
             index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
         except:
             return {"success": False}
@@ -79,7 +78,6 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
     VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, db_creds)
     for collection in data["collections"]:
         VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, db_connect_for_index["dimensions"], index_state)
-    print("//////////////////////////////////////")
     return {"success": True, "id": pinecone_db.id, "name": pinecone_db.name}
 
 @router.post("/connect/qdrant")
@@ -91,7 +89,8 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
     }
     for collection in data["collections"]:
         try:
-            db_connect_for_index = VectorFactory.get_vector_index_stats("qdrant", collection, **db_creds)
+            vector_db_storage = VectorFactory.build_vector_storage("pinecone", collection, **db_creds)
+            db_connect_for_index = vector_db_storage.get_index_stats()
             index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
         except:
             return {"success": False}
@@ -117,7 +116,8 @@ def update_vector_db(new_indices: list, vector_db_id: int):
     for index in added_indices:
         db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector_db_id)
         try:
-            vector_db_index_stats = VectorFactory.get_vector_index_stats(vector_db.db_type, index, **db_creds)
+            vector_db_storage  = VectorFactory.build_vector_storage(vector_db.db_type, index, **db_creds)
+            vector_db_index_stats = vector_db_storage.get_index_stats()
             index_state = "Custom" if vector_db_index_stats["vector_count"] > 0 else "None"
         except:
             return {"success": False}

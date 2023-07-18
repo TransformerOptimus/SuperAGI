@@ -7,22 +7,19 @@ from superagi.types.vector_store_types import VectorStoreType
 class VectorEmbeddingFactory:
 
     @classmethod
-    def convert_final_chunks_to_embeddings(cls, vector_store: VectorStoreType, final_chunks):
+    def build_vector_storge(cls, vector_store: VectorStoreType):
         """
         Get the vector embeddings from final chunks.
 
         Args:
             vector_store : The vector store name.
-            final_chunks: Final chunks of data.
 
         Returns:
-            The vector embeddings.
+            The vector storage object
         """
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
         if vector_store == VectorStoreType.PINECONE:
-            vector_embeddings = Pinecone.get_vector_embeddings_from_chunks(final_chunks)
+            return Pinecone()
         
         if vector_store == VectorStoreType.QDRANT:
-            vector_embeddings = Qdrant.get_vector_embeddings_from_chunks(final_chunks)
-        
-        return vector_embeddings
+            return Qdrant()
