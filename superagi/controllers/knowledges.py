@@ -70,11 +70,9 @@ def get_knowledge_details(knowledge_name: str):
     knowledge_data = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
     knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data["id"])
     knowledge_config_data["introduction"] = eval(knowledge_config_data["introduction"])
-    # knowledge_config_data["use_cases"] = eval(knowledge_config_data["use_cases"])
+    knowledge_config_data["use_cases"] = eval(knowledge_config_data["use_cases"])
     knowledge_data_with_config = knowledge_data | knowledge_config_data
     knowledge_data_with_config["install_number"] = MarketPlaceStats.get_knowledge_installation_number(knowledge_data_with_config["id"])
-    # knowledge_data_with_config["updated_at"] = '2023-07-18 08:06:52.803273'
-    # knowledge_data_with_config["updated_at"] = datetime.strptime(knowledge_data_with_config["updated_at"], "%Y-%m-%d %H:%M:%S.%f")
     knowledge_data_with_config["updated_at"] = datetime.strftime(knowledge_data_with_config["updated_at"], '%d %B %Y')
     return knowledge_data_with_config
 
