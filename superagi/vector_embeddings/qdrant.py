@@ -3,7 +3,8 @@ from superagi.vector_embeddings.base import VectorEmbeddings
 
 class Qdrant(VectorEmbeddings):
 
-    def get_vector_embeddings_from_chunks(self, chunk_json: Any):
+    @classmethod
+    def get_vector_embeddings_from_chunks(cls, chunk_json: Any):
         """ Returns embeddings for vector dbs from final chunks"""
         final_chunks = []
         for key in chunk_json.keys():
