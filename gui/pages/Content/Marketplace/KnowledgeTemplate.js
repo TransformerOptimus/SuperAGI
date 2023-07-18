@@ -106,7 +106,7 @@ export default function KnowledgeTemplate({template, env}) {
 
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
-        if(response.success) {
+        if(response.data.success) {
           toast.success("Template installed", {autoClose: 1800});
           setInstalled('Installed');
         }
@@ -125,7 +125,7 @@ export default function KnowledgeTemplate({template, env}) {
   const uninstallKnowledge = () => {
     deleteMarketplaceKnowledge(template.name)
       .then((response) => {
-        if(response.success) {
+        if(response.data.success) {
           toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
           handleBackClick()
         }

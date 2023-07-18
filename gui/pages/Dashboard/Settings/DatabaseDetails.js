@@ -85,7 +85,7 @@ export default function DatabaseDetails({internalId, databaseId}) {
   const updateChanges = () => {
     updateVectorDB(databaseId, collections)
       .then((response) => {
-        if(response.success) {
+        if(response.data.success) {
           toast.success("Database updated successfully", {autoClose: 1800});
           setInitialCollections(collections);
           setHasChanges(false);

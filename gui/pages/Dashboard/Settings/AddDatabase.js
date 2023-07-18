@@ -128,6 +128,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     if (!data) {
       return;
     }
+    console.log(data)
 
     if (data.success) {
       toast.success("Database connected successfully", {autoClose: 1800});
@@ -163,11 +164,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectPinecone(pineconeData)
         .then((response) => {
-          if(response.success) {
             connectResponse(response.data);
-          }
-          else
-            toast.error("Unable to connect database", {autoClose: 1800});
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
@@ -201,12 +198,8 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectQdrant(qdrantData)
         .then((response) => {
-          if(response.success) {
             connectResponse(response.data);
-          }
-          else
-            toast.error("Unable to connect database", {autoClose: 1800});
-        })
+         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
           console.error('Error fetching vector databases:', error);
