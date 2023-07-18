@@ -18,6 +18,7 @@ class ResourceHelper:
             file_name (str): The name of the file.
             agent (Agent): Agent related to resource.
             agent_execution(AgentExecution): Agent Execution related to a resource
+            session (Session): The database session.
 
         Returns:
             Resource: The Resource object.
