@@ -84,21 +84,14 @@ class Qdrant(VectorStore):
             text_batch = input_texts[i * batch_limit: (i + 1) * batch_limit]
             metadata_batch = metadata_list[i * batch_limit: (i + 1) * batch_limit] or None
             id_batch = id_list[i * batch_limit: (i + 1) * batch_limit]
-
-            self.client.upsert(
-                collection_name=self.collection_name,
-                points=models.Batch.construct(
-                    ids=id_batch,
-                    vectors=self.__get_embeddings(text_batch),
-                    payloads=self.__build_payloads(
-                        text_batch,
-                        metadata_batch,
-                        self.text_field_payload_key,
-                        self.metadata_payload_key,
-                    ),
-                ),
+            vectors = self.__get_embeddings(text_batch)
+            payloads = self.__build_payloads(
+                text_batch,
+                metadata_batch,
+                self.text_field_payload_key,
+                self.metadata_payload_key,
             )
-
+            self.add_embeddings_to_vector_db({"ids": id_batch, "vectors": vectors, "payloads": payloads})
             collected_ids.extend(id_batch)
 
         return collected_ids

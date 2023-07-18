@@ -73,7 +73,7 @@ class Pinecone(VectorStore):
             metadata[self.text_field] = text
             vectors.append((id, self.embedding_model.get_embedding(text), metadata))
 
-        self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
+        self.add_embeddings_to_vector_db({"vectors": vectors})
         return ids
 
     def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = {}, **kwargs: Any) -> List[Document]:
