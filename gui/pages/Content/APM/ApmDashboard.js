@@ -130,7 +130,7 @@ export default function ApmDashboard() {
           padding: '0 8px'
         }}>
           <span className="text_14 mt_6 ml_6">Agent Performance Monitoring</span>
-          <button onClick={onClickLayoutChange} className="primary_button">Reset</button>
+          {/*<button onClick={onClickLayoutChange} className="primary_button">Reset</button>*/}
         </div>
         <ResponsiveGridLayout
           className="layout"
