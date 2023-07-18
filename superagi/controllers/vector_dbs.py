@@ -26,8 +26,11 @@ def get_marketplace_vectordb_list():
 @router.get("/user/list")
 def get_user_connected_vector_db_list(organisation = Depends(get_user_organisation)):
     vector_db_list = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
-    update_time = get_time_difference(vector_db_list["updated_at"], datetime.now())
-    vector_db_list["updated_at"] = update_time["years"]
+    if vector_db_list:
+        for vector in vector_db_list:
+            update_time = str(vector.updated_at)
+            update_time = get_time_difference(update_time, datetime.now())
+            vector_db_list["updated_at"] = update_time["years"]
     return vector_db_list
 
 @router.get("/get/db/details/{vector_db_id}")
@@ -74,7 +77,7 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
     VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, db_creds)
     for collection in data["collections"]:
         VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, db_connect_for_index["dimensions"], index_state)
-    
+    print("//////////////////////////////////////")
     return {"success": True, "id": pinecone_db.id, "name": pinecone_db.name}
 
 @router.post("/connect/qdrant")
