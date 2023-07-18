@@ -70,6 +70,7 @@ def get_knowledge_details(knowledge_name: str):
     knowledge_config_data["introduction"] = eval(knowledge_config_data["introduction"])
     # knowledge_config_data["use_cases"] = eval(knowledge_config_data["use_cases"])
     knowledge_data_with_config = knowledge_data | knowledge_config_data
+    knowledge_data_with_config["install_number"] = MarketPlaceStats.get_knowledge_installation_number(knowledge_data_with_config["id"])
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")
@@ -110,12 +111,23 @@ def delete_user_knowledge(knowledge_id: int):
     except:
         return f"No Knowledge found for {knowledge_id}."
 
-@router.post("/install/knowledge/{knowledge_name}/index/{vector_db_index_id}")
+@router.get("/install/{knowledge_name}/index/{vector_db_index_id}")
 def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
+    print("///////////////////////")
+    print(knowledge_name)
+    print(vector_db_index_id)
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, vector_db_index_id)
+    print("-----------------")
+    print(vector_db_index)
     selected_knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
-    selected_knowledge_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(db.session, selected_knowledge.id)
+    print("//////////////////////////")
+    print(selected_knowledge)
+    selected_knowledge_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(selected_knowledge['id'])
+    print("//////////////////")
+    print(selected_knowledge_config)
     file_chunks = S3Helper().get_json_file(selected_knowledge_config["file_path"])
+    print("/////////////////////")
+    print(file_chunks)
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     upsert_data = VectorEmbeddingFactory.convert_final_chunks_to_embeddings(vector.db_type, file_chunks)
