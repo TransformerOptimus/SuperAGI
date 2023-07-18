@@ -2,7 +2,11 @@ FROM python:3.9-slim-bullseye
 WORKDIR /app
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install --no-install-recommends -y git wget libpq-dev gcc g++ python3-dev && pip install psycopg2
+RUN apt-get update &&  \
+    apt-get install --no-install-recommends -y git wget libpq-dev gcc g++ python3-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
