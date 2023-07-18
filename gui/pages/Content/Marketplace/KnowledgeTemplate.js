@@ -303,21 +303,12 @@ export default function KnowledgeTemplate({template, env}) {
             <div style={{overflowY: 'scroll', height: '84vh'}}>
               <div className={styles2.left_container}
                    style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
-                <span className={styles2.description_text}>Introduction</span><br/>
-                {template?.introduction.map((item, index) => (<div key={index} style={{marginTop: '0'}}>
-                  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>
-                  {index !== item.length - 1}
-                </div>))}
-                {/*<span className={styles2.sub_text}>{template.introduction}</span>*/}
-              </div>
-              <div className={styles2.left_container}
-                   style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
-                <span className={styles2.description_text}>Use cases</span><br/>
-                {template?.use_cases.map((item, index) => (<div key={index} style={{marginTop: '0'}}>
-                  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>
-                  {index !== item.length - 1}
-                </div>))}
-                {/*<span className={styles2.sub_text}>{template.use_cases}</span>*/}
+                <span className={styles2.description_text}>Overview</span><br/>
+                {/*{templateData?.overview.map((item, index) => (<div key={index} style={{marginTop: '0'}}>*/}
+                {/*  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>*/}
+                {/*  {index !== item.length - 1}*/}
+                {/*</div>))}*/}
+                <span className={styles2.sub_text}>{templateData?.overview}</span>
               </div>
             </div>
           </div>
