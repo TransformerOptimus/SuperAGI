@@ -53,7 +53,7 @@ export default function AgentTemplate({template, env}) {
     setGoals(data.configs.goal.value)
     setConstraints(data.configs.constraints.value)
     setTools(data.configs.tools.value)
-    setInstructions(data.configs.instructions ? data.configs.instructions.value : null);
+    setInstructions(data.configs.instruction ? data.configs.instruction.value : null);
     setIsLoading(false)
   }
 
@@ -175,7 +175,6 @@ export default function AgentTemplate({template, env}) {
                     {instructions.map((instruction, index) => (
                       <div key={index} style={{marginTop: '0'}}>
                         <div className={styles2.description_text}>{index + 1}. {instruction || ''}</div>
-                        {index !== instructions.length - 1 && <br/>}
                       </div>))}
                   </div>
                 </div>}
