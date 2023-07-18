@@ -106,31 +106,31 @@ def load_tools_config():
 
 
 def load_marketplace_tools():
-    marketplace_url = "TransformerOptimus/SuperAGI-Tools"
+    # marketplace_url = "TransformerOptimus/SuperAGI-Tools"
+    marketplace_url = "luciferlinx101/SuperAGI-Tools-Test"
     tools_config_path = str(Path(__file__).parent.parent)
     tools_json_path = tools_config_path + "/tools.json"
     # Get folder links from the repository
     marketplace_tool_urls = get_marketplace_tool_links(marketplace_url)
-    print(marketplace_tool_urls)
     # Update existing tools.json file
     update_tools_json(tools_json_path, marketplace_tool_urls)
 
 
 def is_marketplace_url(url):
-    return url.startswith("https://github.com/TransformerOptimus/SuperAGI-Tools/tree")
-
+    # return url.startswith("https://github.com/TransformerOptimus/SuperAGI-Tools/tree")
+    return url.startswith("https://github.com/luciferlinx101/SuperAGI-Tools-Test/tree")
 
 def download_and_extract_tools():
     tools_config = load_tools_config()
 
     for tool_name, tool_url in tools_config.items():
         if is_marketplace_url(tool_url):
-            tool_folder = os.path.join(".marketplace_tools")
+            tool_folder = os.path.join("superagi/tools/marketplace_tools")
             if not os.path.exists(tool_folder):
                 os.makedirs(tool_folder)
             download_marketplace_tool(tool_url, tool_folder)
         else:
-            tool_folder = os.path.join(".external_tools", tool_name)
+            tool_folder = os.path.join("superagi/tools/external_tools", tool_name)
             if not os.path.exists(tool_folder):
                 os.makedirs(tool_folder)
             download_tool(tool_url, tool_folder)
