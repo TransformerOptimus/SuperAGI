@@ -118,7 +118,7 @@ export default function KnowledgeTemplate({template, env}) {
   }
 
   const uninstallKnowledge = () => {
-    deleteMarketplaceKnowledge(template.id)
+    deleteMarketplaceKnowledge(template.name)
       .then((response) => {
         toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
         handleBackClick()

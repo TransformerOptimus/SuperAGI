@@ -248,8 +248,8 @@ export const deleteCustomKnowledge = (knowledgeId) => {
   return api.post(`/knowledges/delete/${knowledgeId}`);
 }
 
-export const deleteMarketplaceKnowledge = (knowledgeId) => {
-  return api.post(`/knowledges/uninstall/${knowledgeId}`);
+export const deleteMarketplaceKnowledge = (knowledgeName) => {
+  return api.post(`/knowledges/uninstall/${knowledgeName}`);
 }
 
 export const addUpdateKnowledge = (knowledgeData) => {
