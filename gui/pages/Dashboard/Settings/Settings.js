@@ -85,7 +85,6 @@ export default function Settings({organisationId}) {
 
     validateLLMApiKey(source, modelApiKey)
         .then((response) => {
-          console.log("CHANGES",response.data)
           if (response.data.status==="success") {
             updateKey("model_api_key", modelApiKey);
             updateKey("model_source", source);
