@@ -10,13 +10,16 @@ from pydantic.fields import List
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.agent_schedule import AgentSchedule
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
 from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
+from superagi.apm.event_handler import EventHandler
 
 router = APIRouter()
 
@@ -70,11 +73,12 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
         HTTPException (Status Code=404): If the agent is not found.
     """
 
-    agent = db.session.query(Agent).get(agent_execution.agent_id)
-
+    agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
+
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
@@ -89,10 +93,76 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
+    organisation = agent.get_agent_organisation(db.session)
+    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
+                                 agent_execution.agent_id, organisation.id if organisation else 0)
+
     if db_agent_execution.status == "RUNNING":
-        execute_agent.delay(db_agent_execution.id, datetime.now())
+      execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
+
+
+@router.post("/schedule", status_code=201)
+def schedule_existing_agent(agent_schedule: AgentScheduleInput,
+                            Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Schedules an already existing agent.
+
+    Args:
+        agent_schedule (AgentScheduleInput): Data for creating a scheduling for an existing agent.
+            agent_id (Integer): The ID of the agent being scheduled.
+            start_time (DateTime): The date and time from which the agent is scheduled.
+            recurrence_interval (String): Stores "none" if not recurring, 
+            or a time interval like '2 Weeks', '1 Month', '2 Minutes' based on input.
+            expiry_date (DateTime): The date and time when the agent is scheduled to stop runs.
+            expiry_runs (Integer): The number of runs before the agent expires.
+
+    Returns:
+        Schedule ID: Unique Schedule ID of the Agent.
+
+    Raises:
+        HTTPException (Status Code=500): If the agent fails to get scheduled.
+    """
+
+    # Check if the agent is already scheduled
+    scheduled_agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_schedule.agent_id,
+                                                             AgentSchedule.status == "SCHEDULED").first()
+
+    if scheduled_agent:
+        # Update the old record with new data
+        scheduled_agent.start_time = agent_schedule.start_time
+        scheduled_agent.next_scheduled_time = agent_schedule.start_time
+        scheduled_agent.recurrence_interval = agent_schedule.recurrence_interval
+        scheduled_agent.expiry_date = agent_schedule.expiry_date
+        scheduled_agent.expiry_runs = agent_schedule.expiry_runs
+
+        db.session.commit()
+    else:                      
+        # Schedule the agent
+        scheduled_agent = AgentSchedule(
+            agent_id=agent_schedule.agent_id,
+            start_time=agent_schedule.start_time,
+            next_scheduled_time=agent_schedule.start_time,
+            recurrence_interval=agent_schedule.recurrence_interval,
+            expiry_date=agent_schedule.expiry_date,
+            expiry_runs=agent_schedule.expiry_runs,
+            current_runs=0,
+            status="SCHEDULED"
+        )
+
+    db.session.add(scheduled_agent)
+    db.session.commit()
+
+    schedule_id = scheduled_agent.id
+
+    if schedule_id is None:
+        raise HTTPException(status_code=500, detail="Failed to schedule agent")
+        
+    return {
+        "schedule_id": schedule_id
+    }
 
 
 @router.get("/get/{agent_execution_id}", response_model=AgentExecutionOut)
@@ -111,10 +181,14 @@ def get_agent_execution(agent_execution_id: int,
         HTTPException (Status Code=404): If the agent execution is not found.
     """
 
-    db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-    if not db_agent_execution:
+    if (
+        db_agent_execution := db.session.query(AgentExecution)
+        .filter(AgentExecution.id == agent_execution_id)
+        .first()
+    ):
+        return db_agent_execution
+    else:
         raise HTTPException(status_code=404, detail="Agent execution not found")
-    return db_agent_execution
 
 
 @router.put("/update/{agent_execution_id}", response_model=AgentExecutionOut)
@@ -131,11 +205,17 @@ def update_agent_execution(agent_execution_id: int,
         raise HTTPException(status_code=404, detail="Agent Execution not found")
 
     if agent_execution.agent_id:
-        agent = db.session.query(Agent).get(agent_execution.agent_id)
-        if not agent:
+        if agent := db.session.query(Agent).get(agent_execution.agent_id):
+            db_agent_execution.agent_id = agent.id
+        else:
             raise HTTPException(status_code=404, detail="Agent not found")
-        db_agent_execution.agent_id = agent.id
-    if agent_execution.status != "CREATED" and agent_execution.status != "RUNNING" and agent_execution.status != "PAUSED" and agent_execution.status != "COMPLETED" and agent_execution.status != "TERMINATED":
+    if agent_execution.status not in [
+        "CREATED",
+        "RUNNING",
+        "PAUSED",
+        "COMPLETED",
+        "TERMINATED",
+    ]:
         raise HTTPException(status_code=400, detail="Invalid Request")
     db_agent_execution.status = agent_execution.status
 

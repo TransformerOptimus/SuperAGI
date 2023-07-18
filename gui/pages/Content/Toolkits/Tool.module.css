@@ -174,14 +174,6 @@
     text-align: center;
     font-size: 12px;
     color: white;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    max-height: 88vh;
-    width: 650px; 
-    padding: 20px;
-    overflow-y: auto;
 }
 
 .feed_title {
@@ -263,7 +255,7 @@
     font-size: small;
     background-color:rgb(39,35,53);
     border-radius: 8px;
-    width:600px;
+    width:100%;
     height: auto;
     text-align: left;
     padding:13px;

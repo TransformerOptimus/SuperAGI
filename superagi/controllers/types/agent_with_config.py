@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
-class AgentWithConfig(BaseModel):
+class AgentConfigInput(BaseModel):
     name: str
     project_id: int
     description: str
@@ -17,5 +17,5 @@ class AgentWithConfig(BaseModel):
     model: str
     permission_type: str
     LTM_DB: str
-    memory_window: int
     max_iterations: int
+    user_timezone: Optional[str]

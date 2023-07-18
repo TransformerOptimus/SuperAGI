@@ -44,7 +44,7 @@ class EditIssueTool(JiraTool):
         """
         jira = self.build_jira_instance()
         issues = jira.search_issues('key=')
-        if len(issues) > 0:
+        if issues:
             issues[0].update(fields=fields)
             return f"Issue '{issues[0].key}' created successfully!"
         return f"Issue not found!"

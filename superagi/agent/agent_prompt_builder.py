@@ -35,7 +35,7 @@ class AgentPromptBuilder:
             'people know you have finished your objectives"'
         )
         finish_string = (
-            f"{len(tools) + 1}. {FINISH_NAME}: "
+            f"{len(tools) + 1}. \"{FINISH_NAME}\": "
             f"{finish_description}, args: {finish_args}"
         )
         if add_finish:
@@ -47,7 +47,7 @@ class AgentPromptBuilder:
 
     @classmethod
     def _generate_command_string(cls, tool: BaseTool) -> str:
-        output = f"{tool.name}: {tool.description}"
+        output = f"\"{tool.name}\": {tool.description}"
         # print(tool.args)
         output += f", args json schema: {json.dumps(tool.args)}"
         return output
@@ -63,13 +63,12 @@ class AgentPromptBuilder:
         response_format = {
             "thoughts": {
                 "text": "thought",
-                "reasoning": "reasoning",
+                "reasoning": "short reasoning",
                 "plan": "- short bulleted\n- list that conveys\n- long-term plan",
                 "criticism": "constructive self-criticism",
                 "speak": "thoughts summary to say to user",
             },
-            "tool": {"name": "tool name/task name", "description": "tool or task description",
-                     "args": {"arg name": "value"}}
+            "tool": {"name": "tool name/task name", "args": {"arg name": "arg value(escape in case of string)"}}
         }
         formatted_response_format = json.dumps(response_format, indent=4)
 
@@ -120,11 +119,12 @@ class AgentPromptBuilder:
             super_agi_prompt = super_agi_prompt.replace("{task_instructions}", task_str + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
         else:
             super_agi_prompt = super_agi_prompt.replace("{instructions}", '')
+        super_agi_prompt = super_agi_prompt.replace("{task_instructions}", "")
         super_agi_prompt = super_agi_prompt.replace("{constraints}",
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
-        
-    
-        logger.info(tools)
+
+
+        # logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt

@@ -151,3 +151,5 @@ python-pptx==0.6.21
 Pillow==9.5.0
 EbookLib==0.18
 html2text==2020.1.16
+duckduckgo-search==3.8.3 
+google-generativeai==0.1.0
