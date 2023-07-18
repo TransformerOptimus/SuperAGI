@@ -148,7 +148,7 @@ def uninstall_selected_knowledge(knowledge_name: str, organisation = Depends(get
     knowledge_config = KnowledgeConfigs.get_knowledge_config_from_knowledge_id(db.session, knowledge.id)
     vector_ids = eval(knowledge_config["vector_ids"])
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, knowledge.vector_db_index_id)
-    vector = Vectordbs.get_vector_db_from_id(db.session, knowledge.vector_db_index_id)
+    vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     try:
         VectorFactory.delete_embeddings_from_vector_store(vector.db_type,vector_db_index.name, vector_ids, **db_creds)
