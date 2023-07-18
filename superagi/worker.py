@@ -60,7 +60,7 @@ def summarize_resource(agent_id: int, resource_id: int):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
-    model_source = Configuration.fetch_value_by_agent_id(session, agent_id, "model_source")
+    model_source = Configuration.fetch_value_by_agent_id(session, agent_id, "model_source") or "OpenAi"
     if ModelSourceType.GooglePalm.value in model_source:
         return
 
