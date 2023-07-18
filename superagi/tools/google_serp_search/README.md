@@ -18,14 +18,13 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
 
 ### 🔧 **Add Google Serp Search API Key in SuperAGI Dashboard**
 
-1. Register an account verifying your email and phone number.
+1. Register an account at [https://serper.dev/](https://serper.dev/) with your Email ID. 
 
 2. Your Private API Key would be made. Copy that and save it in a separate text file.
 
-![Screenshot-google serp](https://github.com/TransformerOptimus/SuperAGI/assets/43145646/7f20e9ae-3a25-49cd-aa72-b96f7e6ae305)
+![image](https://github.com/Phoenix2809/SuperAGI/assets/133874957/2f22f1ca-4ea0-474c-99ba-d79fc1d6e372)
 
 3. Open up the Google SERP Toolkit page in SuperAGI's Dashboard and paste your Private API Key. 
-
 
 ## Running SuperAGI Google Search Serp Tool
 
