@@ -98,7 +98,7 @@ class Knowledges(DBBaseModel):
         if knowledge:
             knowledge.name = knowledge_data["name"]
             knowledge.description = knowledge_data["description"]
-            knowledge.index_id = knowledge_data["index_id"]
+            knowledge.vector_db_index_id = knowledge_data["index_id"]
         else:
             knowledge = Knowledges(name=knowledge_data["name"], description=knowledge_data["description"], vector_db_index_id=knowledge_data["index_id"], organisation_id=knowledge_data["organisation_id"], contributed_by=knowledge_data["contributed_by"])
             session.add(knowledge)
