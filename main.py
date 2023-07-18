@@ -439,7 +439,7 @@ async def root(Authorize: AuthJWT = Depends()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-@app.post("/validate-llm-api-key")
+@app.post("/api/validate-llm-api-key")
 async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJWT = Depends()):
     """API to validate LLM API Key"""
     source = request.model_source
