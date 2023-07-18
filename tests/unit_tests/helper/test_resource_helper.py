@@ -17,7 +17,6 @@ def test_make_written_file_resource(mocker):
     session = MagicMock()
 
     with patch('superagi.helper.resource_helper.logger') as logger_mock:
-        # session.query.return_value.filter.return_value.first.return_value = None
         session.query.return_value.filter_by.return_value.first.return_value = None
         # Create a Resource object
         resource = Resource(
