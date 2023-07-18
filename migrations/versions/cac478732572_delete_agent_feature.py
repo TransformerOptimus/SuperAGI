@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column('agents', sa.Column('is_deleted', sa.Boolean(), nullable=True))
+    op.add_column('agents', sa.Column('is_deleted', sa.Boolean(), nullable=True,default=False))
 
 def downgrade() -> None:
     op.drop_column('agents', 'is_deleted')
