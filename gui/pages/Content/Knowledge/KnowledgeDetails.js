@@ -29,7 +29,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     setDropdown(false);
 
     if (installationType === 'Marketplace') {
-      deleteMarketplaceKnowledge(knowledgeId)
+      deleteMarketplaceKnowledge(knowledgeName)
         .then((response) => {
           toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
           removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
