@@ -71,7 +71,9 @@ def get_knowledge_details(knowledge_name: str):
     knowledge_config_data = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge_data["id"])
     knowledge_data_with_config = knowledge_data | knowledge_config_data
     knowledge_data_with_config["install_number"] = MarketPlaceStats.get_knowledge_installation_number(knowledge_data_with_config["id"])
-    knowledge_data_with_config["updated_at"] = datetime.strftime(knowledge_data_with_config["updated_at"], '%d %B %Y')
+    update_time = str(knowledge_data_with_config["updated_at"])
+    update_time = datetime.strptime(update_time, "%Y-%m-%dT%H:%M:%S.%f")
+    knowledge_data_with_config["updated_at"] = datetime.strftime(update_time, '%d %B %Y')
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")
