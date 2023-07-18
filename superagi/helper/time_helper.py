@@ -6,7 +6,7 @@ def get_time_difference(timestamp1, timestamp2):
 
     # Parse the given timestamp
     parsed_timestamp1 = datetime.strptime(str(timestamp1), time_format)
-    parsed_timestamp2 = datetime.strptime(timestamp2, time_format)
+    parsed_timestamp2 = datetime.strptime(str(timestamp2), time_format)
 
     # Calculate the time difference
     time_difference = parsed_timestamp2 - parsed_timestamp1
