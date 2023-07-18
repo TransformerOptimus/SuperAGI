@@ -170,10 +170,8 @@ def edit_agent_template(agent_template_id: int,
     if db_agent_template is None:
         raise HTTPException(status_code=404, detail="Agent Template not found")
     
-    if "name" in edited_agent_configs:
-        db_agent_template.name = edited_agent_configs["name"]
-    if "description" in edited_agent_configs:
-        db_agent_template.description = edited_agent_configs["description"]
+    db_agent_template.name = edited_agent_configs["name"]
+    db_agent_template.description = edited_agent_configs["description"]
 
     db.session.commit()
 
