@@ -96,6 +96,11 @@ export default function AgentCreate({
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
+  const [col6ScrollTop, setCol6ScrollTop] = useState(0);
+
+  const handleCol3Scroll = (event) => {
+    setCol6ScrollTop(event.target.scrollTop);
+  };
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -653,7 +658,7 @@ export default function AgentCreate({
 
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
-      <div className="col-3"></div>
+      <div className="col-3" onScroll={handleCol3Scroll}></div>
       <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
