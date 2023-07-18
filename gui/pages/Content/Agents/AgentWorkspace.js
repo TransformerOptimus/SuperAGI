@@ -360,7 +360,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
                   }}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
-                }}>Delete</li>}
+                }}>Delete Run</li>}
 
                 {agent && agent.is_scheduled ? (<div>
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
