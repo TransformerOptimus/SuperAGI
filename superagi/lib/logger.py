@@ -52,27 +52,27 @@ class Logger(metaclass=SingletonMeta):
 
     def debug(self, message, *args):
         self.logger.debug(message)
-        if len(args) > 0:
+        if args:
             self.logger.debug(*args)
 
     def info(self, message, *args):
         self.logger.info(message)
-        if len(args) > 0:
+        if args:
             self.logger.info(*args)
 
     def warning(self, message, *args):
         self.logger.warning(message)
-        if len(args) > 0:
+        if args:
             self.logger.warning(*args)
 
     def error(self, message, *args):
         self.logger.error(message)
-        if len(args) > 0:
+        if args:
             self.logger.error(*args)
 
     def critical(self, message, *args):
         self.logger.critical(message)
-        if len(args) > 0:
+        if args:
             self.logger.critical(*args)
 
 
