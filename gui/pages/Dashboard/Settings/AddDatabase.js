@@ -163,7 +163,11 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectPinecone(pineconeData)
         .then((response) => {
-          connectResponse(response.data);
+          if(response.success) {
+            connectResponse(response.data);
+          }
+          else
+            toast.error("Unable to connect database", {autoClose: 1800});
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
@@ -197,7 +201,11 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
       connectQdrant(qdrantData)
         .then((response) => {
-          connectResponse(response.data);
+          if(response.success) {
+            connectResponse(response.data);
+          }
+          else
+            toast.error("Unable to connect database", {autoClose: 1800});
         })
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});

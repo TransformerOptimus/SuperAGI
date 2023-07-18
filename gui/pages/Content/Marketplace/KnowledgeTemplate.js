@@ -86,6 +86,7 @@ export default function KnowledgeTemplate({template, env}) {
   }, []);
 
   const handleInstallClick = (indexId) => {
+    setInstalled("Installing")
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('knowledge_to_install', template.name);
       localStorage.setItem('knowledge_index_to_install', indexId);
@@ -105,8 +106,12 @@ export default function KnowledgeTemplate({template, env}) {
 
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
-        toast.success("Template installed", {autoClose: 1800});
-        setInstalled('Installed');
+        if(response.success) {
+          toast.success("Template installed", {autoClose: 1800});
+          setInstalled('Installed');
+        }
+        else
+          toast.error("Error installing template: ", {autoClose: 1800});
       })
       .catch((error) => {
         console.error('Error installing template:', error);
@@ -120,8 +125,13 @@ export default function KnowledgeTemplate({template, env}) {
   const uninstallKnowledge = () => {
     deleteMarketplaceKnowledge(template.name)
       .then((response) => {
-        toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-        handleBackClick()
+        if(response.success) {
+          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+          handleBackClick()
+        }
+        else {
+          toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+        }
       })
       .catch((error) => {
         toast.error("Unable to uninstall knowledge", {autoClose: 1800});
