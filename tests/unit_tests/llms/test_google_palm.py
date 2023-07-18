@@ -28,3 +28,11 @@ def test_chat_completion(mock_palm):
         top_p=palm_instance.top_p,
         max_output_tokens=int(max_tokens)
     )
+
+
+def test_verify_access_key():
+    model = 'models/text-bison-001'
+    api_key = 'test_key'
+    palm_instance = GooglePalm(api_key, model=model)
+    result = palm_instance.verify_access_key()
+    assert result is False
