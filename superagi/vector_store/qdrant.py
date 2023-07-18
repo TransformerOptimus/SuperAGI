@@ -195,7 +195,7 @@ class Qdrant(VectorStore):
         try:
             self.client.delete(
                 collection_name=self.collection_name,
-                point_selector = models.PointIdsList(
+                points_selector = models.PointIdsList(
                     points = ids
                 ),
             )
