@@ -19,10 +19,10 @@ class VectorEmbeddingFactory:
             The vector embeddings.
         """
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
-        if vector_store.PINECONE:
+        if vector_store == VectorStoreType.PINECONE:
             vector_embeddings = Pinecone.get_vector_embeddings_from_chunks(final_chunks)
         
-        if vector_store.QDRANT:
+        if vector_store == VectorStoreType.QDRANT:
             vector_embeddings = Qdrant.get_vector_embeddings_from_chunks(final_chunks)
         
         return vector_embeddings

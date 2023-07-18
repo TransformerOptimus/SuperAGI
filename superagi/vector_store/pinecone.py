@@ -120,7 +120,7 @@ class Pinecone(VectorStore):
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
         """Upserts embeddings to the given vector store"""
         try:
-            self.index.upsert(vectors=embeddings["vectors"])
+            self.index.upsert(vectors=embeddings['vectors'])
         except Exception as err:
             raise err
     

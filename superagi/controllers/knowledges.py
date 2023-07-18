@@ -113,21 +113,10 @@ def delete_user_knowledge(knowledge_id: int):
 
 @router.get("/install/{knowledge_name}/index/{vector_db_index_id}")
 def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
-    print("///////////////////////")
-    print(knowledge_name)
-    print(vector_db_index_id)
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, vector_db_index_id)
-    print("-----------------")
-    print(vector_db_index)
     selected_knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
-    print("//////////////////////////")
-    print(selected_knowledge)
     selected_knowledge_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(selected_knowledge['id'])
-    print("//////////////////")
-    print(selected_knowledge_config)
     file_chunks = S3Helper().get_json_file(selected_knowledge_config["file_path"])
-    print("/////////////////////")
-    print(file_chunks)
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
     upsert_data = VectorEmbeddingFactory.convert_final_chunks_to_embeddings(vector.db_type, file_chunks)
@@ -137,11 +126,12 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
     except:
         return {"success": False}
     selected_knowledge_data = {
-        "name": selected_knowledge[0]["name"],
-        "description": selected_knowledge[0]["description"],
-        "index_id": selected_knowledge[0]["vector_db_index_id"],
+        "id": -1,
+        "name": selected_knowledge["name"],
+        "description": selected_knowledge["description"],
+        "index_id": selected_knowledge["vector_db_index_id"],
         "organisation_id": organisation.id,
-        "contributed_by": selected_knowledge[0]["contributed_by"],
+        "contributed_by": selected_knowledge["contributed_by"],
     }
     new_knowledge = Knowledges.add_update_knowledges(db.session, selected_knowledge_data)
     selected_knowledge_config.pop("file_path")

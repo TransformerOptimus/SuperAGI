@@ -104,8 +104,8 @@ class VectorFactory:
     def add_embeddings_to_vector_store(self, vector_store: VectorStoreType, index_name, **upsert_data_with_creds):
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
         if vector_store == VectorStoreType.PINECONE:
-            api_key = upsert_data_with_creds["creds"]["api_key"] if upsert_data_with_creds.has_key("creds") else None
-            environment = upsert_data_with_creds["creds"]["environment"] if upsert_data_with_creds.has_key("creds") else None
+            api_key = upsert_data_with_creds["creds"]["api_key"]
+            environment = upsert_data_with_creds["creds"]["environment"]
             try:
                 pinecone.init(api_key=api_key, environment=environment)
                 index = pinecone.Index(index_name)
