@@ -94,7 +94,9 @@ def get_user_knowledge_details(knowledge_id: int):
         "vector_database": vector_database.name,
         "installation_type": vector_database_index.state
     }
-    return knowledge
+    knowledge_config = KnowledgeConfigs.get_knowledge_config_from_knowledge_id(db.session, knowledge_id)
+    knowledge_data_with_config = knowledge | knowledge_config
+    return knowledge_data_with_config
 
 @router.post("/add_or_update/data")
 def add_update_user_knowledge(knowledge_data: dict, organisation = Depends(get_user_organisation)):

@@ -64,3 +64,11 @@ class KnowledgeConfigs(DBBaseModel):
     def delete_knowledge_config(cls, session, knowledge_id):
         session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id).delete()
         session.commit()
+    
+    @classmethod
+    def get_knowledge_config_from_knowledge_id(cls, session, knowledge_id):
+        knowledge_configs = session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id).all()
+        configs = {}
+        for knowledge_config in knowledge_configs:
+            configs[knowledge_config.key] = knowledge_config.value
+        return configs
