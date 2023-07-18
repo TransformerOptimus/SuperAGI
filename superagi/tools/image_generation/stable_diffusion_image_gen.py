@@ -5,7 +5,7 @@ from typing import Type, Optional
 import requests
 from PIL import Image
 from pydantic import BaseModel, Field
-
+from superagi.helper.resource_helper import ResourceHelper
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
@@ -69,7 +69,12 @@ class StableDiffusionImageGenTool(BaseTool):
 
             self.resource_manager.write_binary_file(image_names[i], img_byte_arr.getvalue())
 
-        return "Images downloaded and saved successfully"
+        image_paths=[]
+
+        for image in image_names:
+            image_paths.append(ResourceHelper.get_agent_resource_path(image,self.agent_id))
+
+        return f"Images downloaded and saved successfully at the following locations: {image_paths}"
 
     def call_stable_diffusion(self, api_key, width, height, num, prompt, steps):
         engine_id = self.get_tool_config("ENGINE_ID")
