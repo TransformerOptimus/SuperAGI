@@ -76,3 +76,17 @@ class GooglePalm(BaseLlm):
         except Exception as exception:
             logger.info("Google palm Exception:", exception)
             return {"error": "ERROR_GOOGLE_PALM", "message": "Google palm exception"}
+
+    def verify_access_key(self):
+        """
+        Verify the access key is valid.
+
+        Returns:
+            bool: True if the access key is valid, False otherwise.
+        """
+        try:
+            models = palm.list_models()
+            return True
+        except Exception as exception:
+            logger.info("Google palm Exception:", exception)
+            return False

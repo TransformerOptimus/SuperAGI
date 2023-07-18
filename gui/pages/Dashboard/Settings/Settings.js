@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {getOrganisationConfig, updateOrganisationConfig} from "@/pages/api/DashboardService";
+import {getOrganisationConfig, updateOrganisationConfig,validateLLMApiKey} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {removeTab, setLocalStorageValue} from "@/utils/utils";
 import Image from "next/image";
@@ -79,8 +79,15 @@ export default function Settings({organisationId}) {
       return
     }
 
-    updateKey("model_api_key", modelApiKey);
-    updateKey("model_source", source);
+    validateLLMApiKey(source, modelApiKey)
+        .then((response) => {
+          if (response.data.status==="success") {
+            updateKey("model_api_key", modelApiKey);
+            updateKey("model_source", source);
+          } else {
+            toast.error("Invalid API key", {autoClose: 1800});
+          }
+        })
   };
 
   const handleTemperatureChange = (event) => {

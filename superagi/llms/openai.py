@@ -87,3 +87,17 @@ class OpenAi(BaseLlm):
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)
             return {"error": "ERROR_OPENAI", "message": "Open ai exception"}
+
+    def verify_access_key(self):
+        """
+        Verify the access key is valid.
+
+        Returns:
+            bool: True if the access key is valid, False otherwise.
+        """
+        try:
+            models = openai.Model.list()
+            return True
+        except Exception as exception:
+            logger.info("OpenAi Exception:", exception)
+            return False
