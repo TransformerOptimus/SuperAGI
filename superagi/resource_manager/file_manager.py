@@ -38,14 +38,14 @@ class FileManager:
                                                                                                self.agent_id),
                                                                  agent_execution=AgentExecution
                                                                  .get_agent_execution_from_id(self.session,
-                                                                                              self.agent_execution_id))
-            if resource is not None:
-                self.session.add(resource)
-                self.session.commit()
-                self.session.flush()
-                if resource.storage_type == StorageType.S3.value:
-                    s3_helper = S3Helper()
-                    s3_helper.upload_file(img, path=resource.path)
+                                                                                              self.agent_execution_id),session=self.session)
+            # if resource is not None:
+            #     self.session.add(resource)
+            #     self.session.commit()
+            #     self.session.flush()
+            if resource.storage_type == StorageType.S3.value:
+                s3_helper = S3Helper()
+                s3_helper.upload_file(img, path=resource.path)
     def write_file(self, file_name: str, content):
         if self.agent_id is not None:
             final_path = ResourceHelper.get_agent_write_resource_path(file_name,
