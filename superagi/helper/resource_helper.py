@@ -10,7 +10,7 @@ from superagi.types.storage_types import StorageType
 
 class ResourceHelper:
     @classmethod
-    def make_written_file_resource(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
+    def make_written_file_resource(cls, file_name: str, agent: Agent, agent_execution: AgentExecution, session):
         """
         Function to create a Resource object for a written file.
 
@@ -46,13 +46,36 @@ class ResourceHelper:
         logger.info("make_written_file_resource:", final_path)
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
             file_path = "resources" + file_path
-        resource = Resource(name=file_name, path=file_path, storage_type=storage_type.value,
-                            size=file_size,
-                            type=file_type,
-                            channel="OUTPUT",
-                            agent_id=agent.id,
-                            agent_execution_id=agent_execution.id)
-        return resource
+        existing_resource = session.query(Resource).filter_by(
+            name=file_name,
+            path=file_path,
+            storage_type=storage_type.value,
+            type=file_type,
+            channel="OUTPUT",
+            agent_id=agent.id,
+            agent_execution_id=agent_execution.id
+        ).first()
+
+        if existing_resource:
+            # Update the existing resource attributes
+            existing_resource.size = file_size
+            session.commit()
+            session.flush()
+            return existing_resource
+        else:
+            resource = Resource(
+                name=file_name,
+                path=file_path,
+                storage_type=storage_type.value,
+                size=file_size,
+                type=file_type,
+                channel="OUTPUT",
+                agent_id=agent.id,
+                agent_execution_id=agent_execution.id
+            )
+            session.add(resource)
+            session.commit()
+            return resource
 
     @classmethod
     def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
