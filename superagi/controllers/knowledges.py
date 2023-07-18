@@ -1,6 +1,7 @@
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Query, status
 from fastapi import APIRouter
+from datetime import datetime
 from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.models.knowledges import Knowledges
@@ -12,6 +13,7 @@ from superagi.helper.s3_helper import S3Helper
 from superagi.models.vector_db_configs import VectordbConfigs
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.vector_embeddings.vector_embedding_factory import VectorEmbeddingFactory
+from superagi.helper.time_helper import get_time_difference
 
 router = APIRouter()
 
@@ -71,6 +73,9 @@ def get_knowledge_details(knowledge_name: str):
     # knowledge_config_data["use_cases"] = eval(knowledge_config_data["use_cases"])
     knowledge_data_with_config = knowledge_data | knowledge_config_data
     knowledge_data_with_config["install_number"] = MarketPlaceStats.get_knowledge_installation_number(knowledge_data_with_config["id"])
+    # knowledge_data_with_config["updated_at"] = '2023-07-18 08:06:52.803273'
+    # knowledge_data_with_config["updated_at"] = datetime.strptime(knowledge_data_with_config["updated_at"], "%Y-%m-%d %H:%M:%S.%f")
+    knowledge_data_with_config["updated_at"] = datetime.strftime(knowledge_data_with_config["updated_at"], '%d %B %Y')
     return knowledge_data_with_config
 
 @router.get("/marketplace/details/{knowledge_name}")
@@ -111,7 +116,7 @@ def delete_user_knowledge(knowledge_id: int):
         Knowledges.delete_knowledge(db.session, knowledge_id)
         return {"success": True}
     except:
-        return f"No Knowledge found for {knowledge_id}."
+        return {"success": False}
 
 @router.get("/install/{knowledge_name}/index/{vector_db_index_id}")
 def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, organisation = Depends(get_user_organisation)):

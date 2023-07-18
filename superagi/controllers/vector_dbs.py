@@ -2,6 +2,8 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi import APIRouter
 from superagi.config.config import get_config
+from datetime import datetime
+from superagi.helper.time_helper import get_current_time
 from superagi.models.vector_dbs import Vectordbs
 from superagi.helper.auth import get_user_organisation
 from superagi.models.vector_db_configs import VectordbConfigs
@@ -24,6 +26,8 @@ def get_marketplace_vectordb_list():
 @router.get("/user/list")
 def get_user_connected_vector_db_list(organisation = Depends(get_user_organisation)):
     vector_db_list = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
+    # update_time = get_current_time(vector_db_list["updated_at"], datetime.now())
+    # vector_db_list["updated_at"] = update_time["years"]
     return vector_db_list
 
 @router.get("/get/db/details/{vector_db_id}")
