@@ -304,12 +304,20 @@ export default function KnowledgeTemplate({template, env}) {
               <div className={styles2.left_container}
                    style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
                 <span className={styles2.description_text}>Introduction</span><br/>
-                <span className={styles2.sub_text}>{template.introduction}</span>
+                {template?.introduction.map((item, index) => (<div key={index} style={{marginTop: '0'}}>
+                  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>
+                  {index !== item.length - 1}
+                </div>))}
+                {/*<span className={styles2.sub_text}>{template.introduction}</span>*/}
               </div>
               <div className={styles2.left_container}
                    style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
                 <span className={styles2.description_text}>Use cases</span><br/>
-                <span className={styles2.sub_text}>{template.use_cases}</span>
+                {template?.use_cases.map((item, index) => (<div key={index} style={{marginTop: '0'}}>
+                  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>
+                  {index !== item.length - 1}
+                </div>))}
+                {/*<span className={styles2.sub_text}>{template.use_cases}</span>*/}
               </div>
             </div>
           </div>
