@@ -75,12 +75,12 @@ class ImproveCodeTool(BaseTool):
                 # Extract the response first
                 response = result.get('response')
                 if not response: 
-                    print("REAPONSE NOT AVAILABLE")
+                    logger.info("RESPONSE NOT AVAILABLE")
 
                 # Now extract the choices from response
                 choices = response.get('choices')
                 if not choices: 
-                    print("CHOICES NOT AVAILABLE")
+                    logger.info("CHOICES NOT AVAILABLE")
 
                 # Now you can safely extract the message content
                 improved_content = choices[0]["message"]["content"]
