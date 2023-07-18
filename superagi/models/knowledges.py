@@ -40,7 +40,7 @@ class Knowledges(DBBaseModel):
 
         """
         return f"Knowledge(id={self.id}, name='{self.name}', description='{self.description}', " \
-               f"index_id={self.index_id}), organisation_id={self.organisation_id}), contributed_by={self.contributed_by}"
+               f"vector_db_index_id={self.vector_db_index_id}), organisation_id={self.organisation_id}), contributed_by={self.contributed_by}"
 
     @classmethod
     def fetch_marketplace_list(cls, page):

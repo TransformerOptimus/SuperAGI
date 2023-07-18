@@ -44,3 +44,13 @@ class MarketPlaceStats(DBBaseModel):
             return response.json()
         else:
             return []
+    
+    @classmethod
+    def update_knowledge_install_number(cls, session, knowledge_id, install_number):
+        knowledge_install_number = session.query(MarketPlaceStats).filter(MarketPlaceStats.reference_id == knowledge_id, MarketPlaceStats.reference_name == "KNOWLEDGE", MarketPlaceStats.key == "download_count").first()
+        if knowledge_install_number is None:
+            knowledge_install_number = MarketPlaceStats(reference_id=knowledge_id, reference_name="KNOWLEDGE", key="download_count", value=str(install_number))
+            session.add(knowledge_install_number)
+        else:
+            knowledge_install_number.value = str(install_number)
+        session.commit()

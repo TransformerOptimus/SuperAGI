@@ -51,3 +51,9 @@ class VectordbIndices(DBBaseModel):
         vector_index = VectordbIndices(name=index_name, vector_db_id=vector_db_id, dimensions=dimensions, state=state)
         session.add(vector_index)
         session.commit()
+    
+    @classmethod
+    def update_vector_index_state(cls, session, index_id, state):
+        vector_index = session.query(VectordbIndices).filter(VectordbIndices.id == index_id).first()
+        vector_index.state = state
+        session.commit()
