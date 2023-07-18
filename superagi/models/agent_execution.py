@@ -2,8 +2,13 @@ import json
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import sessionmaker
 
 from superagi.models.base_model import DBBaseModel
+from superagi.models.db import connect_db
+
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 
 
 class AgentExecution(DBBaseModel):
@@ -47,7 +52,7 @@ class AgentExecution(DBBaseModel):
         return (
             f"AgentExecution(id={self.id}, name={self.name}, status='{self.status}', "
             f"last_execution_time='{self.last_execution_time}', current_step_id={self.current_step_id}, "
-            f"agent_id={self.agent_id}, cluster_execution_id={self.cluster_id}, num_of_calls={self.num_of_calls})"
+            f"agent_id={self.agent_id}, cluster_execution_id={self.cluster_execution_id}, num_of_calls={self.num_of_calls})"
         )
 
     def to_dict(self):
@@ -105,3 +110,24 @@ class AgentExecution(DBBaseModel):
             num_of_tokens=data['num_of_tokens'],
             current_step_id=data['current_step_id'],
         )
+
+    @staticmethod
+    def create_agent_execution(cluster_execution_id, agent_id ,status,last_execution_time, num_of_calls, num_of_tokens,name,current_step_id):
+        session = Session()
+        print("SESSION",session)
+        agent_execution = AgentExecution(
+            cluster_execution_id=cluster_execution_id,
+            agent_id=agent_id,
+            status=status,
+            last_execution_time=last_execution_time,
+            num_of_calls=num_of_calls,
+            num_of_tokens=num_of_tokens,
+            name=name,
+            current_step_id=current_step_id
+        )
+        session.add(agent_execution)
+        session.commit()
+        session.refresh(agent_execution)
+        session.close()
+        print("AGENT EXECUTION CREATED", agent_execution)
+        return agent_execution

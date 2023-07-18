@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker
 
+from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
 from superagi.models.db import connect_db
 
@@ -51,4 +52,4 @@ class Configuration(DBBaseModel):
         model_api_key = session.query(cls).filter(cls.organisation_id == organisation_id,
                                                   cls.key == 'model_api_key').first()
         session.close()
-        return model_api_key.value if model_api_key else None
+        return decrypt_data(model_api_key.value) if model_api_key else None

@@ -711,7 +711,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           </div>
-          <div style={{marginTop: '15px'}}>
+          { !isCluster && <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Tools</label>
             <div className="dropdown_container_search" style={{width:'100%'}}>
               <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)} style={{width:'100%',alignItems:'flex-start'}}>
@@ -753,7 +753,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 </div>}
               </div>
             </div>
-          </div>
+          </div>}
           {!isCluster && <div style={{marginTop: '15px'}}>
             <button className="medium_toggle"
                     onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)}
@@ -767,7 +767,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           </div>}
           {advancedOptions &&
             <div>
-              <div style={{marginTop: '15px'}}>
+              {!isCluster && <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Agent Type</label><br/>
                 <div className="dropdown_container_search" style={{width:'100%'}}>
                   <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)} style={{width:'100%'}}>
@@ -781,15 +781,15 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                     </div>}
                   </div>
                 </div>
-              </div>
-              <div style={{marginTop: '15px'}}>
+              </div>}
+              {!isCluster && <div style={{marginTop: '15px'}}>
                 <div style={{display:'flex'}}>
                   <input className="checkbox" type="checkbox" checked={addResources} onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)} />
                   <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
                     Add Resources
                   </label>
                 </div>
-              </div>
+              </div>}
               <div style={{width:'100%',height:'auto',marginTop:'10px'}}>
                 {addResources && <div style={{paddingBottom:'10px'}}>
                   <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>

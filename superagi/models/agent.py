@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import sessionmaker
 
 import superagi.models
 from superagi.models.agent_config import AgentConfiguration
@@ -12,6 +13,10 @@ from superagi.models.agent_workflow import AgentWorkflow
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
 from superagi.lib.logger import logger
+from superagi.models.db import connect_db
+
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 
 
 class Agent(DBBaseModel):
@@ -229,3 +234,18 @@ class Agent(DBBaseModel):
         db.session.commit()
         db.session.flush()
         return db_agent
+
+    @classmethod
+    def get_agent_by_id(cls, agent_id):
+        """
+        Gets an agent by its ID.
+
+        Args:
+            agent_id (int): The ID of the agent.
+
+        Returns:
+            Agent: The agent.
+
+        """
+        session = Session()
+        return session.query(cls).filter(cls.id == agent_id).first()

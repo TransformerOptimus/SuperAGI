@@ -92,7 +92,8 @@ class Cluster(DBBaseModel):
         return cluster
 
     @staticmethod
-    def create_cluster_with_config(cluster_name: str, project_id: int, description: str, agent_ids: [int], config: dict):
+    def create_cluster_with_config(cluster_name: str, project_id: int, description: str, agent_ids: [int],
+                                   config: dict):
         """
         Creates a cluster with the given name, project id, description and config dict.
         Args:

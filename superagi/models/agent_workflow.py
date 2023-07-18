@@ -1,9 +1,14 @@
 import json
 
 from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import sessionmaker
 
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.base_model import DBBaseModel
+from superagi.models.db import connect_db
+
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 
 
 class AgentWorkflow(DBBaseModel):
@@ -92,4 +97,21 @@ class AgentWorkflow(DBBaseModel):
 
         trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
                                                                AgentWorkflowStep.step_type == 'TRIGGER').first()
+        return trigger_step.id
+
+    @classmethod
+    def get_trigger_step_id(cls, workflow_id):
+        """s
+        Fetches the trigger step ID of the specified agent workflow.
+
+        Args:
+            workflow_id (int): The ID of the agent workflow.
+
+        Returns:
+            int: The ID of the trigger step.
+
+        """
+        session = Session()
+        trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
+                                                                AgentWorkflowStep.step_type == 'TRIGGER').first()
         return trigger_step.id

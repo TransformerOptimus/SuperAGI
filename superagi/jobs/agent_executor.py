@@ -142,6 +142,7 @@ class AgentExecutor:
         session = Session()
         agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
         '''Avoiding running old agent executions'''
+        print("CHECKING FOR OLD AGENT EXECUTIONS",agent_execution.created_at < datetime.utcnow() - timedelta(days=1))
         if agent_execution.created_at < datetime.utcnow() - timedelta(days=1):
             return
         agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
@@ -225,7 +226,8 @@ class AgentExecutor:
             session.commit()
         else:
             logger.info(f"Starting next job for agent execution id: {agent_execution_id}")
-            superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            from superagi.worker.agent_worker import execute_agent
+            execute_agent.delay(agent_execution_id, datetime.now())
 
         session.close()
         engine.dispose()

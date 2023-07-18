@@ -1,6 +1,7 @@
 from sqlalchemy import Integer, Column
 from sqlalchemy.orm import sessionmaker
 
+from superagi.models.agent import Agent
 from superagi.models.base_model import DBBaseModel
 from superagi.models.db import connect_db
 
@@ -47,8 +48,13 @@ class ClusterAgent(DBBaseModel):
         """
         session = Session()
         cluster_agents = session.query(cls).filter(cls.cluster_id == cluster_id).all()
+        agents = []
+        for cluster_agent in cluster_agents:
+            print("CHECK IT OUT", cluster_agent)
+            agent = session.query(Agent).filter(Agent.id == cluster_agent.agent_id).first()
+            agents.append(agent)
         session.close()
-        return cluster_agents
+        return agents
 
     @staticmethod
     def create_cluster_agents(cluster_id: int, agent_ids: [int]):
