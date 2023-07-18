@@ -184,7 +184,7 @@ class Qdrant(VectorStore):
                 points=models.Batch(
                     ids=embeddings["ids"],
                     vectors=embeddings["vectors"],
-                    payloads=embeddings["payloads"]
+                    payloads=embeddings["payload"]
                 ),
             )
         except Exception as err:
