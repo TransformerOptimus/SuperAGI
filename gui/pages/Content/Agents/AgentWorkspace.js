@@ -24,7 +24,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, agentName, selectedView, agents, internalId}) {
+export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -374,10 +374,10 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
             </div>}
 
             {createModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>
