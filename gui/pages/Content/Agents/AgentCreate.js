@@ -21,15 +21,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({
-                                      sendAgentData,
-                                      selectedProjectId,
-                                      fetchAgents,
-                                      toolkits,
-                                      organisationId,
-                                      template,
-                                      internalId
-                                    }) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -987,23 +979,7 @@ export default function AgentCreate({
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="custom_select_option" style={{
-                background: '#3B3B49',
-                borderRadius: '8px',
-                position: 'absolute',
-                top: '-40px',
-                right: '0',
-                zIndex: '1',
-                boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)',
-                height: '40px',
-                width: '150px',
-                paddingTop: '10px',
-                textAlign: 'center'
-              }}
-                                       onClick={() => {
-                                         setCreateModal(true);
-                                         setCreateDropdown(false);
-                                       }}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
@@ -1020,7 +996,7 @@ export default function AgentCreate({
           </div>
 
           {createModal && (
-            <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
+            <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
 
         </div>

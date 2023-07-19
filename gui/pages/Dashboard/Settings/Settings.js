@@ -41,7 +41,7 @@ export default function Settings({organisationId}) {
 
     function handleClickOutside(event) {
       if (sourceRef.current && !sourceRef.current.contains(event.target)) {
-        setSourceDropdown(false)
+        setSourceDropdown(false);
       }
     }
 
@@ -52,15 +52,14 @@ export default function Settings({organisationId}) {
   }, [organisationId]);
 
   function updateKey(key, value) {
-    const configData = {"key": key, "value": value};
-    updateOrganisationConfig(organisationId, configData)
+    const configData = { "key": key, "value": value };
+    return updateOrganisationConfig(organisationId, configData)
       .then((response) => {
-        getKey("model_api_key");
-        EventBus.emit("keySet", {});
-        toast.success("Settings updated", {autoClose: 1800});
+        return response.data;
       })
       .catch((error) => {
-        console.error('Error fetching project:', error);
+        console.error('Error updating settings:', error);
+        throw new Error('Failed to update settings');
       });
   }
 
@@ -75,19 +74,32 @@ export default function Settings({organisationId}) {
 
   const saveSettings = () => {
     if (modelApiKey === null || modelApiKey.replace(/\s/g, '') === '') {
-      toast.error("API key is empty", {autoClose: 1800});
-      return
+      toast.error("API key is empty", { autoClose: 1800 });
+      return;
     }
 
     validateLLMApiKey(source, modelApiKey)
-        .then((response) => {
-          if (response.data.status==="success") {
-            updateKey("model_api_key", modelApiKey);
-            updateKey("model_source", source);
-          } else {
-            toast.error("Invalid API key", {autoClose: 1800});
-          }
-        })
+      .then((response) => {
+        if (response.data.status === "success") {
+          Promise.all([
+            updateKey("model_api_key", modelApiKey),
+            updateKey("model_source", source)
+          ])
+              .then(() => {
+                toast.success("Settings updated", { autoClose: 1800 });
+              })
+              .catch((error) => {
+                console.error('Error updating settings:', error);
+                toast.error("Failed to update settings", { autoClose: 1800 });
+              });
+        } else {
+          toast.error("Invalid API key", { autoClose: 1800 });
+        }
+      })
+      .catch((error) => {
+        console.error('Error validating API key:', error);
+        toast.error("Failed to validate API key", { autoClose: 1800 });
+      });
   };
 
   const handleTemperatureChange = (event) => {
