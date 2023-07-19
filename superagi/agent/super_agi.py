@@ -210,7 +210,7 @@ class SuperAgi:
     def handle_tool_response(self, session, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
-        action_name = action.name.lower().replace(" ", "") if not isinstance(action, dict) else ""
+        action_name = action.name.lower().replace(" ", "") if action is not None else ""
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
         organisation = agent.get_agent_organisation(session)
         if action_name == FINISH or action.name == "":
