@@ -72,17 +72,19 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   }, [runStatus])
 
   function fetchFeeds() {
-    getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        const data = response.data;
-        setFeeds(data.feeds);
-        setRunStatus(data.status);
-        setFetchedData(data.permissions);
-        EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
+    if (selectedRunId !== null) {
+      getExecutionFeeds(selectedRunId)
+        .then((response) => {
+          const data = response.data;
+          setFeeds(data.feeds);
+          setRunStatus(data.status);
+          setFetchedData(data.permissions);
+          EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
+        })
+        .catch((error) => {
+          console.error('Error fetching execution feeds:', error);
+        });
+    }
   }
 
   useEffect(() => {

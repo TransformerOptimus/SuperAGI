@@ -30,7 +30,7 @@ export default function Agents({sendAgentData, agents}) {
                                                               src="/images/loading.gif" alt="active-icon"/></div>}
                 <div style={{display: 'flex', height: '15px'}}>
                   <div className={styles.text_block}><span className={styles.agent_text}>{agent.name}</span></div>
-                  {agent.is_scheduled &&
+                  {agent?.is_scheduled &&
                     <div style={{marginLeft: '8px'}}><Image style={{paddingBottom: '12px'}} width={20} height={28}
                                                             src="/images/event_repeat.svg" alt="check-icon"/></div>}
                 </div>
