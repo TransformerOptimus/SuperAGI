@@ -125,10 +125,10 @@ export default function Settings({organisationId}) {
             <div>
               {sourceDropdown && <div className="custom_select_options" ref={sourceRef} style={{width: '100%'}}>
                 {sources.map((source, index) => (
-                    <div key={index} className="custom_select_option" onClick={() => handleSourceSelect(index)}
-                         style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {source}
-                    </div>))}
+                  <div key={index} className="custom_select_option" onClick={() => handleSourceSelect(index)}
+                       style={{padding: '12px 14px', maxWidth: '100%'}}>
+                    {source}
+                  </div>))}
               </div>}
             </div>
           </div>
