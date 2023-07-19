@@ -150,8 +150,6 @@ class Agent(DBBaseModel):
 
         db.session.commit()
 
-        print("////////////////////////")
-        print(agent_with_config)
         # Create Agent Configuration
         agent_config_values = {
             "goal": agent_with_config.goal,
