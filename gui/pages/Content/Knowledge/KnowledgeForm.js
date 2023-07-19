@@ -123,6 +123,7 @@ export default function KnowledgeForm({
     addUpdateKnowledge(knowledgeData)
       .then((response) => {
         toast.success("Knowledge updated successfully", {autoClose: 1800});
+        EventBus.emit('reFetchKnowledge', {});
       })
       .catch((error) => {
         toast.error("Unable to update knowledge", {autoClose: 1800});
