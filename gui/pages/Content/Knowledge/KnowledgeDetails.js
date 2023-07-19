@@ -31,9 +31,14 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     if (installationType === 'Marketplace') {
       deleteMarketplaceKnowledge(knowledgeName)
         .then((response) => {
-          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-          EventBus.emit('reFetchKnowledge', {});
+          if(response.data.success){
+            toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+            EventBus.emit('reFetchKnowledge', {});
+          }
+          else{
+            toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+          }
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -42,9 +47,14 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
-          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-          EventBus.emit('reFetchKnowledge', {});
+          if(response.data.success) {
+            toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+            EventBus.emit('reFetchKnowledge', {});
+          }
+          else {
+            toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+          }
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});

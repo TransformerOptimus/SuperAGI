@@ -69,10 +69,10 @@ export default function KnowledgeForm({
       isValid = false;
     }
 
-    if (knowledgeDescription.replace(/\s/g, '') === '') {
-      toast.error("Knowledge description can't be blank", {autoClose: 1800});
-      isValid = false;
-    }
+    // if (knowledgeDescription.replace(/\s/g, '') === '') {
+    //   toast.error("Knowledge description can't be blank", {autoClose: 1800});
+    //   isValid = false;
+    // }
 
     return isValid;
   }
@@ -123,6 +123,7 @@ export default function KnowledgeForm({
     addUpdateKnowledge(knowledgeData)
       .then((response) => {
         toast.success("Knowledge updated successfully", {autoClose: 1800});
+        EventBus.emit('reFetchKnowledge', {});
       })
       .catch((error) => {
         toast.error("Unable to update knowledge", {autoClose: 1800});

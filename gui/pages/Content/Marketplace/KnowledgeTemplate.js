@@ -14,6 +14,7 @@ import {
   getValidMarketplaceIndices,
   installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
+import {loadingTextEffect} from "@/utils/utils";
 
 export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('');
@@ -86,6 +87,7 @@ export default function KnowledgeTemplate({template, env}) {
   }, []);
 
   const handleInstallClick = (indexId) => {
+    setInstalled("Installing")
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('knowledge_to_install', template.name);
       localStorage.setItem('knowledge_index_to_install', indexId);
@@ -102,14 +104,18 @@ export default function KnowledgeTemplate({template, env}) {
       toast.error("Template is already installed", {autoClose: 1800});
       return;
     }
-
+    setIndexDropdown(false)
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
-        toast.success("Template installed", {autoClose: 1800});
-        setInstalled('Installed');
+        if(response.data.success) {
+          toast.success("Knowledge installed", {autoClose: 1800});
+          setInstalled('Installed');
+        }
+        else
+          toast.error("Error installing Knowledge: ", {autoClose: 1800});
       })
       .catch((error) => {
-        console.error('Error installing template:', error);
+        console.error('Error installing Knowledge:', error);
       });
   }
 
@@ -120,8 +126,13 @@ export default function KnowledgeTemplate({template, env}) {
   const uninstallKnowledge = () => {
     deleteMarketplaceKnowledge(template.name)
       .then((response) => {
-        toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-        handleBackClick()
+        if(response.data.success) {
+          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+          handleBackClick()
+        }
+        else {
+          toast.error("Unable to uninstall knowledge", {autoClose: 1800});
+        }
       })
       .catch((error) => {
         toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -159,12 +170,12 @@ export default function KnowledgeTemplate({template, env}) {
               <span style={{fontSize: '12px', marginTop: '15px',}}
                     className={styles.tool_publisher}>by {templateData?.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
                 width={14} height={14} src="/images/upload_icon.svg"
-                alt="upload-icon"/>{templateData?.install_number || 0}</span>
+                alt="upload-icon" style={{marginBottom:'1px'}} />&nbsp;{'\u00B7'}&nbsp;{templateData?.install_number || 0}</span>
 
               {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
                 <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
                      style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
-                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}
+                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;<span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
                 </div>
                 <div>
                   {indexDropdown &&
@@ -242,7 +253,7 @@ export default function KnowledgeTemplate({template, env}) {
 
               <hr className={styles2.horizontal_line}/>
 
-              <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>
+              <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model</span>
               <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.model}</div>
               </div>
@@ -293,13 +304,12 @@ export default function KnowledgeTemplate({template, env}) {
             <div style={{overflowY: 'scroll', height: '84vh'}}>
               <div className={styles2.left_container}
                    style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
-                <span className={styles2.description_text}>Introduction</span><br/>
-                <span className={styles2.sub_text}>{template.introduction}</span>
-              </div>
-              <div className={styles2.left_container}
-                   style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
-                <span className={styles2.description_text}>Use cases</span><br/>
-                <span className={styles2.sub_text}>{template.use_cases}</span>
+                <span className={styles2.description_text}>Overview</span><br/>
+                {/*{templateData?.overview.map((item, index) => (<div key={index} style={{marginTop: '0'}}>*/}
+                {/*  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>*/}
+                {/*  {index !== item.length - 1}*/}
+                {/*</div>))}*/}
+                <span className={styles2.sub_text}>{templateData?.overview}</span>
               </div>
             </div>
           </div>
