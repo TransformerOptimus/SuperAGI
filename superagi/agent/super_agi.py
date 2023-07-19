@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from typing import Any
 from typing import Tuple
-import json
+
 import numpy as np
 from pydantic import ValidationError
 from pydantic.types import List
@@ -14,9 +14,10 @@ from sqlalchemy import asc
 from sqlalchemy.orm import sessionmaker
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser, AgentSchemaOutputParser
+from superagi.agent.output_parser import BaseOutputParser, AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
 from superagi.apm.event_handler import EventHandler
+from superagi.config.config import get_config
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
@@ -65,23 +66,6 @@ class SuperAgi:
         self.agent_config = agent_config
         self.agent_execution_config = agent_execution_config
 
-    @classmethod
-    def from_llm_and_tools(
-            cls,
-            ai_name: str,
-            ai_role: str,
-            memory: VectorStore,
-            tools: List[BaseTool],
-            llm: BaseLlm
-    ) -> SuperAgi:
-        return cls(
-            ai_name=ai_name,
-            ai_role=ai_role,
-            llm=llm,
-            memory=memory,
-            output_parser=AgentOutputParser(),
-            tools=tools
-        )
 
     def fetch_agent_feeds(self, session, agent_execution_id):
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
@@ -114,23 +98,23 @@ class SuperAgi:
         if len(agent_feeds) <= 0:
             task_queue.clear_tasks()
         messages = []
-        max_token_limit = 600
+        max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         # adding history to the messages
         if workflow_step.history_enabled:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
-                                             max_token_limit=max_token_limit)
+                                             max_token_limit=max_output_token_limit)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self.split_history(full_message_history,
-                                                                 token_limit - base_token_limit - max_token_limit)
+                                                                 token_limit - base_token_limit - max_output_token_limit)
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": workflow_step.completion_prompt})
         else:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
-                                             max_token_limit=max_token_limit)
+                                             max_token_limit=max_output_token_limit)
             messages.append({"role": "system", "content": prompt})
             # agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,

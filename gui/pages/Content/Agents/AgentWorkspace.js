@@ -373,7 +373,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
-                  {agent && !agent.is_running && !agent.is_scheduled &&
+                  {agent && !agent?.is_running && !agent?.is_scheduled &&
                     <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
                 </div>)}
                 <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
