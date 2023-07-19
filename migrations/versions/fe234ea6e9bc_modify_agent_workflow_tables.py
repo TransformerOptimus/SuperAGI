@@ -1,0 +1,30 @@
+"""update agent workflow tables
+
+Revision ID: fe234ea6e9bc
+Revises: cac478732572
+Create Date: 2023-07-18 16:46:29.305378
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision = 'fe234ea6e9bc'
+down_revision = 'cac478732572'
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    op.rename_table('agent_workflows', 'iteration_workflows')
+    op.rename_table('agent_workflow_steps', 'iteration_workflow_steps')
+
+    with op.batch_alter_table('iteration_workflow_steps') as bop:
+        bop.alter_column('agent_workflow_id', new_column_name='iteration_workflow_id')
+    op.add_column('agent_executions', sa.Column('iteration_workflow_step_id', sa.Integer(), nullable=True))
+    op.add_column('iteration_workflows',
+                  sa.Column('has_task_queue', sa.Boolean(), nullable=True, server_default=sa.false()))
+
+def downgrade() -> None:
+    pass

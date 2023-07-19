@@ -8,7 +8,7 @@ import superagi.models
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
 from superagi.lib.logger import logger

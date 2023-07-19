@@ -33,6 +33,7 @@ class AgentExecution(DBBaseModel):
     num_of_tokens = Column(Integer, default=0)
     current_step_id = Column(Integer)
     permission_id = Column(Integer)
+    iteration_workflow_step_id = Column(Integer)
 
     def __repr__(self):
         """
@@ -45,7 +46,8 @@ class AgentExecution(DBBaseModel):
         return (
             f"AgentExecution(id={self.id}, name={self.name}, status='{self.status}', "
             f"last_execution_time='{self.last_execution_time}', current_step_id={self.current_step_id}, "
-            f"agent_id={self.agent_id}, num_of_calls={self.num_of_calls})"
+            f"agent_id={self.agent_id}, num_of_calls={self.num_of_calls}, num_of_tokens={self.num_of_tokens},"
+            f"permission_id={self.permission_id}, iteration_workflow_step_id={self.iteration_workflow_step_id})"
         )
 
     def to_dict(self):
@@ -65,6 +67,8 @@ class AgentExecution(DBBaseModel):
             'num_of_calls': self.num_of_calls,
             'num_of_tokens': self.num_of_tokens,
             'current_step_id': self.current_step_id,
+            'permission_id': self.permission_id,
+            'iteration_workflow_step_id': self.iteration_workflow_step_id
         }
 
     def to_json(self):
@@ -100,6 +104,8 @@ class AgentExecution(DBBaseModel):
             num_of_calls=data['num_of_calls'],
             num_of_tokens=data['num_of_tokens'],
             current_step_id=data['current_step_id'],
+            permission_id=data['permission_id'],
+            iteration_workflow_step_id=data['iteration_workflow_step_id']
         )
 
     @classmethod
@@ -115,3 +121,11 @@ class AgentExecution(DBBaseModel):
                 AgentExecution: AgentExecution object is returned.
         """
         return session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+
+    @classmethod
+    def update_tokens(self, session, agent_execution_id: int, total_tokens: int, new_llm_calls: int = 1):
+        agent_execution = session.query(AgentExecution).filter(
+            AgentExecution.id == agent_execution_id).first()
+        agent_execution.num_of_calls += new_llm_calls
+        agent_execution.num_of_tokens += total_tokens
+        session.commit()

@@ -1,0 +1,8 @@
+Analyze {tool_name} output and follow the instruction to come up with the response:
+TOOL OUTPUT:
+`{tool_output}`
+
+INSTRUCTION: `{instruction}`
+
+Analyze the instruction and respond with one of the below outputs. Response should be one of the below options:
+{output_options}

@@ -7,15 +7,28 @@ from superagi.models.configuration import Configuration
 from superagi.models.resource import Resource
 from superagi.resource_manager.llama_document_summary import LlamaDocumentSummary
 from superagi.resource_manager.resource_manager import ResourceManager
+from superagi.types.model_source_types import ModelSourceType
 
 
 class ResourceSummarizer:
     """Class to summarize a resource."""
 
-    def __init__(self, session):
+    def __init__(self, session, agent_id: int):
         self.session = session
+        self.agent_id = agent_id
+        self.organisation_id = self.__get_organisation_id()
 
-    def add_to_vector_store_and_create_summary(self, agent_id: int, resource_id: int, documents: list):
+    def __get_organisation_id(self):
+        agent = self.session.query(Agent).filter(Agent.id == self.agent_id).first()
+        return agent.organisation_id
+
+    def __get_model_api_key(self):
+        return Configuration.fetch_configuration(self.session, self.organisation_id, "model_api_key")
+
+    def __get_model_source(self):
+        return Configuration.fetch_configuration(self.session, self.organisation_id, "model_source")
+
+    def add_to_vector_store_and_create_summary(self, resource_id: int, documents: list):
         """
         Add a file to the vector store and generate a summary for it.
 
@@ -25,12 +38,10 @@ class ResourceSummarizer:
             openai_api_key (str): OpenAI API key.
             documents (list): List of documents.
         """
-        agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
-        organization = agent.get_agent_organisation(self.session)
-        model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
-        model_source = Configuration.fetch_configuration(self.session, organization.id, "model_source")
+        model_api_key = self.__get_model_api_key()
         try:
-            ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key, model_source)
+            ResourceManager(str(self.agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key,
+                                                                         self.__get_model_source())
         except Exception as e:
             logger.error("add_to_vector_store_and_create_summary: Unable to save document to vector store.", e)
         summary = None
@@ -42,20 +53,18 @@ class ResourceSummarizer:
         resource.summary = summary
         self.session.commit()
 
-    def generate_agent_summary(self, agent_id: int, generate_all: bool = False) -> str:
+    def generate_agent_summary(self, generate_all: bool = False) -> str:
         """Generate a summary of all resources for an agent."""
         agent_config_resource_summary = self.session.query(AgentConfiguration). \
-            filter(AgentConfiguration.agent_id == agent_id,
+            filter(AgentConfiguration.agent_id == self.agent_id,
                    AgentConfiguration.key == "resource_summary").first()
-        resources = self.session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').all()
+        resources = self.session.query(Resource).filter(Resource.agent_id == self.agent_id,
+                                                        Resource.channel == 'INPUT').all()
         if not resources:
             return
 
-        agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
-        organization = agent.get_agent_organisation(self.session)
-        model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
-        model_source = Configuration.fetch_configuration(self.session, organization.id, "model_source")
-
+        model_api_key = self.__get_model_api_key()
+        model_source = self.__get_model_source()
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
 
         # generate_all is added because we want to generate summary for all resources when agent is created
@@ -64,13 +73,15 @@ class ResourceSummarizer:
             file_paths = [resource.path for resource in resources if resource.summary is None]
             for file_path in file_paths:
                 if resources[0].storage_type == 'S3':
-                    documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
+                    documents = ResourceManager(str(self.agent_id)).create_llama_document_s3(file_path)
                 else:
-                    documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
-                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key, model_source=model_source).generate_summary_of_document(documents))
+                    documents = ResourceManager(str(self.agent_id)).create_llama_document(file_path)
+                summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key,
+                                                          model_source=model_source).generate_summary_of_document(
+                    documents))
 
         agent_last_resource = self.session.query(AgentConfiguration). \
-            filter(AgentConfiguration.agent_id == agent_id,
+            filter(AgentConfiguration.agent_id == self.agent_id,
                    AgentConfiguration.key == "last_resource_time").first()
         if agent_last_resource is not None and \
                 datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at \
@@ -79,18 +90,29 @@ class ResourceSummarizer:
 
         resource_summary = summary_texts[0] if summary_texts else None
         if len(summary_texts) > 1:
-            resource_summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_texts(summary_texts)
+            resource_summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_texts(
+                summary_texts)
 
         if agent_config_resource_summary is not None:
             agent_config_resource_summary.value = resource_summary
         else:
-            agent_config_resource_summary = AgentConfiguration(agent_id=agent_id, key="resource_summary",
+            agent_config_resource_summary = AgentConfiguration(agent_id=self.agent_id, key="resource_summary",
                                                                value=resource_summary)
             self.session.add(agent_config_resource_summary)
         if agent_last_resource is not None:
             agent_last_resource.value = str(resources[-1].updated_at)
         else:
-            agent_last_resource = AgentConfiguration(agent_id=agent_id, key="last_resource_time",
+            agent_last_resource = AgentConfiguration(agent_id=self.agent_id, key="last_resource_time",
                                                      value=str(resources[-1].updated_at))
             self.session.add(agent_last_resource)
         self.session.commit()
+
+    def fetch_or_create_agent_resource_summary(self, default_summary: str):
+        if ModelSourceType.GooglePalm.value in self.__get_model_source():
+            return
+        self.generate_agent_summary(generate_all=True)
+        agent_config_resource_summary = self.session.query(AgentConfiguration). \
+            filter(AgentConfiguration.agent_id == self.agent_id,
+                   AgentConfiguration.key == "resource_summary").first()
+        resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
+        return resource_summary

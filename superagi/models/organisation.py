@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, String
 
 from superagi.helper.tool_helper import register_toolkits
+from superagi.models.agent import Agent
 from superagi.models.base_model import DBBaseModel
+from superagi.models.project import Project
 
 
 class Organisation(DBBaseModel):
@@ -66,3 +68,19 @@ class Organisation(DBBaseModel):
         session.commit()
         register_toolkits(session=session, organisation=new_organisation)
         return new_organisation
+
+    @classmethod
+    def find_org_by_agent_id(cls, session, agent_id: int):
+        """
+        Finds the organization for the given agent.
+
+        Args:
+            session: The database session.
+            agent_id: The agent id.
+
+        Returns:
+            Organisation: The found organization.
+        """
+        agent = session.query(Agent).filter_by(id=agent_id).first()
+        project = session.query(Project).filter(Project.id == agent.project_id).first()
+        return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()

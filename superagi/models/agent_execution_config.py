@@ -60,7 +60,7 @@ class AgentExecutionConfiguration(DBBaseModel):
             session.commit()
 
     @classmethod
-    def fetch_configuration(cls, session, execution):
+    def fetch_configuration(cls, session, execution_id):
         """
         Fetches the execution configuration of an agent.
 
@@ -73,7 +73,7 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         """
         agent_configurations = session.query(AgentExecutionConfiguration).filter_by(
-            agent_execution_id=execution.id).all()
+            agent_execution_id=execution_id).all()
         parsed_config = {
             "goal": [],
             "instruction": [],

@@ -55,7 +55,7 @@ def test_replace_main_variables():
 
 def test__generate_command_string():
     tool = SendEmailTool(name="Mock Tool", description="This is a mock tool.")
-    result = AgentPromptBuilder._generate_command_string(tool)
+    result = AgentPromptBuilder._generate_tool_string(tool)
     expected_result = "\"Mock Tool\": This is a mock tool."
     assert (expected_result in result)
 

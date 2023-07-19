@@ -9,7 +9,7 @@ from pydantic.fields import List
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_schedule import AgentSchedule
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
