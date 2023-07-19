@@ -21,15 +21,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({
-                                      sendAgentData,
-                                      selectedProjectId,
-                                      fetchAgents,
-                                      toolkits,
-                                      organisationId,
-                                      template,
-                                      internalId
-                                    }) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -104,21 +96,21 @@ export default function AgentCreate({
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
-      .then((response) => {
-        const apiKey = response.data.value
-        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
+        .then((response) => {
+          const apiKey = response.data.value
+          setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+        })
+        .catch((error) => {
+          console.error('Error fetching project:', error);
+        });
   }, [organisationId]);
 
   const filterToolsByNames = () => {
     if (toolkitList) {
       const selectedToolIds = toolkits
-        .flatMap(toolkit => toolkit.tools)
-        .filter(tool => toolNames.includes(tool.name))
-        .map(tool => tool.id);
+          .flatMap(toolkit => toolkit.tools)
+          .filter(tool => toolNames.includes(tool.name))
+          .map(tool => tool.id);
 
       setLocalStorageArray("tool_ids_" + String(internalId), selectedToolIds, setSelectedTools);
     }
@@ -139,22 +131,22 @@ export default function AgentCreate({
       setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
 
       fetchAgentTemplateConfigLocal(template.id)
-        .then((response) => {
-          const data = response.data || [];
-          setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-          setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
-          setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
-          setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
-          setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
-          setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
-          setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
-          setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
-          setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
-          setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
-        })
-        .catch((error) => {
-          console.error('Error fetching template details:', error);
-        });
+          .then((response) => {
+            const data = response.data || [];
+            setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+            setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+            setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+            setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+            setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+            setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+            setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+            setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+            setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
+          })
+          .catch((error) => {
+            console.error('Error fetching template details:', error);
+          });
     }
   }, []);
 
@@ -421,37 +413,37 @@ export default function AgentCreate({
     }
 
     createAgent(createModal ? scheduleAgentData : agentData, createModal)
-      .then((response) => {
-        const agentId = response.data.id;
-        const name = response.data.name;
-        const executionId = response.data.execution_id;
-        fetchAgents();
+        .then((response) => {
+          const agentId = response.data.id;
+          const name = response.data.name;
+          const executionId = response.data.execution_id;
+          fetchAgents();
 
-        if (addResources && input.length > 0) {
-          const uploadPromises = input.map(fileData => {
-            return uploadResource(agentId, fileData)
-              .catch(error => {
-                console.error('Error uploading resource:', error);
-                return Promise.reject(error);
-              });
-          });
-
-          Promise.all(uploadPromises)
-            .then(() => {
-              runExecution(agentId, name, executionId, createModal);
-            })
-            .catch(error => {
-              console.error('Error uploading files:', error);
-              setCreateClickable(true);
+          if (addResources && input.length > 0) {
+            const uploadPromises = input.map(fileData => {
+              return uploadResource(agentId, fileData)
+                  .catch(error => {
+                    console.error('Error uploading resource:', error);
+                    return Promise.reject(error);
+                  });
             });
-        } else {
-          runExecution(agentId, name, executionId, createModal);
-        }
-      })
-      .catch((error) => {
-        console.error('Error creating agent:', error);
-        setCreateClickable(true);
-      });
+
+            Promise.all(uploadPromises)
+                .then(() => {
+                  runExecution(agentId, name, executionId, createModal);
+                })
+                .catch(error => {
+                  console.error('Error uploading files:', error);
+                  setCreateClickable(true);
+                });
+          } else {
+            runExecution(agentId, name, executionId, createModal);
+          }
+        })
+        .catch((error) => {
+          console.error('Error creating agent:', error);
+          setCreateClickable(true);
+        });
   };
 
   const finaliseAgentCreation = (agentId, name, executionId) => {
@@ -478,13 +470,13 @@ export default function AgentCreate({
     }
 
     updateExecution(executionId, {"status": 'RUNNING'})
-      .then((response) => {
-        finaliseAgentCreation(agentId, name, executionId);
-      })
-      .catch((error) => {
-        setCreateClickable(true);
-        console.error('Error updating execution:', error);
-      });
+        .then((response) => {
+          finaliseAgentCreation(agentId, name, executionId);
+        })
+        .catch((error) => {
+          setCreateClickable(true);
+          console.error('Error updating execution:', error);
+        });
   }
 
   const toggleToolkit = (e, id) => {
@@ -498,7 +490,7 @@ export default function AgentCreate({
 
   const setToolkitOpen = (id, isOpen) => {
     const updatedToolkits = toolkitList.map(toolkit =>
-      toolkit.id === id ? {...toolkit, isOpen: isOpen} : {...toolkit, isOpen: false}
+        toolkit.id === id ? {...toolkit, isOpen: isOpen} : {...toolkit, isOpen: false}
     );
     setToolkitList(updatedToolkits);
   };
@@ -696,7 +688,7 @@ export default function AgentCreate({
 
           <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Instructions<span
-              style={{fontSize: '9px'}}>&nbsp;(optional)</span></label></div>
+                style={{fontSize: '9px'}}>&nbsp;(optional)</span></label></div>
             {instructions?.map((goal, index) => (<div key={index} style={{
               marginBottom: '10px',
               display: 'flex',
@@ -730,10 +722,10 @@ export default function AgentCreate({
               <div>
                 {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
                   {models.map((model, index) => (
-                    <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
-                         style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {model}
-                    </div>))}
+                      <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
+                           style={{padding: '12px 14px', maxWidth: '100%'}}>
+                        {model}
+                      </div>))}
                 </div>}
               </div>
             </div>
@@ -745,11 +737,11 @@ export default function AgentCreate({
                    style={{width: '100%', alignItems: 'flex-start'}}>
                 {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
                   {toolNames.map((tool, index) => (
-                    <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
-                      <div className={styles.tool_text}>{tool}</div>
-                      <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon"
-                                  style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
-                    </div>))}
+                      <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
+                        <div className={styles.tool_text}>{tool}</div>
+                        <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon"
+                                    style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
+                      </div>))}
                   <input type="text" className="dropdown_search_text" value={searchValue}
                          onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)}
                          onClick={(e) => e.stopPropagation()}/>
@@ -765,43 +757,43 @@ export default function AgentCreate({
               <div>
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width: '100%'}}>
                   {toolkitList && toolkitList.filter((toolkit) => toolkit.tools ? toolkit.tools.some((tool) => tool.name.toLowerCase().includes(searchValue.toLowerCase())) : false).map((toolkit, index) => (
-                    <div key={index}>
-                      {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
-                        <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{
-                          padding: '10px 14px',
-                          maxWidth: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between'
-                        }}>
-                          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
-                            <div onClick={(e) => toggleToolkit(e, toolkit.id)}
-                                 style={{marginLeft: '-8px', marginRight: '8px'}}>
-                              <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"}
-                                     width={11} height={11} alt="expand-arrow"/>
-                            </div>
-                            <div style={{width: '100%'}}>{toolkit.name}</div>
-                          </div>
-                          {checkSelectedToolkit(toolkit) && <div style={{order: '1', marginLeft: '10px'}}>
-                            <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
-                          </div>}
-                        </div>
-                        {toolkit.isOpen && toolkit.tools.filter((tool) => tool.name ? tool.name.toLowerCase().includes(searchValue.toLowerCase()) : true).map((tool, index) => (
-                          <div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{
-                            padding: '10px 14px 10px 40px',
+                      <div key={index}>
+                        {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
+                          <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{
+                            padding: '10px 14px',
                             maxWidth: '100%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between'
                           }}>
-                            <div>{tool.name}</div>
-                            {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) &&
-                              <div style={{order: '1', marginLeft: '10px'}}>
-                                <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
-                              </div>}
-                          </div>))}
-                      </div>}
-                    </div>))}
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
+                              <div onClick={(e) => toggleToolkit(e, toolkit.id)}
+                                   style={{marginLeft: '-8px', marginRight: '8px'}}>
+                                <Image src={toolkit.isOpen ? "/images/arrow_down.svg" : "/images/arrow_forward.svg"}
+                                       width={11} height={11} alt="expand-arrow"/>
+                              </div>
+                              <div style={{width: '100%'}}>{toolkit.name}</div>
+                            </div>
+                            {checkSelectedToolkit(toolkit) && <div style={{order: '1', marginLeft: '10px'}}>
+                              <Image src="/images/tick.svg" width={17} height={17} alt="selected-toolkit"/>
+                            </div>}
+                          </div>
+                          {toolkit.isOpen && toolkit.tools.filter((tool) => tool.name ? tool.name.toLowerCase().includes(searchValue.toLowerCase()) : true).map((tool, index) => (
+                              <div key={index} className="custom_select_option" onClick={() => addTool(tool)} style={{
+                                padding: '10px 14px 10px 40px',
+                                maxWidth: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                              }}>
+                                <div>{tool.name}</div>
+                                {(selectedTools.includes(tool.id) || toolNames.includes(tool.name)) &&
+                                    <div style={{order: '1', marginLeft: '10px'}}>
+                                      <Image src="/images/tick.svg" width={17} height={17} alt="selected-tool"/>
+                                    </div>}
+                              </div>))}
+                        </div>}
+                      </div>))}
                 </div>}
               </div>
             </div>
@@ -811,175 +803,175 @@ export default function AgentCreate({
                     onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)}
                     style={advancedOptions ? {background: '#494856'} : {}}>
               {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ?
-              <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_up.svg"
-                     alt="expand-icon"/> :
-              <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_down.svg"
-                     alt="expand-icon"/>}
+                <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_up.svg"
+                       alt="expand-icon"/> :
+                <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_down.svg"
+                       alt="expand-icon"/>}
             </button>
           </div>
           {advancedOptions &&
-            <div>
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Agent Type</label><br/>
-                <div className="dropdown_container_search" style={{width: '100%'}}>
-                  <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
-                       style={{width: '100%'}}>
-                    {agentType}<Image width={20} height={21}
-                                      src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
-                                      alt="expand-icon"/>
-                  </div>
-                  <div>
-                    {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width: '100%'}}>
-                      {agentTypes.map((agent, index) => (
-                        <div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)}
-                             style={{padding: '12px 14px', maxWidth: '100%'}}>
-                          {agent}
-                        </div>))}
-                    </div>}
-                  </div>
-                </div>
-              </div>
-              <div style={{marginTop: '15px'}}>
-                <div style={{display: 'flex'}}>
-                  <input className="checkbox" type="checkbox" checked={addResources}
-                         onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}/>
-                  <label className={styles.form_label} style={{marginLeft: '7px', cursor: 'pointer'}}
-                         onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
-                    Add Resources
-                  </label>
-                </div>
-              </div>
-              <div style={{width: '100%', height: 'auto', marginTop: '10px'}}>
-                {addResources && <div style={{paddingBottom: '10px'}}>
-                  <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter}
-                       onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
-                       onClick={handleDropAreaClick}>
-                    <div><p style={{textAlign: 'center', color: 'white', fontSize: '14px'}}>+ Choose or drop a file
-                      here</p>
-                      <p style={{textAlign: 'center', color: '#888888', fontSize: '12px'}}>Supported file formats are
-                        txt, pdf, docx, epub, csv, pptx only</p>
-                      <input type="file" ref={fileInputRef} style={{display: 'none'}} onChange={handleFileInputChange}/>
+              <div>
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Agent Type</label><br/>
+                  <div className="dropdown_container_search" style={{width: '100%'}}>
+                    <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
+                         style={{width: '100%'}}>
+                      {agentType}<Image width={20} height={21}
+                                        src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                        alt="expand-icon"/>
+                    </div>
+                    <div>
+                      {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width: '100%'}}>
+                        {agentTypes.map((agent, index) => (
+                            <div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)}
+                                 style={{padding: '12px 14px', maxWidth: '100%'}}>
+                              {agent}
+                            </div>))}
+                      </div>}
                     </div>
                   </div>
-                  <div className={styles.agent_resources}>
-                    {input.map((file, index) => (
-                      <div key={index} className={styles.history_box}
-                           style={{background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default'}}>
-                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
-                          <div><Image width={28} height={46} src={returnResourceIcon(file)} alt="pdf-icon"/></div>
-                          <div style={{marginLeft: '5px', width: '100%'}}>
-                            <div style={{fontSize: '11px'}} className={styles.single_line_block}>{file.name}</div>
-                            <div style={{
-                              color: '#888888',
-                              fontSize: '9px'
-                            }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
-                          </div>
-                          <div style={{cursor: 'pointer'}} onClick={() => removeFile(index)}><Image width={20}
-                                                                                                    height={20}
-                                                                                                    src='/images/close_light.svg'
-                                                                                                    alt="close-icon"/>
-                          </div>
-                        </div>
+                </div>
+                <div style={{marginTop: '15px'}}>
+                  <div style={{display: 'flex'}}>
+                    <input className="checkbox" type="checkbox" checked={addResources}
+                           onChange={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}/>
+                    <label className={styles.form_label} style={{marginLeft: '7px', cursor: 'pointer'}}
+                           onClick={() => setLocalStorageValue("has_resource_" + String(internalId), !addResources, setAddResources)}>
+                      Add Resources
+                    </label>
+                  </div>
+                </div>
+                <div style={{width: '100%', height: 'auto', marginTop: '10px'}}>
+                  {addResources && <div style={{paddingBottom: '10px'}}>
+                    <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter}
+                         onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
+                         onClick={handleDropAreaClick}>
+                      <div><p style={{textAlign: 'center', color: 'white', fontSize: '14px'}}>+ Choose or drop a file
+                        here</p>
+                        <p style={{textAlign: 'center', color: '#888888', fontSize: '12px'}}>Supported file formats are
+                          txt, pdf, docx, epub, csv, pptx only</p>
+                        <input type="file" ref={fileInputRef} style={{display: 'none'}} onChange={handleFileInputChange}/>
                       </div>
-                    ))}
-                  </div>
-                </div>}
-              </div>
-              <div style={{marginTop: '5px'}}>
-                <div><label className={styles.form_label}>Constraints</label></div>
-                {constraints.map((constraint, index) => (<div key={index} style={{
-                  marginBottom: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}>
-                  <div style={{flex: '1'}}><input className="input_medium" type="text" value={constraint}
-                                                  onChange={(event) => handleConstraintChange(index, event.target.value)}/>
-                  </div>
+                    </div>
+                    <div className={styles.agent_resources}>
+                      {input.map((file, index) => (
+                          <div key={index} className={styles.history_box}
+                               style={{background: '#272335', padding: '0px 10px', width: '100%', cursor: 'default'}}>
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
+                              <div><Image width={28} height={46} src={returnResourceIcon(file)} alt="pdf-icon"/></div>
+                              <div style={{marginLeft: '5px', width: '100%'}}>
+                                <div style={{fontSize: '11px'}} className={styles.single_line_block}>{file.name}</div>
+                                <div style={{
+                                  color: '#888888',
+                                  fontSize: '9px'
+                                }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+                              </div>
+                              <div style={{cursor: 'pointer'}} onClick={() => removeFile(index)}><Image width={20}
+                                                                                                        height={20}
+                                                                                                        src='/images/close_light.svg'
+                                                                                                        alt="close-icon"/>
+                              </div>
+                            </div>
+                          </div>
+                      ))}
+                    </div>
+                  </div>}
+                </div>
+                <div style={{marginTop: '5px'}}>
+                  <div><label className={styles.form_label}>Constraints</label></div>
+                  {constraints.map((constraint, index) => (<div key={index} style={{
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <div style={{flex: '1'}}><input className="input_medium" type="text" value={constraint}
+                                                    onChange={(event) => handleConstraintChange(index, event.target.value)}/>
+                    </div>
+                    <div>
+                      <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
+                              onClick={() => handleConstraintDelete(index)}>
+                        <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                      </button>
+                    </div>
+                  </div>))}
                   <div>
-                    <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
-                            onClick={() => handleConstraintDelete(index)}>
-                      <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
-                    </button>
+                    <button className="secondary_button" onClick={addConstraint}>+ Add</button>
                   </div>
-                </div>))}
-                <div>
-                  <button className="secondary_button" onClick={addConstraint}>+ Add</button>
                 </div>
-              </div>
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Max iterations</label>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <input style={{width: '90%'}} type="range" min={5} max={100} value={maxIterations}
-                         onChange={handleIterationChange}/>
-                  <input style={{width: '9%', order: '1', textAlign: 'center', paddingLeft: '0', paddingRight: '0'}}
-                         disabled={true} className="input_medium" type="text" value={maxIterations}/>
-                </div>
-              </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Exit criterion</label>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
-              {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
-              {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {exit}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Time between steps (in milliseconds)</label>
-                <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
-              </div>
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <div style={{display:'flex'}}>*/}
-              {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
-              {/*    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>*/}
-              {/*      Long term memory*/}
-              {/*    </label>*/}
-              {/*  </div>*/}
-              {/*</div>*/}
-              {/*{longTermMemory === true && <div style={{marginTop: '10px'}}>*/}
-              {/*  <label className={styles.form_label}>Choose an LTM database</label>*/}
-              {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
-              {/*    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>*/}
-              {/*      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
-              {/*    </div>*/}
-              {/*    <div>*/}
-              {/*      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>*/}
-              {/*        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
-              {/*          {data}*/}
-              {/*        </div>))}*/}
-              {/*      </div>}*/}
-              {/*    </div>*/}
-              {/*  </div>*/}
-              {/*</div>}*/}
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Permission Type</label>
-                <div className="dropdown_container_search" style={{width: '100%'}}>
-                  <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)}
-                       style={{width: '100%'}}>
-                    {permission}<Image width={20} height={21}
-                                       src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
-                                       alt="expand-icon"/>
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Max iterations</label>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <input style={{width: '90%'}} type="range" min={5} max={100} value={maxIterations}
+                           onChange={handleIterationChange}/>
+                    <input style={{width: '9%', order: '1', textAlign: 'center', paddingLeft: '0', paddingRight: '0'}}
+                           disabled={true} className="input_medium" type="text" value={maxIterations}/>
                   </div>
-                  <div className="mb_34">
-                    {permissionDropdown &&
-                      <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
-                        {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
-                                                                  onClick={() => handlePermissionSelect(index)}
-                                                                  style={{padding: '12px 14px', maxWidth: '100%'}}>
-                          {permit}
-                        </div>))}
-                      </div>}
+                </div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <label className={styles.form_label}>Exit criterion</label>*/}
+                {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+                {/*    <div className="custom_select_container" onClick={() => setExitDropdown(!exitDropdown)} style={{width:'100%'}}>*/}
+                {/*      {exitCriterion}<Image width={20} height={21} src={!exitDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+                {/*    </div>*/}
+                {/*    <div>*/}
+                {/*      {exitDropdown && <div className="custom_select_options" ref={exitRef} style={{width:'100%'}}>*/}
+                {/*        {exitCriteria.map((exit, index) => (<div key={index} className="custom_select_option" onClick={() => handleExitSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+                {/*          {exit}*/}
+                {/*        </div>))}*/}
+                {/*      </div>}*/}
+                {/*    </div>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Time between steps (in milliseconds)</label>
+                  <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
+                </div>
+                {/*<div style={{marginTop: '15px'}}>*/}
+                {/*  <div style={{display:'flex'}}>*/}
+                {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
+                {/*    <label className={styles.form_label} style={{marginLeft:'7px',cursor:'pointer'}} onClick={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)}>*/}
+                {/*      Long term memory*/}
+                {/*    </label>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
+                {/*{longTermMemory === true && <div style={{marginTop: '10px'}}>*/}
+                {/*  <label className={styles.form_label}>Choose an LTM database</label>*/}
+                {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
+                {/*    <div className="custom_select_container" onClick={() => setDatabaseDropdown(!databaseDropdown)} style={{width:'100%'}}>*/}
+                {/*      {database}<Image width={20} height={21} src={!databaseDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>*/}
+                {/*    </div>*/}
+                {/*    <div>*/}
+                {/*      {databaseDropdown && <div className="custom_select_options" ref={databaseRef} style={{width:'100%'}}>*/}
+                {/*        {databases.map((data, index) => (<div key={index} className="custom_select_option" onClick={() => handleDatabaseSelect(index)} style={{padding:'12px 14px',maxWidth:'100%'}}>*/}
+                {/*          {data}*/}
+                {/*        </div>))}*/}
+                {/*      </div>}*/}
+                {/*    </div>*/}
+                {/*  </div>*/}
+                {/*</div>}*/}
+                <div style={{marginTop: '15px'}}>
+                  <label className={styles.form_label}>Permission Type</label>
+                  <div className="dropdown_container_search" style={{width: '100%'}}>
+                    <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)}
+                         style={{width: '100%'}}>
+                      {permission}<Image width={20} height={21}
+                                         src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                         alt="expand-icon"/>
+                    </div>
+                    <div className="mb_34">
+                      {permissionDropdown &&
+                          <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
+                            {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
+                                                                      onClick={() => handlePermissionSelect(index)}
+                                                                      style={{padding: '12px 14px', maxWidth: '100%'}}>
+                              {permit}
+                            </div>))}
+                          </div>}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
           }
 
           <div style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
@@ -987,23 +979,7 @@ export default function AgentCreate({
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="custom_select_option" style={{
-                background: '#3B3B49',
-                borderRadius: '8px',
-                position: 'absolute',
-                top: '-40px',
-                right: '0',
-                zIndex: '1',
-                boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)',
-                height: '40px',
-                width: '150px',
-                paddingTop: '10px',
-                textAlign: 'center'
-              }}
-                                       onClick={() => {
-                                         setCreateModal(true);
-                                         setCreateDropdown(false);
-                                       }}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
@@ -1020,7 +996,7 @@ export default function AgentCreate({
           </div>
 
           {createModal && (
-            <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
+              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
 
         </div>
