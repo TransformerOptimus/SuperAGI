@@ -284,8 +284,11 @@ def add_tool_to_json(repo_link):
 
 
 def handle_tools_import():
+    print("Handling tools import")
     tool_paths = ["superagi/tools", "superagi/tools/marketplace_tools", "superagi/tools/external_tools"]
     for tool_path in tool_paths:
+        if not os.path.exists(tool_path):
+            continue
         for folder_name in os.listdir(tool_path):
             folder_dir = os.path.join(tool_path, folder_name)
             if os.path.isdir(folder_dir):
