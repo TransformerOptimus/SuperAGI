@@ -20,13 +20,13 @@ export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
   const singularUnits = ['year', 'month', 'day', 'hour', 'minute'];
 
-  for (let i = 0; i < units.length; i++) {
-    const unit = units[i];
+  for (let index = 0; index < units.length; index++) {
+    const unit = units[index];
     if (timeDifference[unit] !== 0) {
       if (unit === 'minutes') {
-        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[index] : unit} ago`;
       } else {
-        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[index] : unit} ago`;
       }
     }
   }
