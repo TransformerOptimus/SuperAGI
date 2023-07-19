@@ -230,7 +230,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   function fetchAgentScheduleComponent() {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       getDateTime(agentId)
         .then((response) => {
           setAgentScheduleDetails(response.data)
@@ -362,7 +362,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                   updateRunStatus("TERMINATED")
                 }}>Delete Run</li>}
 
-                {agent && agent.is_scheduled ? (<div>
+                {agent?.is_scheduled ? (<div>
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
