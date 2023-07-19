@@ -14,6 +14,7 @@ import {
   getValidMarketplaceIndices,
   installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
+import {loadingTextEffect} from "@/utils/utils";
 
 export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('');
@@ -24,8 +25,10 @@ export default function KnowledgeTemplate({template, env}) {
   const [indexDropdown, setIndexDropdown] = useState(false);
   const [pinconeIndices, setPineconeIndices] = useState([]);
   const [qdrantIndices, setQdrantIndices] = useState([]);
+  const [loadingText, setLoadingText] = useState("Installing");
 
   useEffect(() => {
+    loadingTextEffect('Installing', setLoadingText, 500);
     getValidMarketplaceIndices(template.name)
       .then((response) => {
         const data = response.data || [];
@@ -107,14 +110,14 @@ export default function KnowledgeTemplate({template, env}) {
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
         if(response.data.success) {
-          toast.success("Template installed", {autoClose: 1800});
+          toast.success("Knowledge installed", {autoClose: 1800});
           setInstalled('Installed');
         }
         else
-          toast.error("Error installing template: ", {autoClose: 1800});
+          toast.error("Error installing Knowledge: ", {autoClose: 1800});
       })
       .catch((error) => {
-        console.error('Error installing template:', error);
+        console.error('Error installing Knowledge:', error);
       });
   }
 
@@ -169,12 +172,12 @@ export default function KnowledgeTemplate({template, env}) {
               <span style={{fontSize: '12px', marginTop: '15px',}}
                     className={styles.tool_publisher}>by {templateData?.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
                 width={14} height={14} src="/images/upload_icon.svg"
-                alt="upload-icon"/>{templateData?.install_number || 0}</span>
+                alt="upload-icon" style={{marginBottom:'1px'}} />&nbsp;{'\u00B7'}&nbsp;{templateData?.install_number || 0}</span>
 
               {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
                 <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
                      style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
-                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed}
+                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed !== 'Installing' ? <span>{installed}</span> : <span>{loadingText}</span>}
                 </div>
                 <div>
                   {indexDropdown &&
@@ -252,7 +255,7 @@ export default function KnowledgeTemplate({template, env}) {
 
               <hr className={styles2.horizontal_line}/>
 
-              <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>
+              <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model</span>
               <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.model}</div>
               </div>
