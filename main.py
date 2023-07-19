@@ -44,6 +44,7 @@ from superagi.controllers.agent_execution_config import router as agent_executio
 from superagi.controllers.analytics import router as analytics_router
 from superagi.helper.tool_helper import register_toolkits
 from superagi.lib.logger import logger
+from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
 from superagi.helper.auth import get_current_user
 from superagi.models.agent_workflow import AgentWorkflow
@@ -53,6 +54,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
+from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
 from superagi.models.user import User
 
 app = FastAPI()
@@ -424,6 +426,22 @@ async def root(Authorize: AuthJWT = Depends()):
         return current_user
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+
+@app.post("/validate-llm-api-key")
+async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJWT = Depends()):
+    """API to validate LLM API Key"""
+    source = request.model_source
+    api_key = request.model_api_key
+    valid_api_key = False
+    if source == "OpenAi":
+        valid_api_key = OpenAi(api_key=api_key).verify_access_key()
+    elif source == "Google Palm":
+        valid_api_key = GooglePalm(api_key=api_key).verify_access_key()
+    if valid_api_key:
+        return {"message": "Valid API Key", "status": "success"}
+    else:
+        return {"message": "Invalid API Key", "status": "failed"}
 
 
 @app.get("/validate-open-ai-key/{open_ai_key}")

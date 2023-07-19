@@ -18,6 +18,8 @@ class ModelFactory:
 
 factory = ModelFactory()
 factory.register_format("gpt-4", lambda **kwargs: OpenAi(model="gpt-4", **kwargs))
+factory.register_format("gpt-4-32k", lambda **kwargs: OpenAi(model="gpt-4-32k", **kwargs))
+factory.register_format("gpt-3.5-turbo-16k", lambda **kwargs: OpenAi(model="gpt-3.5-turbo-16k", **kwargs))
 factory.register_format("gpt-3.5-turbo", lambda **kwargs: OpenAi(model="gpt-3.5-turbo", **kwargs))
 factory.register_format("google-palm-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
 

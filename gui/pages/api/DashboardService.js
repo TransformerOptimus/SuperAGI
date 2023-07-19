@@ -80,6 +80,9 @@ export const validateAccessToken = () => {
   return api.get(`/validate-access-token`);
 }
 
+export const validateLLMApiKey = (model_source, model_api_key) => {
+  return api.post(`/validate-llm-api-key`,{model_source, model_api_key});
+}
 export const checkEnvironment = () => {
   return api.get(`/configs/get/env`);
 }
