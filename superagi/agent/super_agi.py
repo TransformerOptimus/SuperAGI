@@ -210,7 +210,7 @@ class SuperAgi:
     def handle_tool_response(self, session, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
-        action_name = action.name.lower().replace(" ", "")
+        action_name = action.name.lower().replace(" ", "") if action is not None else ""
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
         organisation = agent.get_agent_organisation(session)
         if action_name == FINISH or action.name == "":
@@ -298,7 +298,8 @@ class SuperAgi:
 
         excluded_tools = [FINISH, '', None]
 
-        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
+        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action is not None and \
+                action.name not in excluded_tools and \
                 tools.get(action.name) and tools[action.name].permission_required:
             new_agent_execution_permission = AgentExecutionPermission(
                 agent_execution_id=self.agent_config["agent_execution_id"],
