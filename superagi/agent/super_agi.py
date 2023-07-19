@@ -298,7 +298,8 @@ class SuperAgi:
 
         excluded_tools = [FINISH, '', None]
 
-        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
+        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action is not None and \
+                action.name not in excluded_tools and \
                 tools.get(action.name) and tools[action.name].permission_required:
             new_agent_execution_permission = AgentExecutionPermission(
                 agent_execution_id=self.agent_config["agent_execution_id"],
