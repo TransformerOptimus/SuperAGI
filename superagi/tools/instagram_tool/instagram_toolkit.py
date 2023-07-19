@@ -2,13 +2,14 @@ from abc import ABC
 from typing import List
 from superagi.tools.base_tool import BaseTool, BaseToolkit
 from superagi.tools.instagram_tool.instagram import InstagramTool
+from superagi.tools.image_generation.stable_diffusion_image_gen import StableDiffusionImageGenTool
 
 class InstagramToolkit(BaseToolkit, ABC):
     name: str = "Instagram Toolkit"
-    description: str = "Toolkit containing tools for performing posting photos on Instagram"
+    description: str = "Toolkit containing tools for posting AI generated photos on Instagram"
 
     def get_tools(self) -> List[BaseTool]:
-        return [InstagramTool()]
+        return [InstagramTool(),StableDiffusionImageGenTool()]
 
     def get_env_keys(self) -> List[str]:
         return [
