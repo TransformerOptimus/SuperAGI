@@ -368,11 +368,11 @@ export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents
       return false;
     }
   
-    if (agentName && agentName.replace(/\s/g, '') === '') {
+    if (agentName.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
       return false;
     }
-    if (agentDescription && agentDescription.replace(/\s/g, '') === '') {
+    if (agentDescription.replace(/\s/g, '') === '') {
       toast.error("Agent description can't be blank", {autoClose: 1800});
       return false;
     }

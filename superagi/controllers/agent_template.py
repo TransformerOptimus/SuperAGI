@@ -145,9 +145,9 @@ def update_agent_template(agent_template_id: int,
 
     return db_agent_template
 
-@router.put("/edit_agent_template/{agent_template_id}", status_code=200)
+@router.put("/update_agent_template/{agent_template_id}", status_code=200)
 def edit_agent_template(agent_template_id: int,
-                        edited_agent_configs: dict,
+                        updated_agent_configs: dict,
                         organisation=Depends(get_user_organisation)):
     
     """
@@ -170,12 +170,12 @@ def edit_agent_template(agent_template_id: int,
     if db_agent_template is None:
         raise HTTPException(status_code=404, detail="Agent Template not found")
     
-    db_agent_template.name = edited_agent_configs["name"]
-    db_agent_template.description = edited_agent_configs["description"]
+    db_agent_template.name = updated_agent_configs["name"]
+    db_agent_template.description = updated_agent_configs["description"]
 
     db.session.commit()
 
-    agent_config_values = edited_agent_configs.get('agent_configs', {})
+    agent_config_values = updated_agent_configs.get('agent_configs', {})
 
     for key, value in agent_config_values.items():
         if isinstance(value, (list, dict)):

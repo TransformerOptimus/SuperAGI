@@ -48,7 +48,7 @@ def test_edit_agent_template_success(mock_get_user_org, mock_auth_db, mock_db):
 
 
     # Call the endpoint
-    response = client.put("agent_templates/edit_agent_template/1", json=mock_edited_agent_configs)
+    response = client.put("agent_templates/update_agent_template/1", json=mock_edited_agent_configs)
 
     assert response.status_code == 200
         
@@ -76,7 +76,7 @@ def test_edit_agent_template_failure(mock_get_user_org, mock_auth_db, mock_db):
     mock_db.session.query.return_value.filter.return_value.first.return_value = None
 
     # Call the endpoint
-    response = client.put("agent_templates/edit_agent_template/1", json={})
+    response = client.put("agent_templates/update_agent_template/1", json={})
 
     # Verify: The response status code should be 404, indicating that the agent template was not found.
     assert response.status_code == 404
