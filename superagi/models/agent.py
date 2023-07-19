@@ -150,6 +150,8 @@ class Agent(DBBaseModel):
 
         db.session.commit()
 
+        print("////////////////////////")
+        print(agent_with_config)
         # Create Agent Configuration
         agent_config_values = {
             "goal": agent_with_config.goal,
@@ -163,7 +165,8 @@ class Agent(DBBaseModel):
             "permission_type": agent_with_config.permission_type,
             "LTM_DB": agent_with_config.LTM_DB,
             "max_iterations": agent_with_config.max_iterations,
-            "user_timezone": agent_with_config.user_timezone
+            "user_timezone": agent_with_config.user_timezone,
+            "knowledge": agent_with_config.knowledge,
         }
 
         agent_configurations = [
