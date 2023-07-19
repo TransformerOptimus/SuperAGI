@@ -121,6 +121,8 @@ def load_module_from_file(file_path):
 def init_tools(folder_paths, session, tool_name_to_toolkit):
     # Iterate over all subfolders
     for folder_path in folder_paths:
+        if not os.path.exists(folder_path):
+            continue
         for folder_name in os.listdir(folder_path):
             folder_dir = os.path.join(folder_path, folder_name)
             # Iterate over all files in the subfolder
@@ -153,6 +155,8 @@ def init_toolkits(code_link, existing_toolkits, folder_paths, organisation, sess
     new_toolkits = []
     # Iterate over all subfolders
     for folder_path in folder_paths:
+        if not os.path.exists(folder_path):
+            continue
         for folder_name in os.listdir(folder_path):
             folder_dir = os.path.join(folder_path, folder_name)
 
@@ -242,11 +246,18 @@ def get_readme_content_from_code_link(tool_code_link):
 
 
 def register_toolkits(session, organisation):
-    tool_paths = ["superagi/tools", "superagi/tools/marketplace_tools", "superagi/tools/external_tools"]
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools"]
+    # if get_config("ENV", "DEV") == "PROD":
+    #     tool_paths.append("superagi/tools/marketplace_tools")
     if organisation is not None:
         process_files(tool_paths, session, organisation)
         logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
+def register_marketplace_toolkits(session, organisation):
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools","superagi/tools/marketplace_tools"]
+    if organisation is not None:
+        process_files(tool_paths, session, organisation)
+        logger.info(f"Marketplace Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
 def extract_repo_name(repo_link):
     # Extract the repository name from the link
