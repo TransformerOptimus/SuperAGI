@@ -415,7 +415,7 @@ input[type="range"]::-moz-range-track {
     background-color: transparent;
 }
 
-.custom_select_option {
+.custom_select_option, .create_agent_dropdown_options {
     cursor: pointer;
     font-size: 12px;
     color: white;
@@ -427,14 +427,27 @@ input[type="range"]::-moz-range-track {
     text-overflow: ellipsis;
 }
 
-.custom_select_option:hover {
+.custom_select_option:hover, .create_agent_dropdown_options:hover {
     background: #3B3B49;
     border-radius: 8px;
 }
 
-.custom_select_option:active {
+.custom_select_option:active, .create_agent_dropdown_options:active {
     background: #3B3B49;
     border-radius: 8px;
+}
+
+.create_agent_dropdown_options{
+    background: #3B3B49;
+    border-radius: 8px;
+    position: absolute;
+    top: -40px;
+    right: 0;
+    box-shadow: 0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22);
+    height: 40px;
+    width: 150px;
+    padding-top: 10px;
+    text-align: center;
 }
 
 @keyframes scale-in {
