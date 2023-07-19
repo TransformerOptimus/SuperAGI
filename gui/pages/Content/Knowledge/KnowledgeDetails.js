@@ -47,7 +47,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
-          if(response.success) {
+          if(response.data.success) {
             toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
             removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
             EventBus.emit('reFetchKnowledge', {});

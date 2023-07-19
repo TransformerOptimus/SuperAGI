@@ -28,6 +28,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const [qdrantApiKey, setQdrantApiKey] = useState('');
   const [qdrantURL, setQdrantURL] = useState('');
   const [qdrantPort, setQdrantPort] = useState(8001);
+  const [connectText, setConnectText] = useState('Connect');
 
   useEffect(() => {
     const active_view = localStorage.getItem('add_database_tab_' + String(internalId));
@@ -128,10 +129,10 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     if (!data) {
       return;
     }
-    console.log(data)
 
     if (data.success) {
       toast.success("Database connected successfully", {autoClose: 1800});
+      setConnectText("Connected")
       sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
     } else {
       toast.error(data.message, {autoClose: 1800});
@@ -154,7 +155,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         toast.error("Pinecone environment is empty", {autoClose: 1800});
         return;
       }
-
+      setConnectText("Connecting")
       const pineconeData = {
         "name": databaseName,
         "collections": collections,
@@ -187,7 +188,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         toast.error("Qdrant port can't be blank", {autoClose: 1800});
         return;
       }
-
+      setConnectText("Connecting")
       const qdrantData = {
         "name": databaseName,
         "collections": collections,
@@ -325,7 +326,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
               Cancel
             </button>
             <button className="primary_button" onClick={connectDatabase}>
-              Connect
+              {connectText}{connectText === "Connecting" && <span class="loader ml_10"></span>}
             </button>
           </div>
         </div>}

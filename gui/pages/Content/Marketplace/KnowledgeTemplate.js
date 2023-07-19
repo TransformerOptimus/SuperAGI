@@ -106,7 +106,7 @@ export default function KnowledgeTemplate({template, env}) {
       toast.error("Template is already installed", {autoClose: 1800});
       return;
     }
-
+    setIndexDropdown(false)
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
         if(response.data.success) {
@@ -177,7 +177,7 @@ export default function KnowledgeTemplate({template, env}) {
               {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
                 <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
                      style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
-                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;{installed !== 'Installing' ? <span>{installed}</span> : <span>{loadingText}</span>}
+                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;<span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
                 </div>
                 <div>
                   {indexDropdown &&
