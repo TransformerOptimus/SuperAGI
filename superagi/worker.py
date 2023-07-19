@@ -61,7 +61,7 @@ def summarize_resource(agent_id: int, resource_id: int):
     Session = sessionmaker(bind=engine)
     session = Session()
     model_source = Configuration.fetch_value_by_agent_id(session, agent_id, "model_source") or "OpenAi"
-    if ModelSourceType.GooglePalm.value in model_source:
+    if ModelSourceType.GooglePalm.value in model_source or ModelSourceType.Replicate.value in model_source:
         return
 
     resource = session.query(Resource).filter(Resource.id == resource_id).first()

@@ -54,7 +54,7 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
+  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001', 'replicate-llama13b-v2-chat']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -259,7 +259,7 @@ export default function AgentCreate({
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
-    if (models[index] === "google-palm-bison-001") {
+    if (models[index] === "google-palm-bison-001" || models[index] === "replicate-llama13b-v2-chat") {
       setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);

@@ -45,6 +45,27 @@ class JsonCleaner:
         return input_str
 
     @classmethod
+    def extract_square_json_section(cls, input_str: str = ""):
+        """
+        Extract the json section from the given string.
+
+        Args:
+            input_str (str): The string from which the json section is to be extracted.
+
+        Returns:
+            str: The extracted json section.
+        """
+        try:
+            first_brace_index = input_str.index("[")
+            final_json = input_str[first_brace_index:]
+            last_brace_index = final_json.rindex("]")
+            final_json = final_json[: last_brace_index + 1]
+            return final_json
+        except ValueError:
+            pass
+        return input_str
+
+    @classmethod
     def remove_escape_sequences(cls, string):
         """
         Remove escape sequences from the given string.
