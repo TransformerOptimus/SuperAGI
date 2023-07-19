@@ -132,6 +132,27 @@ def create_access_token(email, Authorize: AuthJWT = Depends()):
     return access_token
 
 
+def create_refresh_token(email, Authorize: AuthJWT = Depends()):
+    expiry_time_days = 30
+    expires = timedelta(days=expiry_time_days)
+    return Authorize.create_refresh_token(subject=email, expires_time=expires)
+
+
+@app.get('/refresh-access-token')
+def refresh_access_token(Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Invalid refresh token")
+
+    user_email = Authorize.get_jwt_subject()
+
+    expiry_time_hours = 1
+    expires = timedelta(hours=expiry_time_hours)
+    return Authorize.create_access_token(subject=user_email, expires_time=expires)
+
+
 # callback to get your configuration
 @AuthJWT.load_config
 def get_config():
@@ -339,7 +360,8 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 
     # subject identifier for who this token is for example id or username from database
     access_token = create_access_token(user.email, Authorize)
-    return {"access_token": access_token}
+    refresh_token = create_refresh_token(user.email, Authorize)
+    return {"access_token": access_token, "refresh_token": refresh_token}
 
 
 # def get_jwt_from_payload(user_email: str,Authorize: AuthJWT = Depends()):
@@ -388,15 +410,18 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
             db_user: User = db.session.query(User).filter(User.email == user_email).first()
             if db_user is not None:
                 jwt_token = create_access_token(user_email, Authorize)
-                redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+                jwt_refresh_token = create_refresh_token(user_email, Authorize)
+                print("jwt_refresh_token: ", jwt_refresh_token)
+                redirect_url_success = f"{frontend_url}?access_token={jwt_token}?refresh_token={jwt_refresh_token}"
                 return RedirectResponse(url=redirect_url_success)
 
             user = User(name=user_data["name"], email=user_email)
             db.session.add(user)
             db.session.commit()
             jwt_token = create_access_token(user_email, Authorize)
-
-            redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+            jwt_refresh_token = create_refresh_token(user_email, Authorize)
+            print("jwt_refresh_token: ", jwt_refresh_token)
+            redirect_url_success = f"{frontend_url}?access_token={jwt_token}?refresh_token={jwt_refresh_token}"
             return RedirectResponse(url=redirect_url_success)
         else:
             redirect_url_failure = "https://superagi.com/"
