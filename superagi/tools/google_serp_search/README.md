@@ -22,7 +22,8 @@ Set up the SuperAGI by following the instructions given (https://github.com/Tran
 
 2. Your Private API Key would be made. Copy that and save it in a separate text file.
 
-![image](https://github.com/Phoenix2809/SuperAGI/assets/133874957/2f22f1ca-4ea0-474c-99ba-d79fc1d6e372)
+![Serper_Key](https://github.com/Phoenix2809/SuperAGI/assets/133874957/dfe70b4f-11e2-483b-aa33-07b15150103d)
+
 
 3. Open up the Google SERP Toolkit page in SuperAGI's Dashboard and paste your Private API Key. 
 
