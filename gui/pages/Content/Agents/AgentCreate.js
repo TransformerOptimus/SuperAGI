@@ -22,15 +22,8 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({
-                                      sendAgentData,
-                                      selectedProjectId,
-                                      fetchAgents,
-                                      toolkits,
-                                      organisationId,
-                                      template,
-                                      internalId
-                                    }) {
+export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents,toolkits,organisationId,template,internalId}) {
+
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentTemplateId, setAgentTemplateId] = useState(null);
@@ -370,11 +363,11 @@ export default function AgentCreate({
       return false;
     }
   
-    if (agentName.replace(/\s/g, '') === '') {
+    if (agentName && agentName.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
       return false;
     }
-    if (agentDescription.replace(/\s/g, '') === '') {
+    if (agentDescription && agentDescription.replace(/\s/g, '') === '') {
       toast.error("Agent description can't be blank", {autoClose: 1800});
       return false;
     }
