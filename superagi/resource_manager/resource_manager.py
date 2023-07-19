@@ -31,9 +31,9 @@ class ResourceManager:
         """
         if file_path is None:
             raise Exception("file_path must be provided")
-        documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
-
-        return documents
+        if os.path.exists(file_path):
+            documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
+            return documents
 
     def create_llama_document_s3(self, file_path: str):
         """

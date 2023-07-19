@@ -75,7 +75,7 @@ class GooglePalm(BaseLlm):
             return {"response": completion, "content": completion.result}
         except Exception as exception:
             logger.info("Google palm Exception:", exception)
-            return {"error": exception}
+            return {"error": "ERROR_GOOGLE_PALM", "message": "Google palm exception"}
 
     def verify_access_key(self):
         """

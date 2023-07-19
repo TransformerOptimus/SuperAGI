@@ -21,15 +21,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({
-                                      sendAgentData,
-                                      selectedProjectId,
-                                      fetchAgents,
-                                      toolkits,
-                                      organisationId,
-                                      template,
-                                      internalId
-                                    }) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -96,6 +88,11 @@ export default function AgentCreate({
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
+  const [col6ScrollTop, setCol6ScrollTop] = useState(0);
+
+  const handleCol3Scroll = (event) => {
+    setCol6ScrollTop(event.target.scrollTop);
+  };
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -652,9 +649,9 @@ export default function AgentCreate({
   }, [internalId])
 
   return (<>
-    <div className="row">
-      <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+    <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
+      <div className="col-3" onScroll={handleCol3Scroll}></div>
+      <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
         </div>
@@ -962,9 +959,9 @@ export default function AgentCreate({
                                        src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
                                        alt="expand-icon"/>
                   </div>
-                  <div style={{marginBottom: '20px'}}>
+                  <div className="mb_34">
                     {permissionDropdown &&
-                      <div className="custom_select_options" ref={permissionRef} style={{width: '100%'}}>
+                      <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
                         {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
                                                                   onClick={() => handlePermissionSelect(index)}
                                                                   style={{padding: '12px 14px', maxWidth: '100%'}}>
@@ -982,23 +979,7 @@ export default function AgentCreate({
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="custom_select_option" style={{
-                background: '#3B3B49',
-                borderRadius: '8px',
-                position: 'absolute',
-                top: '-40px',
-                right: '0',
-                zIndex: '1',
-                boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)',
-                height: '40px',
-                width: '150px',
-                paddingTop: '10px',
-                textAlign: 'center'
-              }}
-                                       onClick={() => {
-                                         setCreateModal(true);
-                                         setCreateDropdown(false);
-                                       }}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
@@ -1015,7 +996,7 @@ export default function AgentCreate({
           </div>
 
           {createModal && (
-            <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
+            <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
 
         </div>
