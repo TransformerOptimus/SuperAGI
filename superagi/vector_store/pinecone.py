@@ -93,7 +93,13 @@ class Pinecone(VectorStore):
         for key in metadata.keys():
             filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, filters=filters, top_k=top_k, namespace=namespace, include_metadata=True)
+        res = self.index.query(embed_text, filter=filters, top_k=top_k, include_metadata=True)
+        contexts = [item.metadata['text'] for item in res['matches']]
+        i = 0
+        search_res = f"Query: {query}\n"
+        for context in contexts:
+            search_res += f"Chunk{i}: \n{context}\n" 
+            i += 1
 
         documents = []
 
@@ -105,7 +111,7 @@ class Pinecone(VectorStore):
                 )
             )
 
-        return documents
+        return {"documents": documents, "search_res": search_res}
     
     def get_index_stats(self) -> dict:
         """

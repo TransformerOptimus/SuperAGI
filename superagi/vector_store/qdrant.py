@@ -156,7 +156,15 @@ class Qdrant(VectorStore):
             **kwargs,
         )
 
-        return self.__build_documents(results)
+        contexts = [res.payload for res in results]
+        i = 0
+        search_res = f"Query: {text}\n"
+        for context in contexts:
+            search_res += f"Chunk{i}: \n{context}\n" 
+            i += 1
+        documents =  self.__build_documents(results)
+
+        return {"documents": documents, "search_res": search_res}
     
     def get_index_stats(self) -> dict:
         """
