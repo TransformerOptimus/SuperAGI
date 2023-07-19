@@ -59,6 +59,7 @@ class StableDiffusionImageGenTool(BaseTool):
         for artifact in artifacts:
             base64_strings.append(artifact['base64'])
 
+        image_paths=[]
         for i in range(num):
             image_base64 = base64_strings[i]
             img_data = base64.b64decode(image_base64)
@@ -69,10 +70,8 @@ class StableDiffusionImageGenTool(BaseTool):
 
             self.resource_manager.write_binary_file(image_names[i], img_byte_arr.getvalue())
 
-        image_paths=[]
-
         for image in image_names:
-            image_paths.append(ResourceHelper.get_agent_resource_path(image,self.agent_id))
+            image_paths.append(ResourceHelper.get_resource_path(image))
 
         return f"Images downloaded and saved successfully at the following locations: {image_paths}"
 
