@@ -78,6 +78,7 @@ export default function AgentCreate({
   const [rollingDropdown, setRollingDropdown] = useState(false);
 
   const [selectedKnowledge, setSelectedKnowledge] = useState('');
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState(null);
   const knowledgeRef = useRef(null);
   const [knowledgeDropdown, setKnowledgeDropdown] = useState(false);
 
@@ -251,6 +252,7 @@ export default function AgentCreate({
 
   const handleKnowledgeSelect = (index) => {
     setLocalStorageValue("agent_knowledge_" + String(internalId), knowledge[index].name, setSelectedKnowledge);
+    setLocalStorageValue("agent_knowledge_id_" + String(internalId), knowledge[index].id, setSelectedKnowledgeId);
     setKnowledgeDropdown(false);
   };
 
@@ -430,6 +432,7 @@ export default function AgentCreate({
       "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
+      "knowledge" : toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
     };
     const scheduleAgentData = {
       "agent_config": agentData,
