@@ -257,7 +257,7 @@ class AgentExecutor:
             return
 
         if "retry" in response and response["retry"]:
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
+            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
             session.close()
             return
 
@@ -343,7 +343,7 @@ class AgentExecutor:
         if agent_execution_permission.status == "PENDING":
             raise ValueError("Permission is still pending")
         if agent_execution_permission.status == "APPROVED":
-            result = spawned_agent.handle_tool_response(agent_execution_permission.assistant_reply).get("result")
+            result = spawned_agent.handle_tool_response(session, agent_execution_permission.assistant_reply).get("result")
         else:
             result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
                      f"{' and has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"

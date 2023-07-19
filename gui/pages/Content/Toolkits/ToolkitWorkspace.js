@@ -10,7 +10,7 @@ import {
 import styles from './Tool.module.css';
 import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon, convertToTitleCase} from "@/utils/utils";
 
-export default function ToolkitWorkspace({toolkitDetails, internalId}) {
+export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   const [activeTab, setActiveTab] = useState('configuration')
   const [showDescription, setShowDescription] = useState(false)
   const [apiConfigs, setApiConfigs] = useState([]);
@@ -25,9 +25,15 @@ export default function ToolkitWorkspace({toolkitDetails, internalId}) {
   };
 
   function getGoogleToken(client_data) {
+    var redirect_uri = "";
+    if (env == "PROD"){
+      redirect_uri = 'https://app.superagi.com/api/google/oauth-tokens';
+    }
+    else {
+      redirect_uri = "http://localhost:3000/api/google/oauth-tokens";
+    }
     const client_id = client_data.client_id
     const scope = 'https://www.googleapis.com/auth/calendar';
-    const redirect_uri = 'http://localhost:3000/api/google/oauth-tokens';
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
   }
 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import {downloadFile, downloadAllFiles, formatBytes, returnResourceIcon} from "@/utils/utils";
 
 export default function ResourceList({files, channel, runs}) {
-  const [selectedRun, setSelectedRun] = useState(null);
+  const [selectedRunId, setSelectedRunId] = useState(null);
   const filesByRun = useMemo(() => runs.map(run => {
     const relatedFiles = files.filter(file => file.agent_execution_id === run.id);
     return relatedFiles.length !== 0 && {"run": run, "files": relatedFiles};
@@ -15,7 +15,7 @@ export default function ResourceList({files, channel, runs}) {
     runFiles.length !== 0 && downloadAllFiles(runFiles, name);
   }
 
-  const isAnyFileWithAgentId = files.some(file => file.agent_execution_id !== null)
+  const isAnyFileWithAgentId = files.some(file => file.agent_execution_id !== null);
 
   const File = ({file, index}) => (
     <div key={index} onClick={() => downloadFile(file.id, file.name)} className={styles.history_box}
@@ -45,10 +45,10 @@ export default function ResourceList({files, channel, runs}) {
             {filesByRun.map((filesRun, index) => (
               <div key={index}>
                 <div className="horizontal_container justify_space_between cursor_pointer" style={{padding: '8px 6px'}}
-                     onClick={() => setSelectedRun(filesRun.run === selectedRun ? null : filesRun.run)}>
+                     onClick={() => setSelectedRunId(filesRun.run.id === selectedRunId ? null : filesRun.run.id)}>
                   <div className="horizontal_container">
                     <Image
-                      src={selectedRun === filesRun.run ? "/images/arrow_downward_dropdown.svg" : "/images/arrow_forward.svg"}
+                      src={selectedRunId === filesRun.run.id ? "/images/arrow_downward_dropdown.svg" : "/images/arrow_forward.svg"}
                       alt="arrow" width={14} height={14}/>
                     <span className="text_12 ml_8">{filesRun.run.name}</span>
                     <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10}
@@ -59,10 +59,9 @@ export default function ResourceList({files, channel, runs}) {
                          onClick={() => downloadRunFiles(filesRun.run.id, filesRun.run.name)}/>
                 </div>
 
-                {selectedRun === filesRun.run && (
+                {selectedRunId === filesRun.run.id && (
                   <div className={styles.resources} style={{padding: '2px 8px'}}>
-                    {/* eslint-disable-next-line react/jsx-key */}
-                    {filesRun.files.map((file, index) => <File file={file} index={index}/>)}
+                    {filesRun.files.map((file, index) => <File key={index} file={file}/>)}
                   </div>
                 )}
               </div>
@@ -72,8 +71,7 @@ export default function ResourceList({files, channel, runs}) {
 
       {channel === 'input' &&
         <div className={styles.resources}>
-          {/* eslint-disable-next-line react/jsx-key */}
-          {files.map((file, index) => <File file={file} index={index}/>)}
+          {files.map((file, index) => <File key={index} file={file}/>)}
         </div>}
     </div>
   )
