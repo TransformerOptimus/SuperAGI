@@ -65,3 +65,12 @@
     gap: 10px;
     flex-wrap: wrap;
 }
+.installed_knowledge_card_class {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.14);
+    display: flex;
+    padding: 4px 8px;
+    align-items: center;
+    gap: 6px;
+}
