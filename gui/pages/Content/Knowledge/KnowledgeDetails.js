@@ -31,6 +31,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     if (installationType === 'Marketplace') {
       deleteMarketplaceKnowledge(knowledgeName)
         .then((response) => {
+          console.log(response)
           if(response.data.success){
             toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
             removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
@@ -47,6 +48,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
+          console.log(response)
           if(response.data.success) {
             toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
             removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);

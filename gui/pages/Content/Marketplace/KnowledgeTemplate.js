@@ -110,6 +110,7 @@ export default function KnowledgeTemplate({template, env}) {
         if(response.data.success) {
           toast.success("Knowledge installed", {autoClose: 1800});
           setInstalled('Installed');
+          EventBus.emit('reFetchKnowledge', {});
         }
         else
           toast.error("Error installing Knowledge: ", {autoClose: 1800});
