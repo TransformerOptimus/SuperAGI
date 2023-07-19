@@ -19,8 +19,6 @@ router = APIRouter()
 
 @router.get('/oauth-tokens')
 async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Query(...), Authorize: AuthJWT = Depends()):
-    print("///////////////////////////")
-    print(oauth_token)
     token_uri = f'https://api.twitter.com/oauth/access_token?oauth_verifier={oauth_verifier}&oauth_token={oauth_token}'
     conn = http_client.HTTPSConnection("api.twitter.com")
     conn.request("POST", token_uri, "")

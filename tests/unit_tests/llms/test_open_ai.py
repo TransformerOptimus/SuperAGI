@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from superagi.llms.openai import OpenAi
 
+
 @patch('superagi.llms.openai.openai')
 def test_chat_completion(mock_openai):
     # Arrange
@@ -30,3 +31,11 @@ def test_chat_completion(mock_openai):
         frequency_penalty=openai_instance.frequency_penalty,
         presence_penalty=openai_instance.presence_penalty
     )
+
+
+def test_verify_access_key():
+    model = 'gpt-4'
+    api_key = 'test_key'
+    openai_instance = OpenAi(api_key, model=model)
+    result = openai_instance.verify_access_key()
+    assert result is False
