@@ -84,6 +84,8 @@ class CodingTool(BaseTool):
         for match in matches:
             # Get the filename
             file_name = re.sub(r'[<>"|?*]', "", match.group(1))
+            if not file_name[0].isalnum():
+                file_name = file_name[1:-1]
 
             # Get the code
             code = match.group(2)
