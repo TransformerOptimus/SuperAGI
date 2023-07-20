@@ -10,7 +10,7 @@ export default function SideBar({onSelectEvent}) {
     setSelection(value);
     onSelectEvent(value);
     if (value === 'apm') {
-      openNewTab(-9, "APM", "APM");
+      openNewTab(-9, "APM", "APM", false);
     }
   };
 
@@ -39,6 +39,14 @@ export default function SideBar({onSelectEvent}) {
              className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>
           <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm.svg" alt="apm-icon"/></div>
           <div>APM</div>
+        </div>
+      </div>
+      <div className={styles.selection_section}>
+        <div onClick={() => handleClick(sectionSelected !== 'knowledge' ? 'knowledge' : '')}
+             className={`${styles.section} ${sectionSelected === 'knowledge' ? styles.selected : ''}`}>
+          <div className={styles.button_icon}><Image width={17} height={17} src="/images/knowledge.svg"
+                                                     alt="knowledge-icon"/></div>
+          <div>Knowledge</div>
         </div>
       </div>
     </div>

@@ -1,0 +1,76 @@
+.knowledge_label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #888888;
+}
+
+.knowledge_info {
+    font-size: 12px;
+    color: white;
+}
+
+.knowledge_info_box {
+    margin-bottom: 20px;
+}
+
+.knowledge_wrapper {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.knowledge_db {
+    font-size: 12px;
+    color: #888888;
+    font-weight: normal;
+    height: auto;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.knowledge_db_name {
+    padding:12px 14px;
+    border-top: 1px solid #888888;
+}
+
+.knowledge_alert {
+    border-radius: 8px;
+    background-color: #423D52;
+    border-left: 4px solid #B3B2BB;
+    color: white;
+    font-size: 12px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.database_container {
+    background-color: rgb(39, 35, 53);
+    width: calc(33% - 10px);
+    padding: 10px;
+    color: white;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.database_wrapper {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.installed_knowledge_card_class {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.14);
+    display: flex;
+    padding: 4px 8px;
+    align-items: center;
+    gap: 6px;
+}
