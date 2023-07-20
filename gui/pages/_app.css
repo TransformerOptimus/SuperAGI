@@ -440,7 +440,6 @@ input[type="range"]::-moz-range-track {
 }
 
 .custom_select_option:hover, .create_agent_dropdown_options:hover {
->>>>>>> 993a1a8360daac803688289b3e21784fa1fb81d2
     background: #3B3B49;
     border-radius: 8px;
 }
