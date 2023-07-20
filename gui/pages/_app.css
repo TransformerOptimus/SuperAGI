@@ -399,7 +399,7 @@ input[type="range"]::-moz-range-track {
     align-self: stretch;
     margin-top: 2px;
     max-height: 200px;
-    overflow-y: auto; /* Use "auto" instead of "scroll" */
+    overflow-y: auto;
     box-shadow: 0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22);
 }
 
