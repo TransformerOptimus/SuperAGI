@@ -11,7 +11,7 @@ from superagi.tools.base_tool import BaseTool
 
 
 class StableDiffusionImageGenInput(BaseModel):
-    prompt: str = Field(..., description="Prompt for Image Generation to be used by Stable Diffusion.")
+    prompt: str = Field(..., description="Prompt for Image Generation to be used by Stable Diffusion. The prompt should be as descriptive as possible and mention all the details of the image to be generated")
     height: int = Field(..., description="Height of the image to be Generated. default height is 512")
     width: int = Field(..., description="Width of the image to be Generated. default width is 512")
     num: int = Field(..., description="Number of Images to be generated. default num is 1")
