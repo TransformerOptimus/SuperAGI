@@ -393,7 +393,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       return
     }
     if(!modelsArray.includes(model)) {
-      toast.error("Your key does not have access to the selected LLM", {autoClose: 1800});
+      toast.error("Your key does not have access to the selected model", {autoClose: 1800});
       return
     }
 
