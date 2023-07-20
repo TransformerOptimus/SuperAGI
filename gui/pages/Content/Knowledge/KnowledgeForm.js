@@ -69,10 +69,10 @@ export default function KnowledgeForm({
       isValid = false;
     }
 
-    // if (knowledgeDescription.replace(/\s/g, '') === '') {
-    //   toast.error("Knowledge description can't be blank", {autoClose: 1800});
-    //   isValid = false;
-    // }
+    if (!selectedIndex) {
+      toast.error("Please select an index", {autoClose: 1800});
+      isValid = false;
+    }
 
     return isValid;
   }
