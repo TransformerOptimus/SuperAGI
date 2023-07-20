@@ -278,3 +278,7 @@ export const fetchKnowledgeTemplateOverview = (knowledgeName) => {
 export const installKnowledgeTemplate = (knowledgeName, indexId) => {
   return api.get(`/knowledges/install/${knowledgeName}/index/${indexId}`);
 }
+
+export const getLlmModels = () => {
+  return api.get(`organisations/llm_models`);
+}

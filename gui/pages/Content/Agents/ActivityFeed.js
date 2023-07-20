@@ -72,17 +72,19 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   }, [runStatus])
 
   function fetchFeeds() {
-    getExecutionFeeds(selectedRunId)
-      .then((response) => {
-        const data = response.data;
-        setFeeds(data.feeds);
-        setRunStatus(data.status);
-        setFetchedData(data.permissions);
-        EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
-      })
-      .catch((error) => {
-        console.error('Error fetching execution feeds:', error);
-      });
+    if (selectedRunId !== null) {
+      getExecutionFeeds(selectedRunId)
+        .then((response) => {
+          const data = response.data;
+          setFeeds(data.feeds);
+          setRunStatus(data.status);
+          setFetchedData(data.permissions);
+          EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
+        })
+        .catch((error) => {
+          console.error('Error fetching execution feeds:', error);
+        });
+    }
   }
 
   useEffect(() => {
@@ -159,16 +161,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           </div>
         }
         {!agent?.is_scheduled && !agent?.is_running && feeds.length < 1 &&
-          <div style={{
-            color: 'white',
-            fontSize: '14px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center'
-          }}>
-            The Agent is not scheduled
-          </div>
+            <div style={{color: 'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>The Agent is not scheduled</div>
         }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&

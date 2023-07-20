@@ -24,7 +24,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, agentName, selectedView, agents, internalId}) {
+export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -236,7 +236,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
   }
 
   function fetchAgentScheduleComponent() {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       getDateTime(agentId)
         .then((response) => {
           setAgentScheduleDetails(response.data)
@@ -369,6 +369,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
                 }}>Delete</li>}
+
                 {agent && agent.is_scheduled ? (<div>
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
@@ -381,10 +382,10 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
             </div>}
 
             {createModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>
@@ -408,7 +409,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0}
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
                           setFetchedData={setFetchedData} agent={agent}/>
           </div>}
           {leftPanel === 'agent_type' &&

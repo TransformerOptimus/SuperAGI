@@ -13,7 +13,8 @@ export default function AgentTemplatesList({
                                              toolkits,
                                              organisationId,
                                              internalId,
-                                             sendKnowledgeData
+                                             sendKnowledgeData,
+                                             env
                                            }) {
   const [agentTemplates, setAgentTemplates] = useState([])
   const [createAgentClicked, setCreateAgentClicked] = useState(false)
@@ -115,7 +116,7 @@ export default function AgentTemplatesList({
         </div> : <AgentCreate sendKnowledgeData={sendKnowledgeData} knowledge={knowledge} internalId={internalId}
                               organisationId={organisationId} sendAgentData={sendAgentData}
                               selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}
-                              template={sendTemplate}/>}
+                              template={sendTemplate} env={env} />}
     </div>
   )
 };

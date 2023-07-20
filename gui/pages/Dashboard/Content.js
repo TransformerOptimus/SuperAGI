@@ -372,11 +372,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 <div key={index}>
                   {selectedTab === index && <div>
                     {tab.contentType === 'Agents' &&
-                      <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name}
-                                      selectedView={selectedView}
-                                      agents={agents} fetchAgents={fetchAgents}/>}
+                      <AgentWorkspace env={env} internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name} selectedView={selectedView}
+                                  agents={agents} fetchAgents={fetchAgents}/>}
                     {tab.contentType === 'Toolkits' &&
-                      <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
+                      <ToolkitWorkspace env={env} internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                     {tab.contentType === 'Knowledge' &&
                       <KnowledgeDetails internalId={tab.internalId || index} knowledgeId={tab.id}/>}
                     {tab.contentType === 'Database' &&
@@ -393,7 +392,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentTemplatesList knowledge={knowledge} internalId={tab.internalId || index}
                                           organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                                          fetchAgents={fetchAgents} toolkits={toolkits} env={env} />}
                     {tab.contentType === 'APM' && <ApmDashboard/>}
                   </div>}
                 </div>

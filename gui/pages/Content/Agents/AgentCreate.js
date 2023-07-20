@@ -7,6 +7,7 @@ import {
   editAgentTemplate,
   fetchAgentTemplateConfigLocal,
   getOrganisationConfig,
+  getLlmModels,
   updateExecution,
   uploadFile
 } from "@/pages/api/DashboardService";
@@ -32,7 +33,8 @@ export default function AgentCreate({
                                       organisationId,
                                       template,
                                       internalId,
-                                      sendKnowledgeData
+                                      sendKnowledgeData,
+                                      env
                                     }) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
@@ -60,8 +62,8 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
-  const [model, setModel] = useState(models[1]);
+  const [modelsArray, setModelsArray] = useState([]);
+  const [model, setModel] = useState('');
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -107,11 +109,6 @@ export default function AgentCreate({
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
-  const [col6ScrollTop, setCol6ScrollTop] = useState(0);
-
-  const handleCol3Scroll = (event) => {
-    setCol6ScrollTop(event.target.scrollTop);
-  };
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -144,6 +141,21 @@ export default function AgentCreate({
   }, [toolNames]);
 
   useEffect(() => {
+    getLlmModels()
+      .then((response) => {
+        const models = response.data || [];
+        const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
+        setModelsArray(models);
+        if(models.length > 0 && !selected_model) {
+          setLocalStorageValue("agent_model_" + String(internalId), models[0], setModel);
+        } else {
+          setModel(selected_model);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching models:', error);
+      });
+
     if (template !== null) {
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
@@ -282,8 +294,8 @@ export default function AgentCreate({
   };
 
   const handleModelSelect = (index) => {
-    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
-    if (models[index] === "google-palm-bison-001") {
+    setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
+    if (modelsArray[index] === "google-palm-bison-001") {
       setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);
@@ -392,7 +404,7 @@ export default function AgentCreate({
       openNewTab(-3, "Settings", "Settings", false);
       return false;
     }
-  
+
     if (agentName?.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
       return false;
@@ -419,6 +431,11 @@ export default function AgentCreate({
       return;
     }
 
+    if(!modelsArray.includes(model)) {
+      toast.error("Your key does not have access to the selected model", {autoClose: 1800});
+      return
+    }
+    
     return true;
   }
 
@@ -757,7 +774,7 @@ export default function AgentCreate({
 
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
-      <div className="col-3" onScroll={handleCol3Scroll}></div>
+      <div className="col-3"></div>
       <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
@@ -828,7 +845,7 @@ export default function AgentCreate({
               </div>
               <div>
                 {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {models.map((model, index) => (
+                  {modelsArray?.map((model, index) => (
                     <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
                          style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {model}
@@ -1183,23 +1200,7 @@ export default function AgentCreate({
               </button>
             )}
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="custom_select_option" style={{
-                background: '#3B3B49',
-                borderRadius: '8px',
-                position: 'absolute',
-                top: '-40px',
-                right: '0',
-                zIndex: '1',
-                boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)',
-                height: '40px',
-                width: '150px',
-                paddingTop: '10px',
-                textAlign: 'center'
-              }}
-                                       onClick={() => {
-                                         setCreateModal(true);
-                                         setCreateDropdown(false);
-                                       }}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
@@ -1216,7 +1217,7 @@ export default function AgentCreate({
           </div>
 
           {createModal && (
-            <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
+            <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
 
         </div>
