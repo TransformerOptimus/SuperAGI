@@ -57,9 +57,7 @@ services:
 #      - "5432:5432"
   
   proxy:
-    build:
-      context: .
-      dockerfile: DockerfileNginx
+    image: nginx:stable-alpine
     ports:
       - "3000:80"
     networks:
@@ -67,6 +65,8 @@ services:
     depends_on:
       - backend
       - gui
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
 networks:
   super_network:
