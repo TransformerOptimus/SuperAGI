@@ -32,7 +32,7 @@ class AgentWorkflowStep(DBBaseModel):
     step_type = Column(String)  # TRIGGER, NORMAL
     action_type = Column(String)  # TOOL, ITERATION_WORKFLOW, LLM
     action_reference_id = Column(Integer)  # id of the action
-    next_steps = Column(JSONB) # edge_ref_id, response, step_id
+    next_steps = Column(JSONB, default=[]) # edge_ref_id, response, step_id
 
     def __repr__(self):
         """
@@ -136,7 +136,8 @@ class AgentWorkflowStep(DBBaseModel):
                                                               history_enabled, completion_prompt)
 
         if workflow_step is None:
-            workflow_step = AgentWorkflowStep(unique_id=unique_id, agent_workflow_id=agent_workflow_id)
+            workflow_step = AgentWorkflowStep(unique_id=unique_id, step_type=step_type,
+                                              agent_workflow_id=agent_workflow_id)
             session.add(workflow_step)
             session.commit()
         workflow_step.step_type = step_type
@@ -168,13 +169,15 @@ class AgentWorkflowStep(DBBaseModel):
         iteration_workflow = IterationWorkflow.find_workflow_by_name(session, iteration_workflow_name)
 
         if workflow_step is None:
-            workflow_step = AgentWorkflowStep(unique_id=unique_id, agent_workflow_id=agent_workflow_id)
+            workflow_step = AgentWorkflowStep(unique_id=unique_id, step_type=step_type,
+                                              agent_workflow_id=agent_workflow_id)
             session.add(workflow_step)
             session.commit()
         workflow_step.step_type = step_type
         workflow_step.agent_workflow_id = agent_workflow_id
         workflow_step.action_reference_id = iteration_workflow.id
         workflow_step.action_type = "ITERATION_WORKFLOW"
+        workflow_step.next_steps = []
         session.commit()
         return workflow_step
 
@@ -185,7 +188,7 @@ class AgentWorkflowStep(DBBaseModel):
         if next_step_id != -1:
             next_workflow_step = AgentWorkflowStep.find_by_id(session, next_step_id)
             next_unique_id = next_workflow_step.unique_id
-        current_step = db.session.query(AgentWorkflowStep).filter(AgentWorkflowStep.id == current_step_id).first()
+        current_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.id == current_step_id).first()
         next_steps = current_step.next_steps
         existing_steps = [step for step in next_steps if step["step_id"] == next_unique_id]
         if existing_steps:

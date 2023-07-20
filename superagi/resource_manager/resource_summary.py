@@ -20,7 +20,8 @@ class ResourceSummarizer:
 
     def __get_organisation_id(self):
         agent = self.session.query(Agent).filter(Agent.id == self.agent_id).first()
-        return agent.organisation_id
+        organisation = agent.get_agent_organisation(self.session)
+        return organisation.id
 
     def __get_model_api_key(self):
         return Configuration.fetch_configuration(self.session, self.organisation_id, "model_api_key")

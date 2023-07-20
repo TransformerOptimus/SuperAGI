@@ -14,6 +14,7 @@ from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.base_tool import BaseTool
 
@@ -26,8 +27,9 @@ class AgentToolStepHandler:
         self.agent_id = agent_id
         self.memory = memory
 
-    def execute_step(self, agent_workflow_step_id: int):
-        workflow_step = AgentWorkflowStep.find_by_id(self.session, agent_workflow_step_id)
+    def execute_step(self):
+        execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
+        workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_step_id)
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
@@ -41,12 +43,16 @@ class AgentToolStepHandler:
 
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step, step_response)
         agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
-        if str(next_step) is "COMPLETE":
+        if str(next_step) == "COMPLETE":
             agent_execution.current_step_id = -1
             agent_execution.status = "COMPLETED"
             self.session.commit()
         else:
             agent_execution.current_step_id = next_step.id
+            if next_step.action_type == "ITERATION_WORKFLOW":
+                trigger_step = IterationWorkflow.fetch_trigger_step_id(self.session, next_step.action_reference_id)
+                agent_execution.iteration_workflow_step_id = trigger_step.id
+
             self.session.commit()
         self.session.flush()
 
@@ -54,7 +60,7 @@ class AgentToolStepHandler:
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
         agent_feeds = self._fetch_agent_feeds()
-        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model()) \
+        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=workflow_step.history_enabled,
                                   completion_prompt=workflow_step.completion_prompt)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())

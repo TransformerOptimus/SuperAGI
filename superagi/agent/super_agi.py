@@ -79,14 +79,15 @@ class SuperAgi:
         agent_execution_id = self.agent_config["agent_execution_id"]
         task_queue = TaskQueue(str(agent_execution_id))
 
-        agent_feeds = self.fetch_agent_feeds(session, self.agent_config["agent_execution_id"])
+        execution = AgentExecution.find_by_id(session, agent_execution_id)
+        agent_feeds = self.fetch_agent_feeds(session, execution.id)
         if not agent_feeds:
             task_queue.clear_tasks()
         # adding history to the messages
         prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                          max_token_limit=int(get_config("MAX_TOOL_TOKEN_LIMIT", 600)))
 
-        messages = AgentLlmMessageBuilder(session, self.llm.get_model()) \
+        messages = AgentLlmMessageBuilder(session, self.llm.get_model(), execution.agent_id, execution.id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=workflow_step.history_enabled,
                                   completion_prompt=workflow_step.completion_prompt)
         # adding history to the messages

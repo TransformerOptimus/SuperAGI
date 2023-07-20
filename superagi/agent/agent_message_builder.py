@@ -1,4 +1,4 @@
-from time import time
+import time
 from typing import Tuple, List
 
 from superagi.config.config import get_config
@@ -9,9 +9,11 @@ from superagi.types.common import BaseMessage
 
 class AgentLlmMessageBuilder:
 
-    def __init__(self, session, llm_model: str):
+    def __init__(self, session, llm_model: str, agent_id: int, agent_execution_id: int):
         self.session = session
         self.llm_model = llm_model
+        self.agent_id = agent_id
+        self.agent_execution_id = agent_execution_id
 
     def build_agent_messages(self, prompt: str, agent_feeds: list, history_enabled=False,
                              completion_prompt: str = None):
@@ -24,7 +26,7 @@ class AgentLlmMessageBuilder:
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm_model)
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self._split_history(full_message_history,
-                                                                  token_limit - base_token_limit - max_output_token_limit)
+                                                                token_limit - base_token_limit - max_output_token_limit)
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": completion_prompt})
@@ -49,8 +51,8 @@ class AgentLlmMessageBuilder:
         if agent_feeds:
             return
         for message in messages:
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"],
+            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
+                                                      agent_id=self.agent_id,
                                                       feed=message["content"],
                                                       role=message["role"])
             self.session.add(agent_execution_feed)

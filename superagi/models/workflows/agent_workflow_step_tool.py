@@ -23,6 +23,7 @@ class AgentWorkflowStepTool(DBBaseModel):
 
     id = Column(Integer, primary_key=True)
     tool_name = Column(String)
+    unique_id = Column(String)
     input_instruction = Column(Text)
     output_instruction = Column(Text)
     history_enabled = Column(Boolean)

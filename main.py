@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 import superagi
 from datetime import timedelta
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.agent.workflow_seed import IterationWorkflowSeed
+from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_config import router as agent_config_router
@@ -157,9 +157,16 @@ async def startup_event():
             register_toolkits(session, organization)
         logger.info("Successfully registered local toolkits for all Organisations!")
 
-    IterationWorkflowSeed.build_single_step_agent()
-    IterationWorkflowSeed.build_task_based_agents()
-    IterationWorkflowSeed.build_action_based_agents()
+    IterationWorkflowSeed.build_single_step_agent(session)
+    IterationWorkflowSeed.build_task_based_agents(session)
+    IterationWorkflowSeed.build_action_based_agents(session)
+    IterationWorkflowSeed.build_initialize_task_workflow(session)
+
+    AgentWorkflowSeed.build_sales_workflow(session)
+    AgentWorkflowSeed.build_coding_workflow(session)
+    AgentWorkflowSeed.build_goal_based_agent(session)
+    AgentWorkflowSeed.build_task_based_agent(session)
+    AgentWorkflowSeed.build_fixed_task_based_agent(session)
     if env != "PROD":
         check_toolkit_registration()
     session.close()

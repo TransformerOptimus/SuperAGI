@@ -46,7 +46,7 @@ def execute_agent(agent_execution_id: int, time):
     from superagi.jobs.agent_executor import AgentExecutor
     handle_tools_import()
     logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
-    AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
+    AgentExecutor().execute_next_step(agent_execution_id=agent_execution_id)
 
 
 @app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')

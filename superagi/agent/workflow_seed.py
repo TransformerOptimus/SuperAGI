@@ -1,4 +1,5 @@
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.agent.agent_prompt_template import AgentPromptTemplate
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
@@ -14,22 +15,22 @@ from superagi.tools.searx.searx import SearxSearchTool
 class AgentWorkflowSeed:
     @classmethod
     def build_sales_workflow(cls, session):
-        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Workflow", "Sales Workflow")
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Research Workflow", "Sales Research Workflow")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step1",
-                                                                    SearxSearchTool.name,
+                                                                    SearxSearchTool().name,
                                                                     "Convert goal into input",
                                                                     step_type="TRIGGER")
 
         step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step2",
-                                                                    ReadFileTool.name,
+                                                                    ReadFileTool().name,
                                                                     "Get lead matching last record from leads.csv",
                                                                     "Return 'YES' if lead exists in file else return 'NO'")
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step3",
-                                                                    SearxSearchTool.name,
+                                                                    SearxSearchTool().name,
                                                                     "Research report about the lead")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step4",
-                                                                    WriteFileTool.name,
+                                                                    WriteFileTool().name,
                                                                     "Add the research and lead details to leads.csv")
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
@@ -44,15 +45,15 @@ class AgentWorkflowSeed:
     def build_coding_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "SuperCoder", "SuperCoder")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step1",
-                                                                    WriteSpecTool.name,
+                                                                    WriteSpecTool().name,
                                                                     "Spec description",
                                                                     step_type="TRIGGER")
 
         step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step2",
-                                                                    CodingTool.name,
+                                                                    CodingTool().name,
                                                                     "Code description")
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, "step3",
-                                                                    WriteTestTool.name,
+                                                                    WriteTestTool().name,
                                                                     "Test description")
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
@@ -90,7 +91,7 @@ class IterationWorkflowSeed:
     @classmethod
     def build_single_step_agent(cls, session):
         iteration_workflow = IterationWorkflow.find_or_create_by_name(session, "Goal Based Agent", "Goal Based Agent")
-        output = AgentPromptBuilder.get_super_agi_single_prompt()
+        output = AgentPromptTemplate.get_super_agi_single_prompt()
         IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "gb1",
                                                   output["prompt"],
                                                   str(output["variables"]), "TRIGGER", "tools",
@@ -102,17 +103,17 @@ class IterationWorkflowSeed:
         iteration_workflow = IterationWorkflow.find_or_create_by_name(session, "Dynamic Task Queue",
                                                                       "Dynamic Task Queue", has_task_queue=True)
 
-        output = AgentPromptBuilder.analyse_task()
+        output = AgentPromptTemplate.analyse_task()
         workflow_step1 = IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "tb1",
                                                                    output["prompt"],
                                                                    str(output["variables"]), "NORMAL", "tools")
 
-        output = AgentPromptBuilder.create_tasks()
+        output = AgentPromptTemplate.create_tasks()
         workflow_step2 = IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "tb2",
                                                                    output["prompt"],
                                                                    str(output["variables"]), "TRIGGER", "tasks")
 
-        output = AgentPromptBuilder.prioritize_tasks()
+        output = AgentPromptTemplate.prioritize_tasks()
         workflow_step3 = IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "tb3",
                                                                    output["prompt"],
                                                                    str(output["variables"]), "NORMAL", "replace_tasks")
@@ -124,17 +125,17 @@ class IterationWorkflowSeed:
 
     @classmethod
     def build_initialize_task_workflow(cls, session):
-        iteration_workflow = IterationWorkflow.find_or_create_by_name("Initialize Tasks", "Initialize Tasks",
+        iteration_workflow = IterationWorkflow.find_or_create_by_name(session, "Initialize Tasks", "Initialize Tasks",
                                                                       has_task_queue=True)
-        output = AgentPromptBuilder.start_task_based()
+        output = AgentPromptTemplate.start_task_based()
 
         IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "init_task1",
                                                   output["prompt"], str(output["variables"]), "TRIGGER", "tasks")
 
     @classmethod
     def build_action_based_agents(cls, session):
-        iteration_workflow = IterationWorkflow.find_or_create_by_name("Fixed Task Queue", "Fixed Task Queue",
+        iteration_workflow = IterationWorkflow.find_or_create_by_name(session, "Fixed Task Queue", "Fixed Task Queue",
                                                                       has_task_queue=True)
-        output = AgentPromptBuilder.analyse_task()
+        output = AgentPromptTemplate.analyse_task()
         IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "ab1",
                                                   output["prompt"], str(output["variables"]), "TRIGGER", "tools")

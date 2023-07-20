@@ -22,9 +22,13 @@ def upgrade() -> None:
 
     with op.batch_alter_table('iteration_workflow_steps') as bop:
         bop.alter_column('agent_workflow_id', new_column_name='iteration_workflow_id')
+
     op.add_column('agent_executions', sa.Column('iteration_workflow_step_id', sa.Integer(), nullable=True))
     op.add_column('iteration_workflows',
                   sa.Column('has_task_queue', sa.Boolean(), nullable=True, server_default=sa.false()))
 
 def downgrade() -> None:
-    pass
+    op.rename_table('iteration_workflows', 'agent_workflows')
+    op.rename_table('iteration_workflow_steps', 'agent_workflow_steps')
+    op.drop_column('agent_executions', 'iteration_workflow_step_id')
+    op.drop_column('agent_workflows', 'has_task_queue')

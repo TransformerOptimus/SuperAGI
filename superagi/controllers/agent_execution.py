@@ -11,6 +11,7 @@ from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_schedule import AgentSchedule
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -77,12 +78,16 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+    start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+
+    iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
+                                                                start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
-                                        current_step_id=start_step_id)
+                                        current_step_id=start_step.id,
+                                        iteration_workflow_step_id=iteration_step_id)
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction

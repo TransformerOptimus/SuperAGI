@@ -23,7 +23,7 @@ class IterationWorkflowStep(DBBaseModel):
         completion_prompt (str): The completion prompt for the step.
     """
 
-    __tablename__ = 'agent_workflow_steps'
+    __tablename__ = 'iteration_workflow_steps'
 
     id = Column(Integer, primary_key=True)
     iteration_workflow_id = Column(Integer)

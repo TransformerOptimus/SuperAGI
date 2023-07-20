@@ -92,7 +92,12 @@ class AgentWorkflow(DBBaseModel):
 
         trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
                                                                AgentWorkflowStep.step_type == 'TRIGGER').first()
-        return trigger_step.id
+        return trigger_step
+
+    @classmethod
+    def find_by_name(cls, session, name: str):
+        """Create or find an agent workflow by name."""
+        return session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
 
     @classmethod
     def find_or_create_by_name(cls, session, name: str, description: str):

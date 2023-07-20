@@ -123,6 +123,21 @@ class AgentExecution(DBBaseModel):
         return session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
 
     @classmethod
+    def find_by_id(cls, session, execution_id: int):
+        """
+        Finds an AgentExecution by its id.
+
+        Args:
+            session: The database session.
+            id (int): The id of the AgentExecution.
+
+        Returns:
+            AgentExecution: The AgentExecution object.
+        """
+
+        return session.query(AgentExecution).filter(AgentExecution.id == execution_id).first()
+
+    @classmethod
     def update_tokens(self, session, agent_execution_id: int, total_tokens: int, new_llm_calls: int = 1):
         agent_execution = session.query(AgentExecution).filter(
             AgentExecution.id == agent_execution_id).first()

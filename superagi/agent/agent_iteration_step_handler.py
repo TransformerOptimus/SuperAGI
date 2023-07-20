@@ -37,17 +37,17 @@ class AgentIterationStepHandler:
         self.agent_id = agent_id
         self.memory = memory
 
-    def execute_step(self, agent_workflow_step_id: int, iteration_workflow_step_id: int):
+    def execute_step(self):
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
-        iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, iteration_workflow_step_id)
+        iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
 
         if not self.handle_wait_for_permission(execution, agent_config, iteration_workflow_step):
             return
 
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-        workflow_step = AgentWorkflowStep.find_by_id(self.session, agent_workflow_step_id)
-        organisation = Organisation.find_org_by_agent_id(self.session, agent_id=self.agent_id)
+        workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_step_id)
+        organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
 
         task_queue = TaskQueue(str(self.agent_execution_id))
@@ -59,12 +59,12 @@ class AgentIterationStepHandler:
         prompt = self.build_agent_prompt(iteration_workflow=iteration_workflow,
                                          agent_config=agent_config,
                                          agent_execution_config=agent_execution_config,
-                                         prompt=workflow_step.prompt,
+                                         prompt=iteration_workflow_step.prompt,
                                          task_queue=task_queue)
 
-        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model()) \
-            .build_agent_messages(prompt, agent_feeds, history_enabled=workflow_step.history_enabled,
-                                  completion_prompt=workflow_step.completion_prompt)
+        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
+            .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
+                                  completion_prompt=iteration_workflow_step.completion_prompt)
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())

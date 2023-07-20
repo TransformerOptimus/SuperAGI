@@ -3,6 +3,7 @@ import json
 from sqlalchemy import Column, Integer, String, Text, Boolean
 
 from superagi.models.base_model import DBBaseModel
+from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
 
 
 class IterationWorkflow(DBBaseModel):
@@ -77,6 +78,25 @@ class IterationWorkflow(DBBaseModel):
         )
 
     @classmethod
+    def fetch_trigger_step_id(cls, session, workflow_id):
+        """
+        Fetches the trigger step ID of the specified agent workflow.
+
+        Args:
+            session: The session object used for database operations.
+            workflow_id (int): The ID of the agent workflow.
+
+        Returns:
+            int: The ID of the trigger step.
+
+        """
+
+        trigger_step = session.query(IterationWorkflowStep).filter(
+            IterationWorkflowStep.iteration_workflow_id == workflow_id,
+            IterationWorkflowStep.step_type == 'TRIGGER').first()
+        return trigger_step
+
+    @classmethod
     def find_workflow_by_name(cls, session, name: str):
         """
         Finds an AgentWorkflow by name.
@@ -110,3 +130,8 @@ class IterationWorkflow(DBBaseModel):
         session.commit()
 
         return iteration_workflow
+
+    @classmethod
+    def find_by_id(cls, session, id: int):
+        """ Find the workflow step by id"""
+        return session.query(IterationWorkflow).filter(IterationWorkflow.id == id).first()

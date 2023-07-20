@@ -13,6 +13,7 @@ from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.db import connect_db
+from superagi.models.organisation import Organisation
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
@@ -43,7 +44,8 @@ class AgentExecutor:
                 agent_execution.status != "RUNNING" and agent_execution.status != "WAITING_FOR_PERMISSION"):
             return
 
-        if self._check_for_max_iterations(session, agent.organisation_id, agent_config, agent_execution_id):
+        organisation = Agent.find_org_by_agent_id(session, agent_id=agent.id)
+        if self._check_for_max_iterations(session, organisation.id, agent_config, agent_execution_id):
             return
 
         model_api_key = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
@@ -63,14 +65,14 @@ class AgentExecutor:
                                                      llm=get_model(model=agent_config["model"], api_key=model_api_key)
                                                      , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                      memory=memory)
-            tool_step_handler.execute_step(agent_execution.current_step_id)
+            tool_step_handler.execute_step()
         elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
             iteration_step_handler = AgentIterationStepHandler(session,
                                                           llm=get_model(model=agent_config["model"],
                                                                         api_key=model_api_key)
                                                                , agent_id=agent.id,
                                                                agent_execution_id=agent_execution_id, memory=memory)
-            iteration_step_handler.execute_step(agent_execution.current_step_id)
+            iteration_step_handler.execute_step()
 
         agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
         if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":

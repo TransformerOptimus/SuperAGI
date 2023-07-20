@@ -1,4 +1,4 @@
-"""create iteration workflow
+"""create agent workflow
 
 Revision ID: 9419b3340af7
 Revises: fe234ea6e9bc
