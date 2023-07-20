@@ -31,7 +31,7 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     if env == "DEV":
         redirect_uri = "http://localhost:3000/api/google/oauth-tokens"
     else:
-        redirect_uri = "https://superagi.com/api/google/oauth-tokens"
+        redirect_uri = "https://app.superagi.com/api/google/oauth-tokens"
     params = {
         'client_id': client_id,
         'client_secret': client_secret,
