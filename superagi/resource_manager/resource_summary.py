@@ -28,7 +28,7 @@ class ResourceSummarizer:
         agent = self.session.query(Agent).filter(Agent.id == agent_id).first()
         organization = agent.get_agent_organisation(self.session)
         model_api_key = Configuration.fetch_configuration(self.session, organization.id, "model_api_key")
-        model_source = Configuration.fetch_configuration(self.session, organization.id, "model_source")
+        model_source = Configuration.fetch_configuration(self.session, organization.id, "model_source") or "OpenAi"
         try:
             ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key, model_source)
         except Exception as e:
