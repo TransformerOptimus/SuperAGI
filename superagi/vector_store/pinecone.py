@@ -93,8 +93,8 @@ class Pinecone(VectorStore):
         for key in metadata.keys():
             filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, filter=filters, top_k=top_k, include_metadata=True)
-        contexts = [item.metadata['text'] for item in res['matches']]
+        res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace,include_metadata=True)
+        contexts = [item['metadata']['text'] for item in res['matches']]
         i = 0
         search_res = f"Query: {query}\n"
         for context in contexts:
@@ -102,14 +102,17 @@ class Pinecone(VectorStore):
             i += 1
 
         documents = []
-
-        for doc in res['matches']:
-            documents.append(
-                Document(
-                    text_content=doc.metadata[self.text_field],
-                    metadata=doc.metadata,
+        
+        try:    
+            for doc in res['matches']:
+                documents.append(
+                    Document(
+                        text_content=doc['metadata'][self.text_field],
+                        *doc['metadata'],
+                    )
                 )
-            )
+        except Exception as err:
+            raise err
 
         return {"documents": documents, "search_res": search_res}
     
