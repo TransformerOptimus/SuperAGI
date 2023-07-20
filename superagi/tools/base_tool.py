@@ -94,7 +94,7 @@ class BaseTool(BaseModel):
 
     @property
     def max_token_limit(self):
-        return get_config("MAX_TOOL_TOKEN_LIMIT", 600)
+        return int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
 
     def _parse_input(
             self,

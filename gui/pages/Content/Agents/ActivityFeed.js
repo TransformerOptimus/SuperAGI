@@ -37,7 +37,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   useEffect(() => {
     loadingTextEffect('Thinking', setLoadingText, 250);
 
-    if (agent?.is_scheduled && !agent.is_running) {
+    if (agent?.is_scheduled && !agent?.is_running) {
       fetchDateTime();
     }
   }, []);
@@ -107,7 +107,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   return (<>
     <div style={{overflowY: "auto", maxHeight: '80vh', position: 'relative'}} ref={feedContainerRef}>
       <div style={{marginBottom: '55px'}}>
-        {agent?.is_scheduled && !agent.is_running && !selectedRunId ?
+        {agent?.is_scheduled && !agent?.is_running && !selectedRunId ?
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
             <Image width={72} height={72} src="/images/eventSchedule.png" alt="github"/>
             <div style={{color: 'white', fontSize: '14px'}}>
@@ -158,7 +158,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               </div>}
           </div>
         }
-        {!agent?.is_scheduled && !agent.is_running && feeds.length < 1 &&
+        {!agent?.is_scheduled && !agent?.is_running && feeds.length < 1 &&
           <div style={{
             color: 'white',
             fontSize: '14px',

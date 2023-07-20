@@ -1,4 +1,6 @@
 import openai
+from openai import APIError, InvalidRequestError
+from openai.error import RateLimitError, AuthenticationError
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
@@ -73,6 +75,29 @@ class OpenAi(BaseLlm):
             )
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
+        except AuthenticationError as auth_error:
+            logger.info("OpenAi AuthenticationError:", auth_error)
+            return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys.."}
+        except RateLimitError as api_error:
+            logger.info("OpenAi RateLimitError:", api_error)
+            return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded.."}
+        except InvalidRequestError as invalid_request_error:
+            logger.info("OpenAi InvalidRequestError:", invalid_request_error)
+            return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error.."}
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)
-            return {"error": exception}
+            return {"error": "ERROR_OPENAI", "message": "Open ai exception"}
+
+    def verify_access_key(self):
+        """
+        Verify the access key is valid.
+
+        Returns:
+            bool: True if the access key is valid, False otherwise.
+        """
+        try:
+            models = openai.Model.list()
+            return True
+        except Exception as exception:
+            logger.info("OpenAi Exception:", exception)
+            return False

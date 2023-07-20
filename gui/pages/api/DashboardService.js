@@ -76,6 +76,9 @@ export const validateAccessToken = () => {
   return api.get(`/validate-access-token`);
 }
 
+export const validateLLMApiKey = (model_source, model_api_key) => {
+  return api.post(`/validate-llm-api-key`,{model_source, model_api_key});
+}
 export const checkEnvironment = () => {
   return api.get(`/configs/get/env`);
 }
@@ -126,6 +129,10 @@ export const fetchAgentTemplateConfigLocal = (templateId) => {
 
 export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
+}
+
+export const deleteAgent = (agentId) => {
+  return api.put(`/agents/delete/${agentId}`)
 }
 
 export const authenticateGoogleCred = (toolKitId) => {
@@ -183,15 +190,19 @@ export const getDateTime = (agentId) => {
 export const getMetrics = () => {
   return api.get(`/analytics/metrics`)
 }
+
 export const getAllAgents = () => {
   return api.get(`/analytics/agents/all`)
 }
+
 export const getAgentRuns = (agent_id) => {
   return api.get(`analytics/agents/${agent_id}`);
 }
+
 export const getActiveRuns = () => {
   return api.get(`analytics/runs/active`);
 }
+
 export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
 }
