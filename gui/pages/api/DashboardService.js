@@ -206,3 +206,7 @@ export const getActiveRuns = () => {
 export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
 }
+export const getLlmModels = () => {
+  const response =  api.get(`organisations/llm_models`);
+  console.log(response);
+}

@@ -90,3 +90,17 @@ class GooglePalm(BaseLlm):
         except Exception as exception:
             logger.info("Google palm Exception:", exception)
             return False
+
+    def get_models(self):
+        """
+        Get the models.
+
+        Returns:
+            list: The models.
+        """
+        try:
+            models = palm.list_models()
+            return models
+        except Exception as exception:
+            logger.info("Google palm Exception:", exception)
+            return []
