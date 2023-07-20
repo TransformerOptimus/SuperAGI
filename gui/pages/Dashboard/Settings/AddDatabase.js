@@ -132,9 +132,10 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
     if (data.success) {
       toast.success("Database connected successfully", {autoClose: 1800});
-      setConnectText("Connected")
+      setConnectText("Connected");
       sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
     } else {
+      setConnectText("Connect");
       toast.error(data.message, {autoClose: 1800});
     }
   }
@@ -155,7 +156,9 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         toast.error("Pinecone environment is empty", {autoClose: 1800});
         return;
       }
-      setConnectText("Connecting")
+
+      setConnectText("Connecting...");
+
       const pineconeData = {
         "name": databaseName,
         "collections": collections,
@@ -170,6 +173,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
           console.error('Error fetching vector databases:', error);
+          setConnectText("Connect");
         });
     }
 
@@ -188,7 +192,9 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         toast.error("Qdrant port can't be blank", {autoClose: 1800});
         return;
       }
-      setConnectText("Connecting")
+
+      setConnectText("Connecting...");
+
       const qdrantData = {
         "name": databaseName,
         "collections": collections,
@@ -204,6 +210,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
         .catch((error) => {
           toast.error("Unable to connect database", {autoClose: 1800});
           console.error('Error fetching vector databases:', error);
+          setConnectText("Connect");
         });
     }
   }
@@ -326,7 +333,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
               Cancel
             </button>
             <button className="primary_button" onClick={connectDatabase}>
-              {connectText}{connectText === "Connecting" && <span class="loader ml_10"></span>}
+              {connectText}
             </button>
           </div>
         </div>}
