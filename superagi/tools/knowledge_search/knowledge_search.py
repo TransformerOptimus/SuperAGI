@@ -42,6 +42,8 @@ class KnowledgeSearchTool(BaseTool):
         organisation_id = toolkit.organisation_id
         knowledge_id = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == self.agent_id, AgentConfiguration.key == "knowledge").first().value
         knowledge = Knowledges.get_knowledge_from_id(session, knowledge_id)
+        if knowledge is None:
+            return "Selected Knowledge not found"
         vector_db_index = VectordbIndices.get_vector_index_from_id(session, knowledge.vector_db_index_id)
         vector_db = Vectordbs.get_vector_db_from_id(session, vector_db_index.vector_db_id)
         db_creds = VectordbConfigs.get_vector_db_config_from_db_id(session, vector_db.id)
