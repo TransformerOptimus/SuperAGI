@@ -124,7 +124,13 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     getLlmModels()
       .then((response) => {
         const models = response.data || [];
+        const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
         setModelsArray(models);
+        if(models.length > 0 && !selected_model) {
+          setLocalStorageValue("agent_model_" + String(internalId), models[0], setModel);
+        } else {
+          setModel(selected_model);
+        }
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
