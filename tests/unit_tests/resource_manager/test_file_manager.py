@@ -7,7 +7,6 @@ from superagi.lib.logger import logger
 
 from superagi.resource_manager.file_manager import FileManager
 
-
 @pytest.fixture
 def resource_manager():
     session_mock = Mock()
