@@ -16,12 +16,6 @@ def resource_manager():
     return resource_manager
 
 
-@pytest.fixture
-def mock_get_s3_client():
-    with patch('superagi.helper.s3_helper.S3Helper.get_s3_client') as mock:
-        yield mock
-
-
 def test_write_binary_file(resource_manager):
     with patch.object(ResourceHelper, 'get_resource_path', return_value='test_path'), \
             patch.object(ResourceHelper, 'make_written_file_resource',
