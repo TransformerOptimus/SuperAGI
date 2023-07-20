@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from superagi.models.resource import Resource
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
@@ -12,7 +12,7 @@ from superagi.resource_manager.file_manager import FileManager
 def resource_manager():
     session_mock = Mock()
     resource_manager = FileManager(session_mock)
-    # resource_manager.agent_id = 1  # replace with actual value
+    #resource_manager.agent_id = 1  # replace with actual value
     return resource_manager
 
 
