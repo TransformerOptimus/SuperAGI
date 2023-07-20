@@ -24,8 +24,8 @@ factory.register_format("gpt-3.5-turbo-16k", lambda **kwargs: OpenAi(model="gpt-
 factory.register_format("gpt-3.5-turbo", lambda **kwargs: OpenAi(model="gpt-3.5-turbo", **kwargs))
 factory.register_format("google-palm-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
 factory.register_format("replicate-llama13b-v2-chat",
-                        lambda **kwargs: Replicate(model='a16z-infra/llama13b-v2-chat',
-                                                   version="df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5",
+                        lambda **kwargs: Replicate(model='replicate/llama70b-v2-chat',
+                                                   version="e951f18578850b652510200860fc4ea62b3b16fac280f83ff32282f87bbd2e48",
                                                    **kwargs))
 
 
