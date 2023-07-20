@@ -96,6 +96,11 @@ export default function AgentCreate({
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
+  const [col6ScrollTop, setCol6ScrollTop] = useState(0);
+
+  const handleCol3Scroll = (event) => {
+    setCol6ScrollTop(event.target.scrollTop);
+  };
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -652,9 +657,9 @@ export default function AgentCreate({
   }, [internalId])
 
   return (<>
-    <div className="row">
-      <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+    <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
+      <div className="col-3" onScroll={handleCol3Scroll}></div>
+      <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
         </div>
@@ -962,9 +967,9 @@ export default function AgentCreate({
                                        src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
                                        alt="expand-icon"/>
                   </div>
-                  <div style={{marginBottom: '20px'}}>
+                  <div className="mb_34">
                     {permissionDropdown &&
-                      <div className="custom_select_options" ref={permissionRef} style={{width: '100%'}}>
+                      <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
                         {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
                                                                   onClick={() => handlePermissionSelect(index)}
                                                                   style={{padding: '12px 14px', maxWidth: '100%'}}>

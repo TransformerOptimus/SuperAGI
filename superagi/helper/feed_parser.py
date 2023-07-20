@@ -45,7 +45,7 @@ def parse_feed(feed):
     if feed.role == "system":
         final_output = feed.feed
         if "json-schema.org" in feed.feed:
-            final_output = feed.feed.split("TOOLS")[0]
+            final_output = feed.feed.split("TOOLS:")[0]
         return {"role": "system", "feed": final_output, "updated_at": feed.updated_at,
                 "time_difference": feed.time_difference}
 

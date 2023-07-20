@@ -99,7 +99,7 @@ class CodingTool(BaseTool):
 
         # Get README contents and save
         split_result = result["content"].split("```")
-        if len(split_result) > 0:
+        if split_result:
             readme = split_result[0]
             save_readme_result = self.resource_manager.write_file("README.md", readme)
             if save_readme_result.startswith("Error"):
