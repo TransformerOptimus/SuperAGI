@@ -41,7 +41,12 @@ def parse_feed(feed):
                     "time_difference": feed.time_difference}
         except Exception:
             return feed
+
     if feed.role == "system":
-        return feed
+        final_output = feed.feed
+        if "json-schema.org" in feed.feed:
+            final_output = feed.feed.split("TOOLS:")[0]
+        return {"role": "system", "feed": final_output, "updated_at": feed.updated_at,
+                "time_difference": feed.time_difference}
 
     return feed

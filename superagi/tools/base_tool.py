@@ -57,6 +57,8 @@ def create_function_schema(
 
 
 class BaseToolkitConfiguration:
+    def __init__(self):
+        self.session = None
 
     def get_tool_config(self, key: str):
         # Default implementation of the tool configuration retrieval logic
@@ -92,7 +94,7 @@ class BaseTool(BaseModel):
 
     @property
     def max_token_limit(self):
-        return get_config("MAX_TOOL_TOKEN_LIMIT", 600)
+        return int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
 
     def _parse_input(
             self,

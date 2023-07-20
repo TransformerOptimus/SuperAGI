@@ -4,22 +4,24 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict
+from typing import Any
 from typing import Tuple
+
 import numpy as np
-from halo import Halo
 from pydantic import ValidationError
 from pydantic.types import List
-from sqlalchemy import desc, asc
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import asc
 from sqlalchemy.orm import sessionmaker
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.agent.output_parser import BaseOutputParser, AgentOutputParser
+from superagi.agent.output_parser import BaseOutputParser, AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
+from superagi.apm.event_handler import EventHandler
+from superagi.config.config import get_config
 from superagi.helper.token_counter import TokenCounter
+from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
-from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
@@ -27,13 +29,8 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.db import connect_db
 from superagi.tools.base_tool import BaseTool
-from superagi.types.common import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from superagi.types.common import BaseMessage
 from superagi.vector_store.base import VectorStore
-from superagi.models.agent import Agent
-from superagi.models.resource import Resource
-from superagi.config.config import get_config
-import os
-from superagi.lib.logger import logger
 
 FINISH = "finish"
 WRITE_FILE = "Write File"
@@ -46,7 +43,6 @@ S3 = "S3"
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
-session = Session()
 
 
 class SuperAgi:
@@ -58,7 +54,7 @@ class SuperAgi:
                  tools: List[BaseTool],
                  agent_config: Any,
                  agent_execution_config: Any,
-                 output_parser: BaseOutputParser = AgentOutputParser(),
+                 output_parser: BaseOutputParser = AgentSchemaOutputParser(),
                  ):
         self.ai_name = ai_name
         self.ai_role = ai_role
@@ -69,26 +65,7 @@ class SuperAgi:
         self.tools = tools
         self.agent_config = agent_config
         self.agent_execution_config = agent_execution_config
-        # Init Log
-        # print("\033[92m\033[1m" + "\nWelcome to SuperAGI - The future of AGI" + "\033[0m\033[0m")
 
-    @classmethod
-    def from_llm_and_tools(
-            cls,
-            ai_name: str,
-            ai_role: str,
-            memory: VectorStore,
-            tools: List[BaseTool],
-            llm: BaseLlm
-    ) -> SuperAgi:
-        return cls(
-            ai_name=ai_name,
-            ai_role=ai_role,
-            llm=llm,
-            memory=memory,
-            output_parser=AgentOutputParser(),
-            tools=tools
-        )
 
     def fetch_agent_feeds(self, session, agent_execution_id):
         agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
@@ -121,31 +98,30 @@ class SuperAgi:
         if len(agent_feeds) <= 0:
             task_queue.clear_tasks()
         messages = []
-        max_token_limit = 600
+        max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         # adding history to the messages
         if workflow_step.history_enabled:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
-                                             max_token_limit=max_token_limit)
+                                             max_token_limit=max_output_token_limit)
             messages.append({"role": "system", "content": prompt})
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self.split_history(full_message_history,
-                                                                 token_limit - base_token_limit - max_token_limit)
+                                                                 token_limit - base_token_limit - max_output_token_limit)
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": workflow_step.completion_prompt})
         else:
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
-                                             max_token_limit=max_token_limit)
+                                             max_token_limit=max_output_token_limit)
             messages.append({"role": "system", "content": prompt})
             # agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
             #                                           agent_id=self.agent_config["agent_id"], feed=template_step.prompt,
             #                                           role="user")
 
-        logger.info(messages)
+        logger.debug("Prompt messages:", messages)
         if len(agent_feeds) <= 0:
-            logger.info(prompt)
             for message in messages:
                 agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                           agent_id=self.agent_config["agent_id"],
@@ -158,8 +134,9 @@ class SuperAgi:
         response = self.llm.chat_completion(messages, token_limit - current_tokens)
         current_calls = current_calls + 1
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
-        self.update_agent_execution_tokens(current_calls, total_tokens)
-        logger.info("Response:", response)
+
+        self.update_agent_execution_tokens(current_calls, total_tokens, session)
+        
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
@@ -167,14 +144,15 @@ class SuperAgi:
         final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
             # check if permission is required for the tool in restricted mode
-            is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply)
+            is_permission_required, response = self.check_permission_in_restricted_mode(assistant_reply, session)
             if is_permission_required:
                 return response
 
-            tool_response = self.handle_tool_response(assistant_reply)
+            tool_response = self.handle_tool_response(session, assistant_reply)
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
-                                                      agent_id=self.agent_config["agent_id"], feed=assistant_reply,
+                                                      agent_id=self.agent_config["agent_id"],
+                                                      feed=assistant_reply,
                                                       role="assistant")
             session.add(agent_execution_feed)
             tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
@@ -229,17 +207,21 @@ class SuperAgi:
         session.close()
         return final_response
 
-    def handle_tool_response(self, assistant_reply):
+    def handle_tool_response(self, session, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         action_name = action.name.lower().replace(" ", "")
+        agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
+        organisation = agent.get_agent_organisation(session)
         if action_name == FINISH or action.name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             return output
         if action_name in tools:
             tool = tools[action_name]
             retry = False
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
             try:
                 parsed_args = self.clean_tool_args(action.args)
                 observation = tool.execute(parsed_args)
@@ -277,7 +259,8 @@ class SuperAgi:
                 parsed_args[key] = args[key]["value"]
         return parsed_args
 
-    def update_agent_execution_tokens(self, current_calls, total_tokens):
+
+    def update_agent_execution_tokens(self, current_calls, total_tokens, session):
         agent_execution = session.query(AgentExecution).filter(
             AgentExecution.id == self.agent_config["agent_execution_id"]).first()
         agent_execution.num_of_calls += current_calls
@@ -309,7 +292,7 @@ class SuperAgi:
                                                                  pending_tasks, completed_tasks, token_limit)
         return prompt
 
-    def check_permission_in_restricted_mode(self, assistant_reply: str):
+    def check_permission_in_restricted_mode(self, assistant_reply: str, session):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 

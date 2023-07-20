@@ -76,6 +76,9 @@ export const validateAccessToken = () => {
   return api.get(`/validate-access-token`);
 }
 
+export const validateLLMApiKey = (model_source, model_api_key) => {
+  return api.post(`/validate-llm-api-key`,{model_source, model_api_key});
+}
 export const checkEnvironment = () => {
   return api.get(`/configs/get/env`);
 }
@@ -128,6 +131,10 @@ export const updatePermissions = (permissionId, data) => {
   return api.put(`/agentexecutionpermissions/update/status/${permissionId}`, data)
 }
 
+export const deleteAgent = (agentId) => {
+  return api.put(`/agents/delete/${agentId}`)
+}
+
 export const authenticateGoogleCred = (toolKitId) => {
   return api.get(`/google/get_google_creds/toolkit_id/${toolKitId}`);
 }
@@ -138,6 +145,10 @@ export const authenticateTwitterCred = (toolKitId) => {
 
 export const sendTwitterCreds = (twitter_creds) => {
   return api.post(`/twitter/send_twitter_creds/${twitter_creds}`);
+}
+
+export const sendGoogleCreds = (google_creds, toolkit_id) => {
+  return api.post(`/google/send_google_creds/toolkit_id/${toolkit_id}`, google_creds);
 }
 
 export const fetchToolTemplateList = () => {
@@ -176,4 +187,22 @@ export const getDateTime = (agentId) => {
   return api.get(`/agents/get/schedule_data/${agentId}`);
 }
 
+export const getMetrics = () => {
+  return api.get(`/analytics/metrics`)
+}
 
+export const getAllAgents = () => {
+  return api.get(`/analytics/agents/all`)
+}
+
+export const getAgentRuns = (agent_id) => {
+  return api.get(`analytics/agents/${agent_id}`);
+}
+
+export const getActiveRuns = () => {
+  return api.get(`analytics/runs/active`);
+}
+
+export const getToolsUsage = () => {
+  return api.get(`analytics/tools/used`);
+}

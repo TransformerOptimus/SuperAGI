@@ -5,9 +5,16 @@ import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
+import ApmDashboard from "../Content/APM/ApmDashboard";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
-import {getAgents, getLastActiveAgent, getToolKit, sendTwitterCreds} from "@/pages/api/DashboardService";
+import {
+  getAgents,
+  getToolKit,
+  getLastActiveAgent,
+  sendTwitterCreds,
+  sendGoogleCreds
+} from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
 import {useRouter} from 'next/router';
@@ -135,11 +142,24 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     const queryParams = router.asPath.split('?')[1];
     const parsedParams = querystring.parse(queryParams);
     parsedParams["toolkit_id"] = toolkitDetails.toolkit_id;
-
     if (window.location.href.indexOf("twitter_creds") > -1) {
-      parsedParams["toolkit_id"] = localStorage.getItem("twitter_toolkit_id") || null;
+      const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
+      parsedParams["toolkit_id"] = toolkit_id;
       const params = JSON.stringify(parsedParams)
       sendTwitterCreds(params)
+        .then((response) => {
+          console.log("Authentication completed successfully");
+        })
+        .catch((error) => {
+          console.error("Error fetching data: ", error);
+        })
+    }
+    ;
+    if (window.location.href.indexOf("google_calendar_creds") > -1) {
+      const toolkit_id = localStorage.getItem("google_calendar_toolkit_id") || null;
+      var data = Object.keys(parsedParams)[0];
+      var params = JSON.parse(data)
+      sendGoogleCreds(params, toolkit_id)
         .then((response) => {
           console.log("Authentication completed successfully");
         })
@@ -220,10 +240,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
-        <div className={styles.item_list} style={selectedView === '' ? {width: '0vw'} : {width: '13vw'}}>
-          {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-          {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
-        </div>
+        {(selectedView === 'agents' || selectedView === 'toolkits') &&
+          <div className={styles.item_list} style={{width: '13vw'}}>
+            {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+          </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
           width: '93.5vw',
@@ -272,8 +293,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>
           </div>
         </div> : <div className={styles.main_workspace}
-                      style={selectedView === '' ? {width: '93.5vw', paddingLeft: '10px'} : {width: '80.5vw'}}>
-          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                      style={(selectedView === 'agents' || selectedView === 'toolkits') ? {width: '80.5vw'} : {width: '100%'}}>
+          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (
                 <div data-tab-id={index} key={index}
@@ -294,6 +315,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {tab.contentType === 'Marketplace' &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/marketplace.svg"
                                                                 alt="marketplace-icon"/></div>}
+                    {tab.contentType === 'APM' &&
+                      <div className={styles.tab_active}><Image width={13} height={13} src="/images/apm.svg"
+                                                                alt="apm-icon"/></div>}
                     <div style={{marginLeft: '8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                   </div>
                   <div onClick={(e) => {
@@ -313,7 +337,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 <div key={index}>
                   {selectedTab === index && <div>
                     {tab.contentType === 'Agents' &&
-                      <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} selectedView={selectedView}
+                      <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name} selectedView={selectedView}
                                       agents={agents} fetchAgents={fetchAgents}/>}
                     {tab.contentType === 'Toolkits' &&
                       <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
@@ -324,6 +348,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={fetchAgents} toolkits={toolkits}/>}
+                    {tab.contentType === 'APM' && <ApmDashboard/>}
                   </div>}
                 </div>
               ))}
