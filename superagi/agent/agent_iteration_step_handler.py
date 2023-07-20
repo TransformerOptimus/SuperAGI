@@ -41,11 +41,12 @@ class AgentIterationStepHandler:
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
+        agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
 
-        if not self.handle_wait_for_permission(execution, agent_config, iteration_workflow_step):
+        if not self.handle_wait_for_permission(execution, agent_config, agent_execution_config,
+                                               iteration_workflow_step):
             return
 
-        agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_step_id)
         organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
@@ -56,11 +57,13 @@ class AgentIterationStepHandler:
         if not agent_feeds:
             task_queue.clear_tasks()
 
+        agent_tools = self.build_tools(agent_config, agent_execution_config)
         prompt = self.build_agent_prompt(iteration_workflow=iteration_workflow,
                                          agent_config=agent_config,
                                          agent_execution_config=agent_execution_config,
                                          prompt=iteration_workflow_step.prompt,
-                                         task_queue=task_queue)
+                                         task_queue=task_queue,
+                                         agent_tools=agent_tools)
 
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
@@ -78,7 +81,9 @@ class AgentIterationStepHandler:
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
 
         assistant_reply = response['content']
-        output_handler = get_output_handler(self.agent_execution_id, workflow_step.output_type, agent_config)
+        output_handler = get_output_handler(iteration_workflow_step.output_type,
+                                            agent_execution_id=self.agent_execution_id,
+                                            agent_config=agent_config, agent_tools=agent_tools)
         response = output_handler.handle(self.session, assistant_reply)
 
         response.status = "PENDING"
@@ -110,15 +115,14 @@ class AgentIterationStepHandler:
     def update_agent_execution_next_step(self, execution, next_step_id, workflow_step, step_response: str = "default"):
         execution.iteration_workflow_step_id = next_step_id
         if execution.iteration_workflow_step_id == -1:
-            next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step, step_response)
+            next_step = AgentWorkflowStep.fetch_next_step(self.session, execution.current_step_id, step_response)
             execution.current_step_id = next_step.id
         self.session.commit()
 
     def build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
                            agent_execution_config: dict,
-                           prompt: str, task_queue: TaskQueue):
+                           prompt: str, task_queue: TaskQueue, agent_tools: list):
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
-        agent_tools = self.build_tools(agent_config, agent_execution_config)
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
                                                            agent_config["constraints"], agent_tools,
@@ -162,7 +166,7 @@ class AgentIterationStepHandler:
             .all()
         return agent_feeds[2:]
 
-    def handle_wait_for_permission(self, agent_execution, agent_config: dict,
+    def handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,
                                    iteration_workflow_step: IterationWorkflowStep):
         """
         Handles the wait for permission when the agent execution is waiting for permission.
@@ -183,7 +187,8 @@ class AgentIterationStepHandler:
             logger.error("handle_wait_for_permission: Permission is still pending")
             return False
         if agent_execution_permission.status == "APPROVED":
-            tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config)
+            agent_tools = self.build_tools(agent_config, agent_execution_config)
+            tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, agent_tools)
             tool_result = tool_output_handler.handle_tool_response(self.session, agent_execution_permission.assistant_reply).get("result")
             result = tool_result.result
         else:

@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 class ToolExecutorResponse(BaseModel):
     status: str
-    result: str
-    retry: bool
+    result: str = None
+    retry: bool = False
     is_permission_required: bool = False
     permission_id: int = None
 

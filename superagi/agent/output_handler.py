@@ -12,25 +12,27 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 
 class ToolOutputHandler:
-    def __init__(self, agent_execution_id: int, agent_config: dict):
+    def __init__(self, agent_execution_id: int, agent_config: dict, tools: list):
+        self.agent_execution_id = agent_execution_id
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
+        self.tools = tools
 
     def handle(self, session, assistant_reply):
-        response = self.check_permission_in_restricted_mode(assistant_reply)
+        response = self.check_permission_in_restricted_mode(session, assistant_reply)
         if response.is_permission_required:
             return response
 
         tool_response = self.handle_tool_response(session, assistant_reply)
 
-        agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+        agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                   agent_id=self.agent_config["agent_id"],
                                                   feed=assistant_reply,
                                                   role="assistant")
         session.add(agent_execution_feed)
-        tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+        tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                 agent_id=self.agent_config["agent_id"],
-                                                feed=tool_response["result"],
+                                                feed=tool_response.result,
                                                 role="system")
         session.add(tool_response_feed)
         session.commit()
@@ -40,13 +42,14 @@ class ToolOutputHandler:
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):
-        action = self.output_parser.parse(assistant_reply)
+        output_parser = AgentSchemaOutputParser()
+        action = output_parser.parse(assistant_reply)
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
         organisation = agent.get_agent_organisation(session)
         tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools)
         return tool_executor.execute(session, action.name, action.args)
 
-    def check_permission_in_restricted_mode(self, assistant_reply: str, session):
+    def check_permission_in_restricted_mode(self, session, assistant_reply: str):
         action = AgentSchemaOutputParser().parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
@@ -65,7 +68,7 @@ class ToolOutputHandler:
             session.commit()
             return ToolExecutorResponse(is_permission_required=True, status="WAITING_FOR_PERMISSION",
                                         permission_id=new_agent_execution_permission.id)
-        return ToolExecutorResponse(is_permission_required=False)
+        return ToolExecutorResponse(status="PENDING", is_permission_required=False)
 
     def check_for_completion(self, tool_response):
         self.task_queue.complete_task(tool_response.result)
@@ -81,6 +84,7 @@ class TaskOutputHandler:
     """This class handles the task output type.
     LLM output is mostly in the array of tasks and handler adds every task to the task queue.
     """
+
     def __init__(self, agent_execution_id: int, agent_config: dict):
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
@@ -108,6 +112,7 @@ class ReplaceTaskOutputHandler:
     """This class handles the replace/prioritze task output type.
     LLM output is mostly in the array of tasks and handler adds every task to the task queue.
     """
+
     def __init__(self, agent_execution_id: int, agent_config: dict):
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
@@ -125,11 +130,11 @@ class ReplaceTaskOutputHandler:
         return TaskExecutorResponse(status=status, retry=False)
 
 
-def get_output_handler(output_type: str, agent_execution_id: int, agent_config: dict):
+def get_output_handler(output_type: str, agent_execution_id: int, agent_config: dict, agent_tools: list = []):
     if output_type == "tools":
-        return ToolOutputHandler(agent_execution_id, agent_config)
+        return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)
     elif output_type == "replace_tasks":
         return ReplaceTaskOutputHandler(agent_execution_id, agent_config)
     elif output_type == "tasks":
         return TaskOutputHandler(agent_execution_id, agent_config)
-    return ToolOutputHandler(agent_execution_id, agent_config)
+    return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)
