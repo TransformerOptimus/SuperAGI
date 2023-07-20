@@ -1,14 +1,23 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from superagi.helper.s3_helper import S3Helper
-from superagi.config.config import get_config
+
+import pytest
 from botocore.exceptions import BotoCoreError
+
+from superagi.config.config import get_config
+from superagi.helper.s3_helper import S3Helper
 
 
 @pytest.fixture
 def mock_boto3_client():
     with patch('superagi.helper.s3_helper.boto3.client') as mock:
         yield mock
+
+
+@pytest.fixture
+def s3_helper():
+    s3_helper = S3Helper()
+    s3_helper.s3 = MagicMock()
+    return s3_helper
 
 
 def test_upload_file_success(mock_boto3_client):
@@ -58,15 +67,63 @@ def test_upload_file_exception(mock_boto3_client):
     mock_s3_client.upload_fileobj.assert_called_with(mock_file, get_config("BUCKET_NAME"), path)
 
 
-def test_get_s3_client(mock_boto3_client, monkeypatch):
-    with patch('superagi.config.config.get_config') as mock_get_config:
-        # Mock the S3 client
-        mock_s3_client = MagicMock()
-        mock_get_config.side_effect = ["mock-access-key", "mock-secret-key"]
-        mock_boto3_client.return_value = mock_s3_client
+def test_upload_file(s3_helper):
+    # Mock file object and call the upload_file method
+    file_mock = MagicMock()
+    s3_helper.upload_file(file_mock, "test_path")
 
-        # Call the method under test
-        s3_client = S3Helper.get_s3_client()
+    # Assert that the upload_fileobj method was called with the correct arguments
+    s3_helper.s3.upload_fileobj.assert_called_once_with(file_mock, s3_helper.bucket_name, "test_path")
 
-        # Assert the expected behavior
-        assert s3_client == mock_s3_client
+
+def test_check_file_exists_in_s3(s3_helper):
+    # Mock the response from S3
+    response_mock = {
+        'Contents': [{'Key': 'resources/test_file.txt'}]
+    }
+    s3_helper.s3.list_objects_v2.return_value = response_mock
+
+    # Call the check_file_exists_in_s3 method
+    result = s3_helper.check_file_exists_in_s3("/test_file.txt")
+
+    # Assert that the method returns True when the file exists
+    assert result is True
+
+
+def test_check_file_does_not_exist_in_s3(s3_helper):
+    # Mock the response from S3 where the file does not exist
+    response_mock = {}
+    s3_helper.s3.list_objects_v2.return_value = response_mock
+
+    # Call the check_file_exists_in_s3 method
+    result = s3_helper.check_file_exists_in_s3("/non_existing_file.txt")
+
+    # Assert that the method returns False when the file does not exist
+    assert result is False
+
+
+def test_read_from_s3(s3_helper):
+    # Mock the response from S3
+    response_mock = {
+        'ResponseMetadata': {'HTTPStatusCode': 200},
+        'Body': MagicMock(read=MagicMock(return_value=b'File content')),  # Use bytes for the mock response
+    }
+    s3_helper.s3.get_object.return_value = response_mock
+
+    # Call the read_from_s3 method
+    result = s3_helper.read_from_s3("/test_file.txt")
+
+    # Assert that the method returns the correct file content
+    assert result == 'File content'
+
+
+def test_read_from_s3_failure(s3_helper):
+    # Mock the response from S3 where reading fails
+    response_mock = {
+        'ResponseMetadata': {'HTTPStatusCode': 500},
+    }
+    s3_helper.s3.get_object.return_value = response_mock
+
+    # Call the read_from_s3 method and expect it to raise an Exception
+    with pytest.raises(Exception):
+        s3_helper.read_from_s3("/test_file.txt")

@@ -54,14 +54,6 @@ class FileManager:
                     s3_helper = S3Helper()
                     s3_helper.upload_file(img, path=resource.path)
 
-    def read_from_s3(self, file_path):
-        file_path = "resources" + file_path
-        logger.info(f"Reading file from s3: {file_path}")
-        response = S3Helper.get_s3_client().get_object(Bucket=get_config("BUCKET_NAME"), Key=file_path)
-        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-            return response['Body'].read().decode('utf-8')
-        raise Exception(f"Error read_from_s3: {response}")
-
     def write_file(self, file_name: str, content):
         if self.agent_id is not None:
             final_path = ResourceHelper.get_agent_write_resource_path(file_name,

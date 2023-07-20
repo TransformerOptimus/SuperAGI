@@ -4,6 +4,7 @@ from typing import Type, Optional
 from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.helper.s3_helper import S3Helper
 from superagi.models.agent_execution import AgentExecution
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
@@ -50,7 +51,7 @@ class ReadFileTool(BaseTool):
                                                                                               agent_execution_id=self
                                                                                               .agent_execution_id))
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
-            return self.resource_manager.read_from_s3(final_path)
+            return S3Helper().read_from_s3(final_path)
 
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")
