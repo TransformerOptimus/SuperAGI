@@ -12,6 +12,7 @@ from superagi.tools.base_tool import BaseTool
 import os
 import requests
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
+import random
 
 class InstagramSchema(BaseModel):
     photo_description: str = Field(
@@ -84,7 +85,7 @@ class InstagramTool(BaseTool):
         #storing the image in a public bucket and getting the image url
         image_url = self.get_img_public_url(s3,file_path,content)       
         #encoding the caption with possible emojis and hashtags and removing the starting and ending double quotes 
-        encoded_caption=urllib. parse. quote(caption[1:-1])     
+        encoded_caption=self.create_caption(photo_description)    
         
         #post request for getting the media container ID
         response = requests.post(       
@@ -116,15 +117,17 @@ class InstagramTool(BaseTool):
             Description of the photo to be posted
         """
         caption_prompt ="""Generate an instagram post caption for the following text `{photo_description}`
-            Attempt to make it as relevant as possible to the description. Add relevant emojis and hashtags."""
+            Attempt to make it as relevant as possible to the description and should be different and unique everytime. Add relevant emojis and hashtags."""
 
         caption_prompt = caption_prompt.replace("{photo_description}", str(photo_description))
 
         messages = [{"role": "system", "content": caption_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
         caption=result["content"]
+        
+        encoded_caption=urllib. parse. quote(caption)     
 
-        return caption
+        return encoded_caption
 
     def get_image_from_s3(self,s3,file_path):
         """
@@ -188,7 +191,7 @@ class InstagramTool(BaseTool):
         """
         
         bucket_name = get_config("INSTAGRAM_TOOL_BUCKET_NAME")
-        object_key=file_path.split('/')[-1]
+        object_key=f"instagram_upload_images/{file_path.split('/')[-1]}{random.randint(0, 1000)}"
         s3.put_object(Bucket=bucket_name, Key=object_key, Body=content)
         
         image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
