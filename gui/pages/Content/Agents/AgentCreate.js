@@ -392,6 +392,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       toast.error("Add atleast one tool", {autoClose: 1800});
       return
     }
+    if(!modelsArray.includes(model)) {
+      toast.error("Your key does not have access to the selected LLM", {autoClose: 1800});
+      return
+    }
 
     setCreateClickable(false);
 
