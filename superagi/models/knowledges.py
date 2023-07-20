@@ -109,3 +109,8 @@ class Knowledges(DBBaseModel):
     def delete_knowledge(cls, session, knowledge_id):
         session.query(Knowledges).filter(Knowledges.id == knowledge_id).delete()
         session.commit()
+
+    @classmethod
+    def delete_knowledge_from_vector_index(cls, session, vector_db_index_id):
+        session.query(Knowledges).filter(Knowledges.vector_db_index_id == vector_db_index_id).delete()
+        session.commit()

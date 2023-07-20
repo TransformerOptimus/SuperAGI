@@ -9,6 +9,7 @@ from superagi.helper.auth import get_user_organisation
 from superagi.models.vector_db_configs import VectordbConfigs
 from superagi.models.vector_db_indices import VectordbIndices
 from superagi.vector_store.vector_factory import VectorFactory
+from superagi.models.knowledges import Knowledges
 
 router = APIRouter()
 
@@ -54,6 +55,7 @@ def delete_vector_db(vector_db_id: int):
     try:
         vector_indices = VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db_id)
         for vector_index in vector_indices:
+            Knowledges.delete_knowledge_from_vector_index(db.session, vector_index.id)
             VectordbIndices.delete_vector_db_index(db.session, vector_index.id)
         VectordbConfigs.delete_vector_db_configs(db.session, vector_db_id)
         Vectordbs.delete_vector_db(db.session, vector_db_id)
