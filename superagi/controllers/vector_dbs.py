@@ -29,8 +29,7 @@ def get_user_connected_vector_db_list(organisation = Depends(get_user_organisati
     print(vector_db_list)
     if vector_db_list:
         for vector in vector_db_list:
-            update_time = get_time_difference(vector.updated_at, str(datetime.now()))
-            vector.updated_at = update_time["years"]
+            vector.updated_at = get_time_difference(vector.updated_at, str(datetime.now()))
     return vector_db_list
 
 @router.get("/get/db/details/{vector_db_id}")
@@ -89,7 +88,7 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
     }
     for collection in data["collections"]:
         try:
-            vector_db_storage = VectorFactory.build_vector_storage("pinecone", collection, **db_creds)
+            vector_db_storage = VectorFactory.build_vector_storage("qdrant", collection, **db_creds)
             db_connect_for_index = vector_db_storage.get_index_stats()
             index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
         except:
