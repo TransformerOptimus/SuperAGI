@@ -34,7 +34,7 @@ class TwitterTokens:
         if env == "DEV":
             oauth_callback = "http://localhost:3000/api/twitter/oauth-tokens"
         else:
-            oauth_callback = "https://superagi.com/api/twitter/oauth-tokens"
+            oauth_callback = "https://app.superagi.com/api/twitter/oauth-tokens"
         params = {
             'oauth_callback': oauth_callback,
             'oauth_consumer_key': api_key,

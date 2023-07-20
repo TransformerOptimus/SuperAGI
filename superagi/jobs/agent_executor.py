@@ -257,7 +257,11 @@ class AgentExecutor:
             return
 
         if "retry" in response and response["retry"]:
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
+            if "result" in response and response["result"] == "RATE_LIMIT_EXCEEDED":
+                superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=60)
+            else:
+                superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
+
             session.close()
             return
 
