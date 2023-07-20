@@ -32,7 +32,7 @@ class AgentWorkflowStep(DBBaseModel):
     step_type = Column(String)  # TRIGGER, NORMAL
     action_type = Column(String)  # TOOL, ITERATION_WORKFLOW, LLM
     action_reference_id = Column(Integer)  # id of the action
-    next_steps = Column(JSONB, default=[]) # edge_ref_id, response, step_id
+    next_steps = Column(JSONB) # edge_ref_id, response, step_id
 
     def __repr__(self):
         """
@@ -189,13 +189,14 @@ class AgentWorkflowStep(DBBaseModel):
             next_workflow_step = AgentWorkflowStep.find_by_id(session, next_step_id)
             next_unique_id = next_workflow_step.unique_id
         current_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.id == current_step_id).first()
-        next_steps = current_step.next_steps
+        next_steps = json.loads(json.dumps(current_step.next_steps))
         existing_steps = [step for step in next_steps if step["step_id"] == next_unique_id]
         if existing_steps:
             existing_steps[0]["step_response"] = step_response
+            current_step.next_steps = next_steps
         else:
-            next_steps.append({'step_response': step_response, 'step_id': next_unique_id})
-        current_step.next_steps = next_steps
+            next_steps.append({"step_response": str(step_response), "step_id": str(next_unique_id)})
+            current_step.next_steps = next_steps
         session.commit()
         return current_step
 

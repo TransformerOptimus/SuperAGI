@@ -58,6 +58,8 @@ class AgentWorkflowSeed:
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1)
+        # AgentWorkflowStep.add_next_workflow_step(session, step3.id, step3.id)
 
     @classmethod
     def build_goal_based_agent(cls, session):
