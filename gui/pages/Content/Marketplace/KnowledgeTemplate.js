@@ -117,10 +117,12 @@ export default function KnowledgeTemplate({template, env}) {
         }
         else {
           toast.error("Error installing Knowledge: ", {autoClose: 1800});
+          setInstalled('Install');
         }
       })
       .catch((error) => {
         console.error('Error installing Knowledge:', error);
+        setInstalled('Install');
       });
   }
 

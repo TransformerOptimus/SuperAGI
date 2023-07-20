@@ -9,7 +9,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
     <>
       <div className={styles1.container}>
         <div className={styles1.title_box}>
-          <p className={styles1.title_text}>Knowledge</p>
+          <p className={styles1.title_text}>Agents</p>
         </div>
         <div className={styles1.wrapper} style={{marginBottom: '10px', marginTop: '4px'}}>
           <button style={{width: '100%'}} className="secondary_button" onClick={() => sendKnowledgeData({
@@ -21,6 +21,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
             + Add Knowledge
           </button>
         </div>
+
         {knowledge && knowledge.length > 0 ? (
           <div style={{overflowY: 'scroll', height: '80vh'}}>
             <div className={styles.tool_container}>

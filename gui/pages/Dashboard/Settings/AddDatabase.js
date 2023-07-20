@@ -20,7 +20,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const [vectorDatabases, setVectorDatabases] = useState(null);
   const [selectedDB, setSelectedDB] = useState('');
   const [databaseName, setDatabaseName] = useState('database name');
-  const [collections, setCollections] = useState(['collection name']);
+  const [collections, setCollections] = useState(['']);
 
   const [pineconeApiKey, setPineconeApiKey] = useState('');
   const [pineconeEnvironment, setPineconeEnvironment] = useState('');
@@ -279,7 +279,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
             <input className="input_medium" type="text" value={databaseName} onChange={handleNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
-            <div><label className={styles.form_label}>Collection i.e, Index</label></div>
+            <div><label className={styles.form_label}>Collection/Index</label></div>
             {collections.map((collection, index) => (<div key={index} style={{
               marginBottom: '10px',
               display: 'flex',

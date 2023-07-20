@@ -131,7 +131,7 @@ export default function DatabaseDetails({internalId, databaseId}) {
           </div>
         </div>
         <div style={{marginTop: '15px'}}>
-          <div><label className={styles.form_label}>Collection i.e, Index</label></div>
+          <div><label className={styles.form_label}>Collection/Index</label></div>
           {collections.map((collection, index) => (<div key={index} style={{
             marginBottom: '10px',
             display: 'flex',

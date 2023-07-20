@@ -176,7 +176,7 @@ export default function KnowledgeForm({
         <textarea className="textarea_medium" rows={3} value={knowledgeDescription} onChange={handleDescriptionChange}/>
       </div>
       <div style={{marginTop: '15px'}}>
-        <label className={styles.form_label}>Collection i.e, Index</label><br/>
+        <label className={styles.form_label}>Collection/Index</label><br/>
         <div className="dropdown_container_search" style={{width: '100%'}}>
           <div className="custom_select_container" onClick={() => setIndexDropdown(!indexDropdown)}
                style={{width: '100%', color: !selectedIndex ? '#888888' : ''}}>
