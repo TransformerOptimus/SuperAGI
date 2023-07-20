@@ -257,6 +257,8 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("agent_time_unit_" + String(internalId));
     localStorage.removeItem("agent_time_value_" + String(internalId));
     localStorage.removeItem("agent_is_recurring_" + String(internalId));
+    localStorage.removeItem("is_agent_template_" + String(internalId));
+    localStorage.removeItem("agent_template_id_" + String(internalId));
   }
 }
 
