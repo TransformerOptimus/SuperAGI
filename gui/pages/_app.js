@@ -22,6 +22,7 @@ import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
+import * as DashboardService from "@/pages/api/DashboardService";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -92,12 +93,18 @@ export default function App() {
 
         if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
-          const queryParams = router.asPath.split('?')[1];
-          const parsedParams = querystring.parse(queryParams);
+          const queryParams = router.asPath.split('?');
+          const parsedParams = querystring.parse(queryParams[1]);
+          const parsedParams1 = querystring.parse(queryParams[2]);
           let access_token = parsedParams.access_token || null;
-
-          if (typeof window !== 'undefined' && access_token) {
+          let refresh_token = parsedParams1.refresh_token || null;
+          console.log('access_token', refresh_token)
+          if (typeof window !== 'undefined' && access_token !== null && refresh_token !== null) {
             localStorage.setItem('accessToken', access_token);
+            localStorage.setItem('refreshToken', refresh_token);
+            setInterval(() => {
+                refreshAccessToken();
+            }, 1000);
             refreshUrl();
           }
 
@@ -152,6 +159,16 @@ export default function App() {
   const handleSelectionEvent = (data) => {
     setSelectedView(data);
   };
+   const  refreshAccessToken = () => {
+      const refreshToken = localStorage.getItem('refreshToken');
+      DashboardService.refreshAccessToken(refreshToken)
+        .then((response) => {
+          console.log('refreshAccessToken', response.data);
+        })
+        .catch((error) => {
+            console.error('Error fetching project:', error);
+        });
+   }
 
   function signInUser() {
     const github_client_id = githubClientId();

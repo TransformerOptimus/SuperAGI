@@ -206,3 +206,7 @@ export const getActiveRuns = () => {
 export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
 }
+
+export const refreshAccessToken = (refreshToken) => {
+  return api.get(`/refresh-access-token?token=${refreshToken}`);
+}

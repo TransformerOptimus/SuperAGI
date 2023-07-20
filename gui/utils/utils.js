@@ -181,7 +181,7 @@ export const refreshUrl = () => {
 
   const urlWithoutToken = window.location.origin + window.location.pathname;
   window.history.replaceState({}, document.title, urlWithoutToken);
-};
+}
 
 export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
   const text = loadingText;

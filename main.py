@@ -138,19 +138,17 @@ def create_refresh_token(email, Authorize: AuthJWT = Depends()):
     return Authorize.create_refresh_token(subject=email, expires_time=expires)
 
 
-@app.get('/refresh-access-token')
-def refresh_access_token(Authorize: AuthJWT = Depends()):
-    try:
-        Authorize.jwt_refresh_token_required()
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Invalid refresh token")
+@app.post('/refresh-access-token')
+def refresh_access_token(token: str,Authorize: AuthJWT = Depends()):
+    print("refreshing access token", token)
+    if token is not None:
+        user_email = Authorize.get_jwt_subject()
 
-    user_email = Authorize.get_jwt_subject()
-
-    expiry_time_hours = 1
-    expires = timedelta(hours=expiry_time_hours)
-    return Authorize.create_access_token(subject=user_email, expires_time=expires)
+        expiry_time_hours = 1
+        expires = timedelta(hours=expiry_time_hours)
+        return Authorize.create_access_token(subject=user_email, expires_time=expires)
+    else:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 # callback to get your configuration
