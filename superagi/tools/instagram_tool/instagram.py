@@ -158,6 +158,11 @@ class InstagramTool(BaseTool):
         
         last_tool_response = self.tool_response_manager.get_last_response()
         file_path="resources"+last_tool_response.partition("['")[2].partition("']")[0]
+        if ',' in file_path:
+            # Split the string based on the comma and get the first element (substring before the comma)
+            file_path = file_path.split(',')[0].strip()
+            file_path=file_path[:-1]
+
         return file_path
 
     def create_s3_client(self):
