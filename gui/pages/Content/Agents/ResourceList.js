@@ -60,9 +60,9 @@ export default function ResourceList({files, channel, runs}) {
             </div>
 
             {selectedRunId === filesRun.run.id && (
-                <div className={styles.resources} style={{padding: '2px 8px'}}>
-                  {filesRun.files.map((file, index) => <File key={index} file={file}/>)}
-                </div>
+              <div className={styles.resources} style={{padding: '2px 8px'}}>
+                {filesRun.files.map((file, index) => <File key={index} file={file}/>)}
+              </div>
             )}
           </div>
           ))}
@@ -70,9 +70,9 @@ export default function ResourceList({files, channel, runs}) {
       )}
 
       {channel === 'input' &&
-          <div className={styles.resources}>
-            {files.map((file, index) => <File key={index} file={file}/>)}
-          </div>}
+        <div className={styles.resources}>
+          {files.map((file, index) => <File key={index} file={file}/>)}
+        </div>}
     </div>
   )
 }
