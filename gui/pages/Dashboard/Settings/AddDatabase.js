@@ -136,7 +136,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
       sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
     } else {
       setConnectText("Connect");
-      toast.error(data.message, {autoClose: 1800});
+      toast.error("Unable to connect database", {autoClose: 1800});
     }
   }
 
