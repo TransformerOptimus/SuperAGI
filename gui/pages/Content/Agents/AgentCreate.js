@@ -47,8 +47,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
-  const [model, setModel] = useState(models[1]);
+  const [modelsArray, setModelsArray] = useState([]);
+  const [model, setModel] = useState('');
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -123,7 +123,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   useEffect(() => {
     getLlmModels()
       .then((response) => {
-        console.log(response.data);
+        const models = response.data || [];
+        setModelsArray(models);
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
@@ -254,8 +255,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handleModelSelect = (index) => {
-    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
-    if (models[index] === "google-palm-bison-001") {
+    setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
+    if (modelsArray[index] === "google-palm-bison-001") {
       setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);
@@ -725,7 +726,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div>
                 {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {models.map((model, index) => (
+                  {modelsArray?.map((model, index) => (
                     <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
                          style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {model}
