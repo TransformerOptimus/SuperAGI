@@ -87,7 +87,8 @@ export default function KnowledgeTemplate({template, env}) {
   }, []);
 
   const handleInstallClick = (indexId) => {
-    setInstalled("Installing")
+    setInstalled("Installing");
+
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('knowledge_to_install', template.name);
       localStorage.setItem('knowledge_index_to_install', indexId);
@@ -104,7 +105,9 @@ export default function KnowledgeTemplate({template, env}) {
       toast.error("Template is already installed", {autoClose: 1800});
       return;
     }
-    setIndexDropdown(false)
+
+    setIndexDropdown(false);
+
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
         if(response.data.success) {
@@ -112,8 +115,9 @@ export default function KnowledgeTemplate({template, env}) {
           setInstalled('Installed');
           EventBus.emit('reFetchKnowledge', {});
         }
-        else
+        else {
           toast.error("Error installing Knowledge: ", {autoClose: 1800});
+        }
       })
       .catch((error) => {
         console.error('Error installing Knowledge:', error);
@@ -179,7 +183,7 @@ export default function KnowledgeTemplate({template, env}) {
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;<span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
                 </div>
                 <div>
-                  {indexDropdown &&
+                  {indexDropdown && installed === 'Install' &&
                     <div className="custom_select_options" ref={indexRef} style={{width: '100%', maxHeight: '500px'}}>
                       <div className={styles3.knowledge_label} style={{padding: '12px 14px', maxWidth: '100%'}}>Select
                         an existing vector database collection/index to install the knowledge
