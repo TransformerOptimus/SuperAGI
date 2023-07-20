@@ -95,7 +95,7 @@ class Qdrant(VectorStore):
             collected_ids.extend(id_batch)
 
         return collected_ids
-
+    
     def get_matching_text(
             self,
             embedding: List[float] = None,
@@ -107,7 +107,7 @@ class Qdrant(VectorStore):
             score_threshold: Optional[float] = None,
             consistency: Optional[common_types.ReadConsistency] = None,
             **kwargs: Any,
-    ) -> List[Tuple[Document, float]]:
+    ) -> Dict:
         """
         Return docs most similar to query using specified search type.
 
@@ -141,8 +141,8 @@ class Qdrant(VectorStore):
             filter = models.Filter(
                 must = filter_conditions
             )
-
-        results = self.client.search(
+        try:
+            results = self.client.search(
             collection_name=self.collection_name,
             query_vector=embedding,
             query_filter=filter,
@@ -154,13 +154,14 @@ class Qdrant(VectorStore):
             score_threshold=score_threshold,
             consistency=consistency,
             **kwargs,
-        )
-
+            )
+        except Exception as err:
+            print(err)
         contexts = [res.payload for res in results]
         i = 0
         search_res = f"Query: {text}\n"
         for context in contexts:
-            search_res += f"Chunk{i}: \n{context}\n" 
+            search_res += f"Chunk{i}: \n{context['text']}\n"
             i += 1
         documents =  self.__build_documents(results)
 
@@ -174,7 +175,7 @@ class Qdrant(VectorStore):
         collection_info = self.client.get_collection(collection_name=self.collection_name)
         dimensions = collection_info.config.params.vectors.size
         vector_count = collection_info.vectors_count
-        
+
         return {"dimensions": dimensions, "vector_count": vector_count}
     
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
@@ -190,7 +191,7 @@ class Qdrant(VectorStore):
             )
         except Exception as err:
             raise err
-
+        
     def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
         """Deletes embeddings from the given vector store"""
         try:
@@ -202,7 +203,7 @@ class Qdrant(VectorStore):
             )
         except Exception as err:
             raise err
-
+        
     def __get_embeddings(
             self,
             texts: Iterable[str]
@@ -215,9 +216,9 @@ class Qdrant(VectorStore):
                 query_vectors.append(query_vector)
         else:
             raise ValueError("Embedding model is not set")
-
+        
         return query_vectors
-
+    
     def __build_payloads(
             self,
             texts: Iterable[str],
@@ -245,7 +246,7 @@ class Qdrant(VectorStore):
             )
 
         return payloads
-
+    
     def __build_documents(
             self,
             results: List[Dict]
@@ -256,12 +257,12 @@ class Qdrant(VectorStore):
             documents.append(
                 Document(
                     text_content=result.payload.get(self.text_field_payload_key),
-                    metadata=result.payload.get(self.metadata_payload_key) or {},
+                    *(result.payload.get(self.metadata_payload_key)) or {},
                 )
             )
 
         return documents
-
+    
     @classmethod
     def create_collection(cls,
                           client: QdrantClient,
@@ -270,7 +271,7 @@ class Qdrant(VectorStore):
                           ):
         """
         Create a new collection in Qdrant if it does not exist.
-
+        
         Args:
             client : The Qdrant client.
             collection_name: The name of the collection to create.

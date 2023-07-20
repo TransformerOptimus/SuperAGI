@@ -1,9 +1,5 @@
-import json
-from abc import ABC, abstractmethod
-from superagi.config.config import get_config
-import openai
-
 from superagi.models.agent_config import AgentConfiguration
+
 from superagi.models.knowledges import Knowledges
 from superagi.models.vector_db_indices import VectordbIndices
 from superagi.models.vector_dbs import Vectordbs
@@ -17,8 +13,9 @@ from typing import Any, Type, List
 from pydantic import BaseModel, Field
 
 from superagi.tools.base_tool import BaseTool
+
 # from superagi.tools.file.read_file import ReadFileTool
-import pandas as pd
+
 
 class KnowledgeSearchSchema(BaseModel):
     query: str = Field(..., description="The search query for knowledge store search")
@@ -56,7 +53,7 @@ class KnowledgeSearchTool(BaseTool):
             if vector_db_index.state == "Marketplace":
                 filters = {"knowledge_name": knowledge.name}
             vector_db_storage = VectorFactory.build_vector_storage(vector_db.db_type, vector_db_index.name, embedding_model, **db_creds)
-            search_result = vector_db_storage.get_matching_text(query, metadata=filters)
+            search_result = vector_db_storage.get_matching_text(text=query, metadata=filters)
             return f"Result: \n{search_result['search_res']}"
         except Exception as err:
             return f"Error fetching text: {err}"
