@@ -504,7 +504,8 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()    
+    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
+    db_agent_schedule = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id, AgentSchedule.status == "SCHEDULED").first()
     
     if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
@@ -515,5 +516,9 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         # Updating all the RUNNING executions to TERMINATED
         for db_agent_execution in db_agent_executions:
             db_agent_execution.status = "TERMINATED"
+
+    if db_agent_schedule:
+        # Updating the schedule status to DELETED
+        db_agent_schedule.status = "DELETED"
     
     db.session.commit()
