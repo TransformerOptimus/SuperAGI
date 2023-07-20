@@ -7,6 +7,7 @@ import {
   createAgent,
   fetchAgentTemplateConfigLocal,
   getOrganisationConfig,
+  getLlmModels,
   updateExecution,
   uploadFile
 } from "@/pages/api/DashboardService";
@@ -46,8 +47,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
-  const [model, setModel] = useState(models[1]);
+  const [modelsArray, setModelsArray] = useState([]);
+  const [model, setModel] = useState('');
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -88,11 +89,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
-  const [col6ScrollTop, setCol6ScrollTop] = useState(0);
-
-  const handleCol3Scroll = (event) => {
-    setCol6ScrollTop(event.target.scrollTop);
-  };
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -125,6 +121,21 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   }, [toolNames]);
 
   useEffect(() => {
+    getLlmModels()
+      .then((response) => {
+        const models = response.data || [];
+        const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
+        setModelsArray(models);
+        if(models.length > 0 && !selected_model) {
+          setLocalStorageValue("agent_model_" + String(internalId), models[0], setModel);
+        } else {
+          setModel(selected_model);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching models:', error);
+      });
+
     if (template !== null) {
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
@@ -250,8 +261,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   };
 
   const handleModelSelect = (index) => {
-    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
-    if (models[index] === "google-palm-bison-001") {
+    setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
+    if (modelsArray[index] === "google-palm-bison-001") {
       setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);
@@ -379,6 +390,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
     if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
+      return
+    }
+    if(!modelsArray.includes(model)) {
+      toast.error("Your key does not have access to the selected model", {autoClose: 1800});
       return
     }
 
@@ -650,7 +665,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
-      <div className="col-3" onScroll={handleCol3Scroll}></div>
+      <div className="col-3"></div>
       <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
@@ -721,7 +736,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
               <div>
                 {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {models.map((model, index) => (
+                  {modelsArray?.map((model, index) => (
                     <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
                          style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {model}

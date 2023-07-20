@@ -101,3 +101,21 @@ class OpenAi(BaseLlm):
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)
             return False
+
+    def get_models(self):
+        """
+        Get the models.
+
+        Returns:
+            list: The models.
+        """
+        try:
+            models = openai.Model.list()
+            models = [model["id"] for model in models["data"]]
+            models_supported = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
+            print("CHECK THIS1", models)
+            models = [model for model in models if model in models_supported]
+            return models
+        except Exception as exception:
+            logger.info("OpenAi Exception:", exception)
+            return []
