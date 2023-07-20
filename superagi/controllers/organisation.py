@@ -169,9 +169,9 @@ def get_llm_models(organisation=Depends(get_user_organisation)):
 
     decrypted_api_key = decrypt_data(model_api_key.value)
     models = []
-    if model_source == "OpenAi":
+    if model_source.value == "OpenAi":
         models = OpenAi(api_key=decrypted_api_key).get_models()
-    elif model_source == "Google Palm":
+    elif model_source.value == "Google Palm":
         models = GooglePalm(api_key=decrypted_api_key).get_models()
 
     return models
