@@ -131,7 +131,7 @@ export default function Database({sendDatabaseData}) {
                         <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
                       </div>
                       <div className={styles.history_info}>
-                        Added {formatTimeDifference(item.created_at)}
+                        Added {formatTimeDifference(item.updated_at)}
                       </div>
                     </div>
                   </div>
