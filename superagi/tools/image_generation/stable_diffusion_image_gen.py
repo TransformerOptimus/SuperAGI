@@ -14,7 +14,7 @@ class StableDiffusionImageGenInput(BaseModel):
     prompt: str = Field(..., description="Prompt for Image Generation to be used by Stable Diffusion. The prompt should be as descriptive as possible and mention all the details of the image to be generated")
     height: int = Field(..., description="Height of the image to be Generated. default height is 512")
     width: int = Field(..., description="Width of the image to be Generated. default width is 512")
-    num: int = Field(..., description="Number of Images to be generated. default num is 1")
+    num: int = Field(..., description="Number of Images to be generated. default num is 2")
     steps: int = Field(..., description="Number of diffusion steps to run. default steps are 50")
     image_names: list = Field(...,
                               description="Image Names for the generated images, example 'image_1.png'. Only include the image name. Don't include path.")
@@ -40,7 +40,7 @@ class StableDiffusionImageGenTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, prompt: str, image_names: list, width: int = 512, height: int = 512, num: int = 1,
+    def _execute(self, prompt: str, image_names: list, width: int = 512, height: int = 512, num: int = 2,
                  steps: int = 50):
         api_key = self.get_tool_config("STABILITY_API_KEY")
 
