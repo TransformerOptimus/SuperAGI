@@ -349,7 +349,7 @@ export const returnToolkitIcon = (toolkitName) => {
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
-  return toolkit ? toolkit.imageSrc : '/images/app-logo-light.png';
+  return toolkit ? toolkit.imageSrc : '/images/custom_tool.svg';
 }
 
 export const returnResourceIcon = (file) => {
