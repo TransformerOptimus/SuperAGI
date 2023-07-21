@@ -71,6 +71,7 @@ class InstagramTool(BaseTool):
         data = response.json()
         insta_business_account_id=data["instagram_business_account"]["id"]
         file_path=self.get_file_path_from_image_generation_tool()     
+        #handling case where image generation generates multiple images
         if(file_path=="resources"):
             return "A photo has already been posted on your instagram account"
         
