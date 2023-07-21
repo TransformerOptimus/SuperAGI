@@ -3,11 +3,9 @@ import Image from "next/image";
 import styles from './Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
 import 'react-toastify/dist/ReactToastify.css';
-import {createInternalId, returnToolkitIcon} from "@/utils/utils";
+import {createInternalId, returnToolkitIcon, excludedToolkits} from "@/utils/utils";
 
 export default function Toolkits({sendToolkitData, toolkits, env}) {
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
-
   return (
     <>
       <div className={styles1.container}>
@@ -28,7 +26,7 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
           <div style={{overflowY: 'scroll', height: '80vh'}}>
             <div className={styles.tool_container}>
               {toolkits.map((tool, index) =>
-                  tool.name !== null && !excludedToolkits.includes(tool.name) && (
+                  tool.name !== null && !excludedToolkits().includes(tool.name) && (
                     <div key={index} className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
                       <div className="row">
                         <div className="col-12">

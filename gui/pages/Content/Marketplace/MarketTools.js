@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from './Market.module.css';
 import {fetchToolTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {loadingTextEffect} from "@/utils/utils";
+import {loadingTextEffect, excludedToolkits} from "@/utils/utils";
 import axios from 'axios';
 
 export default function MarketTools() {
@@ -20,7 +20,8 @@ export default function MarketTools() {
       axios.get('https://app.superagi.com/api/toolkits/marketplace/list/0')
         .then((response) => {
           const data = response.data || [];
-          setToolTemplates(data);
+          const filteredData = data?.filter((item) => !excludedToolkits().includes(item.name));
+          setToolTemplates(filteredData);
           setIsLoading(false);
         })
         .catch((error) => {
@@ -30,7 +31,8 @@ export default function MarketTools() {
       fetchToolTemplateList()
         .then((response) => {
           const data = response.data || [];
-          setToolTemplates(data);
+          const filteredData = data?.filter((item) => !excludedToolkits().includes(item.name));
+          setToolTemplates(filteredData);
           setIsLoading(false);
         })
         .catch((error) => {
@@ -48,7 +50,7 @@ export default function MarketTools() {
     <div style={showMarketplace ? {marginLeft: '8px'} : {marginLeft: '3px'}}>
       <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
         {!isLoading ? <div>
-          {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item, index) => (
+          {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item) => (
             <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
                  onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline', overflow: 'auto'}}>
