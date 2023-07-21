@@ -9,21 +9,14 @@ import {agentScheduleComponent, createAndScheduleRun, updateSchedule} from "@/pa
 import {EventBus} from "@/utils/eventBus";
 import moment from 'moment';
 
-export default function AgentSchedule({
-                                        internalId,
-                                        closeCreateModal,
-                                        type,
-                                        agentId,
-                                        setCreateModal,
-                                        setCreateEditModal
-                                      }) {
+export default function AgentSchedule({internalId, closeCreateModal, type, agentId, setCreateModal, setCreateEditModal, env}) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [timeDropdown, setTimeDropdown] = useState(false);
   const [expiryDropdown, setExpiryDropdown] = useState(false);
 
   const [startTime, setStartTime] = useState('');
 
-  const timeUnitArray = ['Days', 'Hours', 'Minutes'];
+  const timeUnitArray = (env === 'PROD') ? ['Days', 'Hours'] : ['Days', 'Hours', 'Minutes'];
   const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
   const [timeValue, setTimeValue] = useState(null);
 
@@ -103,14 +96,14 @@ export default function AgentSchedule({
     }
   }, [internalId])
 
-    const handleDateTimeChange = (momentObj) => {
-        const expiryDate = convertToGMT(momentObj);
-        setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
-    };
+  const handleDateTimeChange = (momentObj) => {
+    const expiryDate = convertToGMT(momentObj);
+    setLocalStorageValue("agent_expiry_date_" + String(internalId), expiryDate, setExpiryDate);
+  };
 
   const handleTimeChange = (momentObj) => {
     const startTime = convertToGMT(momentObj);
-    setLocalStartTime( typeof momentObj === 'string' ? '' : momentObj.toDate())
+    setLocalStartTime(typeof momentObj === 'string' ? '' : momentObj.toDate())
     setLocalStorageValue("agent_start_time_" + String(internalId), startTime, setStartTime);
   };
 
@@ -159,9 +152,9 @@ export default function AgentSchedule({
         const requestData = {
           "agent_id": agentId,
           "start_time": startTime,
-          "recurrence_interval": timeValue && isRecurring  ? `${timeValue} ${timeUnit}` : null,
-          "expiry_runs": expiryType === 'After certain number of runs' && isRecurring  ? parseInt(expiryRuns) : -1,
-          "expiry_date": expiryType === 'Specific Date' && isRecurring  ? expiryDate : null,
+          "recurrence_interval": timeValue && isRecurring ? `${timeValue} ${timeUnit}` : null,
+          "expiry_runs": expiryType === 'After certain number of runs' && isRecurring ? parseInt(expiryRuns) : -1,
+          "expiry_date": expiryType === 'Specific Date' && isRecurring ? expiryDate : null,
         };
 
         createAndScheduleRun(requestData)
@@ -184,18 +177,17 @@ export default function AgentSchedule({
   };
 
   function checkTime() {
-    if(expiryDate === null){
+    if (expiryDate === null) {
       return true;
     }
     let date1 = expiryDate;
     if (typeof expiryDate === 'string' && expiryDate.includes('/')) {
       date1 = moment(expiryDate, 'DD/MM/YYYY').toDate();
     } else if (typeof expiryDate === 'string') {
-      date1 = moment.utc(expiryDate,'YYYY-MM-DD HH:mm:ss').local().toDate();
-    }
-    else
+      date1 = moment.utc(expiryDate, 'YYYY-MM-DD HH:mm:ss').local().toDate();
+    } else
       return
-    let date2 = moment.utc(startTime,'YYYY-MM-DD HH:mm:ss').local().toDate();
+    let date2 = moment.utc(startTime, 'YYYY-MM-DD HH:mm:ss').local().toDate();
 
     date1.setHours(0, 0, 0, 0);
     date2.setHours(0, 0, 0, 0);
@@ -207,7 +199,7 @@ export default function AgentSchedule({
   }
 
   function fetchUpdateSchedule() {
-    if(expiryType === 'Specific Date' && checkTime()){
+    if (expiryType === 'Specific Date' && checkTime()) {
       toast.error('Expiry Date of agent is before Start Date')
       return;
     }
@@ -215,8 +207,8 @@ export default function AgentSchedule({
       "agent_id": agentId,
       "start_time": startTime,
       "recurrence_interval": timeValue && isRecurring ? `${timeValue} ${timeUnit}` : null,
-      "expiry_runs": expiryType === 'After certain number of runs' && isRecurring  ? parseInt(expiryRuns) : -1,
-      "expiry_date": expiryType === 'Specific Date' && isRecurring  ? (expiryDate && expiryDate.includes('/') ? convertToGMT(moment(expiryDate, 'DD/MM/YYYY').toDate()): expiryDate ) : null,
+      "expiry_runs": expiryType === 'After certain number of runs' && isRecurring ? parseInt(expiryRuns) : -1,
+      "expiry_date": expiryType === 'Specific Date' && isRecurring ? (expiryDate && expiryDate.includes('/') ? convertToGMT(moment(expiryDate, 'DD/MM/YYYY').toDate()) : expiryDate) : null,
     };
 
     updateSchedule(requestData)
@@ -339,7 +331,7 @@ export default function AgentSchedule({
                       justifyContent: 'space-between'
                     }}>
                       <div>The expiry date of the run
-                        is {(new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10) == "Invalid Da" ? expiryDate : (new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10) }</div>
+                        is {(new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10) == "Invalid Da" ? expiryDate : (new Date(`${expiryDate}Z`).toLocaleString()).substring(0, 10)}</div>
                       <div className="secondary_button" style={{cursor: 'pointer', height: '20px', fontSize: '12px'}}
                            onClick={() => setExpiryDate(null)}>Edit
                       </div>

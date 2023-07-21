@@ -15,6 +15,7 @@ from superagi.helper.auth import get_current_user
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
+from superagi.config.config import get_config
 
 router = APIRouter()
 
@@ -26,10 +27,15 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     client_secret = client_secret.value
     token_uri = 'https://oauth2.googleapis.com/token'
     scope = 'https://www.googleapis.com/auth/calendar'
+    env = get_config("ENV", "DEV")
+    if env == "DEV":
+        redirect_uri = "http://localhost:3000/api/google/oauth-tokens"
+    else:
+        redirect_uri = "https://app.superagi.com/api/google/oauth-tokens"
     params = {
         'client_id': client_id,
         'client_secret': client_secret,
-        'redirect_uri': "http://localhost:3000/api/google/oauth-tokens",
+        'redirect_uri': redirect_uri,
         'scope': scope,
         'grant_type': 'authorization_code',
         'code': code,

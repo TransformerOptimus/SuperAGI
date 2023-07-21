@@ -17,18 +17,20 @@ import {
   getExecutionDetails,
   saveAgentAsTemplate,
   stopSchedule,
-  getDateTime
+  getDateTime,
+  deleteAgent
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, selectedView, agents, internalId}) {
+export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
   const [goals, setGoals] = useState(null)
   const [currentGoals, setCurrentGoals] = useState(null)
   const [runName, setRunName] = useState("New Run")
@@ -149,10 +151,33 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       });
   };
 
+  const handleDeleteAgent = () => {
+    deleteAgent(agentId)
+      .then((response) => {
+        setDeleteModal(false);
+        if (response.status === 200) {
+          EventBus.emit('reFetchAgents', {});
+          EventBus.emit('removeTab',{element: {id: agentId, name: agentName, contentType: "Agents", internalId: internalId}})
+          toast.success("Agent Deleted Successfully", {autoClose: 1800});
+        }
+        else{
+          toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        }
+      })
+      .catch((error) => {
+        setDeleteModal(false);
+        toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        console.error("Agent could not be deleted: ", error);
+      });
+  }
   const closeRunModal = () => {
     setRunName("New Run");
     setRunModal(false);
   };
+
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+  }
 
   const updateRunStatus = (status) => {
     const executionData = {"status": status};
@@ -205,7 +230,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   }
 
   function fetchAgentScheduleComponent() {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       getDateTime(agentId)
         .then((response) => {
           setAgentScheduleDetails(response.data)
@@ -335,24 +360,24 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
                   }}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
-                }}>Delete</li>}
+                }}>Delete Run</li>}
 
-                {agent && agent.is_scheduled ? (<div>
+                {agent?.is_scheduled ? (<div>
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
-                  {agent && !agent.is_running && !agent.is_scheduled &&
+                  {agent && !agent?.is_running && !agent?.is_scheduled &&
                     <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
                 </div>)}
-
+                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
               </ul>
             </div>}
 
             {createModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>
@@ -376,7 +401,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0}
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
                           setFetchedData={setFetchedData} agent={agent}/>
           </div>}
           {leftPanel === 'agent_type' &&
@@ -442,6 +467,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
         </div>
       </div>
 
+      
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={styles.detail_name}>Run agent name</div>
@@ -504,6 +530,27 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
           </div>
         </div>
       </div>)}
+
+      {deleteModal && (<div className="modal" onClick={closeDeleteModal}>
+      <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px' }} onClick={preventDefault}>
+          <div>
+            <label className={styles.delete_agent_modal_label}>Delete Agent</label>
+          </div>
+          <div>
+          <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you sure you want to proceed?</label>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="secondary_button" style={{ marginRight: '10px' }} onClick={closeDeleteModal}>
+              Cancel
+            </button>
+            <button className="primary_button" onClick={() => handleDeleteAgent()}>
+              Delete Agent
+            </button>
+          </div>
+        </div>
+      </div>)}
+      
+
     </div>
     <ToastContainer/>
   </>);

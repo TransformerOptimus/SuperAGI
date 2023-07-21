@@ -1,5 +1,5 @@
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import {formatDistanceToNow} from 'date-fns';
+import {utcToZonedTime} from 'date-fns-tz';
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
@@ -18,13 +18,15 @@ export const convertToGMT = (dateTime) => {
 
 export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
+  const singularUnits = ['year', 'month', 'day', 'hour', 'minute'];
 
-  for (const unit of units) {
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
     if (timeDifference[unit] !== 0) {
       if (unit === 'minutes') {
-        return `${timeDifference[unit]} minutes ago`;
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
       } else {
-        return `${timeDifference[unit]} ${unit} ago`;
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
       }
     }
   }
@@ -48,6 +50,7 @@ export const formatNumber = (number) => {
 
   return scaledNumber.toFixed(1) + suffix;
 };
+
 export const formatTime = (lastExecutionTime) => {
   try {
     const parsedTime = new Date(lastExecutionTime + 'Z'); // append 'Z' to indicate UTC
@@ -62,15 +65,16 @@ export const formatTime = (lastExecutionTime) => {
       addSuffix: true,
       includeSeconds: true
     }).replace(/about\s/, '')
-        .replace(/minutes?/, 'min')
-        .replace(/hours?/, 'hrs')
-        .replace(/days?/, 'day')
-        .replace(/weeks?/, 'week');
+      .replace(/minutes?/, 'min')
+      .replace(/hours?/, 'hrs')
+      .replace(/days?/, 'day')
+      .replace(/weeks?/, 'week');
   } catch (error) {
     console.error('Error formatting time:', error);
     return 'Invalid Time';
   }
 };
+
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
     return '0 Bytes';
@@ -94,7 +98,7 @@ export const downloadFile = (fileId, fileName = null) => {
       Authorization: `Bearer ${authToken}`,
     };
 
-    return fetch(url, { headers })
+    return fetch(url, {headers})
       .then((response) => response.blob())
       .then((blob) => {
         if (fileName) {
@@ -124,7 +128,7 @@ export const downloadFile = (fileId, fileName = null) => {
   }
 };
 
-export const downloadAllFiles = (files,run_name) => {
+export const downloadAllFiles = (files, run_name) => {
   const zip = new JSZip();
   const promises = [];
   const fileNamesCount = {};
@@ -155,21 +159,21 @@ export const downloadAllFiles = (files,run_name) => {
   });
 
   Promise.all(promises)
-      .then(() => {
-        zip.generateAsync({ type: "blob" })
-            .then((content) => {
-              const now = new Date();
-              const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
-              const zipFilename = `${run_name}_${timestamp}.zip`;
-              const downloadLink = document.createElement("a");
-              downloadLink.href = URL.createObjectURL(content);
-              downloadLink.download = zipFilename;
-              downloadLink.click();
-            })
-            .catch((error) => {
-              console.error("Error generating zip:", error);
-            });
-      });
+    .then(() => {
+      zip.generateAsync({type: "blob"})
+        .then((content) => {
+          const now = new Date();
+          const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
+          const zipFilename = `${run_name}_${timestamp}.zip`;
+          const downloadLink = document.createElement("a");
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch((error) => {
+          console.error("Error generating zip:", error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
@@ -339,6 +343,7 @@ export const returnToolkitIcon = (toolkitName) => {
     {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
     {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
     {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'DuckDuckGo Search Toolkit', imageSrc: '/images/duckduckgo_icon.png'},
   ];
 
   const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
@@ -346,22 +351,32 @@ export const returnToolkitIcon = (toolkitName) => {
 }
 
 export const returnResourceIcon = (file) => {
+  let fileIcon;
   const fileTypeIcons = {
     'application/pdf': '/images/pdf_file.svg',
     'application/txt': '/images/txt_file.svg',
     'text/plain': '/images/txt_file.svg',
-    'image': '/images/img_file.svg',
   };
 
-  return fileTypeIcons[file.type] || '/images/default_file.svg';
+  if (file.type.includes('image')) {
+    fileIcon = '/images/img_file.svg';
+  } else {
+    fileIcon = fileTypeIcons[file.type] || '/images/default_file.svg';
+  }
+
+  return fileIcon;
 };
 
 export const convertToTitleCase = (str) => {
-  if(str === null || str === '') {
+  if (str === null || str === '') {
     return '';
   }
 
   const words = str.toLowerCase().split('_');
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
+}
+
+export const excludedToolkits = () => {
+  return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
 }

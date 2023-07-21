@@ -31,9 +31,9 @@ class ResourceManager:
         """
         if file_path is None:
             raise Exception("file_path must be provided")
-        documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
-
-        return documents
+        if os.path.exists(file_path):
+            documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
+            return documents
 
     def create_llama_document_s3(self, file_path: str):
         """
@@ -44,6 +44,7 @@ class ResourceManager:
         """
         if file_path is None:
             raise Exception("file_path must be provided")
+        temporary_file_path = ""
         try:
             import boto3
             s3 = boto3.client(
@@ -61,12 +62,12 @@ class ResourceManager:
                 f.write(contents)
 
             documents = SimpleDirectoryReader(input_files=[temporary_file_path]).load_data()
+            return documents
         except Exception as e:
             logger.error("superagi/resource_manager/resource_manager.py - create_llama_document_s3 threw : ", e)
         finally:
             if os.path.exists(temporary_file_path):
                 os.remove(temporary_file_path)
-        return documents
 
     def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None,
                                       model_source: str = ""):

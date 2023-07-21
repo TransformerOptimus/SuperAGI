@@ -7,6 +7,7 @@ import {
   createAgent,
   fetchAgentTemplateConfigLocal,
   getOrganisationConfig,
+  getLlmModels,
   updateExecution,
   uploadFile
 } from "@/pages/api/DashboardService";
@@ -15,21 +16,13 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, excludedToolkits
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({
-                                      sendAgentData,
-                                      selectedProjectId,
-                                      fetchAgents,
-                                      toolkits,
-                                      organisationId,
-                                      template,
-                                      internalId
-                                    }) {
+export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentDescription, setAgentDescription] = useState("");
@@ -54,8 +47,8 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001']
-  const [model, setModel] = useState(models[1]);
+  const [modelsArray, setModelsArray] = useState([]);
+  const [model, setModel] = useState('');
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -89,7 +82,6 @@ export default function AgentCreate({
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   const [createDropdown, setCreateDropdown] = useState(false);
@@ -128,6 +120,21 @@ export default function AgentCreate({
   }, [toolNames]);
 
   useEffect(() => {
+    getLlmModels()
+      .then((response) => {
+        const models = response.data || [];
+        const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
+        setModelsArray(models);
+        if(models.length > 0 && !selected_model) {
+          setLocalStorageValue("agent_model_" + String(internalId), models[0], setModel);
+        } else {
+          setModel(selected_model);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching models:', error);
+      });
+
     if (template !== null) {
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
@@ -253,8 +260,8 @@ export default function AgentCreate({
   };
 
   const handleModelSelect = (index) => {
-    setLocalStorageValue("agent_model_" + String(internalId), models[index], setModel);
-    if (models[index] === "google-palm-bison-001") {
+    setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
+    if (modelsArray[index] === "google-palm-bison-001") {
       setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);
@@ -382,6 +389,10 @@ export default function AgentCreate({
 
     if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
+      return
+    }
+    if(!modelsArray.includes(model)) {
+      toast.error("Your key does not have access to the selected model", {autoClose: 1800});
       return
     }
 
@@ -652,9 +663,9 @@ export default function AgentCreate({
   }, [internalId])
 
   return (<>
-    <div className="row">
+    <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+      <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
           <div className={styles.page_title}>Create new agent</div>
         </div>
@@ -724,7 +735,7 @@ export default function AgentCreate({
               </div>
               <div>
                 {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {models.map((model, index) => (
+                  {modelsArray?.map((model, index) => (
                     <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
                          style={{padding: '12px 14px', maxWidth: '100%'}}>
                       {model}
@@ -761,7 +772,7 @@ export default function AgentCreate({
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width: '100%'}}>
                   {toolkitList && toolkitList.filter((toolkit) => toolkit.tools ? toolkit.tools.some((tool) => tool.name.toLowerCase().includes(searchValue.toLowerCase())) : false).map((toolkit, index) => (
                     <div key={index}>
-                      {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
+                      {toolkit.name !== null && !excludedToolkits().includes(toolkit.name) && <div>
                         <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{
                           padding: '10px 14px',
                           maxWidth: '100%',
@@ -962,9 +973,9 @@ export default function AgentCreate({
                                        src={!permissionDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
                                        alt="expand-icon"/>
                   </div>
-                  <div style={{marginBottom: '20px'}}>
+                  <div className="mb_34">
                     {permissionDropdown &&
-                      <div className="custom_select_options" ref={permissionRef} style={{width: '100%'}}>
+                      <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
                         {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
                                                                   onClick={() => handlePermissionSelect(index)}
                                                                   style={{padding: '12px 14px', maxWidth: '100%'}}>
@@ -982,23 +993,7 @@ export default function AgentCreate({
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="custom_select_option" style={{
-                background: '#3B3B49',
-                borderRadius: '8px',
-                position: 'absolute',
-                top: '-40px',
-                right: '0',
-                zIndex: '1',
-                boxShadow: '0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22)',
-                height: '40px',
-                width: '150px',
-                paddingTop: '10px',
-                textAlign: 'center'
-              }}
-                                       onClick={() => {
-                                         setCreateModal(true);
-                                         setCreateDropdown(false);
-                                       }}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
@@ -1015,7 +1010,7 @@ export default function AgentCreate({
           </div>
 
           {createModal && (
-            <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
+            <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
 
         </div>
