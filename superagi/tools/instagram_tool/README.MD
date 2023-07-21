@@ -36,3 +36,7 @@ Follow the link to generate stability API key: (https://dreamstudio.com/api/)
 ## Running SuperAGI Instagram Tool
 
 Once everything has been set up just run/schedule an agent with the goal explaining the media to be published and add instagram tool (which will automatically add stable diffusion tool)
+
+## Warning
+
+It is advised to run the instagram tool in restricted mode since it allows you to validate the photos generated. You can schedule agent runs (recurring runs are supported as well).

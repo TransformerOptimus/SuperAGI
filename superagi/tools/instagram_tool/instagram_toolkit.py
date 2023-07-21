@@ -6,7 +6,7 @@ from superagi.tools.image_generation.stable_diffusion_image_gen import StableDif
 
 class InstagramToolkit(BaseToolkit, ABC):
     name: str = "Instagram Toolkit"
-    description: str = "Toolkit containing tools for posting AI generated photos on Instagram"
+    description: str = "Toolkit containing tools for posting AI generated photo on Instagram. Posts only one photo in a run "
 
     def get_tools(self) -> List[BaseTool]:
         return [InstagramTool(),StableDiffusionImageGenTool()]
