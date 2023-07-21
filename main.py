@@ -167,6 +167,8 @@ async def startup_event():
     AgentWorkflowSeed.build_goal_based_agent(session)
     AgentWorkflowSeed.build_task_based_agent(session)
     AgentWorkflowSeed.build_fixed_task_based_agent(session)
+    AgentWorkflowSeed.doc_search_and_code(session)
+
     if env != "PROD":
         check_toolkit_registration()
     session.close()

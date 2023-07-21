@@ -98,7 +98,7 @@ class AgentWorkflowStep(DBBaseModel):
         )
 
     @classmethod
-    def find_by_unique_id(cls, session, unique_id: int):
+    def find_by_unique_id(cls, session, unique_id: str):
         """ Adds a workflows step in the next_steps column"""
         return session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == unique_id).first()
 
@@ -130,7 +130,7 @@ class AgentWorkflowStep(DBBaseModel):
         workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.agent_workflow_id == agent_workflow_id, AgentWorkflowStep.unique_id == unique_id).first()
         if completion_prompt is None:
-            completion_prompt = f"Respond with tool name and tool arguments to achieve the instruction."
+            completion_prompt = f"Respond with json containing tool name and tool arguments to achieve the given instruction."
         step_tool = AgentWorkflowStepTool.find_or_create_tool(session, unique_id, tool_name,
                                                               input_instruction, output_instruction,
                                                               history_enabled, completion_prompt)
@@ -182,13 +182,13 @@ class AgentWorkflowStep(DBBaseModel):
         return workflow_step
 
     @classmethod
-    def add_next_workflow_step(cls, session, current_step_id: int, next_step_id: int, step_response: str = "default"):
+    def add_next_workflow_step(cls, session, current_agent_step_id: int, next_step_id: int, step_response: str = "default"):
         """ Adds a workflows step in the next_steps column"""
         next_unique_id = "-1"
         if next_step_id != -1:
             next_workflow_step = AgentWorkflowStep.find_by_id(session, next_step_id)
             next_unique_id = next_workflow_step.unique_id
-        current_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.id == current_step_id).first()
+        current_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.id == current_agent_step_id).first()
         next_steps = json.loads(json.dumps(current_step.next_steps))
         existing_steps = [step for step in next_steps if step["step_id"] == next_unique_id]
         if existing_steps:
@@ -201,9 +201,9 @@ class AgentWorkflowStep(DBBaseModel):
         return current_step
 
     @classmethod
-    def fetch_default_next_step(cls, session, current_step_id: int):
+    def fetch_default_next_step(cls, session, current_agent_step_id: int):
         """ Adds a workflows step in the next_steps column"""
-        current_step = AgentWorkflowStep.find_by_id(session, current_step_id)
+        current_step = AgentWorkflowStep.find_by_id(session, current_agent_step_id)
         next_steps = current_step.next_steps
         default_steps = [step for step in next_steps if step["step_response"] == "default"]
         if default_steps:
@@ -211,16 +211,16 @@ class AgentWorkflowStep(DBBaseModel):
         return None
 
     @classmethod
-    def fetch_next_step(cls, session, current_step_id: int, step_response: str):
+    def fetch_next_step(cls, session, current_agent_step_id: int, step_response: str):
         """ Adds a workflows step in the next_steps column"""
-        current_step = AgentWorkflowStep.find_by_id(session, current_step_id)
+        current_step = AgentWorkflowStep.find_by_id(session, current_agent_step_id)
         next_steps = [step for step in current_step.next_steps if step["step_response"] == step_response]
         if next_steps:
             if str(next_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"
             return AgentWorkflowStep.find_by_unique_id(session, next_steps[0]["step_id"])
 
-        logger.info(f"Could not find next step for step_id: {current_step_id} and step_response: {step_response}")
+        logger.info(f"Could not find next step for step_id: {current_agent_step_id} and step_response: {step_response}")
         default_steps = [step for step in next_steps if step["step_response"] == "default"]
         if default_steps:
             if str(default_steps[0]["step_id"]) == "-1":

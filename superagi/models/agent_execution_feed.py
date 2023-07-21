@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, String
+from sqlalchemy import Column, Integer, Text, String, asc
 from sqlalchemy.orm import Session
 
 from superagi.models.base_model import DBBaseModel
@@ -50,3 +50,11 @@ class AgentExecutionFeed(DBBaseModel):
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
         return ""
+
+    @classmethod
+    def fetch_agent_execution_feeds(cls, session, agent_execution_id: int):
+        agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
+            .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
+            .order_by(asc(AgentExecutionFeed.created_at)) \
+            .all()
+        return agent_feeds[2:]

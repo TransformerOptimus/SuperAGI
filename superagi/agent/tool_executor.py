@@ -18,9 +18,8 @@ class ToolExecutor:
         tool_name = tool_name.lower().replace(" ", "")
         if tool_name == ToolExecutor.FINISH or tool_name == "":
             logger.info("\nTask Finished :) \n")
-            output = {"status": "COMPLETE", "result": "", "retry": False}
-            return output
-        if tool_name in tools:
+            return ToolExecutorResponse(status="COMPLETE", result="")
+        if tool_name in tools.keys():
             status = "COMPLETE"
             tool = tools[tool_name]
             retry = False

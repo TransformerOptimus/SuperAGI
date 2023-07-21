@@ -102,7 +102,7 @@ class IterationWorkflowStep(DBBaseModel):
                             completion_prompt: str = "", history_enabled: bool = False):
         workflow_step = session.query(IterationWorkflowStep).filter(IterationWorkflowStep.unique_id == unique_id).first()
         if workflow_step is None:
-            workflow_step = IterationWorkflowStep(unique_id="ab1")
+            workflow_step = IterationWorkflowStep(unique_id=unique_id)
             session.add(workflow_step)
             session.commit()
 
@@ -110,7 +110,7 @@ class IterationWorkflowStep(DBBaseModel):
         workflow_step.variables = variables
         workflow_step.step_type = step_type
         workflow_step.output_type = output_type
-        workflow_step.agent_workflow_id = iteration_workflow_id
+        workflow_step.iteration_workflow_id = iteration_workflow_id
         workflow_step.next_step_id = -1
         workflow_step.history_enabled = history_enabled
         if completion_prompt:

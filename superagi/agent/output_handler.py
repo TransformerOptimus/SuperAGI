@@ -12,11 +12,13 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 
 class ToolOutputHandler:
-    def __init__(self, agent_execution_id: int, agent_config: dict, tools: list):
+    def __init__(self, agent_execution_id: int, agent_config: dict,
+                 tools: list, output_parser=AgentSchemaOutputParser()):
         self.agent_execution_id = agent_execution_id
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
         self.tools = tools
+        self.output_parser = output_parser
 
     def handle(self, session, assistant_reply):
         response = self.check_permission_in_restricted_mode(session, assistant_reply)
@@ -42,15 +44,14 @@ class ToolOutputHandler:
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):
-        output_parser = AgentSchemaOutputParser()
-        action = output_parser.parse(assistant_reply)
+        action = self.output_parser.parse(assistant_reply)
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
         organisation = agent.get_agent_organisation(session)
         tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools)
         return tool_executor.execute(session, action.name, action.args)
 
     def check_permission_in_restricted_mode(self, session, assistant_reply: str):
-        action = AgentSchemaOutputParser().parse(assistant_reply)
+        action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
         excluded_tools = [ToolExecutor.FINISH, '', None]
@@ -58,7 +59,7 @@ class ToolOutputHandler:
         if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
                 tools.get(action.name) and tools[action.name].permission_required:
             new_agent_execution_permission = AgentExecutionPermission(
-                agent_execution_id=self.agent_config["agent_execution_id"],
+                agent_execution_id=self.agent_execution_id,
                 status="PENDING",
                 agent_id=self.agent_config["agent_id"],
                 tool_name=action.name,
@@ -86,6 +87,7 @@ class TaskOutputHandler:
     """
 
     def __init__(self, agent_execution_id: int, agent_config: dict):
+        self.agent_execution_id = agent_execution_id
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
 
@@ -98,7 +100,7 @@ class TaskOutputHandler:
         if len(tasks) > 0:
             logger.info("Adding task to queue: " + str(tasks))
         for task in tasks:
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
+            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed="New Task Added: " + task,
                                                       role="system")
@@ -114,6 +116,7 @@ class ReplaceTaskOutputHandler:
     """
 
     def __init__(self, agent_execution_id: int, agent_config: dict):
+        self.agent_execution_id = agent_execution_id
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
 

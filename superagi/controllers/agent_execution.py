@@ -33,7 +33,7 @@ class AgentExecutionOut(BaseModel):
     last_execution_time: datetime
     num_of_calls: int
     num_of_tokens: int
-    current_step_id: int
+    current_agent_step_id: int
     permission_id: Optional[int]
     created_at: datetime
     updated_at: datetime
@@ -49,7 +49,7 @@ class AgentExecutionIn(BaseModel):
     last_execution_time: Optional[datetime]
     num_of_calls: Optional[int]
     num_of_tokens: Optional[int]
-    current_step_id: Optional[int]
+    current_agent_step_id: Optional[int]
     permission_id: Optional[int]
     goal: Optional[List[str]]
     instruction: Optional[List[str]]
@@ -86,7 +86,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
-                                        current_step_id=start_step.id,
+                                        current_agent_step_id=start_step.id,
                                         iteration_workflow_step_id=iteration_step_id)
     agent_execution_configs = {
         "goal": agent_execution.goal,

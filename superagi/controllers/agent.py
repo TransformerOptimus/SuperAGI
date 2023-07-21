@@ -198,7 +198,7 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_step_id=start_step.id, iteration_workflow_step_id=iteration_step_id)
+                               name="New Run", current_agent_step_id=start_step.id, iteration_workflow_step_id=iteration_step_id)
 
     agent_execution_configs = {
         "goal": agent_with_config.goal,

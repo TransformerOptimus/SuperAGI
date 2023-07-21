@@ -9,7 +9,9 @@ Respond with tool name and tool arguments to achieve the instruction.
 
 {tool_schema}
 
-Respond with only valid JSON conforming to the following schema:
+Respond with only valid JSON conforming to the following json schema. You should generate JSON as output and not JSON schema.
+
+JSON Schema:
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
