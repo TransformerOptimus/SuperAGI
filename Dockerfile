@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bullseye AS compile-image
+FROM python:3.10-slim-bullseye AS compile-image
 WORKDIR /app
 
 RUN apt-get update &&  \
@@ -28,7 +28,7 @@ RUN chmod +x install_tool_dependencies.sh
 # Install dependencies
 RUN ./install_tool_dependencies.sh
 
-FROM python:3.9-slim-bullseye AS build-image
+FROM python:3.10-slim-bullseye AS build-image
 WORKDIR /app
 RUN apt-get update && apt-get install --no-install-recommends -y libpq-dev && \
     apt-get clean && \
