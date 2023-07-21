@@ -52,7 +52,7 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     return RedirectResponse(url=redirect_url_success)
 
 @router.post("/send_google_creds/toolkit_id/{toolkit_id}")
-def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize: AuthJWT = Depends(check_auth())):
+def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize: AuthJWT = Depends(check_auth)):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
