@@ -43,6 +43,7 @@ class TokenCounter:
         Returns:
             int: The number of tokens in the messages.
         """
+        tokens_per_message = 3
         try:
             model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3,
                                             "gpt-3.5-turbo-16k":4, "gpt-4-32k": 3, "gpt-4-32k-0314": 3, "models/chat-bison-001": 4,
@@ -52,7 +53,8 @@ class TokenCounter:
             logger.warning("Warning: model not found. Using cl100k_base encoding.")
             encoding = tiktoken.get_encoding("cl100k_base")
 
-        tokens_per_message = model_token_per_message_dict[model]
+        if model in model_token_per_message_dict:
+            tokens_per_message = model_token_per_message_dict[model]
         if tokens_per_message is None:
             raise NotImplementedError(
                 f"num_tokens_from_messages() is not implemented for model {model}.\n"

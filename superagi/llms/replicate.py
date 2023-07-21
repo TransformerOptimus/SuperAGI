@@ -59,9 +59,9 @@ class Replicate(BaseLlm):
         prompt = "\n".join([message["role"] + ": " + message["content"] + "" for message in messages])
         # role does not yield right results in case of single step prompt
         if len(messages) == 1:
-            prompt = "System:" + messages[0]['content'] + "\nAssistant:"
+            prompt = "System:" + messages[0]['content'] + "\nResponse:"
         else:
-            prompt = prompt + "\nAssistant:"
+            prompt = prompt + "\nResponse:"
         try:
             os.environ["REPLICATE_API_TOKEN"] = self.api_key
             import replicate
@@ -90,3 +90,4 @@ class Replicate(BaseLlm):
             bool: True if the access key is valid, False otherwise.
         """
         return True
+
