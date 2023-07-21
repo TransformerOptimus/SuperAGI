@@ -344,6 +344,7 @@ export const returnToolkitIcon = (toolkitName) => {
     {name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg'},
     {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
     {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Thinking Toolkit', imageSrc: '/images/app-logo-light.png'},
     {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
     {name: 'DuckDuckGo Search Toolkit', imageSrc: '/images/duckduckgo_icon.png'},
   ];
