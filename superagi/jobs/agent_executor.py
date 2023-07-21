@@ -222,11 +222,12 @@ class AgentExecutor:
             tool = AgentExecutor.create_object(tool, session)
             tools.append(tool)
 
-        resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
-                                                           model_llm_source=model_llm_source,
-                                                           default_summary=parsed_config.get("resource_summary"))
-        if resource_summary is not None:
-            tools.append(QueryResourceTool())
+        resource_summary = None
+        # resource_summary = self.get_agent_resource_summary(agent_id=agent.id, session=session,
+        #                                                    model_llm_source=model_llm_source,
+        #                                                    default_summary=parsed_config.get("resource_summary"))
+        # if resource_summary is not None:
+        #     tools.append(QueryResourceTool())
 
         tools = self.set_default_params_tools(tools, parsed_config, parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
