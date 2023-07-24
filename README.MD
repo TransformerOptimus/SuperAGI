@@ -176,10 +176,9 @@ This video demonstrates how SuperCoder can be used to create simple applications
 |**OpenAI API Key**| Sign up and create an API key at [OpenAI Developer](https://beta.openai.com/signup/)|
 |**Google API key**| Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: [Google Custom Search JSON API](https://developers.google.com/custom-search/v1/introduction)).|
 |**Custom search engine ID**| Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.|
-|**Pinecone API Key**| Sign up and create an API key at [Pinecone Dashboard](https://www.pinecone.io/
-)|
+|**Pinecone API Key**| Sign up and create an API key at [Pinecone Dashboard](https://www.pinecone.io/)|
 
-    3.1. Verify that all the listed API keys are working by running a mock API request to test, validate the usage quota availability as per the alloted limit 
+    3.1. Verify that all the listed API keys are working by running a mock API request to test, validate the usage quota availability as per the alloted limit.
 
 4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
 5. Once you have Docker Desktop running, run the command: `docker-compose up --build` in the SuperAGI directory. Open your browser and navigate to `http://localhost:3000` to access SuperAGI.
