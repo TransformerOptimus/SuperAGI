@@ -11,7 +11,7 @@ router = APIRouter()
 def get_knowledge_download_number(knowledge_id: int):
     download_number = db.session.query(MarketPlaceStats).filter(MarketPlaceStats.reference_id == knowledge_id, MarketPlaceStats.reference_name == "KNOWLEDGE", MarketPlaceStats.key == "download_count").first()
     if download_number is None:
-        downlods = 0
+        downloads = 0
     else:
-        downlods = download_number.value
-    return downlods
+        downloads = download_number.value
+    return downloads
