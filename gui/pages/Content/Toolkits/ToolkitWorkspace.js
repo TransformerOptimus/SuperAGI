@@ -177,11 +177,11 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
             {apiConfigs.length > 0 && (
               <div style={{marginLeft: 'auto', display: 'flex', justifyContent: 'space-between'}}>
                 <div>{authenticateToolkits.includes(toolkitDetails.name) &&
-                  <button style={{width: 'fit-content'}} className={styles.primary_button}
+                  <button style={{width: 'fit-content'}} className="primary_button"
                           onClick={() => handleAuthenticateClick(toolkitDetails.name)}>Authenticate Tool</button>
                 }</div>
                 <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                  <button className={styles.primary_button} onClick={handleUpdateChanges}>Update Changes</button>
+                  <button className="primary_button" onClick={handleUpdateChanges}>Update Changes</button>
                 </div>
               </div>)}
           </div>}
@@ -202,7 +202,6 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
     <ToastContainer/>
   </>);
 }
-
 
 
 
