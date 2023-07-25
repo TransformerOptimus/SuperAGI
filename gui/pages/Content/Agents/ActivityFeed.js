@@ -74,10 +74,9 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   }, [runStatus])
 
   function fetchFeeds() {
-    console.log("In")
-    setIsLoading(true);
-    console.log(isLoading)
-    getExecutionFeeds(selectedRunId)
+    if (selectedRunId !== null) {
+      setIsLoading(true);
+      getExecutionFeeds(selectedRunId)
         .then((response) => {
           const data = response.data;
           setFeeds(data.feeds);
@@ -90,6 +89,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           console.error('Error fetching execution feeds:', error);
           setIsLoading(false); // and this line
         });
+    }
   }
 
   useEffect(() => {
@@ -166,12 +166,10 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         }
         {feeds.length < 1 && !agent?.is_running && !agent?.is_scheduled ?
             (isLoading ?
-                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
                   <ClipLoader/>
                 </div>
-                : <div style={{color: 'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%'}}>
-                  The Agent is not scheduled
-                </div>): null
+                : <div style={{color: 'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%'}}>The Agent is not scheduled</div>): null
         }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&

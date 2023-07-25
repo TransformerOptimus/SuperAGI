@@ -5,14 +5,7 @@ import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
 import {setLocalStorageValue, openNewTab} from "@/utils/utils";
 
-export default function AgentTemplatesList({
-                                             sendAgentData,
-                                             selectedProjectId,
-                                             fetchAgents,
-                                             toolkits,
-                                             organisationId,
-                                             internalId
-                                           }) {
+export default function AgentTemplatesList({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, internalId, env}) {
   const [agentTemplates, setAgentTemplates] = useState([])
   const [createAgentClicked, setCreateAgentClicked] = useState(false)
   const [sendTemplate, setSendTemplate] = useState(null)
@@ -112,7 +105,7 @@ export default function AgentTemplatesList({
           </div>
         </div> : <AgentCreate internalId={internalId} organisationId={organisationId} sendAgentData={sendAgentData}
                               selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}
-                              template={sendTemplate}/>}
+                              template={sendTemplate} env={env} />}
     </div>
   )
 };

@@ -364,14 +364,14 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name} selectedView={selectedView}
                                       agents={agents} fetchAgents={getAgentList}/>}
                     {tab.contentType === 'Toolkits' &&
-                      <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
+                      <ToolkitWorkspace env={env} internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                     {tab.contentType === 'Settings' && <Settings organisationId={organisationId}/>}
                     {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                     {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
                     {tab.contentType === 'Create_Agent' &&
                       <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={getAgentList} toolkits={toolkits}/>}
+                                          fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
                     {tab.contentType === 'APM' && <ApmDashboard/>}
                   </div>}
                 </div>

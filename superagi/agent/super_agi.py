@@ -136,7 +136,10 @@ class SuperAgi:
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
 
         self.update_agent_execution_tokens(current_calls, total_tokens, session)
-        
+
+        if 'error' in response and response['error'] == "RATE_LIMIT_EXCEEDED":
+            return {"result": "RATE_LIMIT_EXCEEDED", "retry": True}
+
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
@@ -210,18 +213,18 @@ class SuperAgi:
     def handle_tool_response(self, session, assistant_reply):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
-        action_name = action.name.lower().replace(" ", "")
+        action_name = action.name.lower().replace(" ", "") if action is not None else ""
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"],).first()
         organisation = agent.get_agent_organisation(session)
-        if action_name == FINISH or action.name == "":
+        if action_name == FINISH or action_name == "":
             logger.info("\nTask Finished :) \n")
             output = {"result": "COMPLETE", "retry": False}
-            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action_name}, self.agent_config["agent_id"], organisation.id),
             return output
         if action_name in tools:
             tool = tools[action_name]
             retry = False
-            EventHandler(session=session).create_event('tool_used', {'tool_name':action.name}, self.agent_config["agent_id"], organisation.id),
+            EventHandler(session=session).create_event('tool_used', {'tool_name':action_name}, self.agent_config["agent_id"], organisation.id),
             try:
                 parsed_args = self.clean_tool_args(action.args)
                 observation = tool.execute(parsed_args)
@@ -237,12 +240,12 @@ class SuperAgi:
                 )
             result = f"Tool {tool.name} returned: {observation}"
             output = {"result": result, "retry": retry}
-        elif action.name == "ERROR":
+        elif action_name == "ERROR":
             result = f"Error2: {action.args}. "
             output = {"result": result, "retry": False}
         else:
             result = (
-                f"Unknown tool '{action.name}'. "
+                f"Unknown tool '{action_name}'. "
                 f"Please refer to the 'TOOLS' list for available "
                 f"tools and only respond in the specified JSON format."
             )
@@ -298,7 +301,8 @@ class SuperAgi:
 
         excluded_tools = [FINISH, '', None]
 
-        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
+        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action is not None and \
+                action.name not in excluded_tools and \
                 tools.get(action.name) and tools[action.name].permission_required:
             new_agent_execution_permission = AgentExecutionPermission(
                 agent_execution_id=self.agent_config["agent_execution_id"],

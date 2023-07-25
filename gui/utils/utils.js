@@ -37,13 +37,15 @@ export const convertToGMT = (dateTime) => {
 
 export const formatTimeDifference = (timeDifference) => {
   const units = ['years', 'months', 'days', 'hours', 'minutes'];
+  const singularUnits = ['year', 'month', 'day', 'hour', 'minute'];
 
-  for (const unit of units) {
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
     if (timeDifference[unit] !== 0) {
       if (unit === 'minutes') {
-        return `${timeDifference[unit]} minutes ago`;
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
       } else {
-        return `${timeDifference[unit]} ${unit} ago`;
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
       }
     }
   }
@@ -376,7 +378,10 @@ export const convertToTitleCase = (str) => {
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
 };
-
 export const preventDefault = (e) => {
   e.stopPropagation();
 };
+
+export const excludedToolkits = () => {
+  return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
+}

@@ -22,6 +22,7 @@ factory.register_format("gpt-4-32k", lambda **kwargs: OpenAi(model="gpt-4-32k", 
 factory.register_format("gpt-3.5-turbo-16k", lambda **kwargs: OpenAi(model="gpt-3.5-turbo-16k", **kwargs))
 factory.register_format("gpt-3.5-turbo", lambda **kwargs: OpenAi(model="gpt-3.5-turbo", **kwargs))
 factory.register_format("google-palm-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
+factory.register_format("chat-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
 
 
 def get_model(api_key, model="gpt-3.5-turbo", **kwargs):
