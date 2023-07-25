@@ -19,3 +19,4 @@ class AgentConfigInput(BaseModel):
     LTM_DB: str
     max_iterations: int
     user_timezone: Optional[str]
+    knowledge: Optional[int]

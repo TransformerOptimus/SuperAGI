@@ -16,14 +16,22 @@ import {
   formatBytes,
   openNewTab,
   removeTab,
-  setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,preventDefault,excludedToolkits
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, excludedToolkits, preventDefault,
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
+export default function AgentCreate({
+                                      sendAgentData,
+                                      selectedProjectId,
+                                      fetchAgents,
+                                      toolkits,
+                                      organisationId,
+                                      template,
+                                      internalId,
+                                      env
+                                    }) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentTemplateId, setAgentTemplateId] = useState(null);
@@ -389,14 +397,17 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       toast.error("Goal can't be empty", {autoClose: 1800});
       return false;
     }
+
     if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
       return false;
     }
+
     if(!modelsArray.includes(model)) {
       toast.error("Your key does not have access to the selected model", {autoClose: 1800});
       return false;
     }
+
     return true;
   }
 

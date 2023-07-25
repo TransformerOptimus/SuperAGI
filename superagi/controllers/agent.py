@@ -184,7 +184,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     Raises:
         HTTPException (status_code=404): If the associated project or any of the tools is not found.
     """
-
     project = db.session.query(Project).get(agent_with_config.project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")

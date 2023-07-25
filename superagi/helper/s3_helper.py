@@ -1,4 +1,5 @@
 import boto3
+import json
 from superagi.config.config import get_config
 from fastapi import HTTPException
 from superagi.lib.logger import logger
@@ -44,6 +45,27 @@ class S3Helper:
         try:
             self.s3.upload_fileobj(file, self.bucket_name, path)
             logger.info("File uploaded to S3 successfully!")
+        except:
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
+
+    def get_json_file(self, path):
+        """
+        Get a JSON file from S3.
+
+        Args:
+            path (str): The path to the JSON file.
+
+        Raises:
+            HTTPException: If the AWS credentials are not found.
+
+        Returns:
+            dict: The JSON file.
+        """
+        try:
+            obj = self.s3.get_object(Bucket=self.bucket_name, Key=path)
+            s3_response =  obj['Body'].read().decode('utf-8')
+            return json.loads(s3_response)
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
