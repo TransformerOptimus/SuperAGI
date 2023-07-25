@@ -69,7 +69,6 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    print("Marketplace Organisation ID", organisation_id)
     toolkit = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation_id,
                                                Toolkit.name == toolkit_name).first()
     toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
