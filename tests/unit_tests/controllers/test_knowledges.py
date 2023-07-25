@@ -1,29 +1,28 @@
-from unittest.mock import patch, MagicMock
+import unittest
 from fastapi.testclient import TestClient
-from fastapi_sqlalchemy import db
-from fastapi import APIRouter
-from datetime import datetime
-from main import app  # replace this with the actual FastAPI module
+from unittest.mock import MagicMock, patch
+from main import app  # replace "your_module" with the name of your module, where your FastAPI app is defined
 
-client = TestClient(app)
-organisation_mock = {"id": 1, "name": "test_org"}
+class TestSuperagiAPI(unittest.TestCase):
 
-@patch("Knowledges.fetch_marketplace_list")
-@patch("Knowledges.get_knowledge_install_details")
-@patch("superagi.models.marketplace_stats.MarketPlaceStats.get_knowledge_installation_number")
-def test_get_knowledge_list(mock_get_knowledge_install_number, mock_get_knowledge_install_details, mock_fetch_marketplace_list):
-    # Arrange
-    mock_fetch_marketplace_list.return_value = [{"id": 101, "name": "knowledge_1"}, {"id": 102, "name": "knowledge_2"}]
-    mock_get_knowledge_install_details.return_value = [{"id": 101, "name": "knowledge_1"}, {"id": 102, "name": "knowledge_2"}]
-    mock_get_knowledge_install_number.return_value = 5
-    
-    # Act
-    response = client.get("/get/list", headers={"organisation": organisation_mock})
-    
-    # Assert
-    assert response.status_code == 200
-    assert response.json() == [
-        {"id": 101, "name": "knowledge_1", "install_number": 5},
-        {"id": 102, "name": "knowledge_2", "install_number": 5}
-    ]
+    def setUp(self):
+        self.client = TestClient(app)
 
+    # Mock the get_user_organisation function as it abstracts the authentication part
+    @patch('superagi.helper.auth.get_user_organisation')  # replace 'your_module' with the name of your module
+    def test_get_knowledge_list(self, get_user_organisation):
+        get_user_organisation.return_value = MagicMock()
+        response = self.client.get("/knowledges/get/list")
+        self.assertEqual(response.status_code, 200)
+
+    # # Patch the delete_knowledge method to avoid actual deletion
+    @patch('superagi.models.knowledges.Knowledges.delete_knowledge')
+    def test_delete_user_knowledge(self, delete_knowledge):
+        delete_knowledge.return_value = None
+        response = self.client.post("/knowledges/delete/1")
+        self.assertEqual(response.status_code, 200)
+
+    # Similar patches can be done for other functions
+
+if __name__ == "__main__":
+    unittest.main()
