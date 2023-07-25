@@ -235,7 +235,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
   }
 
   function fetchAgentScheduleComponent() {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       getDateTime(agentId)
         .then((response) => {
           setAgentScheduleDetails(response.data)
