@@ -17,7 +17,7 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, excludedToolkits
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,preventDefault,excludedToolkits
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
@@ -328,12 +328,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleDescriptionChange = (event) => {
     setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
+
   const closeCreateModal = () => {
     setCreateModal(false);
     setCreateDropdown(false);
-  };
-  const preventDefault = (e) => {
-    e.stopPropagation();
   };
 
   function uploadResource(agentId, fileData) {
@@ -643,8 +641,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setAgentName(agent_name);
       }
 
-      const agent_template_id = localStorage.getItem("agent_template_id_"+ String(internalId));
-      if(agent_template_id){
+      const agent_template_id = localStorage.getItem("agent_template_id_" + String(internalId));
+      if (agent_template_id) {
         setAgentTemplateId(agent_template_id)
       }
 
@@ -1051,8 +1049,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
             {showButton && (
-              <button style={{ marginRight: '7px' }} className="secondary_button"
-              onClick={() => {updateTemplate()}}>
+              <button style={{marginRight: '7px'}} className="secondary_button"
+                      onClick={() => {
+                        updateTemplate()
+                      }}>
                 Update Template
               </button>
             )}
