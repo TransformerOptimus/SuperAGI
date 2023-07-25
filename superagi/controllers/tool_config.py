@@ -85,28 +85,25 @@ def create_or_update_tool_config(toolkit_name: str, tool_configs,
     Raises:
         HTTPException (status_code=404): If the specified tool kit is not found.
     """
-    try:
-        toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name).first()
-        if not toolkit:
-            raise HTTPException(status_code=404, detail='ToolKit not found')
+    toolkit = db.session.query(Toolkit).filter_by(name=toolkit_name).first()
+    if not toolkit:
+        raise HTTPException(status_code=404, detail='ToolKit not found')
 
-        # Iterate over the tool_configs list
-        for tool_config in tool_configs:
-            existing_tool_config = db.session.query(ToolConfig).filter(
-                ToolConfig.toolkit_id == toolkit.id,
-                ToolConfig.key == tool_config.key
-            ).first()
+    # Iterate over the tool_configs list
+    for tool_config in tool_configs:
+        existing_tool_config = db.session.query(ToolConfig).filter(
+            ToolConfig.toolkit_id == toolkit.id,
+            ToolConfig.key == tool_config.key
+        ).first()
 
-            if existing_tool_config.value:
-                # Update the existing tool config
-                #print(tool_config)
-                existing_tool_config.value = encrypt_data(tool_config.value)
-            else:
-                # Create a new tool config
-                new_tool_config = ToolConfig(key=tool_config.key, value=encrypt_data(tool_config.value), toolkit_id=toolkit.id)
-                db.session.add(new_tool_config)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        if existing_tool_config.value:
+            # Update the existing tool config
+            existing_tool_config.value = encrypt_data(tool_config.value)
+        else:
+            # Create a new tool config
+            new_tool_config = ToolConfig(key=tool_config.key, value=encrypt_data(tool_config.value), toolkit_id=toolkit.id)
+            db.session.add(new_tool_config)
+    
 
     db.session.commit()
     db.session.refresh(toolkit)
@@ -138,7 +135,6 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
         raise HTTPException(status_code=404, detail='ToolKit not found')
 
     tool_configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
-    #print(tool_configs)
     for tool_config in tool_configs:
         if tool_config.value:
             tool_config.value = decrypt_data(tool_config.value)
@@ -151,7 +147,7 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
 
 @router.get("/get/toolkit/{toolkit_name}/key/{key}", status_code=200)
 def get_tool_config(toolkit_name: str, key: str, organisation: Organisation = Depends(get_user_organisation)):
-    """-
+    """
     Get a specific tool configuration by tool kit name and key.
 
     Args:
