@@ -11,7 +11,7 @@ from superagi.vector_store.vector_factory import VectorFactory
 @patch('pinecone.Index')
 @patch('pinecone.create_index')
 @patch('weaviate.create_weaviate_client')
-@patch('qdrant.create_qdrant_client')
+@patch('Qdrant.create_qdrant_client')
 def test_get_vector_storage(mock_create_qdrant, mock_create_weaviate, mock_create_index, mock_index, mock_list_indexes, mock_init):
     embedding_model = MagicMock()
     embedding_model.get_embedding.return_value = {'embedding1': 'value1'}
@@ -41,7 +41,7 @@ def test_get_vector_storage(mock_create_qdrant, mock_create_weaviate, mock_creat
 
 @patch('pinecone.init')
 @patch('pinecone.Index')
-@patch('qdrant.create_qdrant_client')
+@patch('Qdrant.create_qdrant_client')
 def test_build_vector_storage(mock_create_qdrant_client, mock_index_init, mock_pinecone_init):
     embedding_model = MagicMock()
     mock_create_qdrant_client.return_value = MagicMock()
