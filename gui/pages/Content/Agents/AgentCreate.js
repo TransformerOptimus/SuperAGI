@@ -16,13 +16,21 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, preventDefault
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents,toolkits,organisationId,template,internalId}) {
+export default function AgentCreate({
+                                      sendAgentData,
+                                      selectedProjectId,
+                                      fetchAgents,
+                                      toolkits,
+                                      organisationId,
+                                      template,
+                                      internalId
+                                    }) {
 
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
@@ -319,12 +327,10 @@ export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents
   const handleDescriptionChange = (event) => {
     setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
+
   const closeCreateModal = () => {
     setCreateModal(false);
     setCreateDropdown(false);
-  };
-  const preventDefault = (e) => {
-    e.stopPropagation();
   };
 
   function uploadResource(agentId, fileData) {
@@ -367,7 +373,7 @@ export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents
       openNewTab(-3, "Settings", "Settings", false);
       return false;
     }
-  
+
     if (agentName?.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
       return false;
@@ -630,8 +636,8 @@ export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents
         setAgentName(agent_name);
       }
 
-      const agent_template_id = localStorage.getItem("agent_template_id_"+ String(internalId));
-      if(agent_template_id){
+      const agent_template_id = localStorage.getItem("agent_template_id_" + String(internalId));
+      if (agent_template_id) {
         setAgentTemplateId(agent_template_id)
       }
 
@@ -1038,8 +1044,10 @@ export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
             {showButton && (
-              <button style={{ marginRight: '7px' }} className="secondary_button"
-              onClick={() => {updateTemplate()}}>
+              <button style={{marginRight: '7px'}} className="secondary_button"
+                      onClick={() => {
+                        updateTemplate()
+                      }}>
                 Update Template
               </button>
             )}

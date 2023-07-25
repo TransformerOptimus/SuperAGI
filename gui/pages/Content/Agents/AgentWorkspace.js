@@ -9,6 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
+import {preventDefault} from "@/utils/utils";
 import {
   getAgentDetails,
   getAgentExecutions,
@@ -157,16 +158,22 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
         setDeleteModal(false);
         if (response.status === 200) {
           EventBus.emit('reFetchAgents', {});
-          EventBus.emit('removeTab',{element: {id: agentId, name: agentName, contentType: "Agents", internalId: internalId}})
+          EventBus.emit('removeTab', {
+            element: {
+              id: agentId,
+              name: agentName,
+              contentType: "Agents",
+              internalId: internalId
+            }
+          })
           toast.success("Agent Deleted Successfully", {autoClose: 1800});
-        }
-        else{
-          toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        } else {
+          toast.error("Agent Could not be Deleted", {autoClose: 1800});
         }
       })
       .catch((error) => {
         setDeleteModal(false);
-        toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        toast.error("Agent Could not be Deleted", {autoClose: 1800});
         console.error("Agent could not be deleted: ", error);
       });
   }
@@ -197,10 +204,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
       });
 
     setDropdown(false);
-  };
-
-  const preventDefault = (e) => {
-    e.stopPropagation();
   };
 
   useEffect(() => {
@@ -466,7 +469,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
             <div className={styles.detail_content}><ResourceManager agentId={agentId} runs={agentExecutions}/></div>}
         </div>
       </div>
-
       
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
@@ -532,15 +534,16 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
       </div>)}
 
       {deleteModal && (<div className="modal" onClick={closeDeleteModal}>
-      <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px' }} onClick={preventDefault}>
+        <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px'}} onClick={preventDefault}>
           <div>
             <label className={styles.delete_agent_modal_label}>Delete Agent</label>
           </div>
           <div>
-          <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you sure you want to proceed?</label>
+            <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you
+              sure you want to proceed?</label>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="secondary_button" style={{ marginRight: '10px' }} onClick={closeDeleteModal}>
+          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeDeleteModal}>
               Cancel
             </button>
             <button className="primary_button" onClick={() => handleDeleteAgent()}>
@@ -549,7 +552,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
           </div>
         </div>
       </div>)}
-      
 
     </div>
     <ToastContainer/>

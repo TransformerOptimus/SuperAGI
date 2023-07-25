@@ -21,7 +21,7 @@ import {useRouter} from 'next/router';
 import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
-import {createInternalId, resetLocalStorage} from "@/utils/utils";
+import {createInternalId, resetLocalStorage, preventDefault} from "@/utils/utils";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -79,10 +79,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         console.error('Error fetching toolkits:', error);
       });
   }
-
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
 
   useEffect(() => {
     getAgentList();

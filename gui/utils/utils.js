@@ -375,3 +375,7 @@ export const convertToTitleCase = (str) => {
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
 };
+
+export const preventDefault = (e) => {
+  e.stopPropagation();
+};
