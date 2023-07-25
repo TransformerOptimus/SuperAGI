@@ -243,7 +243,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         {(selectedView === 'agents' || selectedView === 'toolkits') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-            {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
           </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
