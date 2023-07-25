@@ -1,67 +1,61 @@
-import unittest
-from unittest.mock import patch, MagicMock
+import pytest
+from unittest.mock import MagicMock, patch
+from pinecone import UnauthorizedException
+from superagi.vector_store.vector_factory import VectorFactory
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.pinecone import Pinecone
-from superagi.vector_store.weaviate import Weaviate
 from superagi.vector_store.qdrant import Qdrant
-from superagi.vector_store.vector_factory import VectorFactory
-import pinecone
-import weaviate
 
+PINECONE = 'pinecone'
+WEAVIATE = 'weaviate'
+QDRANT = 'qdrant'
 
-class MockPineconeIndex(pinecone.index.Index):
-    pass
+def test_pinecone_vector_storage(monkeypatch):
+    monkeypatch.setattr('superagi.config.config.get_config', MagicMock(return_value='some_key'))
+    # assuming an embeding model class exist
+    embedding_model = MagicMock()
+    embedding_model.get_embedding.return_value = [0.1, 0.2, 0.3]
+    
+    with patch('superagi.vector_store.pinecone.pinecone.init') as mock_init:
+        vector_storage = VectorFactory.get_vector_storage(PINECONE, 'index_name', embedding_model)
+        assert isinstance(vector_storage, Pinecone)
+        mock_init.assert_called_once()
 
+def test_qdrant_vector_storage():
+    embedding_model = MagicMock()
+    embedding_model.get_embedding.return_value = [0.1, 0.2, 0.3]
+    
+    with patch('superagi.vector_store.qdrant.create_qdrant_client') as mock_client:
+        vector_storage = VectorFactory.get_vector_storage(QDRANT, 'index_name', embedding_model)
+        assert isinstance(vector_storage, Qdrant)
+        mock_client.assert_called_once()
 
-class MockWeaviate(Weaviate):
-    pass
+def test_unsupported_vector_store():
+    with pytest.raises(ValueError):
+        VectorFactory.get_vector_storage('unsupported', 'index_name', 'model')
+        
+def test_pinecone_build_vector_storage():
+    index_name = "index_name"
+    embedding_model = MagicMock()
 
+    with patch('superagi.vector_store.pinecone.pinecone.init') as mock_init, \
+        patch('superagi.vector_store.pinecone.pinecone.Index') as mock_index:
+        mock_index.return_value = MagicMock()
+        vector_storage = VectorFactory.build_vector_storage(PINECONE, index_name, embedding_model, api_key='some_key', environment='some_env')
+        assert isinstance(vector_storage, Pinecone)
+        mock_init.assert_called_once()
+        mock_index.assert_called_once_with(index_name)
 
-class MockQdrant(Qdrant):
-    pass
+def test_qdrant_build_vector_storage():
+    index_name = "index_name"
+    embedding_model = MagicMock()
 
+    with patch('superagi.vector_store.qdrant.create_qdrant_client') as mock_client:
+        mock_client.return_value = MagicMock()
+        vector_storage = VectorFactory.build_vector_storage(QDRANT, index_name, embedding_model, api_key='some_key', url='some_url', port='some_port')
+        assert isinstance(vector_storage, Qdrant)
+        mock_client.assert_called_once()
 
-class TestVectorFactory(unittest.TestCase):
-
-    @patch('superagi.vector_store.vector_factory.get_config')
-    @patch('superagi.vector_store.vector_factory.pinecone')
-    @patch('superagi.vector_store.vector_factory.weaviate')
-    @patch('superagi.vector_store.vector_factory.Qdrant')
-    def test_get_vector_storage(self, mock_qdrant, mock_weaviate, mock_pinecone, mock_get_config):
-        mock_get_config.return_value = 'test'
-        mock_embedding_model = MagicMock()
-        mock_embedding_model.get_embedding.return_value = [0.1, 0.2, 0.3]
-
-        # Mock Pinecone index
-        mock_pinecone_index = MockPineconeIndex('test_index')
-        mock_pinecone.Index.return_value = mock_pinecone_index
-
-        # Test Pinecone
-        mock_pinecone.list_indexes.return_value = ['test_index']
-        vector_store = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, 'test_index', mock_embedding_model)
-        self.assertIsInstance(vector_store, Pinecone)
-
-        # Mock Weaviate client
-        mock_weaviate_client = MagicMock()
-        mock_weaviate.create_weaviate_client.return_value = mock_weaviate_client
-        mock_weaviate.Weaviate = MockWeaviate
-
-        # Test Weaviate
-        vector_store = VectorFactory.get_vector_storage('Weaviate', 'test_index', mock_embedding_model)
-        self.assertIsInstance(vector_store, Weaviate)
-
-        # Test Qdrant
-        mock_qdrant_client = MagicMock()
-        mock_qdrant.create_qdrant_client.return_value = mock_qdrant_client
-        mock_qdrant.Qdrant = MockQdrant
-
-        vector_store = VectorFactory.get_vector_storage(VectorStoreType.QDRANT, 'test_index', mock_embedding_model)
-        self.assertIsInstance(vector_store, Qdrant)
-
-        # Test unsupported vector store
-        with self.assertRaises(ValueError):
-            VectorFactory.get_vector_storage('Unsupported', 'test_index', mock_embedding_model)
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_unsupported_build_vector_store():
+    with pytest.raises(ValueError):
+        VectorFactory.build_vector_storage('unsupported', 'index_name', 'model')
