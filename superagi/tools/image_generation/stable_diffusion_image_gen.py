@@ -5,13 +5,13 @@ from typing import Type, Optional
 import requests
 from PIL import Image
 from pydantic import BaseModel, Field
-
+from superagi.helper.resource_helper import ResourceHelper
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
 
 class StableDiffusionImageGenInput(BaseModel):
-    prompt: str = Field(..., description="Prompt for Image Generation to be used by Stable Diffusion.")
+    prompt: str = Field(..., description="Prompt for Image Generation to be used by Stable Diffusion. The prompt should be as descriptive as possible and mention all the details of the image to be generated")
     height: int = Field(..., description="Height of the image to be Generated. default height is 512")
     width: int = Field(..., description="Width of the image to be Generated. default width is 512")
     num: int = Field(..., description="Number of Images to be generated. default num is 2")
@@ -46,7 +46,6 @@ class StableDiffusionImageGenTool(BaseTool):
 
         if api_key is None:
             return "Error: Missing Stability API key."
-
         response = self.call_stable_diffusion(api_key, width, height, num, prompt, steps)
 
         if response.status_code != 200:
@@ -59,6 +58,7 @@ class StableDiffusionImageGenTool(BaseTool):
         for artifact in artifacts:
             base64_strings.append(artifact['base64'])
 
+        image_paths=[]
         for i in range(num):
             image_base64 = base64_strings[i]
             img_data = base64.b64decode(image_base64)
@@ -69,7 +69,10 @@ class StableDiffusionImageGenTool(BaseTool):
 
             self.resource_manager.write_binary_file(image_names[i], img_byte_arr.getvalue())
 
-        return "Images downloaded and saved successfully"
+        for image in image_names:
+            image_paths.append(ResourceHelper.get_resource_path(image))
+
+        return f"Images downloaded and saved successfully at the following locations: {image_paths}"
 
     def call_stable_diffusion(self, api_key, width, height, num, prompt, steps):
         engine_id = self.get_tool_config("ENGINE_ID")
