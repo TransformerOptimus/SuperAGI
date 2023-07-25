@@ -17,7 +17,7 @@ DictFilter = Dict[str, Union[str, int, bool, dict, list]]
 MetadataFilter = Union[DictFilter, common_types.Filter]
 
 
-def create_qdrant_client(api_key: Optional[str], url: Optional[str], port: Optional[int]
+def create_qdrant_client(api_key: Optional[str] = None, url: Optional[str] = None, port: Optional[int] = None
 ) -> QdrantClient:
     if api_key is None:
         qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
