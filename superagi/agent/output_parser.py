@@ -42,4 +42,3 @@ class AgentSchemaOutputParser(BaseOutputParser):
             )
         except BaseException as e:
             logger.info(f"AgentSchemaOutputParser: Error parsing JSON respons {e}")
-            return {}

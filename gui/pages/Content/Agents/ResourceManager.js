@@ -30,7 +30,6 @@ export default function ResourceManager({agentId, runs}) {
       }
     }
   };
-
   const handleFileInputChange = (event) => {
     const files = event.target.files;
     handleFile(files);
