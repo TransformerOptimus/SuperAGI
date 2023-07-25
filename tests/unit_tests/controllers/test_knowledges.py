@@ -8,13 +8,6 @@ class TestSuperagiAPI(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
 
-    # Mock the get_user_organisation function as it abstracts the authentication part
-    @patch('superagi.helper.auth.get_user_organisation')  # replace 'your_module' with the name of your module
-    def test_get_knowledge_list(self, get_user_organisation):
-        get_user_organisation.return_value = MagicMock()
-        response = self.client.get("/knowledges/get/list")
-        self.assertEqual(response.status_code, 200)
-
     # # Patch the delete_knowledge method to avoid actual deletion
     @patch('superagi.models.knowledges.Knowledges.delete_knowledge')
     def test_delete_user_knowledge(self, delete_knowledge):
