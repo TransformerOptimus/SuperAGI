@@ -214,7 +214,7 @@ export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
   return () => clearInterval(interval)
 };
 
-export const openNewTab = (id, name, contentType, hasInternalId) => {
+export const openNewTab = (id, name, contentType, hasInternalId = false) => {
   EventBus.emit('openNewTab', {
     element: {id: id, name: name, contentType: contentType, internalId: hasInternalId ? createInternalId() : 0}
   });

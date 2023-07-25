@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
-import {refreshUrl, openNewTab} from "@/utils/utils";
+import {openNewTab} from "@/utils/utils";
 
 export default function SideBar({onSelectEvent}) {
   const [sectionSelected, setSelection] = useState('');
@@ -10,7 +10,7 @@ export default function SideBar({onSelectEvent}) {
     setSelection(value);
     onSelectEvent(value);
     if (value === 'apm') {
-      openNewTab(-9, "APM", "APM");
+      openNewTab(-9, "APM", "APM", false);
     }
   };
 
