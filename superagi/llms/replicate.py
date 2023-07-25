@@ -65,8 +65,6 @@ class Replicate(BaseLlm):
         try:
             os.environ["REPLICATE_API_TOKEN"] = self.api_key
             import replicate
-            print(os.environ.get("REPLICATE_API_TOKEN"))
-            print(prompt)
             output = replicate.run(
                 self.model + ":" + self.version,
                 input={"prompt": prompt, "max_length": self.max_length, "temperature": self.temperature,
@@ -76,7 +74,7 @@ class Replicate(BaseLlm):
             for item in output:
                 final_output = final_output + item
 
-            print("Replicate response:", final_output)
+            logger.info("Replicate response:", final_output)
             return {"response": output, "content": final_output}
         except Exception as exception:
             logger.info('Replicate model ' + self.model + ' Exception:', exception)
