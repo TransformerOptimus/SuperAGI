@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from './Agents.module.css';
 import {
   createAgent,
+  editAgentTemplate,
   fetchAgentTemplateConfigLocal,
   getOrganisationConfig,
   getLlmModels,
@@ -25,6 +26,7 @@ import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
+  const [agentTemplateId, setAgentTemplateId] = useState(null);
   const [agentDescription, setAgentDescription] = useState("");
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
@@ -35,6 +37,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [maxIterations, setIterations] = useState(25);
   const [toolkitList, setToolkitList] = useState(toolkits)
   const [searchValue, setSearchValue] = useState('');
+  const [showButton, setShowButton] = useState(false);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -139,6 +142,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
       setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
+      setLocalStorageValue("agent_template_id_" + String(internalId), template.id, setAgentTemplateId);
 
       fetchAgentTemplateConfigLocal(template.id)
         .then((response) => {
@@ -153,6 +157,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
           setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
           setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
+          setLocalStorageValue("is_agent_template_" + String(internalId), true, setShowButton);
+          setShowButton(true);
         })
         .catch((error) => {
           console.error('Error fetching template details:', error);
@@ -364,37 +370,39 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     }
   }, [scheduleData]);
 
-  const handleAddAgent = () => {
-    if (!hasAPIkey) {
+  const validateAgentData = (isNewAgent) => {
+    if (isNewAgent && !hasAPIkey) {
       toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings", false);
-      return
+      return false;
     }
 
-    if (agentName.replace(/\s/g, '') === '') {
+    if (agentName?.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
-      return
+      return false;
     }
-
-    if (agentDescription.replace(/\s/g, '') === '') {
+    if (agentDescription?.replace(/\s/g, '') === '') {
       toast.error("Agent description can't be blank", {autoClose: 1800});
-      return
+      return false;
     }
-
     const isEmptyGoal = goals.some((goal) => goal.replace(/\s/g, '') === '');
     if (isEmptyGoal) {
       toast.error("Goal can't be empty", {autoClose: 1800});
-      return;
+      return false;
     }
-
     if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
-      return
+      return false;
     }
     if(!modelsArray.includes(model)) {
       toast.error("Your key does not have access to the selected model", {autoClose: 1800});
-      return
+      return false;
     }
+    return true;
+  }
+
+  const handleAddAgent = () => {
+    if (!validateAgentData(true)) return;
 
     setCreateClickable(false);
 
@@ -537,6 +545,46 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     event.preventDefault();
   };
 
+  function updateTemplate() {
+
+    if (!validateAgentData(false)) return;
+
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
+
+    const agentTemplateConfigData = {
+      "goal": goals,
+      "instruction": instructions,
+      "agent_type": agentType,
+      "constraints": constraints,
+      "tools": toolNames,
+      "exit": exitCriterion,
+      "iteration_interval": stepTime,
+      "model": model,
+      "max_iterations": maxIterations,
+      "permission_type": permission_type,
+      "LTM_DB": longTermMemory ? database : null,
+    }
+    const editTemplateData = {
+      "name": agentName,
+      "description": agentDescription,
+      "agent_configs": agentTemplateConfigData
+    }
+
+    editAgentTemplate(agentTemplateId, editTemplateData)
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success('Agent template has been updated successfully!', {autoClose: 1800});
+        }
+      })
+      .catch((error) => {
+        toast.error("Error updating agent template")
+        console.error('Error updating agent template:', error);
+      });
+  };
+
   function setFileData(files) {
     if (files.length > 0) {
       const fileData = {
@@ -585,9 +633,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setAdvancedOptions(JSON.parse(advanced_options));
       }
 
+      const is_agent_template = localStorage.getItem("is_agent_template_" + String(internalId));
+      if (is_agent_template) {
+        setShowButton(true);
+      }
+
       const agent_name = localStorage.getItem("agent_name_" + String(internalId));
       if (agent_name) {
         setAgentName(agent_name);
+      }
+
+      const agent_template_id = localStorage.getItem("agent_template_id_"+ String(internalId));
+      if(agent_template_id){
+        setAgentTemplateId(agent_template_id)
       }
 
       const agent_description = localStorage.getItem("agent_description_" + String(internalId));
@@ -992,6 +1050,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             <button style={{marginRight: '7px'}} className="secondary_button"
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
+            {showButton && (
+              <button style={{ marginRight: '7px' }} className="secondary_button"
+              onClick={() => {updateTemplate()}}>
+                Update Template
+              </button>
+            )}
             <div style={{display: 'flex', position: 'relative'}}>
               {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
               </div>)}
