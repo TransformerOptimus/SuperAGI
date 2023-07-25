@@ -4,7 +4,7 @@
 
 # SuperAGI Instagram Tool
 
-The SuperAGI Instagram Tool works with the stable diffusion tool, generates an image & caption based on the goals defined by the user and posts it on their instagram business account.
+The SuperAGI Instagram Tool works with the stable diffusion tool, generates an image & caption based on the goals defined by the user and posts it on their instagram business account.Currently will only work on the webapp
 
 ## ⚙️ Installation
 
