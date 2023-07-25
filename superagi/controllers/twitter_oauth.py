@@ -1,19 +1,18 @@
-from fastapi import Depends, Query
+import http.client as http_client
+import json
+
 from fastapi import APIRouter
+from fastapi import Depends, Query
 from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from sqlalchemy.orm import sessionmaker
 
 import superagi
-import json
-from superagi.models.db import connect_db
-import http.client as http_client
+from superagi.helper.auth import get_current_user, check_auth
 from superagi.helper.twitter_tokens import TwitterTokens
-from superagi.helper.auth import get_current_user
+from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
-from superagi.models.oauth_tokens import OauthTokens
 
 router = APIRouter()
 
@@ -29,8 +28,8 @@ async def twitter_oauth(oauth_token: str = Query(...),oauth_verifier: str = Quer
     return RedirectResponse(url=redirect_url_success)
 
 @router.post("/send_twitter_creds/{twitter_creds}")
-def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends()):
-    current_user = get_current_user()
+def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends(check_auth)):
+    current_user = get_current_user(Authorize)
     user_id = current_user.id
     credentials = json.loads(twitter_creds)
     credentials["user_id"] = user_id

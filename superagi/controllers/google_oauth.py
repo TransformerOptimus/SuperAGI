@@ -11,7 +11,7 @@ import requests
 from datetime import datetime, timedelta
 from superagi.models.db import connect_db
 import http.client as http_client
-from superagi.helper.auth import get_current_user
+from superagi.helper.auth import get_current_user, check_auth
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
@@ -52,11 +52,11 @@ async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depe
     return RedirectResponse(url=redirect_url_success)
 
 @router.post("/send_google_creds/toolkit_id/{toolkit_id}")
-def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize: AuthJWT = Depends()):
+def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize: AuthJWT = Depends(check_auth)):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
-    current_user = get_current_user()
+    current_user = get_current_user(Authorize)
     user_id = current_user.id
     toolkit = db.session.query(Toolkit).filter(Toolkit.id == toolkit_id).first()
     google_creds = json.dumps(google_creds)
