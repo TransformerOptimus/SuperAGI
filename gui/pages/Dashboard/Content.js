@@ -371,7 +371,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {tab.contentType === 'Create_Agent' &&
                       <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={fetchAgents} toolkits={toolkits} env={env} />}
+                                          fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
                     {tab.contentType === 'APM' && <ApmDashboard/>}
                   </div>}
                 </div>

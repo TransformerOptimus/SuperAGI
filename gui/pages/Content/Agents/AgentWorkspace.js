@@ -41,7 +41,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
   const [currentInstructions, setCurrentInstructions] = useState(['']);
-  const [pendingPermission, setPendingPermissions] = useState(0)
+  const [pendingPermission, setPendingPermissions] = useState(0);
 
   const agent = agents.find(agent => agent.id === agentId);
 

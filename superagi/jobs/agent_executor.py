@@ -1,10 +1,12 @@
 import importlib
+import os
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import sessionmaker
 
 import superagi.worker
 from superagi.agent.super_agi import SuperAgi
+from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.lib.logger import logger
@@ -32,7 +34,7 @@ from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-from superagi.apm.event_handler import EventHandler
+
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
@@ -82,18 +84,18 @@ class AgentExecutor:
             object: The object of the agent usable tool.
         """
         file_name = AgentExecutor.validate_filename(filename=tool.file_name)
+        tool_paths = ["superagi/tools", "superagi/tools/external_tools", "superagi/tools/marketplace_tools"]
+        for tool_path in tool_paths:
+            if os.path.exists(os.path.join(os.getcwd(), tool_path) + '/' + tool.folder_name):
+                tools_dir = tool_path
+                break
 
-        tools_dir = get_config("TOOLS_DIR")
-        if tools_dir is None:
-            tools_dir = "superagi/tools"
         parsed_tools_dir = tools_dir.rstrip("/")
         module_name = ".".join(parsed_tools_dir.split("/") + [tool.folder_name, file_name])
 
         # module_name = f"superagi.tools.{folder_name}.{file_name}"
-
         # Load the module dynamically
         module = importlib.import_module(module_name)
-
         # Get the class from the loaded module
         obj_class = getattr(module, tool.class_name)
 
@@ -138,7 +140,7 @@ class AgentExecutor:
         return None
 
     @staticmethod
-    def get_organisation(agent_execution,session):
+    def get_organisation(agent_execution, session):
         """
         Get the model API key from the agent execution.
 
@@ -154,7 +156,6 @@ class AgentExecutor:
         organisation = agent.get_agent_organisation(session)
 
         return organisation
-
 
     def execute_next_action(self, agent_execution_id):
         """
@@ -197,7 +198,12 @@ class AgentExecutor:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
             session.commit()
-            EventHandler(session=session).create_event('run_iteration_limit_crossed', {'agent_execution_id':db_agent_execution.id,'name': db_agent_execution.name,'tokens_consumed':db_agent_execution.num_of_tokens,"calls":db_agent_execution.num_of_calls}, db_agent_execution.agent_id, organisation.id)
+            EventHandler(session=session).create_event('run_iteration_limit_crossed',
+                                                       {'agent_execution_id': db_agent_execution.id,
+                                                        'name': db_agent_execution.name,
+                                                        'tokens_consumed': db_agent_execution.num_of_tokens,
+                                                        "calls": db_agent_execution.num_of_calls},
+                                                       db_agent_execution.agent_id, organisation.id)
             logger.info("ITERATION_LIMIT_CROSSED")
             return "ITERATION_LIMIT_CROSSED"
 
@@ -271,7 +277,11 @@ class AgentExecutor:
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "COMPLETED"
             session.commit()
-            EventHandler(session=session).create_event('run_completed', {'agent_execution_id':db_agent_execution.id,'name': db_agent_execution.name,'tokens_consumed':db_agent_execution.num_of_tokens,"calls":db_agent_execution.num_of_calls}, db_agent_execution.agent_id, organisation.id)
+            EventHandler(session=session).create_event('run_completed', {'agent_execution_id': db_agent_execution.id,
+                                                                         'name': db_agent_execution.name,
+                                                                         'tokens_consumed': db_agent_execution.num_of_tokens,
+                                                                         "calls": db_agent_execution.num_of_calls},
+                                                       db_agent_execution.agent_id, organisation.id)
         elif response["result"] == "WAITING_FOR_PERMISSION":
             db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             db_agent_execution.status = "WAITING_FOR_PERMISSION"
@@ -364,15 +374,15 @@ class AgentExecutor:
     def get_agent_resource_summary(self, agent_id: int, session: Session, model_llm_source: str, default_summary: str):
         if ModelSourceType.GooglePalm.value in model_llm_source:
             return
-        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id,generate_all=True)
+        ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id, generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
         resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
         return resource_summary
 
-    def check_for_resource(self,agent_id: int, session: Session):
-        resource = session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').first()
+    def check_for_resource(self, agent_id: int, session: Session):
+        resource = session.query(Resource).filter(Resource.agent_id == agent_id, Resource.channel == 'INPUT').first()
         if resource is None:
             return False
         return True
