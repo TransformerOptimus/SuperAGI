@@ -36,7 +36,7 @@ export default function SideBar({onSelectEvent}) {
       </div>
       <div className={styles.selection_section}>
         <div onClick={() => handleClick(sectionSelected !== 'apm' ? 'apm' : '')}
-             className={`${styles.section} ${sectionSelected === 'apm' ? styles.selected : ''}`}>
+             className={styles.section}>
           <div className={styles.button_icon}><Image width={17} height={17} src="/images/apm.svg" alt="apm-icon"/></div>
           <div>APM</div>
         </div>
