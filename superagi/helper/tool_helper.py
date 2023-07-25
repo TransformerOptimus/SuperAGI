@@ -126,15 +126,16 @@ def init_tools(folder_paths, session, tool_name_to_toolkit):
         for folder_name in os.listdir(folder_path):
             folder_dir = os.path.join(folder_path, folder_name)
             # Iterate over all files in the subfolder
-            if os.path.isdir(folder_dir):
+            if not os.path.isdir(folder_dir):
+                continue
                 # sys.path.append(os.path.abspath('superagi/tools/email'))
-                sys.path.append(folder_dir)
-                for file_name in os.listdir(folder_dir):
-                    file_path = os.path.join(folder_dir, file_name)
-                    if file_name.endswith(".py") and not file_name.startswith("__init__"):
-                        # Get classes
-                        classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)
-                        update_base_tool_class_info(classes, file_name, folder_name, session, tool_name_to_toolkit)
+            sys.path.append(folder_dir)
+            for file_name in os.listdir(folder_dir):
+                file_path = os.path.join(folder_dir, file_name)
+                if file_name.endswith(".py") and not file_name.startswith("__init__"):
+                    # Get classes
+                    classes = get_classes_in_file(file_path=file_path, clazz=BaseTool)
+                    update_base_tool_class_info(classes, file_name, folder_name, session, tool_name_to_toolkit)
 
 
 def update_base_tool_class_info(classes, file_name, folder_name, session, tool_name_to_toolkit):
