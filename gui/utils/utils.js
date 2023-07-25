@@ -278,6 +278,8 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("agent_is_recurring_" + String(internalId));
     localStorage.removeItem("is_agent_template_" + String(internalId));
     localStorage.removeItem("agent_template_id_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_id_" + String(internalId));
   }
 };
 
@@ -304,6 +306,49 @@ const removeToolkitsInternalId = (internalId) => {
   }
 };
 
+const removeKnowledgeInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('knowledge_name_' + String(internalId));
+    localStorage.removeItem('knowledge_description_' + String(internalId));
+    localStorage.removeItem('knowledge_index_' + String(internalId));
+  }
+}
+
+const removeAddDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('add_database_tab_' + String(internalId));
+    localStorage.removeItem('selected_db_' + String(internalId));
+    localStorage.removeItem('db_name_' + String(internalId));
+    localStorage.removeItem('db_collections_' + String(internalId));
+    localStorage.removeItem('pincone_api_' + String(internalId));
+    localStorage.removeItem('pinecone_env_' + String(internalId));
+    localStorage.removeItem('qdrant_api_' + String(internalId));
+    localStorage.removeItem('qdrant_url_' + String(internalId));
+    localStorage.removeItem('qdrant_port_' + String(internalId));
+  }
+}
+
+const removeDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('db_details_collections_' + String(internalId));
+  }
+}
+
 export const resetLocalStorage = (contentType, internalId) => {
   switch (contentType) {
     case 'Create_Agent':
@@ -320,6 +365,21 @@ export const resetLocalStorage = (contentType, internalId) => {
       break;
     case 'Toolkits':
       removeToolkitsInternalId(internalId);
+      break;
+    case 'Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Database':
+      removeAddDatabaseInternalId(internalId);
+      break;
+    case 'Database':
+      removeDatabaseInternalId(internalId);
+      break;
+    case 'Settings':
+      localStorage.removeItem('settings_tab');
       break;
     default:
       break;
@@ -364,6 +424,15 @@ export const returnResourceIcon = (file) => {
     default:
       return '/images/default_file.svg';
   }
+};
+
+export const returnDatabaseIcon = (database) => {
+  const dbTypeIcons = {
+    'Pinecone': '/images/pinecone.svg',
+    'Qdrant': '/images/qdrant.svg'
+  };
+
+  return dbTypeIcons[database]
 };
 
 export const convertToTitleCase = (str) => {

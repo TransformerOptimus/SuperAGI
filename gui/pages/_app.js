@@ -14,7 +14,7 @@ import {
   validateAccessToken,
   checkEnvironment,
   addUser,
-  installToolkitTemplate, installAgentTemplate
+  installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
 import {githubClientId} from "@/pages/api/apiConfig";
 import {useRouter} from 'next/router';
@@ -33,7 +33,18 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("Initializing SuperAGI");
   const router = useRouter();
   const [showMarketplace, setShowMarketplace] = useState(false);
-  const excludedKeys = ['repo_starred', 'popup_closed_time', 'twitter_toolkit_id', 'accessToken', 'agent_to_install', 'toolkit_to_install', 'google_calendar_toolkit_id', 'myLayoutKey'];
+  const excludedKeys = [
+    'repo_starred',
+    'popup_closed_time',
+    'twitter_toolkit_id',
+    'accessToken',
+    'agent_to_install',
+    'toolkit_to_install',
+    'google_calendar_toolkit_id',
+    'knowledge_to_install',
+    'knowledge_index_to_install',
+    'myLayoutKey'
+  ];
 
   function fetchOrganisation(userId) {
     getOrganisation(userId)
@@ -48,6 +59,20 @@ export default function App() {
   const installFromMarketplace = () => {
     const toolkitName = localStorage.getItem('toolkit_to_install') || null;
     const agentTemplateId = localStorage.getItem('agent_to_install') || null;
+    const knowledgeTemplateName = localStorage.getItem('knowledge_to_install') || null;
+    const knowledgeIndexId = localStorage.getItem('knowledge_index_to_install') || null;
+
+    if (knowledgeTemplateName !== null && knowledgeIndexId !== null) {
+      installKnowledgeTemplate(knowledgeTemplateName, knowledgeIndexId)
+        .then((response) => {
+          toast.success("Template installed", {autoClose: 1800});
+        })
+        .catch((error) => {
+          console.error('Error installing template:', error);
+        });
+      localStorage.removeItem('knowledge_to_install');
+      localStorage.removeItem('knowledge_index_to_install');
+    }
 
     if (toolkitName !== null) {
       installToolkitTemplate(toolkitName)

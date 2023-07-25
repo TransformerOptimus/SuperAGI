@@ -1,11 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import Image from "next/image";
 import styles from './Market.module.css';
+import MarketKnowledge from './MarketKnowledge';
 import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
 import ToolkitTemplate from './ToolkitTemplate';
 import {EventBus} from "@/utils/eventBus";
-import AgentTemplate from "@/pages/Content/Marketplace/AgentTemplate";
+import AgentTemplate from "./AgentTemplate";
+import KnowledgeTemplate from "./KnowledgeTemplate";
 import {setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 
 export default function Market({env}) {
@@ -61,7 +63,6 @@ export default function Market({env}) {
       {!itemClicked ? <div className={styles.empty_state}>
         <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
           <div className={styles.detail_top}>
-
             <div style={{display: 'flex', overflowX: 'scroll', marginLeft: '8px'}}>
               <div>
                 <button onClick={() => switchTab('market_tools')} className={styles.tab_button}
@@ -71,6 +72,16 @@ export default function Market({env}) {
                         } : {background: 'transparent', paddingRight: '15px'}}>
                   <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/tools_light.svg"
                          alt="tools-icon"/>&nbsp;Tools
+                </button>
+              </div>
+              <div>
+                <button onClick={() => switchTab('market_knowledge')} className={styles.tab_button}
+                        style={activeTab === 'market_knowledge' ? {
+                          background: '#454254',
+                          paddingRight: '15px'
+                        } : {background: 'transparent', paddingRight: '15px'}}>
+                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/knowledge.svg"
+                         alt="knowledge-icon"/>&nbsp;Knowledge
                 </button>
               </div>
               <div>
@@ -87,15 +98,16 @@ export default function Market({env}) {
           </div>
           <div>
             {activeTab === 'market_tools' && <MarketTools/>}
+            {activeTab === 'market_knowledge' && <MarketKnowledge/>}
             {activeTab === 'market_agents' && <MarketAgent/>}
           </div>
         </div>
       </div> : <div style={{padding: '0 3px'}}>
         {detailType === 'agent_template' && <AgentTemplate env={env} template={templateData}/>}
+        {detailType === 'knowledge_template' && <KnowledgeTemplate env={env} template={templateData}/>}
         {detailType === 'tool_template' && <ToolkitTemplate env={env} template={templateData}/>}
       </div>}
     </div>
   );
 };
-
 
