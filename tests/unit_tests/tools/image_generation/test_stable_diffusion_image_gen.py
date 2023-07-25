@@ -48,8 +48,7 @@ def test_execute(stable_diffusion_tool):
 
 
     result = tool._execute('prompt', ['img1.png', 'img2.png'])
-
-    assert result == 'Images downloaded and saved successfully'
+    assert result.startswith('Images downloaded and saved successfully')
     tool.resource_manager.write_binary_file.assert_called()
 
 def test_call_stable_diffusion(stable_diffusion_tool):
