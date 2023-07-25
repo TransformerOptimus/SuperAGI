@@ -46,6 +46,7 @@ export default function AgentCreate({
   const [toolkitList, setToolkitList] = useState(toolkits)
   const [searchValue, setSearchValue] = useState('');
   const [showButton, setShowButton] = useState(false);
+  const [showPlaceholder, setShowPlaceholder] = useState(true);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -800,17 +801,19 @@ export default function AgentCreate({
             <div className="dropdown_container_search" style={{width: '100%'}}>
               <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)}
                    style={{width: '100%', alignItems: 'flex-start'}}>
-                {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
-                  {toolNames.map((tool, index) => (
-                    <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
-                      <div className={styles.tool_text}>{tool}</div>
-                      <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon"
-                                  style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
-                    </div>))}
-                  <input type="text" className="dropdown_search_text" value={searchValue}
-                         onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)}
-                         onClick={(e) => e.stopPropagation()}/>
-                </div> : <div style={{color: '#666666'}}>Select Tools</div>}
+                <div style={{display: 'flex', flexWrap: 'wrap', width: '100%', alignItems: 'start'}}>
+                  {toolNames && toolNames.length > 0 && toolNames.map((tool, index) => (
+                      <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
+                        <div className={styles.tool_text}>{tool}</div>
+                        <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon"
+                                    style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
+                      </div>
+                  ))}
+                  <input type="text" className="dropdown_search_text" value={searchValue} style={{flexGrow: 1}} onChange={(e) => setSearchValue(e.target.value)}
+                      onFocus={() => {setToolkitDropdown(true);setShowPlaceholder(false);}} onBlur={() => {setShowPlaceholder(true);}}
+                      onClick={(e) => e.stopPropagation()}/>
+                  {toolNames && toolNames.length === 0 && showPlaceholder && searchValue.length ===0 && <div style={{color: '#666666',position:'absolute'}}>Select Tools</div>}
+                </div>
                 <div style={{display: 'inline-flex'}}>
                   <Image width={20} height={21} onClick={(e) => clearTools(e)} src='/images/clear_input.svg'
                          alt="clear-input"/>
