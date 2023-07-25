@@ -17,3 +17,5 @@ workspace/output
 workspace/input
 celerybeat-schedule
 ../bfg-report*
+superagi/tools/marketplace_tools/
+tests/unit_tests/resource_manager/test_path
