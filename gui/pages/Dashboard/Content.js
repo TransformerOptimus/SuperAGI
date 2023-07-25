@@ -33,6 +33,16 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
   const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit'];
+  const [isApmOpened, setIsApmOpened] = useState(false);
+  const [prevView, setPrevView] = useState(null);
+
+  useEffect(() => {
+    if (prevView !== selectedView) {
+      const apmTab = tabs.find(tab => tab.contentType === 'APM');
+      setIsApmOpened(!!apmTab);
+      setPrevView(selectedView);
+    }
+  }, [selectedView, tabs, prevView]);
 
   async function fetchAgents() {
     try {
@@ -262,6 +272,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     }
   }, []);
 
+  console.log(selectedView)
+  console.log(tabs)
+
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
         {(selectedView === 'agents' || selectedView === 'toolkits') &&
@@ -372,7 +385,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={getAgentList} toolkits={toolkits}/>}
-                    {tab.contentType === 'APM' && <ApmDashboard/>}
+                    {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
                   </div>}
                 </div>
               ))}
