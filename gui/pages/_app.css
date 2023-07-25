@@ -983,8 +983,9 @@ tr{
 }
 
 .tools_used_tooltip{
-    position: absolute;
+    position: relative;
     cursor: pointer;
+    z-index: 100;
 }
 
 .image_class{
