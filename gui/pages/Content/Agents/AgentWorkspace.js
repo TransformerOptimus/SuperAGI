@@ -58,11 +58,13 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
+    setDropdown(false);
   };
 
   const handleStopScheduleClick = () => {
     setCreateStopModal(true);
     setCreateModal(false);
+    setDropdown(false);
   };
 
   function fetchStopSchedule() {//Stop Schedule
@@ -370,9 +372,9 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
                   {agent && !agent?.is_running && !agent?.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
+                    <li className="dropdown_item" onClick={() => {setDropdown(false);setCreateModal(true)}}>Schedule Run</li>}
                 </div>)}
-                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
+                <li className="dropdown_item" onClick={() => {setDropdown(false);setDeleteModal(true)}}>Delete Agent</li>
               </ul>
             </div>}
 
@@ -469,7 +471,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
             <div className={styles.detail_content}><ResourceManager agentId={agentId} runs={agentExecutions}/></div>}
         </div>
       </div>
-      
+
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={styles.detail_name}>Run agent name</div>
