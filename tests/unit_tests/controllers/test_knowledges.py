@@ -10,7 +10,7 @@ organisation_mock = {"id": 1, "name": "test_org"}
 
 @patch("Knowledges.fetch_marketplace_list")
 @patch("Knowledges.get_knowledge_install_details")
-@patch("MarketPlaceStats.get_knowledge_installation_number")
+@patch("superagi.models.marketplace_stats.MarketPlaceStats.get_knowledge_installation_number")
 def test_get_knowledge_list(mock_get_knowledge_install_number, mock_get_knowledge_install_details, mock_fetch_marketplace_list):
     # Arrange
     mock_fetch_marketplace_list.return_value = [{"id": 101, "name": "knowledge_1"}, {"id": 102, "name": "knowledge_2"}]
