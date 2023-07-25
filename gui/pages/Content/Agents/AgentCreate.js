@@ -806,7 +806,7 @@ export default function AgentCreate({sendAgentData,selectedProjectId,fetchAgents
                   <input type="text" className="dropdown_search_text" value={searchValue} style={{flexGrow: 1}} onChange={(e) => setSearchValue(e.target.value)}
                       onFocus={() => {setToolkitDropdown(true);setShowPlaceholder(false);}} onBlur={() => {setShowPlaceholder(true);}}
                       onClick={(e) => e.stopPropagation()}/>
-                  {toolNames && toolNames.length === 0 && showPlaceholder && <div style={{color: '#666666',position:'absolute'}}>Select Tools</div>}
+                  {toolNames && toolNames.length === 0 && showPlaceholder && searchValue.length ===0 && <div style={{color: '#666666',position:'absolute'}}>Select Tools</div>}
                 </div>
                 <div style={{display: 'inline-flex'}}>
                   <Image width={20} height={21} onClick={(e) => clearTools(e)} src='/images/clear_input.svg'
