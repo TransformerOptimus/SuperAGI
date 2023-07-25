@@ -996,14 +996,8 @@ tr{
 }
 
 .tools_used_tooltip{
-    position: absolute;
+    position: relative;
     cursor: pointer;
-    z-index: 100;
-}
-
-.image_class{
-    background: #FFFFFF80;
-    border-radius: 20px;
 }
 
 .image_class{
