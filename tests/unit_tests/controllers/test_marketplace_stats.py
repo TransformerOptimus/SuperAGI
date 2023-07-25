@@ -1,24 +1,30 @@
-import pytest
-from unittest.mock import Mock, patch
+import unittest
+from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
-from fastapi import HTTPException
+from main import app  # This should be the file where your FastAPI app is initiated
 from superagi.models.marketplace_stats import MarketPlaceStats
-from main import app  # assuming the FastAPI app is defined in this file
 
-client = TestClient(app)
+class TestKnowledgeDownload(unittest.TestCase):
+    @patch('superagi.controllers.marketplace_stats.db')
+    def test_get_knowledge_download_number(self, mock_db):
+        mock_result = MagicMock()
+        mock_result.value = 10  # We mock that the value returned is 10
+        mock_db.session.query.return_value.filter.return_value.first.return_value = mock_result
+        
+        client = TestClient(app)
+        response = client.get("/marketplace/knowledge/downloads/123") # 123 is a mock knowledge_id
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), 10)
 
-def test_get_knowledge_download_number():
-    # create a mock instance of MarketPlaceStats
-    mocked_stats = Mock(spec=MarketPlaceStats)
-    mocked_stats.value = 10
-    with patch('superagi.endpoint.fastapi_sqlalchemy.db.session.query', return_value=mocked_stats) as mock: 
-        # assuming successful case
-        response = client.get("/knowledge/downloads/1")
-        assert response.status_code == 200
-        assert response.json() == mocked_stats.value
+    @patch('superagi.controllers.marketplace_stats.db')
+    def test_get_knowledge_download_number_no_downloads(self, mock_db):
+        mock_result = MagicMock()
+        mock_db.session.query.return_value.filter.return_value.first.return_value = mock_result
+       
+        client = TestClient(app)
+        response = client.get("/marketplace/knowledge/downloads/123") # 123 is a mock knowledge_id
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {})
 
-        # assuming there's no download information for the given knowledge_id
-        mocked_stats.value = 0
-        response = client.get("/knowledge/downloads/1")
-        assert response.status_code == 200
-        assert response.json() == mocked_stats.value
+if __name__ == '__main__':
+    unittest.main()
