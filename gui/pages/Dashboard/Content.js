@@ -87,14 +87,23 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       });
   }
 
-  function fetchKnowledge() {
-    getKnowledge()
-      .then((response) => {
-        const data = response.data || [];
-        const updatedData = data.map(item => {
-          return {...item, contentType: "Knowledge", internalId: createInternalId()};
-        });
-        setKnowledge(updatedData);
+  async function fetchKnowledge() {
+    try {
+      const response = await getKnowledge();
+      const data = response.data || [];
+      const updatedData = data.map(item => {
+        return { ...item, contentType: "Knowledge", internalId: createInternalId() };
+      });
+      setKnowledge(updatedData);
+    } catch (error) {
+      console.error('Error fetching knowledge:', error);
+    }
+  }
+
+  function getKnowledgeList() {
+    fetchKnowledge()
+      .then(() => {
+        console.log('Knowledge fetched successfully!');
       })
       .catch((error) => {
         console.error('Error fetching knowledge:', error);
@@ -106,9 +115,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     getToolkitList();
   }, [selectedProjectId])
 
-
   useEffect(() => {
-    fetchKnowledge();
+    getKnowledgeList();
   }, [organisationId])
 
   const cancelTab = (index, contentType, internalId) => {
@@ -237,14 +245,14 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', getAgentList);
-    EventBus.on('reFetchKnowledge', fetchKnowledge);
+    EventBus.on('reFetchKnowledge', getKnowledgeList);
     EventBus.on('removeTab', removeTab);
     EventBus.on('openToolkitTab', openToolkitTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', getAgentList);
-      EventBus.off('reFetchKnowledge', fetchKnowledge);
+      EventBus.off('reFetchKnowledge', getKnowledgeList);
       EventBus.off('removeTab', removeTab);
     };
   });
