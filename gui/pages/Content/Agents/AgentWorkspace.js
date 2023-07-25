@@ -9,6 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
+import {preventDefault} from "@/utils/utils";
 import {
   getAgentDetails,
   getAgentExecutions,
@@ -40,7 +41,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
   const [currentInstructions, setCurrentInstructions] = useState(['']);
-  const [pendingPermission, setPendingPermissions] = useState(0)
+  const [pendingPermission, setPendingPermissions] = useState(0);
 
   const agent = agents.find(agent => agent.id === agentId);
 
@@ -57,11 +58,13 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
+    setDropdown(false);
   };
 
   const handleStopScheduleClick = () => {
     setCreateStopModal(true);
     setCreateModal(false);
+    setDropdown(false);
   };
 
   function fetchStopSchedule() {//Stop Schedule
@@ -157,16 +160,22 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         setDeleteModal(false);
         if (response.status === 200) {
           EventBus.emit('reFetchAgents', {});
-          EventBus.emit('removeTab',{element: {id: agentId, name: agentName, contentType: "Agents", internalId: internalId}})
+          EventBus.emit('removeTab', {
+            element: {
+              id: agentId,
+              name: agentName,
+              contentType: "Agents",
+              internalId: internalId
+            }
+          })
           toast.success("Agent Deleted Successfully", {autoClose: 1800});
-        }
-        else{
-          toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        } else {
+          toast.error("Agent Could not be Deleted", {autoClose: 1800});
         }
       })
       .catch((error) => {
         setDeleteModal(false);
-        toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        toast.error("Agent Could not be Deleted", {autoClose: 1800});
         console.error("Agent could not be deleted: ", error);
       });
   }
@@ -197,10 +206,6 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       });
 
     setDropdown(false);
-  };
-
-  const preventDefault = (e) => {
-    e.stopPropagation();
   };
 
   useEffect(() => {
@@ -367,9 +372,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
                   {agent && !agent?.is_running && !agent?.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
+                    <li className="dropdown_item" onClick={() => {setDropdown(false);setCreateModal(true)}}>Schedule Run</li>}
                 </div>)}
-                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
+                <li className="dropdown_item" onClick={() => {setDropdown(false);setDeleteModal(true)}}>Delete Agent</li>
               </ul>
             </div>}
 
@@ -467,7 +472,6 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         </div>
       </div>
 
-      
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={styles.detail_name}>Run agent name</div>
@@ -532,15 +536,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       </div>)}
 
       {deleteModal && (<div className="modal" onClick={closeDeleteModal}>
-      <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px' }} onClick={preventDefault}>
+        <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px'}} onClick={preventDefault}>
           <div>
             <label className={styles.delete_agent_modal_label}>Delete Agent</label>
           </div>
           <div>
-          <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you sure you want to proceed?</label>
+            <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you
+              sure you want to proceed?</label>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="secondary_button" style={{ marginRight: '10px' }} onClick={closeDeleteModal}>
+          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeDeleteModal}>
               Cancel
             </button>
             <button className="primary_button" onClick={() => handleDeleteAgent()}>
@@ -549,7 +554,6 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           </div>
         </div>
       </div>)}
-      
 
     </div>
     <ToastContainer/>
