@@ -10,7 +10,6 @@ from superagi.vector_store.vector_factory import VectorFactory
 @patch('pinecone.list_indexes')
 @patch('pinecone.Index')
 @patch('pinecone.create_index')
-@patch('weaviate.create_weaviate_client')
 @patch('superagi.vector_store.qdrant.create_qdrant_client')
 def test_get_vector_storage(mock_create_qdrant, mock_create_weaviate, mock_create_index, mock_index, mock_list_indexes, mock_init):
     embedding_model = MagicMock()
@@ -25,10 +24,6 @@ def test_get_vector_storage(mock_create_qdrant, mock_create_weaviate, mock_creat
     # test PINECONE
     result = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, 'index1', embedding_model)
     assert isinstance(result, Pinecone)
-
-    # test WEAVIATE
-    result = VectorFactory.get_vector_storage(VectorStoreType.WEAVIATE, 'index1', embedding_model)
-    assert isinstance(result, weaviate.Weaviate)
 
     # test QDRANT
     result = VectorFactory.get_vector_storage(VectorStoreType.QDRANT, 'index1', embedding_model)
