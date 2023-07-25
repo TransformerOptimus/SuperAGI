@@ -73,7 +73,7 @@ class InstagramTool(BaseTool):
         file_path=self.get_file_path_from_image_generation_tool()     
         #handling case where image generation generates multiple images
         if(file_path=="resources"):
-            return "A photo has already been posted on your instagram account"
+            return "A photo has already been posted on your instagram account. To post multiple photos use recurring runs."
         
         image_url,encoded_caption=self.get_img_url_and_encoded_caption(photo_description,file_path)
         #post request for getting the media container ID
