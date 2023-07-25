@@ -142,11 +142,9 @@ def install_toolkit_from_marketplace(toolkit_name: str,
         dict: A message indicating the successful installation of the tool kit.
 
     """
-    print("User organisation", organisation)
     # Check if the tool kit exists
     toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
                                                toolkit_name=toolkit_name)
-    print("TOOLKIT", toolkit)
     db_toolkit = Toolkit.add_or_update(session=db.session, name=toolkit['name'], description=toolkit['description'],
                           tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
                           show_toolkit=toolkit['show_toolkit'])

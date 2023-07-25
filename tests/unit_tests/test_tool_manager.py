@@ -6,16 +6,20 @@ import pytest
 from unittest.mock import Mock, patch, mock_open, MagicMock
 from superagi.tool_manager import parse_github_url, download_tool, load_tools_config, download_and_extract_tools
 
+
 def test_parse_github_url():
     url = 'https://github.com/owner/repo'
     assert parse_github_url(url) == 'owner/repo/main'
 
+
 def setup_function():
     os.makedirs('target_folder', exist_ok=True)
+
 
 # Teardown function to remove the directory
 def teardown_function():
     shutil.rmtree('target_folder')
+
 
 @patch('requests.get')
 @patch('zipfile.ZipFile')
@@ -29,7 +33,6 @@ def test_download_tool(mock_zip, mock_get):
 
     mock_get.assert_called_once_with('https://api.github.com/repos/owner/repo/zipball/main')
     mock_zip.assert_called_once_with('target_folder/tool.zip', 'r')
-
 
 
 @patch('json.load')
@@ -47,5 +50,5 @@ def test_download_and_extract_tools(mock_load_tools_config, mock_download_tool):
     download_and_extract_tools()
 
     mock_load_tools_config.assert_called_once()
-    mock_download_tool.assert_any_call('url1', os.path.join('superagi', 'tools', 'tool1'))
-    mock_download_tool.assert_any_call('url2', os.path.join('superagi', 'tools', 'tool2'))
+    mock_download_tool.assert_any_call('url1', os.path.join('superagi', 'tools', 'external_tools', 'tool1'))
+    mock_download_tool.assert_any_call('url2', os.path.join('superagi', 'tools', 'external_tools', 'tool2'))

@@ -320,7 +320,6 @@ async def startup_event():
 
     def register_toolkit_for_master_organisation():
         marketplace_organisation_id = superagi.config.config.get_config("MARKETPLACE_ORGANISATION_ID")
-        print("MARKETPLACE_ORGANISATION_ID", marketplace_organisation_id)
         marketplace_organisation = session.query(Organisation).filter(
             Organisation.id == marketplace_organisation_id).first()
         if marketplace_organisation is not None:
