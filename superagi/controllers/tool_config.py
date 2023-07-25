@@ -52,7 +52,8 @@ def update_tool_config(toolkit_name: str, configs: list, organisation: Organisat
         for config in configs:
             key = config.get("key")
             value = config.get("value")
-
+            if value is None: 
+                continue
             if key is not None:
                 tool_config = db.session.query(ToolConfig).filter_by(toolkit_id=toolkit.id, key=key).first()
                 if tool_config:
@@ -148,7 +149,7 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
     return tool_configs
 
 
-@router.get("/get/{toolkit_name}/key/{key}", status_code=200)
+@router.get("/get/toolkit/{toolkit_name}/key/{key}", status_code=200)
 def get_tool_config(toolkit_name: str, key: str, organisation: Organisation = Depends(get_user_organisation)):
     """-
     Get a specific tool configuration by tool kit name and key.
