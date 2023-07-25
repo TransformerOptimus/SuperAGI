@@ -20,7 +20,7 @@ services:
       - super__postgres
     networks:
       - super_network
-    command: ["celery", "-A", "superagi.worker", "worker", "--beat","--loglevel=info"]
+    command: ["/app/entrypoint_celery.sh"]
   gui:
     build:
       context: ./gui
