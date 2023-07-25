@@ -259,6 +259,8 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("agent_time_unit_" + String(internalId));
     localStorage.removeItem("agent_time_value_" + String(internalId));
     localStorage.removeItem("agent_is_recurring_" + String(internalId));
+    localStorage.removeItem("is_agent_template_" + String(internalId));
+    localStorage.removeItem("agent_template_id_" + String(internalId));
   }
 }
 
@@ -342,6 +344,7 @@ export const returnToolkitIcon = (toolkitName) => {
     {name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg'},
     {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
     {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Thinking Toolkit', imageSrc: '/images/app-logo-light.png'},
     {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
     {name: 'DuckDuckGo Search Toolkit', imageSrc: '/images/duckduckgo_icon.png'},
   ];
@@ -375,4 +378,8 @@ export const convertToTitleCase = (str) => {
   const words = str.toLowerCase().split('_');
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
+}
+
+export const excludedToolkits = () => {
+  return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
 }

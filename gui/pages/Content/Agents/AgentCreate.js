@@ -17,7 +17,7 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, excludedToolkits
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
@@ -85,7 +85,6 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const toolkitRef = useRef(null);
   const [toolkitDropdown, setToolkitDropdown] = useState(false);
 
-  const excludedToolkits = ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
   const [hasAPIkey, setHasAPIkey] = useState(false);
 
   const [createDropdown, setCreateDropdown] = useState(false);
@@ -831,7 +830,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                 {toolkitDropdown && <div className="custom_select_options" ref={toolkitRef} style={{width: '100%'}}>
                   {toolkitList && toolkitList.filter((toolkit) => toolkit.tools ? toolkit.tools.some((tool) => tool.name.toLowerCase().includes(searchValue.toLowerCase())) : false).map((toolkit, index) => (
                     <div key={index}>
-                      {toolkit.name !== null && !excludedToolkits.includes(toolkit.name) && <div>
+                      {toolkit.name !== null && !excludedToolkits().includes(toolkit.name) && <div>
                         <div onClick={() => addToolkit(toolkit)} className="custom_select_option" style={{
                           padding: '10px 14px',
                           maxWidth: '100%',
