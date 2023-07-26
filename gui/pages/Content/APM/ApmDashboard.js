@@ -221,8 +221,9 @@ export default function ApmDashboard(key) {
                     <tbody>
                     {toolsUsed.map((tool, index) => (
                       <tr key={index}>
-                        <td className="table_data" style={{width: '100%', display:'flex', alignItems:'center'}}>
-                          <Image className="image_class" style={{background: 'black'}} width={20} height={20} src={returnToolkitIcon(tool.toolkit)} alt="tool-icon"/>
+                        <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                          <Image className="image_class" style={{background: 'black'}} width={20} height={20}
+                                 src={returnToolkitIcon(tool.toolkit)} alt="tool-icon"/>
                           <span>{tool.tool_name}</span>
                         </td>
                         <td className="table_data text_align_right" style={{width: '22%'}}>{tool.unique_agents}</td>
@@ -248,14 +249,37 @@ export default function ApmDashboard(key) {
                   <thead>
                   <tr style={{borderTop: 'none'}}>
                     <th className="table_header" style={{width: '20%'}}>Agent Name</th>
-                    <th className="table_header text_align_right" style={{width: '10%'}}>Model <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                    <th className="table_header text_align_right" style={{width: '12%'}}>Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                    <th className="table_header text_align_right" style={{width: '6%'}}>Runs <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                    <th className="table_header text_align_right" style={{width: '10%'}}>Model <img width={14}
+                                                                                                    height={14}
+                                                                                                    src="/images/arrow_downward.svg"
+                                                                                                    alt="arrow_down"/>
+                    </th>
+                    <th className="table_header text_align_right" style={{width: '12%'}}>Tokens Consumed <img width={14}
+                                                                                                              height={14}
+                                                                                                              src="/images/arrow_downward.svg"
+                                                                                                              alt="arrow_down"/>
+                    </th>
+                    <th className="table_header text_align_right" style={{width: '6%'}}>Runs <img width={14} height={14}
+                                                                                                  src="/images/arrow_downward.svg"
+                                                                                                  alt="arrow_down"/>
+                    </th>
                     <th className="table_header text_align_right" style={{width: '12%'}}>Avg tokens per run <img
                       width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                    <th className="table_header text_align_right" style={{width: '20%'}}>Tools <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                    <th className="table_header text_align_right" style={{width: '10%'}}>Calls <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                    <th className="table_header text_align_right" style={{width: '10%'}}>Avg Run Time <img width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
+                    <th className="table_header text_align_right" style={{width: '20%'}}>Tools <img width={14}
+                                                                                                    height={14}
+                                                                                                    src="/images/arrow_downward.svg"
+                                                                                                    alt="arrow_down"/>
+                    </th>
+                    <th className="table_header text_align_right" style={{width: '10%'}}>Calls <img width={14}
+                                                                                                    height={14}
+                                                                                                    src="/images/arrow_downward.svg"
+                                                                                                    alt="arrow_down"/>
+                    </th>
+                    <th className="table_header text_align_right" style={{width: '10%'}}>Avg Run Time <img width={14}
+                                                                                                           height={14}
+                                                                                                           src="/images/arrow_downward.svg"
+                                                                                                           alt="arrow_down"/>
+                    </th>
                   </tr>
                   </thead>
                 </table>

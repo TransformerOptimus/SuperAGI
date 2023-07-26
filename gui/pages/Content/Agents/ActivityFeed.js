@@ -4,7 +4,7 @@ import {getExecutionFeeds, getDateTime} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
-import { ClipLoader } from 'react-spinners';
+import {ClipLoader} from 'react-spinners';
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent}) {
   const [loadingText, setLoadingText] = useState("Thinking");
@@ -121,7 +121,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               This agent is scheduled to start on {scheduleDate}, at {scheduleTime}
             </div>
           </div> : <div>
-            {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+            {feeds && feeds.map((f, index) => (<div key={index} className={styles.history_box}
+                                                    style={{background: '#272335', padding: '20px', cursor: 'default'}}>
               <div style={{display: 'flex'}}>
                 {f.role === 'user' && <div className={styles.feed_icon}>💁</div>}
                 {f.role === 'system' && <div className={styles.feed_icon}>🛠️ </div>}
@@ -165,11 +166,19 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           </div>
         }
         {feeds.length < 1 && !agent?.is_running && !agent?.is_scheduled ?
-            (isLoading ?
+          (isLoading ?
             <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
-                  <ClipLoader/>
-                </div>
-                : <div style={{color: 'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%'}}>The Agent is not scheduled</div>): null
+              <ClipLoader/>
+            </div>
+            : <div style={{
+              color: 'white',
+              fontSize: '14px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              width: '100%'
+            }}>The Agent is not scheduled</div>) : null
         }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&

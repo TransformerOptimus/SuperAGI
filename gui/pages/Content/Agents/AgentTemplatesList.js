@@ -116,7 +116,7 @@ export default function AgentTemplatesList({
         </div> : <AgentCreate sendKnowledgeData={sendKnowledgeData} knowledge={knowledge} internalId={internalId}
                               organisationId={organisationId} sendAgentData={sendAgentData}
                               selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}
-                              template={sendTemplate} env={env} />}
+                              template={sendTemplate} env={env}/>}
     </div>
   )
 };

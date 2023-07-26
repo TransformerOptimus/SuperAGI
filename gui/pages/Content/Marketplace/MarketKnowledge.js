@@ -50,16 +50,24 @@ export default function MarketKnowledge() {
       <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
         {!isLoading ? <div>
           {knowledgeTemplates.length > 0 ? <div className={styles.resources}>{knowledgeTemplates.map((item, index) => (
-            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer',display:'block'}}
+            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer', display: 'block'}}
                  onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline', overflow: 'auto'}}>
                 {/*<Image style={{borderRadius: '25px',background:'black',position:'absolute'}} width={40} height={40} src="/images/app-logo-light.png" alt="tool-icon"/>*/}
-                <div style={{display:'flex',flexDirection:'row',width:'100%',justifyContent:'space-between'}}>
+                <div style={{display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
                   <span>{item.name}</span>
-                  {item.is_installed && <div className={styles1.installed_knowledge_card_class}>{'\u2713'}&nbsp;Installed</div>}
+                  {item.is_installed &&
+                    <div className={styles1.installed_knowledge_card_class}>{'\u2713'}&nbsp;Installed</div>}
                 </div>
-                <div style={{color: '#888888', lineHeight: '16px', display: 'flex', alignItems: 'center', marginTop: item.is_installed ? '-2.5%':'' }}>by {item.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
-                  width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/>&nbsp;{item.install_number}</div>
+                <div style={{
+                  color: '#888888',
+                  lineHeight: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginTop: item.is_installed ? '-2.5%' : ''
+                }}>by {item.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
+                  width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/>&nbsp;{item.install_number}
+                </div>
                 <div className={styles.tool_description}>{item.description}</div>
               </div>
             </div>
