@@ -162,6 +162,6 @@ class AgentPromptBuilder:
         return super_agi_prompt
 
     @classmethod
-    def get_tool_output_schema(cls):
+    def get_tool_selection_prompt(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "tool_selection.txt")
         return {"prompt": AgentPromptBuilder.clean_prompt(super_agi_prompt)}
