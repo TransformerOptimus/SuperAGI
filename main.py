@@ -129,6 +129,8 @@ def create_access_token(email, Authorize: AuthJWT = Depends()):
     expiry_time_hours = superagi.config.config.get_config("JWT_EXPIRY")
     if type(expiry_time_hours) == str:
         expiry_time_hours = int(expiry_time_hours)
+    if expiry_time_hours is None:
+        expiry_time_hours = 200
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
