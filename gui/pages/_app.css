@@ -428,15 +428,8 @@ input[type="range"]::-moz-range-track {
 }
 
 .custom_select_option:hover, .create_agent_dropdown_options:hover {
-    pointer-events: none;
-    font-size: 12px;
-    color: #888888;
-    font-weight: normal;
-    height: auto;
-    max-width: 240px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: #3B3B49;
+    border-radius: 8px;
 }
 
 .custom_select_option:hover {
