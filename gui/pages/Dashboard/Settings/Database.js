@@ -168,7 +168,8 @@ export default function Database({sendDatabaseData}) {
       <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
         <div className={styles.detail_name}>Delete {selectedDatabase.name}</div>
         <div>
-          <label className={styles.form_label}>Deleting database will delete all the corresponding knowledge also. Do you want to delete database?</label>
+          <label className={styles.form_label}>Deleting database will delete all the corresponding knowledge also. Do
+            you want to delete database?</label>
         </div>
         <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '20px'}}>
           <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setDeleteModal(false)}>

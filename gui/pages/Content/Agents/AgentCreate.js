@@ -16,7 +16,7 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId,preventDefault,excludedToolkits
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, preventDefault, excludedToolkits
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import styles from "@/pages/Content/Agents/Agents.module.css";
@@ -146,7 +146,7 @@ export default function AgentCreate({
         const models = response.data || [];
         const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
         setModelsArray(models);
-        if(models.length > 0 && !selected_model) {
+        if (models.length > 0 && !selected_model) {
           setLocalStorageValue("agent_model_" + String(internalId), models[0], setModel);
         } else {
           setModel(selected_model);
@@ -424,7 +424,7 @@ export default function AgentCreate({
       return false;
     }
 
-    if(!modelsArray.includes(model)) {
+    if (!modelsArray.includes(model)) {
       toast.error("Your key does not have access to the selected model", {autoClose: 1800});
       return false;
     }
@@ -466,7 +466,7 @@ export default function AgentCreate({
       "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
-      "knowledge" : toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
+      "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
     };
 
     const scheduleAgentData = {
@@ -859,16 +859,23 @@ export default function AgentCreate({
                    style={{width: '100%', alignItems: 'flex-start'}}>
                 <div style={{display: 'flex', flexWrap: 'wrap', width: '100%', alignItems: 'start'}}>
                   {toolNames && toolNames.length > 0 && toolNames.map((tool, index) => (
-                      <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
-                        <div className={styles.tool_text}>{tool}</div>
-                        <div><Image width={12} height={12} src='/images/close.svg' alt="close-icon"
-                                    style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
-                      </div>
+                    <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
+                      <div className={styles.tool_text}>{tool}</div>
+                      <div><Image width={12} height={12} src='/images/close.svg' alt="close-icon"
+                                  style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
+                    </div>
                   ))}
-                  <input type="text" className="dropdown_search_text" value={searchValue} style={{flexGrow: 1}} onChange={(e) => setSearchValue(e.target.value)}
-                      onFocus={() => {setToolkitDropdown(true);setShowPlaceholder(false);}} onBlur={() => {setShowPlaceholder(true);}}
-                      onClick={(e) => e.stopPropagation()}/>
-                  {toolNames && toolNames.length === 0 && showPlaceholder && searchValue.length ===0 && <div style={{color: '#666666',position:'absolute'}}>Select Tools</div>}
+                  <input type="text" className="dropdown_search_text" value={searchValue} style={{flexGrow: 1}}
+                         onChange={(e) => setSearchValue(e.target.value)}
+                         onFocus={() => {
+                           setToolkitDropdown(true);
+                           setShowPlaceholder(false);
+                         }} onBlur={() => {
+                    setShowPlaceholder(true);
+                  }}
+                         onClick={(e) => e.stopPropagation()}/>
+                  {toolNames && toolNames.length === 0 && showPlaceholder && searchValue.length === 0 &&
+                    <div style={{color: '#666666', position: 'absolute'}}>Select Tools</div>}
                 </div>
                 <div style={{display: 'inline-flex'}}>
                   <Image width={20} height={21} onClick={(e) => clearTools(e)} src='/images/clear_input.svg'
@@ -1202,7 +1209,10 @@ export default function AgentCreate({
               </button>
             )}
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {
+                setCreateModal(true);
+                setCreateDropdown(false);
+              }}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>

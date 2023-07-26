@@ -26,10 +26,9 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
 
   function getGoogleToken(client_data) {
     var redirect_uri = "";
-    if (env == "PROD"){
+    if (env == "PROD") {
       redirect_uri = 'https://app.superagi.com/api/google/oauth-tokens';
-    }
-    else {
+    } else {
       redirect_uri = "http://localhost:3000/api/google/oauth-tokens";
     }
     const client_id = client_data.client_id

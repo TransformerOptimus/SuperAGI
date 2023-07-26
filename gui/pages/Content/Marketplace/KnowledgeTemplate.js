@@ -110,12 +110,11 @@ export default function KnowledgeTemplate({template, env}) {
 
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
-        if(response.data.success) {
+        if (response.data.success) {
           toast.success("Knowledge installed", {autoClose: 1800});
           setInstalled('Installed');
           EventBus.emit('reFetchKnowledge', {});
-        }
-        else {
+        } else {
           toast.error("Error installing Knowledge: ", {autoClose: 1800});
           setInstalled('Install');
         }
@@ -133,11 +132,10 @@ export default function KnowledgeTemplate({template, env}) {
   const uninstallKnowledge = () => {
     deleteMarketplaceKnowledge(template.name)
       .then((response) => {
-        if(response.data.success) {
+        if (response.data.success) {
           toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
           handleBackClick()
-        }
-        else {
+        } else {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
         }
       })
@@ -177,12 +175,14 @@ export default function KnowledgeTemplate({template, env}) {
               <span style={{fontSize: '12px', marginTop: '15px',}}
                     className={styles.tool_publisher}>by {templateData?.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
                 width={14} height={14} src="/images/upload_icon.svg"
-                alt="upload-icon" style={{marginBottom:'1px'}} />&nbsp;{'\u00B7'}&nbsp;{templateData?.install_number || 0}</span>
+                alt="upload-icon"
+                style={{marginBottom: '1px'}}/>&nbsp;{'\u00B7'}&nbsp;{templateData?.install_number || 0}</span>
 
               {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
                 <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
                      style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
-                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;<span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
+                  <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;
+                  <span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
                 </div>
                 <div>
                   {indexDropdown && installed === 'Install' &&
