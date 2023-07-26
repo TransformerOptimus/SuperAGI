@@ -139,7 +139,7 @@ class Pinecone(VectorStore):
             raise err
     
     def _get_search_text(self, results: List[dict], query: str):
-        contexts = [item['metadata']['text'] for item in res['matches']]
+        contexts = [item['metadata']['text'] for item in results['matches']]
         i = 0
         search_res = f"Query: {query}\n"
         for context in contexts:
