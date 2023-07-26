@@ -1,20 +1,37 @@
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import {formatDistanceToNow} from 'date-fns';
+import {utcToZonedTime} from 'date-fns-tz';
 import {baseUrl} from "@/pages/api/apiConfig";
+import {EventBus} from "@/utils/eventBus";
+import JSZip from "jszip";
+import moment from 'moment';
 
-export const formatTime = (lastExecutionTime) => {
-  try {
-    const parsedTime = parseISO(lastExecutionTime);
-    if (isNaN(parsedTime.getTime())) {
-      throw new Error('Invalid time value');
-    }
-    return formatDistanceToNow(parsedTime, {
-      addSuffix: true,
-      includeSeconds: true,
-    }).replace(/about\s/, '');
-  } catch (error) {
-    console.error('Error formatting time:', error);
-    return 'Invalid Time';
+export const getUserTimezone = () => {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+export const convertToGMT = (dateTime) => {
+  if (!dateTime) {
+    return null;
   }
+  return moment.utc(dateTime).format('YYYY-MM-DD HH:mm:ss');
+};
+
+export const formatTimeDifference = (timeDifference) => {
+  const units = ['years', 'months', 'days', 'hours', 'minutes'];
+  const singularUnits = ['year', 'month', 'day', 'hour', 'minute'];
+
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
+    if (timeDifference[unit] !== 0) {
+      if (unit === 'minutes') {
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
+      } else {
+        return `${timeDifference[unit]} ${timeDifference[unit] === 1 ? singularUnits[i] : unit} ago`;
+      }
+    }
+  }
+
+  return 'Just now';
 };
 
 export const formatNumber = (number) => {
@@ -34,6 +51,29 @@ export const formatNumber = (number) => {
   return scaledNumber.toFixed(1) + suffix;
 };
 
+export const formatTime = (lastExecutionTime) => {
+  try {
+    const parsedTime = new Date(lastExecutionTime + 'Z'); // append 'Z' to indicate UTC
+    if (isNaN(parsedTime.getTime())) {
+      throw new Error('Invalid time value');
+    }
+
+    const timeZone = 'Asia/Kolkata';
+    const zonedTime = utcToZonedTime(parsedTime, timeZone);
+
+    return formatDistanceToNow(zonedTime, {
+      addSuffix: true,
+      includeSeconds: true
+    }).replace(/about\s/, '')
+      .replace(/minutes?/, 'min')
+      .replace(/hours?/, 'hrs')
+      .replace(/days?/, 'day')
+      .replace(/weeks?/, 'week');
+  } catch (error) {
+    console.error('Error formatting time:', error);
+    return 'Invalid Time';
+  }
+};
 
 export const formatBytes = (bytes, decimals = 2) => {
   if (bytes === 0) {
@@ -48,28 +88,92 @@ export const formatBytes = (bytes, decimals = 2) => {
   return `${formattedValue} ${sizes[i]}`;
 }
 
-export const downloadFile = (fileId) => {
+export const downloadFile = (fileId, fileName = null) => {
   const authToken = localStorage.getItem('accessToken');
   const url = `${baseUrl()}/resources/get/${fileId}`;
   const env = localStorage.getItem('applicationEnvironment');
 
-  if(env === 'PROD') {
+  if (env === 'PROD') {
     const headers = {
       Authorization: `Bearer ${authToken}`,
     };
 
-    fetch(url, { headers })
+    return fetch(url, {headers})
       .then((response) => response.blob())
       .then((blob) => {
-        const fileUrl = window.URL.createObjectURL(blob);
-        window.open(fileUrl, "_blank");
+        if (fileName) {
+          const fileUrl = window.URL.createObjectURL(blob);
+          const anchorElement = document.createElement('a');
+          anchorElement.href = fileUrl;
+          anchorElement.download = fileName;
+          anchorElement.click();
+          window.URL.revokeObjectURL(fileUrl);
+        } else {
+          return blob;
+        }
+      })
+      .catch((error) => {
+        console.error('Error downloading file:', error);
+      });
+  } else {
+    if (fileName) {
+      window.open(url, '_blank');
+    } else {
+      return fetch(url)
+        .then((response) => response.blob())
+        .catch((error) => {
+          console.error('Error downloading file:', error);
+        });
+    }
+  }
+};
+
+export const downloadAllFiles = (files, run_name) => {
+  const zip = new JSZip();
+  const promises = [];
+  const fileNamesCount = {};
+
+  files.forEach((file, index) => {
+    fileNamesCount[file.name]
+      ? fileNamesCount[file.name]++
+      : (fileNamesCount[file.name] = 1);
+
+    let modifiedFileName = file.name;
+    if (fileNamesCount[file.name] > 1) {
+      const fileExtensionIndex = file.name.lastIndexOf(".");
+      const name = file.name.substring(0, fileExtensionIndex);
+      const extension = file.name.substring(fileExtensionIndex + 1);
+      modifiedFileName = `${name} (${fileNamesCount[file.name] - 1}).${extension}`;
+    }
+
+    const promise = downloadFile(file.id)
+      .then((blob) => {
+        const fileBlob = new Blob([blob], {type: file.type});
+        zip.file(modifiedFileName, fileBlob);
       })
       .catch((error) => {
         console.error("Error downloading file:", error);
       });
-  } else {
-    window.open(url, "_blank");
-  }
+
+    promises.push(promise);
+  });
+
+  Promise.all(promises)
+    .then(() => {
+      zip.generateAsync({type: "blob"})
+        .then((content) => {
+          const now = new Date();
+          const timestamp = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`.replace(/:/g, '-');
+          const zipFilename = `${run_name}_${timestamp}.zip`;
+          const downloadLink = document.createElement("a");
+          downloadLink.href = URL.createObjectURL(content);
+          downloadLink.download = zipFilename;
+          downloadLink.click();
+        })
+        .catch((error) => {
+          console.error("Error generating zip:", error);
+        });
+    });
 };
 
 export const refreshUrl = () => {
@@ -80,3 +184,199 @@ export const refreshUrl = () => {
   const urlWithoutToken = window.location.origin + window.location.pathname;
   window.history.replaceState({}, document.title, urlWithoutToken);
 };
+
+export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
+  const text = loadingText;
+  let dots = '';
+
+  const interval = setInterval(() => {
+    dots = dots.length < 3 ? dots + '.' : '';
+    setLoadingText(`${text}${dots}`);
+  }, timer);
+
+  return () => clearInterval(interval)
+}
+
+export const openNewTab = (id, name, contentType, hasInternalId) => {
+  EventBus.emit('openNewTab', {
+    element: {id: id, name: name, contentType: contentType, internalId: hasInternalId ? createInternalId() : 0}
+  });
+}
+
+export const removeTab = (id, name, contentType, internalId) => {
+  EventBus.emit('removeTab', {
+    element: {id: id, name: name, contentType: contentType, internalId: internalId}
+  });
+}
+
+export const setLocalStorageValue = (key, value, stateFunction) => {
+  stateFunction(value);
+  localStorage.setItem(key, value);
+}
+
+export const setLocalStorageArray = (key, value, stateFunction) => {
+  stateFunction(value);
+  const arrayString = JSON.stringify(value);
+  localStorage.setItem(key, arrayString);
+}
+
+const getInternalIds = () => {
+  const internal_ids = localStorage.getItem("agi_internal_ids");
+  return internal_ids ? JSON.parse(internal_ids) : [];
+}
+
+const removeAgentInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem("agent_create_click_" + String(internalId));
+    localStorage.removeItem("agent_name_" + String(internalId));
+    localStorage.removeItem("agent_description_" + String(internalId));
+    localStorage.removeItem("agent_goals_" + String(internalId));
+    localStorage.removeItem("agent_instructions_" + String(internalId));
+    localStorage.removeItem("agent_constraints_" + String(internalId));
+    localStorage.removeItem("agent_model_" + String(internalId));
+    localStorage.removeItem("agent_type_" + String(internalId));
+    localStorage.removeItem("tool_names_" + String(internalId));
+    localStorage.removeItem("tool_ids_" + String(internalId));
+    localStorage.removeItem("agent_rolling_window_" + String(internalId));
+    localStorage.removeItem("agent_database_" + String(internalId));
+    localStorage.removeItem("agent_permission_" + String(internalId));
+    localStorage.removeItem("agent_exit_criterion_" + String(internalId));
+    localStorage.removeItem("agent_iterations_" + String(internalId));
+    localStorage.removeItem("agent_step_time_" + String(internalId));
+    localStorage.removeItem("advanced_options_" + String(internalId));
+    localStorage.removeItem("has_LTM_" + String(internalId));
+    localStorage.removeItem("has_resource_" + String(internalId));
+    localStorage.removeItem("agent_files_" + String(internalId));
+    localStorage.removeItem("agent_start_time_" + String(internalId));
+    localStorage.removeItem("agent_expiry_date_" + String(internalId));
+    localStorage.removeItem("agent_expiry_type_" + String(internalId));
+    localStorage.removeItem("agent_expiry_runs_" + String(internalId));
+    localStorage.removeItem("agent_time_unit_" + String(internalId));
+    localStorage.removeItem("agent_time_value_" + String(internalId));
+    localStorage.removeItem("agent_is_recurring_" + String(internalId));
+  }
+}
+
+const removeAddToolkitInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('tool_github_' + String(internalId));
+  }
+}
+
+const removeToolkitsInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('toolkit_tab_' + String(internalId));
+    localStorage.removeItem('api_configs_' + String(internalId));
+  }
+}
+
+export const resetLocalStorage = (contentType, internalId) => {
+  switch (contentType) {
+    case 'Create_Agent':
+      removeAgentInternalId(internalId);
+      break;
+    case 'Add_Toolkit':
+      removeAddToolkitInternalId(internalId);
+      break;
+    case 'Marketplace':
+      localStorage.removeItem('marketplace_tab');
+      localStorage.removeItem('market_item_clicked');
+      localStorage.removeItem('market_detail_type');
+      localStorage.removeItem('market_item');
+      break;
+    case 'Toolkits':
+      removeToolkitsInternalId(internalId);
+      break;
+    default:
+      break;
+  }
+}
+
+export const createInternalId = () => {
+  let newId = 1;
+
+  if (typeof window !== 'undefined') {
+    let idsArray = getInternalIds();
+    let found = false;
+
+    for (let i = 1; !found; i++) {
+      if (!idsArray.includes(i)) {
+        newId = i;
+        found = true;
+      }
+    }
+
+    idsArray.push(newId);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+  }
+
+  return newId;
+}
+
+export const returnToolkitIcon = (toolkitName) => {
+  const toolkitData = [
+    {name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg'},
+    {name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg'},
+    {name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg'},
+    {name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg'},
+    {name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg'},
+    {name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg'},
+    {name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg'},
+    {name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg'},
+    {name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg'},
+    {name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg'},
+    {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
+    {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
+    {name: 'DuckDuckGo Search Toolkit', imageSrc: '/images/duckduckgo_icon.png'},
+  ];
+
+  const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
+  return toolkit ? toolkit.imageSrc : '/images/custom_tool.svg';
+}
+
+export const returnResourceIcon = (file) => {
+  let fileIcon;
+  const fileTypeIcons = {
+    'application/pdf': '/images/pdf_file.svg',
+    'application/txt': '/images/txt_file.svg',
+    'text/plain': '/images/txt_file.svg',
+  };
+
+  if (file.type.includes('image')) {
+    fileIcon = '/images/img_file.svg';
+  } else {
+    fileIcon = fileTypeIcons[file.type] || '/images/default_file.svg';
+  }
+
+  return fileIcon;
+};
+
+export const convertToTitleCase = (str) => {
+  if (str === null || str === '') {
+    return '';
+  }
+
+  const words = str.toLowerCase().split('_');
+  const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+  return capitalizedWords.join(' ');
+}
+
+export const excludedToolkits = () => {
+  return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
+}

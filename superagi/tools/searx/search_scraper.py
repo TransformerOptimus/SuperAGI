@@ -5,6 +5,7 @@ from typing import List
 import httpx
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
+from superagi.lib.logger import logger
 
 def getSearxHost():
     with urllib.request.urlopen("https://searx.space/data/instances.json") as url:
@@ -23,6 +24,16 @@ def getSearxHost():
         return sorted_instances
 
 class SearchResult(BaseModel):
+    """
+    Represents a single search result from Searx
+
+    Attributes:
+        id : The ID of the search result.
+        title : The title of the search result.
+        link : The link of the search result.
+        description : The description of the search result.
+        sources : The sources of the search result.
+    """
     id: int
     title: str
     link: str
@@ -34,32 +45,58 @@ class SearchResult(BaseModel):
 {self.description}"""
 
 def search(query):
-    '''Gets the raw HTML of a searx search result page'''
+    """
+    Gets the raw HTML of a searx search result page
+
+    Args:
+        query : The query to search for.
+    """
     searx_urls = getSearxHost()
     for searx_url in searx_urls:
         res = httpx.get(
             searx_url + "/search", params={"q": query}, headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/114.0"}
         )
         if res.status_code != 200:
-            pass
+            logger.info(res.status_code, searx_url)
+            raise Exception(f"Searx returned {res.status_code} status code")
         else:
             return res.text
-    raise Exception(f"All Searx instances doesn't returned 200")
 
 def clean_whitespace(s: str):
+    """
+    Cleans up whitespace in a string
+
+    Args:
+        s : The string to clean up.
+
+    Returns:
+        The cleaned up string.
+    """
     return " ".join(s.split())
 
 
 def scrape_results(html):
-    '''Converts raw HTML into a list of SearchResult objects'''
+    """
+    Converts raw HTML into a list of SearchResult objects
+
+    Args:
+        html : The raw HTML to convert.
+
+    Returns:
+        A list of SearchResult objects.
+    """
     soup = BeautifulSoup(html, "html.parser")
     result_divs = soup.find_all(attrs={"class": "result"})
     
     result_list = []
     n = 1
     for result_div in result_divs:
+        if result_div is None:
+            continue
         # Needed to work on multiple versions of Searx
         header = result_div.find(["h4", "h3"])
+        if header is None:
+            continue
         link = header.find("a")["href"]
         title = header.text.strip()
 

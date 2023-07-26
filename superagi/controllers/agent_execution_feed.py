@@ -1,26 +1,69 @@
-import json
+from datetime import datetime
+from typing import Optional
 
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
+from fastapi import APIRouter
+from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+from pydantic import BaseModel
+
+from sqlalchemy.sql import asc
 
 from superagi.agent.task_queue import TaskQueue
-from superagi.models.agent_execution_feed import AgentExecutionFeed
-from superagi.models.agent_execution import AgentExecution
-from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from sqlalchemy.sql import desc,asc
 from superagi.helper.auth import check_auth
+from superagi.helper.time_helper import get_time_difference
+from superagi.models.agent_execution_permission import AgentExecutionPermission
+from superagi.helper.feed_parser import parse_feed
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 
+import re
+# from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
 
 router = APIRouter()
 
 
+class AgentExecutionFeedOut(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    feed: str
+    role: str
+    extra_info: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentExecutionFeedIn(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    feed: str
+    role: str
+    extra_info: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed), status_code=201)
-def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+@router.post("/add", response_model=AgentExecutionFeedOut, status_code=201)
+def create_agent_execution_feed(agent_execution_feed: AgentExecutionFeedIn,
                                 Authorize: AuthJWT = Depends(check_auth)):
-    """Add a new agent execution feed"""
+    """
+    Add a new agent execution feed.
+
+    Args:
+        agent_execution_feed (AgentExecutionFeed): The data for the agent execution feed.
+
+    Returns:
+        AgentExecutionFeed: The newly created agent execution feed.
+
+    Raises:
+        HTTPException (Status Code=404): If the associated agent execution is not found.
+    """
 
     agent_execution = db.session.query(AgentExecution).get(agent_execution_feed.agent_execution_id)
 
@@ -35,10 +78,21 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
     return db_agent_execution_feed
 
 
-@router.get("/get/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
+@router.get("/get/{agent_execution_feed_id}", response_model=AgentExecutionFeedOut)
 def get_agent_execution_feed(agent_execution_feed_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
-    """Get an agent execution feed by agent_execution feed id"""
+    """
+    Get an agent execution feed by agent_execution_feed_id.
+
+    Args:
+        agent_execution_feed_id (int): The ID of the agent execution feed.
+
+    Returns:
+        AgentExecutionFeed: The agent execution feed with the specified ID.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent execution feed is not found.
+    """
 
     db_agent_execution_feed = db.session.query(AgentExecutionFeed).filter(
         AgentExecutionFeed.id == agent_execution_feed_id).first()
@@ -47,11 +101,23 @@ def get_agent_execution_feed(agent_execution_feed_id: int,
     return db_agent_execution_feed
 
 
-@router.put("/update/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
+@router.put("/update/{agent_execution_feed_id}", response_model=AgentExecutionFeedOut)
 def update_agent_execution_feed(agent_execution_feed_id: int,
-                                agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+                                agent_execution_feed: AgentExecutionFeedIn,
                                 Authorize: AuthJWT = Depends(check_auth)):
-    """Update a particular agent_execution_feed_id"""
+    """
+    Update a particular agent execution feed.
+
+    Args:
+        agent_execution_feed_id (int): The ID of the agent execution feed to update.
+        agent_execution_feed (AgentExecutionFeed): The updated agent execution feed.
+
+    Returns:
+        AgentExecutionFeed: The updated agent execution feed.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent execution feed or agent execution is not found.
+    """
 
     db_agent_execution_feed = db.session.query(AgentExecutionFeed).filter(
         AgentExecutionFeed.id == agent_execution_feed_id).first()
@@ -78,25 +144,65 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 @router.get("/get/execution/{agent_execution_id}")
 def get_agent_execution_feed(agent_execution_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
-    """Get agent execution feed with other execution details"""
+    """
+    Get agent execution feed with other execution details.
+
+    Args:
+        agent_execution_id (int): The ID of the agent execution.
+
+    Returns:
+        dict: The agent execution status and feeds.
+
+    Raises:
+        HTTPException (Status Code=400): If the agent run is not found.
+    """
 
     agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
     if agent_execution is None:
         raise HTTPException(status_code=400, detail="Agent Run not found!")
-    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(asc(AgentExecutionFeed.created_at)).all()
+    feeds = db.session.query(AgentExecutionFeed).filter_by(agent_execution_id=agent_execution_id).order_by(
+        asc(AgentExecutionFeed.created_at)).all()
     # # parse json
     final_feeds = []
     for feed in feeds:
-        final_feeds.append(parse_feed(feed))
+        if feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
+            final_feeds.append(parse_feed(feed))
+
+    # get all permissions
+    execution_permissions = db.session.query(AgentExecutionPermission).\
+        filter_by(agent_execution_id=agent_execution_id). \
+        order_by(asc(AgentExecutionPermission.created_at)).all()
+
+    permissions = [
+        {
+                "id": permission.id,
+                "created_at": permission.created_at,
+                "response": permission.user_feedback,
+                "status": permission.status,
+                "tool_name": permission.tool_name,
+                "user_feedback": permission.user_feedback,
+                "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
+        } for permission in execution_permissions
+    ]
     return {
         "status": agent_execution.status,
-        "feeds": final_feeds
+        "feeds": final_feeds,
+        "permissions": permissions
     }
+
 
 @router.get("/get/tasks/{agent_execution_id}")
 def get_execution_tasks(agent_execution_id: int,
-                             Authorize: AuthJWT = Depends(check_auth)):
-    """Get agent execution feed with other execution details"""
+                        Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Get agent execution tasks and completed tasks.
+
+    Args:
+        agent_execution_id (int): The ID of the agent execution.
+
+    Returns:
+        dict: The tasks and completed tasks for the agent execution.
+    """
     task_queue = TaskQueue(str(agent_execution_id))
     tasks = []
     for task in task_queue.get_tasks():
@@ -109,28 +215,3 @@ def get_execution_tasks(agent_execution_id: int,
         "tasks": tasks,
         "completed_tasks": completed_tasks
     }
-
-def parse_feed(feed):
-    if feed.role == "assistant":
-        try:
-            parsed = json.loads(feed.feed, strict=False)
-
-            final_output = ""
-            if "reasoning" in parsed["thoughts"]:
-                final_output = "Thoughts: " + parsed["thoughts"]["reasoning"] + "\n"
-            if "plan" in parsed["thoughts"]:
-                final_output += "Plan: " + parsed["thoughts"]["plan"] + "\n"
-            if "criticism" in parsed["thoughts"]:
-                final_output += "Criticism: " + parsed["thoughts"]["criticism"] + "\n"
-            if "tool" in parsed:
-                final_output += "Tool: " + parsed["tool"]["name"] + "\n"
-            if "command" in parsed:
-                final_output += "Tool: " + parsed["command"]["name"] + "\n"
-
-            return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at}
-        except Exception:
-            return feed
-    if feed.role == "system":
-        return feed
-
-    return feed

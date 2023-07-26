@@ -4,29 +4,35 @@ import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {getResources, uploadFile} from "@/pages/api/DashboardService";
-import {formatBytes, downloadFile} from "@/utils/utils";
+import {downloadAllFiles} from "@/utils/utils";
+import ResourceList from "@/pages/Content/Agents/ResourceList";
 
-export default function ResourceManager({agentId}) {
+export default function ResourceManager({agentId, runs}) {
   const [output, setOutput] = useState([]);
   const [input, setInput] = useState([]);
   const [channel, setChannel] = useState('input')
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
-  const pdf_icon = '/images/pdf_file.svg'
-  const txt_icon = '/images/txt_file.svg'
-  const img_icon = '/images/img_file.svg'
 
+  function handleFile(files) {
+    if (files.length > 0) {
+      const sizeInMB = files[0].size / (1024*1024);
+      if (sizeInMB > 5) {
+        toast.error('File size should not exceed 5MB', {autoClose: 1800});
+      } else {
+        const fileData = {
+          "file": files[0],
+          "name": files[0].name,
+          "size": files[0].size,
+          "type": files[0].type,
+        };
+        uploadResource(fileData);
+      }
+    }
+  };
   const handleFileInputChange = (event) => {
     const files = event.target.files;
-    if (files.length > 0) {
-      const fileData = {
-        "file": files[0],
-        "name": files[0].name,
-        "size": files[0].size,
-        "type": files[0].type,
-      };
-      uploadResource(fileData);
-    }
+    handleFile(files);
   };
 
   const handleDropAreaClick = () => {
@@ -50,15 +56,7 @@ export default function ResourceManager({agentId}) {
     event.preventDefault();
     setIsDragging(false);
     const files = event.dataTransfer.files;
-    if (files.length > 0) {
-      const fileData = {
-        "file": files[0],
-        "name": files[0].name,
-        "size": files[0].size,
-        "type": files[0].type,
-      };
-      uploadResource(fileData);
-    }
+    handleFile(files);
   };
 
   useEffect(() => {
@@ -75,10 +73,10 @@ export default function ResourceManager({agentId}) {
     uploadFile(agentId, formData)
       .then((response) => {
         fetchResources();
-        toast.success('Resource added successfully', { autoClose: 1800 });
+        toast.success('Resource added successfully', {autoClose: 1800});
       })
       .catch((error) => {
-        toast.error(error, { autoClose: 1800 });
+        toast.error(error, {autoClose: 1800});
         console.error('Error uploading resource:', error);
       });
   }
@@ -97,59 +95,41 @@ export default function ResourceManager({agentId}) {
       });
   }
 
-  const ResourceItem = ({ file }) => {
-    const isPDF = file.type === 'application/pdf';
-    const isTXT = file.type === 'application/txt' || file.type === 'text/plain';
-    const isIMG = file.type.includes('image');
-
-    return (
-      <div onClick={() => downloadFile(file.id)} className={styles.history_box} style={{ background: '#272335', padding: '0px 10px', width: '49.5%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          {isPDF && <div><Image width={28} height={46} src={pdf_icon} alt="pdf-icon" /></div>}
-          {isTXT && <div><Image width={28} height={46} src={txt_icon} alt="txt-icon" /></div>}
-          {isIMG && <div><Image width={28} height={46} src={img_icon} alt="img-icon" /></div>}
-          {!isTXT && !isPDF && !isIMG && <div><Image width={28} height={46} src="/images/default_file.svg" alt="file-icon" /></div>}
-          <div style={{ marginLeft: '5px', width:'100%' }}>
-            <div style={{ fontSize: '11px' }} className={styles.single_line_block}>{file.name}</div>
-            <div style={{ color: '#888888', fontSize: '9px' }}>{file.type.split("/")[1]}{file.size !== '' ? ` • ${formatBytes(file.size)}` : ''}</div>
+  return (<>
+    <div className={styles.detail_top} style={{height: 'auto', marginBottom: '10px'}}>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+        <div style={{display: 'flex', order: 0}}>
+          <div>
+            <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {
+              background: '#454254',
+              padding: '5px 10px'
+            } : {background: 'transparent', padding: '5px 10px'}}>
+              Input
+            </button>
+          </div>
+          <div>
+            <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {
+              background: '#454254',
+              padding: '5px 10px'
+            } : {background: 'transparent', padding: '5px 10px'}}>
+              Output
+            </button>
           </div>
         </div>
       </div>
-    );
-  };
-
-  const ResourceList = ({ files }) => (
-    <div className={styles.resources}>
-      {files.map((file, index) => (
-        <ResourceItem key={index} file={file} />
-      ))}
     </div>
-  );
-
-  return (<>
-    <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
-      <div style={{display:'flex',overflowX:'scroll'}}>
-        <div>
-          <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
-            Input
-          </button>
-        </div>
-        <div>
-          <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
-            Output
-          </button>
-        </div>
-      </div>
-    </div>
-    <div className={styles.detail_body} style={{height:'auto'}}>
-      {channel === 'input' && <div style={{paddingBottom:'10px'}}>
-        <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
-          <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-          <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file format .txt</p>
-            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+    <div className={styles.detail_body} style={{height: 'auto'}}>
+      {channel === 'input' && <div style={{paddingBottom: '10px'}}>
+        <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter}
+             onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
+             onClick={handleDropAreaClick}>
+          <div><p style={{textAlign: 'center', color: 'white', fontSize: '14px'}}>+ Choose or drop a file here</p>
+            <p style={{textAlign: 'center', color: '#888888', fontSize: '12px'}}>Supported file formats are txt, pdf,
+              docx, epub, csv, pptx only</p>
+            <input type="file" ref={fileInputRef} style={{display: 'none'}} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
-      <ResourceList files={channel === 'output' ? output : input} />
+      <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs}/>
     </div>
     <ToastContainer/>
   </>)

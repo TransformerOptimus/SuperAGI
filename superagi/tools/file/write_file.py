@@ -1,15 +1,13 @@
-import os
-from typing import Type
+from typing import Type, Optional
+
 from pydantic import BaseModel, Field
-from superagi.tools.base_tool import BaseTool
-from superagi.config.config import get_config
-from sqlalchemy.orm import sessionmaker
-from superagi.models.db import connect_db
-from superagi.helper.resource_helper import ResourceHelper
+
 # from superagi.helper.s3_helper import upload_to_s3
-from superagi.helper.s3_helper import S3Helper
+from superagi.resource_manager.file_manager import FileManager
+from superagi.tools.base_tool import BaseTool
 
 
+# from superagi.helper.s3_helper import upload_to_s3
 
 
 class WriteFileInput(BaseModel):
@@ -19,41 +17,34 @@ class WriteFileInput(BaseModel):
 
 
 class WriteFileTool(BaseTool):
+    """
+    Write File tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        agent_id: The agent id.
+        args_schema : The args schema.
+        resource_manager: File resource manager.
+    """
     name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"
     agent_id: int = None
+    resource_manager: Optional[FileManager] = None
+
+    class Config:
+        arbitrary_types_allowed = True
 
     def _execute(self, file_name: str, content: str):
-        engine = connect_db()
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        """
+        Execute the write file tool.
 
-        final_path = file_name
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
-        if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-            final_path = root_dir + file_name
-        else:
-            final_path = os.getcwd() + "/" + file_name
+        Args:
+            file_name : The name of the file to write.
+            content : The text to write to the file.
 
-        try:
-            with open(final_path, 'w', encoding="utf-8") as file:
-                file.write(content)
-                file.close()
-            with open(final_path, 'rb') as file:
-                resource = ResourceHelper.make_written_file_resource(file_name=file_name,
-                                                      agent_id=self.agent_id,file=file,channel="OUTPUT")
-                if resource is not None:
-                    session.add(resource)
-                    session.commit()
-                    session.flush()
-                    if resource.storage_type == "S3":
-                        s3_helper = S3Helper()
-                        s3_helper.upload_file(file, path=resource.path)
-                        print("Resource Uploaded to S3!")
-                session.close()
-            return f"File written to successfully - {file_name}"
-        except Exception as err:
-            return f"Error: {err}"
+        Returns:
+            success message if message is file written successfully or failure message if writing file fails.
+        """
+        return self.resource_manager.write_file(file_name, content)

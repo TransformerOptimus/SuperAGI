@@ -1,15 +1,12 @@
-from typing import Type, List
+import json
+from typing import Type, Optional
+
 from pydantic import BaseModel, Field
 
-from typing import Type, Optional, List
 from superagi.helper.google_search import GoogleSearchWrap
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
-import os
-import json
-from superagi.config.config import get_config
-
 
 
 class GoogleSearchSchema(BaseModel):
@@ -19,6 +16,14 @@ class GoogleSearchSchema(BaseModel):
     )
 
 class GoogleSearchTool(BaseTool):
+    """
+    Google Search tool
+
+    Attributes:
+        name : The name.
+        description : The description.
+        args_schema : The args schema.
+    """
     llm: Optional[BaseLlm] = None
     name = "GoogleSearch"
     description = (
@@ -31,13 +36,21 @@ class GoogleSearchTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, query: str) -> tuple:
-        api_key = get_config("GOOGLE_API_KEY")
-        search_engine_id = get_config("SEARCH_ENGINE_ID")
+        """
+        Execute the Google search tool.
+
+        Args:
+            query : The query to search for.
+
+        Returns:
+            Search result summary along with related links
+        """
+        api_key = self.get_tool_config("GOOGLE_API_KEY")
+        search_engine_id = self.get_tool_config("SEARCH_ENGINE_ID")
         num_results = 10
         num_pages = 1
         num_extracts = 3
 
-        #print("query: ", query)
         google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
         snippets, webpages, links = google_search.get_result(query)
 
@@ -55,6 +68,16 @@ class GoogleSearchTool(BaseTool):
         return summary
 
     def summarise_result(self, query, snippets):
+        """
+        Summarise the result of a Google search.
+
+        Args:
+            query : The query to search for.
+            snippets (list): A list of snippets from the search.
+
+        Returns:
+            A summary of the search result.
+        """
         summarize_prompt ="""Summarize the following text `{snippets}`
             Write a concise or as descriptive as necessary and attempt to
             answer the query: `{query}` as best as possible. Use markdown formatting for

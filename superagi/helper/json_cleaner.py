@@ -1,44 +1,39 @@
 import json
 import re
+from superagi.lib.logger import logger
+
+import json5
 
 
 class JsonCleaner:
 
     @classmethod
-    def check_and_clean_json(cls, json_string: str):
-        try:
-            json_string = json_string.replace("\\t", "")
-            json_string = json_string.replace("\\n", "")
-            json_string = cls.remove_escape_sequences(json_string)
-            json.loads(json_string)
-            return json_string
-        except json.JSONDecodeError as e:
-            # If the json is invalid, try to clean it up
-            json_string = cls.preprocess_json_input(json_string)
-            json_string = cls.add_quotes_to_property_names(json_string)
-            json_string = cls.remove_escape_sequences(json_string)
-            json_string = cls.balance_braces(json_string)
-            try:
-                json.loads(json_string)
-                return json_string
-            except json.JSONDecodeError as e:
-                print(json_string)
-                # If the json is still invalid, try to extract the json section
-                json_string = cls.extract_json_section(json_string)
-                return json_string
-        return json_string
+    def clean_boolean(cls, input_str: str = ""):
+        """
+        Clean the boolean values in the given string.
 
-    @classmethod
-    def preprocess_json_input(cls, input_str: str) -> str:
-        # Replace single backslashes with double backslashes,
-        # while leaving already escaped ones intact
-        corrected_str = re.sub(
-            r'(?<!\\)\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})', r"\\\\", input_str
-        )
-        return corrected_str
+        Args:
+            input_str (str): The string from which the json section is to be extracted.
+
+        Returns:
+            str: The extracted json section.
+        """
+        input_str = re.sub(r':\s*false', ': False', input_str)
+        input_str = re.sub(r':\s*true', ': True', input_str)
+        return input_str
+
 
     @classmethod
     def extract_json_section(cls, input_str: str = ""):
+        """
+        Extract the json section from the given string.
+
+        Args:
+            input_str (str): The string from which the json section is to be extracted.
+
+        Returns:
+            str: The extracted json section.
+        """
         try:
             first_brace_index = input_str.index("{")
             final_json = input_str[first_brace_index:]
@@ -51,19 +46,28 @@ class JsonCleaner:
 
     @classmethod
     def remove_escape_sequences(cls, string):
+        """
+        Remove escape sequences from the given string.
+
+        Args:
+            string (str): The string from which the escape sequences are to be removed.
+
+        Returns:
+            str: The string with escape sequences removed.
+        """
         return string.encode('utf-8').decode('unicode_escape').encode('raw_unicode_escape').decode('utf-8')
 
     @classmethod
-    def add_quotes_to_property_names(cls, json_string: str) -> str:
-        def replace(match: re.Match) -> str:
-            return f'"{match.group(1)}":'
-
-        json_string = re.sub(r'(\b\w+\b):', replace, json_string)
-
-        return json_string
-
-    @classmethod
     def balance_braces(cls, json_string: str) -> str:
+        """
+        Balance the braces in the given json string.
+
+        Args:
+            json_string (str): The json string to be processed.
+
+        Returns:
+            str: The json string with balanced braces.
+        """
         open_braces_count = json_string.count('{')
         closed_braces_count = json_string.count('}')
 

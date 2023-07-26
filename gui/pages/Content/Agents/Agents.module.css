@@ -1,7 +1,7 @@
 .container {
     height: 100%;
     width: 100%;
-    padding: 0 8px;
+    padding: 0 0 0 8px;
 }
 
 .title_box {
@@ -68,6 +68,7 @@
 }
 
 .text_block {
+    display:flex;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
@@ -92,6 +93,7 @@
     display: flex;
     align-items: center;
     color: white;
+    margin-bottom: 25px;
 }
 
 .tool_text {
@@ -114,6 +116,7 @@
 .detail_body {
     width: 100%;
     padding-right: 10px;
+    margin-bottom: 20px;
 }
 
 .detail_content {
@@ -132,6 +135,9 @@
     color: #FFFFFF;
     border-radius: 8px;
     padding: 8px 10px;
+    display: -webkit-inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tab_text {
@@ -146,7 +152,17 @@
 .tab_button:hover {
     background: #454254;
 }
-
+.run_history_button{
+    background: rgba(255, 255, 255, 0.14);
+    border: none;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 12px;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 10px 8px 5px;
+}
 .run_button {
     background: #62A168;
     border: none;
@@ -156,7 +172,9 @@
     line-height: 15px;
     color: #FFFFFF;
     border-radius: 8px;
-    padding: 8px 10px 8px 5px;
+    padding: 7px 10px 8px 5px;
+    height: 31px;
+    margin-right: 7px;
 }
 
 .run_button:hover {
@@ -334,4 +352,109 @@
     font-size: 13px;
     font-weight: 500;
     font-family: 'Source Code Pro';
+}
+
+.text_12_n
+{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    color: #FFFFFF;
+}
+
+.notification_circle
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: fit-content;
+    padding: 2px 5px;
+    height: fit-content;
+    background: #DC6161;
+    border-radius: 16px;
+
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 12px;
+    color: #FFFFFF;
+}
+.delete_agent_modal_label
+{
+    color: #FFF;
+    font-size: 16px;
+    font-family: "Public Sans", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.delete_button
+{
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #FFF;
+    color: #000;
+    font-size: 12px;
+    font-family: "Public Sans", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+
+}
+
+.delete_modal_text
+{
+    color: #888;
+    font-size: 12px;
+    font-family: "Roboto Flex", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+  
+.rdtPicker input {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 8px 14px 8px 14px !important;
+    gap: 4px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    height: 32px !important;
+    background: #3B3B49 !important;
+    border: 1px solid #4A4A55 !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    transition: 0.2s !important;
+    color: white !important;
+}
+
+.rdtPicker input:focus {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px 8px 14px;
+    gap: 4px;
+    border-radius: 8px;
+    width: 100%;
+    height: 32px;
+    background: #3B3B49;
+    border: 1px solid #4A4A55;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    transition: 0.2s;
+    color: white;
+    outline: none;
 }

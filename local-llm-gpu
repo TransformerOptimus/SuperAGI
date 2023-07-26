@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  backend:
+    volumes:
+      - "./:/app"
+    build: .
+    ports:
+      - "8001:8001"
+    depends_on:
+      - super__tgwui
+      - super__redis
+      - super__postgres
+    networks:
+      - super_network
+
+  celery:
+    volumes:
+      - "./:/app"
+    build:
+      context: .
+      dockerfile: DockerfileCelery
+    depends_on:
+      - super__tgwui
+      - super__redis
+      - super__postgres
+    networks:
+      - super_network
+    
+  gui:
+    build: ./gui
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
+    networks:
+      - super_network
+    volumes:
+      - ./gui:/app
+      - /app/node_modules
+      - /app/.next
+
+  super__tgwui:
+    build:
+      context: ./tgwui/
+      target: llama-cublas
+      dockerfile: DockerfileTGWUI
+#      args:
+#        - LCL_SRC_DIR=text-generation-webui  # Developers - see Dockerfile app_base
+    image: atinoda/text-generation-webui:llama-cublas # Specify variant as the :tag
+    container_name: super__tgwui
+    environment:
+      - EXTRA_LAUNCH_ARGS="--no-mmap --verbose --extensions openai --auto-devices --n_ctx 2000 --gpu-memory 22 22 --n-gpu-layers 128 --threads 8"
+#      - BUILD_EXTENSIONS_LIVE="silero_tts whisper_stt" # Install named extensions during every container launch. THIS WILL SIGNIFICANLTLY SLOW LAUNCH TIME.
+    ports:
+      - 7860:7860  # Default web port
+      - 5000:5000  # Default API port
+      - 5005:5005  # Default streaming port
+      - 5001:5001  # Default OpenAI API extension port
+    volumes:
+      - ./tgwui/config/loras:/app/loras
+      - ./tgwui/config/models:/app/models
+      - ./tgwui/config/presets:/app/presets
+      - ./tgwui/config/prompts:/app/prompts
+      - ./tgwui/config/softprompts:/app/softprompts
+      - ./tgwui/config/training:/app/training
+#      - ./config/extensions:/app/extensions
+    logging:
+      driver:  json-file
+      options:
+        max-file: "3"   # number of files or file count
+        max-size: '10m'
+    networks:
+      - super_network
+    deploy:
+        resources:
+          reservations:
+            devices:
+              - driver: nvidia
+#                count: "all"
+                device_ids: ['0', '1'] # must comment the above line if this line is uncommented.
+                capabilities: [gpu]
+  super__redis:
+    image: "docker.io/library/redis:latest"
+    networks:
+      - super_network
+
+  super__postgres:
+    image: "docker.io/library/postgres:latest"
+    environment:
+      - POSTGRES_USER=superagi
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=super_agi_main
+    volumes:
+      - superagi_postgres_data:/var/lib/postgresql/data/
+    networks:
+      - super_network
+    ports:
+      - "5432:5432"
+
+networks:
+  super_network:
+    driver: bridge
+
+volumes:
+  superagi_postgres_data:

@@ -5,11 +5,12 @@ from time import sleep
 import shutil
 from sys import platform
 from multiprocessing import Process
+from superagi.lib.logger import logger
 
 
 def check_command(command, message):
     if not shutil.which(command):
-        print(message)
+        logger.info(message)
         sys.exit(1)
 
 
@@ -18,16 +19,16 @@ def run_npm_commands(shell=False):
     try:
         subprocess.run(["npm", "install"], check=True, shell=shell)
     except subprocess.CalledProcessError:
-        print(f"Error during '{' '.join(sys.exc_info()[1].cmd)}'. Exiting.")
+        logger.error(f"Error during '{' '.join(sys.exc_info()[1].cmd)}'. Exiting.")
         sys.exit(1)
     os.chdir("..")
 
 
 def run_server(shell=False,a_name=None,a_description=None,goals=None):
+    tgwui_process = Process(target=subprocess.run, args=(["python", "test.py","--name",a_name,"--description",a_description,"--goals"]+goals,), kwargs={"shell": shell})
     api_process = Process(target=subprocess.run, args=(["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],), kwargs={"shell": shell})
     celery_process = Process(target=subprocess.run, args=(["celery", "-A", "celery_app", "worker", "--loglevel=info"],), kwargs={"shell": shell})
     ui_process = Process(target=subprocess.run, args=(["python", "test.py","--name",a_name,"--description",a_description,"--goals"]+goals,), kwargs={"shell": shell})
-
     api_process.start()
     celery_process.start()
     ui_process.start()
@@ -36,11 +37,11 @@ def run_server(shell=False,a_name=None,a_description=None,goals=None):
 
 
 def cleanup(api_process, ui_process, celery_process):
-    print("Shutting down processes...")
+    logger.info("Shutting down processes...")
     api_process.terminate()
     ui_process.terminate()
     celery_process.terminate()
-    print("Processes terminated. Exiting.")
+    logger.info("Processes terminated. Exiting.")
     sys.exit(1)
 
 

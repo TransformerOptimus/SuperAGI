@@ -1,26 +1,61 @@
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
-from fastapi_jwt_auth import AuthJWT
-from superagi.models.agent import Agent
-from superagi.models.types.agent_config import AgentConfig
-from superagi.models.agent_config import AgentConfiguration
-from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-from superagi.helper.auth import check_auth
-from fastapi_jwt_auth import AuthJWT
+from typing import Union, List
 
+from fastapi import APIRouter
+from fastapi import HTTPException, Depends
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
+from pydantic import BaseModel
+
+from superagi.helper.auth import check_auth
+from superagi.models.agent import Agent
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.types.agent_config import AgentConfig
+# from superagi.types.db import AgentConfigurationIn, AgentConfigurationOut
+from datetime import datetime
 
 
 router = APIRouter()
 
 
-# CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentConfiguration), status_code=201)
-def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"],),
-                 Authorize: AuthJWT = Depends(check_auth)):
-    """Create new agent configuration by setting new key and value related to agent"""
+class AgentConfigurationOut(BaseModel):
+    id: int
+    agent_id: int
+    key: str
+    value: str
+    created_at: datetime
+    updated_at: datetime
 
-    agent = db.session.query(Agent).get(agent_config.agent_id)
+    class Config:
+        orm_mode = True
+
+
+class AgentConfigurationIn(BaseModel):
+    agent_id: int
+    key: str
+    value: Union[str, List[str]]
+
+    class Config:
+        orm_mode = True
+
+
+# CRUD Operations
+@router.post("/add", response_model=AgentConfigurationOut, status_code=201)
+def create_agent_config(agent_config: AgentConfigurationIn,
+                        Authorize: AuthJWT = Depends(check_auth)):
+    """
+    Create a new agent configuration by setting a new key and value related to the agent.
+
+    Args:
+        agent_config (AgentConfiguration): The agent configuration data.
+
+    Returns:
+        AgentConfiguration: The created agent configuration.
+
+    Raises:
+        HTTPException (Status Code=404): If the associated agent is not found or deleted.
+    """
+
+    agent = db.session.query(Agent).filter(Agent.id == agent_config.agent_id, Agent.is_deleted == False).first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -31,21 +66,47 @@ def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,
     return db_agent_config
 
 
-@router.get("/get/{agent_config_id}", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
+@router.get("/get/{agent_config_id}", response_model=AgentConfigurationOut)
 def get_agent(agent_config_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
-    """Get a particular agent configuration by agent_config_id"""
+    """
+    Get a particular agent configuration by agent_config_id.
 
-    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
-    if not db_agent_config:
+    Args:
+        agent_config_id (int): The identifier of the agent configuration.
+
+    Returns:
+        AgentConfiguration: The retrieved agent configuration.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent configuration is not found.
+    """
+
+    if (
+        db_agent_config := db.session.query(AgentConfiguration)
+        .filter(AgentConfiguration.id == agent_config_id)
+        .first()
+    ):
+        return db_agent_config
+    else:
         raise HTTPException(status_code=404, detail="Agent Configuration not found")
-    return db_agent_config
 
 
-@router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def update_agent(agent_config: AgentConfig,
+@router.put("/update", response_model=AgentConfigurationOut)
+def update_agent(agent_config: AgentConfigurationIn,
                  Authorize: AuthJWT = Depends(check_auth)):
-    """Update a particular agent configuration value for given agent_id and agent_config key"""
+    """
+        Update a particular agent configuration value for the given agent_id and agent_config key.
+
+        Args:
+            agent_config (AgentConfig): The updated agent configuration data.
+
+        Returns:
+            AgentConfiguration: The updated agent configuration.
+
+        Raises:
+            HTTPException (Status Code=404): If the agent configuration is not found.
+    """
 
     db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == agent_config.key,
                                                                   AgentConfiguration.agent_id == agent_config.agent_id).first()
@@ -66,9 +127,20 @@ def update_agent(agent_config: AgentConfig,
 @router.get("/get/agent/{agent_id}")
 def get_agent_configurations(agent_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
-    """Get all agent configurations for a given agent_id"""
+    """
+    Get all agent configurations for a given agent_id.
 
-    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    Args:
+        agent_id (int): The identifier of the agent.
+
+    Returns:
+        dict: The parsed response containing agent configurations.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent or agent configurations are not found or deleted.
+    """
+
+    agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
@@ -82,6 +154,7 @@ def get_agent_configurations(agent_id: int,
         "project_id": agent.project_id,
         "description": agent.description,
         "goal": [],
+        "instruction": [],
         "agent_type": None,
         "constraints": None,
         "tools": [],
@@ -104,6 +177,8 @@ def get_agent_configurations(agent_id: int,
             parsed_response["description"] = value
         elif key == "goal":
             parsed_response["goal"] = eval(value)  # Using eval to parse the list of strings
+        elif key == "instruction":
+            parsed_response["instruction"] = eval(value)
         elif key == "agent_type":
             parsed_response["agent_type"] = value
         elif key == "constraints":
@@ -120,5 +195,5 @@ def get_agent_configurations(agent_id: int,
             parsed_response["permission_type"] = value
         elif key == "LTM_DB":
             parsed_response["LTM_DB"] = value
-
+            
     return parsed_response

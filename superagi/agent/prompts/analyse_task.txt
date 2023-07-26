@@ -1,0 +1,48 @@
+High level goal:
+{goals}
+
+{task_instructions}
+
+Your Current Task: `{current_task}`
+
+Task History:
+`{task_history}`
+
+Based on this, your job is to understand the current task, pick out key parts, and think smart and fast.
+Explain why you are doing each action, create a plan, and mention any worries you might have.
+Ensure next action tool is picked from the below tool list.
+
+TOOLS:
+{tools}
+
+Respond with only valid JSON conforming to the following schema:
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "thoughts": {
+            "type": "object",
+            "properties": {
+                "reasoning": {
+                    "type": "string",
+                    "description": "short reasoning",
+                }
+            },
+            "required": ["reasoning"]
+        },
+        "tool": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "tool name",
+                },
+                "args": {
+                    "type": "object",
+                    "description": "tool arguments",
+                }
+            },
+            "required": ["name", "args"]
+        }
+    }
+}
