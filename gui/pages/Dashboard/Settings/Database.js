@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {createInternalId, formatTimeDifference, loadingTextEffect} from "@/utils/utils";
+import {createInternalId, formatTimeDifference, loadingTextEffect, preventDefault} from "@/utils/utils";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import Image from "next/image";
@@ -15,10 +15,6 @@ export default function Database({sendDatabaseData}) {
   const [dropdown, setDropdown] = useState([]);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedDatabase, setSelectedDatabase] = useState(null);
-
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
 
   function fetchDatabases() {
     setIsLoading(true);

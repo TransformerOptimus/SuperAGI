@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {removeTab, returnDatabaseIcon, setLocalStorageArray} from "@/utils/utils";
+import {removeTab, returnDatabaseIcon, setLocalStorageArray, preventDefault} from "@/utils/utils";
 import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
@@ -42,10 +42,6 @@ export default function DatabaseDetails({internalId, databaseId}) {
       setHasChanges(false);
     }
   }, [collections]);
-
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
 
   const addCollection = () => {
     setLocalStorageArray("db_details_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
