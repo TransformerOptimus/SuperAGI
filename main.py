@@ -42,6 +42,11 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.knowledges import router as knowledges_router
+from superagi.controllers.knowledge_configs import router as knowledge_configs_router
+from superagi.controllers.vector_dbs import router as vector_dbs_router
+from superagi.controllers.vector_db_indices import router as vector_db_indices_router
+from superagi.controllers.marketplace_stats import router as marketplace_stats_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -114,8 +119,12 @@ app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
 app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 app.include_router(analytics_router, prefix="/analytics")
-
 app.include_router(google_oauth_router, prefix="/google")
+app.include_router(knowledges_router, prefix="/knowledges")
+app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
+app.include_router(vector_dbs_router, prefix="/vector_dbs")
+app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
+app.include_router(marketplace_stats_router, prefix="/marketplace")
 
 
 # in production you can use Settings management
