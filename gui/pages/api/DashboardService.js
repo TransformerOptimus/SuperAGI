@@ -56,6 +56,10 @@ export const updateExecution = (executionId, executionData) => {
   return api.put(`/agentexecutions/update/${executionId}`, executionData);
 };
 
+export const editAgentTemplate = (agentTemplateId, agentTemplateData) => {
+  return api.put(`/agent_templates/update_agent_template/${agentTemplateId}`, agentTemplateData)
+}
+
 export const addExecution = (executionData) => {
   return api.post(`/agentexecutions/add`, executionData);
 };
@@ -205,4 +209,8 @@ export const getActiveRuns = () => {
 
 export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
+}
+
+export const getLlmModels = () => {
+  return api.get(`organisations/llm_models`);
 }

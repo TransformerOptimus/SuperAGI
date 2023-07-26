@@ -42,7 +42,7 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
-from superagi.helper.tool_helper import register_toolkits
+from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
@@ -117,6 +117,7 @@ app.include_router(analytics_router, prefix="/analytics")
 
 app.include_router(google_oauth_router, prefix="/google")
 
+
 # in production you can use Settings management
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
@@ -125,8 +126,11 @@ class Settings(BaseModel):
 
 
 def create_access_token(email, Authorize: AuthJWT = Depends()):
-    # expiry_time_hours = get_config("JWT_EXPIRY")
-    expiry_time_hours = 1
+    expiry_time_hours = superagi.config.config.get_config("JWT_EXPIRY")
+    if type(expiry_time_hours) == str:
+        expiry_time_hours = int(expiry_time_hours)
+    if expiry_time_hours is None:
+        expiry_time_hours = 200
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
@@ -313,17 +317,26 @@ async def startup_event():
         workflow_step2.next_step_id = workflow_step2.id
         session.commit()
 
-    def check_toolkit_registration():
+    def register_toolkit_for_all_organisation():
         organizations = session.query(Organisation).all()
         for organization in organizations:
             register_toolkits(session, organization)
         logger.info("Successfully registered local toolkits for all Organisations!")
 
+    def register_toolkit_for_master_organisation():
+        marketplace_organisation_id = superagi.config.config.get_config("MARKETPLACE_ORGANISATION_ID")
+        marketplace_organisation = session.query(Organisation).filter(
+            Organisation.id == marketplace_organisation_id).first()
+        if marketplace_organisation is not None:
+            register_marketplace_toolkits(session, marketplace_organisation)
+
     build_single_step_agent()
     build_task_based_agents()
     build_action_based_agents()
     if env != "PROD":
-        check_toolkit_registration()
+        register_toolkit_for_all_organisation()
+    else:
+        register_toolkit_for_master_organisation()
     session.close()
 
 
@@ -395,7 +408,6 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
             db.session.add(user)
             db.session.commit()
             jwt_token = create_access_token(user_email, Authorize)
-
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
             return RedirectResponse(url=redirect_url_success)
         else:

@@ -13,6 +13,7 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.tool import Tool
+import json
 # from superagi.types.db import AgentTemplateIn, AgentTemplateOut
 
 router = APIRouter()
@@ -143,6 +144,59 @@ def update_agent_template(agent_template_id: int,
     db.session.commit()
 
     return db_agent_template
+
+@router.put("/update_agent_template/{agent_template_id}", status_code=200)
+def edit_agent_template(agent_template_id: int,
+                        updated_agent_configs: dict,
+                        organisation=Depends(get_user_organisation)):
+    
+    """
+    Update the details of an agent template.
+
+    Args:
+        agent_template_id (int): The ID of the agent template to update.
+        edited_agent_configs (dict): The updated agent configurations.
+        organisation (Depends): Dependency to get the user organisation.
+
+    Returns:
+        HTTPException (status_code=200): If the agent gets successfully edited.
+
+    Raises:
+        HTTPException (status_code=404): If the agent template is not found.
+    """
+    
+    db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
+                                                               AgentTemplate.id == agent_template_id).first()
+    if db_agent_template is None:
+        raise HTTPException(status_code=404, detail="Agent Template not found")
+    
+    db_agent_template.name = updated_agent_configs["name"]
+    db_agent_template.description = updated_agent_configs["description"]
+
+    db.session.commit()
+
+    agent_config_values = updated_agent_configs.get('agent_configs', {})
+
+    for key, value in agent_config_values.items():
+        if isinstance(value, (list, dict)):
+            value = json.dumps(value)
+        config = db.session.query(AgentTemplateConfig).filter(
+            AgentTemplateConfig.agent_template_id == agent_template_id,
+            AgentTemplateConfig.key == key
+        ).first()
+
+        if config is not None:
+            config.value = value
+        else:
+            new_config = AgentTemplateConfig(
+                agent_template_id=agent_template_id,
+                key=key,
+                value= value
+            )
+            db.session.add(new_config)
+
+    db.session.commit()
+    db.session.flush()
 
 
 @router.post("/save_agent_as_template/{agent_id}")

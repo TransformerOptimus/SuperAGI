@@ -10,10 +10,10 @@ import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
   getAgents,
-  getToolKit,
   getLastActiveAgent,
-  sendTwitterCreds,
-  sendGoogleCreds
+  getToolKit,
+  sendGoogleCreds,
+  sendTwitterCreds
 } from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
@@ -21,7 +21,7 @@ import {useRouter} from 'next/router';
 import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
-import {createInternalId, resetLocalStorage} from "@/utils/utils";
+import {createInternalId, resetLocalStorage, preventDefault} from "@/utils/utils";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -33,42 +33,66 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
   const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit'];
+  const [isApmOpened, setIsApmOpened] = useState(false);
+  const [prevView, setPrevView] = useState(null);
 
-  function fetchAgents() {
-    getAgents(selectedProjectId)
-      .then((response) => {
-        const data = response.data || [];
-        const updatedData = data.map(item => {
-          return {...item, contentType: "Agents"};
-        });
-        setAgents(updatedData);
+  useEffect(() => {
+    if (prevView !== selectedView) {
+      const apmTab = tabs.find(tab => tab.contentType === 'APM');
+      setIsApmOpened(!!apmTab);
+      setPrevView(selectedView);
+    }
+  }, [selectedView, tabs, prevView]);
+
+  async function fetchAgents() {
+    try {
+      const response = await getAgents(selectedProjectId);
+      const data = response.data || [];
+      const updatedData = data.map(item => {
+        return { ...item, contentType: "Agents" };
+      });
+      setAgents(updatedData);
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    }
+  }
+
+  function getAgentList() {
+    fetchAgents()
+      .then(() => {
+        console.log('Agents fetched successfully!');
       })
       .catch((error) => {
         console.error('Error fetching agents:', error);
       });
   }
 
-  function fetchToolkits() {
-    getToolKit()
-      .then((response) => {
-        const data = response.data || [];
-        const updatedData = data.map(item => {
-          return {...item, contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
-        });
-        setToolkits(updatedData);
+  async function fetchToolkits() {
+    try {
+      const response = await getToolKit();
+      const data = response.data || [];
+      const updatedData = data.map(item => {
+        return { ...item, contentType: "Toolkits", isOpen: false, internalId: createInternalId() };
+      });
+      setToolkits(updatedData);
+    } catch (error) {
+      console.error('Error fetching toolkits:', error);
+    }
+  }
+
+  function getToolkitList() {
+    fetchToolkits()
+      .then(() => {
+        console.log('Toolkits fetched successfully!');
       })
       .catch((error) => {
         console.error('Error fetching toolkits:', error);
       });
   }
 
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
-
   useEffect(() => {
-    fetchAgents();
-    fetchToolkits();
+    getAgentList();
+    getToolkitList();
   }, [selectedProjectId])
 
   const cancelTab = (index, contentType, internalId) => {
@@ -142,10 +166,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     const queryParams = router.asPath.split('?')[1];
     const parsedParams = querystring.parse(queryParams);
     parsedParams["toolkit_id"] = toolkitDetails.toolkit_id;
+
     if (window.location.href.indexOf("twitter_creds") > -1) {
-      const toolkit_id = localStorage.getItem("twitter_toolkit_id") || null;
-      parsedParams["toolkit_id"] = toolkit_id;
+      parsedParams["toolkit_id"] = localStorage.getItem("twitter_toolkit_id") || null;
       const params = JSON.stringify(parsedParams)
+
       sendTwitterCreds(params)
         .then((response) => {
           console.log("Authentication completed successfully");
@@ -154,11 +179,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           console.error("Error fetching data: ", error);
         })
     }
-    ;
+
     if (window.location.href.indexOf("google_calendar_creds") > -1) {
       const toolkit_id = localStorage.getItem("google_calendar_toolkit_id") || null;
-      var data = Object.keys(parsedParams)[0];
-      var params = JSON.parse(data)
+      let data = Object.keys(parsedParams)[0];
+      let params = JSON.parse(data);
+
       sendGoogleCreds(params, toolkit_id)
         .then((response) => {
           console.log("Authentication completed successfully");
@@ -167,7 +193,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
           console.error("Error fetching data: ", error);
         })
     }
-    ;
   }, [selectedTab]);
 
   useEffect(() => {
@@ -195,21 +220,30 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     };
 
     EventBus.on('openNewTab', openNewTab);
-    EventBus.on('reFetchAgents', fetchAgents);
+    EventBus.on('reFetchAgents', getAgentList);
     EventBus.on('removeTab', removeTab);
     EventBus.on('openToolkitTab', openToolkitTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
-      EventBus.off('reFetchAgents', fetchAgents);
+      EventBus.off('reFetchAgents', getAgentList);
       EventBus.off('removeTab', removeTab);
     };
   });
 
+  async function fetchLastActive() {
+    try {
+      const response = await getLastActiveAgent(selectedProjectId);
+      addTab(response.data);
+    } catch (error) {
+      console.error('Error fetching last active agent:', error);
+    }
+  }
+
   function getLastActive() {
-    getLastActiveAgent(selectedProjectId)
-      .then((response) => {
-        addTab(response.data);
+    fetchLastActive()
+      .then(() => {
+        console.log('Last active agent fetched successfully!');
       })
       .catch((error) => {
         console.error('Error fetching last active agent:', error);
@@ -338,17 +372,17 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                   {selectedTab === index && <div>
                     {tab.contentType === 'Agents' &&
                       <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name} selectedView={selectedView}
-                                      agents={agents} fetchAgents={fetchAgents}/>}
+                                      agents={agents} fetchAgents={getAgentList}/>}
                     {tab.contentType === 'Toolkits' &&
-                      <ToolkitWorkspace internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
+                      <ToolkitWorkspace env={env} internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
                     {tab.contentType === 'Settings' && <Settings organisationId={organisationId}/>}
                     {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                     {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
                     {tab.contentType === 'Create_Agent' &&
                       <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={fetchAgents} toolkits={toolkits}/>}
-                    {tab.contentType === 'APM' && <ApmDashboard/>}
+                                          fetchAgents={getAgentList} toolkits={toolkits}/>}
+                    {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
                   </div>}
                 </div>
               ))}

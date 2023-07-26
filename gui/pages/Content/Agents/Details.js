@@ -16,7 +16,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
   }, [instructions]);
 
   useEffect(() => {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       if (agentScheduleDetails?.recurrence_interval !== null) {
         if ((agentScheduleDetails?.expiry_runs === -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null) {
           let expiryDate;
@@ -182,7 +182,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
         <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
         <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
       </div>}
-      {agent.is_scheduled && <div className={styles.agent_info_box}>
+      {agent?.is_scheduled && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/event_repeat.svg" alt="info-icon"/></div>
         <div style={info_text}>{scheduleText}</div>
       </div>}
