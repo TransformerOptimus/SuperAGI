@@ -1,17 +1,15 @@
 from __future__ import absolute_import
 
-from sqlalchemy.orm import sessionmaker
-
-from superagi.helper.tool_helper import handle_tools_import
-from superagi.lib.logger import logger
-
 from datetime import timedelta
+
 from celery import Celery
+from sqlalchemy.orm import sessionmaker
 
 from superagi.config.config import get_config
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
+from superagi.helper.tool_helper import handle_tools_import
+from superagi.lib.logger import logger
 from superagi.models.configuration import Configuration
-
 from superagi.models.db import connect_db
 from superagi.types.model_source_types import ModelSourceType
 
@@ -23,14 +21,18 @@ app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
 app.conf.accept_content = ['application/x-python-serialize', 'application/json']
 
-
 beat_schedule = {
     'initialize-schedule-agent': {
         'task': 'initialize-schedule-agent',
         'schedule': timedelta(minutes=5),
     },
+    'execute-pending-clusters': {
+        'task': 'execute-pending-clusters',
+        'schedule': timedelta(minutes=1),
+    },
 }
 app.conf.beat_schedule = beat_schedule
+
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
@@ -78,3 +80,11 @@ def summarize_resource(agent_id: int, resource_id: int):
                                                                documents=documents)
     resource_summarizer.generate_agent_summary(agent_id=agent_id)
     session.close()
+
+
+@app.task(name="execute-pending-clusters")
+def cluster_scheduler():
+    """Schedule pending cluster workflows"""
+    from superagi.jobs.cluster_executor import ClusterExecutor
+    logger.info("Scheduling cluster runs")
+    ClusterExecutor.schedule_pending_executions()

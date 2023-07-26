@@ -78,6 +78,7 @@ class Agent(DBBaseModel):
             "exit": None,
             "iteration_interval": None,
             "model": None,
+
             "permission_type": None,
             "LTM_DB": None,
             "memory_window": None,

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String
 
 from superagi.helper.tool_helper import register_toolkits
 from superagi.models.base_model import DBBaseModel
+from superagi.models.project import Project
 
 
 class Organisation(DBBaseModel):
@@ -66,3 +67,21 @@ class Organisation(DBBaseModel):
         session.commit()
         register_toolkits(session=session, organisation=new_organisation)
         return new_organisation
+
+    @classmethod
+    def get_organisation_by_project_id(cls, session, project_id: int):
+        """
+        Get organisation by project id
+
+        Args:
+            project_id (int): The project id.
+
+        Returns:
+            Organisation: The found organization.
+        """
+
+        project = session.query(Project).filter(Project.id == project_id).first()
+        organisation = session.query(cls).filter(cls.id == project.organisation_id).first()
+        if organisation is None:
+            raise Exception("Organisation not found")
+        return organisation

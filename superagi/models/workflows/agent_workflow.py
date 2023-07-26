@@ -108,3 +108,19 @@ class AgentWorkflow(DBBaseModel):
             session.add(agent_workflow)
             session.commit()
         return agent_workflow
+
+    @classmethod
+    def get_trigger_step_id(cls, session, workflow_id):
+        """s
+        Fetches the trigger step ID of the specified agent workflow.
+
+        Args:
+            workflow_id (int): The ID of the agent workflow.
+
+        Returns:
+            int: The ID of the trigger step.
+
+        """
+        trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
+                                                               AgentWorkflowStep.step_type == 'TRIGGER').first()
+        return trigger_step.id

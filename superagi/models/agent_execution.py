@@ -165,3 +165,21 @@ class AgentExecution(DBBaseModel):
             trigger_step = IterationWorkflow.fetch_trigger_step_id(session, next_step.action_reference_id)
             agent_execution.iteration_workflow_step_id = trigger_step.id
         session.commit()
+
+
+    @staticmethod
+    def create_agent_execution(session, cluster_execution_id, agent_id ,status,last_execution_time, num_of_calls, num_of_tokens,name,current_step_id):
+        agent_execution = AgentExecution(
+            cluster_execution_id=cluster_execution_id,
+            agent_id=agent_id,
+            status=status,
+            last_execution_time=last_execution_time,
+            num_of_calls=num_of_calls,
+            num_of_tokens=num_of_tokens,
+            name=name,
+            current_step_id=current_step_id
+        )
+        session.add(agent_execution)
+        session.commit()
+        print("AGENT EXECUTION CREATED", agent_execution)
+        return agent_execution

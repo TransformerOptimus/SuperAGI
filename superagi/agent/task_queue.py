@@ -6,6 +6,8 @@ from superagi.config.config import get_config
 
 redis_url = get_config('REDIS_URL') or "localhost:6379"
 """TaskQueue manages current tasks and past tasks in Redis """
+
+
 class TaskQueue:
     def __init__(self, queue_name: str):
         self.queue_name = queue_name + "_q"
@@ -41,3 +43,7 @@ class TaskQueue:
             return None
 
         return eval(response)
+
+    def enqueue_tasks(self, tasks):
+        for task in tasks:
+            self.add_task(task)
