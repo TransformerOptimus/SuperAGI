@@ -105,7 +105,7 @@ def get_user_knowledge_details(knowledge_id: int):
 def add_update_user_knowledge(knowledge_data: dict, organisation = Depends(get_user_organisation)):
     knowledge_data["organisation_id"] = organisation.id
     knowledge_data["contributed_by"] = organisation.name
-    knowledge = Knowledges.add_update_knowledges(db.session, knowledge_data)
+    knowledge = Knowledges.add_update_knowledge(db.session, knowledge_data)
     return {"success": True, "id": knowledge.id}
 
 @router.post("/delete/{knowledge_id}")
@@ -138,7 +138,7 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
         "organisation_id": organisation.id,
         "contributed_by": selected_knowledge["contributed_by"],
     }
-    new_knowledge = Knowledges.add_update_knowledges(db.session, selected_knowledge_data)
+    new_knowledge = Knowledges.add_update_knowledge(db.session, selected_knowledge_data)
     removable_key = 'file_path'
     selected_knowledge_config.pop(removable_key)
     configs = selected_knowledge_config
