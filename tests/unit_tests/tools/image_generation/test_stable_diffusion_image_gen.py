@@ -57,14 +57,10 @@ def test_execute(stable_diffusion_tool):
     tool.resource_manager = Mock()
     tool.agent_id = 123  # Use a dummy agent_id for testing purposes
     tool.toolkit_config.get_tool_config = lambda key: 'fake_api_key' if key == 'STABILITY_API_KEY' else 'engine_id_1'
-    # Change 'engine_id_1' to the appropriate value for the "ENGINE_ID" key in your real code
-
     prompt = 'Test prompt'
     image_names = ['img1.png', 'img2.png']
     expected_result = 'Images downloaded and saved successfully'
-
     result = tool._execute(prompt, image_names)
-
     assert result.startswith(expected_result)
     tool.resource_manager.write_binary_file.assert_called()
 
