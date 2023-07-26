@@ -230,6 +230,8 @@ def process_files(folder_paths, session, organisation, code_link=None):
 
 
 def get_readme_content_from_code_link(tool_code_link):
+    if tool_code_link is None:
+        return None
     parsed_url = urlparse(tool_code_link)
     path_parts = parsed_url.path.split("/")
 
