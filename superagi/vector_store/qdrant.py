@@ -98,9 +98,9 @@ class Qdrant(VectorStore):
     
     def get_matching_text(
             self,
+            text: str = None,
             embedding: List[float] = None,
             k: int = 4,
-            text: str = None,
             metadata: Optional[dict] = None,
             search_params: Optional[common_types.SearchParams] = None,
             offset: int = 0,
