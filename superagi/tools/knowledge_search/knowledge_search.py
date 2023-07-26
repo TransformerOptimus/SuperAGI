@@ -18,7 +18,7 @@ from superagi.tools.base_tool import BaseTool
 
 
 class KnowledgeSearchSchema(BaseModel):
-    query: str = Field(..., description="The search query for knowledge store search")
+    query: str = Field(..., description="The query to search required from knowledge search")
 
 
 class KnowledgeSearchTool(BaseTool):
@@ -53,7 +53,7 @@ class KnowledgeSearchTool(BaseTool):
             if vector_db_index.state == "Marketplace":
                 filters = {"knowledge_name": knowledge.name}
             vector_db_storage = VectorFactory.build_vector_storage(vector_db.db_type, vector_db_index.name, embedding_model, **db_creds)
-            search_result = vector_db_storage.get_matching_text(text=query, metadata=filters)
+            search_result = vector_db_storage.get_matching_text(query, metadata=filters)
             return f"Result: \n{search_result['search_res']}"
         except Exception as err:
             return f"Error fetching text: {err}"
