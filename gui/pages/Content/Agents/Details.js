@@ -11,6 +11,22 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
   const [filteredInstructions, setFilteredInstructions] = useState(false);
   const [scheduleText, setScheduleText] = useState('Agent is not Scheduled');
 
+  const info_text = {
+    marginLeft: '7px',
+  };
+
+  const info_text_secondary = {
+    marginLeft: '3px',
+    marginTop: '2px',
+    color: '#888888',
+    lineHeight: '13px',
+    fontSize: '11px'
+  };
+
+  const openToolkitTab = (toolId) => {
+    EventBus.emit('openToolkitTab', {toolId: toolId});
+  }
+
   useEffect(() => {
     setFilteredInstructions(instructions?.filter(instruction => instruction.trim() !== ''));
   }, [instructions]);
@@ -45,22 +61,6 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       }
     }
   }, [agentScheduleDetails]);
-
-  const info_text = {
-    marginLeft: '7px',
-  };
-
-  const info_text_secondary = {
-    marginLeft: '3px',
-    marginTop: '2px',
-    color: '#888888',
-    lineHeight: '13px',
-    fontSize: '11px'
-  };
-
-  const openToolkitTab = (toolId) => {
-    EventBus.emit('openToolkitTab', {toolId: toolId});
-  }
 
   return (<>
     <div className={styles.history_box} style={{background: '#272335', padding: '15px', cursor: 'default'}}>
@@ -161,6 +161,10 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
         <div style={info_text}>{agentDetails?.agent_type || ''}</div>
+      </div>
+      <div className={styles.agent_info_box}>
+        <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
+        <div style={info_text}>knowledge name</div>
       </div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/deployed_code.svg" alt="model-icon"/></div>

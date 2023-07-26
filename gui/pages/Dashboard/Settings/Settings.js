@@ -1,163 +1,56 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {ToastContainer, toast} from 'react-toastify';
+import React, {useState, useEffect} from 'react';
 import 'react-toastify/dist/ReactToastify.css';
-import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {getOrganisationConfig, updateOrganisationConfig,validateLLMApiKey} from "@/pages/api/DashboardService";
-import {EventBus} from "@/utils/eventBus";
-import {removeTab, setLocalStorageValue} from "@/utils/utils";
+import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
+import Model from "@/pages/Dashboard/Settings/Model";
+import Database from "@/pages/Dashboard/Settings/Database";
 
-export default function Settings({organisationId}) {
-  const [modelApiKey, setKey] = useState('');
-  const [temperature, setTemperature] = useState(0.5);
-  const [sourceDropdown, setSourceDropdown] = useState(false);
-  const [source, setSource] = useState('OpenAi');
-  const sourceRef = useRef(null);
-  const sources = ['OpenAi', 'Google Palm']
-
-  function getKey(key) {
-    getOrganisationConfig(organisationId, key)
-      .then((response) => {
-        setKey(response.data.value);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
-  }
-
-  function getSource(key) {
-    getOrganisationConfig(organisationId, key)
-      .then((response) => {
-        setSource(response.data.value);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
-  }
+export default function Settings({organisationId, sendDatabaseData}) {
+  const [activeTab, setActiveTab] = useState('model');
 
   useEffect(() => {
-    getKey("model_api_key");
-    getSource("model_source");
-
-    function handleClickOutside(event) {
-      if (sourceRef.current && !sourceRef.current.contains(event.target)) {
-        setSourceDropdown(false);
-      }
+    const settings_tab = localStorage.getItem('settings_tab');
+    if (settings_tab) {
+      setActiveTab(settings_tab);
     }
+  }, []);
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [organisationId]);
-
-  function updateKey(key, value) {
-    const configData = { "key": key, "value": value };
-    return updateOrganisationConfig(organisationId, configData)
-      .then((response) => {
-        return response.data;
-      })
-      .catch((error) => {
-        console.error('Error updating settings:', error);
-        throw new Error('Failed to update settings');
-      });
-  }
-
-  const handleModelApiKey = (event) => {
-    setKey(event.target.value);
-  };
-
-  const handleSourceSelect = (index) => {
-    setSource(sources[index]);
-    setSourceDropdown(false);
-  };
-
-  const saveSettings = () => {
-    if (modelApiKey === null || modelApiKey.replace(/\s/g, '') === '') {
-      toast.error("API key is empty", { autoClose: 1800 });
-      return;
-    }
-
-    validateLLMApiKey(source, modelApiKey)
-      .then((response) => {
-        if (response.data.status === "success") {
-          Promise.all([
-            updateKey("model_api_key", modelApiKey),
-            updateKey("model_source", source)
-          ])
-              .then(() => {
-                toast.success("Settings updated", { autoClose: 1800 });
-              })
-              .catch((error) => {
-                console.error('Error updating settings:', error);
-                toast.error("Failed to update settings", { autoClose: 1800 });
-              });
-        } else {
-          toast.error("Invalid API key", { autoClose: 1800 });
-        }
-      })
-      .catch((error) => {
-        console.error('Error validating API key:', error);
-        toast.error("Failed to validate API key", { autoClose: 1800 });
-      });
-  };
-
-  const handleTemperatureChange = (event) => {
-    setTemperature(event.target.value);
+  const switchTab = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('settings_tab', tab);
   };
 
   return (<>
-    <div className="row">
-      <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
-        <div>
-          <div className={agentStyles.page_title}>Settings</div>
-        </div>
-        <div>
-          <label className={agentStyles.form_label}>Model Source</label>
-          <div className="dropdown_container_search" style={{width: '100%'}}>
-            <div className="custom_select_container" onClick={() => setSourceDropdown(!sourceDropdown)}
-                 style={{width: '100%'}}>
-              {source}<Image width={20} height={21}
-                             src={!sourceDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
-                             alt="expand-icon"/>
+    <div className={styles.empty_state}>
+      <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
+        <div className={styles.detail_top}>
+          <div style={{display: 'flex', overflowX: 'scroll', marginLeft: '8px'}}>
+            <div>
+              <button onClick={() => switchTab('model')} className={styles.tab_button} style={activeTab === 'model' ? {
+                background: '#454254',
+                paddingRight: '15px'
+              } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/model_light.svg"
+                       alt="model-icon"/>&nbsp;Model
+              </button>
             </div>
             <div>
-              {sourceDropdown && <div className="custom_select_options" ref={sourceRef} style={{width: '100%'}}>
-                {sources.map((source, index) => (
-                  <div key={index} className="custom_select_option" onClick={() => handleSourceSelect(index)}
-                       style={{padding: '12px 14px', maxWidth: '100%'}}>
-                    {source}
-                  </div>))}
-              </div>}
+              <button onClick={() => switchTab('database')} className={styles.tab_button}
+                      style={activeTab === 'database' ? {
+                        background: '#454254',
+                        paddingRight: '15px'
+                      } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/database.svg"
+                       alt="database-icon"/>&nbsp;Database
+              </button>
             </div>
           </div>
         </div>
-        <br/>
         <div>
-          <label className={agentStyles.form_label}>Open-AI/Palm API Key</label>
-          <input placeholder="Enter your Open-AI/Palm API key" className="input_medium" type="password"
-                 value={modelApiKey} onChange={handleModelApiKey}/>
-        </div>
-        {/*<div style={{marginTop:'15px'}}>*/}
-        {/*  <label className={agentStyles.form_label}>Temperature</label>*/}
-        {/*  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>*/}
-        {/*    <input style={{width:'89%'}} type="range" step={0.1} min={0} max={1} value={temperature} onChange={handleTemperatureChange}/>*/}
-        {/*    <input style={{width:'9%',order:'1',textAlign:'center',paddingLeft:'0',paddingRight:'0'}} disabled={true} className="input_medium" type="text" value={temperature}/>*/}
-        {/*  </div>*/}
-        {/*</div>*/}
-        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '15px'}}>
-          <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button"
-                  style={{marginRight: '10px'}}>
-            Cancel
-          </button>
-          <button className="primary_button" onClick={saveSettings}>
-            Update Changes
-          </button>
+          {activeTab === 'model' && <Model organisationId={organisationId}/>}
+          {activeTab === 'database' && <Database sendDatabaseData={sendDatabaseData} organisationId={organisationId}/>}
         </div>
       </div>
-      <div className="col-3"></div>
     </div>
-    <ToastContainer/>
   </>)
 }

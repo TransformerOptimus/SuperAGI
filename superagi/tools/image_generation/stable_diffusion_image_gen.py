@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent import Agent
 
 
 class StableDiffusionImageGenInput(BaseModel):
@@ -35,6 +37,7 @@ class StableDiffusionImageGenTool(BaseTool):
     args_schema: Type[BaseModel] = StableDiffusionImageGenInput
     description: str = "Generate Images using Stable Diffusion"
     agent_id: int = None
+    agent_execution_id: int = None
     resource_manager: Optional[FileManager] = None
 
     class Config:
@@ -70,7 +73,13 @@ class StableDiffusionImageGenTool(BaseTool):
             self.resource_manager.write_binary_file(image_names[i], img_byte_arr.getvalue())
 
         for image in image_names:
-            image_paths.append(ResourceHelper.get_resource_path(image))
+            final_path = ResourceHelper.get_agent_read_resource_path(image, agent=Agent.get_agent_from_id(
+            session=self.toolkit_config.session, agent_id=self.agent_id), agent_execution=AgentExecution
+                                                                 .get_agent_execution_from_id(session=self
+                                                                                              .toolkit_config.session,
+                                                                                              agent_execution_id=self
+                                                                                              .agent_execution_id))
+            image_paths.append(final_path)
 
         return f"Images downloaded and saved successfully at the following locations: {image_paths}"
 
