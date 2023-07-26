@@ -229,7 +229,7 @@ export const getVectorDatabases = () => {
 };
 
 export const getVectorDBDetails = (vectorDBId) => {
-  return api.get(`/vector_dbs/get/db/details/${vectorDBId}`);
+  return api.get(`/vector_dbs/db/details/${vectorDBId}`);
 };
 
 export const deleteVectorDB = (vectorDBId) => {
@@ -269,11 +269,11 @@ export const addUpdateKnowledge = (knowledgeData) => {
 };
 
 export const getValidIndices = () => {
-  return api.get(`/vector_db_indices/get/user/valid_indices`);
+  return api.get(`/vector_db_indices/user/valid_indices`);
 };
 
 export const getValidMarketplaceIndices = (knowledgeName) => {
-  return api.get(`/vector_db_indices/get/marketplace/valid_indices/${knowledgeName}`);
+  return api.get(`/vector_db_indices/marketplace/valid_indices/${knowledgeName}`);
 };
 
 export const fetchKnowledgeTemplateOverview = (knowledgeName) => {

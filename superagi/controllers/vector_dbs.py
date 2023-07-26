@@ -27,13 +27,12 @@ def get_marketplace_vectordb_list():
 @router.get("/user/list")
 def get_user_connected_vector_db_list(organisation = Depends(get_user_organisation)):
     vector_db_list = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
-    print(vector_db_list)
     if vector_db_list:
         for vector in vector_db_list:
             vector.updated_at = get_time_difference(vector.updated_at, str(datetime.now()))
     return vector_db_list
 
-@router.get("/get/db/details/{vector_db_id}")
+@router.get("/db/details/{vector_db_id}")
 def get_vector_db_details(vector_db_id: int):
     vector_db = Vectordbs.get_vector_db_from_id(db.session, vector_db_id)
     vector_db_data = {

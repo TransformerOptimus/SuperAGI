@@ -95,26 +95,9 @@ class Pinecone(VectorStore):
                 filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
         res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace,include_metadata=True)
-        contexts = [item['metadata']['text'] for item in res['matches']]
-        i = 0
-        search_res = f"Query: {query}\n"
-        for context in contexts:
-            search_res += f"Chunk{i}: \n{context}\n" 
-            i += 1
+        search_res = self._get_search_text(res, query)
 
-        documents = []
-        
-        try:
-            for doc in res['matches']:
-                documents.append(
-                    Document(
-                        text_content=doc['metadata'][self.text_field],
-                        metadata=doc['metadata'],
-                    )
-                )
-        except Exception as err:
-            raise err
-
+        documents = self._build_documents(res)
         return {"documents": documents, "search_res": search_res}
     
     def get_index_stats(self) -> dict:
@@ -140,3 +123,26 @@ class Pinecone(VectorStore):
             self.index.delete(ids=ids)
         except Exception as err:
             raise err
+        
+    def _build_documents(self, results: List[dict]):
+        try:
+            documents = []
+            for doc in results['matches']:
+                documents.append(
+                    Document(
+                        text_content=doc['metadata'][self.text_field],
+                        metadata=doc['metadata'],
+                    )
+                )
+            return documents
+        except Exception as err:
+            raise err
+    
+    def _get_search_text(self, results: List[dict], query: str):
+        contexts = [item['metadata']['text'] for item in res['matches']]
+        i = 0
+        search_res = f"Query: {query}\n"
+        for context in contexts:
+            search_res += f"Chunk{i}: \n{context}\n" 
+            i += 1
+        return contexts

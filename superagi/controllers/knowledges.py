@@ -139,7 +139,8 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
         "contributed_by": selected_knowledge["contributed_by"],
     }
     new_knowledge = Knowledges.add_update_knowledges(db.session, selected_knowledge_data)
-    selected_knowledge_config.pop("file_path")
+    removable_key = 'file_path'
+    selected_knowledge_config.pop(removable_key)
     configs = selected_knowledge_config
     KnowledgeConfigs.add_update_knowledge_config(db.session, new_knowledge.id, configs)
     VectordbIndices.update_vector_index_state(db.session, vector_db_index_id, "Marketplace")

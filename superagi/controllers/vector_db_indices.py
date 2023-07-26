@@ -9,7 +9,7 @@ from superagi.models.knowledge_configs import KnowledgeConfigs
 
 router = APIRouter()
 
-@router.get("/get/marketplace/valid_indices/{knowledge_name}")
+@router.get("/marketplace/valid_indices/{knowledge_name}")
 def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(get_user_organisation)):
     vector_dbs = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
     knowledge = Knowledges.fetch_knowledge_details_marketplace(knowledge_name)
@@ -28,7 +28,7 @@ def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(ge
                 qdrant.append(data)
     return {"pinecone": pinecone, "qdrant": qdrant}
 
-@router.get("/get/user/valid_indices")
+@router.get("/user/valid_indices")
 def get_user_valid_indices(organisation = Depends(get_user_organisation)):
     vector_dbs = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
     pinecone = []

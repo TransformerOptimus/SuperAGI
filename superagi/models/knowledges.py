@@ -93,7 +93,7 @@ class Knowledges(DBBaseModel):
         return knowledge
     
     @classmethod
-    def add_update_knowledges(cls, session, knowledge_data):
+    def add_update_knowledge(cls, session, knowledge_data):
         knowledge = session.query(Knowledges).filter(Knowledges.id == knowledge_data["id"], Knowledges.organisation_id == knowledge_data["organisation_id"]).first()
         if knowledge:
             knowledge.name = knowledge_data["name"]

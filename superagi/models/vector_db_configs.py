@@ -33,7 +33,6 @@ class VectordbConfigs(DBBaseModel):
         vector_db_configs = session.query(VectordbConfigs).filter(VectordbConfigs.vector_db_id == vector_db_id).all()
         config_data = {}
         for config in vector_db_configs:
-            print(config)
             config_data[config.key] = config.value
         return config_data
 

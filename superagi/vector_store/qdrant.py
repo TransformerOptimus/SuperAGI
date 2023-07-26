@@ -156,13 +156,8 @@ class Qdrant(VectorStore):
             **kwargs,
             )
         except Exception as err:
-            print(err)
-        contexts = [res.payload for res in results]
-        i = 0
-        search_res = f"Query: {text}\n"
-        for context in contexts:
-            search_res += f"Chunk{i}: \n{context['text']}\n"
-            i += 1
+            raise err
+        search_res = self._get_search_res(results, text)
         documents =  self.__build_documents(results)
 
         return {"documents": documents, "search_res": search_res}
@@ -282,3 +277,12 @@ class Qdrant(VectorStore):
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=size, distance=Distance.COSINE),
             )
+    
+    def _get_search_res(self, results, text):
+        contexts = [res.payload for res in results]
+        i = 0
+        search_res = f"Query: {text}\n"
+        for context in contexts:
+            search_res += f"Chunk{i}: \n{context['text']}\n"
+            i += 1
+        return search_res
