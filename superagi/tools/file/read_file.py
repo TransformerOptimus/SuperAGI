@@ -11,6 +11,7 @@ from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
 from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
+from unstructured.partition.auto import partition
 
 
 class ReadFileSchema(BaseModel):
@@ -58,9 +59,9 @@ class ReadFileTool(BaseTool):
         directory = os.path.dirname(final_path)
         os.makedirs(directory, exist_ok=True)
 
-        with open(final_path, 'r') as file:
-            file_content = file.read()
-        max_length = len(' '.join(file_content.split(" ")[:1000]))
-        return file_content[:max_length] + "\n File " + file_name + " read successfully."
+        elements = partition(final_path)
+        content=("\n\n".join([str(el) for el in elements]))
+   
+        return content
 
 
