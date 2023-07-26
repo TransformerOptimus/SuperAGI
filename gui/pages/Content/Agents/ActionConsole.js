@@ -7,6 +7,13 @@ import {formatTimeDifference} from '@/utils/utils';
 function ActionBox({action, index, denied, reasons, handleDeny, handleSelection, setReasons}) {
   const isDenied = denied[index];
 
+useEffect(() => {
+    const loadedReasons = localStorage.getItem('reasons');
+    if (loadedReasons) {
+        setReasons(JSON.parse(loadedReasons));
+    }
+}, []);
+
   return (
     <div key={action.id} className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
@@ -15,13 +22,12 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
         {isDenied && (
           <div style={{marginTop: '26px'}}>
             <div>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></div>
-            <input style={{marginTop: '6px'}} type="text" value={reasons[index]} placeholder="Enter your input here"
-                   className="input_medium"
-                   onChange={(e) => {
+              <input style={{marginTop: '6px'}} type="text" value={reasons[index]} placeholder="Enter your input here" className="input_medium"
+                 onChange={(e) => {
                      const newReasons = [...reasons];
                      newReasons[index] = e.target.value;
                      setReasons(newReasons);
-                   }}/>
+                     localStorage.setItem('reasons', JSON.stringify(newReasons));}}/>
           </div>
         )}
         {isDenied ? (
@@ -97,43 +103,73 @@ function HistoryBox({action}) {
 }
 
 export default function ActionConsole({actions, pendingPermission, setPendingPermissions}) {
-  const [hiddenActions, setHiddenActions] = useState([]);
-  const [denied, setDenied] = useState([]);
-  const [reasons, setReasons] = useState([]);
-  const [localActionIds, setLocalActionIds] = useState([]);
+    const [hiddenActions, setHiddenActions] = useState([]);
+    const [denied, setDenied] = useState([]);
+    const [reasons, setReasons] = useState([]);
+    const [localActionIds, setLocalActionIds] = useState([]);
 
-  useEffect(() => {
-    const updatedActions = actions?.filter((action) => !localActionIds.includes(action.id));
+    useEffect(() => {
+        // Load state from localStorage
+        const loadedDenied = window.localStorage.getItem('denied');
+        const loadedReasons = window.localStorage.getItem('reasons');
+        if (loadedDenied) {
+            setDenied(JSON.parse(loadedDenied));
+        }
+        if (loadedReasons) {
+            setReasons(JSON.parse(loadedReasons));
+        }
+    }, []);
 
-    if (updatedActions && updatedActions.length > 0) {
-      setLocalActionIds((prevIds) => [...prevIds, ...updatedActions.map(({id}) => id)]);
+    useEffect(() => {
+        const updatedActions = actions?.filter((action) => !localActionIds.includes(action.id));
 
-      setDenied((prevDenied) => prevDenied.map((value, index) => updatedActions[index] ? false : value));
-      setReasons((prevReasons) => prevReasons.map((value, index) => updatedActions[index] ? '' : value));
-    }
-  }, [actions]);
+        if (updatedActions && updatedActions.length > 0) {
+            setLocalActionIds((prevIds) => [...prevIds, ...updatedActions.map(({id}) => id)]);
 
-  const handleDeny = (index) => {
-    setDenied((prevDenied) => {
-      const newDeniedState = [...prevDenied];
-      newDeniedState[index] = !newDeniedState[index];
-      return newDeniedState;
-    });
-  };
+            setDenied((prevDenied) => {
+                const additionalDenied = new Array(updatedActions.length).fill(false);
+                return [...prevDenied, ...additionalDenied];
+            });
 
-  const handleSelection = (index, status, permissionId) => {
-    setHiddenActions((prevHiddenActions) => [...prevHiddenActions, index]);
+            setReasons((prevReasons) => {
+                const additionalReasons = new Array(updatedActions.length).fill('');
+                return [...prevReasons, ...additionalReasons];
+            });
+        }
+    }, [actions]);
 
-    const data = {
-      status: status,
-      user_feedback: reasons[index],
+    const handleDeny = (index) => {
+        setDenied((prevDenied) => {
+            const newDeniedState = [...prevDenied];
+            newDeniedState[index] = !newDeniedState[index];
+            window.localStorage.setItem('denied', JSON.stringify(newDeniedState));
+            return newDeniedState;
+        });
+
+        // Check if user clicked "Go Back" button
+        if (denied[index]) {
+            setReasons((prevReasons) => {
+                const newReasons = [...prevReasons];
+                newReasons[index] = "";
+                window.localStorage.setItem('reasons', JSON.stringify(newReasons));
+                return newReasons;
+            });
+        }
     };
 
-    updatePermissions(permissionId, data).then((response) => {
-      if (response.status === 200)
-        setPendingPermissions(pendingPermission - 1)
-    });
-  };
+    const handleSelection = (index, status, permissionId) => {
+        setHiddenActions((prevHiddenActions) => [...prevHiddenActions, index]);
+
+        const data = {
+            status: status,
+            user_feedback: reasons[index],
+        };
+
+        updatePermissions(permissionId, data).then((response) => {
+            if (response.status === 200)
+                setPendingPermissions(pendingPermission - 1)
+        });
+    };
 
   return (
     <>

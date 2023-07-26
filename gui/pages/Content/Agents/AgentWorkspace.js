@@ -48,7 +48,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const [createModal, setCreateModal] = useState(false);
   const [createEditModal, setCreateEditModal] = useState(false);
   const [createStopModal, setCreateStopModal] = useState(false);
-  const [agentScheduleDetails, setAgentScheduleDetails] = useState(null)
+  const [agentScheduleDetails, setAgentScheduleDetails] = useState(null);
 
   const closeCreateModal = () => {
     setCreateModal(false);
