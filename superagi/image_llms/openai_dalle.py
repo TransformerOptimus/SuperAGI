@@ -25,7 +25,7 @@ class OpenAiDalle(BaseImageLlm):
         """
         return self.image_model
 
-    def generate_image(self, prompt: str, size: int = 512):
+    def generate_image(self, prompt: str, size: int = 512, num: int = -1):
         """
         Call the OpenAI image API.
 
@@ -37,9 +37,12 @@ class OpenAiDalle(BaseImageLlm):
         Returns:
             dict: The response.
         """
+        if num == -1:
+            num = self.number_of_results
+
         response = openai.Image.create(
             prompt=prompt,
-            n=self.number_of_results,
+            n=num,
             size=f"{size}x{size}"
         )
         return response
