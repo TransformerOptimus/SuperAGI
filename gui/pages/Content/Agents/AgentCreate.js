@@ -861,7 +861,7 @@ export default function AgentCreate({
                   {toolNames && toolNames.length > 0 && toolNames.map((tool, index) => (
                       <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
                         <div className={styles.tool_text}>{tool}</div>
-                        <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon"
+                        <div><Image width={12} height={12} src='/images/close.svg' alt="close-icon"
                                     style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
                       </div>
                   ))}
