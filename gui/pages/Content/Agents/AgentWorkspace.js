@@ -374,9 +374,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
                   {agent && !agent?.is_running && !agent?.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => {setDropdown(false);setCreateModal(true)}}>Schedule Run</li>}
+                    <li className="dropdown_item" onClick={() => {
+                      setDropdown(false);
+                      setCreateModal(true)
+                    }}>Schedule Run</li>}
                 </div>)}
-                <li className="dropdown_item" onClick={() => {setDropdown(false);setDeleteModal(true)}}>Delete Agent</li>
+                <li className="dropdown_item" onClick={() => {
+                  setDropdown(false);
+                  setDeleteModal(true)
+                }}>Delete Agent
+                </li>
               </ul>
             </div>}
 
@@ -384,7 +391,8 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
               <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal}
+                             type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>

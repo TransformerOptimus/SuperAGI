@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {removeTab, returnDatabaseIcon, setLocalStorageArray} from "@/utils/utils";
+import {removeTab, returnDatabaseIcon, setLocalStorageArray, preventDefault} from "@/utils/utils";
 import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
@@ -43,10 +43,6 @@ export default function DatabaseDetails({internalId, databaseId}) {
     }
   }, [collections]);
 
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
-
   const addCollection = () => {
     setLocalStorageArray("db_details_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
   };
@@ -85,12 +81,11 @@ export default function DatabaseDetails({internalId, databaseId}) {
   const updateChanges = () => {
     updateVectorDB(databaseId, collections)
       .then((response) => {
-        if(response.data.success) {
+        if (response.data.success) {
           toast.success("Database updated successfully", {autoClose: 1800});
           setInitialCollections(collections);
           setHasChanges(false);
-        }
-        else
+        } else
           toast.error("Unable to update database", {autoClose: 1800});
       })
       .catch((error) => {
@@ -193,7 +188,8 @@ export default function DatabaseDetails({internalId, databaseId}) {
       <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
         <div className={styles.detail_name}>Delete {databaseDetails?.name}</div>
         <div>
-          <label className={styles.form_label}>Deleting database will delete all the corresponding knowledge also. Do you want to delete database?</label>
+          <label className={styles.form_label}>Deleting database will delete all the corresponding knowledge also. Do
+            you want to delete database?</label>
         </div>
         <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '20px'}}>
           <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setDeleteModal(false)}>

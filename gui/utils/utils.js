@@ -200,7 +200,7 @@ export const refreshUrl = () => {
     return;
   }
 
-  const { origin, pathname } = window.location;
+  const {origin, pathname} = window.location;
   const urlWithoutToken = origin + pathname;
   window.history.replaceState({}, document.title, urlWithoutToken);
 };
@@ -447,6 +447,7 @@ export const convertToTitleCase = (str) => {
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
 };
+
 export const preventDefault = (e) => {
   e.stopPropagation();
 };
