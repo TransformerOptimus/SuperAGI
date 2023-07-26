@@ -40,7 +40,6 @@ class AgentExecutionOut(BaseModel):
     class Config:
         orm_mode = True
 
-
 class AgentExecutionIn(BaseModel):
     status: Optional[str]
     name: Optional[str]
@@ -52,6 +51,32 @@ class AgentExecutionIn(BaseModel):
     permission_id: Optional[int]
     goal: Optional[List[str]]
     instruction: Optional[List[str]]
+
+    class config:
+        orm_mode = True
+
+class AgentRunIn(BaseModel):
+    status: Optional[str]
+    name: Optional[str]
+    agent_id: Optional[int]
+    last_execution_time: Optional[datetime]
+    num_of_calls: Optional[int]
+    num_of_tokens: Optional[int]
+    current_step_id: Optional[int]
+    permission_id: Optional[int]
+    goal: Optional[List[str]]
+    instruction: Optional[List[str]]
+    agent_type: str
+    constraints: List[str]
+    toolkits: List[int]
+    tools: List[int]
+    exit: str
+    iteration_interval: int
+    model: str
+    permission_type: str
+    LTM_DB: str
+    max_iterations: int
+    user_timezone: Optional[str]
 
     class Config:
         orm_mode = True
@@ -86,6 +111,62 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction
+    }
+    db.session.add(db_agent_execution)
+    db.session.commit()
+    db.session.flush()
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
+                                                                     agent_execution_configs=agent_execution_configs)
+
+    organisation = agent.get_agent_organisation(db.session)
+    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
+                                 agent_execution.agent_id, organisation.id if organisation else 0)
+
+    if db_agent_execution.status == "RUNNING":
+      execute_agent.delay(db_agent_execution.id, datetime.now())
+
+    return db_agent_execution
+
+@router.post("/add_run", status_code=201)
+def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Create a new agent run with all the information(goals, instructions, model, etc).
+
+    Args:
+        agent_execution (AgentExecution): The agent execution data.
+
+    Returns:
+        AgentExecution: The created agent execution.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent is not found.
+    """
+     
+    agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+
+    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
+                                        num_of_tokens=0,
+                                        current_step_id=start_step_id)
+    agent_execution_configs = {
+        "goal": agent_execution.goal,
+        "instruction": agent_execution.instruction,
+        "agent_type": agent_execution.agent_type,
+        "constraints": agent_execution.constraints,
+        "toolkits": agent_execution.toolkits,
+        "exit": agent_execution.exit,
+        "tools": agent_execution.tools,
+        "iteration_interval": agent_execution.iteration_interval,
+        "model": agent_execution.model,
+        "permission_type": agent_execution.permission_type,
+        "LTM_DB": agent_execution.LTM_DB,
+        "max_iterations": agent_execution.max_iterations,
+        "user_timezone": agent_execution.user_timezone
     }
     db.session.add(db_agent_execution)
     db.session.commit()

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from jsonmerge import merge
 from pytz import timezone
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.worker import execute_agent
 from superagi.helper.auth import check_auth
@@ -109,11 +109,9 @@ def get_agent(agent_id: int,
             HTTPException (Status Code=404): If the Agent is not found or deleted.
     """
 
-    if (
-        db_agent := db.session.query(Agent)
-        .filter(Agent.id == agent_id, Agent.is_deleted == False)
-        .first()
-    ):
+    if (db_agent := db.session.query(Agent)
+            .filter(Agent.id == agent_id, or_(Agent.is_deleted == False, Agent.is_deleted is None))
+            .first()):
         return db_agent
     else:
         raise HTTPException(status_code=404, detail="agent not found")
@@ -141,7 +139,7 @@ def update_agent(agent_id: int, agent: AgentIn,
             HTTPException (Status Code=404): If the Agent or associated Project is not found.
     """
 
-    db_agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
+    db_agent = db.session.query(Agent).filter(Agent.id == agent_id, or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
     if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
@@ -155,6 +153,53 @@ def update_agent(agent_id: int, agent: AgentIn,
 
     db.session.commit()
     return db_agent
+
+
+
+# @router.put("/update_all/{agent_id}")
+# def update_agent_all_information(agent_id:int, new_agent_info:AgentConfigInput, Authorize: AuthJWT = Depends(check_auth)):
+
+#     old_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()#retrieving old agent information
+
+#     if not old_agent:
+#         raise HTTPException(status_code=404, detail="Agent not found")
+    
+#     if len(new_agent_info.goal)!=0:
+#         old_agent.goal = new_agent_info.goal
+    
+#     if len(new_agent_info.instruction)!=0:
+#         old_agent.instruction = new_agent_info.instruction
+
+#     if len(new_agent_info.agent_type)!=0:
+#         old_agent.agent_type = new_agent_info.agent_type
+    
+#     if len(new_agent_info.constraints)!=0:
+#         old_agent.constraints = new_agent_info.constraints
+
+#     if len(new_agent_info.toolkits)!=0:
+#         old_agent.toolkits = new_agent_info.toolkits
+    
+#     if len(new_agent_info.tools)!=0:
+#         old_agent.tools = new_agent_info.tools
+    
+#     old_agent.iteration_interval = new_agent_info.iteration_interval
+
+#     if len(new_agent_info.model)!=0:
+#         old_agent.model = new_agent_info.model
+
+#     old_agent.max_iterations = new_agent_info.max_iterations
+
+#     if len(new_agent_info.permission_type)!=0:
+#         old_agent.permission_type = new_agent_info.permission_type
+    
+#     if len(new_agent_info.LTM_DB)!=0:
+#         old_agent.LTM_DB = new_agent_info.LTM_DB
+
+#     if new_agent_info.user_timezone!=None:
+#         old_agent.user_timezone = new_agent_info.user_timezone
+
+#     db.session.commit()
+#     return old_agent
 
 
 @router.post("/create", status_code=201)
@@ -190,10 +235,11 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     project = db.session.query(Project).get(agent_with_config.project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     invalid_tools = Tool.get_invalid_tools(agent_with_config.tools, db.session)
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
-        raise HTTPException(status_code=404, detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
+        raise HTTPException(status_code=404,
+                            detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
 
     agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
                                                               toolkit_ids=agent_with_config.toolkits)
@@ -215,10 +261,14 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
-    agent = db.session.query(Agent).filter(Agent.id == db_agent.id,).first()
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id, ).first()
     organisation = agent.get_agent_organisation(db.session)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,'agent_execution_name':execution.name}, db_agent.id, organisation.id if organisation else 0),
-    EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name, 'model': agent_with_config.model}, db_agent.id, organisation.id if organisation else 0)
+    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,
+                                                                  'agent_execution_name': execution.name}, db_agent.id,
+                                                  organisation.id if organisation else 0),
+    EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name,
+                                                                    'model': agent_with_config.model}, db_agent.id,
+                                                  organisation.id if organisation else 0)
 
     # execute_agent.delay(execution.id, datetime.now())
 
@@ -230,6 +280,7 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
         "name": db_agent.name,
         "contentType": "Agents"
     }
+
 
 @router.post("/schedule", status_code=201)
 def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
@@ -253,7 +304,8 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
     agent_config = agent_config_schedule.agent_config
     invalid_tools = Tool.get_invalid_tools(agent_config.tools, db.session)
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
-        raise HTTPException(status_code=404, detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
+        raise HTTPException(status_code=404,
+                            detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
 
     agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
                                                               toolkit_ids=agent_config.toolkits)
@@ -289,6 +341,7 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
         "schedule_id": agent_schedule.id
     }
 
+
 @router.post("/stop/schedule", status_code=200)
 def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -303,7 +356,7 @@ def stop_schedule(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
 
     agent_to_delete = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
-                                                              AgentSchedule.status == "SCHEDULED").first()
+                                                             AgentSchedule.status == "SCHEDULED").first()
     if not agent_to_delete:
         raise HTTPException(status_code=404, detail="Schedule not found")
     agent_to_delete.status = "STOPPED"
@@ -326,7 +379,7 @@ def edit_schedule(schedule: AgentScheduleInput,
     """
 
     agent_to_edit = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == schedule.agent_id,
-                                                            AgentSchedule.status == "SCHEDULED").first()
+                                                           AgentSchedule.status == "SCHEDULED").first()
     if not agent_to_edit:
         raise HTTPException(status_code=404, detail="Schedule not found")
 
@@ -358,7 +411,7 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         expiry_runs (Integer): The number of runs before the agent expires.
     """
     agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
-                                                    AgentSchedule.status == "SCHEDULED").first()
+                                                   AgentSchedule.status == "SCHEDULED").first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent Schedule not found")
@@ -370,7 +423,6 @@ def get_schedule_data(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         tzone = timezone(user_timezone.value)
     else:
         tzone = timezone('GMT')
-
 
     current_datetime = datetime.now(tzone).strftime("%d/%m/%Y %I:%M %p")
 
@@ -406,7 +458,7 @@ def get_agents_by_project_id(project_id: int,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    agents = db.session.query(Agent).filter(Agent.project_id == project_id, Agent.is_deleted == False).all()
+    agents = db.session.query(Agent).filter(Agent.project_id == project_id, or_(Agent.is_deleted == False, Agent.is_deleted is None)).all()
 
     new_agents, new_agents_sorted = [], []
     for agent in agents:
@@ -423,7 +475,7 @@ def get_agents_by_project_id(project_id: int,
                 break
         # Check if the agent is scheduled
         is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
-                                                                  status="SCHEDULED").first() is not None
+                                                                 status="SCHEDULED").first() is not None
 
         new_agent = {
             **agent_dict,
@@ -435,8 +487,9 @@ def get_agents_by_project_id(project_id: int,
     return new_agents_sorted
 
 
-@router.get("/get/details/{agent_id}")
-def get_agent_configuration(agent_id: int,
+@router.get("/get/details/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
+def get_agent_configuration(agent_execution_id: int,
+                            agent_id: int,
                             Authorize: AuthJWT = Depends(check_auth)):
     """
     Get the agent configuration using the agent ID.
@@ -454,21 +507,24 @@ def get_agent_configuration(agent_id: int,
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
-    agent = db.session.query(Agent).filter(agent_id == Agent.id, Agent.is_deleted == False).first()
+    agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
     # Query the AgentConfiguration table for the specified keys
-    results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
-                                                          AgentConfiguration.agent_id == agent_id).all()
+
+    # results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
+    #                                                       AgentConfiguration.agent_id == agent_id).all()
+    results_2 = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.key.in_(keys_to_fetch),
+                                                          AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
     # Construct the JSON response
-    response = {result.key: result.value for result in results}
+    response = {result.key: result.value for result in results_2}
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
@@ -485,7 +541,8 @@ def get_agent_configuration(agent_id: int,
 
     return response
 
-@router.put("/delete/{agent_id}", status_code = 200)
+
+@router.put("/delete/{agent_id}", status_code=200)
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
         Delete an existing Agent
@@ -502,18 +559,18 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         Raises:
             HTTPException (Status Code=404): If the Agent or associated Project is not found or deleted already.
     """
-    
+
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()    
-    
+    db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
+
     if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
-    
+
     # Deletion Procedure 
     db_agent.is_deleted = True
     if db_agent_executions:
         # Updating all the RUNNING executions to TERMINATED
         for db_agent_execution in db_agent_executions:
             db_agent_execution.status = "TERMINATED"
-    
+
     db.session.commit()
