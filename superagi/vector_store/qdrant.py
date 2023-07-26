@@ -39,7 +39,7 @@ class Qdrant(VectorStore):
         text_field_payload_key : Name of the field where the corresponding text for point is stored in the collection.
         metadata_payload_key : Name of the field where the corresponding metadata for point is stored in the collection.
     """
-    TEXT_FIELD_KEY = "text_field"
+    TEXT_FIELD_KEY = "text"
     METADATA_KEY = "metadata"
 
     def __init__(
@@ -257,7 +257,7 @@ class Qdrant(VectorStore):
             documents.append(
                 Document(
                     text_content=result.payload.get(self.text_field_payload_key),
-                    *(result.payload.get(self.metadata_payload_key)) or {},
+                    metadata=(result.payload.get(self.metadata_payload_key)) or {},
                 )
             )
 

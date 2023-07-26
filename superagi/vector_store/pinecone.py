@@ -21,7 +21,7 @@ class Pinecone(VectorStore):
             self,
             index: Any,
             embedding_model: Optional[Any] = None,
-            text_field: Optional[str] = None,
+            text_field: Optional[str] = 'text',
             namespace: Optional[str] = '',
     ):
         try:
@@ -104,12 +104,12 @@ class Pinecone(VectorStore):
 
         documents = []
         
-        try:    
+        try:
             for doc in res['matches']:
                 documents.append(
                     Document(
                         text_content=doc['metadata'][self.text_field],
-                        *doc['metadata'],
+                        metadata=doc['metadata'],
                     )
                 )
         except Exception as err:
