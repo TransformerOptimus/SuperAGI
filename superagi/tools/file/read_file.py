@@ -1,7 +1,10 @@
+ 
 import os
 from typing import Type, Optional
+import ebooklib
 
 from pydantic import BaseModel, Field
+from ebooklib import epub
 
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
@@ -13,6 +16,7 @@ from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
 from unstructured.partition.auto import partition
 
+# os.environ['PATH'] = '/usr/local/bin:' + os.environ['PATH']
 
 class ReadFileSchema(BaseModel):
     """Input for CopyFileTool."""
@@ -58,10 +62,22 @@ class ReadFileTool(BaseTool):
             raise FileNotFoundError(f"File '{file_name}' not found.")
         directory = os.path.dirname(final_path)
         os.makedirs(directory, exist_ok=True)
+        
+        # Check if the file is an .epub file
+        if final_path.lower().endswith('.epub'):
+            # Use ebooklib to read the epub file
+            book = epub.read_epub(final_path)
+            # Get the text content from each item in the book
+            content = []
+            for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
+                content.append(item.get_content().decode('utf-8'))
 
-        elements = partition(final_path)
-        content=("\n\n".join([str(el) for el in elements]))
+            content = "\n".join(content)
+        else:
+            elements = partition(final_path)
+            content = "\n\n".join([str(el) for el in elements])
    
         return content
+
 
 
