@@ -518,7 +518,7 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
             db_agent_execution.status = "TERMINATED"
 
     if db_agent_schedule:
-        # Updating the schedule status to DELETED
-        db_agent_schedule.status = "DELETED"
+        # Updating the schedule status to STOPPED
+        db_agent_schedule.status = "STOPPED"
     
     db.session.commit()
