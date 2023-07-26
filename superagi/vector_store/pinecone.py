@@ -76,7 +76,7 @@ class Pinecone(VectorStore):
         self.add_embeddings_to_vector_db({"vectors": vectors})
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = {}, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = None, **kwargs: Any) -> List[Document]:
         """
         Return docs most similar to query using specified search type.
 
@@ -90,8 +90,9 @@ class Pinecone(VectorStore):
         """
         namespace = kwargs.get("namespace", self.namespace)
         filters = {}
-        for key in metadata.keys():
-            filters[key] = {"$eq": metadata[key]}
+        if metadata is not None:
+            for key in metadata.keys():
+                filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
         res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace,include_metadata=True)
         contexts = [item['metadata']['text'] for item in res['matches']]
