@@ -287,6 +287,15 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
     if agent_schedule.id is None:
         raise HTTPException(status_code=500, detail="Failed to schedule agent")
 
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id, ).first()
+    organisation = agent.get_agent_organisation(db.session)
+
+    EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_config.name,
+                                                                        'model': agent_config.model}, db_agent.id,
+                                                      organisation.id if organisation else 0)
+
+    db.session.commit()
+
     return {
         "id": db_agent.id,
         "name": db_agent.name,
