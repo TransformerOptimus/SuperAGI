@@ -20,7 +20,8 @@ export default function AgentTemplate({template, env}) {
   const [installed, setInstalled] = useState('')
   const [constraints, setConstraints] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [loadingText, setLoadingText] = useState("Loading Template Details");
+  const [loadingText, setLoadingText] = useState("Loading Template Details")
+  const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
     loadingTextEffect('Loading Template Details', setLoadingText, 500);
@@ -58,6 +59,7 @@ export default function AgentTemplate({template, env}) {
   }
 
   function handleInstallClick() {
+    setIsInstalled(true)
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('agent_to_install', template.id);
       if (env === 'PROD') {
@@ -105,10 +107,10 @@ export default function AgentTemplate({template, env}) {
               <button className="primary_button" style={{
                 marginTop: '15px',
                 width: '100%',
-                background: template && template.is_installed ? 'rgba(255, 255, 255, 0.14)' : '#FFF',
-                color: template && template.is_installed ? '#FFFFFF' : '#000'
+                background: isInstalled || (template && template.is_installed) ? 'rgba(255, 255, 255, 0.14)' : '#FFF',
+                color: isInstalled || (template && template.is_installed) ? '#FFFFFF' : '#000'
               }} onClick={() => handleInstallClick()}>
-                {(template && template.is_installed) ?
+                {(isInstalled || (template && template.is_installed)) ?
                   <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> :
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg"
                          alt="upload-icon"/>}&nbsp;{installed}</button>
