@@ -489,7 +489,7 @@ def get_agents_by_project_id(project_id: int,
 
 @router.get("/get/details/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
 def get_agent_configuration(agent_execution_id: int,
-                            agent_id: int,
+                            agent_id: int, 
                             Authorize: AuthJWT = Depends(check_auth)):
     """
     Get the agent configuration using the agent ID.
@@ -505,6 +505,14 @@ def get_agent_configuration(agent_execution_id: int,
         HTTPException (status_code=404): If the agent is not found or deleted.
     """
 
+    #Fetch agent id from agent execution id and check whether the agent_id received is correct.
+    agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
+    if agent_execution_config is None:
+        raise HTTPException(status_code=404, detail="Agent Execution not found")
+    agent_id_from_execution_id = agent_execution_config.agent_id
+    if agent_id!=agent_id_from_execution_id:
+        raise HTTPException(status_code=404, detail="Wrong agent id passed")
+
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
     agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
@@ -514,17 +522,22 @@ def get_agent_configuration(agent_execution_id: int,
 
     # Query the AgentConfiguration table for the specified keys
 
-    # results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
-    #                                                       AgentConfiguration.agent_id == agent_id).all()
-    results_2 = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.key.in_(keys_to_fetch),
+    results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
+                                                          AgentConfiguration.agent_id == agent_id).all()
+    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.key.in_(keys_to_fetch),
                                                           AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+    
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
 
+    for key, value in results_agent_execution.items():
+        if key in results_agent and value is not None:
+            results_agent[key] = value
+
     # Construct the JSON response
-    response = {result.key: result.value for result in results_2}
+    response = {result.key: result.value for result in results_agent}
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
