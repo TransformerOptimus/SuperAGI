@@ -458,6 +458,7 @@ def get_agent_configuration(agent_execution_id: Union[int,None, str],
 
     Raises:
         HTTPException (status_code=404): If the agent is not found or deleted.
+        HTTPException (status_code=404): If the agent_id or the agent_execution_id is undefined.
     """
 
     # Check
