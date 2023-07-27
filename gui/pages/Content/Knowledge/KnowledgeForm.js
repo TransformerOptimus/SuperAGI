@@ -196,7 +196,8 @@ export default function KnowledgeForm({
                                                        onClick={() => handleIndexSelect(index)}>
                     <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
                       color: '#888888',
-                      textDecoration: 'line-through'
+                      textDecoration: 'line-through',
+                      pointerEvents : 'none',
                     } : {}}>{index.name}</div>
                     {!checkIndexValidity(index.is_valid_state)[0] &&
                       <div>
@@ -212,7 +213,8 @@ export default function KnowledgeForm({
                                                       onClick={() => handleIndexSelect(index)}>
                     <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
                       color: '#888888',
-                      textDecoration: 'line-through'
+                      textDecoration: 'line-through',
+                      pointerEvents : 'none',
                     } : {}}>{index.name}</div>
                     {!checkIndexValidity(index.is_valid_state)[0] &&
                       <div>
