@@ -22,6 +22,7 @@ const toolkitData = {
   'Image Generation Toolkit': '/images/app-logo-light.png',
   'DuckDuckGo Search Toolkit': '/images/duckduckgo_icon.png',
   'Instagram Toolkit': '/images/instagram.png',
+  'Knowledge Search Toolkit': '/images/knowledeg_logo.png'
 };
 
 export const getUserTimezone = () => {
