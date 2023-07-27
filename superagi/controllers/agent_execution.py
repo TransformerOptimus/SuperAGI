@@ -20,6 +20,7 @@ from superagi.helper.auth import check_auth
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 from superagi.apm.event_handler import EventHandler
+from superagi.controllers.tool import ToolOut
 
 router = APIRouter()
 
@@ -69,7 +70,7 @@ class AgentRunIn(BaseModel):
     agent_type: str
     constraints: List[str]
     toolkits: List[int]
-    tools: List[int]
+    tools: List[ToolOut]
     exit: str
     iteration_interval: int
     model: str

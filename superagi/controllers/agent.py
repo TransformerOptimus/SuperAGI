@@ -516,7 +516,7 @@ def get_agent_configuration(agent_execution_id: int,
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
-    agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
+    agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False)).first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -525,17 +525,21 @@ def get_agent_configuration(agent_execution_id: int,
 
     results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
-    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.key.in_(keys_to_fetch),
+    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(
                                                           AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
     
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
+    
+    print(results_agent_execution)
 
-    for key, value in results_agent_execution.items():
+    for results in results_agent_execution:
+        key = results.key
+        value = results.value
         if key in results_agent and value is not None:
-            results_agent[key] = value
+            results_agent.key = value
 
     # Construct the JSON response
     response = {result.key: result.value for result in results_agent}
