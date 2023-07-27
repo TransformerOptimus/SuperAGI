@@ -9,6 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
+import {preventDefault} from "@/utils/utils";
 import {
   getAgentDetails,
   getAgentExecutions,
@@ -24,7 +25,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, agentName, selectedView, agents, internalId}) {
+export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('')
   const [history, setHistory] = useState(true)
@@ -40,7 +41,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
   const [currentInstructions, setCurrentInstructions] = useState(['']);
-  const [pendingPermission, setPendingPermissions] = useState(0)
+  const [pendingPermission, setPendingPermissions] = useState(0);
 
   const agent = agents.find(agent => agent.id === agentId);
 
@@ -57,11 +58,13 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
+    setDropdown(false);
   };
 
   const handleStopScheduleClick = () => {
     setCreateStopModal(true);
     setCreateModal(false);
+    setDropdown(false);
   };
 
   function fetchStopSchedule() {//Stop Schedule
@@ -157,16 +160,22 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
         setDeleteModal(false);
         if (response.status === 200) {
           EventBus.emit('reFetchAgents', {});
-          EventBus.emit('removeTab',{element: {id: agentId, name: agentName, contentType: "Agents", internalId: internalId}})
+          EventBus.emit('removeTab', {
+            element: {
+              id: agentId,
+              name: agentName,
+              contentType: "Agents",
+              internalId: internalId
+            }
+          })
           toast.success("Agent Deleted Successfully", {autoClose: 1800});
-        }
-        else{
-          toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        } else {
+          toast.error("Agent Could not be Deleted", {autoClose: 1800});
         }
       })
       .catch((error) => {
         setDeleteModal(false);
-        toast.error("Agent Could not be Deleted", { autoClose: 1800 });
+        toast.error("Agent Could not be Deleted", {autoClose: 1800});
         console.error("Agent could not be deleted: ", error);
       });
   }
@@ -199,10 +208,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
     setDropdown(false);
   };
 
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
-
   useEffect(() => {
     fetchAgentDetails(agentId);
     fetchExecutions(agentId);
@@ -230,7 +235,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
   }
 
   function fetchAgentScheduleComponent() {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       getDateTime(agentId)
         .then((response) => {
           setAgentScheduleDetails(response.data)
@@ -239,7 +244,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
           console.error('Error fetching agent data:', error);
         });
     }
-  };
+  }
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
@@ -275,6 +280,8 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
       .catch((error) => {
         console.error('Error saving agent as template:', error);
       });
+
+    setDropdown(false);
   }
 
   useEffect(() => {
@@ -344,10 +351,10 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {<button className="secondary_button" style={{padding: '8px', height: '31px'}}
-                     onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <button className="secondary_button" style={{padding: '8px', height: '31px'}}
+                    onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
-            </button>}
+            </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container" style={{marginTop: '31px', marginLeft: '-32px'}}>
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
@@ -360,24 +367,32 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
                   }}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
-                }}>Delete</li>}
+                }}>Delete Run</li>}
 
-                {agent && agent.is_scheduled ? (<div>
+                {agent?.is_scheduled ? (<div>
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
                   {agent && !agent?.is_running && !agent?.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
+                    <li className="dropdown_item" onClick={() => {
+                      setDropdown(false);
+                      setCreateModal(true)
+                    }}>Schedule Run</li>}
                 </div>)}
-                <li className="dropdown_item" onClick={() => setDeleteModal(true)}>Delete Agent</li>
+                <li className="dropdown_item" onClick={() => {
+                  setDropdown(false);
+                  setDeleteModal(true)
+                }}>Delete Agent
+                </li>
               </ul>
             </div>}
 
             {createModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal}
+                             type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>
@@ -401,7 +416,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0}
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
                           setFetchedData={setFetchedData} agent={agent}/>
           </div>}
           {leftPanel === 'agent_type' &&
@@ -467,7 +482,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
         </div>
       </div>
 
-      
       {runModal && (<div className="modal" onClick={closeRunModal}>
         <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
           <div className={styles.detail_name}>Run agent name</div>
@@ -488,7 +502,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -511,7 +525,7 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
               {instructions.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleInstructionDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -532,15 +546,16 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
       </div>)}
 
       {deleteModal && (<div className="modal" onClick={closeDeleteModal}>
-      <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px' }} onClick={preventDefault}>
+        <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px'}} onClick={preventDefault}>
           <div>
             <label className={styles.delete_agent_modal_label}>Delete Agent</label>
           </div>
           <div>
-          <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you sure you want to proceed?</label>
+            <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you
+              sure you want to proceed?</label>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="secondary_button" style={{ marginRight: '10px' }} onClick={closeDeleteModal}>
+          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeDeleteModal}>
               Cancel
             </button>
             <button className="primary_button" onClick={() => handleDeleteAgent()}>
@@ -549,7 +564,6 @@ export default function AgentWorkspace({agentId, agentName, selectedView, agents
           </div>
         </div>
       </div>)}
-      
 
     </div>
     <ToastContainer/>

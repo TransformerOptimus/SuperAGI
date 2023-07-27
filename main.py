@@ -35,7 +35,12 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
-from superagi.helper.tool_helper import register_toolkits
+from superagi.controllers.knowledges import router as knowledges_router
+from superagi.controllers.knowledge_configs import router as knowledge_configs_router
+from superagi.controllers.vector_dbs import router as vector_dbs_router
+from superagi.controllers.vector_db_indices import router as vector_db_indices_router
+from superagi.controllers.marketplace_stats import router as marketplace_stats_router
+from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
@@ -103,8 +108,13 @@ app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
 app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 app.include_router(analytics_router, prefix="/analytics")
-
 app.include_router(google_oauth_router, prefix="/google")
+app.include_router(knowledges_router, prefix="/knowledges")
+app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
+app.include_router(vector_dbs_router, prefix="/vector_dbs")
+app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
+app.include_router(marketplace_stats_router, prefix="/marketplace")
+
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
@@ -114,8 +124,11 @@ class Settings(BaseModel):
 
 
 def create_access_token(email, Authorize: AuthJWT = Depends()):
-    # expiry_time_hours = get_config("JWT_EXPIRY")
-    expiry_time_hours = 1
+    expiry_time_hours = superagi.config.config.get_config("JWT_EXPIRY")
+    if type(expiry_time_hours) == str:
+        expiry_time_hours = int(expiry_time_hours)
+    if expiry_time_hours is None:
+        expiry_time_hours = 200
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
@@ -151,11 +164,18 @@ async def startup_event():
         register_toolkits(session, organisation)
 
 
-    def check_toolkit_registration():
+    def register_toolkit_for_all_organisation():
         organizations = session.query(Organisation).all()
         for organization in organizations:
             register_toolkits(session, organization)
         logger.info("Successfully registered local toolkits for all Organisations!")
+
+    def register_toolkit_for_master_organisation():
+        marketplace_organisation_id = superagi.config.config.get_config("MARKETPLACE_ORGANISATION_ID")
+        marketplace_organisation = session.query(Organisation).filter(
+            Organisation.id == marketplace_organisation_id).first()
+        if marketplace_organisation is not None:
+            register_marketplace_toolkits(session, marketplace_organisation)
 
     IterationWorkflowSeed.build_single_step_agent(session)
     IterationWorkflowSeed.build_task_based_agents(session)
@@ -169,8 +189,11 @@ async def startup_event():
     AgentWorkflowSeed.build_fixed_task_based_agent(session)
     AgentWorkflowSeed.doc_search_and_code(session)
 
+
     if env != "PROD":
-        check_toolkit_registration()
+        register_toolkit_for_all_organisation()
+    else:
+        register_toolkit_for_master_organisation()
     session.close()
 
 
@@ -242,7 +265,6 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
             db.session.add(user)
             db.session.commit()
             jwt_token = create_access_token(user_email, Authorize)
-
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
             return RedirectResponse(url=redirect_url_success)
         else:

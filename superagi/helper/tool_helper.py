@@ -118,13 +118,17 @@ def load_module_from_file(file_path):
     return module
 
 
-def init_tools(folder_path, session, tool_name_to_toolkit):
+def init_tools(folder_paths, session, tool_name_to_toolkit):
     # Iterate over all subfolders
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
-        # Iterate over all files in the subfolder
-        if os.path.isdir(folder_dir):
-            # sys.path.append(os.path.abspath('superagi/tools/email'))
+    for folder_path in folder_paths:
+        if not os.path.exists(folder_path):
+            continue
+        for folder_name in os.listdir(folder_path):
+            folder_dir = os.path.join(folder_path, folder_name)
+            # Iterate over all files in the subfolder
+            if not os.path.isdir(folder_dir):
+                continue
+                # sys.path.append(os.path.abspath('superagi/tools/email'))
             sys.path.append(folder_dir)
             for file_name in os.listdir(folder_dir):
                 file_path = os.path.join(folder_dir, file_name)
@@ -147,15 +151,19 @@ def update_base_tool_class_info(classes, file_name, folder_name, session, tool_n
                                               description=tool_description)
 
 
-def init_toolkits(code_link, existing_toolkits, folder_path, organisation, session):
+def init_toolkits(code_link, existing_toolkits, folder_paths, organisation, session):
     tool_name_to_toolkit = {}
     new_toolkits = []
     # Iterate over all subfolders
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
+    for folder_path in folder_paths:
+        if not os.path.exists(folder_path):
+            continue
+        for folder_name in os.listdir(folder_path):
+            folder_dir = os.path.join(folder_path, folder_name)
 
-        if os.path.isdir(folder_dir):
-            # sys.path.append(os.path.abspath('superagi/tools/email'))
+            if not os.path.isdir(folder_dir):
+                continue
+                # sys.path.append(os.path.abspath('superagi/tools/email'))
             sys.path.append(folder_dir)
             # Iterate over all files in the subfolder
             for file_name in os.listdir(folder_dir):
@@ -214,14 +222,16 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
     return tool_name_to_toolkit
 
 
-def process_files(folder_path, session, organisation, code_link=None):
+def process_files(folder_paths, session, organisation, code_link=None):
     existing_toolkits = session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
 
-    tool_name_to_toolkit = init_toolkits(code_link, existing_toolkits, folder_path, organisation, session)
-    init_tools(folder_path, session, tool_name_to_toolkit)
+    tool_name_to_toolkit = init_toolkits(code_link, existing_toolkits, folder_paths, organisation, session)
+    init_tools(folder_paths, session, tool_name_to_toolkit)
 
 
 def get_readme_content_from_code_link(tool_code_link):
+    if tool_code_link is None:
+        return None
     parsed_url = urlparse(tool_code_link)
     path_parts = parsed_url.path.split("/")
 
@@ -240,13 +250,18 @@ def get_readme_content_from_code_link(tool_code_link):
 
 
 def register_toolkits(session, organisation):
-    folder_path = get_config("TOOLS_DIR")
-    if folder_path is None:
-        folder_path = "superagi/tools"
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools"]
+    # if get_config("ENV", "DEV") == "PROD":
+    #     tool_paths.append("superagi/tools/marketplace_tools")
     if organisation is not None:
-        process_files(folder_path, session, organisation)
-    logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
+        process_files(tool_paths, session, organisation)
+        logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
+def register_marketplace_toolkits(session, organisation):
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools","superagi/tools/marketplace_tools"]
+    if organisation is not None:
+        process_files(tool_paths, session, organisation)
+        logger.info(f"Marketplace Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
 def extract_repo_name(repo_link):
     # Extract the repository name from the link
@@ -273,10 +288,12 @@ def add_tool_to_json(repo_link):
 
 
 def handle_tools_import():
-    folder_path = get_config("TOOLS_DIR")
-    if folder_path is None:
-        folder_path = "superagi/tools"
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
-        if os.path.isdir(folder_dir):
-            sys.path.append(folder_dir)
+    print("Handling tools import")
+    tool_paths = ["superagi/tools", "superagi/tools/marketplace_tools", "superagi/tools/external_tools"]
+    for tool_path in tool_paths:
+        if not os.path.exists(tool_path):
+            continue
+        for folder_name in os.listdir(tool_path):
+            folder_dir = os.path.join(tool_path, folder_name)
+            if os.path.isdir(folder_dir):
+                sys.path.append(folder_dir)

@@ -20,8 +20,8 @@ class Pinecone(VectorStore):
     def __init__(
             self,
             index: Any,
-            embedding_model: BaseEmbedding,
-            text_field: str,
+            embedding_model: Optional[Any] = None,
+            text_field: Optional[str] = 'text',
             namespace: Optional[str] = '',
     ):
         try:
@@ -73,10 +73,10 @@ class Pinecone(VectorStore):
             metadata[self.text_field] = text
             vectors.append((id, self.embedding_model.get_embedding(text), metadata))
 
-        self.index.upsert(vectors, namespace=namespace, batch_size=batch_size)
+        self.add_embeddings_to_vector_db({"vectors": vectors})
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = None, **kwargs: Any) -> List[Document]:
         """
         Return docs most similar to query using specified search type.
 
@@ -89,18 +89,60 @@ class Pinecone(VectorStore):
             The list of documents most similar to the query
         """
         namespace = kwargs.get("namespace", self.namespace)
-
+        filters = {}
+        if metadata is not None:
+            for key in metadata.keys():
+                filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, top_k=top_k, namespace=namespace, include_metadata=True)
+        res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace,include_metadata=True)
+        search_res = self._get_search_text(res, query)
 
-        documents = []
-
-        for doc in res['matches']:
-            documents.append(
-                Document(
-                    text_content=doc.metadata[self.text_field],
-                    metadata=doc.metadata,
+        documents = self._build_documents(res)
+        return {"documents": documents, "search_res": search_res}
+    
+    def get_index_stats(self) -> dict:
+        """
+        Returns:
+            Stats or Information about an index
+        """
+        index_stats = self.index.describe_index_stats()
+        dimensions = index_stats.dimension
+        vector_count = index_stats.total_vector_count
+        return {"dimensions": dimensions, "vector_count": vector_count}
+    
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        """Upserts embeddings to the given vector store"""
+        try:
+            self.index.upsert(vectors=embeddings['vectors'])
+        except Exception as err:
+            raise err
+    
+    def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
+        """Deletes embeddings from the given vector store"""
+        try:
+            self.index.delete(ids=ids)
+        except Exception as err:
+            raise err
+        
+    def _build_documents(self, results: List[dict]):
+        try:
+            documents = []
+            for doc in results['matches']:
+                documents.append(
+                    Document(
+                        text_content=doc['metadata'][self.text_field],
+                        metadata=doc['metadata'],
+                    )
                 )
-            )
-
-        return documents
+            return documents
+        except Exception as err:
+            raise err
+    
+    def _get_search_text(self, results: List[dict], query: str):
+        contexts = [item['metadata']['text'] for item in results['matches']]
+        i = 0
+        search_res = f"Query: {query}\n"
+        for context in contexts:
+            search_res += f"Chunk{i}: \n{context}\n" 
+            i += 1
+        return contexts
