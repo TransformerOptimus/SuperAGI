@@ -12,13 +12,13 @@ class TestVectorEmbeddingFactory(unittest.TestCase):
             "2": {"id": 2, "embeds": [4,5,6], "text": "test2", "chunk": "chunk2", "knowledge_name": "knowledge2"},
         }
 
-        vector_storge = VectorEmbeddingFactory.build_vector_storge('Pinecone', test_data)
+        vector_storge = VectorEmbeddingFactory.build_vector_storage('Pinecone', test_data)
 
         mock_pinecone.assert_called_once_with(
             [1,2], [[1,2,3],[4,5,6]], [{"text": "test", "chunk": "chunk", "knowledge_name": "knowledge"}, {"text": "test2", "chunk": "chunk2", "knowledge_name": "knowledge2"}]
         )
 
-        vector_storge = VectorEmbeddingFactory.build_vector_storge('Qdrant', test_data)
+        vector_storge = VectorEmbeddingFactory.build_vector_storage('Qdrant', test_data)
 
         mock_qdrant.assert_called_once_with(
             [1,2], [[1,2,3],[4,5,6]], [{"text": "test", "chunk": "chunk", "knowledge_name": "knowledge"}, {"text": "test2", "chunk": "chunk2", "knowledge_name": "knowledge2"}]

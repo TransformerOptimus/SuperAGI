@@ -126,7 +126,7 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
     file_chunks = S3Helper().get_json_file(selected_knowledge_config["file_path"])
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
-    upsert_data = VectorEmbeddingFactory.build_vector_storge(vector.db_type).get_vector_embeddings_from_chunks(file_chunks)
+    upsert_data = VectorEmbeddingFactory.build_vector_storage(vector.db_type, file_chunks).get_vector_embeddings_from_chunks()
     try:
         vector_db_storage = VectorFactory.build_vector_storage(vector.db_type, vector_db_index.name, **db_creds)
         vector_db_storage.add_embeddings_to_vector_db(upsert_data)
