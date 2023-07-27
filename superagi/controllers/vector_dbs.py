@@ -73,12 +73,12 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
             db_connect_for_index = vector_db_storage.get_index_stats()
             index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
         except:
-            return {"success": False}
+            raise HTTPException(status_code=400, detail="Unable to connect Pinecone")
     pinecone_db = Vectordbs.add_vector_db(db.session, data["name"], "Pinecone", organisation)
     VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, db_creds)
     for collection in data["collections"]:
         VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, db_connect_for_index["dimensions"], index_state)
-    return {"success": True, "id": pinecone_db.id, "name": pinecone_db.name}
+    return {"id": pinecone_db.id, "name": pinecone_db.name}
 
 @router.post("/connect/qdrant")
 def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organisation)):
@@ -93,13 +93,13 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
             db_connect_for_index = vector_db_storage.get_index_stats()
             index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
         except:
-            return {"success": False}
+            raise HTTPException(status_code=400, detail="Unable to connect Qdrant")
     qdrant_db = Vectordbs.add_vector_db(db.session, data["name"], "Qdrant", organisation)
     VectordbConfigs.add_vector_db_config(db.session, qdrant_db.id, db_creds)
     for collection in data["collections"]:
         VectordbIndices.add_vector_index(db.session, collection, qdrant_db.id, db_connect_for_index["dimensions"], index_state)
     
-    return {"success": True, "id": qdrant_db.id, "name": qdrant_db.name}
+    return {"id": qdrant_db.id, "name": qdrant_db.name}
 
 @router.put("/update/vector_db/{vector_db_id}")
 def update_vector_db(new_indices: list, vector_db_id: int):
@@ -120,9 +120,8 @@ def update_vector_db(new_indices: list, vector_db_id: int):
             vector_db_index_stats = vector_db_storage.get_index_stats()
             index_state = "Custom" if vector_db_index_stats["vector_count"] > 0 else "None"
         except:
-            return {"success": False}
+           raise HTTPException(status_code=400, detail="Unable to update vector db")
         VectordbIndices.add_vector_index(db.session, index, vector_db_id, vector_db_index_stats["dimensions"], index_state)
-    return {"success": True}
 
 
 
