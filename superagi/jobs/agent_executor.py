@@ -12,6 +12,8 @@ from superagi.llms.llm_model_factory import get_model
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.cluster_agent_execution import ClusterAgentExecution
+from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
@@ -80,11 +82,18 @@ class AgentExecutor:
                     iteration_step_handler.execute_step()
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
+                import traceback
+                traceback.print_exc()
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
+                cluster_execution_id = ClusterAgentExecution.get_cluster_execution_id_by_agent_execution_id(session,agent_execution_id)
+                if cluster_execution_id and agent_execution.status == "COMPLETED":
+                    ClusterExecution.update_cluster_execution_status(session, cluster_execution_id,"READY")
+                    queue_name = "cluster_execution" + str(cluster_execution_id)
+                    tasks_queue = TaskQueue(queue_name)
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return

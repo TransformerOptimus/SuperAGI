@@ -14,6 +14,7 @@ from superagi.models.cluster import Cluster
 from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.db import connect_db
 from superagi.models.workflows.agent_workflow import AgentWorkflow
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 engine = connect_db()
 Session = sessionmaker(bind=engine)
@@ -29,7 +30,6 @@ class ClusterExecutor:
 
         global engine
         # try:
-        engine.dispose()
         session = Session()
         try:
             pending_cluster_executions = ClusterExecution.get_pending_cluster_executions(
@@ -75,7 +75,7 @@ class ClusterExecutor:
             cluster_execution_id (int): The identifier of the cluster execution to be handled.
         """
         try:
-            ClusterExecution.update_cluster_status(
+            ClusterExecution.update_cluster_execution_status(
                 session, cluster_execution_id, 'PICKED')
         except Exception as e:
             logger.error(
@@ -99,7 +99,7 @@ class ClusterExecutor:
             session, cluster_execution_id)
         tasks = reversed(tasks)
         tasks_queue.enqueue_tasks(tasks)
-        ClusterExecution.update_cluster_status(
+        ClusterExecution.update_cluster_execution_status(
             session, cluster_execution_id, 'READY')
 
     @staticmethod
@@ -118,18 +118,21 @@ class ClusterExecutor:
             tasks_queue = TaskQueue(queue_name)
             next_task = tasks_queue.get_first_task()
             if next_task is not None:
-                next_agent_id = ClusterHelper.get_agent_for_task(session,
-                                                                 cluster_execution_id, next_task)
+                result = ClusterHelper.get_agent_for_task(session,
+                                                          cluster_execution_id, next_task)
+                next_agent_id = result["agent_id"]
+                instructions = result["instructions"]
                 ClusterExecutor.spawn_agent(
                     session,
                     cluster.id,
                     cluster_execution_id,
                     next_agent_id,
-                    next_task)
-                ClusterExecution.update_cluster_status(
+                    next_task,
+                    instructions)
+                ClusterExecution.update_cluster_execution_status(
                     session, cluster_execution_id, 'WAITING')
             else:
-                ClusterExecution.update_cluster_status(
+                ClusterExecution.update_cluster_execution_status(
                     session, cluster_execution_id, 'COMPLETED')
         except Exception as e:
             logger.error(
@@ -142,7 +145,8 @@ class ClusterExecutor:
             cluster_id: int,
             cluster_execution_id: int,
             agent_id: int,
-            task: str):
+            task: str,
+            instructions: str):
         """
         Spawns an agent for the given cluster id and agent id and assigns the given task to it.
 
@@ -151,34 +155,34 @@ class ClusterExecutor:
             cluster_execution_id (int): The identifier of the cluster execution.
             agent_id (int): The identifier of the agent.
             task (str): The task to be assigned to the agent.
+            instructions (str): The instructions to be executed by the agent.
         """
         try:
-            agent = Agent.get_agent_by_id(agent_id)
-            start_step_id = AgentWorkflow.get_trigger_step_id(
-                session, agent.agent_workflow_id)
-            agent_execution = AgentExecution.create_agent_execution(
-                session,
-                cluster_execution_id=cluster_execution_id,
-                agent_id=agent_id,
-                status="RUNNING",
-                last_execution_time=datetime.utcnow(),
-                num_of_calls=0,
-                num_of_tokens=0,
-                name='Cluster Run' +
-                     str(cluster_id),
-                current_step_id=start_step_id)
+            agent = Agent.get_agent_by_id(session, agent_id)
+
+            start_step = AgentWorkflow.fetch_trigger_step_id(session, agent.agent_workflow_id)
+            iteration_step_id = IterationWorkflow.fetch_trigger_step_id(session,
+                                                                        start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+            execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=agent.id,
+                                       name="New Run", current_agent_step_id=start_step.id,
+                                       iteration_workflow_step_id=iteration_step_id)
+
+            session.add(execution)
             agent_execution_configs = {
                 "goal": task,
+                "instructions": instructions,
             }
+            # todo add to cluster_agent_executions
             AgentExecutionConfiguration.add_or_update_agent_execution_config(
                 session=session,
-                execution=agent_execution,
+                execution=execution,
                 agent_execution_configs=agent_execution_configs)
             print("Spawning agent " +
-                  str(agent_execution.id) +
+                  str(execution.id) +
                   " for task " +
                   task)
+            session.commit()
             from superagi.worker import execute_agent
-            execute_agent.delay(agent_execution.id, datetime.now())
+            execute_agent.delay(execution.id, datetime.now())
         except Exception as e:
             logger.error("Error while spawning agent: " + str(e))

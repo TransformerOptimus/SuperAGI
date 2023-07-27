@@ -103,7 +103,7 @@ class ClusterExecution(DBBaseModel):
         return cluster_executions
 
     @classmethod
-    def update_cluster_status(cls, session, cluster_execution_id, status):
+    def update_cluster_execution_status(cls, session, cluster_execution_id, status):
         """
         Updates the status of a cluster execution.
 
@@ -140,3 +140,6 @@ class ClusterExecution(DBBaseModel):
         cluster_execution.num_of_tokens = num_of_tokens
         session.commit()
         return cluster_execution
+
+
+

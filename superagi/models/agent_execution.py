@@ -168,9 +168,8 @@ class AgentExecution(DBBaseModel):
 
 
     @staticmethod
-    def create_agent_execution(session, cluster_execution_id, agent_id ,status,last_execution_time, num_of_calls, num_of_tokens,name,current_step_id):
+    def create_agent_execution(session, agent_id ,status,last_execution_time, num_of_calls, num_of_tokens,name,current_step_id):
         agent_execution = AgentExecution(
-            cluster_execution_id=cluster_execution_id,
             agent_id=agent_id,
             status=status,
             last_execution_time=last_execution_time,

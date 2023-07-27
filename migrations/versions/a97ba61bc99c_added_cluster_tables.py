@@ -1,4 +1,4 @@
-"""Added initial table
+"""Added cluster tables
 
 Revision ID: a97ba61bc99c
 Revises: 5184645e9f12
