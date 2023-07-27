@@ -461,9 +461,9 @@ def get_agent_configuration(agent_execution_id: Union[int,None, str],
     """
 
     # Check
-    if str(agent_id).lower() == "undefined" or not str(agent_id).isdigit() or agent_id is None:
+    if type(agent_id)==None or type(agent_id)==str:
         raise HTTPException(status_code=404, detail="Agent Id undefined")
-    if str(agent_execution_id).lower() == "undefined" or not str(agent_execution_id).isdigit() or agent_execution_id is None:
+    if type(agent_execution_id)==None or type(agent_execution_id)==str:
         raise HTTPException(status_code=404, detail="Agent Execution Id undefined")
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
@@ -472,7 +472,7 @@ def get_agent_configuration(agent_execution_id: Union[int,None, str],
         raise HTTPException(status_code=404, detail="Agent Execution not found")
     agent_id_from_execution_id = agent_execution_config.agent_id
     if agent_id!=agent_id_from_execution_id:
-        raise HTTPException(status_code=404, detail="Wrong agent id passed")
+        raise HTTPException(status_code=404, detail="Wrong agent id")
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
