@@ -472,7 +472,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     if agent_execution_config is None:
         raise HTTPException(status_code = 404, detail = "Agent Execution not found")
     agent_id_from_execution_id = agent_execution_config.agent_id
-    if agent_id!=agent_id_from_execution_id:
+    if agent_id != agent_id_from_execution_id:
         raise HTTPException(status_code = 404, detail = "Wrong agent id")
 
     # Define the agent_config keys to fetch
