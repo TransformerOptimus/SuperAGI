@@ -446,7 +446,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
                             agent_id: Union[int, None, str], 
                             Authorize: AuthJWT = Depends(check_auth)):
     """
-    Get the agent configuration using the agent ID and agent execution ID.
+    Get the agent configuration using the agent ID and the agent execution ID.
 
     Args:
         agent_id (int): Identifier of the agent.
