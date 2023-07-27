@@ -186,7 +186,6 @@ async def startup_event():
         # output of step is either tasks or set commands
         first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
         output = AgentPromptBuilder.get_super_agi_single_prompt()
-        tool_selection_prompt = AgentPromptBuilder.get_tool_selection_prompt()
         if first_step is None:
             first_step = AgentWorkflowStep(unique_id="gb1",
                                            prompt=output["prompt"], variables=str(output["variables"]),
