@@ -162,10 +162,10 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
         <div style={info_text}>{agentDetails?.agent_type || ''}</div>
       </div>
-      <div className={styles.agent_info_box}>
+      {agentDetails?.knowledge_name && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
-        <div style={info_text}>{agentDetails?.knowledge_name || 'Not Found' }</div>
-      </div>
+        <div style={info_text}>{agentDetails?.knowledge_name}</div>
+      </div>}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/deployed_code.svg" alt="model-icon"/></div>
         <div style={info_text}>{agentDetails?.model || ''}</div>
