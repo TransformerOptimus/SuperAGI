@@ -1,7 +1,9 @@
- 
+
 import os
 from typing import Type, Optional
 import ebooklib
+import bs4 
+from bs4 import BeautifulSoup
 
 from pydantic import BaseModel, Field
 from ebooklib import epub
@@ -15,8 +17,6 @@ from superagi.models.agent import Agent
 from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
 from unstructured.partition.auto import partition
-
-# os.environ['PATH'] = '/usr/local/bin:' + os.environ['PATH']
 
 class ReadFileSchema(BaseModel):
     """Input for CopyFileTool."""
@@ -70,7 +70,8 @@ class ReadFileTool(BaseTool):
             # Get the text content from each item in the book
             content = []
             for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
-                content.append(item.get_content().decode('utf-8'))
+                soup = BeautifulSoup(item.get_content(), 'html.parser')
+                content.append(soup.get_text())
 
             content = "\n".join(content)
         else:
@@ -78,6 +79,7 @@ class ReadFileTool(BaseTool):
             content = "\n\n".join([str(el) for el in elements])
    
         return content
+
 
 
 
