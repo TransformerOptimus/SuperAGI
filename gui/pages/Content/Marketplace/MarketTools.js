@@ -54,7 +54,7 @@ export default function MarketTools() {
             <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}} onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline-flex', overflow: 'auto'}}>
                 <Image className={styles.tools_icon} width={40} height={40} src={returnToolkitIcon(item.name)} alt="tool-icon"/>
-                <div className="ml_8">
+                <div className="ml_12 mb_8">
                     <div>{item.name}</div>
                     <div style={{color: '#888888', lineHeight: '16px'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
                 </div>
