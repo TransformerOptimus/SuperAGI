@@ -493,8 +493,6 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
-    
-    print(results_agent_execution)
 
     for results in results_agent_execution:
         key = results.key
