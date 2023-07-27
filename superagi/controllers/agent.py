@@ -482,13 +482,12 @@ def get_agent_configuration(agent_id: int,
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     
-
     name = ""
     # Construct the JSON response
     response = {result.key: result.value for result in results}
-    if 'knowledge' in response.keys():
+    if 'knowledge' in response.keys() and response['knowledge'] != 'None':
         knowledge = db.session.query(Knowledges).filter(Knowledges.id == response['knowledge']).first()
-        name = knowledge.name if knowledge else ""
+        name = knowledge.name if knowledge is not None else ""
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
