@@ -184,14 +184,14 @@ async def startup_event():
                                            agent_workflow_id=agent_workflow.id, output_type="tools",
                                            step_type="TRIGGER",
                                            history_enabled=True,
-                                           completion_prompt=tool_selection_prompt["prompt"])
+                                           completion_prompt="Determine which next tool to use,and respond with only valid JSON conforming to the above schema")
             session.add(first_step)
             session.commit()
         else:
             first_step.prompt = output["prompt"]
             first_step.variables = str(output["variables"])
             first_step.output_type = "tools"
-            first_step.completion_prompt = tool_selection_prompt["prompt"]
+            first_step.completion_prompt = "Determine which next tool to use,and respond with only valid JSON conforming to the above schema"
             session.commit()
         first_step.next_step_id = first_step.id
         session.commit()
