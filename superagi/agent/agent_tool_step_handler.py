@@ -37,7 +37,7 @@ class AgentToolStepHandler:
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
         print(agent_execution_config)
 
-        if not self.handle_wait_for_permission(execution, workflow_step):
+        if not self._handle_wait_for_permission(execution, workflow_step):
             return
 
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
@@ -149,11 +149,12 @@ class AgentToolStepHandler:
         super_agi_prompt = super_agi_prompt.replace("{instruction}", step_tool.output_instruction)
 
         step_responses = self._get_step_responses(workflow_step)
-        step_responses.remove("default")
-        super_agi_prompt = super_agi_prompt.replace("{output_options}", step_responses)
+        if "default" in step_responses:
+            step_responses.remove("default")
+        super_agi_prompt = super_agi_prompt.replace("{output_options}", str(step_responses))
         return super_agi_prompt
 
-    def handle_wait_for_permission(self, agent_execution, workflow_step: AgentWorkflowStep):
+    def _handle_wait_for_permission(self, agent_execution, workflow_step: AgentWorkflowStep):
         """
         Handles the wait for permission when the agent execution is waiting for permission.
 

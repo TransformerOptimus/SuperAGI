@@ -21,11 +21,12 @@ class ToolOutputHandler:
         self.output_parser = output_parser
 
     def handle(self, session, assistant_reply):
-        response = self.check_permission_in_restricted_mode(session, assistant_reply)
+        response = self._check_permission_in_restricted_mode(session, assistant_reply)
         if response.is_permission_required:
             return response
 
         tool_response = self.handle_tool_response(session, assistant_reply)
+        # print(tool_response)
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                   agent_id=self.agent_config["agent_id"],
@@ -39,7 +40,7 @@ class ToolOutputHandler:
         session.add(tool_response_feed)
         session.commit()
         if not tool_response.retry:
-            tool_response = self.check_for_completion(tool_response)
+            tool_response = self._check_for_completion(tool_response)
 
         return tool_response
 
@@ -50,7 +51,7 @@ class ToolOutputHandler:
         tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools)
         return tool_executor.execute(session, action.name, action.args)
 
-    def check_permission_in_restricted_mode(self, session, assistant_reply: str):
+    def _check_permission_in_restricted_mode(self, session, assistant_reply: str):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
@@ -71,7 +72,7 @@ class ToolOutputHandler:
                                         permission_id=new_agent_execution_permission.id)
         return ToolExecutorResponse(status="PENDING", is_permission_required=False)
 
-    def check_for_completion(self, tool_response):
+    def _check_for_completion(self, tool_response):
         self.task_queue.complete_task(tool_response.result)
         current_tasks = self.task_queue.get_tasks()
         if self.task_queue.get_completed_tasks() and len(current_tasks) == 0:
