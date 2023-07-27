@@ -27,7 +27,7 @@ import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
 export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('')
+  const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
