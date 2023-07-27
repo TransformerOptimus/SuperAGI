@@ -8,7 +8,7 @@ from superagi.types.vector_store_types import VectorStoreType
 class VectorEmbeddingFactory:
 
     @classmethod
-    def build_vector_storge(cls, vector_store: VectorStoreType):
+    def build_vector_storge(cls, vector_store: VectorStoreType, chunk_json: dict):
         """
         Get the vector embeddings from final chunks.
         Args:
@@ -16,9 +16,26 @@ class VectorEmbeddingFactory:
         Returns:
             The vector storage object
         """
+        final_chunks = []
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        if chunk_json != {}:
+            for key in chunk_json.keys():
+                final_chunks.append(chunk_json[key])
+
+            uuid = []
+            embeds = []
+            metadata = []
+            for i in range(0, len(final_chunks)):
+                uuid.append(final_chunks[i]["id"])
+                embeds.append(final_chunks[i]["embeds"])
+                data = {
+                    'text': final_chunks[i]['text'],
+                    'chunk': final_chunks[i]['chunk'],
+                    'knowledge_name': final_chunks[i]['knowledge_name']
+                }
+                metadata.append(data)
         if vector_store == VectorStoreType.PINECONE:
-            return Pinecone()
+            return Pinecone(uuid, embeds, metadata)
 
         if vector_store == VectorStoreType.QDRANT:
-            return Qdrant()
+            return Qdrant(uuid, embeds, metadata)
