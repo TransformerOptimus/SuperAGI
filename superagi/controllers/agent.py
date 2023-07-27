@@ -506,7 +506,7 @@ def get_agent_configuration(agent_execution_id: int,
         HTTPException (status_code=404): If the agent is not found or deleted.
     """
 
-    #Fetch agent id from agent execution id and check whether the agent_id received is correct.
+    #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
     if agent_execution_config is None:
         raise HTTPException(status_code=404, detail="Agent Execution not found")
