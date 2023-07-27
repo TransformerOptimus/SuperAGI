@@ -442,8 +442,8 @@ def get_agents_by_project_id(project_id: int,
 
 
 @router.get("/get/details/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
-def get_agent_configuration(agent_execution_id: Union[int,None, str],
-                            agent_id: Union[int,None, str], 
+def get_agent_configuration(agent_execution_id: Union[int, None, str],
+                            agent_id: Union[int, None, str], 
                             Authorize: AuthJWT = Depends(check_auth)):
     """
     Get the agent configuration using the agent ID and agent execution ID.
@@ -462,25 +462,25 @@ def get_agent_configuration(agent_execution_id: Union[int,None, str],
     """
 
     # Check
-    if type(agent_id)==None or type(agent_id)==str:
-        raise HTTPException(status_code=404, detail="Agent Id undefined")
-    if type(agent_execution_id)==None or type(agent_execution_id)==str:
-        raise HTTPException(status_code=404, detail="Agent Execution Id undefined")
+    if type(agent_id) == None or type(agent_id) == str:
+        raise HTTPException(status_code = 404, detail = "Agent Id undefined")
+    if type(agent_execution_id) == None or type(agent_execution_id) == str:
+        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
     if agent_execution_config is None:
-        raise HTTPException(status_code=404, detail="Agent Execution not found")
+        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
     agent_id_from_execution_id = agent_execution_config.agent_id
     if agent_id!=agent_id_from_execution_id:
-        raise HTTPException(status_code=404, detail="Wrong agent id")
+        raise HTTPException(status_code = 404, detail = "Wrong agent id")
 
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
     agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False)).first()
 
     if not agent:
-        raise HTTPException(status_code=404, detail="Agent not found")
+        raise HTTPException(status_code = 404, detail = "Agent not found")
 
     # Query the AgentConfiguration table for the specified keys
 
