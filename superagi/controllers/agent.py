@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from typing import Union, List
 
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
@@ -441,8 +442,8 @@ def get_agents_by_project_id(project_id: int,
 
 
 @router.get("/get/details/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
-def get_agent_configuration(agent_execution_id: int,
-                            agent_id: int, 
+def get_agent_configuration(agent_execution_id: Union[int,None, str],
+                            agent_id: Union[int,None, str], 
                             Authorize: AuthJWT = Depends(check_auth)):
     """
     Get the agent configuration using the agent ID and agent execution ID.
@@ -458,6 +459,12 @@ def get_agent_configuration(agent_execution_id: int,
     Raises:
         HTTPException (status_code=404): If the agent is not found or deleted.
     """
+
+    # Check
+    if str(agent_id).lower() == "undefined" or not str(agent_id).isdigit() or agent_id is None:
+        raise HTTPException(status_code=404, detail="Agent Id undefined")
+    if str(agent_execution_id).lower() == "undefined" or not str(agent_execution_id).isdigit() or agent_execution_id is None:
+        raise HTTPException(status_code=404, detail="Agent Execution Id undefined")
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
