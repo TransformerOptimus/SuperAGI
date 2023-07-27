@@ -449,7 +449,7 @@ def get_agent_configuration(agent_execution_id: int,
 
     Args:
         agent_id (int): Identifier of the agent.
-        agentt_execution_id (int): Identifier of the agent execution.
+        agent_execution_id (int): Identifier of the agent execution.
         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
 
     Returns:
