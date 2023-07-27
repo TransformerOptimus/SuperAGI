@@ -128,7 +128,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
 
     return db_agent_execution
 
-@router.post("/add_run", status_code=201)
+@router.post("/add_run", status_code = 201)
 def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(check_auth)):
 
     """
@@ -146,14 +146,14 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
      
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
-        raise HTTPException(status_code=404, detail="Agent not found")
+        raise HTTPException(status_code = 404, detail = "Agent not found")
 
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
 
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
-                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
-                                        num_of_tokens=0,
-                                        current_step_id=start_step_id)
+    db_agent_execution = AgentExecution(status = "RUNNING", last_execution_time = datetime.now(),
+                                        agent_id = agent_execution.agent_id, name = agent_execution.name, num_of_calls = 0,
+                                        num_of_tokens = 0,
+                                        current_step_id = start_step_id)
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction,
@@ -172,8 +172,8 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
-    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
-                                                                     agent_execution_configs=agent_execution_configs)
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = db_agent_execution,
+                                                                     agent_execution_configs = agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
