@@ -155,53 +155,6 @@ def update_agent(agent_id: int, agent: AgentIn,
     return db_agent
 
 
-
-# @router.put("/update_all/{agent_id}")
-# def update_agent_all_information(agent_id:int, new_agent_info:AgentConfigInput, Authorize: AuthJWT = Depends(check_auth)):
-
-#     old_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()#retrieving old agent information
-
-#     if not old_agent:
-#         raise HTTPException(status_code=404, detail="Agent not found")
-    
-#     if len(new_agent_info.goal)!=0:
-#         old_agent.goal = new_agent_info.goal
-    
-#     if len(new_agent_info.instruction)!=0:
-#         old_agent.instruction = new_agent_info.instruction
-
-#     if len(new_agent_info.agent_type)!=0:
-#         old_agent.agent_type = new_agent_info.agent_type
-    
-#     if len(new_agent_info.constraints)!=0:
-#         old_agent.constraints = new_agent_info.constraints
-
-#     if len(new_agent_info.toolkits)!=0:
-#         old_agent.toolkits = new_agent_info.toolkits
-    
-#     if len(new_agent_info.tools)!=0:
-#         old_agent.tools = new_agent_info.tools
-    
-#     old_agent.iteration_interval = new_agent_info.iteration_interval
-
-#     if len(new_agent_info.model)!=0:
-#         old_agent.model = new_agent_info.model
-
-#     old_agent.max_iterations = new_agent_info.max_iterations
-
-#     if len(new_agent_info.permission_type)!=0:
-#         old_agent.permission_type = new_agent_info.permission_type
-    
-#     if len(new_agent_info.LTM_DB)!=0:
-#         old_agent.LTM_DB = new_agent_info.LTM_DB
-
-#     if new_agent_info.user_timezone!=None:
-#         old_agent.user_timezone = new_agent_info.user_timezone
-
-#     db.session.commit()
-#     return old_agent
-
-
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentConfigInput,
                              Authorize: AuthJWT = Depends(check_auth)):
