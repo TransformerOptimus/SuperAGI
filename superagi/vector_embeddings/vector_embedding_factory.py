@@ -1,5 +1,6 @@
 
 import pinecone
+from typing import Optional
 from pinecone import UnauthorizedException
 from superagi.vector_embeddings.pinecone import Pinecone
 from superagi.vector_embeddings.qdrant import Qdrant
@@ -8,7 +9,7 @@ from superagi.types.vector_store_types import VectorStoreType
 class VectorEmbeddingFactory:
 
     @classmethod
-    def build_vector_storge(cls, vector_store: VectorStoreType, chunk_json: dict):
+    def build_vector_storge(cls, vector_store: VectorStoreType, chunk_json: Optional[dict] = None):
         """
         Get the vector embeddings from final chunks.
         Args:
@@ -18,7 +19,7 @@ class VectorEmbeddingFactory:
         """
         final_chunks = []
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
-        if chunk_json != {}:
+        if chunk_json is not None:
             for key in chunk_json.keys():
                 final_chunks.append(chunk_json[key])
 
