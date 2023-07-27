@@ -51,7 +51,7 @@ class DalleImageGenTool(BaseTool):
         if size not in [256, 512, 1024]:
             size = min([256, 512, 1024], key=lambda x: abs(x - size))
         response = OpenAiDalle(api_key=self.get_tool_config("OPENAI_API_KEY"), number_of_results=num).generate_image(
-            prompt, size, num)
+            prompt, size)
         response = response.__dict__
         response = response['_previous']['data']
         for i in range(num):

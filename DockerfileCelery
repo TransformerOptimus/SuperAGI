@@ -8,9 +8,16 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
 COPY . .
-COPY config.yaml .
+
+# Downloads the tools
+RUN python superagi/tool_manager.py
+
+# Set executable permissions for install_tool_dependencies.sh
+RUN chmod +x install_tool_dependencies.sh
+
+# Install dependencies
+RUN ./install_tool_dependencies.sh
 
 # Downloads the tools
 RUN python superagi/tool_manager.py

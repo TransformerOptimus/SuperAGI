@@ -34,8 +34,8 @@ export default function ResourceList({files, channel, runs}) {
   )
 
   return (
-      <div>
-        {channel === 'output' && (!isAnyFileWithAgentId || files.length <= 0 ?
+    <div>
+      {channel === 'output' && (!isAnyFileWithAgentId || files.length <= 0 ?
           <div className="vertical_container">
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
             <span className={styles.feed_title} style={{marginTop: '8px'}}>No Output files!</span>
@@ -43,30 +43,30 @@ export default function ResourceList({files, channel, runs}) {
           :
           <div id="division_by_runs">
             {filesByRun.map((filesRun, index) => (
-          <div key={filesByRun.length - index - 1}>
-            <div className="horizontal_container justify_space_between cursor_pointer" style={{padding: '8px 6px'}}
-                 onClick={() => setSelectedRunId(filesRun.run.id === selectedRunId ? null : filesRun.run.id)}>
-              <div className="horizontal_container">
-                <Image
-                    src={selectedRunId === filesRun.run.id ? "/images/arrow_downward_dropdown.svg" : "/images/arrow_forward.svg"}
-                    alt="arrow" width={14} height={14}/>
-                <span className="text_12 ml_8">{filesRun.run.name}</span>
-                <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10}
-                                                                  height={10}/> <span
-                    className="text_9">Run {filesByRun.length - index}</span></div>
-              </div>
-              <Image src="/images/download.svg" alt="download_icon" width={16} height={16}
-                     onClick={() => downloadRunFiles(filesRun.run.id, filesRun.run.name)}/>
-            </div>
+              <div key={filesByRun.length - index - 1}>
+                <div className="horizontal_container justify_space_between cursor_pointer" style={{padding: '8px 6px'}}
+                     onClick={() => setSelectedRunId(filesRun.run.id === selectedRunId ? null : filesRun.run.id)}>
+                  <div className="horizontal_container">
+                    <Image
+                      src={selectedRunId === filesRun.run.id ? "/images/arrow_downward_dropdown.svg" : "/images/arrow_forward.svg"}
+                      alt="arrow" width={14} height={14}/>
+                    <span className="text_12 ml_8">{filesRun.run.name}</span>
+                    <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10}
+                                                                      height={10}/> <span
+                      className="text_9">Run {filesByRun.length - index}</span></div>
+                  </div>
+                  <Image src="/images/download.svg" alt="download_icon" width={16} height={16}
+                         onClick={() => downloadRunFiles(filesRun.run.id, filesRun.run.name)}/>
+                </div>
 
-            {selectedRunId === filesRun.run.id && (
-              <div className={styles.resources} style={{padding: '2px 8px'}}>
-                {filesRun.files.map((file, index) => <File key={index} file={file}/>)}
+                {selectedRunId === filesRun.run.id && (
+                  <div className={styles.resources} style={{padding: '2px 8px'}}>
+                    {filesRun.files.map((file, index) => <File key={index} file={file}/>)}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
-          ))}
-        </div>
       )}
 
       {channel === 'input' &&

@@ -30,6 +30,7 @@ from datetime import datetime
 import json
 
 from superagi.models.toolkit import Toolkit
+from superagi.models.knowledges import Knowledges
 
 from sqlalchemy import func
 # from superagi.types.db import AgentOut, AgentIn
@@ -287,6 +288,15 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
     if agent_schedule.id is None:
         raise HTTPException(status_code=500, detail="Failed to schedule agent")
 
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id, ).first()
+    organisation = agent.get_agent_organisation(db.session)
+
+    EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_config.name,
+                                                                        'model': agent_config.model}, db_agent.id,
+                                                      organisation.id if organisation else 0)
+
+    db.session.commit()
+
     return {
         "id": db_agent.id,
         "name": db_agent.name,
@@ -471,13 +481,18 @@ def get_agent_configuration(agent_id: int,
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
-
+    
+    name = ""
     # Construct the JSON response
     response = {result.key: result.value for result in results}
+    if 'knowledge' in response.keys() and response['knowledge'] != 'None':
+        knowledge = db.session.query(Knowledges).filter(Knowledges.id == response['knowledge']).first()
+        name = knowledge.name if knowledge is not None else ""
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
+                                "knowledge_name": name,
                                 "calls": total_calls,
                                 "tokens": total_tokens,
                                 "constraints": eval(response.get("constraints")),
@@ -511,7 +526,8 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
-
+    db_agent_schedule = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id, AgentSchedule.status == "SCHEDULED").first()
+    
     if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
 
@@ -522,4 +538,8 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
         for db_agent_execution in db_agent_executions:
             db_agent_execution.status = "TERMINATED"
 
+    if db_agent_schedule:
+        # Updating the schedule status to STOPPED
+        db_agent_schedule.status = "STOPPED"
+    
     db.session.commit()

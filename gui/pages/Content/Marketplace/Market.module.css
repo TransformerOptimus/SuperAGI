@@ -378,6 +378,7 @@
     width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
+    flex-direction: column;
 }
 
 .tool_description {
@@ -503,12 +504,20 @@
 .markdown_style{
     color:white;
 }
+
 .markdown_style img {
     max-width: 100%;
     height: auto;
 }
+
 .markdown_container{
     height:68vh;
     overflow-y:scroll;
     overflow-x:hidden;
+}
+
+.tools_icon{
+    border-radius: 25px;
+    background: black;
+    position: relative;
 }

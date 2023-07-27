@@ -2,9 +2,9 @@ import React, {useState, useEffect, useRef} from 'react';
 import Image from "next/image";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import styles from './Agents.module.css';
 import {
   createAgent,
+  editAgentTemplate,
   fetchAgentTemplateConfigLocal,
   getOrganisationConfig,
   getLlmModels,
@@ -16,15 +16,29 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, excludedToolkits
+  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, preventDefault, excludedToolkits
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import styles from "@/pages/Content/Agents/Agents.module.css";
+import styles1 from "@/pages/Content/Knowledge/Knowledge.module.css";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgents, toolkits, organisationId, template, internalId, env}) {
+export default function AgentCreate({
+                                      sendAgentData,
+                                      knowledge,
+                                      selectedProjectId,
+                                      fetchAgents,
+                                      toolkits,
+                                      organisationId,
+                                      template,
+                                      internalId,
+                                      sendKnowledgeData,
+                                      env
+                                    }) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
+  const [agentTemplateId, setAgentTemplateId] = useState(null);
   const [agentDescription, setAgentDescription] = useState("");
   const [longTermMemory, setLongTermMemory] = useState(true);
   const [addResources, setAddResources] = useState(true);
@@ -35,6 +49,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const [maxIterations, setIterations] = useState(25);
   const [toolkitList, setToolkitList] = useState(toolkits)
   const [searchValue, setSearchValue] = useState('');
+  const [showButton, setShowButton] = useState(false);
+  const [showPlaceholder, setShowPlaceholder] = useState(true);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -66,6 +82,11 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
   const rollingRef = useRef(null);
   const [rollingDropdown, setRollingDropdown] = useState(false);
+
+  const [selectedKnowledge, setSelectedKnowledge] = useState('');
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState(null);
+  const knowledgeRef = useRef(null);
+  const [knowledgeDropdown, setKnowledgeDropdown] = useState(false);
 
   const databases = ["Pinecone"]
   const [database, setDatabase] = useState(databases[0]);
@@ -125,7 +146,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         const models = response.data || [];
         const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
         setModelsArray(models);
-        if(models.length > 0 && !selected_model) {
+        if (models.length > 0 && !selected_model) {
           setLocalStorageValue("agent_model_" + String(internalId), models[0], setModel);
         } else {
           setModel(selected_model);
@@ -139,6 +160,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
       setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
       setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
+      setLocalStorageValue("agent_template_id_" + String(internalId), template.id, setAgentTemplateId);
 
       fetchAgentTemplateConfigLocal(template.id)
         .then((response) => {
@@ -153,6 +175,8 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
           setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
           setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
           setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
+          setLocalStorageValue("is_agent_template_" + String(internalId), true, setShowButton);
+          setShowButton(true);
         })
         .catch((error) => {
           console.error('Error fetching template details:', error);
@@ -176,6 +200,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
 
       if (rollingRef.current && !rollingRef.current.contains(event.target)) {
         setRollingDropdown(false)
+      }
+
+      if (knowledgeRef.current && !knowledgeRef.current.contains(event.target)) {
+        setKnowledgeDropdown(false)
       }
 
       if (databaseRef.current && !databaseRef.current.contains(event.target)) {
@@ -244,6 +272,12 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     setDatabaseDropdown(false);
   };
 
+
+  const handleKnowledgeSelect = (index) => {
+    setLocalStorageValue("agent_knowledge_" + String(internalId), knowledge[index].name, setSelectedKnowledge);
+    setLocalStorageValue("agent_knowledge_id_" + String(internalId), knowledge[index].id, setSelectedKnowledgeId);
+    setKnowledgeDropdown(false);
+  };
 
   const handleStepChange = (event) => {
     setLocalStorageValue("agent_step_time_" + String(internalId), event.target.value, setStepTime);
@@ -322,12 +356,10 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
   const handleDescriptionChange = (event) => {
     setLocalStorageValue("agent_description_" + String(internalId), event.target.value, setAgentDescription);
   };
+
   const closeCreateModal = () => {
     setCreateModal(false);
     setCreateDropdown(false);
-  };
-  const preventDefault = (e) => {
-    e.stopPropagation();
   };
 
   function uploadResource(agentId, fileData) {
@@ -364,36 +396,50 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     }
   }, [scheduleData]);
 
-  const handleAddAgent = () => {
-    if (!hasAPIkey) {
+  const validateAgentData = (isNewAgent) => {
+    if (isNewAgent && !hasAPIkey) {
       toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings", false);
-      return
+      return false;
     }
 
-    if (agentName.replace(/\s/g, '') === '') {
+    if (agentName?.replace(/\s/g, '') === '') {
       toast.error("Agent name can't be blank", {autoClose: 1800});
-      return
+      return false;
     }
 
-    if (agentDescription.replace(/\s/g, '') === '') {
+    if (agentDescription?.replace(/\s/g, '') === '') {
       toast.error("Agent description can't be blank", {autoClose: 1800});
-      return
+      return false;
     }
 
     const isEmptyGoal = goals.some((goal) => goal.replace(/\s/g, '') === '');
     if (isEmptyGoal) {
       toast.error("Goal can't be empty", {autoClose: 1800});
-      return;
+      return false;
     }
 
     if (selectedTools.length <= 0) {
       toast.error("Add atleast one tool", {autoClose: 1800});
-      return
+      return false;
     }
-    if(!modelsArray.includes(model)) {
+
+    if (!modelsArray.includes(model)) {
       toast.error("Your key does not have access to the selected model", {autoClose: 1800});
-      return
+      return false;
+    }
+
+    if (toolNames.includes('Knowledge Search') && !selectedKnowledge) {
+      toast.error("Add atleast one knowledge", {autoClose: 1800});
+      return;
+    }
+
+    return true;
+  }
+
+  const handleAddAgent = () => {
+    if (!validateAgentData(true)) {
+      return;
     }
 
     setCreateClickable(false);
@@ -420,7 +466,9 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
       "permission_type": permission_type,
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
+      "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
     };
+
     const scheduleAgentData = {
       "agent_config": agentData,
       "schedule": scheduleData,
@@ -537,6 +585,46 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
     event.preventDefault();
   };
 
+  function updateTemplate() {
+
+    if (!validateAgentData(false)) return;
+
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
+
+    const agentTemplateConfigData = {
+      "goal": goals,
+      "instruction": instructions,
+      "agent_type": agentType,
+      "constraints": constraints,
+      "tools": toolNames,
+      "exit": exitCriterion,
+      "iteration_interval": stepTime,
+      "model": model,
+      "max_iterations": maxIterations,
+      "permission_type": permission_type,
+      "LTM_DB": longTermMemory ? database : null,
+    }
+    const editTemplateData = {
+      "name": agentName,
+      "description": agentDescription,
+      "agent_configs": agentTemplateConfigData
+    }
+
+    editAgentTemplate(agentTemplateId, editTemplateData)
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success('Agent template has been updated successfully!', {autoClose: 1800});
+        }
+      })
+      .catch((error) => {
+        toast.error("Error updating agent template")
+        console.error('Error updating agent template:', error);
+      });
+  };
+
   function setFileData(files) {
     if (files.length > 0) {
       const fileData = {
@@ -585,9 +673,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setAdvancedOptions(JSON.parse(advanced_options));
       }
 
+      const is_agent_template = localStorage.getItem("is_agent_template_" + String(internalId));
+      if (is_agent_template) {
+        setShowButton(true);
+      }
+
       const agent_name = localStorage.getItem("agent_name_" + String(internalId));
       if (agent_name) {
         setAgentName(agent_name);
+      }
+
+      const agent_template_id = localStorage.getItem("agent_template_id_" + String(internalId));
+      if (agent_template_id) {
+        setAgentTemplateId(agent_template_id)
       }
 
       const agent_description = localStorage.getItem("agent_description_" + String(internalId));
@@ -660,7 +758,17 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
         setInput(JSON.parse(agent_files));
       }
     }
+
+    const agent_knowledge = localStorage.getItem("agent_knowledge_" + String(internalId));
+    if (agent_knowledge) {
+      setSelectedKnowledge(agent_knowledge);
+    }
   }, [internalId])
+
+  function openMarketplace() {
+    openNewTab(-4, "Marketplace", "Marketplace", false);
+    localStorage.setItem('marketplace_tab', 'market_knowledge');
+  }
 
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
@@ -691,7 +799,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -715,7 +823,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               {instructions.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleInstructionDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -749,17 +857,26 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             <div className="dropdown_container_search" style={{width: '100%'}}>
               <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)}
                    style={{width: '100%', alignItems: 'flex-start'}}>
-                {toolNames && toolNames.length > 0 ? <div style={{display: 'flex', flexWrap: 'wrap', width: '100%'}}>
-                  {toolNames.map((tool, index) => (
+                <div style={{display: 'flex', flexWrap: 'wrap', width: '100%', alignItems: 'start'}}>
+                  {toolNames && toolNames.length > 0 && toolNames.map((tool, index) => (
                     <div key={index} className="tool_container" style={{margin: '2px'}} onClick={preventDefault}>
                       <div className={styles.tool_text}>{tool}</div>
                       <div><Image width={12} height={12} src='/images/close_light.svg' alt="close-icon"
                                   style={{margin: '-2px -5px 0 2px'}} onClick={() => removeTool(index)}/></div>
-                    </div>))}
-                  <input type="text" className="dropdown_search_text" value={searchValue}
-                         onChange={(e) => setSearchValue(e.target.value)} onFocus={() => setToolkitDropdown(true)}
+                    </div>
+                  ))}
+                  <input type="text" className="dropdown_search_text" value={searchValue} style={{flexGrow: 1}}
+                         onChange={(e) => setSearchValue(e.target.value)}
+                         onFocus={() => {
+                           setToolkitDropdown(true);
+                           setShowPlaceholder(false);
+                         }} onBlur={() => {
+                    setShowPlaceholder(true);
+                  }}
                          onClick={(e) => e.stopPropagation()}/>
-                </div> : <div style={{color: '#666666'}}>Select Tools</div>}
+                  {toolNames && toolNames.length === 0 && showPlaceholder && searchValue.length === 0 &&
+                    <div style={{color: '#666666', position: 'absolute'}}>Select Tools</div>}
+                </div>
                 <div style={{display: 'inline-flex'}}>
                   <Image width={20} height={21} onClick={(e) => clearTools(e)} src='/images/clear_input.svg'
                          alt="clear-input"/>
@@ -812,6 +929,97 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
               </div>
             </div>
           </div>
+          {toolNames.includes("Knowledge Search") && <div style={{marginTop: '5px'}}>
+            <label className={styles.form_label}>Add knowledge</label>
+            <div className="dropdown_container_search" style={{width: '100%'}}>
+              <div className="custom_select_container" onClick={() => setKnowledgeDropdown(!knowledgeDropdown)}
+                   style={selectedKnowledge ? {width: '100%'} : {width: '100%', color: '#888888'}}>
+                {selectedKnowledge || 'Select knowledge'}<Image width={20} height={21}
+                                                                src={!knowledgeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                                                alt="expand-icon"/>
+              </div>
+              <div>
+                {knowledgeDropdown && knowledge && knowledge.length > 0 &&
+                  <div className="custom_select_options" ref={knowledgeRef} style={{width: '100%'}}>
+                    {knowledge.map((item, index) => (
+                      <div key={index} className="custom_select_option" onClick={() => handleKnowledgeSelect(index)}
+                           style={{padding: '12px 14px', maxWidth: '100%'}}>
+                        {item.name}
+                      </div>))}
+                    <div className={styles1.knowledge_db}
+                         style={{maxWidth: '100%', borderTop: '1px solid #3F3A4E'}}>
+                      <div className="custom_select_option"
+                           style={{padding: '12px 14px', maxWidth: '100%', borderRadius: '0'}}
+                           onClick={() => sendKnowledgeData({
+                             id: -6,
+                             name: "new knowledge",
+                             contentType: "Add_Knowledge",
+                             internalId: createInternalId()
+                           })}>
+                        <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon"/>&nbsp;&nbsp;Add
+                        new knowledge
+                      </div>
+                    </div>
+                    <div className={styles1.knowledge_db}
+                         style={{maxWidth: '100%', borderTop: '1px solid #3F3A4E'}}>
+                      <div className="custom_select_option" style={{
+                        padding: '12px 14px',
+                        maxWidth: '100%',
+                        borderTopLeftRadius: '0',
+                        borderTopRightRadius: '0'
+                      }}
+                           onClick={openMarketplace}>
+                        <Image width={15} height={15} src="/images/widgets.svg"
+                               alt="marketplace"/>&nbsp;&nbsp;Browse knowledge from marketplace
+                      </div>
+                    </div>
+                  </div>}
+                {knowledgeDropdown && knowledge && knowledge.length <= 0 &&
+                  <div className="custom_select_options" ref={knowledgeRef}
+                       style={{width: '100%', maxHeight: '400px'}}>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: '30px',
+                      marginBottom: '20px',
+                      width: '100%'
+                    }}>
+                      <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
+                      <span className={styles.feed_title} style={{marginTop: '8px'}}>No knowledge found</span>
+                    </div>
+                    <div className={styles1.knowledge_db}
+                         style={{maxWidth: '100%', borderTop: '1px solid #3F3A4E'}}>
+                      <div className="custom_select_option"
+                           style={{padding: '12px 14px', maxWidth: '100%', borderRadius: '0'}}
+                           onClick={() => sendKnowledgeData({
+                             id: -6,
+                             name: "new knowledge",
+                             contentType: "Add_Knowledge",
+                             internalId: createInternalId()
+                           })}>
+                        <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon"/>&nbsp;&nbsp;Add
+                        new knowledge
+                      </div>
+                    </div>
+                    <div className={styles1.knowledge_db}
+                         style={{maxWidth: '100%', borderTop: '1px solid #3F3A4E'}}>
+                      <div className="custom_select_option" style={{
+                        padding: '12px 14px',
+                        maxWidth: '100%',
+                        borderTopLeftRadius: '0',
+                        borderTopRightRadius: '0'
+                      }}
+                           onClick={openMarketplace}>
+                        <Image width={15} height={15} src="/images/widgets.svg"
+                               alt="marketplace"/>&nbsp;&nbsp;Browse knowledge from marketplace
+                      </div>
+                    </div>
+                  </div>}
+              </div>
+            </div>
+          </div>}
           <div style={{marginTop: '15px'}}>
             <button className="medium_toggle"
                     onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)}
@@ -882,7 +1090,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                           </div>
                           <div style={{cursor: 'pointer'}} onClick={() => removeFile(index)}><Image width={20}
                                                                                                     height={20}
-                                                                                                    src='/images/close_light.svg'
+                                                                                                    src='/images/close.svg'
                                                                                                     alt="close-icon"/>
                           </div>
                         </div>
@@ -891,7 +1099,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   </div>
                 </div>}
               </div>
-              <div style={{marginTop: '5px'}}>
+              <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
                 {constraints.map((constraint, index) => (<div key={index} style={{
                   marginBottom: '10px',
@@ -905,7 +1113,7 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
                   <div>
                     <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                             onClick={() => handleConstraintDelete(index)}>
-                      <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                      <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                     </button>
                   </div>
                 </div>))}
@@ -992,8 +1200,19 @@ export default function AgentCreate({sendAgentData, selectedProjectId, fetchAgen
             <button style={{marginRight: '7px'}} className="secondary_button"
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
+            {showButton && (
+              <button style={{marginRight: '7px'}} className="secondary_button"
+                      onClick={() => {
+                        updateTemplate()
+                      }}>
+                Update Template
+              </button>
+            )}
             <div style={{display: 'flex', position: 'relative'}}>
-              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {setCreateModal(true);setCreateDropdown(false);}}>Create & Schedule Run
+              {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {
+                setCreateModal(true);
+                setCreateDropdown(false);
+              }}>Create & Schedule Run
               </div>)}
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>

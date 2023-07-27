@@ -5,6 +5,26 @@ import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
 
+const toolkitData = {
+  'Jira Toolkit': '/images/jira_icon.svg',
+  'Email Toolkit': '/images/gmail_icon.svg',
+  'Google Calendar Toolkit': '/images/google_calender_icon.svg',
+  'GitHub Toolkit': '/images/github_icon.svg',
+  'Google Search Toolkit': '/images/google_search_icon.svg',
+  'Searx Toolkit': '/images/searx_icon.svg',
+  'Slack Toolkit': '/images/slack_icon.svg',
+  'Web Scrapper Toolkit': '/images/webscraper_icon.svg',
+  'Twitter Toolkit': '/images/twitter_icon.svg',
+  'Google SERP Toolkit': '/images/google_serp_icon.svg',
+  'File Toolkit': '/images/filemanager_icon.svg',
+  'CodingToolkit': '/images/app-logo-light.png',
+  'Thinking Toolkit': '/images/app-logo-light.png',
+  'Image Generation Toolkit': '/images/app-logo-light.png',
+  'DuckDuckGo Search Toolkit': '/images/duckduckgo_icon.png',
+  'Instagram Toolkit': '/images/instagram.png',
+  'Knowledge Search Toolkit': '/images/knowledeg_logo.png'
+};
+
 export const getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
@@ -86,7 +106,7 @@ export const formatBytes = (bytes, decimals = 2) => {
   const formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
 
   return `${formattedValue} ${sizes[i]}`;
-}
+};
 
 export const downloadFile = (fileId, fileName = null) => {
   const authToken = localStorage.getItem('accessToken');
@@ -181,7 +201,8 @@ export const refreshUrl = () => {
     return;
   }
 
-  const urlWithoutToken = window.location.origin + window.location.pathname;
+  const {origin, pathname} = window.location;
+  const urlWithoutToken = origin + pathname;
   window.history.replaceState({}, document.title, urlWithoutToken);
 };
 
@@ -195,35 +216,35 @@ export const loadingTextEffect = (loadingText, setLoadingText, timer) => {
   }, timer);
 
   return () => clearInterval(interval)
-}
+};
 
-export const openNewTab = (id, name, contentType, hasInternalId) => {
+export const openNewTab = (id, name, contentType, hasInternalId = false) => {
   EventBus.emit('openNewTab', {
     element: {id: id, name: name, contentType: contentType, internalId: hasInternalId ? createInternalId() : 0}
   });
-}
+};
 
 export const removeTab = (id, name, contentType, internalId) => {
   EventBus.emit('removeTab', {
     element: {id: id, name: name, contentType: contentType, internalId: internalId}
   });
-}
+};
 
 export const setLocalStorageValue = (key, value, stateFunction) => {
   stateFunction(value);
   localStorage.setItem(key, value);
-}
+};
 
 export const setLocalStorageArray = (key, value, stateFunction) => {
   stateFunction(value);
   const arrayString = JSON.stringify(value);
   localStorage.setItem(key, arrayString);
-}
+};
 
 const getInternalIds = () => {
   const internal_ids = localStorage.getItem("agi_internal_ids");
   return internal_ids ? JSON.parse(internal_ids) : [];
-}
+};
 
 const removeAgentInternalId = (internalId) => {
   let idsArray = getInternalIds();
@@ -259,8 +280,12 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("agent_time_unit_" + String(internalId));
     localStorage.removeItem("agent_time_value_" + String(internalId));
     localStorage.removeItem("agent_is_recurring_" + String(internalId));
+    localStorage.removeItem("is_agent_template_" + String(internalId));
+    localStorage.removeItem("agent_template_id_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_" + String(internalId));
+    localStorage.removeItem("agent_knowledge_id_" + String(internalId));
   }
-}
+};
 
 const removeAddToolkitInternalId = (internalId) => {
   let idsArray = getInternalIds();
@@ -271,7 +296,7 @@ const removeAddToolkitInternalId = (internalId) => {
     localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
     localStorage.removeItem('tool_github_' + String(internalId));
   }
-}
+};
 
 const removeToolkitsInternalId = (internalId) => {
   let idsArray = getInternalIds();
@@ -282,6 +307,49 @@ const removeToolkitsInternalId = (internalId) => {
     localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
     localStorage.removeItem('toolkit_tab_' + String(internalId));
     localStorage.removeItem('api_configs_' + String(internalId));
+  }
+};
+
+const removeKnowledgeInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('knowledge_name_' + String(internalId));
+    localStorage.removeItem('knowledge_description_' + String(internalId));
+    localStorage.removeItem('knowledge_index_' + String(internalId));
+  }
+}
+
+const removeAddDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('add_database_tab_' + String(internalId));
+    localStorage.removeItem('selected_db_' + String(internalId));
+    localStorage.removeItem('db_name_' + String(internalId));
+    localStorage.removeItem('db_collections_' + String(internalId));
+    localStorage.removeItem('pincone_api_' + String(internalId));
+    localStorage.removeItem('pinecone_env_' + String(internalId));
+    localStorage.removeItem('qdrant_api_' + String(internalId));
+    localStorage.removeItem('qdrant_url_' + String(internalId));
+    localStorage.removeItem('qdrant_port_' + String(internalId));
+  }
+}
+
+const removeDatabaseInternalId = (internalId) => {
+  let idsArray = getInternalIds();
+  const internalIdIndex = idsArray.indexOf(internalId);
+
+  if (internalIdIndex !== -1) {
+    idsArray.splice(internalIdIndex, 1);
+    localStorage.setItem('agi_internal_ids', JSON.stringify(idsArray));
+    localStorage.removeItem('db_details_collections_' + String(internalId));
   }
 }
 
@@ -302,10 +370,25 @@ export const resetLocalStorage = (contentType, internalId) => {
     case 'Toolkits':
       removeToolkitsInternalId(internalId);
       break;
+    case 'Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Knowledge':
+      removeKnowledgeInternalId(internalId);
+      break;
+    case 'Add_Database':
+      removeAddDatabaseInternalId(internalId);
+      break;
+    case 'Database':
+      removeDatabaseInternalId(internalId);
+      break;
+    case 'Settings':
+      localStorage.removeItem('settings_tab');
+      break;
     default:
       break;
   }
-}
+};
 
 export const createInternalId = () => {
   let newId = 1;
@@ -326,56 +409,49 @@ export const createInternalId = () => {
   }
 
   return newId;
-}
+};
 
 export const returnToolkitIcon = (toolkitName) => {
-  const toolkitData = [
-    {name: 'Jira Toolkit', imageSrc: '/images/jira_icon.svg'},
-    {name: 'Email Toolkit', imageSrc: '/images/gmail_icon.svg'},
-    {name: 'Google Calendar Toolkit', imageSrc: '/images/google_calender_icon.svg'},
-    {name: 'GitHub Toolkit', imageSrc: '/images/github_icon.svg'},
-    {name: 'Google Search Toolkit', imageSrc: '/images/google_search_icon.svg'},
-    {name: 'Searx Toolkit', imageSrc: '/images/searx_icon.svg'},
-    {name: 'Slack Toolkit', imageSrc: '/images/slack_icon.svg'},
-    {name: 'Web Scrapper Toolkit', imageSrc: '/images/webscraper_icon.svg'},
-    {name: 'Twitter Toolkit', imageSrc: '/images/twitter_icon.svg'},
-    {name: 'Google SERP Toolkit', imageSrc: '/images/google_serp_icon.svg'},
-    {name: 'File Toolkit', imageSrc: '/images/filemanager_icon.svg'},
-    {name: 'CodingToolkit', imageSrc: '/images/app-logo-light.png'},
-    {name: 'Image Generation Toolkit', imageSrc: '/images/app-logo-light.png'},
-    {name: 'DuckDuckGo Search Toolkit', imageSrc: '/images/duckduckgo_icon.png'},
-  ];
-
-  const toolkit = toolkitData.find((tool) => tool.name === toolkitName);
-  return toolkit ? toolkit.imageSrc : '/images/custom_tool.svg';
-}
+  return toolkitData[toolkitName] || '/images/custom_tool.svg';
+};
 
 export const returnResourceIcon = (file) => {
-  let fileIcon;
-  const fileTypeIcons = {
-    'application/pdf': '/images/pdf_file.svg',
-    'application/txt': '/images/txt_file.svg',
-    'text/plain': '/images/txt_file.svg',
+  const fileType = file.type;
+
+  switch (true) {
+    case fileType.includes('image'):
+      return '/images/img_file.svg';
+    case fileType === 'application/pdf':
+      return '/images/pdf_file.svg';
+    case fileType === 'application/txt' || fileType === 'text/plain':
+      return '/images/txt_file.svg';
+    default:
+      return '/images/default_file.svg';
+  }
+};
+
+export const returnDatabaseIcon = (database) => {
+  const dbTypeIcons = {
+    'Pinecone': '/images/pinecone.svg',
+    'Qdrant': '/images/qdrant.svg'
   };
 
-  if (file.type.includes('image')) {
-    fileIcon = '/images/img_file.svg';
-  } else {
-    fileIcon = fileTypeIcons[file.type] || '/images/default_file.svg';
-  }
-
-  return fileIcon;
+  return dbTypeIcons[database]
 };
 
 export const convertToTitleCase = (str) => {
-  if (str === null || str === '') {
+  if (!str) {
     return '';
   }
 
   const words = str.toLowerCase().split('_');
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
-}
+};
+
+export const preventDefault = (e) => {
+  e.stopPropagation();
+};
 
 export const excludedToolkits = () => {
   return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
