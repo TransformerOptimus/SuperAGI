@@ -2,6 +2,7 @@ import boto3
 from superagi.config.config import get_config
 from fastapi import HTTPException
 from superagi.lib.logger import logger
+import json
 
 
 class S3Helper:
@@ -58,3 +59,20 @@ class S3Helper:
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             return response['Body'].read().decode('utf-8')
         raise Exception(f"Error read_from_s3: {response}")
+    
+    def get_json_file(self, path):
+        """
+        Get a JSON file from S3.
+        Args:
+            path (str): The path to the JSON file.
+        Raises:
+            HTTPException: If the AWS credentials are not found.
+        Returns:
+            dict: The JSON file.
+        """
+        try:
+            obj = self.s3.get_object(Bucket=self.bucket_name, Key=path)
+            s3_response =  obj['Body'].read().decode('utf-8')
+            return json.loads(s3_response)
+        except:
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
