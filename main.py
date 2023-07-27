@@ -186,20 +186,21 @@ async def startup_event():
         # output of step is either tasks or set commands
         first_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "gb1").first()
         output = AgentPromptBuilder.get_super_agi_single_prompt()
+        tool_selection_prompt = AgentPromptBuilder.get_tool_selection_prompt()
         if first_step is None:
             first_step = AgentWorkflowStep(unique_id="gb1",
                                            prompt=output["prompt"], variables=str(output["variables"]),
                                            agent_workflow_id=agent_workflow.id, output_type="tools",
                                            step_type="TRIGGER",
                                            history_enabled=True,
-                                           completion_prompt="Determine which next tool to use, and respond using the format specified above:")
+                                           completion_prompt="Determine which next tool to use,and respond with only valid JSON conforming to the above schema")
             session.add(first_step)
             session.commit()
         else:
             first_step.prompt = output["prompt"]
             first_step.variables = str(output["variables"])
             first_step.output_type = "tools"
-            first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
+            first_step.completion_prompt = "Determine which next tool to use,and respond with only valid JSON conforming to the above schema"
             session.commit()
         first_step.next_step_id = first_step.id
         session.commit()
