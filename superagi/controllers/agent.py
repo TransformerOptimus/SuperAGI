@@ -492,10 +492,11 @@ def get_agent_configuration(agent_execution_id: int,
                             agent_id: int, 
                             Authorize: AuthJWT = Depends(check_auth)):
     """
-    Get the agent configuration using the agent ID.
+    Get the agent configuration using the agent ID and agent execution ID.
 
     Args:
         agent_id (int): Identifier of the agent.
+        agentt_execution_id (int): Identifier of the agent execution.
         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
 
     Returns:
