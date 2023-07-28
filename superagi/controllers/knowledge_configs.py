@@ -9,7 +9,7 @@ from fastapi_jwt_auth import AuthJWT
 router = APIRouter()
 
 @router.get("/marketplace/details/{knowledge_id}")
-def get_marketplace_knowledge_configs(knowledge_id: int, Authorize: AuthJWT = Depends(check_auth)):
+def get_marketplace_knowledge_configs(knowledge_id: int):
     knowledge_configs = db.session.query(KnowledgeConfigs).filter(KnowledgeConfigs.knowledge_id == knowledge_id).all()
     return knowledge_configs
 
