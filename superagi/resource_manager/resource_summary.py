@@ -33,14 +33,14 @@ class ResourceSummarizer:
             ResourceManager(str(agent_id)).save_document_to_vector_store(documents, str(resource_id), model_api_key, model_source)
         except Exception as e:
             logger.error("add_to_vector_store_and_create_summary: Unable to save document to vector store.", e)
-        summary = None
-        try:
-            summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents)
-        except Exception as e:
-            logger.error("add_to_vector_store_and_create_summary - Unable to generate summary of document.", e)
-        resource = self.session.query(Resource).filter(Resource.id == resource_id).first()
-        resource.summary = summary
-        self.session.commit()
+        # summary = None
+        # try:
+        #     summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_document(documents)
+        # except Exception as e:
+        #     logger.error("add_to_vector_store_and_create_summary - Unable to generate summary of document.", e)
+        # resource = self.session.query(Resource).filter(Resource.id == resource_id).first()
+        # resource.summary = summary
+        # self.session.commit()
 
     def generate_agent_summary(self, agent_id: int, generate_all: bool = False) -> str:
         """Generate a summary of all resources for an agent."""
@@ -58,29 +58,30 @@ class ResourceSummarizer:
 
         summary_texts = [resource.summary for resource in resources if resource.summary is not None]
 
+        resource_summary = " ".join([resource.name for resource in resources])
         # generate_all is added because we want to generate summary for all resources when agent is created
         # this is set to false when adding individual resources
-        if len(summary_texts) < len(resources) and generate_all:
-            file_paths = [resource.path for resource in resources if resource.summary is None]
-            for file_path in file_paths:
-                if resources[0].storage_type == 'S3':
-                    documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
-                else:
-                    documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
-                if documents is not None and len(documents) > 0:
-                    summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key, model_source=model_source).generate_summary_of_document(documents))
-
+        # if len(summary_texts) < len(resources) and generate_all:
+        #     file_paths = [resource.path for resource in resources if resource.summary is None]
+        #     for file_path in file_paths:
+        #         if resources[0].storage_type == 'S3':
+        #             documents = ResourceManager(str(agent_id)).create_llama_document_s3(file_path)
+        #         else:
+        #             documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
+        #         if documents is not None and len(documents) > 0:
+        #             summary_texts.append(LlamaDocumentSummary(model_api_key=model_api_key, model_source=model_source).generate_summary_of_document(documents))
+        #
         agent_last_resource = self.session.query(AgentConfiguration). \
             filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "last_resource_time").first()
-        if agent_last_resource is not None and \
-                datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at \
-                and not generate_all:
-            return
-
-        resource_summary = summary_texts[0] if summary_texts else None
-        if len(summary_texts) > 1:
-            resource_summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_texts(summary_texts)
+        # if agent_last_resource is not None and \
+        #         datetime.strptime(agent_last_resource.value, '%Y-%m-%d %H:%M:%S.%f') == resources[-1].updated_at \
+        #         and not generate_all:
+        #     return
+        #
+        # resource_summary = summary_texts[0] if summary_texts else None
+        # if len(summary_texts) > 1:
+        #     resource_summary = LlamaDocumentSummary(model_api_key=model_api_key).generate_summary_of_texts(summary_texts)
 
         if agent_config_resource_summary is not None:
             agent_config_resource_summary.value = resource_summary
