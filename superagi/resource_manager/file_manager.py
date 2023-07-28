@@ -7,8 +7,13 @@ from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
+import pdfkit
+from htmldocx import HtmlToDocx
 
 class UnsupportedFileTypeError(Exception):
+    pass
+
+class FileNotCreatedError(Exception):
     pass
 
 class FileManager:
@@ -62,7 +67,8 @@ class FileManager:
             final_path = ResourceHelper.get_resource_path(file_name)
         
         try:
-            self.save_file_by_type(file_name=file_name, file_path=final_path, content=content)
+            res = self.save_file_by_type(file_name=file_name, file_path=final_path, content=content)
+            print(f"---------------{res}-------------")
         except Exception as err:
             return f"Error write_file: {err}"
         
@@ -81,24 +87,55 @@ class FileManager:
             logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
         except Exception as err:
-            return f"Error write_csv_file: {err}"
+            raise FileNotCreatedError(f"Error write_file: {err}") from err
         
     def write_pdf_file(self, file_name: str ,file_path: str, content):
-        pass
-    
+        logger.info("Inside writing PDF")
+        # Saving the HTML file
+        html_file_path = f"{file_path[:-4]}.html"
+        self.write_txt_file(file_name=html_file_path.split('/')[-1], file_path=html_file_path, content=content)
+        
+        # Convert HTML file to a PDF file
+        try:
+            options = {
+                'quiet': '',
+                'page-size': 'Letter',
+                'margin-top': '0.75in',
+                'margin-right': '0.75in',
+                'margin-bottom': '0.75in',
+                'margin-left': '0.75in',
+                'enable-local-file-access': ''
+            }
+            config = pdfkit.configuration(wkhtmltopdf = "/usr/bin/wkhtmltopdf")
+            pdfkit.from_file(html_file_path, file_path, options = options, configuration = config)
+            return file_path
+        
+        except Exception as err:
+            raise FileNotCreatedError(f"Error write_file: {err}") from err
+            
     def write_docx_file(self, file_name: str ,file_path: str, content):
-        pass
-    
+        # Saving the HTML file
+        html_file_path = f"{file_path[:-4]}.html"
+        self.write_txt_file(file_name=html_file_path.split('/')[-1], file_path=html_file_path, content=content)
+
+        # Convert HTML file to a DOCx file
+        try:
+            new_parser = HtmlToDocx()
+            new_parser.parse_html_file(html_file_path, file_path)
+
+            return file_path
+        except Exception as err:
+            raise FileNotCreatedError(f"Error write_file: {err}") from err
+        
     def write_txt_file(self, file_name: str ,file_path: str, content) -> str:
         try:
             with open(file_path, mode="w") as file:
                 file.write(content)
                 file.close()
             self.write_to_s3(file_name, file_path)
-            logger.info(f"{file_name} - File written successfully")
             return file_path
         except Exception as err:
-            return f"Error write_file: {err}"
+            raise FileNotCreatedError(f"Error write_file: {err}") from err
     
     def get_agent_resource_path(self, file_name: str):
         return ResourceHelper.get_agent_write_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
@@ -147,15 +184,16 @@ class FileManager:
         
         # Dictionary to map file types to corresponding functions
         file_type_handlers = {
-            'txt': write_txt_file,
-            'pdf': write_pdf_file,
-            'docx': write_docx_file, 
-            'csv': write_csv_file,
-            'html': write_txt_file
+            'txt': self.write_txt_file,
+            'pdf': self.write_pdf_file,
+            'docx': self.write_docx_file, 
+            'doc': self.write_docx_file,
+            'csv': self.write_csv_file,
+            'html': self.write_txt_file
             # NOTE: Add more file types and corresponding functions as needed, These functions should be defined 
         }
         
-        if file_path in file_type_handlers:
+        if file_type in file_type_handlers:
             return file_type_handlers[file_type](file_name, file_path, content)
         else:
             raise UnsupportedFileTypeError(f"Unsupported file type: {file_type}. Cannot save the file.")
