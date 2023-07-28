@@ -60,7 +60,7 @@ def get_user_knowledge_list(organisation = Depends(get_user_organisation)):
     marketplace_knowledges = Knowledges.fetch_marketplace_list(page=0)
     user_knowledge_list = Knowledges.get_organisation_knowledges(db.session, organisation)
     for user_knowledge in user_knowledge_list:
-        if user_knowledge["name"] in [knowledge.name for knowledge in marketplace_knowledges]:
+        if user_knowledge["name"] in [knowledge['name'] for knowledge in marketplace_knowledges]:
             user_knowledge["is_marketplace"] = True
         else:
             user_knowledge["is_marketplace"] = False

@@ -194,7 +194,10 @@ class AgentTemplate(DBBaseModel):
         if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval", "knowledge"]:
-            return int(value)
+            if value is not None and value != 'None':
+                return int(value)
+            else:
+                return None  
         elif key == "goal" or key == "constraints" or key == "instruction":
             return eval(value)
         elif key == "tools":
