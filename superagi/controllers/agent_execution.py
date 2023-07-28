@@ -172,6 +172,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
+    
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = db_agent_execution,
                                                                      agent_execution_configs = agent_execution_configs)
 

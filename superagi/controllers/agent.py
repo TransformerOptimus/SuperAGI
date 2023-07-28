@@ -482,8 +482,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     if not agent:
         raise HTTPException(status_code = 404, detail = "Agent not found")
 
-    # Query the AgentConfiguration table for the specified keys
-
+    # Query the AgentConfiguration table and the AgentExecuitonConfiguration table for all the keys
     results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
                                                           AgentConfiguration.agent_id == agent_id).all()
     results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(
