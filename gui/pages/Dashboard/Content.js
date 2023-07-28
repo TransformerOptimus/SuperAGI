@@ -9,6 +9,7 @@ import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import ApmDashboard from "../Content/APM/ApmDashboard";
+import Models from "../Content/Models/Models";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
@@ -42,6 +43,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
+
+  const models=[{'name':'GPT', 'owner':'Superagi'},{'name':'Google', 'owner':'Superagi'},{'name':'GPT', 'owner':'Superagi'},{'name':'Google', 'owner':'Superagi'},{'name':'GPT', 'owner':'Superagi'},{'name':'Google', 'owner':'Superagi'},{'name':'GPT', 'owner':'Superagi'},{'name':'Google', 'owner':'Superagi'}];
 
   useEffect(() => {
     if (prevView !== selectedView) {
@@ -310,11 +313,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
-        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
+        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
             {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
+            {selectedView === 'models' && <div><Models sendModelData={addTab} models={models}/></div>}
           </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
@@ -364,7 +368,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>
           </div>
         </div> : <div className={styles.main_workspace}
-                      style={(selectedView === 'agents' || selectedView === 'toolkits') ? {width: '80.5vw'} : {width: '100%'}}>
+                      style={(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') ? {width: '80.5vw'} : {width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (

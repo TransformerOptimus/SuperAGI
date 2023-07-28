@@ -49,6 +49,14 @@ export default function SideBar({onSelectEvent}) {
           <div>Knowledge</div>
         </div>
       </div>
+        <div className={styles.selection_section}>
+            <div onClick={() => handleClick(sectionSelected !== 'models' ? 'models' : '')}
+                 className={styles.section}>
+                <div className={styles.button_icon}><Image width={17} height={17} src="/images/models.svg"
+                                                           alt="model-icon"/></div>
+                <div>Models</div>
+            </div>
+        </div>
     </div>
   );
 }
