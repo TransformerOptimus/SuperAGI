@@ -33,7 +33,7 @@ export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseD
         .then((response) => {
           console.log(response)
           toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
           EventBus.emit('reFetchKnowledge', {});
         })
         .catch((error) => {
@@ -43,7 +43,7 @@ export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseD
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
-          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+            toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
           removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
           EventBus.emit('reFetchKnowledge', {});
         })

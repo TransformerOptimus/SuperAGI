@@ -32,7 +32,8 @@ def get_knowledge_list(
         dict: The response containing the marketplace list.
 
     """
-
+    if page < 0:
+        page = 0
     marketplace_knowledges = Knowledges.fetch_marketplace_list(page)
     marketplace_knowledges_with_install = Knowledges.get_knowledge_install_details(db.session, marketplace_knowledges, organisation)
     for knowledge in marketplace_knowledges_with_install:
@@ -56,10 +57,10 @@ def get_marketplace_knowledge_list(page: int = 0):
 
 @router.get("/user/list")
 def get_user_knowledge_list(organisation = Depends(get_user_organisation)):
-    marketplace_knowledges = Knowledges.fetch_marketplace_list(page=-1)
+    marketplace_knowledges = Knowledges.fetch_marketplace_list(page=0)
     user_knowledge_list = Knowledges.get_organisation_knowledges(db.session, organisation)
     for user_knowledge in user_knowledge_list:
-        if user_knowledge["name"] in [knowledge.name for knowledge in marketplace_knowledges]:
+        if user_knowledge["name"] in [knowledge['name'] for knowledge in marketplace_knowledges]:
             user_knowledge["is_marketplace"] = True
         else:
             user_knowledge["is_marketplace"] = False
