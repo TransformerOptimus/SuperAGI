@@ -10,6 +10,7 @@ import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import ApmDashboard from "../Content/APM/ApmDashboard";
 import Models from "../Content/Models/Models";
+import AddModel from "../Content/Models/AddModel";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
@@ -29,6 +30,7 @@ import AddTool from "@/pages/Content/Toolkits/AddTool";
 import {createInternalId, resetLocalStorage, preventDefault} from "@/utils/utils";
 import AddDatabase from "@/pages/Dashboard/Settings/AddDatabase";
 import DatabaseDetails from "@/pages/Dashboard/Settings/DatabaseDetails";
+import ModelForm from "@/pages/Content/Models/ModelForm";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -40,7 +42,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
-  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database','Add_Model'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
 
@@ -390,6 +392,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {(tab.contentType === 'Database' || tab.contentType === 'Add_Database') &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/database.svg"
                                                                 alt="database-icon"/></div>}
+                    {(tab.contentType === 'Model' || tab.contentType === 'Add_Model') &&
+                        <div className={styles.tab_active}><Image width={13} height={13} src="/images/models.svg"
+                                                                  alt="model-icon" /></div>}
                     {tab.contentType === 'Settings' &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg"
                                                                 alt="settings-icon"/></div>}
@@ -441,6 +446,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                           organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
+                    {tab.contentType === 'Add_Model' &&
+                        <AddModel />}
                     {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
                   </div>}
                 </div>

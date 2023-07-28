@@ -753,6 +753,13 @@ p {
     font-size: 14px;
     font-weight: 400;
 }
+.text_16{
+    color: #FFF;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
 
 .text_20_bold{
     color: #FFF;
@@ -831,6 +838,7 @@ p {
 .h_100{height: 100%}
 
 .justify_center{justify-content: center}
+.justify_end{justify-content: flex-end}
 .display_flex{display: inline-flex}
 .align_center{align-items: center}
 .align_start{align-items: flex-start}
@@ -1197,4 +1205,28 @@ tr{
 
 .item_box:hover{
     background-color: #494856;
+}
+
+.model_container{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.model_selection_container, .model_selected_container{
+    display: flex;
+    padding: 12px;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 0 0;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.20);
+    width: 100%;
+    height: 140px;
+    transition: 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.model_selection_container:active, .model_selection_container:hover, .model_selected_container{
+    border: 1px solid rgba(255, 255, 255, 0.60);
 }
