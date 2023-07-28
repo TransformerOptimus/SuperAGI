@@ -467,6 +467,10 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     if type(agent_execution_id) == None or type(agent_execution_id) == str:
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
+    #Fetching agent_execution_id if the agent_execution_id received is -1
+    if agent_execution_id == -1:
+        agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id).last().id
+
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
     if agent_execution_config is None:
