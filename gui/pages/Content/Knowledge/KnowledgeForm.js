@@ -167,7 +167,7 @@ export default function KnowledgeForm({
           <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
         </div>
         <div>
-          Currently we support Open AI “text-knowledge-ada-002” model knowledge only. Please make sure you add the same.
+          Currently we support Open AI “text-embedding-ada-002” model knowledge only. Please make sure you add the same.
         </div>
       </div>
     </div>
