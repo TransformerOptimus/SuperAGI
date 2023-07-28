@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from './Market.module.css';
 import {fetchToolTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {loadingTextEffect} from "@/utils/utils";
+import {loadingTextEffect, excludedToolkits, returnToolkitIcon} from "@/utils/utils";
 import axios from 'axios';
 
 export default function MarketTools() {
@@ -20,7 +20,8 @@ export default function MarketTools() {
       axios.get('https://app.superagi.com/api/toolkits/marketplace/list/0')
         .then((response) => {
           const data = response.data || [];
-          setToolTemplates(data);
+          const filteredData = data?.filter((item) => !excludedToolkits().includes(item.name));
+          setToolTemplates(filteredData);
           setIsLoading(false);
         })
         .catch((error) => {
@@ -30,7 +31,8 @@ export default function MarketTools() {
       fetchToolTemplateList()
         .then((response) => {
           const data = response.data || [];
-          setToolTemplates(data);
+          const filteredData = data?.filter((item) => !excludedToolkits().includes(item.name));
+          setToolTemplates(filteredData);
           setIsLoading(false);
         })
         .catch((error) => {
@@ -48,26 +50,18 @@ export default function MarketTools() {
     <div style={showMarketplace ? {marginLeft: '8px'} : {marginLeft: '3px'}}>
       <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
         {!isLoading ? <div>
-          {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item, index) => (
-            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
-                 onClick={() => handleTemplateClick(item)}>
-              <div style={{display: 'inline', overflow: 'auto'}}>
-                {/*<Image style={{borderRadius: '25px',background:'black',position:'absolute'}} width={40} height={40} src="/images/app-logo-light.png" alt="tool-icon"/>*/}
-                <div>{item.name}</div>
-                <div style={{color: '#888888', lineHeight: '16px'}}>by SuperAgi&nbsp;<Image width={14} height={14}
-                                                                                            src="/images/is_verified.svg"
-                                                                                            alt="is_verified"/></div>
-                <div className={styles.tool_description}>{item.description}</div>
+          {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item) => (
+            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}} onClick={() => handleTemplateClick(item)}>
+              <div style={{display: 'inline-flex', overflow: 'auto'}}>
+                <Image className={styles.tools_icon} width={40} height={40} src={returnToolkitIcon(item.name)} alt="tool-icon"/>
+                <div className="ml_12 mb_8">
+                    <div>{item.name}</div>
+                    <div style={{color: '#888888', lineHeight: '16px'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
+                </div>
               </div>
+              <div className={styles.tool_description}>{item.description}</div>
             </div>
-          ))}</div> : <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: '40px',
-            width: '100%'
-          }}>
+          ))}</div> : <div className="center_container mt_40">
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
             <span className={styles.feed_title} style={{marginTop: '8px'}}>No Tools found!</span>
           </div>}

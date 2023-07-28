@@ -19,5 +19,9 @@ class BaseLlm(ABC):
         pass
 
     @abstractmethod
+    def get_models(self):
+        pass
+
+    @abstractmethod
     def verify_access_key(self):
         pass

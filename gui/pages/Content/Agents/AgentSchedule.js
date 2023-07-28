@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {setLocalStorageValue, convertToGMT} from "@/utils/utils";
+import {setLocalStorageValue, convertToGMT, preventDefault} from "@/utils/utils";
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import styles1 from "@/pages/Content/Agents/react-datetime.css";
 import Image from "next/image";
@@ -15,7 +15,8 @@ export default function AgentSchedule({
                                         type,
                                         agentId,
                                         setCreateModal,
-                                        setCreateEditModal
+                                        setCreateEditModal,
+                                        env
                                       }) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [timeDropdown, setTimeDropdown] = useState(false);
@@ -23,7 +24,7 @@ export default function AgentSchedule({
 
   const [startTime, setStartTime] = useState('');
 
-  const timeUnitArray = ['Days', 'Hours', 'Minutes'];
+  const timeUnitArray = (env === 'PROD') ? ['Days', 'Hours'] : ['Days', 'Hours', 'Minutes'];
   const [timeUnit, setTimeUnit] = useState(timeUnitArray[1]);
   const [timeValue, setTimeValue] = useState(null);
 
@@ -134,10 +135,6 @@ export default function AgentSchedule({
 
   const handleExpiryRuns = (event) => {
     setLocalStorageValue("agent_expiry_runs_" + String(internalId), event.target.value, setExpiryRuns);
-  };
-
-  const preventDefault = (e) => {
-    e.stopPropagation();
   };
 
   const addScheduledAgent = () => {

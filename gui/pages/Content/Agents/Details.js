@@ -11,12 +11,28 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
   const [filteredInstructions, setFilteredInstructions] = useState(false);
   const [scheduleText, setScheduleText] = useState('Agent is not Scheduled');
 
+  const info_text = {
+    marginLeft: '7px',
+  };
+
+  const info_text_secondary = {
+    marginLeft: '3px',
+    marginTop: '2px',
+    color: '#888888',
+    lineHeight: '13px',
+    fontSize: '11px'
+  };
+
+  const openToolkitTab = (toolId) => {
+    EventBus.emit('openToolkitTab', {toolId: toolId});
+  }
+
   useEffect(() => {
     setFilteredInstructions(instructions?.filter(instruction => instruction.trim() !== ''));
   }, [instructions]);
 
   useEffect(() => {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       if (agentScheduleDetails?.recurrence_interval !== null) {
         if ((agentScheduleDetails?.expiry_runs === -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null) {
           let expiryDate;
@@ -45,22 +61,6 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       }
     }
   }, [agentScheduleDetails]);
-
-  const info_text = {
-    marginLeft: '7px',
-  };
-
-  const info_text_secondary = {
-    marginLeft: '3px',
-    marginTop: '2px',
-    color: '#888888',
-    lineHeight: '13px',
-    fontSize: '11px'
-  };
-
-  const openToolkitTab = (toolId) => {
-    EventBus.emit('openToolkitTab', {toolId: toolId});
-  }
 
   return (<>
     <div className={styles.history_box} style={{background: '#272335', padding: '15px', cursor: 'default'}}>
@@ -162,6 +162,10 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
         <div style={info_text}>{agentDetails?.agent_type || ''}</div>
       </div>
+      {agentDetails?.knowledge_name && <div className={styles.agent_info_box}>
+        <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
+        <div style={info_text}>{agentDetails?.knowledge_name}</div>
+      </div>}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/deployed_code.svg" alt="model-icon"/></div>
         <div style={info_text}>{agentDetails?.model || ''}</div>
@@ -170,10 +174,10 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       {/*  <div><Image width={15} height={15} src="/images/cancel_presentation.svg" alt="exit-icon"/></div>*/}
       {/*  <div style={info_text}>{exit}</div>*/}
       {/*</div>*/}
-      <div className={styles.agent_info_box}>
+      {/* <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/overview.svg" alt="window-icon"/></div>
         <div style={info_text}>{agentDetails?.memory_window || 0} milliseconds</div>
-      </div>
+      </div> */}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/key.svg" alt="permission-type-icon"/></div>
         <div style={info_text}>{agentDetails?.permission_type.replace(/\s*\([^)]*\)/g, '') || ''}</div>
@@ -182,7 +186,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
         <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
         <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
       </div>}
-      {agent.is_scheduled && <div className={styles.agent_info_box}>
+      {agent?.is_scheduled && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/event_repeat.svg" alt="info-icon"/></div>
         <div style={info_text}>{scheduleText}</div>
       </div>}

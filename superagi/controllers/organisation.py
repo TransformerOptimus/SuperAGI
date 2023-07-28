@@ -6,8 +6,13 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 
+from superagi.helper.auth import get_user_organisation
 from superagi.helper.auth import check_auth
+from superagi.helper.encyption_helper import decrypt_data
 from superagi.helper.tool_helper import register_toolkits
+from superagi.llms.google_palm import GooglePalm
+from superagi.llms.openai import OpenAi
+from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
@@ -34,6 +39,7 @@ class OrganisationIn(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 # CRUD Operations
 @router.post("/add", response_model=OrganisationOut, status_code=201)
@@ -141,3 +147,31 @@ def get_organisations_by_user(user_id: int):
     organisation = Organisation.find_or_create_organisation(db.session, user)
     Project.find_or_create_default_project(db.session, organisation.id)
     return organisation
+
+
+@router.get("/llm_models")
+def get_llm_models(organisation=Depends(get_user_organisation)):
+    """
+    Get all the llm models associated with an organisation.
+
+    Args:
+        organisation: Organisation data.
+    """
+
+    model_api_key = db.session.query(Configuration).filter(Configuration.organisation_id == organisation.id,
+                                                           Configuration.key == "model_api_key").first()
+    model_source = db.session.query(Configuration).filter(Configuration.organisation_id == organisation.id,
+                                                          Configuration.key == "model_source").first()
+
+    if model_api_key is None or model_source is None:
+        raise HTTPException(status_code=400,
+                            detail="Organisation not found")
+
+    decrypted_api_key = decrypt_data(model_api_key.value)
+    models = []
+    if model_source.value == "OpenAi":
+        models = OpenAi(api_key=decrypted_api_key).get_models()
+    elif model_source.value == "Google Palm":
+        models = GooglePalm(api_key=decrypted_api_key).get_models()
+
+    return models

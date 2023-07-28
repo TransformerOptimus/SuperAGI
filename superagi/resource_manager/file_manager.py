@@ -1,5 +1,6 @@
 import csv
 from sqlalchemy.orm import Session
+from superagi.config.config import get_config
 import os
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
@@ -79,10 +80,9 @@ class FileManager:
         
     def write_csv_file(self, file_name: str, final_path: str, csv_data) -> str:
         try:
-            with open(final_path, mode="w") as file:
+            with open(final_path, mode="w", newline="") as file:
                 writer = csv.writer(file, lineterminator="\n")
-                for row in csv_data:
-                    writer.writerows(row)
+                writer.writerows(csv_data)
             self.write_to_s3(file_name, final_path)
             logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
