@@ -469,7 +469,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
 
     #Fetching agent_execution_id if the agent_execution_id received is -1
     if agent_execution_id == -1:
-        agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id).last().id
+        agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(AgentExecution.created_at).first().id
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
@@ -482,39 +482,33 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     # Define the agent_config keys to fetch
     keys_to_fetch = AgentTemplate.main_keys()
     agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False)).first()
-
     if not agent:
         raise HTTPException(status_code = 404, detail = "Agent not found")
 
     # Query the AgentConfiguration table and the AgentExecuitonConfiguration table for all the keys
-    results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
-                                                          AgentConfiguration.agent_id == agent_id).all()
-    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(
-                                                          AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+    results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
     
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
+    
 
-    for results in results_agent_execution:
-        key = results.key
-        value = results.value
-        if key in results_agent and value is not None:
-            results_agent.key = value
+    results_agent_dict = {result.key: result.value for result in results_agent}
+    results_agent_execution_dict = {result.key: result.value for result in results_agent_execution}
 
+    for key, value in results_agent_execution_dict.items():
+        if key in results_agent_dict and value is not None:
+            results_agent_dict[key] = value
+
+        
     # Construct the JSON response
-    response = {result.key: result.value for result in results_agent}
-    response = merge(response, {"name": agent.name, "description": agent.description,
-                                # Query the AgentConfiguration table for the speci
-                                "goal": eval(response["goal"]),
-                                "instruction": eval(response.get("instruction", '[]')),
-                                "calls": total_calls,
-                                "tokens": total_tokens,
-                                "constraints": eval(response.get("constraints")),
-                                "tools": [int(x) for x in json.loads(response["tools"])]})
-    tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
-    response["tools"] = tools
+    results_agent_dict["name"] = agent.name
+    results_agent_dict["description"] = agent.description
+    results_agent_dict["calls"] = total_calls
+    results_agent_dict["tokens"] = total_tokens
+    response  = json.dumps(results_agent_dict)
 
     # Close the session
     db.session.close()
