@@ -22,6 +22,8 @@ class LlamaDocumentSummary:
         :param documents: list of Document objects
         :return: summary of the documents
         """
+        if documents is None or not documents:
+            return
         from llama_index import LLMPredictor, ServiceContext, ResponseSynthesizer, DocumentSummaryIndex
         os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "") or self.model_api_key
         llm_predictor_chatgpt = LLMPredictor(llm=self._build_llm())

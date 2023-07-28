@@ -1,11 +1,10 @@
-from typing import List, Dict, Tuple, Optional, Iterator, Union, Any
+from typing import List, Dict, Union, Any
+
+from sqlalchemy import text, func, and_
 from sqlalchemy.orm import Session
-from sqlalchemy.orm.query import Query
+
 from superagi.models.events import Event
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import text, func, Integer, and_
-from collections import defaultdict
-import logging
+
 
 class AnalyticsHelper:
 

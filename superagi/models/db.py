@@ -29,7 +29,13 @@ def connect_db():
         db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
 
     # Create the SQLAlchemy engine
-    engine = create_engine(db_url)
+    engine = create_engine(db_url,
+                           pool_size=20,  # Maximum number of database connections in the pool
+                           max_overflow=50,  # Maximum number of connections that can be created beyond the pool_size
+                           pool_timeout=30,  # Timeout value in seconds for acquiring a connection from the pool
+                           pool_recycle=1800,  # Recycle connections after this number of seconds (optional)
+                           pool_pre_ping=False,  # Enable connection health checks (optional)
+                           )
 
     # Test the connection
     try:

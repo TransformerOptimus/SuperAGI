@@ -12,6 +12,9 @@ First of all, thank you for taking the time to contribute to this project. We tr
 
 This document provides guidelines and best practices to help you to contribute effectively. These are meant to serve as guidelines, not strict rules. We encourage you to use your best judgment and feel comfortable proposing changes to this document through a pull request.
 
+For all contributions, a CLA (Contributor License Agreement) needs to be signed
+[here](https://cla-assistant.io/TransformerOptimus/SuperAGI) before (or after) the pull request has been submitted.
+
 **********************************Table of Content:********************************** 
 1. [Code of conduct](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#code-of-conduct) 
 2. [Quick Start](https://github.com/TransformerOptimus/SuperAGI/blob/CONTRIBUTING.md#quick-start)

@@ -1,6 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, Mock
-from superagi.agent.output_parser import AgentOutputParser
+
+import pytest
+
+from superagi.agent.output_parser import AgentSchemaOutputParser
 from superagi.agent.super_agi import SuperAgi
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
@@ -31,7 +33,7 @@ def super_agi():
     tools = [MockTool(name="NotRestrictedTool", permission_required=False),
              MockTool(name="RestrictedTool", permission_required=True)]
     agent_config = {"permission_type": "RESTRICTED", "agent_execution_id": 1, "agent_id": 2}
-    output_parser = AgentOutputParser()
+    output_parser = AgentSchemaOutputParser()
 
     super_agi = SuperAgi(ai_name, ai_role, llm, memory, tools, agent_config, output_parser)
     return super_agi

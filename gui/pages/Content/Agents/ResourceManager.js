@@ -14,17 +14,25 @@ export default function ResourceManager({agentId, runs}) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
+  function handleFile(files) {
+    if (files.length > 0) {
+      const sizeInMB = files[0].size / (1024 * 1024);
+      if (sizeInMB > 5) {
+        toast.error('File size should not exceed 5MB', {autoClose: 1800});
+      } else {
+        const fileData = {
+          "file": files[0],
+          "name": files[0].name,
+          "size": files[0].size,
+          "type": files[0].type,
+        };
+        uploadResource(fileData);
+      }
+    }
+  };
   const handleFileInputChange = (event) => {
     const files = event.target.files;
-    if (files.length > 0) {
-      const fileData = {
-        "file": files[0],
-        "name": files[0].name,
-        "size": files[0].size,
-        "type": files[0].type,
-      };
-      uploadResource(fileData);
-    }
+    handleFile(files);
   };
 
   const handleDropAreaClick = () => {
@@ -48,15 +56,7 @@ export default function ResourceManager({agentId, runs}) {
     event.preventDefault();
     setIsDragging(false);
     const files = event.dataTransfer.files;
-    if (files.length > 0) {
-      const fileData = {
-        "file": files[0],
-        "name": files[0].name,
-        "size": files[0].size,
-        "type": files[0].type,
-      };
-      uploadResource(fileData);
-    }
+    handleFile(files);
   };
 
   useEffect(() => {
@@ -73,10 +73,10 @@ export default function ResourceManager({agentId, runs}) {
     uploadFile(agentId, formData)
       .then((response) => {
         fetchResources();
-        toast.success('Resource added successfully', { autoClose: 1800 });
+        toast.success('Resource added successfully', {autoClose: 1800});
       })
       .catch((error) => {
-        toast.error(error, { autoClose: 1800 });
+        toast.error(error, {autoClose: 1800});
         console.error('Error uploading resource:', error);
       });
   }
@@ -96,28 +96,37 @@ export default function ResourceManager({agentId, runs}) {
   }
 
   return (<>
-    <div className={styles.detail_top} style={{height:'auto',marginBottom:'10px'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%'}}>
-        <div style={{display:'flex',order:0}}>
+    <div className={styles.detail_top} style={{height: 'auto', marginBottom: '10px'}}>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+        <div style={{display: 'flex', order: 0}}>
           <div>
-            <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
+            <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {
+              background: '#454254',
+              padding: '5px 10px'
+            } : {background: 'transparent', padding: '5px 10px'}}>
               Input
             </button>
           </div>
           <div>
-            <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {background:'#454254',padding:'5px 10px'} : {background:'transparent',padding:'5px 10px'}}>
+            <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {
+              background: '#454254',
+              padding: '5px 10px'
+            } : {background: 'transparent', padding: '5px 10px'}}>
               Output
             </button>
           </div>
         </div>
       </div>
     </div>
-    <div className={styles.detail_body} style={{height:'auto'}}>
-      {channel === 'input' && <div style={{paddingBottom:'10px'}}>
-        <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} onClick={handleDropAreaClick}>
-          <div><p style={{textAlign:'center',color:'white',fontSize:'14px'}}>+ Choose or drop a file here</p>
-          <p style={{textAlign:'center',color:'#888888',fontSize:'12px'}}>Supported file formats are txt, pdf, docx, epub, csv, pptx only</p>
-            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileInputChange}/></div>
+    <div className={styles.detail_body} style={{height: 'auto'}}>
+      {channel === 'input' && <div style={{paddingBottom: '10px'}}>
+        <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter}
+             onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
+             onClick={handleDropAreaClick}>
+          <div><p style={{textAlign: 'center', color: 'white', fontSize: '14px'}}>+ Choose or drop a file here</p>
+            <p style={{textAlign: 'center', color: '#888888', fontSize: '12px'}}>Supported file formats are txt, pdf,
+              docx, epub, csv, pptx only</p>
+            <input type="file" ref={fileInputRef} style={{display: 'none'}} onChange={handleFileInputChange}/></div>
         </div>
       </div>}
       <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs}/>

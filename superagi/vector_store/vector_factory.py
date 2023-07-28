@@ -74,6 +74,7 @@ class VectorFactory:
             Qdrant.create_collection(client, index_name, len(sample_embedding))
             return qdrant.Qdrant(client, embedding_model, index_name)
 
+
         if vector_store == VectorStoreType.MILVUS:
             uri = get_config("MILVUS_URI") or "http://localhost:19530"
             token = get_config("MILVUS_TOKEN") or None
@@ -86,3 +87,23 @@ class VectorFactory:
             )
 
         raise ValueError(f"Vector store {vector_store} not supported")
+    
+    @classmethod
+    def build_vector_storage(cls, vector_store: VectorStoreType, index_name, embedding_model = None, **creds):
+        if isinstance(vector_store, str):
+            vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        
+        if vector_store == VectorStoreType.PINECONE:
+            try:
+                pinecone.init(api_key = creds["api_key"], environment = creds["environment"])
+                index = pinecone.Index(index_name)
+                return Pinecone(index, embedding_model)
+            except UnauthorizedException:
+                raise ValueError("PineCone API key not found")
+        
+        if vector_store == VectorStoreType.QDRANT:
+            try:
+                client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
+                return qdrant.Qdrant(client, embedding_model, index_name)
+            except:
+                raise ValueError("Qdrant API key not found")
