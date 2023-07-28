@@ -110,8 +110,11 @@ class AgentIterationStepHandler:
     def _update_agent_execution_next_step(self, execution, next_step_id, workflow_step, step_response: str = "default"):
         if next_step_id == -1:
             next_step = AgentWorkflowStep.fetch_next_step(self.session, execution.current_agent_step_id, step_response)
-            print(next_step)
-            AgentExecution.assign_next_step_id(self.session, self.agent_execution_id, next_step.id)
+            if str(next_step) == "COMPLETE":
+                execution.current_agent_step_id = -1
+                execution.status = "COMPLETED"
+            else:
+                AgentExecution.assign_next_step_id(self.session, self.agent_execution_id, next_step.id)
         else:
             execution.iteration_workflow_step_id = next_step_id
         self.session.commit()
