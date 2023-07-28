@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import superagi.worker
 from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandler
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
+from superagi.agent.task_queue import TaskQueue
 from superagi.apm.event_handler import EventHandler
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -12,6 +13,7 @@ from superagi.llms.llm_model_factory import get_model
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.cluster_agent_execution import ClusterAgentExecution
 from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.db import connect_db
@@ -94,6 +96,7 @@ class AgentExecutor:
                     ClusterExecution.update_cluster_execution_status(session, cluster_execution_id,"READY")
                     queue_name = "cluster_execution" + str(cluster_execution_id)
                     tasks_queue = TaskQueue(queue_name)
+                    tasks_queue.complete_task("COMPLETE")
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return
