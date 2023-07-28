@@ -86,12 +86,18 @@ export default function KnowledgeTemplate({template, env}) {
     }
   }, []);
 
-  const handleInstallClick = (indexId) => {
+  const handleInstallClick = (index) => {
+    setIndexDropdown(false);
+
+    if(!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0]) {
+      return;
+    }
+
     setInstalled("Installing");
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('knowledge_to_install', template.name);
-      localStorage.setItem('knowledge_index_to_install', indexId);
+      localStorage.setItem('knowledge_index_to_install', index.id);
 
       if (env === 'PROD') {
         window.open(`https://app.superagi.com/`, '_self');
@@ -106,9 +112,7 @@ export default function KnowledgeTemplate({template, env}) {
       return;
     }
 
-    setIndexDropdown(false);
-
-    installKnowledgeTemplate(template.name, indexId)
+    installKnowledgeTemplate(template.name, index.id)
       .then((response) => {
           toast.success("Knowledge installed", {autoClose: 1800});
           setInstalled('Installed');
@@ -187,7 +191,7 @@ export default function KnowledgeTemplate({template, env}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Pinecone</div>
                           {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                               onClick={() => handleInstallClick(index.id)} style={{
+                                                               onClick={() => handleInstallClick(index)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',
@@ -209,7 +213,7 @@ export default function KnowledgeTemplate({template, env}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Qdrant</div>
                           {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                              onClick={() => handleInstallClick(index.id)} style={{
+                                                              onClick={() => handleInstallClick(index)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',

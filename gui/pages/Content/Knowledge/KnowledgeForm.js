@@ -135,8 +135,13 @@ export default function KnowledgeForm({
   }
 
   const handleIndexSelect = (index) => {
-    setLocalStorageArray("knowledge_index_" + String(internalId), index, setSelectedIndex);
     setIndexDropdown(false);
+
+    if(!checkIndexValidity(index.is_valid_state)[0]) {
+      return;
+    }
+
+    setLocalStorageArray("knowledge_index_" + String(internalId), index, setSelectedIndex);
   }
 
   const checkIndexValidity = (validState) => {
