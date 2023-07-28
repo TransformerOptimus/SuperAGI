@@ -508,7 +508,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     results_agent_dict["description"] = agent.description
     results_agent_dict["calls"] = total_calls
     results_agent_dict["tokens"] = total_tokens
-    response  = json.dumps(results_agent_dict)
+    response = json.dumps(results_agent_dict)
 
     # Close the session
     db.session.close()
