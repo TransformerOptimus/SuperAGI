@@ -4,6 +4,7 @@ import {getExecutionFeeds, getDateTime} from "@/pages/api/DashboardService";
 import Image from "next/image";
 import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import {ClipLoader} from 'react-spinners';
 
 export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent}) {
   const [loadingText, setLoadingText] = useState("Thinking");
@@ -13,6 +14,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const interval = window.setInterval(function () {
@@ -73,6 +75,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchFeeds() {
     if (selectedRunId !== null) {
+      setIsLoading(true);
       getExecutionFeeds(selectedRunId)
         .then((response) => {
           const data = response.data;
@@ -80,9 +83,11 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           setRunStatus(data.status);
           setFetchedData(data.permissions);
           EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
+          setIsLoading(false); //add this line
         })
         .catch((error) => {
           console.error('Error fetching execution feeds:', error);
+          setIsLoading(false); // and this line
         });
     }
   }
@@ -160,8 +165,20 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               </div>}
           </div>
         }
-        {!agent?.is_scheduled && !agent?.is_running && feeds.length < 1 &&
-            <div style={{color: 'white', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>The Agent is not scheduled</div>
+        {feeds.length < 1 && !agent?.is_running && !agent?.is_scheduled ?
+          (isLoading ?
+            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+              <ClipLoader/>
+            </div>
+            : <div style={{
+              color: 'white',
+              fontSize: '14px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              width: '100%'
+            }}>The Agent is not scheduled</div>) : null
         }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&

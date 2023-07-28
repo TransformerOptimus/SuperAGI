@@ -3,7 +3,7 @@ import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
 import {getActiveRuns, getAgentRuns, getAllAgents, getToolsUsage, getMetrics} from "@/pages/api/DashboardService";
-import {formatNumber, formatTime} from "@/utils/utils";
+import {formatNumber, formatTime, returnToolkitIcon} from "@/utils/utils";
 import {BarGraph} from "./BarGraph.js";
 import {WidthProvider, Responsive} from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
@@ -11,7 +11,7 @@ import 'react-resizable/css/styles.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-export default function ApmDashboard() {
+export default function ApmDashboard(key) {
   const [agentDetails, setAgentDetails] = useState([]);
   const [tokenDetails, setTokenDetails] = useState([]);
   const [runDetails, setRunDetails] = useState(0);
@@ -221,7 +221,11 @@ export default function ApmDashboard() {
                     <tbody>
                     {toolsUsed.map((tool, index) => (
                       <tr key={index}>
-                        <td className="table_data" style={{width: '56%'}}>{tool.tool_name}</td>
+                        <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                          <Image className="image_class" style={{background: 'black'}} width={20} height={20}
+                                 src={returnToolkitIcon(tool.toolkit)} alt="tool-icon"/>
+                          <span>{tool.tool_name}</span>
+                        </td>
                         <td className="table_data text_align_right" style={{width: '22%'}}>{tool.unique_agents}</td>
                         <td className="table_data text_align_right" style={{width: '22%'}}>{tool.total_usage}</td>
                       </tr>
