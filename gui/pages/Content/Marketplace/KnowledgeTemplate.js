@@ -306,7 +306,7 @@ export default function KnowledgeTemplate({template, env}) {
             <div style={{overflowY: 'scroll', height: '84vh'}}>
               <div className={styles2.left_container}
                    style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
-                <span className={styles2.description_text}>Overview</span><br/>
+                <span className="text_20_bold">Overview</span><br/>
                 {/*{templateData?.overview.map((item, index) => (<div key={index} style={{marginTop: '0'}}>*/}
                 {/*  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>*/}
                 {/*  {index !== item.length - 1}*/}

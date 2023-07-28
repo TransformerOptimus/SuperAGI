@@ -313,7 +313,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-            {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
           </div>}
 
@@ -364,7 +364,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>
           </div>
         </div> : <div className={styles.main_workspace}
-                      style={(selectedView === 'agents' || selectedView === 'toolkits') ? {width: '80.5vw'} : {width: '100%'}}>
+                      style={(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') ? {width: '80.5vw'} : {width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (

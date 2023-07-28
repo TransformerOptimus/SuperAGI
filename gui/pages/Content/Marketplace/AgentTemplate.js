@@ -104,16 +104,32 @@ export default function AgentTemplate({template, env}) {
               <span style={{fontSize: '12px', marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image
                 width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/>&nbsp;{'\u00B7'}&nbsp;<Image
                 width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/></span>
-              <button className="primary_button" style={{
-                marginTop: '15px',
-                width: '100%',
-                background: isInstalled || (template && template.is_installed) ? 'rgba(255, 255, 255, 0.14)' : '#FFF',
-                color: isInstalled || (template && template.is_installed) ? '#FFFFFF' : '#000'
-              }} onClick={() => handleInstallClick()}>
-                {(isInstalled || (template && template.is_installed)) ?
-                  <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> :
-                  <Image width={14} height={14} src="/images/upload_icon_dark.svg"
-                         alt="upload-icon"/>}&nbsp;{installed}</button>
+              {isInstalled || (template && template.is_installed) ? (
+                  <button
+                      className="primary_button"
+                      style={{
+                        marginTop: '15px',
+                        width: '100%',
+                        background: 'rgba(255, 255, 255, 0.14)',
+                        color: '#FFFFFF'
+                      }}
+                  >
+                    <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/>&nbsp; Installed
+                  </button>
+              ) : (
+                  <button
+                      className="primary_button"
+                      style={{
+                        marginTop: '15px',
+                        width: '100%',
+                        background: '#FFF',
+                        color: '#000'
+                      }}
+                      onClick={() => handleInstallClick()}
+                  >
+                    <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp; Install
+                  </button>
+              )}
 
               <hr className={styles2.horizontal_line}/>
 
