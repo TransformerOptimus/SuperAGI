@@ -36,13 +36,14 @@ class AgentSchemaOutputParser(BaseOutputParser):
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
+            args = response_obj['tool']['args'] if 'args' in response_obj['tool'] else {}
             return AgentGPTAction(
                 name=response_obj['tool']['name'],
-                args=response_obj['tool']['args'],
+                args=args,
             )
         except BaseException as e:
             logger.info(f"AgentSchemaOutputParser: Error parsing JSON respons {e}")
-            return {}
+            raise e
 
 
 class AgentSchemaToolOutputParser(BaseOutputParser):
@@ -57,10 +58,11 @@ class AgentSchemaToolOutputParser(BaseOutputParser):
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
+            args = response_obj['args'] if 'args' in response_obj else {}
             return AgentGPTAction(
                 name=response_obj['name'],
-                args=response_obj['args'],
+                args=args,
             )
         except BaseException as e:
             logger.info(f"AgentSchemaToolOutputParser: Error parsing JSON respons {e}")
-            return {}
+            raise e

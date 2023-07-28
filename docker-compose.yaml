@@ -9,22 +9,23 @@ services:
       - super__postgres
     networks:
       - super_network
+    command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
   celery:
     volumes:
       - "./:/app"
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
-    build:
-      context: .
-      dockerfile: DockerfileCelery
+    build: .
     depends_on:
       - super__redis
       - super__postgres
     networks:
       - super_network
+    command: ["/app/entrypoint_celery.sh"]
   gui:
-    build: ./gui
-    environment:
-      - NEXT_PUBLIC_API_BASE_URL=/api
+    build:
+      context: ./gui
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "/api"
     networks:
       - super_network
 #    volumes:

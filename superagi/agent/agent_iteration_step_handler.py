@@ -31,7 +31,7 @@ from superagi.tools.thinking.tools import ThinkingTool
 
 
 class AgentIterationStepHandler:
-    def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory = None):
+    def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
         self.session = session
         self.llm = llm
         self.agent_execution_id = agent_execution_id
@@ -44,7 +44,8 @@ class AgentIterationStepHandler:
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
 
-        if not self.handle_wait_for_permission(execution, agent_config, agent_execution_config,iteration_workflow_step):
+        if not self._handle_wait_for_permission(execution, agent_config, agent_execution_config,
+                                                iteration_workflow_step):
             return
 
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
@@ -56,13 +57,13 @@ class AgentIterationStepHandler:
         if not agent_feeds:
             task_queue.clear_tasks()
 
-        agent_tools = self.build_tools(agent_config, agent_execution_config)
-        prompt = self.build_agent_prompt(iteration_workflow=iteration_workflow,
-                                         agent_config=agent_config,
-                                         agent_execution_config=agent_execution_config,
-                                         prompt=iteration_workflow_step.prompt,
-                                         task_queue=task_queue,
-                                         agent_tools=agent_tools)
+        agent_tools = self._build_tools(agent_config, agent_execution_config)
+        prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
+                                          agent_config=agent_config,
+                                          agent_execution_config=agent_execution_config,
+                                          prompt=iteration_workflow_step.prompt,
+                                          task_queue=task_queue,
+                                          agent_tools=agent_tools)
 
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
@@ -87,8 +88,8 @@ class AgentIterationStepHandler:
             execution.status = "COMPLETED"
             self.session.commit()
 
-            self.update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id,
-                                                  workflow_step, "COMPLETE")
+            self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id,
+                                                   workflow_step, "COMPLETE")
             EventHandler(session=self.session).create_event('run_completed',
                                                             {'agent_execution_id': execution.id,
                                                              'name': execution.name,
@@ -101,23 +102,26 @@ class AgentIterationStepHandler:
             self.session.commit()
         else:
             # moving to next step of iteration or workflow
-            self.update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id, workflow_step)
+            self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id, workflow_step)
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
 
-    def update_agent_execution_next_step(self, execution, next_step_id, workflow_step, step_response: str = "default"):
+    def _update_agent_execution_next_step(self, execution, next_step_id, workflow_step, step_response: str = "default"):
         if next_step_id == -1:
             next_step = AgentWorkflowStep.fetch_next_step(self.session, execution.current_agent_step_id, step_response)
-            print(next_step)
-            AgentExecution.assign_next_step_id(self.session, self.agent_execution_id, next_step.id)
+            if str(next_step) == "COMPLETE":
+                execution.current_agent_step_id = -1
+                execution.status = "COMPLETED"
+            else:
+                AgentExecution.assign_next_step_id(self.session, self.agent_execution_id, next_step.id)
         else:
             execution.iteration_workflow_step_id = next_step_id
         self.session.commit()
 
-    def build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
-                           agent_execution_config: dict,
-                           prompt: str, task_queue: TaskQueue, agent_tools: list):
+    def _build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
+                            agent_execution_config: dict,
+                            prompt: str, task_queue: TaskQueue, agent_tools: list):
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
@@ -134,8 +138,7 @@ class AgentIterationStepHandler:
                                                                      task_queue.get_completed_tasks(), token_limit)
         return prompt
 
-
-    def build_tools(self, agent_config: dict, agent_execution_config: dict):
+    def _build_tools(self, agent_config: dict, agent_execution_config: dict):
         agent_tools = [ThinkingTool()]
 
         model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
@@ -154,16 +157,8 @@ class AgentIterationStepHandler:
                                                             model_api_key, resource_summary) for tool in agent_tools]
         return agent_tools
 
-
-    def fetch_agent_feeds(self, agent_execution_id):
-        agent_feeds = self.session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
-            .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
-            .order_by(asc(AgentExecutionFeed.created_at)) \
-            .all()
-        return agent_feeds[2:]
-
-    def handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,
-                                   iteration_workflow_step: IterationWorkflowStep):
+    def _handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,
+                                    iteration_workflow_step: IterationWorkflowStep):
         """
         Handles the wait for permission when the agent execution is waiting for permission.
 
@@ -184,9 +179,10 @@ class AgentIterationStepHandler:
             logger.error("handle_wait_for_permission: Permission is still pending")
             return False
         if agent_execution_permission.status == "APPROVED":
-            agent_tools = self.build_tools(agent_config, agent_execution_config)
+            agent_tools = self._build_tools(agent_config, agent_execution_config)
             tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, agent_tools)
-            tool_result = tool_output_handler.handle_tool_response(self.session, agent_execution_permission.assistant_reply)
+            tool_result = tool_output_handler.handle_tool_response(self.session,
+                                                                   agent_execution_permission.assistant_reply)
             result = tool_result.result
         else:
             result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
@@ -200,5 +196,3 @@ class AgentIterationStepHandler:
         agent_execution.iteration_workflow_step_id = iteration_workflow_step.next_step_id
         self.session.commit()
         return True
-
-

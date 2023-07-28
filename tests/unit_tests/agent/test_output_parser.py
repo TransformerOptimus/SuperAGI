@@ -2,14 +2,34 @@ import pytest
 
 from superagi.agent.output_parser import AgentGPTAction, AgentSchemaOutputParser
 
+import pytest
 
-def test_parse():
+def test_agent_schema_output_parser():
     parser = AgentSchemaOutputParser()
 
-    # test with valid input
-    valid_text = '{"thoughts": {"text": "some thought", "reasoning": "some reasoning", "plan": "some plan", "criticism": "some criticism"}, "tool": {"name": "some tool", "args": {"arg1": "value1"}}}'
-    output = parser.parse(valid_text)
-    assert isinstance(output, AgentGPTAction)
-    assert output.name == "some tool"
-    assert output.args == {"arg1": "value1"}
+    # Test with valid json response
+    response = '```{"tool": {"name": "Tool1", "args": {}}}```'
+    parsed = parser.parse(response)
+    assert isinstance(parsed, AgentGPTAction)
+    assert parsed.name == 'Tool1'
+    assert parsed.args == {}
+
+    # Test with valid json but with boolean values
+    response = "```{'tool': {'name': 'Tool1', 'args': 'arg1'}, 'status': True}```"
+    parsed = parser.parse(response)
+    assert isinstance(parsed, AgentGPTAction)
+    assert parsed.name == 'Tool1'
+    assert parsed.args == 'arg1'
+
+    # Test with invalid json response
+    response = "invalid response"
+    with pytest.raises(Exception):
+        parsed = parser.parse(response)
+
+    # Test with empty json response
+    response = ""
+    with pytest.raises(Exception):
+        parsed = parser.parse(response)
+
+
 

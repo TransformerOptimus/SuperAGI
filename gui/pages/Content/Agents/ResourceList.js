@@ -43,7 +43,7 @@ export default function ResourceList({files, channel, runs}) {
           :
           <div id="division_by_runs">
             {filesByRun.map((filesRun, index) => (
-              <div key={index}>
+              <div key={filesByRun.length - index - 1}>
                 <div className="horizontal_container justify_space_between cursor_pointer" style={{padding: '8px 6px'}}
                      onClick={() => setSelectedRunId(filesRun.run.id === selectedRunId ? null : filesRun.run.id)}>
                   <div className="horizontal_container">
@@ -53,7 +53,7 @@ export default function ResourceList({files, channel, runs}) {
                     <span className="text_12 ml_8">{filesRun.run.name}</span>
                     <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10}
                                                                       height={10}/> <span
-                      className="text_9">Run {index + 1}</span></div>
+                      className="text_9">Run {filesByRun.length - index}</span></div>
                   </div>
                   <Image src="/images/download.svg" alt="download_icon" width={16} height={16}
                          onClick={() => downloadRunFiles(filesRun.run.id, filesRun.run.name)}/>

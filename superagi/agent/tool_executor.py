@@ -20,7 +20,7 @@ class ToolExecutor:
             logger.info("\nTask Finished :) \n")
             return ToolExecutorResponse(status="COMPLETE", result="")
         if tool_name in tools.keys():
-            status = "COMPLETE"
+            status = "SUCCESS"
             tool = tools[tool_name]
             retry = False
             EventHandler(session=session).create_event('tool_used', {'tool_name': tool_name}, self.agent_id,
