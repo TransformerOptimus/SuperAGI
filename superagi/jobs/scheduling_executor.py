@@ -60,7 +60,6 @@ class ScheduledAgentExecutor:
         organisation = agent.get_agent_organisation(session)
         model = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'model').first()[0]
         EventHandler(session=session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name}, agent_id, organisation.id if organisation else 0),
-        EventHandler(session=session).create_event('agent_created', {'agent_name': agent.name, 'model': model}, agent_id, organisation.id if organisation else 0)
 
         session.commit()
 

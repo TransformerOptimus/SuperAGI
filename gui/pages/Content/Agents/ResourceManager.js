@@ -16,7 +16,7 @@ export default function ResourceManager({agentId, runs}) {
 
   function handleFile(files) {
     if (files.length > 0) {
-      const sizeInMB = files[0].size / (1024*1024);
+      const sizeInMB = files[0].size / (1024 * 1024);
       if (sizeInMB > 5) {
         toast.error('File size should not exceed 5MB', {autoClose: 1800});
       } else {

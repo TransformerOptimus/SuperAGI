@@ -29,6 +29,6 @@ def test_execute_dalle_image_gen_tool(mock_requests, mock_dalle):
     # Assert
     assert result == "Images downloaded successfully"
     mock_dalle.assert_called_once_with(api_key="test_api_key", number_of_results=num)
-    mock_dalle_instance.generate_image.assert_called_once_with(prompt, size, num)
+    mock_dalle_instance.generate_image.assert_called_once_with(prompt, size)
     tool.resource_manager.write_binary_file.assert_any_call("image1.png", b"test_image_data")
     tool.resource_manager.write_binary_file.assert_any_call("image2.png", b"test_image_data")
