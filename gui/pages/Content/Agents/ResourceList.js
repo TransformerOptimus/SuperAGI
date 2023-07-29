@@ -34,7 +34,7 @@ export default function ResourceList({files, channel, runs}) {
   )
 
   return (
-    <div>
+    <div id="resource-list">
       {channel === 'output' && (!isAnyFileWithAgentId || files.length <= 0 ?
           <div className="vertical_container">
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
