@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, Text, String
 from sqlalchemy.orm import Session
-
+from superagi.vector_store.base import VectorStore
 from superagi.models.base_model import DBBaseModel
+
 
 
 class AgentExecutionFeed(DBBaseModel):
@@ -50,3 +51,13 @@ class AgentExecutionFeed(DBBaseModel):
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
         return ""
+    
+    def get_relevant_tool_response(cls,session:Session,metadata:dict,agent_execution_id:int,memory:VectorStore,query:str,top_k:int=5):
+        documents = memory.get_matching_text(query, top_k=top_k, metadata=metadata)
+        print("Get Relevant Tool Document: ",documents,"END")
+
+        relevant_responses = []
+        for document in documents:
+            relevant_responses += document.text_content
+            print("Get Relevant Tool Response: ",relevant_responses,"END")
+        return relevant_responses

@@ -143,6 +143,7 @@ class SuperAgi:
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
+        print("Here is the assistant reply: ",assistant_reply,"END")
 
         final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
@@ -152,12 +153,14 @@ class SuperAgi:
                 return response
 
             tool_response = self.handle_tool_response(session, assistant_reply)
+           
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed=assistant_reply,
                                                       role="assistant")
             session.add(agent_execution_feed)
+            print("Here is the agent execution feed: ",agent_execution_feed,"END")
             tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                     agent_id=self.agent_config["agent_id"],
                                                     feed=tool_response["result"],
@@ -208,6 +211,13 @@ class SuperAgi:
 
         logger.info("Iteration completed moving to next iteration!")
         session.close()
+        print("Here is the final tool reply: ",final_response,"END")
+        
+        print("Here is the tool reply: ",tool_response,"END")
+        prompt = workflow_step.prompt+final_response
+        print("Here is the prompt reply: ",prompt,"END")
+        metadatas = [{"agent_execution_id":self.agent_config["agent_execution_id"]}]
+        self.memory.add_texts([prompt],metadatas)
         return final_response
 
     def handle_tool_response(self, session, assistant_reply):

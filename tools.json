@@ -1,4 +1,6 @@
 {
-  "tools": {
-  }
+    "tools": {
+        "DuckDuckGo": "https://github.com/TransformerOptimus/SuperAGI-Tools/tree/main/DuckDuckGo",
+        "notion": "https://github.com/TransformerOptimus/SuperAGI-Tools/tree/main/notion"
+    }
 }

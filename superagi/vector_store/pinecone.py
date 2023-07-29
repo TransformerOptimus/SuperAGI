@@ -98,6 +98,8 @@ class Pinecone(VectorStore):
         search_res = self._get_search_text(res, query)
 
         documents = self._build_documents(res)
+        print("Here are the Documents",documents,"END")
+        print("Printing the search_res :",search_res,"END")
         return {"documents": documents, "search_res": search_res}
     
     def get_index_stats(self) -> dict:
@@ -144,5 +146,5 @@ class Pinecone(VectorStore):
         search_res = f"Query: {query}\n"
         for context in contexts:
             search_res += f"Chunk{i}: \n{context}\n" 
-            i += 1
+            i += 1    
         return search_res

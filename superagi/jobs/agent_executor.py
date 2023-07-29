@@ -216,9 +216,13 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
+                print("Here is the memory reply from LTM: ",memory,"END")
             else:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
+                print("Here is the memory reply from LTM: ",memory,"END")
+
+            print("Here is the final memory reply from LTM: ",memory,"END")
         except:
             logger.info("Unable to setup the pinecone connection...")
             memory = None
@@ -237,7 +241,8 @@ class AgentExecutor:
         tools = self.set_default_params_tools(tools, parsed_config, parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
-                                              session=session)
+                                              session=session,
+                                              memory=memory)
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=get_model(model=parsed_config["model"], api_key=model_api_key), tools=tools,
@@ -295,7 +300,7 @@ class AgentExecutor:
         engine.dispose()
 
     def set_default_params_tools(self, tools, parsed_config, parsed_execution_config, agent_id, model_api_key,
-                                 session, resource_description=None):
+                                 session, resource_description=None,memory=None):
         """
         Set the default parameters for the tools.
 
@@ -331,7 +336,7 @@ class AgentExecutor:
                                                         "agent_execution_id"])
             if hasattr(tool, 'tool_response_manager'):
                 tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
-                    "agent_execution_id"])
+                    "agent_execution_id"],memory=memory)
 
             if tool.name == "QueryResource" and resource_description:
                 tool.description = tool.description.replace("{summary}", resource_description)
