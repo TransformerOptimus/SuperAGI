@@ -6,7 +6,7 @@ import {createInternalId} from "@/utils/utils";
 export default function Agents({sendAgentData, agents}) {
   return (<>
       <div className="container">
-        <p className="text_14 mt_8 mb_13 ml_8">Agents</p>
+        <p className="text_14 mt_8 mb_12 ml_8">Agents</p>
         <div className="w_100 mb_10">
           <button className="secondary_button w_100" onClick={() => sendAgentData({
             id: -1,

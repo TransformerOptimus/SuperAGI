@@ -7,12 +7,10 @@ import {createInternalId} from "@/utils/utils";
 export default function Knowledge({sendKnowledgeData, knowledge}) {
   return (
     <>
-      <div className={styles1.container}>
-        <div className={styles1.title_box}>
-          <p className={styles1.title_text}>Knowledges</p>
-        </div>
-        <div className={styles1.wrapper} style={{marginBottom: '10px', marginTop: '4px'}}>
-          <button style={{width: '100%'}} className="secondary_button" onClick={() => sendKnowledgeData({
+      <div className="container">
+        <p className="text_14 mt_8 mb_12 ml_8">Knowledges</p>
+        <div className="w_100 mb_10">
+          <button className="secondary_button w_100" onClick={() => sendKnowledgeData({
             id: -6,
             name: "new knowledge",
             contentType: "Add_Knowledge",
