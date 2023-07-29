@@ -468,8 +468,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     if type(agent_execution_id) == None or type(agent_execution_id) == str:
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
-    #Fetching agent_execution_id if the agent_execution_id received is -1
-    #If the agent_execution_id is -1 then the agent_execution_id is set as the most recent execution
+    #If the agent_execution_id received is -1 then the agent_execution_id is set as the most recent execution
     if agent_execution_id == -1:
         agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.created_at)).first().id
 
