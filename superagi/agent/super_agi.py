@@ -213,8 +213,9 @@ class SuperAgi:
         session.close()
         print("Here is the final tool reply: ",final_response,"END")
         
-        print("Here is the tool reply: ",tool_response,"END")
-        prompt = workflow_step.prompt+final_response
+        print("Here is the task description: ",workflow_step.prompt,"END")
+        prompt = workflow_step.prompt+final_response["result"]
+        
         print("Here is the prompt reply: ",prompt,"END")
         metadatas = [{"agent_execution_id":self.agent_config["agent_execution_id"]}]
         self.memory.add_texts([prompt],metadatas)

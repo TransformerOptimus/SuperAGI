@@ -14,8 +14,10 @@ class ToolResponseQueryManager:
     
     def get_relevant_response(self, query: str,metadata:dict, top_k: int = 5):
        
-        documents = self.memory.get_matching_text(query, top_k=top_k, metadata=metadata)
+        documents = self.memory.get_matching_text(query, metadata=metadata)
+        print("Here are the relevant tool response document: ",documents,"END")
         relevant_responses = ""
-        for document in documents:
-            relevant_responses += document
+        for document in documents["documents"]:
+            relevant_responses += document.text_content
+        print("Response: Over feed :",relevant_responses,"ENDD")    
         return relevant_responses

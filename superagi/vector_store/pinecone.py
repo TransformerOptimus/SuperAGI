@@ -96,7 +96,6 @@ class Pinecone(VectorStore):
         embed_text = self.embedding_model.get_embedding(query)
         res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace,include_metadata=True)
         search_res = self._get_search_text(res, query)
-
         documents = self._build_documents(res)
         print("Here are the Documents",documents,"END")
         print("Printing the search_res :",search_res,"END")
