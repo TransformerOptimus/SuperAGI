@@ -8,7 +8,7 @@ import {deleteCustomKnowledge, deleteMarketplaceKnowledge, getKnowledgeDetails} 
 import {removeTab} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function KnowledgeDetails({internalId, knowledgeId}) {
+export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseData}) {
   const [showDescription, setShowDescription] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,8 +33,8 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
         .then((response) => {
           console.log(response)
           toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-            EventBus.emit('reFetchKnowledge', {});
+          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+          EventBus.emit('reFetchKnowledge', {});
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -43,9 +43,9 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
-            toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-            EventBus.emit('reFetchKnowledge', {});
+          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+          EventBus.emit('reFetchKnowledge', {});
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -103,6 +103,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
                          isEditing={true}
                          setIsEditing={setIsEditing}
                          sendKnowledgeData={null}
+                         sendDatabaseData={sendDatabaseData}
           /> :
           <div>
             <div className={styles.tools_container}>
