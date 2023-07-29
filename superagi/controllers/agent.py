@@ -7,6 +7,7 @@ from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
+from sqlalchemy import desc
 
 from jsonmerge import merge
 from pytz import timezone
@@ -468,8 +469,9 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
     #Fetching agent_execution_id if the agent_execution_id received is -1
+    #If the agent_execution_id is -1 then the agent_execution_id is set as the most recent execution
     if agent_execution_id == -1:
-        agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(AgentExecution.created_at).first().id
+        agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.created_at)).first().id
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
