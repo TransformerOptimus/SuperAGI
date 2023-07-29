@@ -21,7 +21,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
         </div>
 
         {knowledge && knowledge.length > 0 ? (
-          <div style={{overflowY: 'scroll', height: '80vh'}}>
+          <div className="vertical_selection_scroll">
             <div className={styles.tool_container}>
               {knowledge.map((item, index) => (
                 <div key={index} className={styles.tool_box} onClick={() => sendKnowledgeData({
@@ -46,12 +46,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
               )}
             </div>
           </div>
-        ) : (
-          <div style={{
-            marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }} className="form_label">
-            No Knowledge found
-          </div>
+        ) : (<div className="form_label mt_20 horizontal_container justify_center">No Knowledge found</div>
         )}
       </div>
     </>
