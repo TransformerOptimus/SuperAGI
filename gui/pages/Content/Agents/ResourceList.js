@@ -34,17 +34,17 @@ export default function ResourceList({files, channel, runs}) {
   )
 
   return (
-    <div>
+    <div id="resource-list">
       {channel === 'output' && (!isAnyFileWithAgentId || files.length <= 0 ?
           <div className="vertical_container">
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-            <span className={styles.feed_title} style={{marginTop: '8px'}}>No Output files!</span>
+            <span className="feed_title mt_8">No Output files!</span>
           </div>
           :
           <div id="division_by_runs">
             {filesByRun.map((filesRun, index) => (
               <div key={filesByRun.length - index - 1}>
-                <div className="horizontal_container justify_space_between cursor_pointer" style={{padding: '8px 6px'}}
+                <div className="horizontal_container justify_space_between cursor_pointer padding_8_6"
                      onClick={() => setSelectedRunId(filesRun.run.id === selectedRunId ? null : filesRun.run.id)}>
                   <div className="horizontal_container">
                     <Image
@@ -60,7 +60,7 @@ export default function ResourceList({files, channel, runs}) {
                 </div>
 
                 {selectedRunId === filesRun.run.id && (
-                  <div className={styles.resources} style={{padding: '2px 8px'}}>
+                  <div className="horizontal_space_between flex_wrap padding_2_8">
                     {filesRun.files.map((file, index) => <File key={index} file={file}/>)}
                   </div>
                 )}
@@ -70,7 +70,7 @@ export default function ResourceList({files, channel, runs}) {
       )}
 
       {channel === 'input' &&
-        <div className={styles.resources}>
+        <div className="horizontal_space_between flex_wrap">
           {files.map((file, index) => <File key={index} file={file}/>)}
         </div>}
     </div>
