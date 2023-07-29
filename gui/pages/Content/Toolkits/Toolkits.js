@@ -8,7 +8,7 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
   return (
     <>
       <div className={styles1.container}>
-        <p className="text_14">Toolkits</p>
+        <p className="text_14 lh_16 mt_8 mb_13 ml_8">Toolkits</p>
         {env !== 'PROD' && <div className={styles1.wrapper} style={{marginBottom: '10px', marginTop: '4px'}}>
           <button style={{width: '100%'}} className="secondary_button" onClick={() => sendToolkitData({
             id: -2,
