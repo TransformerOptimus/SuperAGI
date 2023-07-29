@@ -709,6 +709,7 @@ p {
 .mt_50{margin-top: 50px;}
 .mt_60{margin-top: 60px;}
 .mt_70{margin-top: 70px;}
+.mt_74{margin-top: 74px;}
 .mt_80{margin-top: 80px;}
 
 .mb_1{margin-bottom: 1px;}
@@ -751,6 +752,10 @@ p {
 .mb_38{margin-bottom: 38px;}
 .mb_39{margin-bottom: 39px;}
 .mb_40{margin-bottom: 40px;}
+.mb_50{margin-bottom: 50px;}
+.mb_60{margin-bottom: 60px;}
+.mb_70{margin-bottom: 70px;}
+.mb_74{margin-bottom: 74px;}
 
 
 .ml_1{margin-left: 1px;}
@@ -835,6 +840,9 @@ p {
 .mr_38{margin-right: 38px;}
 .mr_39{margin-right: 39px;}
 .mr_40{margin-right: 40px;}
+.mr_70{margin-right: 70px;}
+.mr_74{margin-right: 74px;}
+.mr_80{margin-right: 80px;}
 
 .text_9{
     color: #FFF;
@@ -938,8 +946,10 @@ p {
     width: 100%;
 }
 
+.w_120p{width: 120px}
 .w_100{width: 100%}
 .w_fit_content{width:fit-content}
+
 .h_100{height: 100%}
 .h_auto{height: auto}
 
@@ -960,6 +970,7 @@ p {
 .position_relative{position: relative}
 
 .cursor_pointer{cursor: pointer}
+.cursor_default{cursor: default}
 
 .overflow_auto{overflow: auto}
 .overflowY_scroll{overflow-y: scroll}
@@ -1435,4 +1446,70 @@ tr{
     white-space: pre-line;
     word-wrap: break-word;
     max-width: 95%;
+}
+
+
+.top_bar {
+    padding: 8px 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.top_bar_section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 9px;
+    gap: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.top_bar_input{
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    width: 150px;
+}
+
+.top_bar_font {
+    display: flex;
+    align-items: center;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    color: white;
+    margin-left: 5px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.top_right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
+    order: 1;
+    height: 100%;
+}
+
+.top_left {
+    display: flex;
+    order: 0;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.top_right_icon {
+    margin-right: 10px;
+    cursor: pointer;
+    display: flex;
+    order: 1;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
 }
