@@ -237,8 +237,7 @@ class AgentExecutor:
         tools = self.set_default_params_tools(tools, parsed_config, parsed_execution_config, agent_execution.agent_id,
                                               model_api_key=model_api_key,
                                               resource_description=resource_summary,
-                                              session=session,
-                                              memory=memory)
+                                              session=session)
 
         spawned_agent = SuperAgi(ai_name=parsed_config["name"], ai_role=parsed_config["description"],
                                  llm=get_model(model=parsed_config["model"], api_key=model_api_key), tools=tools,
@@ -296,7 +295,7 @@ class AgentExecutor:
         engine.dispose()
 
     def set_default_params_tools(self, tools, parsed_config, parsed_execution_config, agent_id, model_api_key,
-                                 session, resource_description=None,memory=None):
+                                 session, resource_description=None):
         """
         Set the default parameters for the tools.
 
@@ -332,7 +331,7 @@ class AgentExecutor:
                                                         "agent_execution_id"])
             if hasattr(tool, 'tool_response_manager'):
                 tool.tool_response_manager = ToolResponseQueryManager(session=session, agent_execution_id=parsed_config[
-                    "agent_execution_id"],memory=memory)
+                    "agent_execution_id"])
 
             if tool.name == "QueryResource" and resource_description:
                 tool.description = tool.description.replace("{summary}", resource_description)

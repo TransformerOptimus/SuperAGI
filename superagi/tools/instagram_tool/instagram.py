@@ -157,7 +157,7 @@ class InstagramTool(BaseTool):
         Args:
 
         Returns:
-            The s3 cl ient
+            The s3 client
         """
         
         s3 = boto3.client(
