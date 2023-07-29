@@ -8,9 +8,7 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
   return (
     <>
       <div className={styles1.container}>
-        <div className={styles1.title_box}>
-          <p className={styles1.title_text}>Toolkits</p>
-        </div>
+        <p className="text_14">Toolkits</p>
         {env !== 'PROD' && <div className={styles1.wrapper} style={{marginBottom: '10px', marginTop: '4px'}}>
           <button style={{width: '100%'}} className="secondary_button" onClick={() => sendToolkitData({
             id: -2,
@@ -37,8 +35,8 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
                                      alt="tool-icon"/>
                             </div>
                             <div style={{marginLeft: '8px'}}>
-                              <div className={styles.tool_name}>{tool.name}</div>
-                              <div className={styles.tool_publisher}>by SuperAGI</div>
+                              <div className="item_name">{tool.name}</div>
+                              <div className="item_publisher">by SuperAGI</div>
                             </div>
                           </div>
                         </div>
