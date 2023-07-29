@@ -145,4 +145,4 @@ class Pinecone(VectorStore):
         for context in contexts:
             search_res += f"Chunk{i}: \n{context}\n" 
             i += 1
-        return contexts
+        return search_res
