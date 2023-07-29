@@ -2,6 +2,8 @@ from abc import ABC
 from typing import List
 from superagi.tools.base_tool import BaseTool, BaseToolkit
 from superagi.tools.duck_duck_go.duck_duck_go_search import DuckDuckGoSearchTool
+from superagi.models.tool_config import ToolConfig
+from superagi.types.key_type import ToolConfigKeyType
 
 class DuckDuckGoToolkit(BaseToolkit, ABC):
     name: str = "DuckDuckGo Search Toolkit"
@@ -10,7 +12,7 @@ class DuckDuckGoToolkit(BaseToolkit, ABC):
     def get_tools(self) -> List[BaseTool]:
         return [DuckDuckGoSearchTool()]
 
-    def get_env_keys(self) -> List[str]:
+    def get_env_keys(self) -> List[ToolConfig]:
         return [
             # Add more config keys specific to your project
         ]

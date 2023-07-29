@@ -17,6 +17,8 @@ class TwitterHelper:
                        client_secret=creds.api_key_secret,
                        resource_owner_key=creds.oauth_token,
                        resource_owner_secret=creds.oauth_token_secret)
+        print(oauth.client_secret)
+        
         for file in media_files:
             file_path = self.get_file_path(session, file, agent_id, agent_execution_id)
             image_data = open(file_path, 'rb').read()
