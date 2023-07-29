@@ -918,7 +918,6 @@ p {
     justify-content: space-between;
     flex-direction: row;
     width: 100%;
-    gap: 8px;
 }
 
 .horizontal_container{
@@ -982,6 +981,11 @@ p {
 .padding_8{padding: 8px;}
 .padding_10{padding: 10px;}
 .padding_12{padding: 12px;}
+
+.padding_8_6{padding: 8px 6px;}
+.padding_2_8{padding: 2px 8px;}
+
+.flex_wrap{flex-wrap: wrap;}
 
 .mix_blend_mode{mix-blend-mode: exclusion;}
 
@@ -1418,4 +1422,17 @@ tr{
     border-radius: 8px;
     overflow-y: scroll;
     padding-bottom: 0;
+}
+
+.feed_title {
+    font-family: 'Source Code Pro';
+    margin-left: 10px;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    color: white;
+    white-space: pre-line;
+    word-wrap: break-word;
+    max-width: 95%;
 }
