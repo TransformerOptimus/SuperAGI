@@ -143,6 +143,8 @@ class SuperAgi:
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
+        
+        print("Here is the assistant reply: ",assistant_reply,"END")
 
         final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
@@ -152,18 +154,32 @@ class SuperAgi:
                 return response
 
             tool_response = self.handle_tool_response(session, assistant_reply)
+            
+            print("Here is the tool response: ",tool_response,"END")
+            print("Here is the task description: ",workflow_step.prompt,"END")
+            print("Here is the final tool response: ",tool_response["result"],"END")
+            prompt = workflow_step.prompt+tool_response["result"]
+            print("Here is the prompt response: ",prompt,"END")
+            metadatas = [{"agent_execution_id":self.agent_config["agent_execution_id"]}]
+            self.memory.add_texts([prompt],metadatas)
+            
+            print("Here is the memory:",self.memory,"END")
+           
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed=assistant_reply,
                                                       role="assistant")
             session.add(agent_execution_feed)
+            
+            print("Here is the agent execution feed: ",agent_execution_feed,"END")
             tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                     agent_id=self.agent_config["agent_id"],
                                                     feed=tool_response["result"],
                                                     role="system"
                                                     )
             session.add(tool_response_feed)
+            print("Here is the tool response feed: ",tool_response_feed,"END")
             final_response = tool_response
             final_response["pending_task_count"] = len(task_queue.get_tasks())
             final_response["completed_task_count"] = len(task_queue.get_completed_tasks())
@@ -208,6 +224,7 @@ class SuperAgi:
 
         logger.info("Iteration completed moving to next iteration!")
         session.close()
+        print("Here is the Final tool response: ",final_response,"END")
         return final_response
 
     def handle_tool_response(self, session, assistant_reply):

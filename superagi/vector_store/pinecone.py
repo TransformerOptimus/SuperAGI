@@ -98,6 +98,7 @@ class Pinecone(VectorStore):
         search_res = self._get_search_text(res, query)
 
         documents = self._build_documents(res)
+        print("Builded Get Matching Document: ",documents,"ENDDD")
         return {"documents": documents, "search_res": search_res}
     
     def get_index_stats(self) -> dict:
@@ -134,6 +135,7 @@ class Pinecone(VectorStore):
                         metadata=doc['metadata'],
                     )
                 )
+            print("Builded Document: ",documents,"ENDDD")    
             return documents
         except Exception as err:
             raise err
