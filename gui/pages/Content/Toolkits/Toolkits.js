@@ -6,7 +6,7 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
   return (
     <>
       <div className="container">
-        <p className="text_14 lh_16 mt_8 mb_13 ml_8">Toolkits</p>
+        <p className="text_14 mt_8 mb_13 ml_8">Toolkits</p>
         {env !== 'PROD' && <div className="w_100 mb_10">
           <button className="secondary_button w_100" onClick={() => sendToolkitData({
             id: -2,

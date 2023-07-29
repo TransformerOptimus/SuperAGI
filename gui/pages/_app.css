@@ -708,27 +708,130 @@ p {
 .mt_70{margin-top: 70px;}
 .mt_80{margin-top: 80px;}
 
-.mb_24{margin-bottom:24px;}
+.mb_1{margin-bottom: 1px;}
+.mb_2{margin-bottom: 2px;}
+.mb_3{margin-bottom: 3px;}
+.mb_4{margin-bottom: 4px;}
+.mb_5{margin-bottom: 5px;}
 .mb_6{margin-bottom: 6px;}
+.mb_7{margin-bottom: 7px;}
 .mb_8{margin-bottom: 8px;}
+.mb_9{margin-bottom: 9px;}
 .mb_10{margin-bottom: 10px;}
+.mb_11{margin-bottom: 11px;}
 .mb_12{margin-bottom: 12px;}
 .mb_13{margin-bottom: 13px;}
 .mb_14{margin-bottom: 14px;}
 .mb_15{margin-bottom: 15px;}
 .mb_16{margin-bottom: 16px;}
+.mb_17{margin-bottom: 17px;}
+.mb_18{margin-bottom: 18px;}
+.mb_19{margin-bottom: 19px;}
 .mb_20{margin-bottom: 20px;}
+.mb_21{margin-bottom: 21px;}
+.mb_22{margin-bottom: 22px;}
+.mb_23{margin-bottom: 23px;}
 .mb_24{margin-bottom: 24px;}
+.mb_25{margin-bottom: 25px;}
+.mb_26{margin-bottom: 26px;}
+.mb_27{margin-bottom: 27px;}
+.mb_28{margin-bottom: 28px;}
+.mb_29{margin-bottom: 29px;}
 .mb_30{margin-bottom: 30px;}
+.mb_31{margin-bottom: 31px;}
+.mb_32{margin-bottom: 32px;}
+.mb_33{margin-bottom: 33px;}
 .mb_34{margin-bottom: 34px;}
+.mb_35{margin-bottom: 35px;}
+.mb_36{margin-bottom: 36px;}
+.mb_37{margin-bottom: 37px;}
+.mb_38{margin-bottom: 38px;}
+.mb_39{margin-bottom: 39px;}
+.mb_40{margin-bottom: 40px;}
 
-.ml_24{margin-left:24px;}
+
+.ml_1{margin-left: 1px;}
+.ml_2{margin-left: 2px;}
+.ml_3{margin-left: 3px;}
+.ml_4{margin-left: 4px;}
+.ml_5{margin-left: 5px;}
 .ml_6{margin-left: 6px;}
+.ml_7{margin-left: 7px;}
 .ml_8{margin-left: 8px;}
+.ml_9{margin-left: 9px;}
 .ml_10{margin-left: 10px;}
+.ml_11{margin-left: 11px;}
 .ml_12{margin-left: 12px;}
+.ml_13{margin-left: 13px;}
+.ml_14{margin-left: 14px;}
+.ml_15{margin-left: 15px;}
 .ml_16{margin-left: 16px;}
+.ml_17{margin-left: 17px;}
+.ml_18{margin-left: 18px;}
+.ml_19{margin-left: 19px;}
 .ml_20{margin-left: 20px;}
+.ml_21{margin-left: 21px;}
+.ml_22{margin-left: 22px;}
+.ml_23{margin-left: 23px;}
+.ml_24{margin-left: 24px;}
+.ml_25{margin-left: 25px;}
+.ml_26{margin-left: 26px;}
+.ml_27{margin-left: 27px;}
+.ml_28{margin-left: 28px;}
+.ml_29{margin-left: 29px;}
+.ml_30{margin-left: 30px;}
+.ml_31{margin-left: 31px;}
+.ml_32{margin-left: 32px;}
+.ml_33{margin-left: 33px;}
+.ml_34{margin-left: 34px;}
+.ml_35{margin-left: 35px;}
+.ml_36{margin-left: 36px;}
+.ml_37{margin-left: 37px;}
+.ml_38{margin-left: 38px;}
+.ml_39{margin-left: 39px;}
+.ml_40{margin-left: 40px;}
+
+
+.mr_1{margin-right: 1px;}
+.mr_2{margin-right: 2px;}
+.mr_3{margin-right: 3px;}
+.mr_4{margin-right: 4px;}
+.mr_5{margin-right: 5px;}
+.mr_6{margin-right: 6px;}
+.mr_7{margin-right: 7px;}
+.mr_8{margin-right: 8px;}
+.mr_9{margin-right: 9px;}
+.mr_10{margin-right: 10px;}
+.mr_11{margin-right: 11px;}
+.mr_12{margin-right: 12px;}
+.mr_13{margin-right: 13px;}
+.mr_14{margin-right: 14px;}
+.mr_15{margin-right: 15px;}
+.mr_16{margin-right: 16px;}
+.mr_17{margin-right: 17px;}
+.mr_18{margin-right: 18px;}
+.mr_19{margin-right: 19px;}
+.mr_20{margin-right: 20px;}
+.mr_21{margin-right: 21px;}
+.mr_22{margin-right: 22px;}
+.mr_23{margin-right: 23px;}
+.mr_24{margin-right: 24px;}
+.mr_25{margin-right: 25px;}
+.mr_26{margin-right: 26px;}
+.mr_27{margin-right: 27px;}
+.mr_28{margin-right: 28px;}
+.mr_29{margin-right: 29px;}
+.mr_30{margin-right: 30px;}
+.mr_31{margin-right: 31px;}
+.mr_32{margin-right: 32px;}
+.mr_33{margin-right: 33px;}
+.mr_34{margin-right: 34px;}
+.mr_35{margin-right: 35px;}
+.mr_36{margin-right: 36px;}
+.mr_37{margin-right: 37px;}
+.mr_38{margin-right: 38px;}
+.mr_39{margin-right: 39px;}
+.mr_40{margin-right: 40px;}
 
 .text_9{
     color: #FFF;
@@ -871,6 +974,8 @@ p {
 .padding_8{padding: 8px;}
 .padding_10{padding: 10px;}
 .padding_12{padding: 12px;}
+
+.mix_blend_mode{mix-blend-mode: exclusion;}
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
 .my_rows {
@@ -1229,3 +1334,43 @@ tr{
     overflow-y: scroll;
     height: 80vh;
 }
+
+.agent_text {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 15px;
+    align-items: center;
+    color: white;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+}
+
+.agent_box {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 8px;
+    gap: 6px;
+    border-radius: 8px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    cursor: pointer;
+    height: 35px;
+}
+
+.agent_box:hover {
+    background-color: #494856;
+}
+
+.text_ellipsis{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
