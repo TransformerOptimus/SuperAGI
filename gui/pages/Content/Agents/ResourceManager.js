@@ -96,39 +96,20 @@ export default function ResourceManager({agentId, runs}) {
   }
 
   return (<>
-    <div className={styles.detail_top} style={{height: 'auto', marginBottom: '10px'}}>
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
-        <div style={{display: 'flex', order: 0}}>
-          <div>
-            <button onClick={() => setChannel('input')} className={styles.tab_button} style={channel === 'input' ? {
-              background: '#454254',
-              padding: '5px 10px'
-            } : {background: 'transparent', padding: '5px 10px'}}>
-              Input
-            </button>
-          </div>
-          <div>
-            <button onClick={() => setChannel('output')} className={styles.tab_button} style={channel === 'output' ? {
-              background: '#454254',
-              padding: '5px 10px'
-            } : {background: 'transparent', padding: '5px 10px'}}>
-              Output
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="detail_top mb_10">
+      <button onClick={() => setChannel('input')} className={channel === 'input' ? 'tab_button_selected' : 'tab_button'}>Input</button>
+      <button onClick={() => setChannel('output')} className={channel === 'output' ? 'tab_button_selected' : 'tab_button'}>Output</button>
     </div>
-    <div className={styles.detail_body} style={{height: 'auto'}}>
-      {channel === 'input' && <div style={{paddingBottom: '10px'}}>
+    <div className="w_100 mr_10 mb_20">
+      {channel === 'input' &&
         <div className={`file-drop-area ${isDragging ? 'dragging' : ''}`} onDragEnter={handleDragEnter}
              onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
              onClick={handleDropAreaClick}>
-          <div><p style={{textAlign: 'center', color: 'white', fontSize: '14px'}}>+ Choose or drop a file here</p>
-            <p style={{textAlign: 'center', color: '#888888', fontSize: '12px'}}>Supported file formats are txt, pdf,
+            <p className="text_14 text_align_center">+ Choose or drop a file here</p>
+            <p className="text_12 text_align_center">Supported file formats are txt, pdf,
               docx, epub, csv, pptx only</p>
-            <input type="file" ref={fileInputRef} style={{display: 'none'}} onChange={handleFileInputChange}/></div>
-        </div>
-      </div>}
+            <input type="file" ref={fileInputRef} style={{display: 'none'}} onChange={handleFileInputChange}/>
+        </div>}
       <ResourceList files={channel === 'output' ? output : input} channel={channel} runs={runs}/>
     </div>
     <ToastContainer/>
