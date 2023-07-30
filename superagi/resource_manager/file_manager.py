@@ -90,7 +90,6 @@ class FileManager:
             raise FileNotCreatedError(f"Error write_file: {err}") from err
         
     def write_pdf_file(self, file_name: str ,file_path: str, content):
-        logger.info("Inside writing PDF")
         # Saving the HTML file
         html_file_path = f"{file_path[:-4]}.html"
         self.write_txt_file(file_name=html_file_path.split('/')[-1], file_path=html_file_path, content=content)
