@@ -45,8 +45,35 @@ class AgentExecutionFeed(DBBaseModel):
             AgentExecutionFeed.role == "system").order_by(AgentExecutionFeed.created_at.desc()).all()
 
         for agent_execution_feed in agent_execution_feeds:
-            if tool_name and not agent_execution_feed.feed.startswith("Tool " + tool_name):
+            if tool_name and not agent_execution_feed.feed.startswith(
+                f"Tool {tool_name}"
+            ):
                 continue
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
         return ""
+    
+    @classmethod
+    def get_all_tools_response(cls, session: Session, agent_execution_id: int, tool_names: list = None):
+        """
+        Returns all system generated responses by the tools
+        Args:
+            session : Current Agent Session running
+            agent_execution_id (int) : Agent Execution id 
+            tool name (list) : Tool Name(s), whose responses are to be queried
+        Returns:
+            list: List of responses queried
+        """
+        agent_execution_feeds = session.query(AgentExecutionFeed).filter(
+            AgentExecutionFeed.agent_execution_id == agent_execution_id,
+            AgentExecutionFeed.role == "system").all()
+
+        return [
+            agent_execution_feed.feed
+            for agent_execution_feed in agent_execution_feeds
+            if tool_names
+            and any(
+                agent_execution_feed.feed.startswith(f"Tool {x}")
+                for x in tool_names
+            )
+        ]
