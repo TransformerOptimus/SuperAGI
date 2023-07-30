@@ -57,7 +57,7 @@ class StableDiffusionImageGenTool(BaseTool):
         data = response.json()
 
         artifacts = data['artifacts']
-        base64_strings = []
+        base64_strings, image_paths = [],[]
         for artifact in artifacts:
             base64_strings.append(artifact['base64'])
 
