@@ -1651,3 +1651,24 @@ tr{
     border-radius: 8px;
     flex-direction: column;
 }
+
+.history_box, .history_box_selected {
+    width: 100%;
+    padding: 10px;
+    color: white;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 7px;
+}
+
+.history_box{
+    background: #272335;
+}
+
+.history_box_selected{
+    background: #474255;
+}
