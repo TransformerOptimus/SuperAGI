@@ -874,6 +874,14 @@ p {
     line-height: normal;
 }
 
+.text_10{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 12px;
+    color: #888888;
+}
+
 .text_12{
     color: #888;
     font-size: 12px;
@@ -997,6 +1005,7 @@ p {
 .w_100{width: 100%}
 .w_fit_content{width:fit-content}
 
+.h_44p{height: 44px}
 .h_100{height: 100%}
 .h_auto{height: auto}
 .h_75vh{height: 75vh}
@@ -1510,6 +1519,14 @@ tr{
     height: fit-content;
     display: inline-flex;
     align-items: center;
+    padding-right: 10px;
+}
+
+.detail_body{
+    overflow-y: auto;
+    max-height: 80vh;
+    position: relative;
+    width: 100%;
     padding-right: 10px;
 }
 
