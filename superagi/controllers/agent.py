@@ -507,7 +507,11 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
         
     # Construct the JSON response
     results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
+
     results_agent_dict['tools'] = json.loads(results_agent_dict['tools'].replace("'", "\""))
+    tools = db.session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
+    results_agent_dict["tools"] = tools
+
     results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
 
     constraints_str = results_agent_dict["constraints"]
@@ -519,7 +523,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     results_agent_dict["calls"] = total_calls
     results_agent_dict["tokens"] = total_tokens
 
-    response = results_agent_dict
+    response  = results_agent_dict
 
     # Close the session
     db.session.close()

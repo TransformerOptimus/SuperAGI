@@ -169,7 +169,8 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
         "max_iterations": agent_execution.max_iterations,
         "user_timezone": agent_execution.user_timezone
     }
-
+    #agent_execution_configs = agent_execution.dict()
+    #print(agent_execution_configs)
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
