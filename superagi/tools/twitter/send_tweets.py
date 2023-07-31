@@ -27,9 +27,6 @@ class SendTweetsTool(BaseTool):
         toolkit_id = self.toolkit_config.toolkit_id
         session = self.toolkit_config.session
         creds = TwitterTokens(session).get_twitter_creds(toolkit_id)
-        # print(creds.api_key)
-        creds.api_key = decrypt_data(creds.api_key)
-        creds.api_key_secret = decrypt_data(creds.api_key_secret)
         params = {}
         if is_media:
             media_ids = TwitterHelper().get_media_ids(session, media_files, creds, self.agent_id,
