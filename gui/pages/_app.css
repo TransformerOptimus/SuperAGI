@@ -926,6 +926,13 @@ p {
     width: 100%;
 }
 
+.horizontal_container_center{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
 .vertical_containers{
     display: flex;
     flex-direction: column;
@@ -992,6 +999,9 @@ p {
 
 .h_100{height: 100%}
 .h_auto{height: auto}
+.h_75vh{height: 75vh}
+
+.mxh_78vh{max-height: 78vh}
 
 .justify_center{justify-content: center}
 .justify_end{justify-content: flex-end}
@@ -1016,7 +1026,9 @@ p {
 
 .overflow_auto{overflow: auto}
 .overflowY_scroll{overflow-y: scroll}
+.overflowY_auto{overflow-y: auto}
 .overflowX_scroll{overflow-x: scroll}
+.overflowX_auto{overflow-x: auto}
 
 .gap_4{gap:4px;}
 .gap_6{gap:6px;}
@@ -1045,6 +1057,8 @@ p {
 .flex_wrap{flex-wrap: wrap;}
 
 .mix_blend_mode{mix-blend-mode: exclusion;}
+
+.ff_sourceCode{font-family: 'Source Code Pro'}
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
 .my_rows {
@@ -1265,6 +1279,12 @@ tr{
 .image_class{
     background: #FFFFFF80;
     border-radius: 20px;
+}
+
+.tool_icon{
+    border-radius: 25px;
+    background: black;
+    position: relative;
 }
 
 .loader {

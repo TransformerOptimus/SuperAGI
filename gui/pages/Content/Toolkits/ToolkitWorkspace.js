@@ -115,7 +115,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
       <div className="col-6 col-6-scrollable">
         <div className={styles.tools_container}>
           <div className="horizontal_container align_start mb_20">
-            <Image src={returnToolkitIcon(toolkitDetails?.name)} alt="toolkit-icon" width={45} height={45} className="bg_black border_radius_25" />
+            <Image src={returnToolkitIcon(toolkitDetails?.name)} alt="toolkit-icon" width={45} height={45} className="tool_icon" />
             <div className="vertical_containers ml_15 text_align_left mr_10">
               <div className="text_17">{toolkitDetails.name}</div>
               <div className={styles.toolkit_description} style={!showDescription ? {overflow: 'hidden'} : {display: 'block'}}>
