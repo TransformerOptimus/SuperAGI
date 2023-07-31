@@ -514,8 +514,6 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     constraints_list = eval(constraints_str)
     results_agent_dict["constraints"] = constraints_list
 
-    #results_agent_dict["tools"] = [int(x) for x in json.loads(results_agent_dict["tools"])]
-
     results_agent_dict["name"] = agent.name
     results_agent_dict["description"] = agent.description
     results_agent_dict["calls"] = total_calls
