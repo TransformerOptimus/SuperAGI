@@ -23,7 +23,7 @@ class JiraToolkit(BaseToolkit, ABC):
 
     def get_env_keys(self) -> List[ToolConfig]:
         return [
-            ToolConfig(key="JIRA_INSTANCE_URL", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = True),
-            ToolConfig(key="JIRA_USERNAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True),
+            ToolConfig(key="JIRA_INSTANCE_URL", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = False),
+            ToolConfig(key="JIRA_USERNAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False),
             ToolConfig(key="JIRA_API_TOKEN", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True)
         ]

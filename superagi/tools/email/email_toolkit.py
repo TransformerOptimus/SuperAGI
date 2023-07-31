@@ -17,13 +17,13 @@ class EmailToolkit(BaseToolkit, ABC):
 
     def get_env_keys(self) -> List[ToolConfig]:
         return [
-            ToolConfig(key="EMAIL_ADDRESS", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = True),
+            ToolConfig(key="EMAIL_ADDRESS", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = False),
             ToolConfig(key="EMAIL_PASSWORD", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True),
-            ToolConfig(key="EMAIL_SIGNATURE", key_type=ToolConfigKeyType.FILE, is_required=True, is_secret=True),
-            ToolConfig(key="EMAIL_DRAFT_MODE", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True),
-            ToolConfig(key="EMAIL_DRAFT_FOLDER", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True),
-            ToolConfig(key="EMAIL_SMTP_HOST", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True),
-            ToolConfig(key="EMAIL_SMTP_PORT", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True),
-            ToolConfig(key="EMAIL_IMAP_SERVER", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True)
+            ToolConfig(key="EMAIL_SIGNATURE", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=False),
+            ToolConfig(key="EMAIL_DRAFT_MODE", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False),
+            ToolConfig(key="EMAIL_DRAFT_FOLDER", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False),
+            ToolConfig(key="EMAIL_SMTP_HOST", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False),
+            ToolConfig(key="EMAIL_SMTP_PORT", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False),
+            ToolConfig(key="EMAIL_IMAP_SERVER", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False)
         ]
             

@@ -14,6 +14,7 @@ from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
+from superagi.helper.encyption_helper import decrypt_data
 
 router = APIRouter()
 
@@ -73,6 +74,8 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
                                                Toolkit.name == toolkit_name).first()
     toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
     toolkit.configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
+    for tool_configs in toolkit.configs:
+        tool_configs.value = decrypt_data(tool_configs.value)
     return toolkit
 
 

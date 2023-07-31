@@ -17,5 +17,5 @@ class ImageGenToolkit(BaseToolkit, ABC):
     def get_env_keys(self) -> List[ToolConfig]:
         return [
             ToolConfig(key="STABILITY_API_KEY", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = True),
-            ToolConfig(key="ENGINE_ID", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True)
+            ToolConfig(key="ENGINE_ID", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=False)
         ]

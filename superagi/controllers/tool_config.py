@@ -55,11 +55,6 @@ def update_tool_config(toolkit_name: str, configs: list, organisation: Organisat
             value = config.get("value")
             if value is None: 
                 continue
-            if key == "TWITTER_API_KEY" or "TWITTER_API_SECRET":
-                tool_config = db.session.query(ToolConfig).filter_by(toolkit_id=toolkit.id, key=key).first()
-                if tool_config:
-                    # Update existing tool config
-                    db.session.commit()
             if key is not None:
                 tool_config = db.session.query(ToolConfig).filter_by(toolkit_id=toolkit.id, key=key).first()
                 if tool_config:

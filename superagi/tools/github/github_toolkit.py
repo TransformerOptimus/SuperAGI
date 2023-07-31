@@ -18,7 +18,7 @@ class GitHubToolkit(BaseToolkit, ABC):
     def get_env_keys(self) -> List[ToolConfig]:
         return [
             ToolConfig(key="GITHUB_ACCESS_TOKEN", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = True),
-            ToolConfig(key="GITHUB_USERNAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True)
+            ToolConfig(key="GITHUB_USERNAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False)
         ]
 
 
