@@ -193,6 +193,26 @@ input[type="range"]::-moz-range-track {
     box-shadow: -10px 10px 100px rgba(0, 0, 0, 0.4);
 }
 
+.page_title {
+    text-align: left;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 17px;
+    display: flex;
+    align-items: center;
+    color: white;
+    margin-bottom: 25px;
+}
+
+.form_label_13{
+    font-size: 13px;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #888888;
+    line-height: 17px;
+}
+
 .form_label {
     font-size: 14px;
     margin-bottom: 4px;
