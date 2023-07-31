@@ -946,7 +946,18 @@ p {
     width: 100%;
 }
 
+.margin_0{margin: 0}
+.padding_0{padding: 0}
+
+.r_0{right: 0}
+
 .w_120p{width: 120px}
+.w_6{width: 6%}
+.w_10{width: 10%}
+.w_12{width: 12%}
+.w_20{width: 20%}
+.w_22{width: 22%}
+.w_56{width: 56%}
 .w_100{width: 100%}
 .w_fit_content{width:fit-content}
 
@@ -968,6 +979,7 @@ p {
 .text_align_left{text-align: left}
 
 .position_relative{position: relative}
+.position_absolute{position: absolute}
 
 .cursor_pointer{cursor: pointer}
 .cursor_default{cursor: default}
@@ -997,6 +1009,7 @@ p {
 
 .padding_8_6{padding: 8px 6px;}
 .padding_2_8{padding: 2px 8px;}
+.padding_0_8{padding: 0px 8px;}
 
 .flex_wrap{flex-wrap: wrap;}
 
