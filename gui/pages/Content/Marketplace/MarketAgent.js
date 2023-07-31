@@ -56,7 +56,7 @@ export default function MarketAgent() {
                 <div style={{color: '#888888', lineHeight: '16px'}}>by SuperAgi&nbsp;<Image width={14} height={14}
                                                                                             src="/images/is_verified.svg"
                                                                                             alt="is_verified"/></div>
-                <div className="text_ellipsis mt_8 color_gray">{item.description}</div>
+                <div className={styles.tool_description} style={{marginTop: '8px'}}>{item.description}</div>
               </div>
             </div>
           ))}</div> : <div className="center_container mt_40">
