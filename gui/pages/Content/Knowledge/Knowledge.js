@@ -46,12 +46,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
               )}
             </div>
           </div>
-        ) : (
-          <div style={{
-            marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }} className="form_label">
-            No Knowledge found
-          </div>
+        ) : (<div className="form_label mt_20 horizontal_container justify_center">No Knowledge found</div>
         )}
       </div>
     </>
