@@ -21,7 +21,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
         </div>
 
         {knowledge && knowledge.length > 0 ? (
-          <div style={{overflowY: 'scroll', height: '80vh'}}>
+          <div className="vertical_selection_scroll">
             <div className={styles.tool_container}>
               {knowledge.map((item, index) => (
                 <div key={index} className={styles.tool_box} onClick={() => sendKnowledgeData({
