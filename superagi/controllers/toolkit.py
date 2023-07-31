@@ -145,6 +145,15 @@ def install_toolkit_from_marketplace(toolkit_name: str,
     # Check if the tool kit exists
     toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
                                                toolkit_name=toolkit_name)
+    db_toolkit = Toolkit.add_or_update(session=db.session, name=toolkit['name'], description=toolkit['description'],
+                          tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
+                          show_toolkit=toolkit['show_toolkit'])
+    for tool in toolkit['tools']:
+        Tool.add_or_update(session=db.session, tool_name=tool['name'], description=tool['description'],
+                           folder_name=tool['folder_name'], class_name=tool['class_name'], file_name=tool['file_name'],
+                           toolkit_id=db_toolkit.id)
+    for config in toolkit['configs']:
+        ToolConfig.add_or_update(session=db.session, toolkit_id=db_toolkit.id, key=config['key'], value=config['value'])
     # download_and_install_tool(GitHubLinkRequest(github_link=toolkit['tool_code_link']),
     #                           organisation=organisation)
     if not GithubHelper.validate_github_link(toolkit['tool_code_link']):
