@@ -38,7 +38,6 @@ export default function AddKnowledge({internalId, sendKnowledgeData) {
                        isEditing={false}
                        setIsEditing={null}
                        sendKnowledgeData={sendKnowledgeData}
-                       sendDatabaseData={sendDatabaseData}
         />
       </div>
       <div className="col-3"></div>
