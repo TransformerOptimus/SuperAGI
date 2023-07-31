@@ -1524,3 +1524,12 @@ tr{
     border-radius: 8px;
     border: rgba(255, 255, 255, 0.10);
 }
+
+.side_bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    color: white;
+}
