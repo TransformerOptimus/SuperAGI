@@ -8,7 +8,7 @@ import {deleteCustomKnowledge, deleteMarketplaceKnowledge, getKnowledgeDetails} 
 import {removeTab} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseData}) {
+export default function KnowledgeDetails({internalId, knowledgeId}) {
   const [showDescription, setShowDescription] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
