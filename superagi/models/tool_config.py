@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import Session, sessionmaker
 from superagi.types.key_type import ToolConfigKeyType
 from superagi.models.base_model import DBBaseModel
+from superagi.helper.encyption_helper import encrypt_data
 import json
 import yaml
 
@@ -66,7 +67,7 @@ class ToolConfig(DBBaseModel):
         if tool_config:
             # Update existing tool config
             if value is not None:
-                tool_config.value = value
+                tool_config.value = encrypt_data(value)
 
             if is_required is None:
                 tool_config.is_required = False
@@ -92,7 +93,7 @@ class ToolConfig(DBBaseModel):
             # Create new tool config
             if key_type is None:
                 key_type = ToolConfigKeyType.STRING
-            tool_config = ToolConfig(toolkit_id=toolkit_id, key=key, value=value, key_type=key_type.value, is_secret=is_secret, is_required=is_required)
+            tool_config = ToolConfig(toolkit_id=toolkit_id, key=key, value=encrypt_data(value), key_type=key_type.value, is_secret=is_secret, is_required=is_required)
             session.add(tool_config)
 
         session.commit()
