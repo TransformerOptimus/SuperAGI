@@ -10,7 +10,7 @@ import AgentTemplate from "./AgentTemplate";
 import KnowledgeTemplate from "./KnowledgeTemplate";
 import {setLocalStorageValue, setLocalStorageArray} from "@/utils/utils";
 
-export default function Market({env, sendDatabaseData}) {
+export default function Market({env}) {
   const [activeTab, setActiveTab] = useState('market_tools');
   const [itemClicked, setItemClicked] = useState(false);
   const [templateData, setTemplateData] = useState([]);
