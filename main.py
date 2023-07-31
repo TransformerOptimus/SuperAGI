@@ -65,6 +65,9 @@ from superagi.models.types.login_request import LoginRequest
 from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
 from superagi.models.user import User
 from superagi.models.agent_execution import AgentExecution
+from superagi.helper.webhook_manager import WebHookManager
+from superagi.models.db import connect_db
+from superagi.worker import webhook_callback
 app = FastAPI()
 
 database_url = get_config('POSTGRES_URL')
@@ -491,9 +494,11 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 
-@event.listens_for(AgentExecution.status, "set")
+@event.listens_for(AgentExecution.status, "set",active_history=True)
 def unique_constraint_name(target, val,old_val,initiator):
     print("****target",target)
     print("*****val",val)
     print("****oldval",old_val)
     print("****Inititator",initiator)
+    webhook_callback.delay(target.id,val,old_val)
+    

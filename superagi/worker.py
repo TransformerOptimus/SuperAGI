@@ -17,6 +17,7 @@ from superagi.types.model_source_types import ModelSourceType
 
 from sqlalchemy import event
 from superagi.models.agent_execution import AgentExecution
+from superagi.helper.webhook_manager import WebHookManager
 
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
 
@@ -41,7 +42,9 @@ def unique_constraint_name(target, val,old_val,initiator):
     print("*****val",val)
     print("****oldval",old_val)
     print("****Inititator",initiator)
-
+    webhook_callback.delay(target.id,val,old_val)
+    
+    
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
@@ -60,7 +63,7 @@ def execute_agent(agent_execution_id: int, time):
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
 
 
-@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')
+@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def summarize_resource(agent_id: int, resource_id: int):
     """Summarize a resource in background."""
     from superagi.resource_manager.resource_summary import ResourceSummarizer
@@ -90,3 +93,12 @@ def summarize_resource(agent_id: int, resource_id: int):
                                                                documents=documents)
     resource_summarizer.generate_agent_summary(agent_id=agent_id)
     session.close()
+
+@app.task(name="webhook_callback", autoretry_for=(Exception,), retry_backoff=2, max_retries=5,serializer='pickle')
+def webhook_callback(agent_execution_id,val,old_val):
+    print("*******TEST****************")
+    engine = connect_db()
+    Session = sessionmaker(bind=engine)
+    with Session() as session:
+        WebHookManager(session).agentStatusChangeCallback(agent_execution_id,val,old_val)
+    
