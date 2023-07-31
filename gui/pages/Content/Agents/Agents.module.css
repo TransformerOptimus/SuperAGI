@@ -33,23 +33,6 @@
     padding: 0;
 }
 
-.agent_text {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 15px;
-    align-items: center;
-    color: white;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .text_block {
     display:flex;
     display: -webkit-box;
