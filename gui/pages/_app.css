@@ -1005,6 +1005,8 @@ p {
 .w_100{width: 100%}
 .w_fit_content{width:fit-content}
 
+.mxw_360{max-width: 360px}
+
 .h_44p{height: 44px}
 .h_100{height: 100%}
 .h_auto{height: auto}
