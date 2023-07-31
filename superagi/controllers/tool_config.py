@@ -10,7 +10,6 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.helper.encyption_helper import encrypt_data
 from superagi.helper.encyption_helper import decrypt_data
-from superagi.lib.logger import logger
 
 router = APIRouter()
 
