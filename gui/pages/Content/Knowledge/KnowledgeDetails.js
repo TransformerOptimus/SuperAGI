@@ -103,7 +103,6 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
                          isEditing={true}
                          setIsEditing={setIsEditing}
                          sendKnowledgeData={null}
-                         sendDatabaseData={sendDatabaseData}
           /> :
           <div>
             <div className={styles.tools_container}>
