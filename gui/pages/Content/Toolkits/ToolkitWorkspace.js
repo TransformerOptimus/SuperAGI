@@ -140,7 +140,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           {!loading && activeTab === 'configuration' && <div>
             {apiConfigs.length > 0 ? (apiConfigs.map((config, index) => (
               <div key={index}>
-                <div className="vertical_containers color_gray mb_20 text_align_left">
+                <div className="vertical_containers w_100 color_gray mb_20 text_align_left">
                   <label className="mb_6">{convertToTitleCase(config.key)}</label>
                   <div className={styles.search_box}>
                     <input className="color_white w_100" type="text" value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>
