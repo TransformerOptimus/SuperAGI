@@ -41,7 +41,7 @@ class ToolOutputHandler:
         session.commit()
         if not tool_response.retry:
             tool_response = self._check_for_completion(tool_response)
-
+        # print("Tool Response:", tool_response)
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):

@@ -214,7 +214,7 @@ class AgentWorkflowStep(DBBaseModel):
     def fetch_next_step(cls, session, current_agent_step_id: int, step_response: str):
         """ Adds a workflows step in the next_steps column"""
         current_step = AgentWorkflowStep.find_by_id(session, current_agent_step_id)
-        next_steps = [step for step in current_step.next_steps if step["step_response"] == step_response]
+        next_steps = [step for step in current_step.next_steps if str(step["step_response"]) == step_response]
         if next_steps:
             if str(next_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"

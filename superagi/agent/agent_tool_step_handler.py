@@ -52,7 +52,7 @@ class AgentToolStepHandler:
         final_response = tool_output_handler.handle(self.session, assistant_reply)
         step_response = "default"
         if step_tool.output_instruction:
-            step_response = self._process_output_instruction(final_response, step_tool, workflow_step)
+            step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
 
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
         self.handle_next_step(next_step)
@@ -90,6 +90,7 @@ class AgentToolStepHandler:
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
+        # print(messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
         if 'content' not in response or response['content'] is None:
@@ -125,6 +126,7 @@ class AgentToolStepHandler:
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
         step_response = response['content']
+        step_response = step_response.replace("'", "").replace("\"", "")
         return step_response
 
     def _build_tool_input_prompt(self, step_tool: AgentWorkflowStepTool, tool: BaseTool, agent_execution_config: dict):
@@ -143,7 +145,7 @@ class AgentToolStepHandler:
 
     def _build_tool_output_prompt(self, step_tool: AgentWorkflowStepTool, tool_output: str,
                                   workflow_step: AgentWorkflowStep):
-        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "agent_tool_input.txt")
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "agent_tool_output.txt")
         super_agi_prompt = super_agi_prompt.replace("{tool_output}", tool_output)
         super_agi_prompt = super_agi_prompt.replace("{tool_name}", step_tool.tool_name)
         super_agi_prompt = super_agi_prompt.replace("{instruction}", step_tool.output_instruction)
@@ -177,6 +179,7 @@ class AgentToolStepHandler:
         else:
             next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, "NO")
             result = f"{' User has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
+
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                       agent_id=agent_execution_permission.agent_id,

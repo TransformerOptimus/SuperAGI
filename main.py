@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi
-from datetime import timedelta
+from datetime import timedelta, datetime
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
 from superagi.config.config import get_config
@@ -44,10 +44,12 @@ from superagi.helper.tool_helper import register_toolkits, register_marketplace_
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
 from superagi.models.user import User
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
 
@@ -149,6 +151,26 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
         content={"detail": exc.message}
     )
 
+
+def replace_old_iteration_workflows(session):
+    dateTimeObj = datetime.strptime("31-July-2023", "%d-%B-%Y")
+    templates = session.query(AgentTemplate).filter(AgentTemplate.created_at >= dateTimeObj).all()
+    for template in templates:
+        iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
+        if iter_workflow.name == "Fixed Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Fixed Task Workflow")
+            template.agent_workflow_id = agent_workflow.id
+            session.commit()
+
+        if iter_workflow.name == "Maintain Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Dynamic Task Workflow")
+            template.agent_workflow_id = agent_workflow.id
+            session.commit()
+
+        if iter_workflow.name == "Don't Maintain Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
+            template.agent_workflow_id = agent_workflow.id
+            session.commit()
 
 @app.on_event("startup")
 async def startup_event():

@@ -88,8 +88,7 @@ class AgentIterationStepHandler:
             execution.status = "COMPLETED"
             self.session.commit()
 
-            self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id,
-                                                   workflow_step, "COMPLETE")
+            self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id, "COMPLETE")
             EventHandler(session=self.session).create_event('run_completed',
                                                             {'agent_execution_id': execution.id,
                                                              'name': execution.name,
@@ -102,12 +101,12 @@ class AgentIterationStepHandler:
             self.session.commit()
         else:
             # moving to next step of iteration or workflow
-            self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id, workflow_step)
+            self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
 
-    def _update_agent_execution_next_step(self, execution, next_step_id, workflow_step, step_response: str = "default"):
+    def _update_agent_execution_next_step(self, execution, next_step_id, step_response: str = "default"):
         if next_step_id == -1:
             next_step = AgentWorkflowStep.fetch_next_step(self.session, execution.current_agent_step_id, step_response)
             if str(next_step) == "COMPLETE":
@@ -190,9 +189,17 @@ class AgentIterationStepHandler:
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                   agent_id=agent_execution_permission.agent_id,
-                                                  feed=result, role="user")
+                                                  feed=agent_execution_permission.assistant_reply,
+                                                  role="assistant")
         self.session.add(agent_execution_feed)
+        agent_execution_feed1 = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
+                                                  agent_id=agent_execution_permission.agent_id,
+                                                  feed=result, role="user")
+        self.session.add(agent_execution_feed1)
         agent_execution.status = "RUNNING"
-        agent_execution.iteration_workflow_step_id = iteration_workflow_step.next_step_id
+        execution = AgentExecution.find_by_id(self.session, agent_execution_permission.agent_execution_id)
+        self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
         self.session.commit()
+
+
         return True

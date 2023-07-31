@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, Text
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 marketplace_url = "https://app.superagi.com/api/"
 # marketplace_url = "http://localhost:8001/"
