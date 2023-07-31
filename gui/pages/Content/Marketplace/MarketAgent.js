@@ -49,8 +49,9 @@ export default function MarketAgent() {
       <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
         {!isLoading ? <div>
           {agentTemplates.length > 0 ? <div className={styles.resources}>{agentTemplates.map((item, index) => (
-            <div className="market_tool cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
-              <div className="vertical_containers overflow_auto">
+            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
+                 onClick={() => handleTemplateClick(item)}>
+              <div style={{display: 'inline', overflow: 'auto'}}>
                 <div>{item.name}</div>
                 <div className="color_gray lh_16">by SuperAgi&nbsp;<Image width={14} height={14}
                                                                                             src="/images/is_verified.svg"
