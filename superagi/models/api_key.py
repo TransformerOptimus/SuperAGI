@@ -18,6 +18,7 @@ class ApiKey(DBBaseModel):
     org_id = Column(Integer)
     key_name = Column(String)
     key = Column(String)
+    revoked= Column(Boolean)
     
 
     

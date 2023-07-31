@@ -25,6 +25,7 @@ def upgrade() -> None:
     sa.Column('key', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('revoked',sa.Boolean(),nullable=True,default=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('web_hooks',
@@ -36,8 +37,11 @@ def upgrade() -> None:
     sa.Column('headers', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('isDeleted',sa.Boolean(),nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+
+    #add index *********************
     # ### end Alembic commands ###
 
 
