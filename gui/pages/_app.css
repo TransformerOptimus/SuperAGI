@@ -1622,3 +1622,15 @@ tr{
     height: calc(100vh - 92px);
     padding: 25px 20px;
 }
+
+.market_tool {
+    display: flex;
+    height: 105px;
+    color: white;
+    font-size: small;
+    padding: 12px;
+    width: 33% !important;
+    background-color: rgb(39, 35, 53);
+    border-radius: 8px;
+    flex-direction: column;
+}

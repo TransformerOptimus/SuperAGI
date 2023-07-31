@@ -51,7 +51,7 @@ export default function MarketTools() {
       <div className="w_100 overflowY_auto mxh_78vh">
         {!isLoading ? <div>
           {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item) => (
-            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}} onClick={() => handleTemplateClick(item)}>
+            <div className="market_tool cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
               <div className="horizontal_container overflow_auto">
                 <Image className="tool_icon" width={40} height={40} src={returnToolkitIcon(item.name)} alt="tool-icon"/>
                 <div className="ml_12 mb_8">
