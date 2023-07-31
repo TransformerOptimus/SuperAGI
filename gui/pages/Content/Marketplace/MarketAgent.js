@@ -68,7 +68,7 @@ export default function MarketAgent() {
             width: '100%'
           }}>
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-            <span className="feed_title mt_8">No Agent Templates found!</span>
+            <span className={styles.feed_title} style={{marginTop: '8px'}}>No Agent Templates found!</span>
           </div>}
         </div> : <div className="horizontal_container_center h_75vh">
           <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
