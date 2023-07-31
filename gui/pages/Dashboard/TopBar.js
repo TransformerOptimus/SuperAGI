@@ -37,6 +37,16 @@ export default function TopBar({selectedProject, userName, env}) {
         </div>
       </div>
       <div className="top_right">
+        <div className="horizontal_container mr_10">
+          <Image width={20} height={20} src="/images/discord.svg" alt="discord-icon" />
+          <p className="top_bar_font">Get Help?</p>
+        </div>
+        <div className="horizontal_container mr_10">
+          <a href="https://github.com/TransformerOptimus/SuperAGI/issues" target="_blank" rel="noopener noreferrer">
+            <Image width={20} height={20} src="/images/github_white.svg" alt="github-icon" />
+            <p className="top_bar_font">Github</p>
+          </a>
+        </div>
         <Image onClick={() => openNewTab(-3, "Settings", "Settings", false)} className="top_right_icon" width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/>
         <div className="top_right_icon" onMouseEnter={() => setDropdown(true)}
              onMouseLeave={() => setDropdown(false)}>
