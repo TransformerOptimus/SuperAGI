@@ -303,3 +303,24 @@ def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_org
         toolkit.tools = toolkit_tools
 
     return toolkits
+
+@router.get("/check_update/{toolkit_name}")
+def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+    """
+    Check if there is an update available for the installed tool kits.
+
+    Returns:
+        dict: The response containing the update details.
+
+    """
+    marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
+                                               toolkit_name=toolkit_name)
+    installed_toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name, organisation)
+    installed_toolkit.tools = Tool.get_tools(db.session, installed_toolkit)
+    installed_toolkit.tools_configs = ToolConfig.get_tool_configs(db.session, installed_toolkit)
+    print("marketplace_toolkit : ", marketplace_toolkit)
+    print("installed_toolkit : ", installed_toolkit)
+    if not installed_toolkit:
+        return True
+
+

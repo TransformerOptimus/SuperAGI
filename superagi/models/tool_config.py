@@ -61,3 +61,8 @@ class ToolConfig(DBBaseModel):
             session.add(tool_config)
 
         session.commit()
+
+    @classmethod
+    def get_tool_config(cls, session: Session, toolkit_id: int):
+        tool_configs = session.query(ToolConfig).filter_by(toolkit_id=toolkit_id).all()
+        return tool_configs

@@ -109,3 +109,7 @@ class Tool(DBBaseModel):
             if tool is None:
                 invalid_tool_ids.append(tool_id)
         return invalid_tool_ids
+
+    @classmethod
+    def get_tools(cls, session, toolkit):
+        return session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
