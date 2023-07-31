@@ -154,11 +154,6 @@ def install_toolkit_from_marketplace(toolkit_name: str,
                            toolkit_id=db_toolkit.id)
     for config in toolkit['configs']:
         ToolConfig.add_or_update(session=db.session, toolkit_id=db_toolkit.id, key=config['key'], value=config['value'])
-    # download_and_install_tool(GitHubLinkRequest(github_link=toolkit['tool_code_link']),
-    #                           organisation=organisation)
-    if not GithubHelper.validate_github_link(toolkit['tool_code_link']):
-        raise HTTPException(status_code=400, detail="Invalid Github link")
-    add_tool_to_json(toolkit['tool_code_link'])
     return {"message": "ToolKit installed successfully"}
 
 
