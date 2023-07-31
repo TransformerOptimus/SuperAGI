@@ -53,7 +53,7 @@ export default function MarketAgent() {
                  onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline', overflow: 'auto'}}>
                 <div>{item.name}</div>
-                <div className="color_gray lh_16">by SuperAgi&nbsp;<Image width={14} height={14}
+                <div style={{color: '#888888', lineHeight: '16px'}}>by SuperAgi&nbsp;<Image width={14} height={14}
                                                                                             src="/images/is_verified.svg"
                                                                                             alt="is_verified"/></div>
                 <div className="text_ellipsis mt_8 color_gray">{item.description}</div>
