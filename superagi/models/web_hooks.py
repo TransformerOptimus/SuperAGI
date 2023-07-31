@@ -18,7 +18,5 @@ class WebHooks(DBBaseModel):
     name=Column(String)
     org_id = Column(Integer)
     url = Column(String)
-    key = Column(String)
     headers=Column(JSON)
     isDeleted=Column(Boolean)
-    

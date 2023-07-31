@@ -59,7 +59,6 @@ def get_current_user(Authorize: AuthJWT = Depends(check_auth)):
 api_key_header = APIKeyHeader(name="X-API-Key")
 def validate_api_key(api_key: str = Security(api_key_header)) -> str:
     query_result=db.session.query(ApiKey).filter(ApiKey.key==api_key,or_(ApiKey.revoked == False, ApiKey.revoked == None)).first()
-    print("**********query result",query_result,"    ",api_key)
     if query_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

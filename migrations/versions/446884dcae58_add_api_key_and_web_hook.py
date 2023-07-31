@@ -33,11 +33,21 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('org_id', sa.Integer(), nullable=True),
     sa.Column('url', sa.String(), nullable=True),
-    sa.Column('key', sa.String(), nullable=True),
     sa.Column('headers', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('isDeleted',sa.Boolean(),nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('web_hook_events',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('agent_id', sa.Integer(), nullable=True),
+    sa.Column('run_id', sa.Integer(), nullable=True),
+    sa.Column('event', sa.String(), nullable=True),
+    sa.Column('status', sa.String(), nullable=True),
+    sa.Column('errors', sa.Text(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
 
@@ -50,4 +60,5 @@ def downgrade() -> None:
     
     op.drop_table('web_hooks')
     op.drop_table('api_key')
+    op.drop_table('web_hook_events')
     # ### end Alembic commands ###

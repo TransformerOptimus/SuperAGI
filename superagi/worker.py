@@ -15,6 +15,9 @@ from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
 from superagi.types.model_source_types import ModelSourceType
 
+from sqlalchemy import event
+from superagi.models.agent_execution import AgentExecution
+
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
 
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
@@ -32,9 +35,17 @@ beat_schedule = {
 }
 app.conf.beat_schedule = beat_schedule
 
+@event.listens_for(AgentExecution.status, "set")
+def unique_constraint_name(target, val,old_val,initiator):
+    print("****target",target)
+    print("*****val",val)
+    print("****oldval",old_val)
+    print("****Inititator",initiator)
+
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
+    
     schedule_helper = AgentScheduleHelper()
     schedule_helper.update_next_scheduled_time()
     schedule_helper.run_scheduled_agents()

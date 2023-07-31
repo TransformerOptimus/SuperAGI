@@ -11,7 +11,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from pydantic import BaseModel
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
 import superagi
@@ -49,6 +49,7 @@ from superagi.controllers.vector_db_indices import router as vector_db_indices_r
 from superagi.controllers.marketplace_stats import router as marketplace_stats_router
 from superagi.controllers.create_api_key import router as create_api_key_router
 from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.webhook import router as web_hook_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -63,7 +64,7 @@ from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
 from superagi.models.user import User
-
+from superagi.models.agent_execution import AgentExecution
 app = FastAPI()
 
 database_url = get_config('POSTGRES_URL')
@@ -129,6 +130,8 @@ app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
 app.include_router(marketplace_stats_router, prefix="/marketplace")
 app.include_router(create_api_key_router,prefix="/api-keys")
 app.include_router(api_agent_router,prefix="/v1/agent")
+app.include_router(web_hook_router,prefix="/webhook")
+
 # in production you can use Settings management
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
@@ -486,3 +489,11 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+
+@event.listens_for(AgentExecution.status, "set")
+def unique_constraint_name(target, val,old_val,initiator):
+    print("****target",target)
+    print("*****val",val)
+    print("****oldval",old_val)
+    print("****Inititator",initiator)
