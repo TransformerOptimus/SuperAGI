@@ -45,8 +45,8 @@ export default function MarketAgent() {
   }
 
   return (
-    <div className={showMarketplace ? 'ml_8' : 'ml_3'}>
-      <div className="w_100 overflowY_auto mxh_78vh">
+    <div style={showMarketplace ? {marginLeft: '8px'} : {marginLeft: '3px'}}>
+      <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
         {!isLoading ? <div>
           {agentTemplates.length > 0 ? <div className={styles.resources}>{agentTemplates.map((item, index) => (
             <div className="market_tool cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
