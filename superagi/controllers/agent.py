@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 from typing import Union, List
+import re
+import ast
 
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
@@ -502,14 +504,24 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     for key, value in results_agent_execution_dict.items():
         if key in results_agent_dict and value is not None:
             results_agent_dict[key] = value
-
         
     # Construct the JSON response
+    results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
+    results_agent_dict['tools'] = json.loads(results_agent_dict['tools'].replace("'", "\""))
+    results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
+
+    constraints_str = results_agent_dict["constraints"]
+    constraints_list = eval(constraints_str)
+    results_agent_dict["constraints"] = constraints_list
+
+    #results_agent_dict["tools"] = [int(x) for x in json.loads(results_agent_dict["tools"])]
+
     results_agent_dict["name"] = agent.name
     results_agent_dict["description"] = agent.description
     results_agent_dict["calls"] = total_calls
     results_agent_dict["tokens"] = total_tokens
-    response = json.dumps(results_agent_dict)
+
+    response = results_agent_dict
 
     # Close the session
     db.session.close()

@@ -70,7 +70,7 @@ class AgentRunIn(BaseModel):
     agent_type: str
     constraints: List[str]
     toolkits: List[int]
-    tools: List[ToolOut]
+    tools: List[int]
     exit: str
     iteration_interval: int
     model: str
@@ -169,6 +169,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
         "max_iterations": agent_execution.max_iterations,
         "user_timezone": agent_execution.user_timezone
     }
+    #agent_execution_configs = agent_execution.dict()
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
