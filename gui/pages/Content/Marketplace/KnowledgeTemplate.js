@@ -321,3 +321,4 @@ export default function KnowledgeTemplate({template, env}) {
     </>
   );
 }
+
