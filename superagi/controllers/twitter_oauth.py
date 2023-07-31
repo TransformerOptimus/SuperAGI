@@ -36,9 +36,9 @@ def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends(c
     credentials["user_id"] = user_id
     toolkit = db.session.query(Toolkit).filter(Toolkit.id == credentials["toolkit_id"]).first()
     api_key = db.session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_API_KEY", ToolConfig.toolkit_id == credentials["toolkit_id"]).first()
-    api_key = decrypt_data(api_key)
+    api_key.value = decrypt_data(api_key.value)
     api_key_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "TWITTER_API_SECRET", ToolConfig.toolkit_id == credentials["toolkit_id"]).first()
-    api_key_secret = decrypt_data(api_key_secret)
+    api_key_secret.value = decrypt_data(api_key_secret.value)
     final_creds = {
         "api_key": api_key.value,
         "api_key_secret": api_key_secret.value,
