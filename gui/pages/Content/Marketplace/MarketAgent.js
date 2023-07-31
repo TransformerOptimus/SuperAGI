@@ -59,7 +59,14 @@ export default function MarketAgent() {
                 <div className={styles.tool_description} style={{marginTop: '8px'}}>{item.description}</div>
               </div>
             </div>
-          ))}</div> : <div className="center_container mt_40">
+          ))}</div> : <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '40px',
+            width: '100%'
+          }}>
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
             <span className="feed_title mt_8">No Agent Templates found!</span>
           </div>}
