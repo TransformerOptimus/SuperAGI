@@ -26,23 +26,6 @@
     width: 100%;
 }
 
-.agent_box {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 10px 8px;
-    gap: 6px;
-    border-radius: 8px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-    cursor: pointer;
-}
-
-.agent_box:hover {
-    background-color: #494856;
-}
-
 .agent_active {
     display: flex;
     flex-direction: row;
