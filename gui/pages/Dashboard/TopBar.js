@@ -37,7 +37,7 @@ export default function TopBar({selectedProject, userName, env}) {
         </div>
       </div>
       <div className="top_right">
-        <div className="horizontal_container gap_16">
+        <div className="horizontal_container gap_20">
           <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://discord.gg/ypfYJWV6", "_blank")}>
             <Image width={20} height={20} src="/images/discord.svg" alt="discord-icon" />
             <p className="top_bar_font">Get Help?</p>
@@ -47,6 +47,9 @@ export default function TopBar({selectedProject, userName, env}) {
             <p className="top_bar_font">Github</p>
           </div>
         </div>
+
+        <div className="horizontal_bar mr_22 ml_22" />
+
         <Image onClick={() => openNewTab(-3, "Settings", "Settings", false)} className="top_right_icon" width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/>
         <div className="top_right_icon" onMouseEnter={() => setDropdown(true)}
              onMouseLeave={() => setDropdown(false)}>

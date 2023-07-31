@@ -980,6 +980,7 @@ p {
 .gap_6{gap:6px;}
 .gap_8{gap:8px;}
 .gap_16{gap:16px;}
+.gap_20{gap:20px;}
 
 .border_radius_8{border-radius: 8px;}
 
@@ -1514,4 +1515,12 @@ tr{
     justify-content: flex-end;
     align-items: center;
     height: 100%;
+}
+
+.horizontal_bar{
+    background: rgba(255, 255, 255, 0.10);
+    width: 4px;
+    height: 80%;
+    border-radius: 8px;
+    border: rgba(255, 255, 255, 0.10);
 }
