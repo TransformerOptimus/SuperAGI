@@ -136,6 +136,24 @@ def update_agent_configurations_table(agent_id: Union[int, None], updated_detail
 
     updated_details_dict = updated_details.dict()
 
+    # Fetch existing 'toolkits' agent configuration for the given agent_id
+    agent_toolkits_config = db.session.query(AgentConfiguration).filter(
+        AgentConfiguration.agent_id == agent_id,
+        AgentConfiguration.key == 'toolkits'
+    ).first()
+
+    if agent_toolkits_config:
+        # If 'toolkits' configuration exists, update its value
+        agent_toolkits_config.value = updated_details_dict['toolkits']
+    else:
+        # If 'toolkits' configuration does not exist, create a new one
+        agent_toolkits_config = AgentConfiguration(
+            agent_id=agent_id,
+            key='toolkits',
+            value=updated_details_dict['toolkits']
+        )
+        db.session.add(agent_toolkits_config)
+        
     # Fetch agent configurations
     agent_configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
 
