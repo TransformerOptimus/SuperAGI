@@ -473,6 +473,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     #If the agent_execution_id received is -1 then the agent_execution_id is set as the most recent execution
     if agent_execution_id == -1:
         agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.created_at)).first().id
+        print(agent_execution_id)
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)

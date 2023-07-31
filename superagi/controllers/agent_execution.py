@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, List
 
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
@@ -21,6 +21,7 @@ from superagi.controllers.types.agent_schedule import AgentScheduleInput
 # from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 from superagi.apm.event_handler import EventHandler
 from superagi.controllers.tool import ToolOut
+from superagi.models.agent_config import AgentConfiguration
 
 router = APIRouter()
 
@@ -128,6 +129,25 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
 
     return db_agent_execution
 
+def update_agent_configurations_table(agent_id: Union[int, None], updated_details: AgentRunIn):
+
+    if(type(agent_id)==None):
+        return -1;
+
+    updated_details_dict = updated_details.dict()
+
+    # Fetch agent configurations
+    agent_configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+
+    # Update agent configurations
+    for agent_config in agent_configs:
+        key = agent_config.key
+        if key in updated_details_dict:
+            # Update the 'value' column with the value from 'updated_details'
+            agent_config.value = updated_details_dict[key]
+    # Commit the changes to the database
+    db.session.commit()
+
 @router.post("/add_run", status_code = 201)
 def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(check_auth)):
 
@@ -143,7 +163,10 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     Raises:
         HTTPException (Status Code=404): If the agent is not found.
     """
-     
+    #Update the agent configurations table with the data of the latest agent execution and returns -1 if agent id not found.
+    if((update_agent_configurations_table(agent_execution.agent_id, agent_execution))==-1):
+        raise HTTPException(status_code=404, detail="Agent ID not found")
+    
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code = 404, detail = "Agent not found")
