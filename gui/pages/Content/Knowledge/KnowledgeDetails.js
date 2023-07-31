@@ -206,4 +206,4 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     </div>
     <ToastContainer/>
   </>);
-} 
+}
