@@ -52,6 +52,7 @@ export default function MarketAgent() {
             <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}}
                  onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline', overflow: 'auto'}}>
+              <div style={{display: 'inline', overflow: 'auto'}}>
                 <div>{item.name}</div>
                 <div className="color_gray lh_16">by SuperAgi&nbsp;<Image width={14} height={14}
                                                                                             src="/images/is_verified.svg"
