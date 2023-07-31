@@ -24,7 +24,7 @@ export default function SideBar({onSelectEvent, env}) {
     return (
         <div className="side_bar">
             <Image width={72} height={56} className="cursor_default mt_4 mb_4"
-                   src={env === 'PROD' ? '/images/superagi_logo_beta.png' : '/images/superagi_logo.png'} alt="super-agi-logo"/>
+                   src='/images/superagi_logo.png' alt="super-agi-logo"/>
 
             {sections.map((section) => (
                 <div key={section.name} className="w_100 mb_5">
