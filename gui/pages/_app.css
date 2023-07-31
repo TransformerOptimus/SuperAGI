@@ -1546,3 +1546,9 @@ tr{
     height: 100%;
     color: white;
 }
+
+.col-6-scrollable {
+    overflow-y: scroll;
+    height: calc(100vh - 92px);
+    padding: 25px 20px;
+}

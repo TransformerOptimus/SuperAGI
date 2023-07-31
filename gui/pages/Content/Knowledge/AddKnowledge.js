@@ -26,7 +26,7 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+      <div className="col-6 col-6-scrollable">
         <KnowledgeForm internalId={internalId}
                        knowledgeId={null}
                        knowledgeName={knowledgeName}
