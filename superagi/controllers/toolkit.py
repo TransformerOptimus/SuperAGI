@@ -11,7 +11,6 @@ from superagi.helper.tool_helper import get_readme_content_from_code_link, downl
 from superagi.helper.github_helper import GithubHelper
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
 from superagi.helper.encyption_helper import decrypt_data
@@ -122,8 +121,7 @@ def get_marketplace_toolkit_tools(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Toolkit.organisation_id == organisation_id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name, Toolkit.organisation_id == organisation_id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
     tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).first()
@@ -147,15 +145,11 @@ def install_toolkit_from_marketplace(toolkit_name: str,
     # Check if the tool kit exists
     toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
                                                toolkit_name=toolkit_name)
-    db_toolkit = Toolkit.add_or_update(session=db.session, name=toolkit['name'], description=toolkit['description'],
-                          tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
-                          show_toolkit=toolkit['show_toolkit'])
-    for tool in toolkit['tools']:
-        Tool.add_or_update(session=db.session, tool_name=tool['name'], description=tool['description'],
-                           folder_name=tool['folder_name'], class_name=tool['class_name'], file_name=tool['file_name'],
-                           toolkit_id=db_toolkit.id)
-    for config in toolkit['configs']:
-        ToolConfig.add_or_update(session=db.session, toolkit_id=db_toolkit.id, key=config['key'], value=config['value'])
+    # download_and_install_tool(GitHubLinkRequest(github_link=toolkit['tool_code_link']),
+    #                           organisation=organisation)
+    if not GithubHelper.validate_github_link(toolkit['tool_code_link']):
+        raise HTTPException(status_code=400, detail="Invalid Github link")
+    add_tool_to_json(toolkit['tool_code_link'])
     return {"message": "ToolKit installed successfully"}
 
 
