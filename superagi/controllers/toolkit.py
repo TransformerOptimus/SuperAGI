@@ -11,6 +11,7 @@ from superagi.helper.tool_helper import get_readme_content_from_code_link, downl
 from superagi.helper.github_helper import GithubHelper
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
+from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
 from superagi.helper.encyption_helper import decrypt_data
