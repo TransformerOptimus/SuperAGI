@@ -190,11 +190,13 @@ class AgentIterationStepHandler:
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                   agent_id=agent_execution_permission.agent_id,
                                                   feed=agent_execution_permission.assistant_reply,
-                                                  role="assistant")
+                                                  role="assistant",
+                                                  feed_group_id=agent_execution.current_feed_group_id)
         self.session.add(agent_execution_feed)
         agent_execution_feed1 = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                   agent_id=agent_execution_permission.agent_id,
-                                                  feed=result, role="user")
+                                                  feed=result, role="user",
+                                                  feed_group_id=agent_execution.current_feed_group_id)
         self.session.add(agent_execution_feed1)
         agent_execution.status = "RUNNING"
         execution = AgentExecution.find_by_id(self.session, agent_execution_permission.agent_execution_id)

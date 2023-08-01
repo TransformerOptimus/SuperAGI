@@ -4,7 +4,6 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime
 
 from superagi.models.base_model import DBBaseModel
-from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
@@ -37,6 +36,7 @@ class AgentExecution(DBBaseModel):
     current_agent_step_id = Column(Integer)
     permission_id = Column(Integer)
     iteration_workflow_step_id = Column(Integer)
+    current_feed_group_id = Column(String)
 
     def __repr__(self):
         """

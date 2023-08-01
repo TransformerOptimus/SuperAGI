@@ -5,6 +5,7 @@ from superagi.agent.tool_executor import ToolExecutor
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 import numpy as np
 
@@ -28,15 +29,18 @@ class ToolOutputHandler:
         tool_response = self.handle_tool_response(session, assistant_reply)
         # print(tool_response)
 
+        agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                   agent_id=self.agent_config["agent_id"],
                                                   feed=assistant_reply,
-                                                  role="assistant")
+                                                  role="assistant",
+                                                  feed_group_id=agent_execution.current_feed_group_id)
         session.add(agent_execution_feed)
         tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                 agent_id=self.agent_config["agent_id"],
                                                 feed=tool_response.result,
-                                                role="system")
+                                                role="system",
+                                                feed_group_id=agent_execution.current_feed_group_id)
         session.add(tool_response_feed)
         session.commit()
         if not tool_response.retry:
@@ -100,11 +104,13 @@ class TaskOutputHandler:
             self.task_queue.add_task(task)
         if len(tasks) > 0:
             logger.info("Adding task to queue: " + str(tasks))
+        agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         for task in tasks:
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed="New Task Added: " + task,
-                                                      role="system")
+                                                      role="system",
+                                                      feed_group_id=agent_execution.current_feed_group_id)
             session.add(agent_execution_feed)
         status = "COMPLETE" if len(self.task_queue.get_tasks()) == 0 else "PENDING"
         session.commit()

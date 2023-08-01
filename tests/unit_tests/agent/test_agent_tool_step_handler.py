@@ -4,6 +4,7 @@ from unittest.mock import Mock, create_autospec, patch
 import pytest
 
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
+from superagi.agent.common_types import ToolExecutorResponse
 from superagi.agent.output_handler import ToolOutputHandler
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.helper.token_counter import TokenCounter
@@ -85,7 +86,7 @@ def test_execute_step(handler):
 
         # Act
         tool_output_handler = Mock(spec=ToolOutputHandler)
-        tool_output_handler.handle.return_value = "final_response"
+        tool_output_handler.handle.return_value = ToolExecutorResponse(status="SUCCESS", output="final_response")
 
         with patch('superagi.agent.agent_tool_step_handler.ToolOutputHandler', return_value=tool_output_handler):
             # Act

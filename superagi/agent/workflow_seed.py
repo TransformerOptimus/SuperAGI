@@ -30,8 +30,15 @@ class AgentWorkflowSeed:
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
                                                                     ReadFileTool().name,
-                                                                    "read the leads from file given",
+                                                                    "read leads from file",
                                                                     step_type="TRIGGER")
+
+        # task queue ends when the elements gets over
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    "TASK_QUEUE",
+                                                                    "Break the above response array of items",
+                                                                    completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
 
 
         # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
@@ -46,34 +53,21 @@ class AgentWorkflowSeed:
         #                                                             "Read all leads from leads.csv",
         #                                                             "Return 'YES' if new lead exists in file else return 'NO'")
 
-        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step2",
-                                                                    SearxSearchTool().name,
-                                                                    "Extract one of the sales lead from above list and research about this user")
-
-        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step5",
-                                                                    ReadFileTool().name,
-                                                                    "Read all leads from leads.csv",
-                                                                    "Return 'YES' if new lead exists in file else return 'NO'")
-
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
-                                                                    SendEmailTool().name,
-                                                                    "Extract email id from the previous steps and send sales email based on goal")
+                                                                    WebScraperTool().name,
+                                                                    "Scrape give link in goals")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
-                                                                    WriteFileTool().name,
-                                                                    "Add above lead to leads.csv")
+                                                                    GoogleSearchTool().name,
+                                                                    "Extract last sales lead and research about this user")
+
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
-                                                                    WriteFileTool().name,
-                                                                    "Write above last lead to leads.csv")
-
-
-
+                                                                    SendEmailTool().name,
+                                                                    "Extract email id of last lead and send well composed invite to superagi hackathon")
 
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
@@ -81,9 +75,12 @@ class AgentWorkflowSeed:
         # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step1.id, "YES")
         # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id, "NO")
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
         # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1)
+        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1)
         # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step1.id, "NO")
         session.commit()
 
@@ -293,12 +290,3 @@ class IterationWorkflowSeed:
         output = AgentPromptTemplate.analyse_task()
         IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "ab1",
                                                   output["prompt"], str(output["variables"]), "TRIGGER", "tools")
-
-
-# Add an api to fetch dynamic input on agent create
-# Test the permission control
-# Agent templates
-# write unit tests - done
-# Push to Queue step. Convert the rows read to an array -> push it to a queue
-# Fetch element from queue. Convert the array to rows -> push it to a queue
-# Read element from the queue. Process it and push it to the next queue

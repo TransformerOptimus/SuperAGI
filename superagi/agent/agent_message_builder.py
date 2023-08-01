@@ -18,7 +18,7 @@ class AgentLlmMessageBuilder:
     def build_agent_messages(self, prompt: str, agent_feeds: list, history_enabled=False,
                              completion_prompt: str = None):
         token_limit = TokenCounter.token_limit(self.llm_model)
-        max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
+        max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]
 
         if history_enabled:
@@ -54,6 +54,7 @@ class AgentLlmMessageBuilder:
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                       agent_id=self.agent_id,
                                                       feed=message["content"],
-                                                      role=message["role"])
+                                                      role=message["role"],
+                                                      feed_group_id="DEFAULT")
             self.session.add(agent_execution_feed)
             self.session.commit()

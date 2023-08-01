@@ -14,7 +14,7 @@ class AgentGPTAction(NamedTuple):
 
 
 class AgentTasks(NamedTuple):
-    tasks: List[Dict] = []
+    tasks: List[str] = []
     error: str = ""
 
 

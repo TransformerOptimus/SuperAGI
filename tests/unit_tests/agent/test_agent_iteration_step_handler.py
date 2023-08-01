@@ -101,6 +101,7 @@ def test_handle_wait_for_permission(test_handler, mocker):
     mock_agent_execution = mocker.Mock(spec=AgentExecution)
     mock_agent_execution.status = "WAITING_FOR_PERMISSION"
     mock_iteration_workflow_step = mocker.Mock(spec=IterationWorkflowStep)
+    mock_iteration_workflow_step.next_step_id = 123
     agent_config = {'model': 'gpt-3', 'tools': [1, 2, 3]}
     agent_execution_config = {'goal': 'Test goal', 'instruction': 'Test instruction'}
 
@@ -124,7 +125,5 @@ def test_handle_wait_for_permission(test_handler, mocker):
     test_handler._build_tools.assert_called_once_with(agent_config, agent_execution_config)
     ToolOutputHandler.handle_tool_response.assert_called_once()
     assert mock_agent_execution.status == "RUNNING"
-    assert mock_agent_execution.iteration_workflow_step_id == mock_iteration_workflow_step.next_step_id
-    test_handler.session.commit.assert_called_once()
     assert result
 

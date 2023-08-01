@@ -4,6 +4,7 @@ from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_handler import ToolOutputHandler
 from superagi.agent.output_parser import AgentSchemaToolOutputParser
+from superagi.agent.queue_step_handler import QueueStepHandler
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
@@ -35,9 +36,15 @@ class AgentToolStepHandler:
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-        print(agent_execution_config)
+        # print(agent_execution_config)
 
         if not self._handle_wait_for_permission(execution, workflow_step):
+            return
+
+        if step_tool.tool_name == "TASK_QUEUE":
+            step_response = QueueStepHandler(self.session, self.llm, self.agent_id, self.agent_execution_id).execute_step()
+            next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+            self.handle_next_step(next_step)
             return
 
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
@@ -74,8 +81,8 @@ class AgentToolStepHandler:
         self.session.commit()
 
     def handle_next_step(self, next_step):
-        agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         if str(next_step) == "COMPLETE":
+            agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
             agent_execution.current_agent_step_id = -1
             agent_execution.status = "COMPLETED"
         else:
@@ -85,7 +92,7 @@ class AgentToolStepHandler:
     def _process_input_instruction(self, agent_config, agent_execution_config, step_tool, workflow_step):
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
-        print("prompt: ", prompt)
+        logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
@@ -183,7 +190,8 @@ class AgentToolStepHandler:
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                       agent_id=agent_execution_permission.agent_id,
-                                                      feed=result, role="user")
+                                                      feed=result, role="user",
+                                                      feed_group_id=agent_execution.current_feed_group_id)
             self.session.add(agent_execution_feed)
 
         agent_execution.status = "RUNNING"
