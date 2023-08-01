@@ -52,3 +52,16 @@ class ClusterAgentExecution(DBBaseModel):
             return cluster_agent_execution.cluster_execution_id
         else:
             return None
+
+    @classmethod
+    def get_last_agent_execution(cls, session, cluster_execution_id):
+        """
+        Get last agent execution in cluster execution
+        Args:
+            session:
+            cluster_execution_id:
+
+        Returns:
+
+        """
+        return session.query(cls).filter_by(cluster_execution_id=cluster_execution_id).order_by(cls.id.desc()).first()

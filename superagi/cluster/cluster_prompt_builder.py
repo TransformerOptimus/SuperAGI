@@ -54,7 +54,7 @@ class ClusterPromptBuilder:
             __file__, "decide_agent.txt")
 
         return {"prompt": cls.clean_prompt(super_agi_prompt), "variables":
-                ["goals", "instructions", "current_task", "agents"]}
+                ["goals", "instructions", "current_task", "agents", "completed_tasks"]}
 
     @classmethod
     def replace_main_variables(
@@ -62,7 +62,8 @@ class ClusterPromptBuilder:
             super_agi_cluster_prompt: str,
             goals: List[str],
             instructions: List[str],
-            agents: List[Agent]):
+            agents: List[Agent],
+            completed_tasks: List[str] = []):
         super_agi_cluster_prompt = super_agi_cluster_prompt.replace(
             "{goals}", cls.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
@@ -78,6 +79,10 @@ class ClusterPromptBuilder:
         agents_string = cls.add_agents_to_prompt(agents)
         super_agi_cluster_prompt = super_agi_cluster_prompt.replace(
             "{agents}", agents_string)
+
+        if len(completed_tasks) > 0:
+            super_agi_cluster_prompt = super_agi_cluster_prompt.replace(
+                "{completed_tasks}", cls.add_list_items_to_string(completed_tasks))
         return super_agi_cluster_prompt
 
     @classmethod

@@ -10,7 +10,9 @@ from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.cluster import Cluster
+from superagi.models.cluster_agent_execution import ClusterAgentExecution
 from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.db import connect_db
 from superagi.models.workflows.agent_workflow import AgentWorkflow
@@ -118,8 +120,8 @@ class ClusterExecutor:
             tasks_queue = TaskQueue(queue_name)
             next_task = tasks_queue.get_first_task()
             if next_task is not None:
-                result = ClusterHelper.get_agent_for_task(session,
-                                                          cluster_execution_id, next_task)
+                result = ClusterHelper.get_agent_for_task(
+                    session, cluster_execution_id, next_task)
                 next_agent_id = result["agent_id"]
                 instructions = result["instructions"]
                 ClusterExecutor.spawn_agent(
@@ -160,19 +162,27 @@ class ClusterExecutor:
         try:
             agent = Agent.get_agent_by_id(session, agent_id)
 
-            start_step = AgentWorkflow.fetch_trigger_step_id(session, agent.agent_workflow_id)
-            iteration_step_id = IterationWorkflow.fetch_trigger_step_id(session,
-                                                                        start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
-            execution = AgentExecution(status='RUNNING', last_execution_time=datetime.now(), agent_id=agent.id,
-                                       name="New Run", current_agent_step_id=start_step.id,
-                                       iteration_workflow_step_id=iteration_step_id)
+            start_step = AgentWorkflow.fetch_trigger_step_id(
+                session, agent.agent_workflow_id)
+            iteration_step_id = IterationWorkflow.fetch_trigger_step_id(
+                session, start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+            execution = AgentExecution(
+                status='RUNNING',
+                last_execution_time=datetime.now(),
+                agent_id=agent.id,
+                name="New Run",
+                current_agent_step_id=start_step.id,
+                iteration_workflow_step_id=iteration_step_id)
+            last_agent_memory = ClusterExecutor.get_last_agent_memory(
+                session, cluster_execution_id)
+            print("Last agent memory: " + str(last_agent_memory))
 
             session.add(execution)
             agent_execution_configs = {
-                "goal": task,
+                "goal": str([task]),
                 "instructions": instructions,
             }
-            # todo add to cluster_agent_executions
+
             AgentExecutionConfiguration.add_or_update_agent_execution_config(
                 session=session,
                 execution=execution,
@@ -181,8 +191,38 @@ class ClusterExecutor:
                   str(execution.id) +
                   " for task " +
                   task)
+            if last_agent_memory is not None:
+                ClusterExecutor.inject_last_agent_memory(
+                    session, agent_id, execution.id, last_agent_memory)
+            cluster_agent_executions = ClusterAgentExecution(
+                cluster_execution_id=cluster_execution_id, agent_execution_id=execution.id)
+            session.add(cluster_agent_executions)
             session.commit()
             from superagi.worker import execute_agent
             execute_agent.delay(execution.id, datetime.now())
         except Exception as e:
             logger.error("Error while spawning agent: " + str(e))
+            import traceback
+            traceback.print_exc()
+
+    @staticmethod
+    def get_last_agent_memory(session, cluster_execution_id):
+        last_agent_execution = ClusterAgentExecution.get_last_agent_execution(session, cluster_execution_id)
+        print("Cluster Execution ID: ", cluster_execution_id)
+        print("Last Agent Execution: ", last_agent_execution)
+        if last_agent_execution is not None:
+            agent_execution_feed = AgentExecutionFeed.fetch_agent_execution_feeds(session, last_agent_execution.agent_execution_id)
+            return agent_execution_feed
+
+    @staticmethod
+    def inject_last_agent_memory(session, agent_id, agent_execution_id, memory):
+        for feed_obj in memory:
+            memory_feed_obj = AgentExecutionFeed(
+                agent_execution_id=agent_execution_id,
+                feed=feed_obj.feed,
+                agent_id=agent_id,
+                role=feed_obj.role,
+                is_visible=False,
+            )
+            session.add(memory_feed_obj)
+        session.commit()

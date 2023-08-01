@@ -1,9 +1,12 @@
+from superagi.agent.task_queue import TaskQueue
 from superagi.cluster.cluster_prompt_builder import ClusterPromptBuilder
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.openai import OpenAi
 from superagi.models.cluster import Cluster
 from superagi.models.cluster_agent import ClusterAgent
+from superagi.models.cluster_agent_execution import ClusterAgentExecution
 from superagi.models.cluster_configuration import ClusterConfiguration
+from superagi.models.cluster_execution import ClusterExecution
 from superagi.models.cluster_execution_feed import ClusterExecutionFeed
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
@@ -37,11 +40,15 @@ class ClusterHelper:
         cluster_config = ClusterConfiguration.fetch_cluster_configuration(
             session, cluster)
         prompt_dict = ClusterPromptBuilder.decide_agent_prompt()
+        queue_name = "cluster_execution" + str(cluster_execution_id)
+        tasks_queue = TaskQueue(queue_name)
         prompt = ClusterPromptBuilder.replace_main_variables(
             prompt_dict["prompt"],
             cluster_config['goal'],
             cluster_config['instruction'],
-            agents)
+            agents,
+            tasks_queue.get_completed_tasks()
+        )
         prompt = ClusterPromptBuilder.replace_task_based_variables(
             prompt, task)
         response = cls._get_completion(
@@ -90,3 +97,13 @@ class ClusterHelper:
             role="user")
         session.add(execution_feed)
         return completion['content']
+
+    @classmethod
+    def handle_cluster_agent_completed(cls, session, agent_execution_id ):
+        cluster_execution_id = ClusterAgentExecution.get_cluster_execution_id_by_agent_execution_id(session,
+                                                                                                    agent_execution_id)
+        if cluster_execution_id:
+            queue_name = "cluster_execution" + str(cluster_execution_id)
+            tasks_queue = TaskQueue(queue_name)
+            tasks_queue.complete_task("COMPLETE")
+            ClusterExecution.update_cluster_execution_status(session, cluster_execution_id, "READY")

@@ -7,6 +7,7 @@ from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandle
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
 from superagi.agent.task_queue import TaskQueue
 from superagi.apm.event_handler import EventHandler
+from superagi.cluster.cluster_helper import ClusterHelper
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.llm_model_factory import get_model
@@ -91,12 +92,8 @@ class AgentExecutor:
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
-                cluster_execution_id = ClusterAgentExecution.get_cluster_execution_id_by_agent_execution_id(session,agent_execution_id)
-                if cluster_execution_id and agent_execution.status == "COMPLETED":
-                    ClusterExecution.update_cluster_execution_status(session, cluster_execution_id,"READY")
-                    queue_name = "cluster_execution" + str(cluster_execution_id)
-                    tasks_queue = TaskQueue(queue_name)
-                    tasks_queue.complete_task("COMPLETE")
+                if agent_execution.status == "COMPLETED":
+                    ClusterHelper.handle_cluster_agent_completed(session, agent_execution.id)
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return

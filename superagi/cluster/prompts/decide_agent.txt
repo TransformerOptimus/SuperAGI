@@ -1,6 +1,9 @@
 High level goal:
 {goals}
 
+Completed Tasks to achieve high level goal:
+{completed_tasks}
+
 {task_instructions}
 
 Your Current Task: `{current_task}`

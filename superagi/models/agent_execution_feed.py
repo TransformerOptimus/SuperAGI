@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, String, asc
+from sqlalchemy import Column, Integer, Text, String, asc, Boolean
 from sqlalchemy.orm import Session
 
 from superagi.models.base_model import DBBaseModel
@@ -25,6 +25,7 @@ class AgentExecutionFeed(DBBaseModel):
     feed = Column(Text)
     role = Column(String)
     extra_info = Column(String)
+    is_visible = Column(Boolean, default=1)
 
     def __repr__(self):
         """
@@ -39,13 +40,19 @@ class AgentExecutionFeed(DBBaseModel):
                f"feed='{self.feed}', role='{self.role}', extra_info={self.extra_info})"
 
     @classmethod
-    def get_last_tool_response(cls, session: Session, agent_execution_id: int, tool_name: str = None):
+    def get_last_tool_response(
+            cls,
+            session: Session,
+            agent_execution_id: int,
+            tool_name: str = None):
         agent_execution_feeds = session.query(AgentExecutionFeed).filter(
             AgentExecutionFeed.agent_execution_id == agent_execution_id,
-            AgentExecutionFeed.role == "system").order_by(AgentExecutionFeed.created_at.desc()).all()
+            AgentExecutionFeed.role == "system").order_by(
+            AgentExecutionFeed.created_at.desc()).all()
 
         for agent_execution_feed in agent_execution_feeds:
-            if tool_name and not agent_execution_feed.feed.startswith("Tool " + tool_name):
+            if tool_name and not agent_execution_feed.feed.startswith(
+                    "Tool " + tool_name):
                 continue
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
@@ -53,8 +60,10 @@ class AgentExecutionFeed(DBBaseModel):
 
     @classmethod
     def fetch_agent_execution_feeds(cls, session, agent_execution_id: int):
-        agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
-            .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id) \
-            .order_by(asc(AgentExecutionFeed.created_at)) \
-            .all()
+        agent_feeds = session.query(
+            AgentExecutionFeed.role,
+            AgentExecutionFeed.feed).filter(
+            AgentExecutionFeed.agent_execution_id == agent_execution_id).order_by(
+            asc(
+                AgentExecutionFeed.created_at)).all()
         return agent_feeds[2:]
