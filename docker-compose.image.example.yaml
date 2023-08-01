@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   backend:
-    image: "superagidev/backend:dev"
+    image: "superagidev/superagi:main"
     depends_on:
       - super__redis
       - super__postgres
@@ -12,7 +12,7 @@ services:
     command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
 
   celery:
-    image: "superagidev/backend:dev"
+    image: "superagidev/superagi:main"
     depends_on:
       - super__redis
       - super__postgres
@@ -25,7 +25,7 @@ services:
       - "./workspace:/app/workspace"
 
   gui:
-    image: "superagidev/gui:dev"
+    image: "superagidev/superagi-frontend:main"
     environment:
       - NEXT_PUBLIC_API_BASE_URL=/api
     networks:
