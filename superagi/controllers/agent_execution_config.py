@@ -104,7 +104,7 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
     results_agent_dict["tokens"] = total_tokens
 
     response  = results_agent_dict
-    #print(response)
+
     # Close the session
     db.session.close()
 
