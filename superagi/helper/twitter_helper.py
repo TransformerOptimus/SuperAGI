@@ -22,7 +22,7 @@ class TwitterHelper:
                        resource_owner_secret=creds.oauth_token_secret)
         for file in media_files:
             file_path = self.get_file_path(session, file, agent_id, agent_execution_id)
-            image_data = self.get_image_data(file_path)
+            image_data = self._get_image_data(file_path)
             b64_image = base64.b64encode(image_data)
             upload_endpoint = 'https://upload.twitter.com/1.1/media/upload.json'
             headers = {'Authorization': 'application/octet-stream'}
@@ -40,7 +40,7 @@ class TwitterHelper:
                                                                   session, agent_execution_id))
         return final_path
 
-    def get_image_data(self, file_path):
+    def _get_image_data(self, file_path):
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
                 attachment_data = S3Helper().read_binary_from_s3(file_path)
         else:
