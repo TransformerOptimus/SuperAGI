@@ -18,7 +18,6 @@ from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
-# from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 from superagi.apm.event_handler import EventHandler
 from superagi.controllers.tool import ToolOut
 from superagi.models.agent_config import AgentConfiguration
@@ -160,7 +159,7 @@ def update_agent_configurations_table(agent_id: Union[int, None], updated_detail
         key = agent_config.key
         if key in updated_details_dict:
             agent_config.value = updated_details_dict[key]
-            
+
     # Commit the changes to the database
     db.session.commit()
 
