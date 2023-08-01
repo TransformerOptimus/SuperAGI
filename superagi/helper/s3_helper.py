@@ -60,6 +60,14 @@ class S3Helper:
             return response['Body'].read().decode('utf-8')
         raise Exception(f"Error read_from_s3: {response}")
     
+    def read_binary_from_s3(self, file_path):
+        file_path = "resources" + file_path
+        logger.info(f"Reading file from s3: {file_path}")
+        response = self.s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=file_path)
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            return response['Body'].read()
+        raise Exception(f"Error read_from_s3: {response}")
+    
     def get_json_file(self, path):
         """
         Get a JSON file from S3.
