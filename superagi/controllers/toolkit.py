@@ -340,8 +340,6 @@ def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends
 def update_toolkit(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
     """
         Update the toolkit with the latest version from the marketplace.
-        Returns:
-            dict: The response containing the update details.
     """
     marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
                                                            toolkit_name=toolkit_name)
