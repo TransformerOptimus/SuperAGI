@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Header,Security, status
+from fastapi import Depends, HTTPException, Header, Security, status
 from fastapi.security import APIKeyHeader
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -43,6 +43,7 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
     return organisation
 
+
 def get_current_user(Authorize: AuthJWT = Depends(check_auth)):
     env = get_config("ENV", "DEV")
 
@@ -56,11 +57,30 @@ def get_current_user(Authorize: AuthJWT = Depends(check_auth)):
     user = db.session.query(User).filter(User.email == email).first()
     return user
 
+
 api_key_header = APIKeyHeader(name="X-API-Key")
+
+
 def validate_api_key(api_key: str = Security(api_key_header)) -> str:
-    query_result=db.session.query(ApiKey).filter(ApiKey.key==api_key,or_(ApiKey.revoked == False, ApiKey.revoked == None)).first()
+    query_result = db.session.query(ApiKey).filter(ApiKey.key == api_key,
+                                                   or_(ApiKey.revoked is False, ApiKey.revoked is None)).first()
     if query_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing API Key",
         )
+
+    return query_result.key
+
+
+def get_organisation_from_api_key(api_key: str = Security(api_key_header)) -> Organisation:
+    query_result = db.session.query(ApiKey).filter(ApiKey.key == api_key,
+                                                   or_(ApiKey.revoked is False, ApiKey.revoked is None)).first()
+    if query_result is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API Key",
+        )
+
+    organisation = db.session.query(Organisation).filter(Organisation.id == query_result.org_id).first()
+    return  organisation
