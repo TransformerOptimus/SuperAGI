@@ -214,7 +214,7 @@ export default function App() {
       {showMarketplace && <div className="projectStyle"><MarketplacePublic env={env}/></div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? (<div className="projectStyle">
         <div className="sideBarStyle">
-          <SideBar onSelectEvent={handleSelectionEvent}/>
+          <SideBar onSelectEvent={handleSelectionEvent} env={env}/>
         </div>
         <div className="workSpaceStyle">
           <div className="topBarStyle">
