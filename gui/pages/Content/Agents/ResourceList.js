@@ -47,16 +47,13 @@ export default function ResourceList({files, channel, runs}) {
                 <div className="horizontal_container justify_space_between cursor_pointer padding_8_6"
                      onClick={() => setSelectedRunId(filesRun.run.id === selectedRunId ? null : filesRun.run.id)}>
                   <div className="horizontal_container">
-                    <Image
-                      src={selectedRunId === filesRun.run.id ? "/images/arrow_downward_dropdown.svg" : "/images/arrow_forward.svg"}
+                    <Image src={selectedRunId === filesRun.run.id ? "/images/arrow_downward_dropdown.svg" : "/images/arrow_forward.svg"}
                       alt="arrow" width={14} height={14}/>
-                    <span className="text_12 ml_8">{filesRun.run.name}</span>
-                    <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10}
-                                                                      height={10}/> <span
+                    <span className="text_12 ml_8 text_ellipsis mxw_360">{filesRun.run.name}</span>
+                    <div className="resource_manager_tip ml_8"><Image src="/images/bolt.svg" alt="bolt" width={10} height={10}/> <span
                       className="text_9">Run {filesByRun.length - index}</span></div>
                   </div>
-                  <Image src="/images/download.svg" alt="download_icon" width={16} height={16}
-                         onClick={() => downloadRunFiles(filesRun.run.id, filesRun.run.name)}/>
+                  <Image src="/images/download.svg" alt="download_icon" width={16} height={16} onClick={() => downloadRunFiles(filesRun.run.id, filesRun.run.name)}/>
                 </div>
 
                 {selectedRunId === filesRun.run.id && (

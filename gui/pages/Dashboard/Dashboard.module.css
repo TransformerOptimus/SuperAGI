@@ -29,20 +29,6 @@
     margin-bottom: 4px;
 }
 
-.selection_section {
-    width: 100%;
-    margin-bottom: 5px;
-}
-
-.side_bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    height: 100%;
-    color: white;
-}
-
 .selected {
     background-color: #333141;
 }

@@ -58,24 +58,16 @@ export default function AddTool({internalId}) {
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
-        <div>
-          <div className={styles1.page_title}>Add a new tool</div>
-        </div>
-        <div style={{marginTop: '10px'}}>
-          <div>
-            <label className={styles1.form_label}>Github Repository URL</label><br/>
-            <label className={styles1.form_label}>Paste your toolkits Github repo url here and we will sync &
-              install</label>
-            <input placeholder="Enter URL here" className="input_medium" type="text" value={githubURL}
-                   onChange={handleURLChange}/>
-          </div>
-          <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-            <button style={{marginRight: '7px'}} className="secondary_button"
-                    onClick={() => removeTab(-2, "new tool", "Add_Toolkit", internalId)}>Cancel
-            </button>
-            <button disabled={!addClickable} className="primary_button" onClick={handleAddTool}>Add tool</button>
-          </div>
+      <div className="col-6 col-6-scrollable">
+        <div className="page_title mt_10">Add a new tool</div>
+        <label className="form_label_13">Github Repository URL</label><br/>
+        <label className="form_label_13">Paste your toolkits Github repo url here and we will sync & install</label>
+        <input placeholder="Enter URL here" className="input_medium" type="text" value={githubURL} onChange={handleURLChange}/>
+
+        <div className="horizontal_container justify_end mt_14">
+          <button className="secondary_button mr_7" onClick={() => removeTab(-2, "new tool", "Add_Toolkit", internalId)}>Cancel
+          </button>
+          <button disabled={!addClickable} className="primary_button" onClick={handleAddTool}>Add tool</button>
         </div>
       </div>
       <div className="col-3"></div>
