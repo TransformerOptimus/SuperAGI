@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from typing import Any
 from typing import Tuple
-
+import json
 import numpy as np
 from pydantic import ValidationError
 from pydantic.types import List
@@ -143,7 +143,11 @@ class SuperAgi:
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
-        print("Here is the assistant reply: ",assistant_reply,"END")
+        
+        print("type of assistant",type(assistant_reply))
+        
+        data = json.loads(assistant_reply)
+       
 
         final_response = {"result": "PENDING", "retry": False, "completed_task_count": 0}
         if workflow_step.output_type == "tools":
@@ -213,9 +217,8 @@ class SuperAgi:
         session.close()
         print("Here is the final tool reply: ",final_response,"END")
         
-        print("Here is the task description: ",workflow_step.prompt,"END")
-        prompt = workflow_step.prompt+final_response["result"]
-        
+        print("Here is the task description: ",data['thoughts']['text'],"END")
+        prompt = data['thoughts']['text']+final_response["result"]
         print("Here is the prompt reply: ",prompt,"END")
         metadatas = [{"agent_execution_id":self.agent_config["agent_execution_id"]}]
         self.memory.add_texts([prompt],metadatas)

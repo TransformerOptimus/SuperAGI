@@ -20,13 +20,5 @@ class ToolResponseQueryManager:
         relevant_responses = ""
         for document in documents["documents"]:
             relevant_responses += document.text_content
-
-        start_index = relevant_responses.find("Tool ThinkingTool returned:")
-        if start_index != -1:
-            start_index += len("Tool ThinkingTool returned:")
-            extracted_string = relevant_responses[start_index:].strip()
-            print("Extracted String:", extracted_string)    
-            return extracted_string
-        else:
-            return ""
+        return relevant_responses
     
