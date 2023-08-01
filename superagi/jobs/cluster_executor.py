@@ -212,7 +212,7 @@ class ClusterExecutor:
         print("Last Agent Execution: ", last_agent_execution)
         if last_agent_execution is not None:
             agent_execution_feed = AgentExecutionFeed.fetch_agent_execution_feeds(session, last_agent_execution.agent_execution_id)
-            return agent_execution_feed
+            return agent_execution_feed[:-2]
 
     @staticmethod
     def inject_last_agent_memory(session, agent_id, agent_execution_id, memory):
