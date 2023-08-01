@@ -1668,7 +1668,7 @@ tr{
 
 .market_tool {
     display: flex;
-    height: 105px;
+    height: fit-content;
     color: white;
     font-size: small;
     padding: 12px;

@@ -64,36 +64,22 @@ export default function Market({env}) {
         <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
           <div className={styles.detail_top}>
             <div style={{display: 'flex', overflowX: 'scroll', marginLeft: '8px'}}>
-              <div>
-                <button onClick={() => switchTab('market_tools')} className={styles.tab_button}
-                        style={activeTab === 'market_tools' ? {
-                          background: '#454254',
-                          paddingRight: '15px'
-                        } : {background: 'transparent', paddingRight: '15px'}}>
-                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/tools_light.svg"
-                         alt="tools-icon"/>&nbsp;Tools
-                </button>
-              </div>
-              <div>
-                <button onClick={() => switchTab('market_knowledge')} className={styles.tab_button}
-                        style={activeTab === 'market_knowledge' ? {
-                          background: '#454254',
-                          paddingRight: '15px'
-                        } : {background: 'transparent', paddingRight: '15px'}}>
-                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/knowledge.svg"
-                         alt="knowledge-icon"/>&nbsp;Knowledge
-                </button>
-              </div>
-              <div>
-                <button onClick={() => switchTab('market_agents')} className={styles.tab_button}
-                        style={activeTab === 'market_agents' ? {
-                          background: '#454254',
-                          paddingRight: '15px'
-                        } : {background: 'transparent', paddingRight: '15px'}}>
-                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/agents_light.svg"
-                         alt="agent-template-icon"/>&nbsp;Agent Templates
-                </button>
-              </div>
+              <button onClick={() => switchTab('market_tools')} className={activeTab === 'market_tools' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>
+                <span>Tools</span>
+              </button>
+              <button onClick={() => switchTab('market_knowledge')} className={activeTab === 'market_knowledge' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/knowledge.svg" alt="knowledge-icon"/>
+                <span>Knowledge</span>
+              </button>
+              <button onClick={() => switchTab('market_agents')} className={activeTab === 'market_agents' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/agents_light.svg" alt="agent-template-icon"/>
+                <span>Agent Templates</span>
+              </button>
+              <button onClick={() => switchTab('market_models')} className={activeTab === 'market_models' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/models.svg" alt="model-template-icon"/>
+                <span>Models</span>
+              </button>
             </div>
           </div>
           <div>
