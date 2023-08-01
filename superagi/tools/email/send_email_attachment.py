@@ -102,7 +102,6 @@ class SendEmailAttachmentTool(BaseTool):
             else:
                 with open(attachment_path, "rb") as file:
                     attachment_data = file.read()
-            attachment_data = S3Helper().read_binary_from_s3(attachment_path)
             message.add_attachment(attachment_data, maintype=maintype, subtype=subtype, filename=attachment)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
