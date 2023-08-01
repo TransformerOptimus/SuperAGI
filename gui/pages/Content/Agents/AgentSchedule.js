@@ -280,7 +280,7 @@ export default function AgentSchedule({
             <label className={styles.form_label}>Repeat every</label>
             <div style={{display: 'flex', marginBottom: '20px'}}>
               <div style={{width: '70%', marginRight: '5px'}}>
-                <input className="input_medium" type="number" value={timeValue} onChange={handleDateChange} placeholder="Enter here" step="1" />
+                <input className="input_medium" type="number" value={timeValue} onChange={handleDateChange} placeholder="Enter here" min="1" step="1" />
               </div>
               <div style={{width: '30%'}}>
                 <div className="custom_select_container" onClick={() => setTimeDropdown(!timeDropdown)}
