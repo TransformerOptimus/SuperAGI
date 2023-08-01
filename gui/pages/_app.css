@@ -890,6 +890,14 @@ p {
     line-height: normal;
 }
 
+.text_13{
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 15px;
+    align-items: center;
+}
+
 .text_14
 {
     color: #FFF;
@@ -1014,6 +1022,8 @@ p {
 
 .mxh_78vh{max-height: 78vh}
 
+.flex_dir_col{flex-direction: column}
+
 .justify_center{justify-content: center}
 .justify_end{justify-content: flex-end}
 .justify_start{justify-content: flex-start}
@@ -1070,6 +1080,7 @@ p {
 .mix_blend_mode{mix-blend-mode: exclusion;}
 
 .ff_sourceCode{font-family: 'Source Code Pro'}
+.ff_robotoFlex{font-family: 'Roboto Flex'}
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
 .my_rows {
@@ -1462,8 +1473,20 @@ tr{
     height: 35px;
 }
 
-.agent_box:hover {
+.agent_box:hover, .sidebar_box:hover {
     background-color: #494856;
+}
+
+.sidebar_box{
+    display: flex;
+    padding: 10px 8px;
+    gap: 6px;
+    border-radius: 8px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    cursor: pointer;
+    height: fit-content;
 }
 
 .text_ellipsis{

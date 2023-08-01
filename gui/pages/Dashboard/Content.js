@@ -9,6 +9,8 @@ import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import ApmDashboard from "../Content/APM/ApmDashboard";
+import AddModel from "../Content/Models/AddModel";
+import Models from "../Content/Models/Models";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
@@ -39,9 +41,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
-  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database', 'Add_Model'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
+  const models = [{'name':'model_1', 'provider': 'Google'},{'name':'model_2', 'provider': 'Replicate'}, {'name':'model_3', 'provider': 'HummingFace'}];
 
   useEffect(() => {
     if (prevView !== selectedView) {
@@ -310,11 +313,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
-        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
+        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
             {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
+            {selectedView === 'models' && <div><Models sendModelData={addTab} models={models} /></div>}
           </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
@@ -442,6 +446,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
                     {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
+                    {tab.contentType === 'Add_Model' && <AddModel />}
                   </div>}
                 </div>
               ))}
