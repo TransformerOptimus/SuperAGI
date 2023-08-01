@@ -185,7 +185,6 @@ async def startup_event():
         logger.info(organisation)
         register_toolkits(session, organisation)
 
-
     def register_toolkit_for_all_organisation():
         organizations = session.query(Organisation).all()
         for organization in organizations:

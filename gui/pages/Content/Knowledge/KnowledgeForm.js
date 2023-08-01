@@ -161,7 +161,7 @@ export default function KnowledgeForm({
           <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
         </div>
         <div>
-          Currently we support Open AI “text-knowledge-ada-002” model knowledge only. Please make sure you add the same.
+          Currently we support Open AI “text-embedding-ada-002” model knowledge only. Please make sure you add the same.
         </div>
       </div>
     </div>
@@ -196,7 +196,8 @@ export default function KnowledgeForm({
                                                        onClick={() => handleIndexSelect(index)}>
                     <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
                       color: '#888888',
-                      textDecoration: 'line-through'
+                      textDecoration: 'line-through',
+                      pointerEvents : 'none',
                     } : {}}>{index.name}</div>
                     {!checkIndexValidity(index.is_valid_state)[0] &&
                       <div>
@@ -212,7 +213,8 @@ export default function KnowledgeForm({
                                                       onClick={() => handleIndexSelect(index)}>
                     <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
                       color: '#888888',
-                      textDecoration: 'line-through'
+                      textDecoration: 'line-through',
+                      pointerEvents : 'none',
                     } : {}}>{index.name}</div>
                     {!checkIndexValidity(index.is_valid_state)[0] &&
                       <div>

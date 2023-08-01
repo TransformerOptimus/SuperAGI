@@ -162,10 +162,10 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
         <div style={info_text}>{agentDetails?.agent_type || ''}</div>
       </div>
-      <div className={styles.agent_info_box}>
+      {agentDetails?.knowledge_name && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
-        <div style={info_text}>knowledge name</div>
-      </div>
+        <div style={info_text}>{agentDetails?.knowledge_name}</div>
+      </div>}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/deployed_code.svg" alt="model-icon"/></div>
         <div style={info_text}>{agentDetails?.model || ''}</div>
@@ -174,10 +174,10 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       {/*  <div><Image width={15} height={15} src="/images/cancel_presentation.svg" alt="exit-icon"/></div>*/}
       {/*  <div style={info_text}>{exit}</div>*/}
       {/*</div>*/}
-      <div className={styles.agent_info_box}>
+      {/* <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/overview.svg" alt="window-icon"/></div>
         <div style={info_text}>{agentDetails?.memory_window || 0} milliseconds</div>
-      </div>
+      </div> */}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/key.svg" alt="permission-type-icon"/></div>
         <div style={info_text}>{agentDetails?.permission_type.replace(/\s*\([^)]*\)/g, '') || ''}</div>

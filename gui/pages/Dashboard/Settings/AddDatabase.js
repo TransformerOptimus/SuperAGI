@@ -129,15 +129,9 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     if (!data) {
       return;
     }
-
-    if (data.success) {
       toast.success("Database connected successfully", {autoClose: 1800});
       setConnectText("Connected");
       sendDatabaseDetailsData({id: data.id, name: data.name, contentType: "Database", internalId: createInternalId()});
-    } else {
-      setConnectText("Connect");
-      toast.error("Unable to connect database", {autoClose: 1800});
-    }
   }
 
   const connectDatabase = () => {

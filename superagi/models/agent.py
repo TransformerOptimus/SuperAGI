@@ -83,6 +83,7 @@ class Agent(DBBaseModel):
             "memory_window": None,
             "max_iterations": None,
             "is_deleted": agent.is_deleted,
+            "knowledge": None
         }
         if not agent_configurations:
             return parsed_config
@@ -104,7 +105,7 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary"]:
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary", "knowledge"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
