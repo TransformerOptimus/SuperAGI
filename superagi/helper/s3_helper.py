@@ -84,3 +84,22 @@ class S3Helper:
             return json.loads(s3_response)
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
+    def delete_file(self, path):
+        """
+        Delete a file from S3.
+
+        Args:
+            path (str): The path to the file to delete.
+
+        Raises:
+            HTTPException: If the AWS credentials are not found.
+
+        Returns:
+            None
+        """
+        try:
+            self.s3.delete_object(Bucket=self.bucket_name, Key=path)
+            logger.info("File deleted from S3 successfully!")
+        except:
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
