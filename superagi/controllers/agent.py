@@ -202,7 +202,7 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    
+
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
@@ -452,98 +452,6 @@ def get_agents_by_project_id(project_id: int,
         new_agents.append(new_agent)
         new_agents_sorted = sorted(new_agents, key=lambda agent: agent['is_running'] == True, reverse=True)
     return new_agents_sorted
-
-
-@router.get("/get/details/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
-def get_agent_configuration(agent_execution_id: Union[int, None, str],
-                            agent_id: Union[int, None, str], 
-                            Authorize: AuthJWT = Depends(check_auth)):
-    """
-    Get the agent configuration using the agent ID and the agent execution ID.
-
-    Args:
-        agent_id (int): Identifier of the agent.
-        agent_execution_id (int): Identifier of the agent execution.
-        Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
-
-    Returns:
-        dict: Agent configuration including its details.
-
-    Raises:
-        HTTPException (status_code=404): If the agent is not found or deleted.
-        HTTPException (status_code=404): If the agent_id or the agent_execution_id is undefined.
-    """
-
-    # Check
-    if type(agent_id) == None or type(agent_id) == str:
-        raise HTTPException(status_code = 404, detail = "Agent Id undefined")
-    if type(agent_execution_id) == None or type(agent_execution_id) == str:
-        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
-
-    #If the agent_execution_id received is -1 then the agent_execution_id is set as the most recent execution
-    if agent_execution_id == -1:
-        agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.created_at)).first().id
-        print(agent_execution_id)
-
-    #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
-    agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
-    if agent_execution_config is None:
-        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
-    agent_id_from_execution_id = agent_execution_config.agent_id
-    if agent_id != agent_id_from_execution_id:
-        raise HTTPException(status_code = 404, detail = "Wrong agent id")
-
-    # Define the agent_config keys to fetch
-    keys_to_fetch = AgentTemplate.main_keys()
-    agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False)).first()
-    if not agent:
-        raise HTTPException(status_code = 404, detail = "Agent not found")
-
-    # Query the AgentConfiguration table and the AgentExecuitonConfiguration table for all the keys
-    results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
-    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
-    
-    total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
-        AgentExecution.agent_id == agent_id).scalar()
-    total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
-        AgentExecution.agent_id == agent_id).scalar()
-    
-
-    results_agent_dict = {result.key: result.value for result in results_agent}
-    results_agent_execution_dict = {result.key: result.value for result in results_agent_execution}
-
-    for key, value in results_agent_execution_dict.items():
-        if key in results_agent_dict and value is not None:
-            results_agent_dict[key] = value
-        
-    # Construct the JSON response
-    results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
-
-    if "toolkits" in results_agent_dict:
-        results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
-
-    results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
-    tools = db.session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
-    results_agent_dict["tools"] = tools
-
-    results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
-
-    constraints_str = results_agent_dict["constraints"]
-    constraints_list = eval(constraints_str)
-    results_agent_dict["constraints"] = constraints_list
-
-    results_agent_dict["name"] = agent.name
-    results_agent_dict["description"] = agent.description
-    results_agent_dict["calls"] = total_calls
-    results_agent_dict["tokens"] = total_tokens
-
-    response  = results_agent_dict
-    #print(response)
-    # Close the session
-    db.session.close()
-
-    return response
-
 
 @router.put("/delete/{agent_id}", status_code=200)
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):

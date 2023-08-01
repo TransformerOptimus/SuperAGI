@@ -6,6 +6,7 @@ from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from pydantic.fields import List
+from superagi.controllers.types.agent_execution_config import AgentRunIn
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
@@ -56,31 +57,6 @@ class AgentExecutionIn(BaseModel):
     class config:
         orm_mode = True
 
-class AgentRunIn(BaseModel):
-    status: Optional[str]
-    name: Optional[str]
-    agent_id: Optional[int]
-    last_execution_time: Optional[datetime]
-    num_of_calls: Optional[int]
-    num_of_tokens: Optional[int]
-    current_step_id: Optional[int]
-    permission_id: Optional[int]
-    goal: Optional[List[str]]
-    instruction: Optional[List[str]]
-    agent_type: str
-    constraints: List[str]
-    toolkits: List[int]
-    tools: List[int]
-    exit: str
-    iteration_interval: int
-    model: str
-    permission_type: str
-    LTM_DB: str
-    max_iterations: int
-    user_timezone: Optional[str]
-
-    class Config:
-        orm_mode = True
 
 # CRUD Operations
 @router.post("/add", response_model=AgentExecutionOut, status_code=201)
@@ -128,41 +104,6 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
 
     return db_agent_execution
 
-def update_agent_configurations_table(agent_id: Union[int, None], updated_details: AgentRunIn):
-
-    if(type(agent_id)==None):
-        return -1;
-
-    updated_details_dict = updated_details.dict()
-
-    # Fetch existing 'toolkits' agent configuration for the given agent_id
-    agent_toolkits_config = db.session.query(AgentConfiguration).filter(
-        AgentConfiguration.agent_id == agent_id,
-        AgentConfiguration.key == 'toolkits'
-    ).first()
-
-    if agent_toolkits_config:
-        agent_toolkits_config.value = updated_details_dict['toolkits']
-    else:
-        agent_toolkits_config = AgentConfiguration(
-            agent_id=agent_id,
-            key='toolkits',
-            value=updated_details_dict['toolkits']
-        )
-        db.session.add(agent_toolkits_config)
-        
-    # Fetch agent configurations
-    agent_configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
-
-    # Update agent configurations
-    for agent_config in agent_configs:
-        key = agent_config.key
-        if key in updated_details_dict:
-            agent_config.value = updated_details_dict[key]
-
-    # Commit the changes to the database
-    db.session.commit()
-
 @router.post("/add_run", status_code = 201)
 def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(check_auth)):
 
@@ -179,7 +120,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
         HTTPException (Status Code=404): If the agent is not found.
     """
     #Update the agent configurations table with the data of the latest agent execution and returns -1 if agent id not found.
-    if((update_agent_configurations_table(agent_execution.agent_id, agent_execution))==-1):
+    if((AgentConfiguration.update_agent_configurations_table(session=db.session, agent_id=agent_execution.agent_id, updated_details=agent_execution))==-1):
         raise HTTPException(status_code=404, detail="Agent ID not found")
     
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
