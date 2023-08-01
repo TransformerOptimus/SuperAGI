@@ -143,10 +143,8 @@ def update_agent_configurations_table(agent_id: Union[int, None], updated_detail
     ).first()
 
     if agent_toolkits_config:
-        # If 'toolkits' configuration exists, update its value
         agent_toolkits_config.value = updated_details_dict['toolkits']
     else:
-        # If 'toolkits' configuration does not exist, create a new one
         agent_toolkits_config = AgentConfiguration(
             agent_id=agent_id,
             key='toolkits',
@@ -161,8 +159,8 @@ def update_agent_configurations_table(agent_id: Union[int, None], updated_detail
     for agent_config in agent_configs:
         key = agent_config.key
         if key in updated_details_dict:
-            # Update the 'value' column with the value from 'updated_details'
             agent_config.value = updated_details_dict[key]
+            
     # Commit the changes to the database
     db.session.commit()
 
