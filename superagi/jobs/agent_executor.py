@@ -52,6 +52,7 @@ class DBToolkitConfiguration(BaseToolkitConfiguration):
     def get_tool_config(self, key: str):
         tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
         if tool_config and tool_config.value:
+            tool_config.value = decrypt_data(tool_config.value)
             return tool_config.value
         return super().get_tool_config(key=key)
 

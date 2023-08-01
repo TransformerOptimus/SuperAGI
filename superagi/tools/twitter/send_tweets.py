@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 from superagi.helper.twitter_helper import TwitterHelper
 from superagi.helper.twitter_tokens import TwitterTokens
 from superagi.tools.base_tool import BaseTool
+from superagi.helper.encyption_helper import encrypt_data
+from superagi.helper.encyption_helper import decrypt_data
 
 
 class SendTweetsInput(BaseModel):

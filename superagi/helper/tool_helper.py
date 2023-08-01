@@ -217,8 +217,15 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
 
             # Store the tools config in the database
             for tool_config_key in tool_config_keys:
-                new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
-                                                      key=tool_config_key)
+                if isinstance(tool_config_key, ToolConfig):
+                    new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                      key=tool_config_key.key,
+                                                      key_type=tool_config_key.key_type,
+                                                      is_required=tool_config_key.is_required,
+                                                      is_secret=tool_config_key.is_secret)
+                else:
+                    ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                          key = tool_config_key)
     return tool_name_to_toolkit
 
 
