@@ -46,14 +46,15 @@ export default function MarketKnowledge() {
   }
 
   return (
-    <div className={showMarketplace ? 'ml_8' : 'ml_3'}>
-      <div className="w_100 overflowY_auto mxh_78vh">
+    <div style={showMarketplace ? {marginLeft: '8px'} : {marginLeft: '3px'}}>
+      <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
         {!isLoading ? <div>
           {knowledgeTemplates.length > 0 ? <div className={styles.resources}>{knowledgeTemplates.map((item, index) => (
             <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer', display: 'block'}}
                  onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline', overflow: 'auto'}}>
-                <div className="horizontal_space_between">
+                {/*<Image style={{borderRadius: '25px',background:'black',position:'absolute'}} width={40} height={40} src="/images/app-logo-light.png" alt="tool-icon"/>*/}
+                <div style={{display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
                   <span>{item.name}</span>
                   {item.is_installed &&
                     <div className={styles1.installed_knowledge_card_class}>{'\u2713'}&nbsp;Installed</div>}
@@ -67,15 +68,22 @@ export default function MarketKnowledge() {
                 }}>by {item.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
                   width={14} height={14} src="/images/upload_icon.svg" alt="upload-icon"/>&nbsp;{item.install_number}
                 </div>
-                <div className="text_ellipsis mt_6 color_gray">{item.description}</div>
+                <div className={styles.tool_description}>{item.description}</div>
               </div>
             </div>
-          ))}</div> : <div className="center_container mt_40">
+          ))}</div> : <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '40px',
+            width: '100%'
+          }}>
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-            <span className="feed_title mt_8" style={{marginTop: '8px'}}>No Knowledge found!</span>
+            <span className={styles.feed_title} style={{marginTop: '8px'}}>No Knowledge found!</span>
           </div>}
-        </div> : <div className="horizontal_container_center h_75vh">
-          <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
+        </div> : <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '75vh'}}>
+          <div className="signInInfo" style={{fontSize: '16px', fontFamily: 'Source Code Pro'}}>{loadingText}</div>
         </div>}
       </div>
     </div>

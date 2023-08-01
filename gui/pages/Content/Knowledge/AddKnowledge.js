@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import KnowledgeForm from "@/pages/Content/Knowledge/KnowledgeForm";
 
-export default function AddKnowledge({internalId, sendKnowledgeData}) {
+export default function AddKnowledge({internalId, sendKnowledgeData, sendDatabaseData}) {
   const [knowledgeName, setKnowledgeName] = useState('');
   const [knowledgeDescription, setKnowledgeDescription] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -26,7 +26,7 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
   return (<>
     <div className="row">
       <div className="col-3"></div>
-      <div className="col-6 col-6-scrollable">
+      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
         <KnowledgeForm internalId={internalId}
                        knowledgeId={null}
                        knowledgeName={knowledgeName}
@@ -38,6 +38,7 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
                        isEditing={false}
                        setIsEditing={null}
                        sendKnowledgeData={sendKnowledgeData}
+                       sendDatabaseData={sendDatabaseData}
         />
       </div>
       <div className="col-3"></div>

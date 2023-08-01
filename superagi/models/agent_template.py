@@ -197,7 +197,7 @@ class AgentTemplate(DBBaseModel):
             if value is not None and value != 'None':
                 return int(value)
             else:
-                return None
+                return None  
         elif key == "goal" or key == "constraints" or key == "instruction":
             return eval(value)
         elif key == "tools":

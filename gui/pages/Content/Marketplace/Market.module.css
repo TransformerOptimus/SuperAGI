@@ -515,3 +515,9 @@
     overflow-y:scroll;
     overflow-x:hidden;
 }
+
+.tools_icon{
+    border-radius: 25px;
+    background: black;
+    position: relative;
+}
