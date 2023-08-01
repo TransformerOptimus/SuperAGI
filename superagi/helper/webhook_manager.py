@@ -30,7 +30,7 @@ class WebHookManager:
                 logger.error(f"Exception occured in webhooks {e}")
                 error=str(e)
             print(error,'************(((((((')
-            if r.status_code not in [200,201] and error is None:
+            if r is not None and r.status_code not in [200,201] and error is None:
                 error=r.text
             if error is not None:
                 status='Error'

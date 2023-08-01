@@ -62,7 +62,7 @@ class AgentIn(BaseModel):
 
 
 # CRUD Operations
-@router.post("/add", status_code=201)
+@router.post("/add",response_model=AgentOut,status_code=201)
 def create_agent(agent: AgentIn,api_key: str = Security(validate_api_key)):
     """
         Creates a new Agent
@@ -82,12 +82,12 @@ def create_agent(agent: AgentIn,api_key: str = Security(validate_api_key)):
             HTTPException (Status Code=404): If the associated project is not found.
     """
 
-    # project = db.session.query(Project).get(agent.project_id)
+    project = db.session.query(Project).get(agent.project_id)
 
-    # if not project:
-    #     raise HTTPException(status_code=404, detail="Project not found")
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
 
-    # db_agent = Agent(name=agent.name, description=agent.description, project_id=agent.project_id)
-    # db.session.add(db_agent)
-    # db.session.commit()
-    return "db_agent"
+    db_agent = Agent(name=agent.name, description=agent.description, project_id=agent.project_id)
+    db.session.add(db_agent)
+    db.session.commit()
+    return db_agent
