@@ -39,7 +39,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const [agentExecutions, setAgentExecutions] = useState(null)
   const [dropdown, setDropdown] = useState(false);
   const [fetchedData, setFetchedData] = useState(null);
-  const [instructions, setInstructions] = useState(['']);
+  const [instructions, setInstructions] = useState([null]);
   const [currentInstructions, setCurrentInstructions] = useState(['']);
   const [pendingPermission, setPendingPermissions] = useState(0);
 
@@ -127,6 +127,8 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
+    setGoals(goals.length< 0 ? agentDetails.goal : goals)
+    setInstructions(instructions.length < 0 ? agentDetails.instruction : instructions)
 
     if (goals.length <= 0) {
       toast.error("Agent needs to have goals", {autoClose: 1800});
@@ -215,7 +217,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }, [agentId])
 
   useEffect(() => {
-    fetchExecutionDetails(selectedRun?.id);
+    // fetchExecutionDetails(selectedRun?.id);
     fetchAgentDetails(agentId, selectedRun?.id);
   }, [selectedRun?.id])
 
@@ -225,6 +227,18 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
     }
     console.log(agentDetails)
   }, [agentDetails])
+
+  function setNewRunDetails() {
+    getAgentDetails(agentId,  -1)
+      .then((response) => {
+        setGoals(response.data.goal)
+        setInstructions(response.data.instruction)
+        setRunModal(true);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent details:', error);
+      });
+  }
 
   function fetchAgentDetails(agentId, runId) {
     getAgentDetails(agentId, runId ? runId : -1)
@@ -262,18 +276,18 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       });
   }
 
-  function fetchExecutionDetails(executionId) {
-    getExecutionDetails(executionId || -1, agentId)
-      .then((response) => {
-        setGoals(response.data.goal);
-        setCurrentGoals(response.data.goal);
-        setInstructions(response.data.instruction);
-        setCurrentInstructions(response.data.instruction);
-      })
-      .catch((error) => {
-        console.error('Error fetching agent execution details:', error);
-      });
-  }
+  // function fetchExecutionDetails(executionId) {
+  //   getExecutionDetails(executionId || -1, agentId)
+  //     .then((response) => {
+  //       setGoals(response.data.goal);
+  //       setCurrentGoals(response.data.goal);
+  //       setInstructions(response.data.instruction);
+  //       setCurrentInstructions(response.data.instruction);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching agent execution details:', error);
+  //     });
+  // }
 
   function saveAgentTemplate() {
     saveAgentAsTemplate(agentId)
@@ -350,7 +364,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           </div>
           <div style={{display: 'flex'}}>
             <div>
-              <button className={styles.run_button} onClick={() => setRunModal(true)}>
+              <button className={styles.run_button} onClick={setNewRunDetails}>
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
@@ -481,8 +495,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             </div>
           )}
           {rightPanel === 'details' && agentDetails && agentDetails !== null &&
-            <div className={styles.detail_content}><Details agentDetails1={agentDetails} goals={currentGoals}
-                                                            instructions={currentInstructions}
+            <div className={styles.detail_content}><Details agentDetails1={agentDetails}
                                                             runCount={agentExecutions?.length || 0}
                                                             agentScheduleDetails={agentScheduleDetails} agent={agent}/>
             </div>}

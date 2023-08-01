@@ -25,7 +25,7 @@ export const getTools = () => {
 };
 
 export const getAgentDetails = (agentId, agentExecutionId) => {
-  return api.get(`agents/get/details/agent_id/${agentId}/agent_execution_id/${agentExecutionId}`);
+  return api.get(`/agent_executions_configs/details/agent_id/${agentId}/agent_execution_id/${agentExecutionId}`);
 };
 
 export const getAgentExecutions = (agentId) => {

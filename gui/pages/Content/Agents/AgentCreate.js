@@ -488,9 +488,9 @@ export default function AgentCreate({
       "agent_type": agentType,
       "constraints": constraints,
       "toolkits": [],
-      "tools": [12,14,14],
+      "tools": selectedTools,
       "exit": exitCriterion,
-      "iteration_interval": 500,
+      "iteration_interval": stepTime,
       "model": model,
       "max_iterations": maxIterations,
       "permission_type": permission_type,
@@ -506,12 +506,12 @@ export default function AgentCreate({
 
     if(edit){
       agentData.agent_id = editAgentId;
-      console.log(agentData)
-      editAgent(agentData).then((response) => {
+      const name = agentData.name
+      agentData.name = `New Run ${new Date()}`
+      editAgent(agentData)
+        .then((response) => {
         if(response){
           fetchAgents();
-          console.log(response)
-          const name = "New Run" + response.data.updated_at
           uploadResources(editAgentId, name)
         }
       })
@@ -564,6 +564,7 @@ export default function AgentCreate({
         name: name,
         contentType: "Agents",
       });
+      removeTab(editAgentId, name, "Agents", internalId)
     }
     else {
       runExecution(agentId, name, executionId, createModal);
@@ -1207,10 +1208,10 @@ export default function AgentCreate({
               {/*    </div>*/}
               {/*  </div>*/}
               {/*</div>*/}
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Time between steps (in milliseconds)</label>
-                <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
-              </div>
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <label className={styles.form_label}>Time between steps (in milliseconds)</label>*/}
+              {/*  <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>*/}
+              {/*</div>*/}
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <div style={{display:'flex'}}>*/}
               {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
