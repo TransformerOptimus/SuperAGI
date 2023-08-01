@@ -27,7 +27,7 @@ import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
 export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('')
+  const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
@@ -244,7 +244,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           console.error('Error fetching agent data:', error);
         });
     }
-  };
+  }
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
@@ -280,6 +280,8 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       .catch((error) => {
         console.error('Error saving agent as template:', error);
       });
+
+    setDropdown(false);
   }
 
   useEffect(() => {
@@ -349,10 +351,10 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {<button className="secondary_button" style={{padding: '8px', height: '31px'}}
-                     onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <button className="secondary_button" style={{padding: '8px', height: '31px'}}
+                    onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
-            </button>}
+            </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
               <ul className="dropdown_container" style={{marginTop: '31px', marginLeft: '-32px'}}>
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
@@ -372,9 +374,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
                   {agent && !agent?.is_running && !agent?.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => {setDropdown(false);setCreateModal(true)}}>Schedule Run</li>}
+                    <li className="dropdown_item" onClick={() => {
+                      setDropdown(false);
+                      setCreateModal(true)
+                    }}>Schedule Run</li>}
                 </div>)}
-                <li className="dropdown_item" onClick={() => {setDropdown(false);setDeleteModal(true)}}>Delete Agent</li>
+                <li className="dropdown_item" onClick={() => {
+                  setDropdown(false);
+                  setDeleteModal(true)
+                }}>Delete Agent
+                </li>
               </ul>
             </div>}
 
@@ -382,7 +391,8 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
               <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal}
+                             type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>
@@ -492,7 +502,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -515,7 +525,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
               {instructions.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleInstructionDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}

@@ -9,7 +9,7 @@ Test Description:
 {spec}
 
 Test should follow the following format:
-[FILENAME]
+FILENAME
 ```[LANG]
 [UNIT_TEST_CODE]
 ```

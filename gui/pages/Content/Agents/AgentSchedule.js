@@ -9,7 +9,15 @@ import {agentScheduleComponent, createAndScheduleRun, updateSchedule} from "@/pa
 import {EventBus} from "@/utils/eventBus";
 import moment from 'moment';
 
-export default function AgentSchedule({internalId, closeCreateModal, type, agentId, setCreateModal, setCreateEditModal, env}) {
+export default function AgentSchedule({
+                                        internalId,
+                                        closeCreateModal,
+                                        type,
+                                        agentId,
+                                        setCreateModal,
+                                        setCreateEditModal,
+                                        env
+                                      }) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [timeDropdown, setTimeDropdown] = useState(false);
   const [expiryDropdown, setExpiryDropdown] = useState(false);

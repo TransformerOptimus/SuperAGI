@@ -104,3 +104,12 @@ class Weaviate(VectorStore):
 
         property_names.remove(self.text_field)
         return property_names
+
+    def get_index_stats(self) -> dict:
+        pass
+
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        pass
+
+    def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
+        pass

@@ -1,5 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Agents from '../Content/Agents/Agents';
+import Knowledge from '../Content/Knowledge/Knowledge';
+import AddKnowledge from '../Content/Knowledge/AddKnowledge';
+import KnowledgeDetails from '../Content/Knowledge/KnowledgeDetails';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
@@ -10,8 +13,9 @@ import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
   getAgents,
-  getLastActiveAgent,
   getToolKit,
+  getKnowledge,
+  getLastActiveAgent,
   sendGoogleCreds,
   sendTwitterCreds
 } from "@/pages/api/DashboardService";
@@ -22,17 +26,20 @@ import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
 import {createInternalId, resetLocalStorage, preventDefault} from "@/utils/utils";
+import AddDatabase from "@/pages/Dashboard/Settings/AddDatabase";
+import DatabaseDetails from "@/pages/Dashboard/Settings/DatabaseDetails";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
   const [toolkits, setToolkits] = useState(null);
+  const [knowledge, setKnowledge] = useState(null);
   const tabContainerRef = useRef(null);
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
-  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit'];
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
 
@@ -49,7 +56,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const response = await getAgents(selectedProjectId);
       const data = response.data || [];
       const updatedData = data.map(item => {
-        return { ...item, contentType: "Agents" };
+        return {...item, contentType: "Agents"};
       });
       setAgents(updatedData);
     } catch (error) {
@@ -72,7 +79,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const response = await getToolKit();
       const data = response.data || [];
       const updatedData = data.map(item => {
-        return { ...item, contentType: "Toolkits", isOpen: false, internalId: createInternalId() };
+        return {...item, contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
       });
       setToolkits(updatedData);
     } catch (error) {
@@ -90,10 +97,37 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       });
   }
 
+  async function fetchKnowledge() {
+    try {
+      const response = await getKnowledge();
+      const data = response.data || [];
+      const updatedData = data.map(item => {
+        return {...item, contentType: "Knowledge", internalId: createInternalId()};
+      });
+      setKnowledge(updatedData);
+    } catch (error) {
+      console.error('Error fetching knowledge:', error);
+    }
+  }
+
+  function getKnowledgeList() {
+    fetchKnowledge()
+      .then(() => {
+        console.log('Knowledge fetched successfully!');
+      })
+      .catch((error) => {
+        console.error('Error fetching knowledge:', error);
+      });
+  }
+
   useEffect(() => {
     getAgentList();
     getToolkitList();
   }, [selectedProjectId])
+
+  useEffect(() => {
+    getKnowledgeList();
+  }, [organisationId])
 
   const cancelTab = (index, contentType, internalId) => {
     let updatedTabs = [...tabs];
@@ -221,12 +255,14 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', getAgentList);
+    EventBus.on('reFetchKnowledge', getKnowledgeList);
     EventBus.on('removeTab', removeTab);
     EventBus.on('openToolkitTab', openToolkitTab);
 
     return () => {
       EventBus.off('openNewTab', openNewTab);
       EventBus.off('reFetchAgents', getAgentList);
+      EventBus.off('reFetchKnowledge', getKnowledgeList);
       EventBus.off('removeTab', removeTab);
     };
   });
@@ -274,10 +310,11 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
-        {(selectedView === 'agents' || selectedView === 'toolkits') &&
+        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-            {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
+            {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
           </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
@@ -327,7 +364,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>
           </div>
         </div> : <div className={styles.main_workspace}
-                      style={(selectedView === 'agents' || selectedView === 'toolkits') ? {width: '80.5vw'} : {width: '100%'}}>
+                      style={(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') ? {width: '80.5vw'} : {width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (
@@ -343,6 +380,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {(tab.contentType === 'Toolkits' || tab.contentType === 'Add_Toolkit') &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/tools_light.svg"
                                                                 alt="tools-icon"/></div>}
+                    {(tab.contentType === 'Knowledge' || tab.contentType === 'Add_Knowledge') &&
+                      <div className={styles.tab_active}><Image width={13} height={13} src="/images/knowledge.svg"
+                                                                alt="knowledge-icon"/></div>}
+                    {(tab.contentType === 'Database' || tab.contentType === 'Add_Database') &&
+                      <div className={styles.tab_active}><Image width={13} height={13} src="/images/database.svg"
+                                                                alt="database-icon"/></div>}
                     {tab.contentType === 'Settings' &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/settings.svg"
                                                                 alt="settings-icon"/></div>}
@@ -358,7 +401,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     e.stopPropagation();
                     cancelTab(index, tab.contentType, tab.internalId || 0)
                   }} className={styles.tab_active} style={{order: '1'}}><Image width={13} height={13}
-                                                                               src="/images/close_light.svg"
+                                                                               src="/images/close.svg"
                                                                                alt="close-icon"/></div>
                 </div>
               ))}
@@ -371,17 +414,33 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                 <div key={index}>
                   {selectedTab === index && <div>
                     {tab.contentType === 'Agents' &&
-                      <AgentWorkspace internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name} selectedView={selectedView}
+                      <AgentWorkspace env={env} internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name}
+                                      selectedView={selectedView}
                                       agents={agents} fetchAgents={getAgentList}/>}
                     {tab.contentType === 'Toolkits' &&
-                      <ToolkitWorkspace env={env} internalId={tab.internalId || index} toolkitDetails={toolkitDetails}/>}
-                    {tab.contentType === 'Settings' && <Settings organisationId={organisationId}/>}
+                      <ToolkitWorkspace env={env} internalId={tab.internalId || index}
+                                        toolkitDetails={toolkitDetails}/>}
+                    {tab.contentType === 'Knowledge' &&
+                      <KnowledgeDetails internalId={tab.internalId || index} knowledgeId={tab.id}/>}
+                    {tab.contentType === 'Database' &&
+                      <DatabaseDetails internalId={tab.internalId || index} databaseId={tab.id}/>}
+                    {tab.contentType === 'Knowledge' &&
+                      <KnowledgeDetails internalId={tab.internalId || index} knowledgeId={tab.id}/>}
+                    {tab.contentType === 'Database' &&
+                      <DatabaseDetails internalId={tab.internalId || index} databaseId={tab.id}/>}
+                    {tab.contentType === 'Settings' &&
+                      <Settings organisationId={organisationId} sendDatabaseData={addTab}/>}
                     {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                     {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
+                    {tab.contentType === 'Add_Knowledge' &&
+                      <AddKnowledge internalId={tab.internalId || index} sendKnowledgeData={addTab}/>}
+                    {tab.contentType === 'Add_Database' &&
+                      <AddDatabase internalId={tab.internalId || index} sendDatabaseDetailsData={addTab}/>}
                     {tab.contentType === 'Create_Agent' &&
-                      <AgentTemplatesList internalId={tab.internalId || index} organisationId={organisationId}
+                      <AgentTemplatesList knowledge={knowledge} internalId={tab.internalId || index}
+                                          organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={getAgentList} toolkits={toolkits}/>}
+                                          fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
                     {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
                   </div>}
                 </div>
