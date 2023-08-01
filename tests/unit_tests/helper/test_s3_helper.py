@@ -90,3 +90,16 @@ def test_read_binary_from_s3(s3helper_object, http_status, expected_result, rais
             s3helper_object.read_binary_from_s3('path')
     else:
         assert s3helper_object.read_binary_from_s3('path') == expected_result
+
+def test_delete_file_success(s3helper_object):
+    s3helper_object.s3.delete_object = MagicMock()
+    try:
+        s3helper_object.delete_file('path')
+    except:
+        pytest.fail("Unexpected Exception !")
+
+def test_delete_file_fail(s3helper_object):
+    s3helper_object.s3.delete_object = MagicMock(side_effect=Exception())
+    with pytest.raises(HTTPException):
+        s3helper_object.delete_file('path')
+
