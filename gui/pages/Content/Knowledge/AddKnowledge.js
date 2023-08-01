@@ -44,3 +44,4 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
     </div>
   </>)
 }
+
