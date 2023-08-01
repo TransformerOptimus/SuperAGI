@@ -144,7 +144,7 @@ class SuperAgi:
             raise RuntimeError(f"Failed to get response from llm")
         assistant_reply = response['content']
         
-        print("type of assistant",type(assistant_reply))
+        
         
         data = json.loads(assistant_reply)
        
@@ -164,7 +164,7 @@ class SuperAgi:
                                                       feed=assistant_reply,
                                                       role="assistant")
             session.add(agent_execution_feed)
-            print("Here is the agent execution feed: ",agent_execution_feed,"END")
+            
             tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_config["agent_execution_id"],
                                                     agent_id=self.agent_config["agent_id"],
                                                     feed=tool_response["result"],
@@ -215,11 +215,8 @@ class SuperAgi:
 
         logger.info("Iteration completed moving to next iteration!")
         session.close()
-        print("Here is the final tool reply: ",final_response,"END")
-        
-        print("Here is the task description: ",data['thoughts']['text'],"END")
         prompt = data['thoughts']['text']+final_response["result"]
-        print("Here is the prompt reply: ",prompt,"END")
+        
         metadatas = [{"agent_execution_id":self.agent_config["agent_execution_id"]}]
         self.memory.add_texts([prompt],metadatas)
         return final_response

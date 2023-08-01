@@ -216,13 +216,13 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
-                print("Here is the memory reply from LTM: ",memory,"END")
+                
             else:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
-                print("Here is the memory reply from LTM: ",memory,"END")
+                
 
-            print("Here is the final memory reply from LTM: ",memory,"END")
+            
         except:
             logger.info("Unable to setup the pinecone connection...")
             memory = None
