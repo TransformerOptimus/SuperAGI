@@ -145,8 +145,8 @@ def install_toolkit_from_marketplace(toolkit_name: str,
     toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
                                                toolkit_name=toolkit_name)
     db_toolkit = Toolkit.add_or_update(session=db.session, name=toolkit['name'], description=toolkit['description'],
-                          tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
-                          show_toolkit=toolkit['show_toolkit'])
+                                       tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
+                                       show_toolkit=toolkit['show_toolkit'])
     for tool in toolkit['tools']:
         Tool.add_or_update(session=db.session, tool_name=tool['name'], description=tool['description'],
                            folder_name=tool['folder_name'], class_name=tool['class_name'], file_name=tool['file_name'],
@@ -304,6 +304,70 @@ def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_org
 
     return toolkits
 
+
+def compare_tools(tool1, tool2):
+    print("Comparing Tools ")
+    print("Tool 1: ", tool1)
+    print("Tool 2: ", tool2)
+    fields = ["name", "description"]
+    result = any(tool1.get(field) != tool2.get(field) for field in fields)
+    for field in fields:
+        if tool1.get(field) != tool2.get(field):
+            print("TOOLS COMPARE FOUND DIFFERENCE -----------------")
+            print("Field: ", field)
+            print("Tool 1: ", tool1.get(field))
+            print("Tool2 : ", tool2.get(field))
+    print("Result: ", result)
+    return result
+
+
+def compare_configs(config1, config2):
+    print("Comparing Configs ")
+    print("Config 1: ", config1)
+    print("Config 2: ", config2)
+
+    fields = ["key"]
+    result = any(config1.get(field) != config2.get(field) for field in fields)
+    for field in fields:
+        if config1.get(field) != config2.get(field):
+            print("CONFIG COMPARE FOUND DIFFERENCE -----------------")
+            print("Field: ", field)
+            print("Config 1: ", config1.get(field))
+            print("Config 2 : ", config2.get(field))
+    print("Result: ", result)
+    return result
+
+
+def compare_objects(obj1, obj2):
+    # Step 1: Compare the main toolkit fields
+    main_toolkit_fields = ["description", "show_toolkit", "name", "tool_code_link"]
+    toolkit_diff = any(obj1.get(field) != obj2.get(field) for field in main_toolkit_fields)
+
+    tools1 = sorted(obj1.get("tools", []), key=lambda tool: tool.get("name", ""))
+    tools2 = sorted(obj2.get("tools", []), key=lambda tool: tool.get("name", ""))
+
+    if len(tools1) != len(tools2):
+        tools_diff = True
+    else:
+        tools_diff = any(compare_tools(tool1, tool2) for tool1, tool2 in zip(tools1, tools2))
+
+    # Step 3: Compare the list of tool configs
+    tool_configs1 = sorted(obj1.get("configs", []), key=lambda config: config.get("key", ""))
+    tool_configs2 = sorted(obj2.get("configs", []), key=lambda config: config.get("key", ""))
+    if len(tool_configs1) != len(tool_configs2):
+        tool_configs_diff = True
+    else:
+        tool_configs_diff = any(compare_configs(config1, config2) for config1, config2 in zip(tool_configs1,
+                                                                                              tool_configs2))
+
+    # Check if any part of the objects is different (except for id, created_at, and updated_at)
+    print("toolkit_diff : ", toolkit_diff)
+    print("tools_diff : ", tools_diff)
+    print("tool_configs_diff : ", tool_configs_diff)
+
+    return toolkit_diff or tools_diff or tool_configs_diff
+
+
 @router.get("/check_update/{toolkit_name}")
 def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
     """
@@ -314,13 +378,61 @@ def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends
 
     """
     marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
-                                               toolkit_name=toolkit_name)
-    installed_toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name, organisation)
-    installed_toolkit.tools = Tool.get_tools(db.session, installed_toolkit)
-    installed_toolkit.tools_configs = ToolConfig.get_tool_configs(db.session, installed_toolkit)
+                                                           toolkit_name=toolkit_name)
+    if marketplace_toolkit is None:
+        raise HTTPException(status_code=404, detail="Toolkit not found in marketplace")
     print("marketplace_toolkit : ", marketplace_toolkit)
-    print("installed_toolkit : ", installed_toolkit)
-    if not installed_toolkit:
+    installed_toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name, organisation)
+    if installed_toolkit is None:
         return True
+    installed_toolkit = installed_toolkit.to_dict()
+
+    print("installed_toolkit : ", installed_toolkit)
+    tools = Tool.get_toolkit_tools(db.session, installed_toolkit["id"])
+    configs = ToolConfig.get_toolkit_tool_config(db.session, installed_toolkit["id"])
+    installed_toolkit["configs"] = []
+    installed_toolkit["tools"] = []
+
+    for config in configs:
+        installed_toolkit["configs"].append(config.to_dict())
+    for tool in tools:
+        installed_toolkit["tools"].append(tool.to_dict())
+
+    print("____________________________________________Final installed_toolkit : ")
+    print(installed_toolkit)
+    return compare_objects(marketplace_toolkit, installed_toolkit)
 
 
+@router.put("/update/{toolkit_name}")
+def update_toolkit(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+    """
+        Update the toolkit with the latest version from the marketplace.
+        Returns:
+            dict: The response containing the update details.
+    """
+    marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
+                                                           toolkit_name=toolkit_name)
+    print("_____________________ MARKET PLACE TOOLKIT : ",marketplace_toolkit)
+    # Create a new ToolKit object
+    update_toolkit = Toolkit.add_or_update(
+        db.session,
+        name=marketplace_toolkit["name"],
+        description=marketplace_toolkit["description"],
+        show_toolkit=True if len(marketplace_toolkit["tools"]) > 1 else False,
+        organisation_id=organisation.id,
+        tool_code_link=marketplace_toolkit["tool_code_link"]
+    )
+    print("Updated Toolkit", update_toolkit)
+    # Store the tools in the database
+    for tool in marketplace_toolkit["tools"]:
+        new_tool = Tool.add_or_update(db.session, tool_name=tool["name"], folder_name=tool["folder_name"],
+                                      class_name=tool["class_name"], file_name=tool["file_name"],
+                                      toolkit_id=update_toolkit.id, description=tool["description"])
+        print("updated tool : ", new_tool)
+
+    # Store the tools config in the database
+    for tool_config_key in marketplace_toolkit["configs"]:
+        print("tool_config_key : ", tool_config_key)
+        new_config = ToolConfig.add_or_update(db.session, toolkit_id=update_toolkit.id,
+                                              key=tool_config_key["key"])
+        print("updated config : ", new_config)
