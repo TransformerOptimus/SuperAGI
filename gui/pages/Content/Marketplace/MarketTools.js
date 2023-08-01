@@ -47,26 +47,26 @@ export default function MarketTools() {
   }
 
   return (
-    <div style={showMarketplace ? {marginLeft: '8px'} : {marginLeft: '3px'}}>
-      <div className={styles.rowContainer} style={{maxHeight: '78vh', overflowY: 'auto'}}>
+    <div className={showMarketplace ? 'ml_8' : 'ml_3'}>
+      <div className="w_100 overflowY_auto mxh_78vh">
         {!isLoading ? <div>
           {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item) => (
-            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer'}} onClick={() => handleTemplateClick(item)}>
-              <div style={{display: 'inline-flex', overflow: 'auto'}}>
-                <Image className={styles.tools_icon} width={40} height={40} src={returnToolkitIcon(item.name)} alt="tool-icon"/>
+            <div className="market_tool cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
+              <div className="horizontal_container overflow_auto">
+                <Image className="tool_icon" width={40} height={40} src={returnToolkitIcon(item.name)} alt="tool-icon"/>
                 <div className="ml_12 mb_8">
                     <div>{item.name}</div>
-                    <div style={{color: '#888888', lineHeight: '16px'}}>by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
+                    <div className="color_gray lh_16">by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
                 </div>
               </div>
-              <div className={styles.tool_description}>{item.description}</div>
+              <div className="text_ellipsis mt_6 color_gray">{item.description}</div>
             </div>
           ))}</div> : <div className="center_container mt_40">
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-            <span className={styles.feed_title} style={{marginTop: '8px'}}>No Tools found!</span>
+            <span className="feed_title mt_8">No Tools found!</span>
           </div>}
-        </div> : <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '75vh'}}>
-          <div className="signInInfo" style={{fontSize: '16px', fontFamily: 'Source Code Pro'}}>{loadingText}</div>
+        </div> : <div className="horizontal_container_center h_75vh">
+          <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
         </div>}
       </div>
     </div>
