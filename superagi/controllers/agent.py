@@ -7,6 +7,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 from sqlalchemy import desc
+import ast
 
 from jsonmerge import merge
 from pytz import timezone
@@ -201,13 +202,25 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
+    
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
                                name="New Run", current_step_id=start_step_id)
 
     agent_execution_configs = {
         "goal": agent_with_config.goal,
-        "instruction": agent_with_config.instruction
+        "instruction": agent_with_config.instruction,
+        "agent_type": agent_with_config.agent_type,
+        "constraints": agent_with_config.constraints,
+        "toolkits": agent_with_config.toolkits,
+        "exit": agent_with_config.exit,
+        "tools": agent_with_config.tools,
+        "iteration_interval": agent_with_config.iteration_interval,
+        "model": agent_with_config.model,
+        "permission_type": agent_with_config.permission_type,
+        "LTM_DB": agent_with_config.LTM_DB,
+        "max_iterations": agent_with_config.max_iterations,
+        "user_timezone": agent_with_config.user_timezone
     }
     db.session.add(execution)
     db.session.commit()
@@ -506,7 +519,10 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     # Construct the JSON response
     results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
 
-    results_agent_dict['tools'] = json.loads(results_agent_dict['tools'].replace("'", "\""))
+    if "toolkits" in results_agent_dict:
+        results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
+
+    results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
     tools = db.session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
     results_agent_dict["tools"] = tools
 
@@ -522,7 +538,7 @@ def get_agent_configuration(agent_execution_id: Union[int, None, str],
     results_agent_dict["tokens"] = total_tokens
 
     response  = results_agent_dict
-
+    #print(response)
     # Close the session
     db.session.close()
 
