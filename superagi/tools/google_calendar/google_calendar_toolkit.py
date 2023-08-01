@@ -5,7 +5,8 @@ from superagi.tools.google_calendar.create_calendar_event import CreateEventCale
 from superagi.tools.google_calendar.delete_calendar_event import DeleteCalendarEventTool
 from superagi.tools.google_calendar.list_calendar_events import ListCalendarEventsTool
 from superagi.tools.google_calendar.event_details_calendar import EventDetailsCalendarTool
-
+from superagi.models.tool_config import ToolConfig
+from superagi.types.key_type import ToolConfigKeyType
 
 class GoogleCalendarToolKit(BaseToolkit, ABC):
     name: str = "Google Calendar Toolkit"
@@ -14,5 +15,9 @@ class GoogleCalendarToolKit(BaseToolkit, ABC):
     def get_tools(self) -> List[BaseTool]:
         return [CreateEventCalendarTool(), DeleteCalendarEventTool(), ListCalendarEventsTool(), EventDetailsCalendarTool()]
 
-    def get_env_keys(self) -> List[str]:
-        return ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"]
+    def get_env_keys(self) -> List[ToolConfig]:
+        return [
+            ToolConfig(key="GOOGLE_CLIENT_ID", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = False),
+            ToolConfig(key="GOOGLE_CLIENT_SECRET", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret= True)
+        ]
+    
