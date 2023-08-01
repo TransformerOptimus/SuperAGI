@@ -43,5 +43,5 @@ export default function AddKnowledge({internalId, sendKnowledgeData}) {
       <div className="col-3"></div>
     </div>
   </>)
-}
 
+}
