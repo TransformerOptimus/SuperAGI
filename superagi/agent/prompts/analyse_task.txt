@@ -15,12 +15,34 @@ Ensure next action tool is picked from the below tool list.
 TOOLS:
 {tools}
 
-RESPONSE FORMAT:
+Respond with only valid JSON conforming to the following schema:
 {
-    "thoughts": {
-        "reasoning": "reasoning"
-    },
-    "tool": {"name": "tool name", "args": {"arg name": "string value"}}
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "thoughts": {
+            "type": "object",
+            "properties": {
+                "reasoning": {
+                    "type": "string",
+                    "description": "short reasoning",
+                }
+            },
+            "required": ["reasoning"]
+        },
+        "tool": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "tool name",
+                },
+                "args": {
+                    "type": "object",
+                    "description": "tool arguments",
+                }
+            },
+            "required": ["name", "args"]
+        }
+    }
 }
-
-Your answer must be something that JSON.parse() can read, and nothing else.

@@ -27,7 +27,13 @@ def create_sample_image_base64():
 def stable_diffusion_tool():
     with patch('superagi.tools.image_generation.stable_diffusion_image_gen.requests.post') as post_mock, \
             patch(
-                'superagi.tools.image_generation.stable_diffusion_image_gen.FileManager') as resource_manager_mock:
+                'superagi.tools.image_generation.stable_diffusion_image_gen.FileManager') as resource_manager_mock, \
+                patch(
+                'superagi.tools.image_generation.stable_diffusion_image_gen.ResourceHelper') as resource_helper_mock, \
+                    patch(
+                        'superagi.tools.image_generation.stable_diffusion_image_gen.Agent') as agent_mock, \
+                        patch(
+                        'superagi.tools.image_generation.stable_diffusion_image_gen.AgentExecution') as agent_execution_mock:
 
         # Create a mock response object
         response_mock = Mock()
@@ -39,17 +45,23 @@ def stable_diffusion_tool():
 
         resource_manager_mock.write_binary_file.return_value = None
 
+        # Mock Agent and AgentExecution to return dummy values
+        agent_mock.get_agent_from_id.return_value = Mock()
+        agent_execution_mock.get_agent_execution_from_id.return_value = Mock()
+
         yield
+
 
 def test_execute(stable_diffusion_tool):
     tool = StableDiffusionImageGenTool()
     tool.resource_manager = Mock()
-    tool.toolkit_config.get_tool_config = mock_get_tool_config
-
-
-    result = tool._execute('prompt', ['img1.png', 'img2.png'])
-
-    assert result == 'Images downloaded and saved successfully'
+    tool.agent_id = 123  # Use a dummy agent_id for testing purposes
+    tool.toolkit_config.get_tool_config = lambda key: 'fake_api_key' if key == 'STABILITY_API_KEY' else 'engine_id_1'
+    prompt = 'Test prompt'
+    image_names = ['img1.png', 'img2.png']
+    expected_result = 'Images downloaded and saved successfully'
+    result = tool._execute(prompt, image_names)
+    assert result.startswith(expected_result)
     tool.resource_manager.write_binary_file.assert_called()
 
 def test_call_stable_diffusion(stable_diffusion_tool):

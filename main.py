@@ -34,14 +34,22 @@ from superagi.controllers.config import router as config_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
 from superagi.controllers.twitter_oauth import router as twitter_oauth_router
+from superagi.controllers.google_oauth import router as google_oauth_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.tool_config import router as tool_config_router
 from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
-from superagi.helper.tool_helper import register_toolkits
+from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.knowledges import router as knowledges_router
+from superagi.controllers.knowledge_configs import router as knowledge_configs_router
+from superagi.controllers.vector_dbs import router as vector_dbs_router
+from superagi.controllers.vector_db_indices import router as vector_db_indices_router
+from superagi.controllers.marketplace_stats import router as marketplace_stats_router
+from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
+from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
 from superagi.helper.auth import get_current_user
 from superagi.models.agent_workflow import AgentWorkflow
@@ -51,6 +59,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
 from superagi.models.types.login_request import LoginRequest
+from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
 from superagi.models.user import User
 
 app = FastAPI()
@@ -109,6 +118,13 @@ app.include_router(agent_template_router, prefix="/agent_templates")
 app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
 app.include_router(agent_execution_config, prefix="/agent_executions_configs")
+app.include_router(analytics_router, prefix="/analytics")
+app.include_router(google_oauth_router, prefix="/google")
+app.include_router(knowledges_router, prefix="/knowledges")
+app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
+app.include_router(vector_dbs_router, prefix="/vector_dbs")
+app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
+app.include_router(marketplace_stats_router, prefix="/marketplace")
 
 
 # in production you can use Settings management
@@ -119,8 +135,11 @@ class Settings(BaseModel):
 
 
 def create_access_token(email, Authorize: AuthJWT = Depends()):
-    # expiry_time_hours = get_config("JWT_EXPIRY")
-    expiry_time_hours = 1
+    expiry_time_hours = superagi.config.config.get_config("JWT_EXPIRY")
+    if type(expiry_time_hours) == str:
+        expiry_time_hours = int(expiry_time_hours)
+    if expiry_time_hours is None:
+        expiry_time_hours = 200
     expires = timedelta(hours=expiry_time_hours)
     access_token = Authorize.create_access_token(subject=email, expires_time=expires)
     return access_token
@@ -173,14 +192,14 @@ async def startup_event():
                                            agent_workflow_id=agent_workflow.id, output_type="tools",
                                            step_type="TRIGGER",
                                            history_enabled=True,
-                                           completion_prompt="Determine which next tool to use, and respond using the format specified above:")
+                                           completion_prompt="Determine which next tool to use,and respond with only valid JSON conforming to the above schema")
             session.add(first_step)
             session.commit()
         else:
             first_step.prompt = output["prompt"]
             first_step.variables = str(output["variables"])
             first_step.output_type = "tools"
-            first_step.completion_prompt = "Determine which next tool to use, and respond using the format specified above:"
+            first_step.completion_prompt = "Determine which next tool to use,and respond with only valid JSON conforming to the above schema"
             session.commit()
         first_step.next_step_id = first_step.id
         session.commit()
@@ -262,16 +281,71 @@ async def startup_event():
         workflow_step4.next_step_id = workflow_step3.id
         session.commit()
 
-    def check_toolkit_registration():
+    def build_action_based_agents():
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == "Fixed Task Queue").first()
+        if agent_workflow is None:
+            agent_workflow = AgentWorkflow(name="Fixed Task Queue", description="Fixed Task Queue")
+            session.add(agent_workflow)
+            session.commit()
+
+        output = AgentPromptBuilder.start_task_based()
+
+        workflow_step1 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "ab1").first()
+        if workflow_step1 is None:
+            workflow_step1 = AgentWorkflowStep(unique_id="ab1",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="TRIGGER",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tasks")
+            session.add(workflow_step1)
+        else:
+            workflow_step1.prompt = output["prompt"]
+            workflow_step1.variables = str(output["variables"])
+            workflow_step1.output_type = "tasks"
+            workflow_step1.agent_workflow_id = agent_workflow.id
+            session.commit()
+
+        workflow_step2 = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.unique_id == "ab2").first()
+        output = AgentPromptBuilder.analyse_task()
+        if workflow_step2 is None:
+            workflow_step2 = AgentWorkflowStep(unique_id="ab2",
+                                               prompt=output["prompt"], variables=str(output["variables"]),
+                                               step_type="NORMAL",
+                                               agent_workflow_id=agent_workflow.id, next_step_id=-1,
+                                               output_type="tools")
+            session.add(workflow_step2)
+        else:
+            workflow_step2.prompt = output["prompt"]
+            workflow_step2.variables = str(output["variables"])
+            workflow_step2.output_type = "tools"
+            workflow_step2.agent_workflow_id = agent_workflow.id
+            session.commit()
+
+        session.commit()
+        workflow_step1.next_step_id = workflow_step2.id
+        workflow_step2.next_step_id = workflow_step2.id
+        session.commit()
+
+    def register_toolkit_for_all_organisation():
         organizations = session.query(Organisation).all()
         for organization in organizations:
             register_toolkits(session, organization)
         logger.info("Successfully registered local toolkits for all Organisations!")
 
+    def register_toolkit_for_master_organisation():
+        marketplace_organisation_id = superagi.config.config.get_config("MARKETPLACE_ORGANISATION_ID")
+        marketplace_organisation = session.query(Organisation).filter(
+            Organisation.id == marketplace_organisation_id).first()
+        if marketplace_organisation is not None:
+            register_marketplace_toolkits(session, marketplace_organisation)
+
     build_single_step_agent()
     build_task_based_agents()
+    build_action_based_agents()
     if env != "PROD":
-        check_toolkit_registration()
+        register_toolkit_for_all_organisation()
+    else:
+        register_toolkit_for_master_organisation()
     session.close()
 
 
@@ -293,45 +367,6 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 # def get_jwt_from_payload(user_email: str,Authorize: AuthJWT = Depends()):
 #     access_token = Authorize.create_access_token(subject=user_email)
 #     return access_token
-
-@app.get('/oauth-calendar')
-async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
-    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID").first()
-    client_id = client_id.value
-    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET").first()
-    client_secret = client_secret.value
-    token_uri = 'https://oauth2.googleapis.com/token'
-    scope = 'https://www.googleapis.com/auth/calendar'
-    params = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': "http://localhost:3000/api/oauth-calendar",
-        'scope': scope,
-        'grant_type': 'authorization_code',
-        'code': code,
-        'access_type': 'offline'
-    }
-    response = requests.post(token_uri, data=params)
-    response = response.json()
-    expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
-    expire_time = expire_time - timedelta(minutes=5)
-    response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    root_dir = superagi.config.config.get_config('RESOURCES_OUTPUT_ROOT_DIR')
-    file_name = "credential_token.pickle"
-    final_path = file_name
-    if root_dir is not None:
-        root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-        root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
-        final_path = root_dir + file_name
-    else:
-        final_path = os.getcwd() + "/" + file_name
-    try:
-        with open(final_path, mode="wb") as file:
-            pickle.dump(response, file)
-    except Exception as err:
-        return f"Error: {err}"
-    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
-    return RedirectResponse(frontend_url)
 
 @app.get('/github-login')
 def github_login():
@@ -382,7 +417,6 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
             db.session.add(user)
             db.session.commit()
             jwt_token = create_access_token(user_email, Authorize)
-
             redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
             return RedirectResponse(url=redirect_url_success)
         else:
@@ -415,13 +449,21 @@ async def root(Authorize: AuthJWT = Depends()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-@app.get("/google/get_google_creds/toolkit_id/{toolkit_id}")
-def get_google_calendar_tool_configs(toolkit_id: int):
-    google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,
-                                                                 ToolConfig.key == "GOOGLE_CLIENT_ID").first()
-    return {
-        "client_id": google_calendar_config.value
-    }
+@app.post("/validate-llm-api-key")
+async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJWT = Depends()):
+    """API to validate LLM API Key"""
+    source = request.model_source
+    api_key = request.model_api_key
+    valid_api_key = False
+    if source == "OpenAi":
+        valid_api_key = OpenAi(api_key=api_key).verify_access_key()
+    elif source == "Google Palm":
+        valid_api_key = GooglePalm(api_key=api_key).verify_access_key()
+    if valid_api_key:
+        return {"message": "Valid API Key", "status": "success"}
+    else:
+        return {"message": "Invalid API Key", "status": "failed"}
+
 
 @app.get("/validate-open-ai-key/{open_ai_key}")
 async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
