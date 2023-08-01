@@ -3,7 +3,8 @@ from typing import List
 
 from superagi.tools.base_tool import BaseToolkit, BaseTool
 from superagi.tools.searx.searx import SearxSearchTool
-
+from superagi.models.tool_config import ToolConfig
+from superagi.types.key_type import ToolConfigKeyType
 
 class SearxSearchToolkit(BaseToolkit, ABC):
     name: str = "Searx Toolkit"
@@ -13,5 +14,5 @@ class SearxSearchToolkit(BaseToolkit, ABC):
     def get_tools(self) -> List[BaseTool]:
         return [SearxSearchTool()]
 
-    def get_env_keys(self) -> List[str]:
+    def get_env_keys(self) -> List[ToolConfig]:
         return []
