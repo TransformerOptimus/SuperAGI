@@ -38,6 +38,7 @@ app.conf.beat_schedule = beat_schedule
 
 @event.listens_for(AgentExecution.status, "set")
 def unique_constraint_name(target, val,old_val,initiator):
+    print('from worker')
     print("****target",target)
     print("*****val",val)
     print("****oldval",old_val)
