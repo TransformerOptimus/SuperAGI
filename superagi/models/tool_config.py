@@ -84,7 +84,7 @@ class ToolConfig(DBBaseModel):
                 raise ValueError("is_secret should be a boolean value")
 
             if key_type is None:
-                tool_config.key_type = "string"
+                tool_config.key_type = ToolConfigKeyType.STRING
             else: tool_config.key_type = key_type.value
             
 
