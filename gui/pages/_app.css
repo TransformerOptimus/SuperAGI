@@ -1510,6 +1510,7 @@ tr{
     display: -webkit-inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
 }
 
 .tab_button{

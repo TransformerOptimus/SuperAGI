@@ -12,6 +12,10 @@ export default function Model({organisationId}) {
   const [temperature, setTemperature] = useState(0.5);
   const [sourceDropdown, setSourceDropdown] = useState(false);
   const sources = ['OpenAi', 'Google Palm'];
+  const models = [{'name':'Open AI API key','api_key':'asdfsddfgdfgd'},
+                                          {'name':'Hugging Face auth token','api_key':''},
+                                          {'name':'Replicate auth token','api_key':'asdfsddfgdfgd'},
+                                          {'name':'Google AI API key','api_key':''}]
   const [source, setSource] = useState(sources[0]);
   const sourceRef = useRef(null);
 
