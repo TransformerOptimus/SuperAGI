@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-
+from superagi.controllers.types.agent_schedule import AgentScheduleInput
 
 class AgentConfigInput(BaseModel):
     name: str
@@ -20,3 +20,26 @@ class AgentConfigInput(BaseModel):
     max_iterations: int
     user_timezone: Optional[str]
     knowledge: Optional[int]
+
+
+
+class AgentConfigExtInput(BaseModel):
+    name: str
+    description: str
+    project_id: Optional[int]
+    goal: List[str]
+    instruction: List[str]
+    agent_type: str
+    constraints: List[str]
+    tools: List[dict]
+    LTM_DB:Optional[str]
+    exit: Optional[str]
+    permission_type: Optional[str]
+    iteration_interval: int
+    model: str
+    schedule: Optional[AgentScheduleInput]
+    max_iterations: int
+    user_timezone: Optional[str]
+    knowledge: Optional[int]
+
+

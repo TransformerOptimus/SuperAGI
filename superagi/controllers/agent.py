@@ -28,7 +28,7 @@ from superagi.controllers.types.agent_with_config_schedule import AgentConfigSch
 from jsonmerge import merge
 from datetime import datetime
 import json
-
+import ast
 from superagi.models.toolkit import Toolkit
 from superagi.models.knowledges import Knowledges
 
@@ -488,15 +488,39 @@ def get_agent_configuration(agent_id: int,
     if 'knowledge' in response.keys() and response['knowledge'] != 'None':
         knowledge = db.session.query(Knowledges).filter(Knowledges.id == response['knowledge']).first()
         name = knowledge.name if knowledge is not None else ""
-    response = merge(response, {"name": agent.name, "description": agent.description,
-                                # Query the AgentConfiguration table for the speci
-                                "goal": eval(response["goal"]),
-                                "instruction": eval(response.get("instruction", '[]')),
-                                "knowledge_name": name,
-                                "calls": total_calls,
-                                "tokens": total_tokens,
-                                "constraints": eval(response.get("constraints")),
-                                "tools": [int(x) for x in json.loads(response["tools"])]})
+    print("rrrrrrrrrrrrrrrreached******",response)
+    print("response over *********")
+    # temp_obj={"name": agent.name, "description": agent.description,
+    #                             # Query the AgentConfiguration table for the speci
+    #                             "goal": eval(response["goal"]),
+    #                             "instruction": eval(response.get("instruction", '[]')),
+    #                             "knowledge_name": name,
+    #                             "calls": total_calls,
+    #                             "tokens": total_tokens,
+    #                             "constraints": eval(response.get("constraints")),
+    #                             "tools": [int(x) for x in json.loads(response["tools"])]}
+                                
+    # response = {**response,**temp_obj}
+    print(")))))))))))",response["tools"])
+    response={
+        "goal":eval(response["goal"]),
+        "name":agent.name,
+        "description":agent.description,
+        "instruction": eval(response.get("instruction", '[]')),
+        "knowledge_name": name,
+        "calls": total_calls,
+        "tokens": total_tokens,
+        "constraints": eval(response.get("constraints")),
+        "tools": [int(x) for x in json.loads(response["tools"])],
+        "agent_type":response["agent_type"],
+        "exit":response["exit"],
+        "iteration_interval":response["iteration_interval"],
+        "model":response["model"],
+        "permission_type":response["permission_type"],
+        "LTM_DB":response["LTM_DB"],
+        "max_iterations":response["max_iterations"],
+        "knowledge":response["knowledge"],
+    }
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
     response["tools"] = tools
 
