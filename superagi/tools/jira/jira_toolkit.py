@@ -5,6 +5,8 @@ from superagi.tools.jira.create_issue import CreateIssueTool
 from superagi.tools.jira.edit_issue import EditIssueTool
 from superagi.tools.jira.get_projects import GetProjectsTool
 from superagi.tools.jira.search_issues import SearchJiraTool
+from superagi.models.tool_config import ToolConfig
+from superagi.types.key_type import ToolConfigKeyType
 
 
 class JiraToolkit(BaseToolkit, ABC):
@@ -19,9 +21,9 @@ class JiraToolkit(BaseToolkit, ABC):
             SearchJiraTool(),
         ]
 
-    def get_env_keys(self) -> List[str]:
+    def get_env_keys(self) -> List[ToolConfig]:
         return [
-            "JIRA_INSTANCE_URL",
-            "JIRA_USERNAME",
-            "JIRA_API_TOKEN",
+            ToolConfig(key="JIRA_INSTANCE_URL", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = False),
+            ToolConfig(key="JIRA_USERNAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False),
+            ToolConfig(key="JIRA_API_TOKEN", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True)
         ]
