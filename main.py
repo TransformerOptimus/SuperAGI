@@ -42,6 +42,7 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.models_controller import router as models_controller_router
 from superagi.controllers.knowledges import router as knowledges_router
 from superagi.controllers.knowledge_configs import router as knowledge_configs_router
 from superagi.controllers.vector_dbs import router as vector_dbs_router
@@ -119,6 +120,7 @@ app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
 app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 app.include_router(analytics_router, prefix="/analytics")
+app.include_router(models_controller_router, prefix="/models_controller")
 app.include_router(google_oauth_router, prefix="/google")
 app.include_router(knowledges_router, prefix="/knowledges")
 app.include_router(knowledge_configs_router, prefix="/knowledge_configs")

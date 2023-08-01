@@ -4,6 +4,7 @@ import styles from './Market.module.css';
 import MarketKnowledge from './MarketKnowledge';
 import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
+import MarketModels from '../Models/MarketModels';
 import ToolkitTemplate from './ToolkitTemplate';
 import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "./AgentTemplate";
@@ -86,6 +87,7 @@ export default function Market({env}) {
             {activeTab === 'market_tools' && <MarketTools/>}
             {activeTab === 'market_knowledge' && <MarketKnowledge/>}
             {activeTab === 'market_agents' && <MarketAgent/>}
+            {activeTab === 'market_models' && <MarketModels/>}
           </div>
         </div>
       </div> : <div style={{padding: '0 3px'}}>

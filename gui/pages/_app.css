@@ -1009,6 +1009,7 @@ p {
 .w_12{width: 12%}
 .w_20{width: 20%}
 .w_22{width: 22%}
+.w_50{width: 50%}
 .w_56{width: 56%}
 .w_100{width: 100%}
 .w_fit_content{width:fit-content}
@@ -1666,16 +1667,25 @@ tr{
     padding: 25px 20px;
 }
 
-.market_tool {
+.market_tool, .market_containers {
     display: flex;
     height: fit-content;
     color: white;
     font-size: small;
     padding: 12px;
-    width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
     flex-direction: column;
+}
+
+.marketplaceGrid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    grid-gap: 6px;
+}
+
+.market_tool{
+    width: 33% !important;
 }
 
 .history_box, .history_box_selected {

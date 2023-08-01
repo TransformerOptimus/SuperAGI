@@ -1,23 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
-import requests
+from superagi.helper.auth import check_auth, get_user_organisation
+from superagi.helper.models_helper import ModelsHelper
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
 import logging
-
-logger = logging.getLogger()
-
 
 router = APIRouter()
 
-@router.get("/validateApi", status_code=200)
-def verify_huggingface_key(token: str):
-    """
-    Verify the Huggingface token is valid.
-
-    Returns:
-        bool: True if token is valid, False otherwise.
-    """
+@router.get("/getModels", status_code=200)
+def getModels(organisation=Depends(get_user_organisation)):
     try:
-        response = requests.get("https://api-inference.huggingface.co/models/bert-base-uncased", headers={"Authorization": f"Bearer {token}"})
-        return response.status_code == 200
-    except Exception as exception:
-        logger.error("Huggingface Exception:", exc_info=True)
-        return False
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchModels()
+    except Exception as e:
+        logging.error(f"Error while fetching agent data: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
