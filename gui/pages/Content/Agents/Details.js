@@ -33,10 +33,7 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
     }
   }, [agentDetails]);
   useEffect(() => {
-    // console.log(agentDetails1)
-    // console.log(JSON.parse(agentDetails1))
     setAgentDetails(agentDetails1)
-    // console.log(JSON.parse(agentDetails.calls))
   }, [agentDetails1]);
 
   useEffect(() => {

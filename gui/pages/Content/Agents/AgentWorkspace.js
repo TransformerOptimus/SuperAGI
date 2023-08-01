@@ -225,7 +225,6 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
     if (agentDetails) {
       setRightPanel(agentDetails.permission_type === 'RESTRICTED' ? 'action_console' : 'details');
     }
-    console.log(agentDetails)
   }, [agentDetails])
 
   function setNewRunDetails() {
