@@ -13,7 +13,7 @@ from superagi.lib.logger import logger
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
-from superagi.tools.base_tool import BaseTool
+from superagi.tools.base_tool import BaseTool, ToolConfiguration
 from superagi.tools.base_tool import BaseToolkit
 
 
@@ -107,6 +107,7 @@ def get_toolkit_info(class_dict, classes, obj):
     class_dict['toolkit_description'] = obj.description
     class_dict['toolkit_tools'] = obj.get_tools()
     class_dict['toolkit_keys'] = obj.get_env_keys()
+    print(class_dict)
     classes.append(class_dict)
 
 
@@ -217,8 +218,15 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
 
             # Store the tools config in the database
             for tool_config_key in tool_config_keys:
-                new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
-                                                      key=tool_config_key)
+                if isinstance(tool_config_key, ToolConfig):
+                    new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                      key=tool_config_key.key,
+                                                      key_type=tool_config_key.key_type,
+                                                      is_required=tool_config_key.is_required,
+                                                      is_secret=tool_config_key.is_secret)
+                else:
+                    ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                          key = tool_config_key)
     return tool_name_to_toolkit
 
 

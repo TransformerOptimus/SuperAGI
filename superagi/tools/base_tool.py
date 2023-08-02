@@ -3,9 +3,12 @@ from functools import wraps
 from inspect import signature
 from typing import List
 from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
-
 import yaml
 from pydantic import BaseModel, create_model, validate_arguments, Extra
+from superagi.models.tool_config import ToolConfig
+from sqlalchemy import Column, Integer, String, Boolean
+from superagi.types.key_type import ToolConfigKeyType
+
 
 from superagi.config.config import get_config
 
@@ -57,6 +60,7 @@ def create_function_schema(
 
 
 class BaseToolkitConfiguration:
+
     def __init__(self):
         self.session = None
 
@@ -199,6 +203,12 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator(args[0])
     else:
         return decorator
+    
+class ToolConfiguration(BaseModel):
+    key: str
+    key_type: str
+    is_required: bool
+    is_secret: bool
 
 
 class BaseToolkit(BaseModel):
