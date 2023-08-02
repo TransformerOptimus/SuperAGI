@@ -12,6 +12,7 @@ from superagi.helper.encyption_helper import decrypt_data
 from superagi.helper.tool_helper import register_toolkits
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.llms.huggingface_inference_endpoint import HuggingFace
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
@@ -173,5 +174,7 @@ def get_llm_models(organisation=Depends(get_user_organisation)):
         models = OpenAi(api_key=decrypted_api_key).get_models()
     elif model_source.value == "Google Palm":
         models = GooglePalm(api_key=decrypted_api_key).get_models()
+    elif model_source.value == "HuggingFace":
+        models = HuggingFace(api_key=decrypted_api_key).get_models()
 
     return models
