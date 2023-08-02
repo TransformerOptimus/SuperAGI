@@ -22,7 +22,7 @@ click-plugins==1.1.1
 click-repl==0.2.0
 colorama==0.4.6
 confluent-kafka==2.1.1
-cryptography==41.0.1
+cryptography==41.0.3
 cssselect==1.2.0
 chromadb==0.3.26
 dataclasses-json==0.5.7
