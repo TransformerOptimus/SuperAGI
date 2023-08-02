@@ -10,8 +10,11 @@ from pydantic import BaseModel, Field
 from superagi.helper.imap_email import ImapEmail
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.helper.s3_helper import S3Helper
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
+from superagi.config.config import get_config
+from superagi.types.storage_types import StorageType
 
 
 class SendEmailAttachmentInput(BaseModel):
@@ -94,8 +97,12 @@ class SendEmailAttachmentTool(BaseTool):
             if ctype is None or encoding is not None:
                 ctype = "application/octet-stream"
             maintype, subtype = ctype.split("/", 1)
-            with open(attachment_path, "rb") as file:
-                message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
+            if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+                attachment_data = S3Helper().read_binary_from_s3(attachment_path)
+            else:
+                with open(attachment_path, "rb") as file:
+                    attachment_data = file.read()
+            message.add_attachment(attachment_data, maintype=maintype, subtype=subtype, filename=attachment)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":
