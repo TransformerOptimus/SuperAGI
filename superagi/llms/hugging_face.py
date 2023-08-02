@@ -72,7 +72,7 @@ class HuggingFace(BaseLlm):
 
     def chat_completion(self, messages, max_tokens=100):
         """
-        Call the HuggigFace inference API.
+        Call the HuggingFace inference API.
         Args:
             messages (list): The messages.
             max_tokens (int): The maximum number of tokens.
