@@ -35,7 +35,7 @@ class QueryResourceTool(BaseTool):
     args_schema: Type[BaseModel] = QueryResource
     description: str = "Tool searches resources content and extracts relevant information to perform the given task." \
                        "Tool is given preference over other search/read file tools for relevant data." \
-                       "Resources content includes: {summary}"
+                       "Resources content is taken from the files: {summary}"
     agent_id: int = None
     llm: Optional[BaseLlm] = None
 
