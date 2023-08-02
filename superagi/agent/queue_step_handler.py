@@ -25,32 +25,34 @@ class QueueStepHandler:
     def queue_identifier(self, step_tool):
         return step_tool.unique_id + "_" + str(self.agent_execution_id)
 
+    def build_task_queue(self, step_tool):
+        return TaskQueue(self.queue_identifier(step_tool))
+
     def execute_step(self):
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
-        task_queue = TaskQueue(self.queue_identifier(step_tool))
+        task_queue = self.build_task_queue(step_tool)
 
         if not task_queue.get_status() or task_queue.get_status() == QueueStatus.COMPLETE.value:
             task_queue.set_status(QueueStatus.INITIATED.value)
 
         if task_queue.get_status() == QueueStatus.INITIATED.value:
-            self.add_to_queue(step_tool)
+            self.add_to_queue(task_queue, step_tool)
             execution.current_feed_group_id = "DEFAULT"
             task_queue.set_status(QueueStatus.PROCESSING.value)
 
         if not task_queue.get_tasks():
             task_queue.set_status(QueueStatus.COMPLETE.value)
             return "COMPLETE"
-        self.consume_from_queue(step_tool)
+        self.consume_from_queue(task_queue)
         return "default"
 
-    def add_to_queue(self, step_tool: AgentWorkflowStepTool):
+    def add_to_queue(self, task_queue: TaskQueue, step_tool: AgentWorkflowStepTool):
         assistant_reply = self._process_input_instruction(step_tool)
-        self._process_reply(step_tool, assistant_reply)
+        self._process_reply(task_queue, assistant_reply)
 
-    def consume_from_queue(self, step_tool: AgentWorkflowStepTool):
-        task_queue = TaskQueue(self.queue_identifier(step_tool))
+    def consume_from_queue(self, task_queue: TaskQueue):
         tasks = task_queue.get_tasks()
         agent_execution = AgentExecution.find_by_id(self.session, self.agent_execution_id)
         if tasks:
@@ -67,11 +69,10 @@ class QueueStepHandler:
             self.session.commit()
             task_queue.complete_task("PROCESSED")
 
-    def _process_reply(self, step_tool: AgentWorkflowStepTool, assistant_reply: str):
+    def _process_reply(self, task_queue: TaskQueue, assistant_reply: str):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
         print("Queue reply:", assistant_reply)
         task_array = np.array(eval(assistant_reply)).flatten().tolist()
-        task_queue = TaskQueue(self.queue_identifier(step_tool))
         for task in task_array:
             task_queue.add_task(str(task))
             logger.info("RAMRAM: Added task to queue: ", task)

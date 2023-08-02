@@ -112,14 +112,15 @@ class AgentWorkflowStep(DBBaseModel):
                                           tool_name: str, input_instruction: str,
                                           output_instruction: str = "", step_type="NORMAL",
                                           history_enabled: bool = True, completion_prompt: str = None):
-        """ Adds a tools workflow step
+        """ Find or create a tool workflow step
 
         Args:
             session: db session
             agent_workflow_id: id of the agent workflow
             unique_id: unique id of the step
             tool_name: name of the tool
-            tool_instruction: instruction of the tool
+            input_instruction: input instruction of the tool
+            output_instruction: output instruction of the tool
             step_type: type of the step
             history_enabled: whether to enable history for the step
             completion_prompt: completion prompt in the llm
@@ -152,7 +153,7 @@ class AgentWorkflowStep(DBBaseModel):
     @classmethod
     def find_or_create_iteration_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
                                                iteration_workflow_name: str, step_type="NORMAL"):
-        """ Adds a iteration workflow step
+        """ Find or create a iteration workflow step
 
         Args:
             session: db session
@@ -184,7 +185,15 @@ class AgentWorkflowStep(DBBaseModel):
 
     @classmethod
     def add_next_workflow_step(cls, session, current_agent_step_id: int, next_step_id: int, step_response: str = "default"):
-        """ Adds a workflows step in the next_steps column"""
+        """ Add Next workflow steps in the next_steps column
+
+        Args:
+            session: db session
+            current_agent_step_id: id of the current agent step
+            next_step_id: id of the next agent step
+            step_response: response of the current step
+
+        """
         next_unique_id = "-1"
         if next_step_id != -1:
             next_workflow_step = AgentWorkflowStep.find_by_id(session, next_step_id)
@@ -203,7 +212,12 @@ class AgentWorkflowStep(DBBaseModel):
 
     @classmethod
     def fetch_default_next_step(cls, session, current_agent_step_id: int):
-        """ Adds a workflows step in the next_steps column"""
+        """ Fetches the default next step
+
+        Args:
+            session: db session
+            current_agent_step_id: id of the current agent step
+        """
         current_step = AgentWorkflowStep.find_by_id(session, current_agent_step_id)
         next_steps = current_step.next_steps
         default_steps = [step for step in next_steps if step["step_response"] == "default"]
@@ -213,21 +227,31 @@ class AgentWorkflowStep(DBBaseModel):
 
     @classmethod
     def fetch_next_step(cls, session, current_agent_step_id: int, step_response: str):
-        """ Adds a workflows step in the next_steps column"""
+        """ Fetch the next step based on the step response
+
+        Args:
+            session: db session
+            current_agent_step_id: id of the current agent step
+            step_response: response of the current step
+        """
         current_step = AgentWorkflowStep.find_by_id(session, current_agent_step_id)
-        next_steps = [step for step in current_step.next_steps if str(step["step_response"]).lower() == step_response.lower()]
-        if next_steps:
-            if str(next_steps[0]["step_id"]) == "-1":
+        next_steps = current_step.next_steps
+        matching_steps = [step for step in next_steps if str(step["step_response"]).lower() == step_response.lower()]
+
+        if matching_steps:
+            if str(matching_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"
-            return AgentWorkflowStep.find_by_unique_id(session, next_steps[0]["step_id"])
+            return AgentWorkflowStep.find_by_unique_id(session, matching_steps[0]["step_id"])
 
         logger.info(f"Could not find next step for step_id: {current_agent_step_id} and step_response: {step_response}")
         default_steps = [step for step in next_steps if str(step["step_response"]).lower() == "default"]
+
         if default_steps:
             if str(default_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"
             return AgentWorkflowStep.find_by_unique_id(session, default_steps[0]["step_id"])
         return None
+
 
 
 

@@ -37,6 +37,7 @@ class AgentIterationStepHandler:
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
         self.memory = memory
+        self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
@@ -51,18 +52,16 @@ class AgentIterationStepHandler:
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
         organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
-        task_queue = TaskQueue(str(self.agent_execution_id))
 
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
         if not agent_feeds:
-            task_queue.clear_tasks()
+            self.task_queue.clear_tasks()
 
         agent_tools = self._build_tools(agent_config, agent_execution_config)
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
                                           prompt=iteration_workflow_step.prompt,
-                                          task_queue=task_queue,
                                           agent_tools=agent_tools)
 
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
@@ -120,7 +119,7 @@ class AgentIterationStepHandler:
 
     def _build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
                             agent_execution_config: dict,
-                            prompt: str, task_queue: TaskQueue, agent_tools: list):
+                            prompt: str, agent_tools: list):
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
@@ -128,13 +127,13 @@ class AgentIterationStepHandler:
                                                            (not iteration_workflow.has_task_queue))
 
         if iteration_workflow.has_task_queue:
-            response = task_queue.get_last_task_details()
+            response = self.task_queue.get_last_task_details()
             last_task, last_task_result = (response["task"], response["response"]) if response is not None else ("", "")
-            current_task = task_queue.get_first_task() or ""
+            current_task = self.task_queue.get_first_task() or ""
             token_limit = TokenCounter.token_limit() - max_token_limit
             prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
-                                                                     task_queue.get_tasks(),
-                                                                     task_queue.get_completed_tasks(), token_limit)
+                                                                     self.task_queue.get_tasks(),
+                                                                     self.task_queue.get_completed_tasks(), token_limit)
         return prompt
 
     def _build_tools(self, agent_config: dict, agent_execution_config: dict):

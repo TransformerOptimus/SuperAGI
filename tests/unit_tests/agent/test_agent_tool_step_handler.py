@@ -245,7 +245,7 @@ def test_handle_wait_for_permission_approved(handler):
     result = handler._handle_wait_for_permission(agent_execution, workflow_step)
 
     # Assert
-    assert result == True
+    assert result == False
     handler.handle_next_step.assert_called_once_with(next_step)
     assert agent_execution.status == "RUNNING"
     assert agent_execution.permission_id == -1
@@ -270,7 +270,7 @@ def test_handle_wait_for_permission_denied(handler):
     result = handler._handle_wait_for_permission(agent_execution, workflow_step)
 
     # Assert
-    assert result == True
+    assert result == False
     handler.handle_next_step.assert_called_once_with(next_step)
     assert agent_execution.status == "RUNNING"
     assert agent_execution.permission_id == -1

@@ -58,8 +58,9 @@ def test_build_agent_prompt(test_handler, mocker):
     mocker.patch('superagi.agent.agent_iteration_step_handler.get_config', return_value=600)
 
     # Act
+    test_handler.task_queue = task_queue
     result_prompt = test_handler._build_agent_prompt(iteration_workflow, agent_config, agent_execution_config,
-                                                     prompt, task_queue, agent_tools)
+                                                     prompt, agent_tools)
 
     # Assert
     assert result_prompt == 'Test prompt'
