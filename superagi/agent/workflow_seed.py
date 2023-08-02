@@ -10,6 +10,8 @@ from superagi.tools.code.write_spec import WriteSpecTool
 from superagi.tools.code.write_test import WriteTestTool
 from superagi.tools.email.read_email import ReadEmailTool
 from superagi.tools.email.send_email import SendEmailTool
+from superagi.tools.file.append_file import AppendFileTool
+from superagi.tools.file.list_files import ListFileTool
 from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.file.write_file import WriteFileTool
 from superagi.tools.github.add_file import GithubAddFileTool
@@ -29,8 +31,8 @@ class AgentWorkflowSeed:
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Research Workflow", "Sales Research Workflow")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
-                                                                    ReadFileTool().name,
-                                                                    "read leads from file",
+                                                                    ListFileTool().name,
+                                                                    "list all resumes in directory",
                                                                     step_type="TRIGGER")
 
         # task queue ends when the elements gets over
@@ -55,19 +57,14 @@ class AgentWorkflowSeed:
 
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
-                                                                    WebScraperTool().name,
-                                                                    "Scrape give link in goals")
+                                                                    ReadFileTool().name,
+                                                                    "Read the files mentioned in last input",
+                                                                    "Filter candidates who where are CGPA > 8, experience working in backend, minimum 2 internship experience, colleges from IIT, BITs, NITS")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
-                                                                    GoogleSearchTool().name,
-                                                                    "Extract last sales lead and research about this user")
-
-
-        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step5",
-                                                                    SendEmailTool().name,
-                                                                    "Extract email id of last lead and send well composed invite to superagi hackathon")
+                                                                    AppendFileTool().name,
+                                                                    "Append the candidates details in a candidate.csv file")
 
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
@@ -76,9 +73,10 @@ class AgentWorkflowSeed:
         # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id, "NO")
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step2.id, "NO")
+        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id)
         # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
         # AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1)
         # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step1.id, "NO")

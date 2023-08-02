@@ -196,6 +196,7 @@ class AgentToolStepHandler:
 
         agent_execution.status = "RUNNING"
         agent_execution.permission_id = -1
+        self.session.commit()
         self.handle_next_step(next_step)
         self.session.commit()
-        return True
+        return False

@@ -12,6 +12,7 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
+from superagi.types.queue_status import QueueStatus
 
 
 class QueueStepHandler:
@@ -30,14 +31,16 @@ class QueueStepHandler:
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
         task_queue = TaskQueue(self.queue_identifier(step_tool))
 
-        if not task_queue.get_status():
-            task_queue.set_status("INITIATED")
+        if not task_queue.get_status() or task_queue.get_status() == QueueStatus.COMPLETE.value:
+            task_queue.set_status(QueueStatus.INITIATED.value)
 
-        if task_queue.get_status() == "INITIATED":
+        if task_queue.get_status() == QueueStatus.INITIATED.value:
             self.add_to_queue(step_tool)
-            task_queue.set_status("PROCESSING")
+            execution.current_feed_group_id = "DEFAULT"
+            task_queue.set_status(QueueStatus.PROCESSING.value)
 
         if not task_queue.get_tasks():
+            task_queue.set_status(QueueStatus.COMPLETE.value)
             return "COMPLETE"
         self.consume_from_queue(step_tool)
         return "default"
@@ -57,7 +60,7 @@ class QueueStepHandler:
             self.session.commit()
             task_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                     agent_id=self.agent_id,
-                                                    feed=task,
+                                                    feed="Input: " + task,
                                                     role="assistant",
                                                     feed_group_id=agent_execution.current_feed_group_id)
             self.session.add(task_response_feed)
