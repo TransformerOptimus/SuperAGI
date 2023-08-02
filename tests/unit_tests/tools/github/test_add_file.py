@@ -19,7 +19,6 @@ def test_github_add_file_schema():
     assert schema.base_branch == "main"
     assert schema.file_name == "test_file"
     assert schema.folder_path == "test_folder"
-    assert schema.body == "test_content"
     assert schema.commit_message == "test_commit"
     assert schema.repository_owner == "test_owner"
 
@@ -60,7 +59,6 @@ def test_github_add_file_tool_execute(mock_make_fork, mock_create_branch, mock_a
     response = github_add_file_tool._execute(
         repository_name="test_repo",
         base_branch="main",
-        body="test_content",
         commit_message="test_commit",
         repository_owner="test_owner",
         file_name="test_file",
