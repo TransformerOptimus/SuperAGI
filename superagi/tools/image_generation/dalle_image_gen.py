@@ -52,20 +52,13 @@ class DalleImageGenTool(BaseTool):
             Image generated successfully message if image is generated or error message.
         """
 
-        print("/////////////////////////////////////////////")
         session = self.toolkit_config.session
         toolkit = session.query(Toolkit).filter(Toolkit.id == self.toolkit_config.toolkit_id).first()
         organisation_id = toolkit.organisation_id
         if size not in [256, 512, 1024]:
-            size = min([256, 512, 1024], key=lambda x: abs(x - size))
-        print("------------------------------------GET API KEY------------------------")
-        api_key = self.get_tool_config("OPENAI_API_KEY")
-        print("----------------------------------")
-        print(api_key)
+            size = min([256, 512, 1024], key=lambda x: abs(x - size))        api_key = self.get_tool_config("OPENAI_API_KEY")
         if api_key is None:
-            print("//////////////////////////////")
             model_source = Configuration.fetch_configuration(session, organisation_id, "model_source")
-            print(model_source)
             if model_source != "OpenAi":
                 return "Enter your OpenAi api key in the configuration"
             api_key = Configuration.fetch_configuration(session, organisation_id, "model_api_key")
