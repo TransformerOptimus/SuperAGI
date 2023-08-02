@@ -25,6 +25,7 @@ class BaseOutputParser(ABC):
 
 
 class AgentSchemaOutputParser(BaseOutputParser):
+    """Parses the output from the agent schema"""
     def parse(self, response: str) -> AgentGPTAction:
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])
@@ -47,6 +48,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
 
 
 class AgentSchemaToolOutputParser(BaseOutputParser):
+    """Parses the output from the agent schema for the tool"""
     def parse(self, response: str) -> AgentGPTAction:
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])

@@ -16,43 +16,44 @@ from superagi.types.queue_status import QueueStatus
 
 
 class QueueStepHandler:
+    """Handles the queue step of the agent workflow"""
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int):
         self.session = session
         self.llm = llm
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
 
-    def queue_identifier(self, step_tool):
+    def _queue_identifier(self, step_tool):
         return step_tool.unique_id + "_" + str(self.agent_execution_id)
 
-    def build_task_queue(self, step_tool):
-        return TaskQueue(self.queue_identifier(step_tool))
+    def _build_task_queue(self, step_tool):
+        return TaskQueue(self._queue_identifier(step_tool))
 
     def execute_step(self):
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
-        task_queue = self.build_task_queue(step_tool)
+        task_queue = self._build_task_queue(step_tool)
 
         if not task_queue.get_status() or task_queue.get_status() == QueueStatus.COMPLETE.value:
             task_queue.set_status(QueueStatus.INITIATED.value)
 
         if task_queue.get_status() == QueueStatus.INITIATED.value:
-            self.add_to_queue(task_queue, step_tool)
+            self._add_to_queue(task_queue, step_tool)
             execution.current_feed_group_id = "DEFAULT"
             task_queue.set_status(QueueStatus.PROCESSING.value)
 
         if not task_queue.get_tasks():
             task_queue.set_status(QueueStatus.COMPLETE.value)
             return "COMPLETE"
-        self.consume_from_queue(task_queue)
+        self._consume_from_queue(task_queue)
         return "default"
 
-    def add_to_queue(self, task_queue: TaskQueue, step_tool: AgentWorkflowStepTool):
+    def _add_to_queue(self, task_queue: TaskQueue, step_tool: AgentWorkflowStepTool):
         assistant_reply = self._process_input_instruction(step_tool)
         self._process_reply(task_queue, assistant_reply)
 
-    def consume_from_queue(self, task_queue: TaskQueue):
+    def _consume_from_queue(self, task_queue: TaskQueue):
         tasks = task_queue.get_tasks()
         agent_execution = AgentExecution.find_by_id(self.session, self.agent_execution_id)
         if tasks:

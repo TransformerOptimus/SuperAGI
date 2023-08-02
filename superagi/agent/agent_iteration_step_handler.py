@@ -31,6 +31,7 @@ from superagi.tools.thinking.tools import ThinkingTool
 
 
 class AgentIterationStepHandler:
+    """ Handles iteration workflow steps in the agent workflow."""
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
         self.session = session
         self.llm = llm

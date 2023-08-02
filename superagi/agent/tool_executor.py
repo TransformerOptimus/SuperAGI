@@ -6,6 +6,7 @@ from superagi.lib.logger import logger
 
 
 class ToolExecutor:
+    """Executes the tool with the given args."""
     FINISH = "finish"
 
     def __init__(self, organisation_id: int, agent_id: int, tools: list):
@@ -14,6 +15,13 @@ class ToolExecutor:
         self.tools = tools
 
     def execute(self, session, tool_name, tool_args):
+        """Executes the tool with the given args.
+
+        Args:
+            session (Session): The database session.
+            tool_name (str): The name of the tool to execute.
+            tool_args (dict): The arguments to pass to the tool.
+        """
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         tool_name = tool_name.lower().replace(" ", "")
         if tool_name == ToolExecutor.FINISH or tool_name == "":

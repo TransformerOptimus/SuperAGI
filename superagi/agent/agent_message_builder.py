@@ -8,7 +8,7 @@ from superagi.types.common import BaseMessage
 
 
 class AgentLlmMessageBuilder:
-
+    """Agent message builder for LLM agent."""
     def __init__(self, session, llm_model: str, agent_id: int, agent_execution_id: int):
         self.session = session
         self.llm_model = llm_model
@@ -17,6 +17,14 @@ class AgentLlmMessageBuilder:
 
     def build_agent_messages(self, prompt: str, agent_feeds: list, history_enabled=False,
                              completion_prompt: str = None):
+        """ Build agent messages for LLM agent.
+
+        Args:
+            prompt (str): The prompt to be used for generating the agent messages.
+            agent_feeds (list): The list of agent feeds.
+            history_enabled (bool): Whether to use history or not.
+            completion_prompt (str): The completion prompt to be used for generating the agent messages.
+        """
         token_limit = TokenCounter.token_limit(self.llm_model)
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]

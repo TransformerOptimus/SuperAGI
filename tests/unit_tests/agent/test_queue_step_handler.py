@@ -27,7 +27,7 @@ def step_tool():
 def test_queue_identifier(queue_step_handler):
     step_tool = Mock()
     step_tool.unique_id = "step_id"
-    assert queue_step_handler.queue_identifier(step_tool) == "step_id_1"
+    assert queue_step_handler._queue_identifier(step_tool) == "step_id_1"
 
 
 @patch("superagi.agent.queue_step_handler.AgentExecution")  # Replace with your actual module path
@@ -53,7 +53,7 @@ def test_add_to_queue(task_queue_mock, agent_execution_feed_mock, queue_step_han
     queue_step_handler._process_reply = Mock()
 
     # Call the method
-    queue_step_handler.add_to_queue(task_queue_mock, step_tool)
+    queue_step_handler._add_to_queue(task_queue_mock, step_tool)
 
     # Verify the calls
     queue_step_handler._process_input_instruction.assert_called_once_with(step_tool)
@@ -69,7 +69,7 @@ def test_consume_from_queue(task_queue_mock, agent_execution_feed_mock, queue_st
     agent_execution_feed_instance = agent_execution_feed_mock.return_value
 
     # Call the method
-    queue_step_handler.consume_from_queue(task_queue_mock)
+    queue_step_handler._consume_from_queue(task_queue_mock)
 
     # Verify the calls
     queue_step_handler.session.commit.assert_called()  # Ensure session commits were called

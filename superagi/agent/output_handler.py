@@ -13,6 +13,7 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 
 class ToolOutputHandler:
+    """Handles the tool output response from the thinking step"""
     def __init__(self, agent_execution_id: int, agent_config: dict,
                  tools: list, output_parser=AgentSchemaOutputParser()):
         self.agent_execution_id = agent_execution_id
@@ -22,6 +23,13 @@ class ToolOutputHandler:
         self.output_parser = output_parser
 
     def handle(self, session, assistant_reply):
+        """Handles the tool output response from the thinking step.
+        Step takes care of permission control as well at tool level.
+
+        Args:
+            session (Session): The database session.
+            assistant_reply (str): The assistant reply.
+        """
         response = self._check_permission_in_restricted_mode(session, assistant_reply)
         if response.is_permission_required:
             return response
@@ -49,6 +57,7 @@ class ToolOutputHandler:
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):
+        """Only handle processing of tool response"""
         action = self.output_parser.parse(assistant_reply)
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
         organisation = agent.get_agent_organisation(session)
@@ -87,8 +96,8 @@ class ToolOutputHandler:
 
 
 class TaskOutputHandler:
-    """This class handles the task output type.
-    LLM output is mostly in the array of tasks and handler adds every task to the task queue.
+    """Handles the task output from the LLM. Output is mostly in the array of tasks and
+    handler adds every task to the task queue.
     """
 
     def __init__(self, agent_execution_id: int, agent_config: dict):
@@ -118,8 +127,8 @@ class TaskOutputHandler:
 
 
 class ReplaceTaskOutputHandler:
-    """This class handles the replace/prioritze task output type.
-    LLM output is mostly in the array of tasks and handler adds every task to the task queue.
+    """Handles the replace/prioritize task output type.
+    Output is mostly in the array of tasks and handler adds every task to the task queue.
     """
 
     def __init__(self, agent_execution_id: int, agent_config: dict):

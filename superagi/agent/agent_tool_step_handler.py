@@ -23,6 +23,7 @@ from superagi.tools.base_tool import BaseTool
 
 
 class AgentToolStepHandler:
+    """Handles the tools steps in the agent workflow"""
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
         self.session = session
         self.llm = llm
@@ -44,11 +45,11 @@ class AgentToolStepHandler:
         if step_tool.tool_name == "TASK_QUEUE":
             step_response = QueueStepHandler(self.session, self.llm, self.agent_id, self.agent_execution_id).execute_step()
             next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
-            self.handle_next_step(next_step)
+            self._handle_next_step(next_step)
             return
 
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
-            self.create_permission_request(execution, step_tool)
+            self._create_permission_request(execution, step_tool)
             return
 
         assistant_reply = self._process_input_instruction(agent_config, agent_execution_config, step_tool,
@@ -62,10 +63,10 @@ class AgentToolStepHandler:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
 
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
-        self.handle_next_step(next_step)
+        self._handle_next_step(next_step)
         self.session.flush()
 
-    def create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):
+    def _create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):
         new_agent_execution_permission = AgentExecutionPermission(
             agent_execution_id=self.agent_execution_id,
             status="PENDING",
@@ -80,7 +81,7 @@ class AgentToolStepHandler:
         execution.status = "WAITING_FOR_PERMISSION"
         self.session.commit()
 
-    def handle_next_step(self, next_step):
+    def _handle_next_step(self, next_step):
         if str(next_step) == "COMPLETE":
             agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
             agent_execution.current_agent_step_id = -1
@@ -197,6 +198,6 @@ class AgentToolStepHandler:
         agent_execution.status = "RUNNING"
         agent_execution.permission_id = -1
         self.session.commit()
-        self.handle_next_step(next_step)
+        self._handle_next_step(next_step)
         self.session.commit()
         return False
