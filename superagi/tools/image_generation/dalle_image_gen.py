@@ -66,7 +66,7 @@ class DalleImageGenTool(BaseTool):
                 return "Enter your OpenAi api key in the configuration"
             api_key = Configuration.fetch_configuration(session, organisation_id, "model_api_key")
 
-        response = OpenAiDalle(api_key=self.get_tool_config("OPENAI_API_KEY"), number_of_results=num).generate_image(
+        response = OpenAiDalle(api_key=api_key, number_of_results=num).generate_image(
             prompt, size)
         response = response.__dict__
         response = response['_previous']['data']
