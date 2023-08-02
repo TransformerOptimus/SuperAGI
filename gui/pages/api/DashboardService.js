@@ -169,7 +169,7 @@ export const fetchToolTemplateOverview = (toolTemplateName) => {
 };
 
 export const updateMarketplaceToolTemplate = (templateName) => {
-  return api.get(`/toolkits/check_update/${templateName}`);
+  return api.put(`/toolkits/update/${templateName}`);
 };
 
 export const installToolkitTemplate = (templateName) => {
