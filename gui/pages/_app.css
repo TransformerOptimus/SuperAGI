@@ -511,17 +511,15 @@ p {
 }
 
 
-.primary_button {
+.primary_button, .primary_button_small{
     width: auto;
     border-radius: 8px;
-    font-size: 14px;
     color: black;
     border: none;
     font-weight: 500;
     height: 32px;
     background: white;
     text-align: center;
-    padding: 5px 15px;
     display: -webkit-inline-flex;
     justify-content: center;
     align-items: center;
@@ -529,22 +527,36 @@ p {
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: 0.2s ease-in-out;
 }
 
-.primary_button:hover {
+.primary_button{
+    font-size: 14px;
+    padding: 5px 15px;
+}
+
+.primary_button_small{
+    font-size: 12px;
+    padding: 0 12px;
+}
+
+.primary_button:disabled, .primary_button_small:disabled {
+    opacity: 50%;
+    cursor: not-allowed;
+}
+
+.primary_button:hover, .primary_button_small:hover {
     background-color: rgba(255, 255, 255, 0.8);
 }
 
-.secondary_button {
+.secondary_button, .secondary_button_small {
     width: auto;
     border-radius: 8px;
-    font-size: 14px;
     color: white;
     height: 32px;
     background: #4D4A5A;
     border: 1px solid rgba(255, 255, 255, 0.14);
     text-align: center;
-    padding: 7px 15px;
     display: -webkit-flex;
     flex-direction: row;
     align-items: center;
@@ -554,9 +566,25 @@ p {
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: 0.2s ease-in-out;
 }
 
-.secondary_button:hover {
+.secondary_button{
+    font-size: 14px;
+    padding: 7px 15px;
+}
+
+.secondary_button_small{
+    font-size: 12px;
+    padding: 0 12px;
+}
+
+.secondary_button:disabled, .secondary_button_small:disabled{
+    opacity: 50%;
+    cursor: not-allowed;
+}
+
+.secondary_button:hover, .secondary_button_small:hover {
     background-color: transparent;
 }
 
@@ -1707,4 +1735,11 @@ tr{
 
 .history_box_selected{
     background: #474255;
+}
+
+.error_box{
+    border-radius: 8px;
+    border-left: 4px solid rgba(255, 65, 65, 0.60);
+    background: rgba(255, 65, 65, 0.16);
+    padding: 12px;
 }

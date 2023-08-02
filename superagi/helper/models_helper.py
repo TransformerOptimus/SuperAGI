@@ -11,18 +11,35 @@ class ModelsHelper:
         self.organisation_id = organisation_id
 
     def storeApiKey(self, model_provider, model_api_key):
-        # check if the model_provider already exists
-        existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.organisation_id == self.organisation_id, ModelsConfig.model_provider == model_provider)).first()
+        existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
 
-        # if it already exists, update the key
         if existing_entry:
-            existing_entry.model_api_key = model_api_key
+            existing_entry.api_key = model_api_key
         else:
-            # if it doesn't exist, create a new entry
-            new_entry = ModelsConfig(organisation_id=self.organisation_id, model_provider=model_provider, model_api_key=model_api_key)
+            new_entry = ModelsConfig(org_id=self.organisation_id, source_name=model_provider, api_key=model_api_key)
             self.session.add(new_entry)
 
-        # commit the changes
         self.session.commit()
 
         return {'message': 'The API key was successfully stored'}
+
+
+    def fetchApiKeys(self):
+        api_key_info = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(ModelsConfig.org_id == self.organisation_id).all()
+
+        if not api_key_info:
+            raise Exception("No API key found for the provided model provider")
+
+        api_keys = [{"source_name": source_name, "api_key": api_key} for source_name, api_key in api_key_info]
+
+        return api_keys
+
+
+    def fetchApiKey(self, model_provider):
+        api_key_data = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
+
+        if api_key_data is None:
+            return []
+        else:
+            api_key = [{'source_name': api_key_data.source_name,'api_key': api_key_data.api_key}]
+            return api_key

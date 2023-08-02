@@ -5,19 +5,30 @@ from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 
 class HuggingFace(BaseLlm):
-    def __init__(self, api_key, model: str = None):
+    def __init__(
+            self,
+            api_key,
+            model: HuggingFaceEndpoints = HuggingFaceEndpoints.FALCON_7B,
+            task: Task = Task.TEXT_GENERATION,
+            **kwargs
+        ):
             """
             Args:
-                api_key (str): The Replicate API key.
-                model (str): The model.
-                version (str): The version.
-                temperature (float): The temperature.
-                candidate_count (int): The number of candidates.
-                top_k (int): The top k.
-                top_p (float): The top p.
+                api_key (str): The HuggingFace Bearer token.
+                model (str): The model id.
+                task (Task): The task to perform.
+                **kwargs: The task parameters. If not provided, the default parameters will be used.
             """
             self.model = model
             self.api_key = api_key
+            self.task = task
+            self.task_params = TaskParamters().get_params(self.task, **kwargs)
+            self.API_URL = model.value
+            self.VALIDATION_URL = "https://huggingface.co/api/models"
+            self.headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
 
     def get_source(self):
             return "hugging face"
@@ -59,5 +70,40 @@ class HuggingFace(BaseLlm):
             else:
                 return False
 
-    def chat_completion():
-        pass
+    def chat_completion(self, messages, max_tokens=100):
+        """
+        Call the HuggigFace inference API.
+        Args:
+            messages (list): The messages.
+            max_tokens (int): The maximum number of tokens.
+        Returns:
+            dict: The response.
+        """
+        try:
+            params = self.task_params
+            if self.task == Task.TEXT_GENERATION:
+                params["max_new_tokens"] = max_tokens
+            elif self.task == Task.SUMMARIZATION:
+                params["max_length"] = max_tokens
+            payload = {
+                "inputs": messages,
+                "parameters": self.task_params,
+                "options": {
+                    "use_cache": False,
+                    "wait_for_model": True,
+                }
+            }
+            response = requests.post(self.API_URL, headers=self.headers, data=json.dumps(payload))
+            completion = json.loads(response.content.decode("utf-8"))
+            if self.task == Task.TEXT_GENERATION:
+                content = completion[0]["generated_text"]
+            elif self.task == Task.SUMMARIZATION:
+                content = completion[0]["summary_text"]
+            else:
+                content = completion[0]["answer"]
+
+            return {"response": completion, "content": content}
+        except Exception as exception:
+            print(exception)
+            # logger.info("HF Exception:", exception)
+            return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception"}

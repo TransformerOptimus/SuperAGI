@@ -44,7 +44,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database', 'Add_Model'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
-  const models = [{'name':'model_1', 'provider': 'Google'},{'name':'model_2', 'provider': 'Replicate'}, {'name':'model_3', 'provider': 'HummingFace'}];
+  const models = [{'name':'model_1', 'provider': 'Google'},{'name':'model_2', 'provider': 'Replicate'}, {'name':'model_3', 'provider': 'Hugging Face'}];
 
   useEffect(() => {
     if (prevView !== selectedView) {

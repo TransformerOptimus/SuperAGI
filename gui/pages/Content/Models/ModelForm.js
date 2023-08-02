@@ -1,11 +1,14 @@
 import React, {useEffect, useRef, useState} from "react";
 import {removeTab, setLocalStorageValue} from "@/utils/utils";
 import Image from "next/image";
+import {fetchApiKey} from "@/pages/api/DashboardService";
 
 export default function ModelForm(){
-    const models = ['OpenAI','Replicate','HummingFace'];
-    const [selectedModel, setSelectedModel] = useState(models[0]);
+    const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
+    const [selectedModel, setSelectedModel] = useState('Select a Model');
     const [modelDropdown, setModelDropdown] = useState(false);
+    const [tokenError, setTokenError] = useState(false);
+    const [lockAddition, setLockAddition] = useState(true)
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -16,11 +19,28 @@ export default function ModelForm(){
         }
     },[]);
 
+    useEffect(() => {
+        if(selectedModel !== 'Select a Model' && tokenError)
+            setLockAddition(false)
+        else
+            setLockAddition(true)
+    },[selectedModel])
+
     const handleModelSelect = (index) => {
         setSelectedModel(models[index])
         setModelDropdown(false);
+        checkModelProvider(models[index])
     }
 
+    const checkModelProvider = (model_provider) => {
+        fetchApiKey(model_provider).then((response) => {
+            console.log(response.data)
+            if(response.data.length <= 0)
+                setTokenError(true)
+            else
+                setTokenError(false)
+        })
+    }
 
     return(
         <div id="model_form" className="vertical_containers text_12">
@@ -48,16 +68,26 @@ export default function ModelForm(){
                 </div>
             </div>
 
-            {(selectedModel === 'HummingFace' || selectedModel === 'Replicate') &&
-                <div className="mt_24">
-                    <span>Model Endpoint URL</span>
-                    <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"/>
-                </div>}
+            {tokenError && <div className="horizontal_container align_start error_box mt_24 gap_6">
+                <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
+                <div className="vertical_containers">
+                    <span className="text_12 color_white lh_16">The <b>{selectedModel}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{selectedModel}</b> dashboard. </span>
+                    <div className="horizontal_container mt_16">
+                        <button className="primary_button_small">Add auth token</button>
+                        <button className="secondary_button_small ml_8">Get auth token</button>
+                    </div>
+                </div>
+            </div>}
+
+            {(selectedModel === 'Hugging Face' || selectedModel === 'Replicate') && <div className="mt_24">
+                <span>Model Endpoint URL</span>
+                <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"/>
+            </div>}
 
             <div className="horizontal_container justify_end mt_24">
                 <button className="secondary_button mr_7"
                         onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
-                <button className="primary_button">Add Model</button>
+                <button className="primary_button" disabled={lockAddition}>Add Model</button>
             </div>
         </div>
     )

@@ -2,85 +2,76 @@ import React, {useState, useEffect, useRef} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {getOrganisationConfig, storeApiKey, updateOrganisationConfig, validateLLMApiKey} from "@/pages/api/DashboardService";
+import {storeApiKey, fetchApiKeys, validateLLMApiKey, fetchApiKey} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {removeTab} from "@/utils/utils";
 import Image from "next/image";
 
 export default function Model({organisationId}) {
-  const [modelApiKey, setKey] = useState('');
   const [temperature, setTemperature] = useState(0.5);
-  const [sourceDropdown, setSourceDropdown] = useState(false);
-  const sources = ['OpenAi', 'Google Palm'];
   const [models, setModels] = useState([
-    {'name':'Open AI API key','api_key':'','logo':'/images/openai_logo.svg','source':'OpenAi'},
-    {'name':'Hugging Face auth token','api_key':'','logo':'/images/huggingface_logo.svg','source':'Hugging Face'},
-    {'name':'Replicate auth token','api_key':'','logo':'/images/replicate_logo.svg','source':'Replicate'},
-    {'name':'Google AI API key','api_key':'','logo':'/images/google_palm_logo.svg','source':'Google Palm'}
-  ]);
-  const [source, setSource] = useState(sources[0]);
-  const sourceRef = useRef(null);
+    {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAi'},
+    {'name':'Hugging Face auth token','logo':'/images/huggingface_logo.svg','source':'Hugging Face'},
+    {'name':'Replicate auth token','logo':'/images/replicate_logo.svg','source':'Replicate'},
+    {'name':'Google AI API key','logo':'/images/google_palm_logo.svg','source':'Google Palm'}]);
   const [updatedModels, setUpdatedModels] = useState([]);
+  const [visible, setVisible] = useState(false);
 
-  function getKey(key) {
-    getOrganisationConfig(organisationId, key)
-      .then((response) => {
-        setKey(response.data.value);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
-  }
+  // function getKey(key) {
+  //   getOrganisationConfig(organisationId, key)
+  //     .then((response) => {
+  //       setKey(response.data.value);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching project:', error);
+  //     });
+  // }
+  //
+  // function getSource(key) {
+  //   getOrganisationConfig(organisationId, key)
+  //     .then((response) => {
+  //       setSource(response.data.value);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching project:', error);
+  //     });
+  // }
 
-  function getSource(key) {
-    getOrganisationConfig(organisationId, key)
-      .then((response) => {
-        setSource(response.data.value);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
-  }
+  // useEffect(() => {
+  //   getKey("model_api_key");
+  //   getSource("model_source");
+  // }, [organisationId]);
+
+  //
+  // function updateKey(key, value) {
+  //   const configData = {"key": key, "value": value};
+  //   updateOrganisationConfig(organisationId, configData)
+  //     .then((response) => {
+  //       getKey("model_api_key");
+  //       EventBus.emit("keySet", {});
+  //       toast.success("Settings updated", {autoClose: 1800});
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching project:', error);
+  //     });
+  // }
 
   useEffect(() => {
-    getKey("model_api_key");
-    getSource("model_source");
-  }, [organisationId]);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (sourceRef.current && !sourceRef.current.contains(event.target)) {
-        setSourceDropdown(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  function updateKey(key, value) {
-    const configData = {"key": key, "value": value};
-    updateOrganisationConfig(organisationId, configData)
-      .then((response) => {
-        getKey("model_api_key");
-        EventBus.emit("keySet", {});
-        toast.success("Settings updated", {autoClose: 1800});
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
+    fetchApiKeys().then((response) => {
+      response.data.forEach(item => {
+        const index = models.findIndex(model => model.source === item.source_name);
+        if(index !== -1) {
+          const newModels = [...models];
+          newModels[index].api_key = item.api_key;
+          setModels(newModels);
+        }
       });
-  }
+    })
 
-  const handleModelApiKey = (event) => {
-    setKey(event.target.value);
-  };
-
-  const handleSourceSelect = (index) => {
-    setSource(sources[index]);
-    setSourceDropdown(false);
-  };
+    fetchApiKey("Replicate").then((response) => {
+      console.log(response)
+    })
+  },[])
 
   const saveSettings = () => {
     updatedModels.forEach(model => {
@@ -102,21 +93,27 @@ export default function Model({organisationId}) {
 
   const storeKey = (model_provider, api_key) => {
     storeApiKey(model_provider,api_key).then((response) => {
+      console.log(response)
       if(response.status_code === 200)
-        toast.success("Successfully Stored")
+        toast.success("Successfully Stored", {autoClose: 1800})
       else
-        toast.error("Error")
+        toast.error("Error", {autoClose: 1800})
     })
   }
 
-  const handleInputChange = (name, value) => {
-    const updatedModel = updatedModels.find(model => model.name === name);
-    if(updatedModel){
-      updatedModel.api_key = value;
-    } else {
-      setUpdatedModels(updatedModels.concat([{ name,  api_key: value}]));
-    }
-  };
+  const handleInputChange = (source, value) => {
+    const updatedModels = models.map(model => {
+      if (model.source === source) {
+        return { ...model, api_key: value }
+      }
+      return model
+    })
+    setModels(updatedModels)
+  }
+
+  const toggleVisibility = () => {
+    setVisible(!visible);
+  }
 
   useEffect(() => {
     console.log(updatedModels)

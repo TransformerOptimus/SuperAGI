@@ -287,3 +287,11 @@ export const installKnowledgeTemplate = (knowledgeName, indexId) => {
 export const storeApiKey = (model_provider, model_api_key) => {
   return api.post(`/models_controller/storeApiKeys`, {model_provider, model_api_key});
 }
+
+export const fetchApiKeys = () => {
+  return api.get(`/models_controller/getApiKeys`)
+}
+
+export const fetchApiKey = (model_provider) => {
+  return api.get(`/models_controller/getApiKey?model_provider=${model_provider}`)
+}
