@@ -1,7 +1,7 @@
 FROM node:18-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY ./gui/package.json ./gui/package-lock.json ./
 RUN npm ci --only=production
 
 # Rebuild the source code only when needed
