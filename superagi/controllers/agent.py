@@ -473,62 +473,6 @@ def get_agents_by_project_id(project_id: int,
     return new_agents_sorted
 
 
-# @router.get("/get/details/{agent_id}")
-# def get_agent_configuration(agent_id: int,
-#                             Authorize: AuthJWT = Depends(check_auth)):
-#     """
-#     Get the agent configuration using the agent ID.
-
-#     Args:
-#         agent_id (int): Identifier of the agent.
-#         Authorize (AuthJWT, optional): Authorization dependency. Defaults to Depends(check_auth).
-
-#     Returns:
-#         dict: Agent configuration including its details.
-
-#     Raises:
-#         HTTPException (status_code=404): If the agent is not found or deleted.
-#     """
-
-#     # Define the agent_config keys to fetch
-#     keys_to_fetch = AgentTemplate.main_keys()
-#     agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
-
-#     if not agent:
-#         raise HTTPException(status_code=404, detail="Agent not found")
-
-#     # Query the AgentConfiguration table for the specified keys
-#     results = db.session.query(AgentConfiguration).filter(AgentConfiguration.key.in_(keys_to_fetch),
-#                                                           AgentConfiguration.agent_id == agent_id).all()
-#     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
-#         AgentExecution.agent_id == agent_id).scalar()
-#     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
-#         AgentExecution.agent_id == agent_id).scalar()
-    
-#     name = ""
-#     # Construct the JSON response
-#     response = {result.key: result.value for result in results}
-#     if 'knowledge' in response.keys() and response['knowledge'] != 'None':
-#         knowledge = db.session.query(Knowledges).filter(Knowledges.id == response['knowledge']).first()
-#         name = knowledge.name if knowledge is not None else ""
-#     response = merge(response, {"name": agent.name, "description": agent.description,
-#                                 # Query the AgentConfiguration table for the speci
-#                                 "goal": eval(response["goal"]),
-#                                 "instruction": eval(response.get("instruction", '[]')),
-#                                 "knowledge_name": name,
-#                                 "calls": total_calls,
-#                                 "tokens": total_tokens,
-#                                 "constraints": eval(response.get("constraints")),
-#                                 "tools": [int(x) for x in json.loads(response["tools"])]})
-#     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
-#     response["tools"] = tools
-
-#     # Close the session
-#     db.session.close()
-
-#     return response
-
-
 @router.put("/delete/{agent_id}", status_code=200)
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
