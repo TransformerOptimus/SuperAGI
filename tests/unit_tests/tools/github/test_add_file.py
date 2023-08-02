@@ -11,7 +11,6 @@ def test_github_add_file_schema():
         base_branch="main",
         file_name="test_file",
         folder_path="test_folder",
-        body="test_content",
         commit_message="test_commit",
         repository_owner="test_owner"
     )
@@ -45,7 +44,6 @@ def test_github_add_file_tool_execute(mock_make_fork, mock_create_branch, mock_a
     response = github_add_file_tool._execute(
         repository_name="test_repo",
         base_branch="main",
-        body="test_content",
         commit_message="test_commit",
         repository_owner="test_owner",
         file_name="test_file",
