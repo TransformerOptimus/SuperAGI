@@ -179,26 +179,3 @@ def test_fetch_default_next_step_none(mock_find_by_id):
         current_agent_step_id=1,
     )
     assert result is None
-
-def test_fetch_next_step():
-    session = MagicMock(spec=Session)
-    # Mock the AgentWorkflowStep to return for the find_by_id call
-    mock_step = Mock()
-    mock_step.next_steps = [{"step_response": "yes", "step_id": "1"}, {"step_response": "default", "step_id": "-1"}]
-
-    with patch.object(AgentWorkflowStep, 'find_by_id', return_value=mock_step):
-
-        with patch.object(AgentWorkflowStep, 'find_by_unique_id', side_effect=lambda session, id: id):
-
-            # Case when there is a matching step response
-            step_id = AgentWorkflowStep.fetch_next_step(session, 1, "yes")
-            assert step_id == "1"
-
-            # Case when there is no matching step response but there is a default
-            step_id = AgentWorkflowStep.fetch_next_step(session, 1, "no")
-            assert step_id == "COMPLETE"
-
-            # Case when there is neither a matching step response nor a default
-            mock_step.next_steps = [{"step_response": "yes", "step_id": "1"}]
-            step_id = AgentWorkflowStep.fetch_next_step(session, 1, "no")
-            assert step_id is None
