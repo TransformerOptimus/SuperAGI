@@ -1,4 +1,3 @@
-
 import os
 import requests
 from superagi.config.config import get_config
@@ -39,6 +38,13 @@ class Replicate(BaseLlm):
         return self.api_key
 
     def get_model(self):
+            """
+            Returns:
+                str: The model.
+            """
+            return self.model
+
+    def get_models(self):
         """
         Returns:
             str: The model.
@@ -88,7 +94,7 @@ class Replicate(BaseLlm):
         Returns:
             bool: True if the access key is valid, False otherwise.
         """
-        headers = {"Authorization": "Bearer " + self.api_key}
+        headers = {"Authorization": "Token " + self.api_key}
         response = requests.get("https://api.replicate.com/v1/collections", headers=headers)
 
         # If the request is successful, status code will be 200

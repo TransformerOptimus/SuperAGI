@@ -284,6 +284,6 @@ export const installKnowledgeTemplate = (knowledgeName, indexId) => {
   return api.get(`/knowledges/install/${knowledgeName}/index/${indexId}`);
 };
 
-export const getModels = () => {
-  return api.get(`models_controller/getModels`);
+export const storeApiKey = (model_provider, model_api_key) => {
+  return api.post(`/models_controller/storeApiKeys`, {model_provider, model_api_key});
 }

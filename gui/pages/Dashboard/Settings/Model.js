@@ -2,12 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
-import {
-  getOrganisationConfig,
-  updateOrganisationConfig,
-  validateAPI,
-  validateLLMApiKey
-} from "@/pages/api/DashboardService";
+import {getOrganisationConfig, storeApiKey, updateOrganisationConfig, validateLLMApiKey} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {removeTab} from "@/utils/utils";
 import Image from "next/image";
@@ -96,14 +91,23 @@ export default function Model({organisationId}) {
       validateLLMApiKey(model.name, model.api_key)
           .then((response) => {
             if (response.data.status === "success") {
-              updateKey("model_api_key", model.api_key);
-              updateKey("model_source", model.name);
-            } else {
-              toast.error("Invalid API key", {autoClose: 1800});
+              storeKey(model.name, model.api_key)
+            }
+            else {
+              toast.error(`Invalid API key for ${model.name}`, {autoClose: 1800});
             }
           });
     });
   };
+
+  const storeKey = (model_provider, api_key) => {
+    storeApiKey(model_provider,api_key).then((response) => {
+      if(response.status_code === 200)
+        toast.success("Successfully Stored")
+      else
+        toast.error("Error")
+    })
+  }
 
   const handleInputChange = (name, value) => {
     const updatedModel = updatedModels.find(model => model.name === name);
@@ -117,14 +121,6 @@ export default function Model({organisationId}) {
   useEffect(() => {
     console.log(updatedModels)
   },[updatedModels])
-
-  // const handleInputChange = (event, modelToUpdate) => {
-  //   setModels(models.map(model =>
-  //       model === modelToUpdate
-  //           ? {...model, api_key: event.target.value}
-  //           : model
-  //   ));
-  // };
 
   const handleTemperatureChange = (event) => {
     setTemperature(event.target.value);
