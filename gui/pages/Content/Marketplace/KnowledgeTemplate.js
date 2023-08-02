@@ -110,16 +110,12 @@ export default function KnowledgeTemplate({template, env}) {
 
     installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
-        if (response.data.success) {
           toast.success("Knowledge installed", {autoClose: 1800});
           setInstalled('Installed');
           EventBus.emit('reFetchKnowledge', {});
-        } else {
-          toast.error("Error installing Knowledge: ", {autoClose: 1800});
-          setInstalled('Install');
-        }
       })
       .catch((error) => {
+        toast.error("Error installing Knowledge: ", {autoClose: 1800});
         console.error('Error installing Knowledge:', error);
         setInstalled('Install');
       });
@@ -132,12 +128,9 @@ export default function KnowledgeTemplate({template, env}) {
   const uninstallKnowledge = () => {
     deleteMarketplaceKnowledge(template.name)
       .then((response) => {
-        if (response.data.success) {
-          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-          handleBackClick()
-        } else {
-          toast.error("Unable to uninstall knowledge", {autoClose: 1800});
-        }
+        console.log(response)
+        toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+        handleBackClick()
       })
       .catch((error) => {
         toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -202,7 +195,8 @@ export default function KnowledgeTemplate({template, env}) {
                           }}>
                             <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
                               color: '#888888',
-                              textDecoration: 'line-through'
+                              textDecoration: 'line-through',
+                              pointerEvents : 'none',
                             } : {}}>{index.name}</div>
                             {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
                               <div>
@@ -223,7 +217,8 @@ export default function KnowledgeTemplate({template, env}) {
                           }}>
                             <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
                               color: '#888888',
-                              textDecoration: 'line-through'
+                              textDecoration: 'line-through',
+                              pointerEvents : 'none',
                             } : {}}>{index.name}</div>
                             {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
                               <div>
@@ -311,7 +306,7 @@ export default function KnowledgeTemplate({template, env}) {
             <div style={{overflowY: 'scroll', height: '84vh'}}>
               <div className={styles2.left_container}
                    style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
-                <span className={styles2.description_text}>Overview</span><br/>
+                <span className="text_20_bold">Overview</span><br/>
                 {/*{templateData?.overview.map((item, index) => (<div key={index} style={{marginTop: '0'}}>*/}
                 {/*  <div className={styles2.description_text}>{index + 1}. {item || ''}</div>*/}
                 {/*  {index !== item.length - 1}*/}

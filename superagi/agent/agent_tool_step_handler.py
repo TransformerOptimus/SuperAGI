@@ -4,6 +4,7 @@ from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_handler import ToolOutputHandler
 from superagi.agent.output_parser import AgentSchemaToolOutputParser
+from superagi.agent.queue_step_handler import QueueStepHandler
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
@@ -22,6 +23,7 @@ from superagi.tools.base_tool import BaseTool
 
 
 class AgentToolStepHandler:
+    """Handles the tools steps in the agent workflow"""
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
         self.session = session
         self.llm = llm
@@ -35,13 +37,19 @@ class AgentToolStepHandler:
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-        print(agent_execution_config)
+        # print(agent_execution_config)
 
         if not self._handle_wait_for_permission(execution, workflow_step):
             return
 
+        if step_tool.tool_name == "TASK_QUEUE":
+            step_response = QueueStepHandler(self.session, self.llm, self.agent_id, self.agent_execution_id).execute_step()
+            next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+            self._handle_next_step(next_step)
+            return
+
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
-            self.create_permission_request(execution, step_tool)
+            self._create_permission_request(execution, step_tool)
             return
 
         assistant_reply = self._process_input_instruction(agent_config, agent_execution_config, step_tool,
@@ -52,13 +60,13 @@ class AgentToolStepHandler:
         final_response = tool_output_handler.handle(self.session, assistant_reply)
         step_response = "default"
         if step_tool.output_instruction:
-            step_response = self._process_output_instruction(final_response, step_tool, workflow_step)
+            step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
 
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
-        self.handle_next_step(next_step)
+        self._handle_next_step(next_step)
         self.session.flush()
 
-    def create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):
+    def _create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):
         new_agent_execution_permission = AgentExecutionPermission(
             agent_execution_id=self.agent_execution_id,
             status="PENDING",
@@ -73,9 +81,9 @@ class AgentToolStepHandler:
         execution.status = "WAITING_FOR_PERMISSION"
         self.session.commit()
 
-    def handle_next_step(self, next_step):
-        agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
+    def _handle_next_step(self, next_step):
         if str(next_step) == "COMPLETE":
+            agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
             agent_execution.current_agent_step_id = -1
             agent_execution.status = "COMPLETED"
         else:
@@ -85,11 +93,12 @@ class AgentToolStepHandler:
     def _process_input_instruction(self, agent_config, agent_execution_config, step_tool, workflow_step):
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
-        print("prompt: ", prompt)
+        logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
+        # print(messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
         if 'content' not in response or response['content'] is None:
@@ -125,6 +134,7 @@ class AgentToolStepHandler:
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
         step_response = response['content']
+        step_response = step_response.replace("'", "").replace("\"", "")
         return step_response
 
     def _build_tool_input_prompt(self, step_tool: AgentWorkflowStepTool, tool: BaseTool, agent_execution_config: dict):
@@ -143,7 +153,7 @@ class AgentToolStepHandler:
 
     def _build_tool_output_prompt(self, step_tool: AgentWorkflowStepTool, tool_output: str,
                                   workflow_step: AgentWorkflowStep):
-        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "agent_tool_input.txt")
+        super_agi_prompt = PromptReader.read_agent_prompt(__file__, "agent_tool_output.txt")
         super_agi_prompt = super_agi_prompt.replace("{tool_output}", tool_output)
         super_agi_prompt = super_agi_prompt.replace("{tool_name}", step_tool.tool_name)
         super_agi_prompt = super_agi_prompt.replace("{instruction}", step_tool.output_instruction)
@@ -178,13 +188,16 @@ class AgentToolStepHandler:
             next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, "NO")
             result = f"{' User has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
 
+
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                       agent_id=agent_execution_permission.agent_id,
-                                                      feed=result, role="user")
+                                                      feed=result, role="user",
+                                                      feed_group_id=agent_execution.current_feed_group_id)
             self.session.add(agent_execution_feed)
 
         agent_execution.status = "RUNNING"
         agent_execution.permission_id = -1
-        self.handle_next_step(next_step)
         self.session.commit()
-        return True
+        self._handle_next_step(next_step)
+        self.session.commit()
+        return False

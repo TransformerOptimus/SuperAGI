@@ -8,7 +8,7 @@ from superagi.models.base_model import DBBaseModel
 
 class IterationWorkflowStep(DBBaseModel):
     """
-    Step of an agent workflow
+    Step of an iteration workflow
 
     Attributes:
         id (int): The unique identifier of the agent workflow step.

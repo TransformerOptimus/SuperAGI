@@ -5,6 +5,7 @@ from superagi.agent.tool_executor import ToolExecutor
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 import numpy as np
 
@@ -12,6 +13,7 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 
 class ToolOutputHandler:
+    """Handles the tool output response from the thinking step"""
     def __init__(self, agent_execution_id: int, agent_config: dict,
                  tools: list, output_parser=AgentSchemaOutputParser()):
         self.agent_execution_id = agent_execution_id
@@ -21,6 +23,13 @@ class ToolOutputHandler:
         self.output_parser = output_parser
 
     def handle(self, session, assistant_reply):
+        """Handles the tool output response from the thinking step.
+        Step takes care of permission control as well at tool level.
+
+        Args:
+            session (Session): The database session.
+            assistant_reply (str): The assistant reply.
+        """
         response = self._check_permission_in_restricted_mode(session, assistant_reply)
         if response.is_permission_required:
             return response
@@ -28,23 +37,27 @@ class ToolOutputHandler:
         tool_response = self.handle_tool_response(session, assistant_reply)
         # print(tool_response)
 
+        agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                   agent_id=self.agent_config["agent_id"],
                                                   feed=assistant_reply,
-                                                  role="assistant")
+                                                  role="assistant",
+                                                  feed_group_id=agent_execution.current_feed_group_id)
         session.add(agent_execution_feed)
         tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                 agent_id=self.agent_config["agent_id"],
                                                 feed=tool_response.result,
-                                                role="system")
+                                                role="system",
+                                                feed_group_id=agent_execution.current_feed_group_id)
         session.add(tool_response_feed)
         session.commit()
         if not tool_response.retry:
             tool_response = self._check_for_completion(tool_response)
-
+        # print("Tool Response:", tool_response)
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):
+        """Only handle processing of tool response"""
         action = self.output_parser.parse(assistant_reply)
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
         organisation = agent.get_agent_organisation(session)
@@ -83,8 +96,8 @@ class ToolOutputHandler:
 
 
 class TaskOutputHandler:
-    """This class handles the task output type.
-    LLM output is mostly in the array of tasks and handler adds every task to the task queue.
+    """Handles the task output from the LLM. Output is mostly in the array of tasks and
+    handler adds every task to the task queue.
     """
 
     def __init__(self, agent_execution_id: int, agent_config: dict):
@@ -100,11 +113,13 @@ class TaskOutputHandler:
             self.task_queue.add_task(task)
         if len(tasks) > 0:
             logger.info("Adding task to queue: " + str(tasks))
+        agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         for task in tasks:
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                       agent_id=self.agent_config["agent_id"],
                                                       feed="New Task Added: " + task,
-                                                      role="system")
+                                                      role="system",
+                                                      feed_group_id=agent_execution.current_feed_group_id)
             session.add(agent_execution_feed)
         status = "COMPLETE" if len(self.task_queue.get_tasks()) == 0 else "PENDING"
         session.commit()
@@ -112,8 +127,8 @@ class TaskOutputHandler:
 
 
 class ReplaceTaskOutputHandler:
-    """This class handles the replace/prioritze task output type.
-    LLM output is mostly in the array of tasks and handler adds every task to the task queue.
+    """Handles the replace/prioritize task output type.
+    Output is mostly in the array of tasks and handler adds every task to the task queue.
     """
 
     def __init__(self, agent_execution_id: int, agent_config: dict):

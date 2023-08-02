@@ -4,6 +4,7 @@ from unittest.mock import Mock, create_autospec, patch
 import pytest
 
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
+from superagi.agent.common_types import ToolExecutorResponse
 from superagi.agent.output_handler import ToolOutputHandler
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.helper.token_counter import TokenCounter
@@ -43,7 +44,7 @@ def test_create_permission_request(handler):
     mock_permission = create_autospec(AgentExecutionPermission)
     with patch('superagi.agent.agent_tool_step_handler.AgentExecutionPermission', return_value=mock_permission) as mock_cls:
         # Act
-        handler.create_permission_request(execution, step_tool)
+        handler._create_permission_request(execution, step_tool)
 
         # Assert
         mock_cls.assert_called_once_with(
@@ -77,15 +78,15 @@ def test_execute_step(handler):
         patch.object(AgentExecutionConfiguration, 'fetch_configuration', return_value=agent_execution_config):
 
         handler._handle_wait_for_permission = Mock(return_value=True)
-        handler.create_permission_request = Mock()
+        handler._create_permission_request = Mock()
         handler._process_input_instruction = Mock(return_value="{\"}")
         handler._build_tool_obj = Mock()
         handler._process_output_instruction = Mock(return_value="step_response")
-        handler.handle_next_step = Mock()
+        handler._handle_next_step = Mock()
 
         # Act
         tool_output_handler = Mock(spec=ToolOutputHandler)
-        tool_output_handler.handle.return_value = "final_response"
+        tool_output_handler.handle.return_value = ToolExecutorResponse(status="SUCCESS", output="final_response")
 
         with patch('superagi.agent.agent_tool_step_handler.ToolOutputHandler', return_value=tool_output_handler):
             # Act
@@ -105,7 +106,7 @@ def test_handle_next_step_with_complete(handler):
 
     with patch.object(AgentExecution, 'get_agent_execution_from_id', return_value=execution):
         # Act
-        handler.handle_next_step(next_step)
+        handler._handle_next_step(next_step)
 
         # Assert
         assert execution.current_agent_step_id == -1
@@ -122,7 +123,7 @@ def test_handle_next_step_with_next_step(handler):
         patch.object(AgentExecution, 'assign_next_step_id') as mock_assign_next_step_id:
 
         # Act
-        handler.handle_next_step(next_step)
+        handler._handle_next_step(next_step)
 
         # Assert
         mock_assign_next_step_id.assert_called_once_with(handler.session, handler.agent_execution_id, next_step.id)
@@ -237,15 +238,15 @@ def test_handle_wait_for_permission_approved(handler):
     next_step = AgentWorkflowStep()
 
     handler.session.query.return_value.filter.return_value.first.return_value = agent_execution_permission
-    handler.handle_next_step = Mock()
+    handler._handle_next_step = Mock()
     AgentWorkflowStep.fetch_next_step = Mock(return_value=next_step)
 
     # Act
     result = handler._handle_wait_for_permission(agent_execution, workflow_step)
 
     # Assert
-    assert result == True
-    handler.handle_next_step.assert_called_once_with(next_step)
+    assert result == False
+    handler._handle_next_step.assert_called_once_with(next_step)
     assert agent_execution.status == "RUNNING"
     assert agent_execution.permission_id == -1
 
@@ -262,14 +263,14 @@ def test_handle_wait_for_permission_denied(handler):
     next_step = AgentWorkflowStep()
 
     handler.session.query.return_value.filter.return_value.first.return_value = agent_execution_permission
-    handler.handle_next_step = Mock()
+    handler._handle_next_step = Mock()
     AgentWorkflowStep.fetch_next_step = Mock(return_value=next_step)
 
     # Act
     result = handler._handle_wait_for_permission(agent_execution, workflow_step)
 
     # Assert
-    assert result == True
-    handler.handle_next_step.assert_called_once_with(next_step)
+    assert result == False
+    handler._handle_next_step.assert_called_once_with(next_step)
     assert agent_execution.status == "RUNNING"
     assert agent_execution.permission_id == -1

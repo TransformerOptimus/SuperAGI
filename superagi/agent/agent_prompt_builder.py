@@ -10,6 +10,7 @@ FINISH_NAME = "finish"
 
 
 class AgentPromptBuilder:
+    """Agent prompt builder for LLM agent."""
 
     @staticmethod
     def add_list_items_to_string(items: List[str]) -> str:
@@ -21,6 +22,12 @@ class AgentPromptBuilder:
 
     @classmethod
     def add_tools_to_prompt(cls, tools: List[BaseTool], add_finish: bool = True) -> str:
+        """Add tools to the prompt.
+
+        Args:
+            tools (List[BaseTool]): The list of tools.
+            add_finish (bool): Whether to add finish tool or not.
+        """
         final_string = ""
         print(tools)
         for i, item in enumerate(tools):
@@ -58,6 +65,16 @@ class AgentPromptBuilder:
     @classmethod
     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
                                tools: List[BaseTool], add_finish_tool: bool = True):
+        """Replace the main variables in the super agi prompt.
+
+        Args:
+            super_agi_prompt (str): The super agi prompt.
+            goals (List[str]): The list of goals.
+            instructions (List[str]): The list of instructions.
+            constraints (List[str]): The list of constraints.
+            tools (List[BaseTool]): The list of tools.
+            add_finish_tool (bool): Whether to add finish tool or not.
+        """
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
             task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
@@ -78,6 +95,17 @@ class AgentPromptBuilder:
     @classmethod
     def replace_task_based_variables(cls, super_agi_prompt: str, current_task: str, last_task: str,
                                      last_task_result: str, pending_tasks: List[str], completed_tasks: list, token_limit: int):
+        """Replace the task based variables in the super agi prompt.
+
+        Args:
+            super_agi_prompt (str): The super agi prompt.
+            current_task (str): The current task.
+            last_task (str): The last task.
+            last_task_result (str): The last task result.
+            pending_tasks (List[str]): The list of pending tasks.
+            completed_tasks (list): The list of completed tasks.
+            token_limit (int): The token limit.
+        """
         if "{current_task}" in super_agi_prompt:
             super_agi_prompt = super_agi_prompt.replace("{current_task}", current_task)
         if "{last_task}" in super_agi_prompt:

@@ -32,7 +32,8 @@ def get_knowledge_list(
         dict: The response containing the marketplace list.
 
     """
-
+    if page < 0:
+        page = 0
     marketplace_knowledges = Knowledges.fetch_marketplace_list(page)
     marketplace_knowledges_with_install = Knowledges.get_knowledge_install_details(db.session, marketplace_knowledges, organisation)
     for knowledge in marketplace_knowledges_with_install:
@@ -56,10 +57,10 @@ def get_marketplace_knowledge_list(page: int = 0):
 
 @router.get("/user/list")
 def get_user_knowledge_list(organisation = Depends(get_user_organisation)):
-    marketplace_knowledges = Knowledges.fetch_marketplace_list(page=-1)
+    marketplace_knowledges = Knowledges.fetch_marketplace_list(page=0)
     user_knowledge_list = Knowledges.get_organisation_knowledges(db.session, organisation)
     for user_knowledge in user_knowledge_list:
-        if user_knowledge["name"] in [knowledge.name for knowledge in marketplace_knowledges]:
+        if user_knowledge["name"] in [knowledge['name'] for knowledge in marketplace_knowledges]:
             user_knowledge["is_marketplace"] = True
         else:
             user_knowledge["is_marketplace"] = False
@@ -106,15 +107,17 @@ def add_update_user_knowledge(knowledge_data: dict, organisation = Depends(get_u
     knowledge_data["organisation_id"] = organisation.id
     knowledge_data["contributed_by"] = organisation.name
     knowledge = Knowledges.add_update_knowledge(db.session, knowledge_data)
-    return {"success": True, "id": knowledge.id}
+    if not knowledge:
+        raise HTTPException(status_code=404, detail="Knowledge not found")
+    return {"id": knowledge.id}
+
 
 @router.post("/delete/{knowledge_id}")
 def delete_user_knowledge(knowledge_id: int):
     try:
         Knowledges.delete_knowledge(db.session, knowledge_id)
-        return {"success": True}
     except:
-        return {"success": False}
+        raise HTTPException(status_code=404, detail="Knowledge not found")
 
 @router.get("/install/{knowledge_name}/index/{vector_db_index_id}")
 def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, organisation = Depends(get_user_organisation)):
@@ -124,12 +127,12 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
     file_chunks = S3Helper().get_json_file(selected_knowledge_config["file_path"])
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)
-    upsert_data = VectorEmbeddingFactory.build_vector_storge(vector.db_type).get_vector_embeddings_from_chunks(file_chunks)
+    upsert_data = VectorEmbeddingFactory.build_vector_storage(vector.db_type, file_chunks).get_vector_embeddings_from_chunks()
     try:
         vector_db_storage = VectorFactory.build_vector_storage(vector.db_type, vector_db_index.name, **db_creds)
         vector_db_storage.add_embeddings_to_vector_db(upsert_data)
-    except:
-        return {"success": False}
+    except Exception as err:
+        raise HTTPException(status_code=400, detail=err)
     selected_knowledge_data = {
         "id": -1,
         "name": selected_knowledge["name"],
@@ -146,7 +149,6 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
     VectordbIndices.update_vector_index_state(db.session, vector_db_index_id, "Marketplace")
     install_number = MarketPlaceStats.get_knowledge_installation_number(selected_knowledge["id"])
     MarketPlaceStats.update_knowledge_install_number(db.session, selected_knowledge["id"], int(install_number) + 1)
-    return {"success": True}
 
 @router.post("/uninstall/{knowledge_name}")
 def uninstall_selected_knowledge(knowledge_name: str, organisation = Depends(get_user_organisation)):
@@ -159,8 +161,7 @@ def uninstall_selected_knowledge(knowledge_name: str, organisation = Depends(get
     try:
         vector_db_storage = VectorFactory.build_vector_storage(vector.db_type, vector_db_index.name, **db_creds)
         vector_db_storage.delete_embeddings_from_vector_db(vector_ids)
-    except:
-        return {"success": False}
+    except Exception as err:
+        raise HTTPException(status_code=400, detail=err)
     KnowledgeConfigs.delete_knowledge_config(db.session, knowledge.id)
     Knowledges.delete_knowledge(db.session, knowledge.id)
-    return {"success": True}

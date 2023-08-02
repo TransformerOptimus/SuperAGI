@@ -32,13 +32,9 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
       deleteMarketplaceKnowledge(knowledgeName)
         .then((response) => {
           console.log(response)
-          if (response.data.success) {
-            toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
             removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
             EventBus.emit('reFetchKnowledge', {});
-          } else {
-            toast.error("Unable to uninstall knowledge", {autoClose: 1800});
-          }
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -47,14 +43,9 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
-          console.log(response)
-          if (response.data.success) {
             toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-            EventBus.emit('reFetchKnowledge', {});
-          } else {
-            toast.error("Unable to uninstall knowledge", {autoClose: 1800});
-          }
+          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+          EventBus.emit('reFetchKnowledge', {});
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -136,8 +127,8 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
                   </button>
                   {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
                     <ul className="dropdown_container" style={{marginTop: '0', marginLeft: '-10px', width: '165px'}}>
-                      {installationType === 'Marketplace' ?
-                        <li className="dropdown_item" onClick={viewKnowledge}>View in marketplace</li> :
+                      {installationType !== 'Marketplace' &&
+                        // <li className="dropdown_item" onClick={viewKnowledge}>View in marketplace</li> :
                         <li className="dropdown_item" onClick={editKnowledge}>Edit details</li>}
                       <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
                     </ul>

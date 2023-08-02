@@ -1,47 +1,30 @@
 import unittest
-from unittest.mock import Mock
+
 from superagi.vector_embeddings.qdrant import Qdrant
 
 class TestQdrant(unittest.TestCase):
 
     def setUp(self):
-        self.embeddings = Qdrant()
+        self.uuid = ['1234', '5678']
+        self.embeds = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+        self.metadata = [{'key1': 'value1'}, {'key2': 'value2'}]
 
-    def test_vector_embeddings_empty_json(self):
-        result = self.embeddings.get_vector_embeddings_from_chunks({})
-        self.assertEqual(result, {})
+        self.qdrant_obj = Qdrant(self.uuid, self.embeds, self.metadata)
 
-    def test_vector_embeddings_from_chunks(self):
-        chunk_json = {
-            "chunk1": {
-                "id": "1",
-                "embeds": "embeds",
-                "text": "text",
-                "chunk": "chunk",
-                "knowledge_name": "knowledge_name"
-            },
-            "chunk2": {
-                "id": "2",
-                "embeds": "embeds2",
-                "text": "text2",
-                "chunk": "chunk2",
-                "knowledge_name": "knowledge_name2"
-            }
+    def test_init(self):
+        self.assertEqual(self.qdrant_obj.uuid, self.uuid)
+        self.assertEqual(self.qdrant_obj.embeds, self.embeds)
+        self.assertEqual(self.qdrant_obj.metadata, self.metadata)
+
+    def test_get_vector_embeddings_from_chunks(self):
+        expected = {
+            'ids': self.uuid,
+            'payload': self.metadata,
+            'vectors': self.embeds,
         }
-
-        result = self.embeddings.get_vector_embeddings_from_chunks(chunk_json)
-
-        expected_output = {
-            'ids': ['1', '2'],
-            'payload': [
-                {'text': 'text', 'chunk': 'chunk', 'knowledge_name': 'knowledge_name'},
-                {'text': 'text2', 'chunk': 'chunk2', 'knowledge_name': 'knowledge_name2'}
-            ],
-            'vectors': ['embeds', 'embeds2']
-        }
-
-        self.assertDictEqual(result, expected_output)
-
+        result = self.qdrant_obj.get_vector_embeddings_from_chunks()
+        
+        self.assertEqual(result, expected)
 
 if __name__ == '__main__':
     unittest.main()

@@ -16,6 +16,10 @@ class ApolloSearchSchema(BaseModel):
         1,
         description="The page of results to retrieve. Default value is 1.",
     )
+    per_page: int = Field(
+        25,
+        description="The number of results to retrieve per page. Default value is 25.",
+    )
     organization_domains: str = Field(
         "",
         description="The organization domains to search within. It is optional field.",
@@ -45,7 +49,7 @@ class ApolloSearchTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, person_titles: list[str], page: int, organization_domains: str = "",
+    def _execute(self, person_titles: list[str], page: int = 1, per_page: int = 25, organization_domains: str = "",
                  person_location: str = "") -> str:
         """
         Execute the Apollo search tool.
@@ -59,7 +63,7 @@ class ApolloSearchTool(BaseTool):
         Returns:
             People data from the Apollo search.
         """
-        people_data = self.apollo_search_results(organization_domains, page, person_titles, person_location)
+        people_data = self.apollo_search_results(organization_domains, page, per_page, person_titles, person_location)
         print(people_data)
         people_list = []
         if 'people' in people_data and len(people_data['people']) > 0:
@@ -75,7 +79,7 @@ class ApolloSearchTool(BaseTool):
 
         return people_list
 
-    def apollo_search_results(self, organization_domains, page, person_titles, person_location = ""):
+    def apollo_search_results(self, organization_domains, page, per_page, person_titles, person_location = ""):
         """
         Execute the Apollo search tool.
 
@@ -96,6 +100,7 @@ class ApolloSearchTool(BaseTool):
         data = {
             "api_key": self.get_tool_config("APOLLO_SEARCH_KEY"),
             "page": page,
+            "per_page": per_page,
             "person_titles": person_titles,
             "contact_email_status": ["verified"]
         }

@@ -80,7 +80,7 @@ class IterationWorkflow(DBBaseModel):
     @classmethod
     def fetch_trigger_step_id(cls, session, workflow_id):
         """
-        Fetches the trigger step ID of the specified agent workflow.
+        Fetches the trigger step ID of the specified iteration workflow.
 
         Args:
             session: The session object used for database operations.
@@ -99,7 +99,7 @@ class IterationWorkflow(DBBaseModel):
     @classmethod
     def find_workflow_by_name(cls, session, name: str):
         """
-        Finds an AgentWorkflow by name.
+        Finds an IterationWorkflow by name.
 
         Args:
             session (Session): SQLAlchemy session object.
@@ -108,13 +108,12 @@ class IterationWorkflow(DBBaseModel):
         Returns:
             AgentWorkflow: AgentWorkflow object with the given name.
         """
-
         return session.query(IterationWorkflow).filter(IterationWorkflow.name == name).first()
 
     @classmethod
     def find_or_create_by_name(cls, session, name: str, description: str, has_task_queue: bool = False):
         """
-        Finds an AgentWorkflow by name or creates it if it does not exist.
+        Finds an IterationWorkflow by name or creates it if it does not exist.
         Args:
             session (Session): SQLAlchemy session object.
             name (str): Name of the AgentWorkflow.

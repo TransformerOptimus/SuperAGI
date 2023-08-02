@@ -14,7 +14,6 @@ from superagi.models.project import Project
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_config import AgentConfiguration
 
-
 class Agent(DBBaseModel):
     """
     Represents an agent entity.
@@ -35,8 +34,8 @@ class Agent(DBBaseModel):
     project_id = Column(Integer)
     description = Column(String)
     agent_workflow_id = Column(Integer)
-    is_deleted = Column(Boolean, default=False)
-
+    is_deleted = Column(Boolean, default = False)
+    
     def __repr__(self):
         """
         Returns a string representation of the Agent object.
@@ -47,8 +46,8 @@ class Agent(DBBaseModel):
         """
         return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
                f"description='{self.description}', agent_workflow_id={self.agent_workflow_id}," \
-               f"is_deleted='{self.is_deleted}')"
-
+               f"is_deleted='{self.is_deleted}')" 
+               
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
         """
@@ -79,12 +78,12 @@ class Agent(DBBaseModel):
             "exit": None,
             "iteration_interval": None,
             "model": None,
-
             "permission_type": None,
             "LTM_DB": None,
             "memory_window": None,
             "max_iterations": None,
             "is_deleted": agent.is_deleted,
+            "knowledge": None
         }
         if not agent_configurations:
             return parsed_config
@@ -106,8 +105,7 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB",
-                   "resource_summary"]:
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary", "knowledge"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)

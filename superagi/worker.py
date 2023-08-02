@@ -78,7 +78,6 @@ def summarize_resource(agent_id: int, resource_id: int):
     resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id)
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)
-    resource_summarizer.generate_agent_summary(agent_id=agent_id)
     session.close()
 
 

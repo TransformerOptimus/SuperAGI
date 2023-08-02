@@ -23,6 +23,7 @@ from datetime import datetime
 import json
 
 from superagi.models.toolkit import Toolkit
+from superagi.models.knowledges import Knowledges
 
 from sqlalchemy import func
 # from superagi.types.db import AgentOut, AgentIn
@@ -476,13 +477,18 @@ def get_agent_configuration(agent_id: int,
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
-
+    
+    name = ""
     # Construct the JSON response
     response = {result.key: result.value for result in results}
+    if 'knowledge' in response.keys() and response['knowledge'] != 'None':
+        knowledge = db.session.query(Knowledges).filter(Knowledges.id == response['knowledge']).first()
+        name = knowledge.name if knowledge is not None else ""
     response = merge(response, {"name": agent.name, "description": agent.description,
                                 # Query the AgentConfiguration table for the speci
                                 "goal": eval(response["goal"]),
                                 "instruction": eval(response.get("instruction", '[]')),
+                                "knowledge_name": name,
                                 "calls": total_calls,
                                 "tokens": total_tokens,
                                 "constraints": eval(response.get("constraints")),
