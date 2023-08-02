@@ -125,6 +125,9 @@ class AgentExecutor:
 
         if selected_model_source == ModelSourceType.GooglePalm:
             return get_config("PALM_API_KEY")
+
+        if selected_model_source == ModelSourceType.Replicate:
+            return get_config("REPLICATE_API_TOKEN")
         return get_config("OPENAI_API_KEY")
 
     @classmethod
@@ -318,9 +321,9 @@ class AgentExecutor:
                 tool.instructions = parsed_execution_config["instruction"]
             if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config[
                 "model"] == "gpt-3.5-turbo") and tool.name != "QueryResource":
-                tool.llm = get_model(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
+                tool.llm = get_model(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.5)
             elif hasattr(tool, 'llm'):
-                tool.llm = get_model(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
+                tool.llm = get_model(model=parsed_config["model"], api_key=model_api_key, temperature=0.6)
             if hasattr(tool, 'agent_id'):
                 tool.agent_id = agent_id
             if hasattr(tool, 'agent_execution_id'):
@@ -372,7 +375,7 @@ class AgentExecutor:
         session.commit()
 
     def get_agent_resource_summary(self, agent_id: int, session: Session, model_llm_source: str, default_summary: str):
-        if ModelSourceType.GooglePalm.value in model_llm_source:
+        if ModelSourceType.GooglePalm.value in model_llm_source or ModelSourceType.Replicate.value in model_llm_source:
             return
         ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id, generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \

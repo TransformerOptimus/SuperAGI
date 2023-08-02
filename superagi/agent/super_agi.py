@@ -18,6 +18,7 @@ from superagi.agent.output_parser import BaseOutputParser, AgentSchemaOutputPars
 from superagi.agent.task_queue import TaskQueue
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
+from superagi.helper.json_cleaner import JsonCleaner
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
@@ -168,6 +169,7 @@ class SuperAgi:
             final_response["pending_task_count"] = len(task_queue.get_tasks())
             final_response["completed_task_count"] = len(task_queue.get_completed_tasks())
         elif workflow_step.output_type == "replace_tasks":
+            assistant_reply = JsonCleaner.extract_square_json_section(assistant_reply)
             tasks = eval(assistant_reply)
             task_queue.clear_tasks()
             for task in reversed(tasks):
@@ -180,6 +182,7 @@ class SuperAgi:
             else:
                 final_response = {"result": "PENDING", "pending_task_count": len(current_tasks)}
         elif workflow_step.output_type == "tasks":
+            assistant_reply = JsonCleaner.extract_square_json_section(assistant_reply)
             tasks = eval(assistant_reply)
             tasks = np.array(tasks).flatten().tolist()
             for task in reversed(tasks):

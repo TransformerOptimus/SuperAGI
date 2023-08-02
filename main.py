@@ -52,6 +52,7 @@ from superagi.helper.tool_helper import register_toolkits, register_marketplace_
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.llms.replicate import Replicate
 from superagi.helper.auth import get_current_user
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_workflow_step import AgentWorkflowStep
@@ -461,6 +462,8 @@ async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJW
         valid_api_key = OpenAi(api_key=api_key).verify_access_key()
     elif source == "Google Palm":
         valid_api_key = GooglePalm(api_key=api_key).verify_access_key()
+    elif source == "Replicate":
+        valid_api_key = Replicate(api_key=api_key).verify_access_key()
     if valid_api_key:
         return {"message": "Valid API Key", "status": "success"}
     else:

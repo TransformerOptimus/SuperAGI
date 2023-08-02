@@ -17,12 +17,15 @@ export default function Model({organisationId}) {
   const [temperature, setTemperature] = useState(0.5);
   const [sourceDropdown, setSourceDropdown] = useState(false);
   const sources = ['OpenAi', 'Google Palm'];
-  const models = [{'name':'Open AI API key','api_key':'asdfsddfgdfgd','logo':'/images/openai_logo.svg'},
-                                          {'name':'Hugging Face auth token','api_key':'','logo':'/images/huggingface_logo.svg'},
-                                          {'name':'Replicate auth token','api_key':'asdfsddfgdfgd','logo':'/images/replicate_logo.svg'},
-                                          {'name':'Google AI API key','api_key':'','logo':'/images/google_palm_logo.svg'}]
+  const [models, setModels] = useState([
+    {'name':'Open AI API key','api_key':'','logo':'/images/openai_logo.svg','source':'OpenAi'},
+    {'name':'Hugging Face auth token','api_key':'','logo':'/images/huggingface_logo.svg','source':'Hugging Face'},
+    {'name':'Replicate auth token','api_key':'','logo':'/images/replicate_logo.svg','source':'Replicate'},
+    {'name':'Google AI API key','api_key':'','logo':'/images/google_palm_logo.svg','source':'Google Palm'}
+  ]);
   const [source, setSource] = useState(sources[0]);
   const sourceRef = useRef(null);
+  const [updatedModels, setUpdatedModels] = useState([]);
 
   function getKey(key) {
     getOrganisationConfig(organisationId, key)
@@ -85,20 +88,43 @@ export default function Model({organisationId}) {
   };
 
   const saveSettings = () => {
-    if (modelApiKey === null || modelApiKey.replace(/\s/g, '') === '') {
-      toast.error("API key is empty", {autoClose: 1800});
-      return
-    }
-    validateLLMApiKey(source, modelApiKey)
-      .then((response) => {
-        if (response.data.status === "success") {
-          updateKey("model_api_key", modelApiKey);
-          updateKey("model_source", source);
-        } else {
-          toast.error("Invalid API key", {autoClose: 1800});
-        }
-      });
+    updatedModels.forEach(model => {
+      if (model.api_key === null || model.api_key.replace(/\s/g, '') === '') {
+        toast.error("API key is empty", {autoClose: 1800});
+        return
+      }
+      validateLLMApiKey(model.name, model.api_key)
+          .then((response) => {
+            if (response.data.status === "success") {
+              updateKey("model_api_key", model.api_key);
+              updateKey("model_source", model.name);
+            } else {
+              toast.error("Invalid API key", {autoClose: 1800});
+            }
+          });
+    });
   };
+
+  const handleInputChange = (name, value) => {
+    const updatedModel = updatedModels.find(model => model.name === name);
+    if(updatedModel){
+      updatedModel.api_key = value;
+    } else {
+      setUpdatedModels(updatedModels.concat([{ name,  api_key: value}]));
+    }
+  };
+
+  useEffect(() => {
+    console.log(updatedModels)
+  },[updatedModels])
+
+  // const handleInputChange = (event, modelToUpdate) => {
+  //   setModels(models.map(model =>
+  //       model === modelToUpdate
+  //           ? {...model, api_key: event.target.value}
+  //           : model
+  //   ));
+  // };
 
   const handleTemperatureChange = (event) => {
     setTemperature(event.target.value);
@@ -115,14 +141,14 @@ export default function Model({organisationId}) {
                     <Image width={16} height={16} src={model.logo} alt={`${model.name}-icon`} />
                     <span className="text_13 color_gray">{model.name}</span>
                   </div>
-                  <input placeholder={`Enter your ${model.name}`} className="input_medium mt_8" type="password" value={model.api_key} />
+                  <input placeholder={`Enter your ${model.name}`} className="input_medium mt_8" type="password" value={model.api_key}
+                      onChange={(event) => handleInputChange(model.source, event.target.value)}/>
                 </div>
             ))}
-            <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '15px'}}>
+            {updatedModels.length > 0 && <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '15px'}}>
               <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button mr_10">Cancel</button>
               <button className="primary_button" onClick={saveSettings}>Update Changes</button>
-              <button className="primary_button" onClick={saveSettings2}>Changes</button>
-            </div>
+            </div>}
           </div>
           <div className="col-3"></div>
         </div>

@@ -1,5 +1,6 @@
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.llms.replicate import Replicate
 
 
 class ModelFactory:
@@ -22,7 +23,10 @@ factory.register_format("gpt-4-32k", lambda **kwargs: OpenAi(model="gpt-4-32k", 
 factory.register_format("gpt-3.5-turbo-16k", lambda **kwargs: OpenAi(model="gpt-3.5-turbo-16k", **kwargs))
 factory.register_format("gpt-3.5-turbo", lambda **kwargs: OpenAi(model="gpt-3.5-turbo", **kwargs))
 factory.register_format("google-palm-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
-factory.register_format("chat-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
+factory.register_format("replicate-llama13b-v2-chat",
+                        lambda **kwargs: Replicate(model='replicate/llama70b-v2-chat',
+                                                   version="e951f18578850b652510200860fc4ea62b3b16fac280f83ff32282f87bbd2e48",
+                                                   **kwargs))
 
 
 def get_model(api_key, model="gpt-3.5-turbo", **kwargs):
