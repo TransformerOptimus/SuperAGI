@@ -107,7 +107,6 @@ def get_toolkit_info(class_dict, classes, obj):
     class_dict['toolkit_description'] = obj.description
     class_dict['toolkit_tools'] = obj.get_tools()
     class_dict['toolkit_keys'] = obj.get_env_keys()
-    print(class_dict)
     classes.append(class_dict)
 
 
@@ -218,7 +217,7 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
 
             # Store the tools config in the database
             for tool_config_key in tool_config_keys:
-                if isinstance(tool_config_key, ToolConfig):
+                if isinstance(tool_config_key, ToolConfiguration):
                     new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
                                                       key=tool_config_key.key,
                                                       key_type=tool_config_key.key_type,

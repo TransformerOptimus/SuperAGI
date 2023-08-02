@@ -7,6 +7,7 @@ from superagi.tools.file.list_files import ListFileTool
 from superagi.tools.file.read_file import ReadFileTool
 from superagi.tools.file.write_file import WriteFileTool
 from superagi.types.key_type import ToolConfigKeyType
+from superagi.models.tool_config import ToolConfig
 
 
 class FileToolkit(BaseToolkit, ABC):

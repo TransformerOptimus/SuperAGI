@@ -85,15 +85,18 @@ class ToolConfig(DBBaseModel):
 
             if key_type is None:
                 tool_config.key_type = ToolConfigKeyType.STRING.value
-            else: tool_config.key_type = key_type.value
-            
-
+            elif isinstance(key_type,ToolConfigKeyType):
+                tool_config.key_type = key_type.value
+            else:
+                tool_config.key_type = key_type
 
         else:
             # Create new tool config
             if key_type is None:
-                key_type = ToolConfigKeyType.STRING
-            tool_config = ToolConfig(toolkit_id=toolkit_id, key=key, value=value, key_type=key_type.value, is_secret=is_secret, is_required=is_required)
+                key_type = ToolConfigKeyType.STRING.value
+            if isinstance(key_type,ToolConfigKeyType):
+                key_type = key_type.value    
+            tool_config = ToolConfig(toolkit_id=toolkit_id, key=key, value=value, key_type=key_type, is_secret=is_secret, is_required=is_required)
             session.add(tool_config)
 
         session.commit()
