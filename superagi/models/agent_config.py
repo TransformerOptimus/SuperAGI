@@ -1,8 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy import Column, Integer, Text, String
+from typing import Union
 
 from superagi.models.base_model import DBBaseModel
 from superagi.models.tool import Tool
+from superagi.controllers.types.agent_execution_config import AgentRunIn
 
 
 class AgentConfiguration(DBBaseModel):
@@ -32,3 +34,53 @@ class AgentConfiguration(DBBaseModel):
 
         """
         return f"AgentConfiguration(id={self.id}, key={self.key}, value={self.value})"
+    
+    @classmethod
+    def update_agent_configurations_table(cls, session, agent_id: Union[int, None], updated_details: AgentRunIn):
+
+        if(type(agent_id)==None):
+            return -1;
+
+        updated_details_dict = updated_details.dict()
+
+        # Fetch existing 'toolkits' agent configuration for the given agent_id
+        agent_toolkits_config = session.query(AgentConfiguration).filter(
+            AgentConfiguration.agent_id == agent_id,
+            AgentConfiguration.key == 'toolkits'
+        ).first()
+
+        if agent_toolkits_config:
+            agent_toolkits_config.value = updated_details_dict['toolkits']
+        else:
+            agent_toolkits_config = AgentConfiguration(
+                agent_id=agent_id,
+                key='toolkits',
+                value=updated_details_dict['toolkits']
+            )
+            session.add(agent_toolkits_config)
+        
+        #Fetch existing knowledge for the given agent id and update it accordingly
+        knowledge_config = session.query(AgentConfiguration).filter(
+            AgentConfiguration.agent_id == agent_id,
+            AgentConfiguration.key == 'knowledge'
+        ).first()
+
+        if knowledge_config:
+            knowledge_config.value = updated_details_dict['knowledge']
+        else:
+            knowledge_config = AgentConfiguration(
+                agent_id=agent_id,
+                key='knowledge',
+                value=updated_details_dict['knowledge']
+            )
+            session.add(knowledge_config)
+            
+        # Fetch agent configurations
+        agent_configs = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+        for agent_config in agent_configs:
+            key = agent_config.key
+            if key in updated_details_dict:
+                agent_config.value = updated_details_dict[key]
+
+        # Commit the changes to the database
+        session.commit()
