@@ -33,7 +33,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
     }
     const client_id = client_data.client_id
     const scope = 'https://www.googleapis.com/auth/calendar';
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}&state=${toolkitDetails.id}`;
   }
 
   function getTwitterToken(oauth_data) {

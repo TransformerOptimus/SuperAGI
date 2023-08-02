@@ -20,10 +20,11 @@ from superagi.config.config import get_config
 router = APIRouter()
 
 @router.get('/oauth-tokens')
-async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
-    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
+    toolkit_id = int(state)
+    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID", ToolConfig.toolkit_id == toolkit_id).first()
     client_id = client_id.value
-    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET").first()
+    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET", ToolConfig.toolkit_id == toolkit_id).first()
     client_secret = client_secret.value
     token_uri = 'https://oauth2.googleapis.com/token'
     scope = 'https://www.googleapis.com/auth/calendar'

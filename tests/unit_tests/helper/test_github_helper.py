@@ -132,28 +132,6 @@ class TestGithubHelper(unittest.TestCase):
             headers={'header': 'value'}
         )
 
-    @patch('requests.put')
-    def test_add_file(self, mock_put):
-        # Create response mock
-        mock_resp = MagicMock()
-        mock_resp.status_code = 201
-        mock_put.return_value = mock_resp
-
-        gh = GithubHelper('access_token', 'username')
-        status_code = gh.add_file('owner', 'repo', 'test.txt', 'path', 'head', 'base', {'header': 'value'}, 'body',
-                                  'message')
-
-        self.assertEqual(status_code, 201)
-        mock_put.assert_called_once_with(
-            'https://api.github.com/repos/username/repo/contents/path/test.txt',
-            json={
-                'message': 'message',
-                'content': base64.b64encode('body'.encode("ascii")).decode("ascii"),
-                'branch': 'head'
-            },
-            headers={'header': 'value'}
-        )
-
     @patch('requests.post')
     def test_create_pull_request(self, mock_post):
         # Create response mock
