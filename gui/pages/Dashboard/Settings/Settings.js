@@ -13,7 +13,7 @@ export default function Settings({organisationId}) {
   const [sourceDropdown, setSourceDropdown] = useState(false);
   const [source, setSource] = useState('OpenAi');
   const sourceRef = useRef(null);
-  const sources = ['OpenAi', 'Google Palm']
+  const sources = ['OpenAi', 'Google Palm', 'HuggingFace']
 
   function getKey(key) {
     getOrganisationConfig(organisationId, key)
