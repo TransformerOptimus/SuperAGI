@@ -5,7 +5,12 @@ import styles3 from '../Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import {checkToolkitUpdate, fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
+import {
+  checkToolkitUpdate,
+  fetchToolTemplateOverview,
+  installToolkitTemplate,
+  updateMarketplaceToolTemplate
+} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
@@ -39,6 +44,18 @@ export default function ToolkitTemplate({template, env}) {
       } else {
         window.location.href = '/';
       }
+      return;
+    }
+
+    if(installed === "Update"){
+      updateMarketplaceToolTemplate(template.name)
+          .then((response) => {
+            toast.success("Template Updated", {autoClose: 1800});
+            setInstalled('Installed');
+          })
+          .catch((error) => {
+            console.error('Error installing template:', error);
+          });
       return;
     }
 
