@@ -4,7 +4,7 @@ import redis
 
 from superagi.config.config import get_config
 
-redis_url = get_config('REDIS_URL')
+redis_url = get_config('REDIS_URL') or "localhost:6379"
 """TaskQueue manages current tasks and past tasks in Redis """
 class TaskQueue:
     def __init__(self, queue_name: str):
@@ -17,6 +17,8 @@ class TaskQueue:
         # print("Added task. New tasks:", str(self.get_tasks()))
 
     def complete_task(self, response):
+        if len(self.get_tasks()) <= 0:
+            return
         task = self.db.lpop(self.queue_name)
         self.db.lpush(self.completed_tasks, str({"task": task, "response": response}))
 

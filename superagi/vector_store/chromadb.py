@@ -7,8 +7,7 @@ from chromadb import Settings
 from superagi.config.config import get_config
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
-from superagi.vector_store.embedding.openai import BaseEmbedding
-
+from superagi.vector_store.embedding.base import BaseEmbedding
 
 def _build_chroma_client():
     chroma_host_name = get_config("CHROMA_HOST_NAME") or "localhost"
@@ -100,3 +99,12 @@ class ChromaDB(VectorStore):
             )
 
         return documents
+
+    def get_index_stats(self) -> dict:
+        pass
+
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        pass
+
+    def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
+        pass

@@ -79,7 +79,7 @@ def create_config(config: ConfigurationIn, organisation_id: int,
     logger.info("NEW CONFIG")
     new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
     logger.info(new_config)
-    logger.info("ORGANISATION ID : ",organisation_id)
+    logger.info("ORGANISATION ID : ", organisation_id)
     db.session.add(new_config)
     db.session.commit()
     db.session.flush()
@@ -109,8 +109,9 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
     config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
                                                     Configuration.key == key).first()
     if config is None and key == "model_api_key":
-        api_key = get_config("OPENAI_API_KEY")
-        if api_key is not None and api_key != "YOUR_OPEN_API_KEY":
+        api_key = get_config("OPENAI_API_KEY") or get_config("PALM_API_KEY")
+        if (api_key is not None and api_key != "YOUR_OPEN_API_KEY") or (
+                api_key is not None and api_key != "YOUR_PALM_API_KEY"):
             encrypted_data = encrypt_data(api_key)
             new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
             db.session.add(new_config)
@@ -120,7 +121,7 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
         return config
 
     # Decrypt the API key
-    if config.key == "model_api_key":
+    if config is not None and config.key == "model_api_key":
         if config.value is not None:
             decrypted_data = decrypt_data(config.value)
             config.value = decrypted_data

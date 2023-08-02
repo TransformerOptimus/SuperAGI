@@ -16,13 +16,58 @@ TOOLS:
 PERFORMANCE EVALUATION:
 1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
 2. Use instruction to decide the flow of execution and decide the next steps for achieving the task.
-2. Constructively self-criticize your big-picture behavior constantly.
-3. Reflect on past decisions and strategies to refine your approach.
-4. Every tool has a cost, so be smart and efficient.
-5. Aim to complete tasks in the least number of steps.
+3. Constructively self-criticize your big-picture behavior constantly.
+4. Reflect on past decisions and strategies to refine your approach.
+5. Every tool has a cost, so be smart and efficient.
 
-I should only respond in JSON format as described below.
-Response Format:
-{response_format}
-
-Ensure the response can be parsed by Python json.loads.
+Respond with only valid JSON conforming to the following schema:
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "thoughts": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "thought"
+                },
+                "reasoning": {
+                    "type": "string",
+                    "description": "short reasoning"
+                },
+                "plan": {
+                    "type": "string",
+                    "description": "- short bulleted\n- list that conveys\n- long-term plan"
+                },
+                "criticism": {
+                    "type": "string",
+                    "description": "constructive self-criticism"
+                },
+                "speak": {
+                    "type": "string",
+                    "description": "thoughts summary to say to user"
+                }
+            },
+            "required": ["text", "reasoning", "plan", "criticism", "speak"],
+            "additionalProperties": false
+        },
+        "tool": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "tool name"
+                },
+                "args": {
+                    "type": "object",
+                    "description": "tool arguments"
+                }
+            },
+            "required": ["name", "args"],
+            "additionalProperties": false
+        }
+    },
+    "required": ["thoughts", "tool"],
+    "additionalProperties": false
+}

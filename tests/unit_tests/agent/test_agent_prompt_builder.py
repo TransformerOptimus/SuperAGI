@@ -56,7 +56,7 @@ def test_replace_main_variables():
 def test__generate_command_string():
     tool = SendEmailTool(name="Mock Tool", description="This is a mock tool.")
     result = AgentPromptBuilder._generate_command_string(tool)
-    expected_result = "Mock Tool: This is a mock tool."
+    expected_result = "\"Mock Tool\": This is a mock tool."
     assert (expected_result in result)
 
 
@@ -71,13 +71,13 @@ def test_get_super_agi_single_prompt():
         expected_response_format = {
             "thoughts": {
                 "text": "thought",
-                "reasoning": "reasoning",
+                "reasoning": "short reasoning",
                 "plan": "- short bulleted\n- list that conveys\n- long-term plan",
                 "criticism": "constructive self-criticism",
                 "speak": "thoughts summary to say to user",
             },
-            "tool": {"name": "tool name/task name", "description": "tool or task description",
-                     "args": {"arg name": "value"}}
+            "tool": {"name": "tool name/task name",
+                     "args": {"arg name": "arg value(escape in case of string)"}}
         }
         formatted_response_format = json.dumps(expected_response_format, indent=4)
 

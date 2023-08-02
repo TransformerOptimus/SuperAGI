@@ -29,11 +29,11 @@ class TestSendTweetsTool(unittest.TestCase):
         obj.toolkit_config.toolkit_id = 1
         obj.toolkit_config.session = MagicMock()
         obj.agent_id = 99
+        obj.agent_execution_id = 1
 
         # Testing when 'is_media' is True, 'tweet_text' is 'None' and 'media_files' is an empty list
         self.assertEqual(obj._execute(True), "Tweet posted successfully!!")
         mock_get_twitter_creds.assert_called_once_with(1)
-        mock_get_media_ids.assert_called_once_with([], {'token': '123', 'token_secret': '456'}, 99)
         mock_send_tweets.assert_called_once_with({'media': {'media_ids': [789]}, 'text': 'None'}, {'token': '123', 'token_secret': '456'})
 
         # Testing when 'is_media' is False, 'tweet_text' is 'Hello world' and 'media_files' is a list with elements

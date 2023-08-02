@@ -7,13 +7,21 @@ class BaseLlm(ABC):
         pass
 
     @abstractmethod
+    def get_source(self):
+        pass
+
+    @abstractmethod
+    def get_api_key(self):
+        pass
+
+    @abstractmethod
     def get_model(self):
         pass
 
     @abstractmethod
-    def get_image_model(self):
+    def get_models(self):
         pass
 
     @abstractmethod
-    def generate_image(self, prompt: str, size: int = 512, num: int = 2):
+    def verify_access_key(self):
         pass
