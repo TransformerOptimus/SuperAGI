@@ -722,6 +722,9 @@ p {
 .ml_12{margin-left: 12px;}
 .ml_16{margin-left: 16px;}
 .ml_20{margin-left: 20px;}
+.ml_22{margin-left: 22px;}
+
+.mr_22{margin-right: 22px;}
 
 .text_9{
     color: #FFF;
@@ -833,8 +836,9 @@ p {
 .cursor_pointer{cursor: pointer}
 .overflow_auto{overflow: auto}
 
-.gap_8{gap:8px;}
 .gap_4{gap:4px;}
+.gap_8{gap:8px;}
+.gap_20{gap:20px;}
 
 .color_white{color:#FFFFFF}
 
@@ -1130,3 +1134,26 @@ tr{
 
 .justify_space_between{justify-content: space-between}
 .cursor_pointer{cursor: pointer;}
+
+.horizontal_bar{
+    background: rgba(255, 255, 255, 0.10);
+    width: 4px;
+    height: 80%;
+    border-radius: 8px;
+    border: rgba(255, 255, 255, 0.10);
+}
+
+.top_bar_font {
+    display: flex;
+    align-items: center;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    color: white;
+    margin-left: 5px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -42,6 +42,19 @@ export default function TopBar({selectedProject, userName, env}) {
         </div>
       </div>
       <div className={styles.top_right}>
+        <div className="horizontal_container gap_20">
+          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://discord.gg/ypfYJWV6", "_blank")}>
+            <Image width={20} height={20} src="/images/discord.svg" alt="discord-icon" />
+            <p className="top_bar_font">Get Help?</p>
+          </div>
+          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://github.com/TransformerOptimus/SuperAGI", "_blank")}>
+            <Image width={20} height={20} src="/images/github_white.svg" alt="github-icon" />
+            <p className="top_bar_font">Github</p>
+          </div>
+        </div>
+
+        <div className="horizontal_bar mr_22 ml_22" />
+
         <div onClick={() => openNewTab(-3, "Settings", "Settings", false)} className={styles.top_right_icon}><Image
           width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
         <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}
