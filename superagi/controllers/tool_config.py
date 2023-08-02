@@ -9,7 +9,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.helper.encyption_helper import encrypt_data
-from superagi.helper.encyption_helper import decrypt_data
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 router = APIRouter()
 
@@ -137,7 +137,8 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
     tool_configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
     for tool_config in tool_configs:
         if tool_config.value:
-            tool_config.value = decrypt_data(tool_config.value)
+            if(is_encrypted(tool_config.value)):
+                tool_config.value = decrypt_data(tool_config.value)
         
     if not tool_configs:
         raise HTTPException(status_code=404, detail="Tool configuration not found")
@@ -173,7 +174,8 @@ def get_tool_config(toolkit_name: str, key: str, organisation: Organisation = De
         ToolConfig.toolkit_id == toolkit.id,
         ToolConfig.key == key
     ).first()
-    tool_config.value = decrypt_data(tool_config.value)
+    if(is_encrypted(tool_config.value)):
+        tool_config.value = decrypt_data(tool_config.value)
 
     if not tool_config:
         raise HTTPException(status_code=404, detail="Tool configuration not found")

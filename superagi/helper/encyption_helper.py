@@ -1,4 +1,4 @@
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
 
 # Generate a key
 # key = Fernet.generate_key()
@@ -33,3 +33,15 @@ def decrypt_data(encrypted_data):
     """
     decrypted_data = cipher_suite.decrypt(encrypted_data.encode())
     return decrypted_data.decode()
+
+
+def is_encrypted(value):
+    key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
+    try:
+        f = Fernet(key)
+        f.decrypt(value)
+        return True
+    except (InvalidToken, InvalidSignature):
+        return False
+    except (ValueError, TypeError):
+        return False

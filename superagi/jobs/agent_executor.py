@@ -8,7 +8,7 @@ import superagi.worker
 from superagi.agent.super_agi import SuperAgi
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
-from superagi.helper.encyption_helper import decrypt_data
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.llm_model_factory import get_model
@@ -52,7 +52,10 @@ class DBToolkitConfiguration(BaseToolkitConfiguration):
     def get_tool_config(self, key: str):
         tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
         if tool_config and tool_config.value:
-            return tool_config.value
+            if is_encrypted(tool_config.value):
+                return decrypt_data(tool_config.value)
+            else:
+                return tool_config.value
         return super().get_tool_config(key=key)
 
 
