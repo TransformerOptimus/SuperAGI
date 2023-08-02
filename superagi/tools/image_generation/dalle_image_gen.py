@@ -51,9 +51,6 @@ class DalleImageGenTool(BaseTool):
         Returns:
             Image generated successfully message if image is generated or error message.
         """
-        # session = self.toolkit_config.session
-        # toolkit = self.session.query(Toolkit).filter(Toolkit.id == self.toolkit_config.toolkit_id).first()
-        # organisation_id = toolkit.organisation_id
         session = self.toolkit_config.session
         toolkit = session.query(Toolkit).filter(Toolkit.id == self.toolkit_config.toolkit_id).first()
         organisation_id = toolkit.organisation_id
