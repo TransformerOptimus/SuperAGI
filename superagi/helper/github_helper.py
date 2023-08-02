@@ -1,6 +1,14 @@
 import base64
+import re
+
 import requests
 from superagi.lib.logger import logger
+from superagi.helper.resource_helper import ResourceHelper
+from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
+from superagi.types.storage_types import StorageType
+from superagi.config.config import get_config
+from superagi.helper.s3_helper import S3Helper
 
 
 class GithubHelper:
@@ -107,7 +115,8 @@ class GithubHelper:
         }
         response = requests.patch(head_branch_url, json=data, headers=headers)
         if response.status_code == 200:
-            logger.info(f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
+            logger.info(
+                f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
         else:
             logger.info('Failed to sync the branch. Check your inputs and permissions.')
 
@@ -195,7 +204,7 @@ class GithubHelper:
         return file_response.status_code
 
     def add_file(self, repository_owner, repository_name, file_name, folder_path, head_branch, base_branch, headers,
-                 body, commit_message):
+                 commit_message, agent_id, agent_execution_id, session):
         """
         Adds a file to the given repository.
 
@@ -210,7 +219,7 @@ class GithubHelper:
         Returns:
             None
         """
-
+        body = self._get_file_contents(file_name, agent_id, agent_execution_id, session)
         body_bytes = body.encode("ascii")
         base64_bytes = base64.b64encode(body_bytes)
         file_content = base64_bytes.decode("ascii")
@@ -299,3 +308,30 @@ class GithubHelper:
             file_content = base64.b64decode(file_content).decode()
 
         return file_content
+
+    @classmethod
+    def validate_github_link(cls, link: str) -> bool:
+        """
+        Validate a GitHub link.
+        Returns True if the link is valid, False otherwise.
+        """
+        # Regular expression pattern to match a GitHub link
+        pattern = r'^https?://(?:www\.)?github\.com/[\w\-]+/[\w\-]+$'
+
+        # Check if the link matches the pattern
+        if re.match(pattern, link):
+            return True
+
+        return False
+
+    def _get_file_contents(self, file_name, agent_id, agent_execution_id, session):
+        final_path = ResourceHelper().get_agent_read_resource_path(file_name,
+                                                                    agent=Agent.get_agent_from_id(session, agent_id),
+                                                                    agent_execution=AgentExecution.get_agent_execution_from_id(
+                                                                  session, agent_execution_id))
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+                attachment_data = S3Helper().read_from_s3(final_path)
+        else:
+            with open(final_path, "r") as file:
+                attachment_data = file.read().decode('utf-8')
+        return attachment_data

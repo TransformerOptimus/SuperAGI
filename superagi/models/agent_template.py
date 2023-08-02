@@ -3,11 +3,9 @@ import json
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
-from superagi.models.tool import Tool
 
 marketplace_url = "https://app.superagi.com/api/"
 # marketplace_url = "http://localhost:8001/"
@@ -15,7 +13,7 @@ marketplace_url = "https://app.superagi.com/api/"
 
 class AgentTemplate(DBBaseModel):
     """
-    Represents a preconfigured agent template.
+    Preconfigured agent templates that can be used to create agents.
 
     Attributes:
         id (int): The unique identifier of the agent template.
@@ -99,7 +97,7 @@ class AgentTemplate(DBBaseModel):
         """
 
         keys_to_fetch = ["goal", "instruction", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
-                         "permission_type", "LTM_DB", "memory_window", "max_iterations"]
+                         "permission_type", "LTM_DB", "max_iterations", "knowledge"]
         return keys_to_fetch
 
     @classmethod
@@ -195,8 +193,11 @@ class AgentTemplate(DBBaseModel):
 
         if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
             return value
-        elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
-            return int(value)
+        elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval", "knowledge"]:
+            if value is not None and value != 'None':
+                return int(value)
+            else:
+                return None  
         elif key == "goal" or key == "constraints" or key == "instruction":
             return eval(value)
         elif key == "tools":

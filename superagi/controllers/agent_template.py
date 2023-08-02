@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
 
 from main import get_config
 from superagi.helper.auth import get_user_organisation
@@ -11,12 +13,38 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.tool import Tool
+import json
+# from superagi.types.db import AgentTemplateIn, AgentTemplateOut
 
 router = APIRouter()
 
 
-@router.post("/create", status_code=201, response_model=sqlalchemy_to_pydantic(AgentTemplate))
-def create_agent_template(agent_template: sqlalchemy_to_pydantic(AgentTemplate, exclude=["id"]),
+class AgentTemplateOut(BaseModel):
+    id: int
+    organisation_id: int
+    agent_workflow_id: int
+    name: str
+    description: str
+    marketplace_template_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentTemplateIn(BaseModel):
+    organisation_id: int
+    agent_workflow_id: int
+    name: str
+    description: str
+    marketplace_template_id: int
+
+    class Config:
+        orm_mode = True
+
+@router.post("/create", status_code=201, response_model=AgentTemplateOut)
+def create_agent_template(agent_template: AgentTemplateIn,
                           organisation=Depends(get_user_organisation)):
     """
     Create an agent template.
@@ -81,7 +109,7 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
     return template
 
 
-@router.post("/update_details/{agent_template_id}", response_model=sqlalchemy_to_pydantic(AgentTemplate))
+@router.post("/update_details/{agent_template_id}", response_model=AgentTemplateOut)
 def update_agent_template(agent_template_id: int,
                           agent_configs: dict,
                           organisation=Depends(get_user_organisation)):
@@ -116,6 +144,59 @@ def update_agent_template(agent_template_id: int,
     db.session.commit()
 
     return db_agent_template
+
+@router.put("/update_agent_template/{agent_template_id}", status_code=200)
+def edit_agent_template(agent_template_id: int,
+                        updated_agent_configs: dict,
+                        organisation=Depends(get_user_organisation)):
+    
+    """
+    Update the details of an agent template.
+
+    Args:
+        agent_template_id (int): The ID of the agent template to update.
+        edited_agent_configs (dict): The updated agent configurations.
+        organisation (Depends): Dependency to get the user organisation.
+
+    Returns:
+        HTTPException (status_code=200): If the agent gets successfully edited.
+
+    Raises:
+        HTTPException (status_code=404): If the agent template is not found.
+    """
+    
+    db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
+                                                               AgentTemplate.id == agent_template_id).first()
+    if db_agent_template is None:
+        raise HTTPException(status_code=404, detail="Agent Template not found")
+    
+    db_agent_template.name = updated_agent_configs["name"]
+    db_agent_template.description = updated_agent_configs["description"]
+
+    db.session.commit()
+
+    agent_config_values = updated_agent_configs.get('agent_configs', {})
+
+    for key, value in agent_config_values.items():
+        if isinstance(value, (list, dict)):
+            value = json.dumps(value)
+        config = db.session.query(AgentTemplateConfig).filter(
+            AgentTemplateConfig.agent_template_id == agent_template_id,
+            AgentTemplateConfig.key == key
+        ).first()
+
+        if config is not None:
+            config.value = value
+        else:
+            new_config = AgentTemplateConfig(
+                agent_template_id=agent_template_id,
+                key=key,
+                value= value
+            )
+            db.session.add(new_config)
+
+    db.session.commit()
+    db.session.flush()
 
 
 @router.post("/save_agent_as_template/{agent_id}")

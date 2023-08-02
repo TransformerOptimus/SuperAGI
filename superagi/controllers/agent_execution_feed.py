@@ -1,23 +1,56 @@
+from datetime import datetime
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
+
 from sqlalchemy.sql import asc
 
 from superagi.agent.task_queue import TaskQueue
 from superagi.helper.auth import check_auth
+from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 
+import re
+# from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
+
 router = APIRouter()
 
 
+class AgentExecutionFeedOut(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    feed: str
+    role: str
+    extra_info: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentExecutionFeedIn(BaseModel):
+    id: int
+    agent_execution_id: int
+    agent_id: int
+    feed: str
+    role: str
+    extra_info: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed), status_code=201)
-def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+@router.post("/add", response_model=AgentExecutionFeedOut, status_code=201)
+def create_agent_execution_feed(agent_execution_feed: AgentExecutionFeedIn,
                                 Authorize: AuthJWT = Depends(check_auth)):
     """
     Add a new agent execution feed.
@@ -45,7 +78,7 @@ def create_agent_execution_feed(agent_execution_feed: sqlalchemy_to_pydantic(Age
     return db_agent_execution_feed
 
 
-@router.get("/get/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
+@router.get("/get/{agent_execution_feed_id}", response_model=AgentExecutionFeedOut)
 def get_agent_execution_feed(agent_execution_feed_id: int,
                              Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -68,9 +101,9 @@ def get_agent_execution_feed(agent_execution_feed_id: int,
     return db_agent_execution_feed
 
 
-@router.put("/update/{agent_execution_feed_id}", response_model=sqlalchemy_to_pydantic(AgentExecutionFeed))
+@router.put("/update/{agent_execution_feed_id}", response_model=AgentExecutionFeedOut)
 def update_agent_execution_feed(agent_execution_feed_id: int,
-                                agent_execution_feed: sqlalchemy_to_pydantic(AgentExecutionFeed, exclude=["id"]),
+                                agent_execution_feed: AgentExecutionFeedIn,
                                 Authorize: AuthJWT = Depends(check_auth)):
     """
     Update a particular agent execution feed.
@@ -132,12 +165,12 @@ def get_agent_execution_feed(agent_execution_id: int,
     # # parse json
     final_feeds = []
     for feed in feeds:
-        if feed.feed != "":
+        if feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
             final_feeds.append(parse_feed(feed))
 
     # get all permissions
     execution_permissions = db.session.query(AgentExecutionPermission).\
-        filter_by(agent_execution_id=agent_execution_id, status="PENDING"). \
+        filter_by(agent_execution_id=agent_execution_id). \
         order_by(asc(AgentExecutionPermission.created_at)).all()
 
     permissions = [
@@ -146,7 +179,9 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "created_at": permission.created_at,
                 "response": permission.user_feedback,
                 "status": permission.status,
-                "tool_name": permission.tool_name
+                "tool_name": permission.tool_name,
+                "user_feedback": permission.user_feedback,
+                "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
         } for permission in execution_permissions
     ]
     return {

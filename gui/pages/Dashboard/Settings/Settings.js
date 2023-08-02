@@ -1,12 +1,56 @@
 import React, {useState, useEffect} from 'react';
-import Image from "next/image";
-import styles from '../Dashboard.module.css';
-import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import styles from "@/pages/Content/Marketplace/Market.module.css";
+import Image from "next/image";
+import Model from "@/pages/Dashboard/Settings/Model";
+import Database from "@/pages/Dashboard/Settings/Database";
 
-export default function Settings() {
+export default function Settings({organisationId, sendDatabaseData}) {
+  const [activeTab, setActiveTab] = useState('model');
+
+  useEffect(() => {
+    const settings_tab = localStorage.getItem('settings_tab');
+    if (settings_tab) {
+      setActiveTab(settings_tab);
+    }
+  }, []);
+
+  const switchTab = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('settings_tab', tab);
+  };
+
   return (<>
-    <div>Settings</div>
-    <ToastContainer/>
+    <div className={styles.empty_state}>
+      <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
+        <div className={styles.detail_top}>
+          <div style={{display: 'flex', overflowX: 'scroll', marginLeft: '8px'}}>
+            <div>
+              <button onClick={() => switchTab('model')} className={styles.tab_button} style={activeTab === 'model' ? {
+                background: '#454254',
+                paddingRight: '15px'
+              } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/model_light.svg"
+                       alt="model-icon"/>&nbsp;Model
+              </button>
+            </div>
+            <div>
+              <button onClick={() => switchTab('database')} className={styles.tab_button}
+                      style={activeTab === 'database' ? {
+                        background: '#454254',
+                        paddingRight: '15px'
+                      } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/database.svg"
+                       alt="database-icon"/>&nbsp;Database
+              </button>
+            </div>
+          </div>
+        </div>
+        <div>
+          {activeTab === 'model' && <Model organisationId={organisationId}/>}
+          {activeTab === 'database' && <Database sendDatabaseData={sendDatabaseData} organisationId={organisationId}/>}
+        </div>
+      </div>
+    </div>
   </>)
 }

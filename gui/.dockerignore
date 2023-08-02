@@ -1,0 +1,13 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!app
+!pages
+!public
+!utils
+!package.json
+!next.config.js
+!package-lock.json
+!.eslintrc.json
+!jsconfig.json

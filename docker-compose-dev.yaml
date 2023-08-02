@@ -1,0 +1,76 @@
+version: '3.8'
+services:
+  backend:
+    volumes:
+      - "./:/app"
+    build: .
+    depends_on:
+      - super__redis
+      - super__postgres
+    networks:
+      - super_network
+    command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
+  celery:
+    volumes:
+      - "./:/app"
+      - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
+    build: .
+    depends_on:
+      - super__redis
+      - super__postgres
+    networks:
+      - super_network
+    command: ["/app/entrypoint_celery.sh"]
+  gui:
+    build:
+      context: ./gui
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "/api"
+    networks:
+      - super_network
+#    volumes:
+#      - ./gui:/app
+#      - /app/node_modules/
+#      - /app/.next/
+  super__redis:
+    image: "redis/redis-stack-server:latest"
+    networks:
+      - super_network
+#    uncomment to expose redis port to host
+#    ports:
+#      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  super__postgres:
+    image: "docker.io/library/postgres:latest"
+    environment:
+      - POSTGRES_USER=superagi
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=super_agi_main
+    volumes:
+      - superagi_postgres_data:/var/lib/postgresql/data/
+    networks:
+      - super_network
+#    uncomment to expose postgres port to host
+#    ports:
+#      - "5432:5432"
+
+  proxy:
+    image: nginx:stable-alpine
+    ports:
+      - "3000:80"
+    networks:
+      - super_network
+    depends_on:
+      - backend
+      - gui
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+networks:
+  super_network:
+    driver: bridge
+volumes:
+  superagi_postgres_data:
+  redis_data:

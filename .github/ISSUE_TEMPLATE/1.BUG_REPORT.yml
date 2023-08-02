@@ -1,0 +1,148 @@
+name: Bug report 
+description: Create a bug report for SuperAGI.
+labels: ['status: needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### ⚠️ Issue Creation Guideline
+        * Check out our [roadmap] and join our [discord] to discuss what's going on
+        * If you need help, you can ask in the [#general] section or in [#support]
+        * **Thoroughly search the [existing issues] before creating a new one**
+        * Read through our docs:
+        [roadmap]: https://github.com/users/TransformerOptimus/projects/5
+        [discord]: https://discord.gg/dXbRe5BHJC
+        [#general]: https://discord.com/channels/1107593006032355359/1107642413993959505
+        [#support]: https://discord.com/channels/1107593006032355359/1107645922797703198
+        [existing issues]: https://github.com/TransformerOptimus/SuperAGI/issues
+  - type: checkboxes
+    attributes:
+      label: ⚠️ Check for existing issues before proceeding. ⚠️
+      description: >
+        Please [search the history](https://github.com/TransformerOptimus/SuperAGI/issues)
+        to see if an issue already exists for the same problem.
+      options:
+        - label: I have searched the existing issues, and there is no existing issue for my problem
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        Please confirm that the issue you have is described well and precise in the title above ⬆️.
+        Think like this: What would you type if you were searching for the issue?
+        
+        For example:
+        ❌ - my SuperAGI agent keeps looping
+        ✅ - After performing Write Tool, SuperAGI goes into a loop where it keeps trying to write the file.
+        
+        Please help us help you by following these steps:
+        - Search for existing issues, adding a comment when you have the same or similar issue is tidier than "new issue" and 
+          newer issues will not be reviewed earlier, this is dependent on the current priorities set by our wonderful team
+        - Ask on our Discord if your issue is known when you are unsure (https://discord.gg/dXbRe5BHJC)
+        - Provide relevant info:
+          - Provide Docker Logs(docker compose logs) whenever possible.
+          - If it's a pip/packages issue, mention this in the title and provide pip version, python version.
+  - type: dropdown
+    attributes:
+      label: Where are you using SuperAGI?
+      description: >
+        Please select the operating system you were using to run SuperAGI when this problem occurred.
+      options:
+        - Windows
+        - Linux
+        - MacOS
+        - Codespaces
+        - Web Version
+        - Other
+    validations:
+      required: true
+      nested_fields:
+        - type: text
+          attributes:
+            label: Specify the system
+            description: Please specify the system you are working on.
+
+  - type: dropdown
+    attributes:
+      label: Which branch of SuperAGI are you using?
+      description: |
+        Please select which version of SuperAGI you were using when this issue occurred.
+        If installed with git you can run `git branch` to see which version of Auto-GPT you are running.
+      options:
+        - Main
+        - Dev (branch)
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Do you use OpenAI GPT-3.5 or GPT-4?
+      description: >
+        If you are using SuperAGI with GPT-3.5, your problems may be caused by
+        the limitations of GPT-3.5 like incorrect Tool selection thus causing looping in the agent feed.
+      options:
+        - GPT-3.5
+        - GPT-3.5(16k)
+        - GPT-4
+        - GPT-4(32k)
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Which area covers your issue best?
+      description: >
+        Select the area related to the issue you are reporting.
+      options:
+        - Installation and setup
+        - Resource Manager
+        - Action Console
+        - Performance
+        - Marketplace
+        - Prompt
+        - Tools
+        - Agents
+        - Documentation
+        - Logging
+        - Other
+    validations:
+      required: true
+      autolabels: true
+      nested_fields:
+        - type: text
+          attributes:
+            label: Specify the area
+            description: Please specify the area you think is best related to the issue.
+
+  - type: textarea
+    attributes:
+      label: Describe your issue.
+      description: Describe the problem you are experiencing. Try to describe only the issue and phrase it short but clear. ⚠️ Provide NO other data in this field  
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+     label: How to replicate your Issue?
+     description: |
+      Mention Agent Name, Agent Description and Agent Goals, along with Model selected. 
+      Provide any other data which might be relevant for us to replicate this issue.
+      ⚠️ Provide NO other data in this field  
+    validations:
+     required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ Please keep in mind that the log files may contain personal information such as credentials. Make sure you hide them before copy/pasting it! ⚠️        
+  - type: input
+    attributes:
+      label: Upload Error Log Content
+      description: |
+        Upload the error log content, this can help us understand the issue better. 
+        To do this, you can simply copy the logs from the terminal with which you did 'docker compose up' or in a new terminal, 
+        enter 'docker compose logs' and copy/paste the error contents to this field. 
+        ⚠️ The activity log may contain personal data given to SuperAGI by you in prompt or input as well as 
+        any personal information that SuperAGI collected out of files during last run. Please hide them before sharing. ⚠️
+    validations:
+      required: True

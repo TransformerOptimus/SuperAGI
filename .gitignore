@@ -8,10 +8,16 @@ superagi/controllers/__pycache__
 **agent_dictvenv
 **/__gitpycache__/
 gui/node_modules
+node_modules
 gui/.next
 .DS_Store
 .DS_Store?
 venv
 workspace/output
 workspace/input
+celerybeat-schedule
 ../bfg-report*
+superagi/tools/marketplace_tools/
+superagi/tools/external_tools/
+tests/unit_tests/resource_manager/test_path
+/tools.json

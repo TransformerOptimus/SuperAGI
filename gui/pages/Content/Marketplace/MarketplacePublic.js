@@ -13,18 +13,22 @@ export default function MarketplacePublic({env}) {
   };
 
   return (
-    <div style={{height:'100vh',width:'100%'}}>
-     <div className={styles.marketplace_public_container}>
-         <div className="superAgiLogo" style={{paddingLeft:'15px'}}><Image width={132} height={24} src="/images/sign-in-logo.svg" alt="super-agi-logo"/>
-            <div className={styles.vertical_line} />
-            <div className={styles.topbar_heading}>&nbsp;marketplace</div>
-         </div>
-         <div className={styles.marketplace_public_button}>
-             <button className="primary_button" onClick={handleSignupClick}>Try for free today!</button>
-         </div>
-     </div>
+    <div style={{height: '100vh', width: '100%'}}>
+      <div className={styles.marketplace_public_container}>
+        <div className="superAgiLogo" style={{paddingLeft: '15px'}}><Image width={132} height={24}
+                                                                           style={{cursor: 'pointer'}}
+                                                                           onClick={handleSignupClick}
+                                                                           src="/images/sign-in-logo.svg"
+                                                                           alt="super-agi-logo"/>
+          <div className={styles.vertical_line}/>
+          <div className={styles.topbar_heading}>&nbsp;Marketplace</div>
+        </div>
+        <div className={styles.marketplace_public_button}>
+          <button className="primary_button" onClick={handleSignupClick}>Sign Up</button>
+        </div>
+      </div>
       <div className={styles.marketplace_public_content}>
-        <Market/>
+        <Market env={env}/>
       </div>
     </div>
   );

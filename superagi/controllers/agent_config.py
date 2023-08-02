@@ -1,19 +1,46 @@
+from typing import Union, List
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
+
 from superagi.helper.auth import check_auth
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.types.agent_config import AgentConfig
+# from superagi.types.db import AgentConfigurationIn, AgentConfigurationOut
+from datetime import datetime
+
 
 router = APIRouter()
 
 
+class AgentConfigurationOut(BaseModel):
+    id: int
+    agent_id: int
+    key: str
+    value: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AgentConfigurationIn(BaseModel):
+    agent_id: int
+    key: str
+    value: Union[str, List[str]]
+
+    class Config:
+        orm_mode = True
+
+
 # CRUD Operations
-@router.post("/add", response_model=sqlalchemy_to_pydantic(AgentConfiguration), status_code=201)
-def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration, exclude=["id"], ),
+@router.post("/add", response_model=AgentConfigurationOut, status_code=201)
+def create_agent_config(agent_config: AgentConfigurationIn,
                         Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new agent configuration by setting a new key and value related to the agent.
@@ -25,10 +52,10 @@ def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,
         AgentConfiguration: The created agent configuration.
 
     Raises:
-        HTTPException (Status Code=404): If the associated agent is not found.
+        HTTPException (Status Code=404): If the associated agent is not found or deleted.
     """
 
-    agent = db.session.query(Agent).get(agent_config.agent_id)
+    agent = db.session.query(Agent).filter(Agent.id == agent_config.agent_id, Agent.is_deleted == False).first()
 
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -39,7 +66,7 @@ def create_agent_config(agent_config: sqlalchemy_to_pydantic(AgentConfiguration,
     return db_agent_config
 
 
-@router.get("/get/{agent_config_id}", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
+@router.get("/get/{agent_config_id}", response_model=AgentConfigurationOut)
 def get_agent(agent_config_id: int,
               Authorize: AuthJWT = Depends(check_auth)):
     """
@@ -55,14 +82,18 @@ def get_agent(agent_config_id: int,
         HTTPException (Status Code=404): If the agent configuration is not found.
     """
 
-    db_agent_config = db.session.query(AgentConfiguration).filter(AgentConfiguration.id == agent_config_id).first()
-    if not db_agent_config:
+    if (
+        db_agent_config := db.session.query(AgentConfiguration)
+        .filter(AgentConfiguration.id == agent_config_id)
+        .first()
+    ):
+        return db_agent_config
+    else:
         raise HTTPException(status_code=404, detail="Agent Configuration not found")
-    return db_agent_config
 
 
-@router.put("/update", response_model=sqlalchemy_to_pydantic(AgentConfiguration))
-def update_agent(agent_config: AgentConfig,
+@router.put("/update", response_model=AgentConfigurationOut)
+def update_agent(agent_config: AgentConfigurationIn,
                  Authorize: AuthJWT = Depends(check_auth)):
     """
         Update a particular agent configuration value for the given agent_id and agent_config key.
@@ -106,10 +137,10 @@ def get_agent_configurations(agent_id: int,
         dict: The parsed response containing agent configurations.
 
     Raises:
-        HTTPException (Status Code=404): If the agent or agent configurations are not found.
+        HTTPException (Status Code=404): If the agent or agent configurations are not found or deleted.
     """
 
-    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="agent not found")
 
@@ -164,5 +195,5 @@ def get_agent_configurations(agent_id: int,
             parsed_response["permission_type"] = value
         elif key == "LTM_DB":
             parsed_response["LTM_DB"] = value
-
+            
     return parsed_response

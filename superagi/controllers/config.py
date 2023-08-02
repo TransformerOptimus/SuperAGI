@@ -1,5 +1,9 @@
+from datetime import datetime
+from typing import Optional
+
 from fastapi import APIRouter
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from pydantic import BaseModel
+
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from fastapi_sqlalchemy import db
@@ -9,14 +13,35 @@ from superagi.helper.auth import check_auth
 from fastapi_jwt_auth import AuthJWT
 from superagi.helper.encyption_helper import encrypt_data,decrypt_data
 from superagi.lib.logger import logger
+# from superagi.types.db import ConfigurationIn, ConfigurationOut
 
 router = APIRouter()
 
 
+class ConfigurationOut(BaseModel):
+    id: int
+    organisation_id: int
+    key: str
+    value: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ConfigurationIn(BaseModel):
+    organisation_id: Optional[int]
+    key: str
+    value: str
+
+    class Config:
+        orm_mode = True
+
 # CRUD Operations
 @router.post("/add/organisation/{organisation_id}", status_code=201,
-             response_model=sqlalchemy_to_pydantic(Configuration))
-def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]), organisation_id: int,
+             response_model=ConfigurationOut)
+def create_config(config: ConfigurationIn, organisation_id: int,
                   Authorize: AuthJWT = Depends(check_auth)):
     """
     Creates a new Organisation level config.
@@ -54,7 +79,7 @@ def create_config(config: sqlalchemy_to_pydantic(Configuration, exclude=["id"]),
     logger.info("NEW CONFIG")
     new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
     logger.info(new_config)
-    logger.info("ORGANISATION ID : ",organisation_id)
+    logger.info("ORGANISATION ID : ", organisation_id)
     db.session.add(new_config)
     db.session.commit()
     db.session.flush()
@@ -84,8 +109,9 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
     config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
                                                     Configuration.key == key).first()
     if config is None and key == "model_api_key":
-        api_key = get_config("OPENAI_API_KEY")
-        if api_key is not None and api_key != "YOUR_OPEN_API_KEY":
+        api_key = get_config("OPENAI_API_KEY") or get_config("PALM_API_KEY")
+        if (api_key is not None and api_key != "YOUR_OPEN_API_KEY") or (
+                api_key is not None and api_key != "YOUR_PALM_API_KEY"):
             encrypted_data = encrypt_data(api_key)
             new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
             db.session.add(new_config)
@@ -95,7 +121,7 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
         return config
 
     # Decrypt the API key
-    if config.key == "model_api_key":
+    if config is not None and config.key == "model_api_key":
         if config.value is not None:
             decrypted_data = decrypt_data(config.value)
             config.value = decrypted_data

@@ -15,7 +15,7 @@ class VectorStore(ABC):
         """Add texts to the vector store."""
 
     @abstractmethod
-    def get_matching_text(self, query: str, top_k: int, **kwargs: Any) -> List[Document]:
+    def get_matching_text(self, query: str, top_k: int, metadata: Optional[dict], **kwargs: Any) -> List[Document]:
         """Return docs most similar to query using specified search type."""
 
     def add_documents(self, documents: List[Document], **kwargs: Any) -> List[str]:
@@ -24,3 +24,15 @@ class VectorStore(ABC):
         texts = [doc.text_content for doc in documents]
         metadatas = [doc.metadata for doc in documents]
         return self.add_texts(texts, metadatas, **kwargs)
+    
+    @abstractmethod
+    def get_index_stats(self) -> dict:
+        """Returns stats or information of an index"""
+    
+    @abstractmethod
+    def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
+        """Add embeddings to the vector store."""
+    
+    @abstractmethod
+    def delete_embeddings_from_vector_db(self,ids: List[str]) -> None:
+        """Delete embeddings from the vector store."""

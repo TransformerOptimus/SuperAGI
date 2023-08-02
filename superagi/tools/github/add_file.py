@@ -1,17 +1,9 @@
-import string
-import re
-import base64
-
-import requests
-import os
 from typing import Type
 
 from pydantic import BaseModel, Field
-from superagi.config.config import get_config
-
-from superagi.tools.base_tool import BaseTool
 
 from superagi.helper.github_helper import GithubHelper
+from superagi.tools.base_tool import BaseTool
 
 
 class GithubAddFileSchema(BaseModel):
@@ -31,10 +23,6 @@ class GithubAddFileSchema(BaseModel):
     folder_path: str = Field(
         ...,
         description="folder path for the file to be stored",
-    )
-    body: str = Field(
-        ...,
-        description="content to be stored",
     )
     commit_message: str = Field(
         ...,
@@ -58,8 +46,10 @@ class GithubAddFileTool(BaseTool):
     name: str = "Github Add File"
     args_schema: Type[BaseModel] = GithubAddFileSchema
     description: str = "Add a file or folder to a particular github repository"
+    agent_id: int = None
+    agent_execution_id: int = None
 
-    def _execute(self, repository_name: str, base_branch: str, body: str, commit_message: str, repository_owner: str,
+    def _execute(self, repository_name: str, base_branch: str, commit_message: str, repository_owner: str,
                  file_name='.gitkeep', folder_path=None) -> str:
         """
         Execute the add file tool.
@@ -67,18 +57,18 @@ class GithubAddFileTool(BaseTool):
         Args:
             repository_name : The name of the repository to add file to.
             base_branch : The branch to interact with.
-            body : The content to be stored.
             commit_message : Clear description of the contents of file.
             repository_owner : Owner of the GitHub repository.
             file_name : The name of the file to add.
             folder_path : The path of the folder to add the file to.
 
         Returns:
-            Pull request to add file/folder has been created. or error message.
+            Pull request success message if pull request is created successfully else error message.
         """
+        session = self.toolkit_config.session
         try:
-            github_access_token = get_config("GITHUB_ACCESS_TOKEN")
-            github_username = get_config("GITHUB_USERNAME")
+            github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
+            github_username = self.get_tool_config("GITHUB_USERNAME")
             github_helper = GithubHelper(github_access_token, github_username)
             head_branch = 'new-file'
             headers = {
@@ -90,7 +80,7 @@ class GithubAddFileTool(BaseTool):
 
             branch_response = github_helper.create_branch(repository_name, base_branch, head_branch, headers)
             file_response = github_helper.add_file(repository_owner, repository_name, file_name, folder_path,
-                                                   head_branch, base_branch, headers, body, commit_message)
+                                                   head_branch, base_branch, headers, commit_message, self.agent_id, self.agent_execution_id, session)
             pr_response = github_helper.create_pull_request(repository_owner, repository_name, head_branch, base_branch,
                                                             headers)
             if (pr_response == 201 or pr_response == 422) and (file_response == 201 or file_response == 422):

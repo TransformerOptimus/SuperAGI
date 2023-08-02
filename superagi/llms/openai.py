@@ -1,21 +1,19 @@
-import os
-import json
-from abc import ABC, abstractmethod
-
 import openai
-from superagi.llms.base_llm import BaseLlm
+from openai import APIError, InvalidRequestError
+from openai.error import RateLimitError, AuthenticationError
+
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
+from superagi.llms.base_llm import BaseLlm
 
 
 class OpenAi(BaseLlm):
-    def __init__(self, api_key, image_model=None, model="gpt-4", temperature=0.6, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), top_p=1,
+    def __init__(self, api_key, model="gpt-4", temperature=0.6, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), top_p=1,
                  frequency_penalty=0,
                  presence_penalty=0, number_of_results=1):
         """
         Args:
             api_key (str): The OpenAI API key.
-            image_model (str): The image model.
             model (str): The model.
             temperature (float): The temperature.
             max_tokens (int): The maximum number of tokens.
@@ -32,9 +30,18 @@ class OpenAi(BaseLlm):
         self.presence_penalty = presence_penalty
         self.number_of_results = number_of_results
         self.api_key = api_key
-        self.image_model = image_model
         openai.api_key = api_key
         openai.api_base = get_config("OPENAI_API_BASE", "https://api.openai.com/v1")
+
+    def get_source(self):
+        return "openai"
+
+    def get_api_key(self):
+        """
+        Returns:
+            str: The API key.
+        """
+        return self.api_key
 
     def get_model(self):
         """
@@ -42,13 +49,6 @@ class OpenAi(BaseLlm):
             str: The model.
         """
         return self.model
-
-    def get_image_model(self):
-        """
-        Returns:
-            str: The image model.
-        """
-        return self.image_model
 
     def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         """
@@ -75,25 +75,46 @@ class OpenAi(BaseLlm):
             )
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
+        except AuthenticationError as auth_error:
+            logger.info("OpenAi AuthenticationError:", auth_error)
+            return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys.."}
+        except RateLimitError as api_error:
+            logger.info("OpenAi RateLimitError:", api_error)
+            return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded.."}
+        except InvalidRequestError as invalid_request_error:
+            logger.info("OpenAi InvalidRequestError:", invalid_request_error)
+            return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error.."}
         except Exception as exception:
-            logger.info("Exception:", exception)
-            return {"error": exception}
+            logger.info("OpenAi Exception:", exception)
+            return {"error": "ERROR_OPENAI", "message": "Open ai exception"}
 
-    def generate_image(self, prompt: str, size: int = 512, num: int = 2):
+    def verify_access_key(self):
         """
-        Call the OpenAI image API.
-
-        Args:
-            prompt (str): The prompt.
-            size (int): The size.
-            num (int): The number of images.
+        Verify the access key is valid.
 
         Returns:
-            dict: The response.
+            bool: True if the access key is valid, False otherwise.
         """
-        response = openai.Image.create(
-            prompt=prompt,
-            n=num,
-            size=f"{size}x{size}"
-        )
-        return response
+        try:
+            models = openai.Model.list()
+            return True
+        except Exception as exception:
+            logger.info("OpenAi Exception:", exception)
+            return False
+
+    def get_models(self):
+        """
+        Get the models.
+
+        Returns:
+            list: The models.
+        """
+        try:
+            models = openai.Model.list()
+            models = [model["id"] for model in models["data"]]
+            models_supported = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
+            models = [model for model in models if model in models_supported]
+            return models
+        except Exception as exception:
+            logger.info("OpenAi Exception:", exception)
+            return []

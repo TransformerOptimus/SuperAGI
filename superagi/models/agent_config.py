@@ -1,11 +1,13 @@
+from fastapi import HTTPException
 from sqlalchemy import Column, Integer, Text, String
 
 from superagi.models.base_model import DBBaseModel
+from superagi.models.tool import Tool
 
 
 class AgentConfiguration(DBBaseModel):
     """
-    Represents a configuration for an agent.
+    Agent related configurations like goals, instructions, constraints and tools are stored here
 
     Attributes:
         id (int): The unique identifier of the agent configuration.
