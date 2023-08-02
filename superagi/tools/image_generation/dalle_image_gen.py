@@ -64,7 +64,7 @@ class DalleImageGenTool(BaseTool):
         print(api_key)
         if api_key is None:
             print("//////////////////////////////")
-            model_source = Configuration.fetch_configuration(self.toolkit_config.session, self.toolkit_config.organisation_id, "model_source")
+            model_source = Configuration.fetch_configuration(session, organisation_id, "model_source")
             print(model_source)
             if model_source != "OpenAi":
                 return "Enter your OpenAi api key in the configuration"
