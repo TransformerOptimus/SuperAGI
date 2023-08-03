@@ -25,6 +25,8 @@ export default function ApmDashboard(key) {
   const [activeRuns, setActiveRuns] = useState([]);
   const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
   const [toolsUsed, setToolsUsed] = useState([]);
+  const [showToolTip, setShowToolTip] = useState(false);
+  const [toolTipIndex, setToolTipIndex] = useState(-1);
   const initialLayout = [
     {i: 'total_agents', x: 0, y: 0, w: 3, h: 1.5},
     {i: 'total_tokens', x: 3, y: 0, w: 3, h: 1.5},
@@ -118,6 +120,11 @@ export default function ApmDashboard(key) {
       handleSelectedAgent(lastAgent.agent_id, lastAgent.name);
     }
   }, [allAgents, selectedAgent, handleSelectedAgent]);
+
+  const setToolTipState = (state, index) => {
+    setShowToolTip(state)
+    setToolTipIndex(index)
+  }
 
   return (
     <div className={style.apm_dashboard_container}>
@@ -279,15 +286,21 @@ export default function ApmDashboard(key) {
                         <td className="table_data text_align_right w_12">
                           {run.runs_completed ? (run.total_tokens / run.runs_completed).toFixed(1) : '-'}
                         </td>
-                        <td className="table_data text_align_right w_20">
+                        <td className="table_data text_align_right" style={{width: '20%'}}>
                           {run.tools_used && run.tools_used.slice(0, 3).map((tool, index) => (
-                            <div key={index} className="tools_used">{tool}</div>
+                              <div key={index} className="tools_used">{tool}</div>
                           ))}
                           {run.tools_used && run.tools_used.length > 3 &&
-                            <div className="tools_used_tooltip"
-                                 data-tooltip={run.tools_used.slice(3).join(", ")}>
-                              +{run.tools_used.length - 3}
-                            </div>
+                              <div style={{display:'inline-flex'}}>
+                                {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip">
+                                  {run.tools_used.slice(3).map((tool,index) =>
+                                      <div className="tools_used">{tool}</div>
+                                  )}
+                                </div>}
+                                <div className="tools_used cursor_pointer" onMouseEnter={() => setToolTipState(true,i)} onMouseLeave={() => setToolTipState(false,i)}>
+                                  +{run.tools_used.length - 3}
+                                </div>
+                              </div>
                           }
                         </td>
                         <td className="table_data text_align_right w_10">{run.total_calls}</td>
