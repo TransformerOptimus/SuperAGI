@@ -295,3 +295,9 @@ export const fetchApiKeys = () => {
 export const fetchApiKey = (model_provider) => {
   return api.get(`/models_controller/getApiKey?model_provider=${model_provider}`)
 }
+
+export const verifyEndPoint = (model_api_key, end_point) => {
+  return api.get(`/models_controller/verifyEndPoint`, {
+    params: { model_api_key, end_point }
+  });
+}

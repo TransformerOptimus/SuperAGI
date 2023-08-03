@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
@@ -8,6 +9,7 @@ class HuggingFace(BaseLlm):
     def __init__(
             self,
             api_key,
+            end_point: '',
 #             model: HuggingFaceEndpoints = HuggingFaceEndpoints.FALCON_7B,
 #             task: Task = Task.TEXT_GENERATION,
 #             **kwargs
@@ -21,6 +23,7 @@ class HuggingFace(BaseLlm):
             """
 #             self.model = model
             self.api_key = api_key
+            self.end_point = end_point
 #             self.task = task
 #             self.task_params = TaskParamters().get_params(self.task, **kwargs)
 #             self.API_URL = model.value
@@ -41,11 +44,25 @@ class HuggingFace(BaseLlm):
         return self.api_key
 
     def get_model(self):
-            """
-            Returns:
-                str: The model.
-            """
-            return self.model
+        """
+        The API needs a POST request with the parameter "inputs".
+
+        Args:
+            inputs (dict): The inputs to send over POST.
+
+        Returns:
+            dict: The model.
+        """
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        data = json.dumps({"inputs": "validating end_point"})
+        response = requests.post(self.end_point, headers=headers, data=data)
+        model = response.json()
+
+        return model
 
     def get_models(self):
         """
@@ -55,20 +72,20 @@ class HuggingFace(BaseLlm):
         return self.model
 
     def verify_access_key(self):
-            """
-            Verify the access key is valid.
+        """
+        Verify the access key is valid.
 
-            Returns:
-                bool: True if the access key is valid, False otherwise.
-            """
-            headers = {"Authorization": "Bearer " + self.api_key}
-            response = requests.get("https://huggingface.co/api/whoami-v2", headers=headers)
+        Returns:
+            bool: True if the access key is valid, False otherwise.
+        """
+        headers = {"Authorization": "Bearer " + self.api_key}
+        response = requests.get("https://huggingface.co/api/whoami-v2", headers=headers)
 
-            # If the request is successful, status code will be 200
-            if response.status_code == 200:
-                return True
-            else:
-                return False
+        # If the request is successful, status code will be 200
+        if response.status_code == 200:
+            return True
+        else:
+            return False
 
     def chat_completion(self, messages, max_tokens=100):
         """

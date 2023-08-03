@@ -3,6 +3,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import {createInternalId} from "@/utils/utils";
 
 export default function Models({sendModelData, models}){
+
+    const handleModelSelect = (model) =>{
+        model.contentType = 'Model'
+        sendModelData(model)
+    }
+
     return(
         <div id="models">
             <div className="container">
@@ -21,7 +27,7 @@ export default function Models({sendModelData, models}){
                 {models && models.length > 0 ? <div className="vertical_selection_scroll w_100">
                     {models.map((model, index) => (
                         <div key={index}>
-                            <div className="sidebar_box flex_dir_col align_start w_100" onClick={() => sendModelData(model)}>
+                            <div className="sidebar_box flex_dir_col align_start w_100" onClick={() => handleModelSelect(model)}>
                                 <div className="text_ellipsis"><span className="text_13 color_white text_ellipsis">{model.name}</span></div>
                                 <div className="text_12 color_gray mt_8">by {model.name} · {model.name}</div>
                             </div>

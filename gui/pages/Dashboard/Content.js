@@ -11,6 +11,7 @@ import styles from './Dashboard.module.css';
 import ApmDashboard from "../Content/APM/ApmDashboard";
 import AddModel from "../Content/Models/AddModel";
 import Models from "../Content/Models/Models";
+import ModelDetails from "../Content/Models/ModelDetails";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
@@ -44,7 +45,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database', 'Add_Model'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
-  const models = [{'name':'model_1', 'provider': 'Google'},{'name':'model_2', 'provider': 'Replicate'}, {'name':'model_3', 'provider': 'Hugging Face'}];
+  const models = [{'id':1,'name':'model_1', 'provider': 'Google'},{'id':2,'name':'model_2', 'provider': 'Replicate'}, {'id':3,'name':'model_3', 'provider': 'Hugging Face'}];
 
   useEffect(() => {
     if (prevView !== selectedView) {
@@ -447,6 +448,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                           fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
                     {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
                     {tab.contentType === 'Add_Model' && <AddModel />}
+                    {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
                   </div>}
                 </div>
               ))}

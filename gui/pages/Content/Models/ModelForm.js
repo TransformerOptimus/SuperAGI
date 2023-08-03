@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {removeTab, openNewTab} from "@/utils/utils";
 import Image from "next/image";
-import {fetchApiKey} from "@/pages/api/DashboardService";
+import {fetchApiKey, verifyEndPoint} from "@/pages/api/DashboardService";
 
 export default function ModelForm(){
     const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
@@ -37,7 +37,6 @@ export default function ModelForm(){
 
     const checkModelProvider = (model_provider) => {
         fetchApiKey(model_provider).then((response) => {
-            console.log(response.data.length)
             if(response.data.length <= 0)
                 setTokenError(true)
             else
@@ -49,6 +48,14 @@ export default function ModelForm(){
         console.log(modelName)
         console.log(modelDescription)
         console.log(modelEndpoint)
+        fetchApiKey(selectedModel).then((response) =>{
+            if(response.data.length > 0)
+            {
+                verifyEndPoint(response.data[0].api_key, modelEndpoint).then((response) =>{
+                    console.log(response)
+                })
+            }
+        })
     }
 
     return(

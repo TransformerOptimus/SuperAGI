@@ -2,7 +2,7 @@ from typing import List, Dict, Union, Any
 from sqlalchemy import text, func, and_
 from sqlalchemy.orm import Session
 from superagi.models.models_config import ModelsConfig
-from superagi.llms
+from superagi.llms.hugging_face import HuggingFace
 import requests
 
 class ModelsHelper:
@@ -44,3 +44,11 @@ class ModelsHelper:
         else:
             api_key = [{'id': api_key_data.id,'source_name': api_key_data.source_name,'api_key': api_key_data.api_key}]
             return api_key
+
+
+    def validateEndPoint(self, model_api_key, end_point):
+        result = HuggingFace(api_key=model_api_key,end_point=end_point).get_model()
+        if 'error' in result:
+            return result['error']
+
+        return result
