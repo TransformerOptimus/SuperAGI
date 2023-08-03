@@ -99,6 +99,7 @@ class S3Helper:
             None
         """
         try:
+            path = "resources" + path
             self.s3.delete_object(Bucket=self.bucket_name, Key=path)
             logger.info("File deleted from S3 successfully!")
         except:
