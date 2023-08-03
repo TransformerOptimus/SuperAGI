@@ -1,7 +1,7 @@
 """update agent workflow tables
 
 Revision ID: fe234ea6e9bc
-Revises: 71e3980d55f5
+Revises: d8315244ea43
 Create Date: 2023-07-18 16:46:29.305378
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'fe234ea6e9bc'
-down_revision = '71e3980d55f5'
+down_revision = 'd8315244ea43'
 branch_labels = None
 depends_on = None
 
