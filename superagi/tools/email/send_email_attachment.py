@@ -4,6 +4,9 @@ import os
 import smtplib
 import time
 from email.message import EmailMessage
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Type
 
 from pydantic import BaseModel, Field
@@ -84,14 +87,15 @@ class SendEmailAttachmentTool(BaseTool):
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "" or email_password.isspace():
             return "Error: Email Not Sent. Enter a valid Email Password."
-        message = EmailMessage()
+        message = MIMEMultipart()
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
         signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
-        message.set_content(body)
+        message.attach(MIMEText(body, 'plain'))
+
         if attachment_path:
             ctype, encoding = mimetypes.guess_type(attachment_path)
             if ctype is None or encoding is not None:
@@ -99,10 +103,13 @@ class SendEmailAttachmentTool(BaseTool):
             maintype, subtype = ctype.split("/", 1)
             if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
                 attachment_data = S3Helper().read_binary_from_s3(attachment_path)
+
             else:
                 with open(attachment_path, "rb") as file:
                     attachment_data = file.read()
-            message.add_attachment(attachment_data, maintype=maintype, subtype=subtype, filename=attachment)
+            attachment = MIMEApplication(attachment_data)
+            attachment.add_header('Content-Disposition', 'attachment', filename=attachment_path.split('/')[-1])
+            message.attach(attachment)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":
