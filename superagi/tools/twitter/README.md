@@ -47,6 +47,8 @@ Set up SuperAGI by following the instructions given [here](https://github.com/Tr
 
 ![TW6](https://github.com/TransformerOptimus/SuperAGI/assets/133874957/7e779e30-1331-403f-a532-224cc2c4c602)
     
+  (If you're running it on SuperAGI Cloud, change the Redirect URL to "https://app.superagi.com/api/twitter/oauth-tokens"
+
 7. Save the settings. you have now configured OAuth Authentication for Twitter.
 
  ### ✅ Configuring Keys and Authenticating in SuperAGI.
