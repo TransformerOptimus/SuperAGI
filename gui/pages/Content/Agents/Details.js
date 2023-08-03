@@ -96,7 +96,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/flag.svg" alt="goals-icon"/></div>
-        <div style={info_text}>{agentDetails?.goal.length || 0} Goals</div>
+        <div style={info_text}>{goals ? goals.length : 0} Goals</div>
       </div>
       {goals && goals.length > 0 && <div>
         <div className={styles.large_text_box} style={!showGoals ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
