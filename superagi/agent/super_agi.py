@@ -6,13 +6,13 @@ from __future__ import annotations
 import time
 from typing import Any
 from typing import Tuple
-
+import json
 import numpy as np
 from pydantic import ValidationError
 from pydantic.types import List
 from sqlalchemy import asc
 from sqlalchemy.orm import sessionmaker
-
+from langchain.text_splitter import TokenTextSplitter
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_parser import BaseOutputParser, AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
@@ -205,9 +205,23 @@ class SuperAgi:
             if len(current_tasks) > 0 and final_response["result"] == "COMPLETE":
                 final_response["result"] = "PENDING"
         session.commit()
-
         logger.info("Iteration completed moving to next iteration!")
         session.close()
+        
+        data = json.loads(assistant_reply)
+        task_description = data['thoughts']['text']
+        final_tool_response = final_response["result"]
+        prompt = task_description+final_tool_response
+        text_splitter = TokenTextSplitter(chunk_size=512, chunk_overlap=10)
+        chunk_response = text_splitter.split_text(prompt)
+    
+        print("Here is the task description and tool response: ",chunk_response,"END")
+        metadata = {"agent_execution_id":self.agent_config["agent_execution_id"]}
+        metadatas = []
+        for _ in chunk_response:
+            metadatas.append(metadata)
+        
+        self.memory.add_texts(chunk_response,metadatas)
         return final_response
 
     def handle_tool_response(self, session, assistant_reply):
