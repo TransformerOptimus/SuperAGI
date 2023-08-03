@@ -106,7 +106,7 @@ class SendEmailAttachmentTool(BaseTool):
                 print("----------------S3 STORAG-----------------")
                 attachment_data = S3Helper().read_binary_from_s3(attachment_path)
             else:
-                print("----------------FILE STORAGE-----------------"")
+                print("----------------FILE STORAGE-----------------")
                 with open(attachment_path, "rb") as file:
                     attachment_data = file.read()
             message.add_attachment(attachment_data, maintype=maintype, subtype=subtype, filename=attachment)
