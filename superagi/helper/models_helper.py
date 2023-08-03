@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from superagi.models.models_config import ModelsConfig
 from superagi.llms.hugging_face import HuggingFace
 import requests
+import logging
 
 class ModelsHelper:
 
@@ -29,7 +30,8 @@ class ModelsHelper:
         api_key_info = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(ModelsConfig.org_id == self.organisation_id).all()
 
         if not api_key_info:
-            raise Exception("No API key found for the provided model provider")
+            logging.error("No API key found for the provided model provider")
+            return []
 
         api_keys = [{"source_name": source_name, "api_key": api_key} for source_name, api_key in api_key_info]
 

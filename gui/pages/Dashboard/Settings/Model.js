@@ -10,12 +10,12 @@ import Image from "next/image";
 export default function Model({organisationId}) {
   const [temperature, setTemperature] = useState(0.5);
   const [models, setModels] = useState([
-    {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAi'},
-    {'name':'Hugging Face auth token','logo':'/images/huggingface_logo.svg','source':'Hugging Face'},
-    {'name':'Replicate auth token','logo':'/images/replicate_logo.svg','source':'Replicate'},
-    {'name':'Google AI API key','logo':'/images/google_palm_logo.svg','source':'Google Palm'}]);
+    {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAi', 'api_key': ''},
+    {'name':'Hugging Face auth token','logo':'/images/huggingface_logo.svg','source':'Hugging Face', 'api_key': ''},
+    {'name':'Replicate auth token','logo':'/images/replicate_logo.svg','source':'Replicate', 'api_key': ''},
+    {'name':'Google AI API key','logo':'/images/google_palm_logo.svg','source':'Google Palm', 'api_key': ''}
+  ]);
   const [updatedModels, setUpdatedModels] = useState([]);
-  const [visible, setVisible] = useState(false);
 
   // function getKey(key) {
   //   getOrganisationConfig(organisationId, key)
@@ -58,18 +58,16 @@ export default function Model({organisationId}) {
 
   useEffect(() => {
     fetchApiKeys().then((response) => {
-      response.data.forEach(item => {
-        const index = models.findIndex(model => model.source === item.source_name);
-        if(index !== -1) {
-          const newModels = [...models];
-          newModels[index].api_key = item.api_key;
-          setModels(newModels);
-        }
-      });
-    })
-
-    fetchApiKey("Replicate").then((response) => {
-      console.log(response)
+      if(response.data.length > 0) {
+        response.data.forEach(item => {
+          const index = models.findIndex(model => model.source === item.source_name);
+          if (index !== -1) {
+            const newModels = [...models];
+            newModels[index].api_key = item.api_key;
+            setModels(newModels);
+          }
+        });
+      }
     })
   },[])
 
@@ -79,13 +77,14 @@ export default function Model({organisationId}) {
         toast.error("API key is empty", {autoClose: 1800});
         return
       }
-      validateLLMApiKey(model.name, model.api_key)
+      validateLLMApiKey(model.source, model.api_key)
           .then((response) => {
+            console.log(response)
             if (response.data.status === "success") {
-              storeKey(model.name, model.api_key)
+              storeKey(model.source, model.api_key)
             }
             else {
-              toast.error(`Invalid API key for ${model.name}`, {autoClose: 1800});
+              toast.error(`Invalid API key for ${model.source}`, {autoClose: 1800});
             }
           });
     });
@@ -93,27 +92,31 @@ export default function Model({organisationId}) {
 
   const storeKey = (model_provider, api_key) => {
     storeApiKey(model_provider,api_key).then((response) => {
-      console.log(response)
-      if(response.status_code === 200)
-        toast.success("Successfully Stored", {autoClose: 1800})
+      if(response.status === 200)
+        toast.success(`Successfully Stored the API Key of ${model_provider}`, {autoClose: 1800})
       else
         toast.error("Error", {autoClose: 1800})
     })
   }
 
   const handleInputChange = (source, value) => {
-    const updatedModels = models.map(model => {
-      if (model.source === source) {
-        return { ...model, api_key: value }
-      }
-      return model
-    })
-    setModels(updatedModels)
-  }
-
-  const toggleVisibility = () => {
-    setVisible(!visible);
-  }
+    const updatedModel = models.find(model => model.source === source);
+    if (updatedModel) {
+      updatedModel.api_key = value;
+      setUpdatedModels(prevModels => {
+        const existingIndex = prevModels.findIndex(model => model.source === source);
+        if (existingIndex !== -1) {
+          return [
+            ...prevModels.slice(0, existingIndex),
+            updatedModel,
+            ...prevModels.slice(existingIndex + 1)
+          ];
+        } else {
+          return [...prevModels, updatedModel];
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     console.log(updatedModels)

@@ -9,19 +9,8 @@ class HuggingFace(BaseLlm):
     def __init__(
             self,
             api_key,
-            end_point: '',
-#             model: HuggingFaceEndpoints = HuggingFaceEndpoints.FALCON_7B,
-#             task: Task = Task.TEXT_GENERATION,
-#             **kwargs
+            end_point= '',
         ):
-            """
-            Args:
-                api_key (str): The HuggingFace Bearer token.
-                model (str): The model id.
-                task (Task): The task to perform.
-                **kwargs: The task parameters. If not provided, the default parameters will be used.
-            """
-#             self.model = model
             self.api_key = api_key
             self.end_point = end_point
 #             self.task = task
