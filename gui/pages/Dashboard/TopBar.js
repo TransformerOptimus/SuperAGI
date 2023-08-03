@@ -57,15 +57,14 @@ export default function TopBar({selectedProject, userName, env}) {
 
         <div onClick={() => openNewTab(-3, "Settings", "Settings", false)} className={styles.top_right_icon}><Image
           width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
-        <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}
-             onMouseLeave={() => setDropdown(false)}>
+        <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}>
           <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
         </div>
-        {dropdown && env === 'PROD' &&
-          <div style={{marginTop: '3vh', marginRight: '74px'}} onMouseEnter={() => setDropdown(true)}
+        {dropdown && env === 'DEV' &&
+          <div style={{marginTop: '3vh', marginLeft: '140px', position: 'absolute'}} onMouseEnter={() => setDropdown(true)}
                onMouseLeave={() => setDropdown(false)}>
             <ul className="dropdown_container" style={{width: '120px'}}>
-              <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
+              {userName !== '' && <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>}
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>
             </ul>
           </div>}
