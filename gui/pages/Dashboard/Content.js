@@ -156,6 +156,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   const addTab = (element) => {
     let addedTabIndex = null;
+    console.log(element.internalId)
     if (element.contentType === "Toolkits") {
       setToolkitDetails(element);
     }

@@ -114,6 +114,8 @@ export default function AgentCreate({
 
   const [scheduleData, setScheduleData] = useState(null);
   const [editModal, setEditModal] = useState(false)
+  const [editAgentClicked, setEditAgentClicked] = useState(false)
+
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -146,6 +148,7 @@ export default function AgentCreate({
   }, [toolNames]);
 
   useEffect(() => {
+    console.log(internalId)
     getLlmModels()
       .then((response) => {
         const models = response.data || [];
@@ -161,6 +164,10 @@ export default function AgentCreate({
         console.error('Error fetching models:', error);
       });
     if (edit) {
+      if(internalId !== null) {
+        const agent_edit_click = localStorage.getItem("agent_edit_click" + String(internalId)) || false;
+        setEditAgentClicked(JSON.parse(agent_edit_click));
+      }
       editingAgent();
     }
 
@@ -236,12 +243,17 @@ export default function AgentCreate({
 
   const editingAgent = () => {
     const agent = agents.find(agent => agent.id === editAgentId);
-    fillDetails(agent)
+    console.log(editAgentClicked)
+    if(!editAgentClicked) {
+      fillDetails(agent)
+    }
     getAgentDetails(editAgentId, -1)
         .then((response) => {
           const data = response.data || []
-          fillAdvancedDetails(data)
-          setLocalStorageArray("tool_names_" + String(internalId), data.tools.map(tool => tool.name), setToolNames);
+          if(!editAgentClicked) {
+            fillAdvancedDetails(data)
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools.map(tool => tool.name), setToolNames);
+          }
         })
         .catch((error) => {
           console.error('Error fetching agent details:', error);
@@ -249,6 +261,8 @@ export default function AgentCreate({
   };
 
   const fillDetails = (agent) => {
+    console.log(internalId)
+    setLocalStorageValue("agent_edit_click" + String(internalId), true, setEditAgentClicked);
     setLocalStorageValue("agent_name_" + String(internalId), agent.name, setAgentName);
     setLocalStorageValue("agent_description_" + String(internalId), agent.description, setAgentDescription);
     setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
@@ -368,6 +382,7 @@ export default function AgentCreate({
   };
 
   const addGoal = () => {
+    console.log(internalId)
     setLocalStorageArray("agent_goals_" + String(internalId), [...goals, 'new goal'], setGoals);
   };
 
@@ -720,6 +735,7 @@ export default function AgentCreate({
   };
 
   useEffect(() => {
+    console.log(internalId)
     if (internalId !== null) {
       const has_resource = localStorage.getItem("has_resource_" + String(internalId)) || 'true';
       if (has_resource) {

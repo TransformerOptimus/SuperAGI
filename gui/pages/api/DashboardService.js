@@ -120,8 +120,8 @@ export const fetchAgentTemplateListLocal = () => {
   return api.get('/agent_templates/list?template_source=local');
 };
 
-export const saveAgentAsTemplate = (agentId) => {
-  return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
+export const saveAgentAsTemplate = (agentId, executionId) => {
+  return api.post(`/agent_templates/save_agent_as_template/agent_id/${agentId}/agent_execution_id/${executionId}`);
 };
 
 export const fetchAgentTemplateConfig = (templateId) => {
