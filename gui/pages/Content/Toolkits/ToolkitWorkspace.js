@@ -89,6 +89,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           getGoogleToken(response.data);
         })
         .catch((error) => {
+          toast.error('Unable to authenticate tool', {autoClose: 1800});
           console.error('Error fetching data:', error);
         });
     } else if (toolkitName === "Twitter Toolkit") {
@@ -98,6 +99,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           getTwitterToken(response.data);
         })
         .catch((error) => {
+          toast.error('Unable to authenticate tool', {autoClose: 1800});
           console.error('Error fetching data: ', error);
         });
     }
