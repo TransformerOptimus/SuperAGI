@@ -140,8 +140,8 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
             if(is_encrypted(tool_config.value)):
                 tool_config.value = decrypt_data(tool_config.value)
         
-    if not tool_configs:
-        raise HTTPException(status_code=404, detail="Tool configuration not found")
+#     if not tool_configs:
+#         raise HTTPException(status_code=404, detail="Tool configuration not found")
     
     return tool_configs
 

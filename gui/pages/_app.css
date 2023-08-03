@@ -1002,7 +1002,7 @@ p {
 .w_20{width: 20%}
 .w_22{width: 22%}
 .w_56{width: 56%}
-.w_100{width: 100%}
+.w_100{width: 100% !important}
 .w_fit_content{width:fit-content}
 
 .mxw_360{max-width: 360px}
