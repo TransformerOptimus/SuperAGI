@@ -7,6 +7,9 @@ from requests_oauthlib import OAuth1Session
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
+from superagi.types.storage_types import StorageType
+from superagi.config.config import get_config
+from superagi.helper.s3_helper import S3Helper
 
 
 class TwitterHelper:
@@ -19,7 +22,7 @@ class TwitterHelper:
                        resource_owner_secret=creds.oauth_token_secret)
         for file in media_files:
             file_path = self.get_file_path(session, file, agent_id, agent_execution_id)
-            image_data = open(file_path, 'rb').read()
+            image_data = self._get_image_data(file_path)
             b64_image = base64.b64encode(image_data)
             upload_endpoint = 'https://upload.twitter.com/1.1/media/upload.json'
             headers = {'Authorization': 'application/octet-stream'}
@@ -46,3 +49,11 @@ class TwitterHelper:
 
         response = oauth.post(tweet_endpoint, json=params)
         return response
+
+    def _get_image_data(self, file_path):
+        if get_config("STORAGE_TYPE") == StorageType.S3:
+            return S3Helper().read_binary_from_s3(file_path)
+        else:
+            with open(file_path, "rb") as image_file:
+                return image_file.read()
+            

@@ -168,8 +168,16 @@ export const fetchToolTemplateOverview = (toolTemplateName) => {
   return api.get(`/toolkits/marketplace/readme/${toolTemplateName}`);
 };
 
+export const updateMarketplaceToolTemplate = (templateName) => {
+  return api.put(`/toolkits/update/${templateName}`);
+};
+
 export const installToolkitTemplate = (templateName) => {
   return api.get(`/toolkits/get/install/${templateName}`);
+};
+
+export const checkToolkitUpdate = (templateName) => {
+  return api.get(`/toolkits/check_update/${templateName}`);
 };
 
 export const getExecutionDetails = (executionId, agentId) => {

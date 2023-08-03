@@ -7,7 +7,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
-
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 class DBToolkitConfiguration(BaseToolkitConfiguration):
     session = None
@@ -20,9 +20,11 @@ class DBToolkitConfiguration(BaseToolkitConfiguration):
     def get_tool_config(self, key: str):
         tool_config = self.session.query(ToolConfig).filter_by(key=key, toolkit_id=self.toolkit_id).first()
         if tool_config and tool_config.value:
-            return tool_config.value
+            if is_encrypted(tool_config.value):
+                return decrypt_data(tool_config.value)
+            else:
+                return tool_config.value
         return super().get_tool_config(key=key)
-
 
 class ToolBuilder:
     def __init__(self, session, agent_id: int, agent_execution_id: int = None):

@@ -3,15 +3,21 @@ import mimetypes
 import os
 import smtplib
 import time
-from email.message import EmailMessage
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Type
 
 from pydantic import BaseModel, Field
+
+from superagi.config.config import get_config
 from superagi.helper.imap_email import ImapEmail
-from superagi.tools.base_tool import BaseTool
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.helper.s3_helper import S3Helper
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
+from superagi.tools.base_tool import BaseTool
+from superagi.types.storage_types import StorageType
 
 
 class SendEmailAttachmentInput(BaseModel):
@@ -50,8 +56,9 @@ class SendEmailAttachmentTool(BaseTool):
             success or failure message
         """
         final_path = ResourceHelper.get_agent_read_resource_path(file_name=filename,
-                                                                 agent=Agent.get_agent_from_id(self.toolkit_config.session,
-                                                                                               self.agent_id),
+                                                                 agent=Agent.get_agent_from_id(
+                                                                     self.toolkit_config.session,
+                                                                     self.agent_id),
                                                                  agent_execution=AgentExecution.get_agent_execution_from_id(
                                                                      session=self.toolkit_config.session,
                                                                      agent_execution_id=self.agent_execution_id)
@@ -81,21 +88,27 @@ class SendEmailAttachmentTool(BaseTool):
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password == "" or email_password.isspace():
             return "Error: Email Not Sent. Enter a valid Email Password."
-        message = EmailMessage()
+        message = MIMEMultipart()
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
         signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
-        message.set_content(body)
+        message.attach(MIMEText(body, 'plain'))
         if attachment_path:
             ctype, encoding = mimetypes.guess_type(attachment_path)
             if ctype is None or encoding is not None:
                 ctype = "application/octet-stream"
             maintype, subtype = ctype.split("/", 1)
-            with open(attachment_path, "rb") as file:
-                message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
+            if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+                attachment_data = S3Helper().read_binary_from_s3(attachment_path)
+            else:
+                with open(attachment_path, "rb") as file:
+                    attachment_data = file.read()
+            attachment = MIMEApplication(attachment_data)
+            attachment.add_header('Content-Disposition', 'attachment', filename=attachment_path.split('/')[-1])
+            message.attach(attachment)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":

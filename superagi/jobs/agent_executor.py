@@ -13,7 +13,6 @@ from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.db import connect_db
-from superagi.models.organisation import Organisation
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
