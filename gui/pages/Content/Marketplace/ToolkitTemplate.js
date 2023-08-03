@@ -5,7 +5,12 @@ import styles3 from '../Agents/Agents.module.css';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles2 from "./Market.module.css"
-import {fetchToolTemplateOverview, installToolkitTemplate} from "@/pages/api/DashboardService";
+import {
+  checkToolkitUpdate,
+  fetchToolTemplateOverview,
+  installToolkitTemplate,
+  updateMarketplaceToolTemplate
+} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
@@ -17,29 +22,18 @@ export default function ToolkitTemplate({template, env}) {
   const [markdownContent, setMarkdownContent] = useState('');
 
   useEffect(() => {
-    setInstalled(template && template.is_installed ? 'Installed' : 'Install');
-    if (window.location.href.toLowerCase().includes('marketplace')) {
-      setInstalled('Sign in to install');
-      axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${template.name}`)
-        .then((response) => {
-          setMarkdownContent(response.data || '');
-          setRightPanel(response.data ? 'overview' : 'tool_view');
-        })
-        .catch((error) => {
-          setRightPanel('tool_view');
-          console.error('Error fetching template details:', error);
-        });
-    } else {
-      fetchToolTemplateOverview(template.name)
-        .then((response) => {
-          setMarkdownContent(response.data || '');
-          setRightPanel(response.data ? 'overview' : 'tool_view');
-        })
-        .catch((error) => {
-          setRightPanel('tool_view');
-          console.error('Error fetching template details:', error);
-        });
+    if(template.is_installed && !window.location.href.toLowerCase().includes('marketplace')) {
+      checkToolkitUpdate(template.name).then((response) => {
+        setInstalled(response.data ? 'Update' :  'Installed');
+      })
+          .catch((error) => {
+            console.error('Error fetching update details:', error);
+          });
     }
+    else{
+      setInstalled(window.location.href.toLowerCase().includes('marketplace') ? 'Sign in to install' : 'Install');
+    }
+    fetchReadme()
   }, []);
 
   function handleInstallClick() {
@@ -50,6 +44,18 @@ export default function ToolkitTemplate({template, env}) {
       } else {
         window.location.href = '/';
       }
+      return;
+    }
+
+    if(installed === "Update"){
+      updateMarketplaceToolTemplate(template.name)
+          .then((response) => {
+            toast.success("Template Updated", {autoClose: 1800});
+            setInstalled('Installed');
+          })
+          .catch((error) => {
+            console.error('Error installing template:', error);
+          });
       return;
     }
 
@@ -70,6 +76,30 @@ export default function ToolkitTemplate({template, env}) {
 
   function handleBackClick() {
     EventBus.emit('goToMarketplace', {});
+  }
+
+  function fetchReadme() {
+    if (window.location.href.toLowerCase().includes('marketplace')) {
+      axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${template.name}`)
+          .then((response) => {
+            setMarkdownContent(response.data || '');
+            setRightPanel(response.data ? 'overview' : 'tool_view');
+          })
+          .catch((error) => {
+            setRightPanel('tool_view');
+            console.error('Error fetching template details:', error);
+          });
+    } else {
+      fetchToolTemplateOverview(template.name)
+          .then((response) => {
+            setMarkdownContent(response.data || '');
+            setRightPanel(response.data ? 'overview' : 'tool_view');
+          })
+          .catch((error) => {
+            setRightPanel('tool_view');
+            console.error('Error fetching template details:', error);
+          });
+    }
   }
 
   return (
@@ -96,10 +126,10 @@ export default function ToolkitTemplate({template, env}) {
               <button className="primary_button" style={{
                 marginTop: '15px',
                 width: '100%',
-                background: template && template.is_installed ? 'rgba(255, 255, 255, 0.14)' : '#FFF',
-                color: template && template.is_installed ? '#FFFFFF' : '#000'
+                background: template && template.is_installed && installed !== 'Update' ? 'rgba(255, 255, 255, 0.14)' : '#FFF',
+                color: template && template.is_installed && installed !== 'Update' ? '#FFFFFF' : '#000'
               }} onClick={() => handleInstallClick()}>
-                {(template && template.is_installed) ?
+                {(template && template.is_installed && installed !== 'Update') ?
                   <Image width={14} height={14} src="/images/tick.svg" alt="tick-icon"/> :
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg"
                          alt="upload-icon"/>}&nbsp;{installed}</button>

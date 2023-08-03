@@ -38,6 +38,22 @@ class Tool(DBBaseModel):
         return f"Tool(id={self.id}, name='{self.name}',description='{self.description}' folder_name='{self.folder_name}'," \
                f" file_name = {self.file_name}, class_name='{self.class_name}, toolkit_id={self.toolkit_id}')"
 
+    def to_dict(self):
+        """
+        Convert the Tool instance to a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the Tool instance.
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "folder_name": self.folder_name,
+            "class_name": self.class_name,
+            "file_name": self.file_name,
+            "toolkit_id": self.toolkit_id
+        }
     @staticmethod
     def add_or_update(session, tool_name: str, description: str, folder_name: str, class_name: str, file_name: str,
                       toolkit_id: int):
@@ -100,7 +116,7 @@ class Tool(DBBaseModel):
 
         tools = db.session.query(Tool).filter(Tool.id.in_(tool_ids)).all()
         return [str(tool.name) for tool in tools]
-    
+
     @classmethod
     def get_invalid_tools(cls, tool_ids, session):
         invalid_tool_ids = []
@@ -109,3 +125,7 @@ class Tool(DBBaseModel):
             if tool is None:
                 invalid_tool_ids.append(tool_id)
         return invalid_tool_ids
+
+    @classmethod
+    def get_toolkit_tools(cls, session, toolkit_id : int):
+        return session.query(Tool).filter(Tool.toolkit_id == toolkit_id).all()
