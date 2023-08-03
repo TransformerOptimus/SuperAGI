@@ -149,8 +149,8 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
                 <div className="vertical_containers w_100 color_gray mb_20 text_align_left">
                   <label className="mb_6">{convertToTitleCase(config.key)}</label>
                   <div className={styles.search_box}>
-                    {config?.key_type !== "file" && <input className="color_white w_100" type={config?.is_secret ? 'password' : 'text'} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>}
-                    {config?.key_type === "file" && <textarea className="color_white w_100" type={config?.is_secret ? 'password' : 'text'} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>}
+                    {config?.key_type !== "file" && <input className="color_white" type={config?.is_secret ? 'password' : 'text'} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>}
+                    {config?.key_type === "file" && <textarea className="color_white" type={config?.is_secret ? 'password' : 'text'} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>}
                   </div>
                 </div>
               </div>
