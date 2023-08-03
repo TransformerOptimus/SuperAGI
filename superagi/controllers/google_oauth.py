@@ -21,13 +21,14 @@ from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 router = APIRouter()
 
 @router.get('/oauth-tokens')
-async def google_auth_calendar(code: str = Query(...), Authorize: AuthJWT = Depends()):
-    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
+    toolkit_id = int(state)
+    client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID", ToolConfig.toolkit_id == toolkit_id).first()
     if(is_encrypted(client_id.value)):
         client_id = decrypt_data(client_id.value)
     else:
         client_id = client_id.value
-    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET").first()
+    client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET", ToolConfig.toolkit_id == toolkit_id).first()
     if(is_encrypted(client_secret.value)):
         client_id = decrypt_data(client_secret.value)
     else:
