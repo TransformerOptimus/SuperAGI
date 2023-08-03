@@ -14,6 +14,7 @@ from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 router = APIRouter()
 
@@ -73,6 +74,9 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
                                                Toolkit.name == toolkit_name).first()
     toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
     toolkit.configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
+    for tool_configs in toolkit.configs:
+        if is_encrypted(tool_configs.value):
+            tool_configs.value = decrypt_data(tool_configs.value)
     return toolkit
 
 
@@ -119,8 +123,7 @@ def get_marketplace_toolkit_tools(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Toolkit.organisation_id == organisation_id).first()
+    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name, Toolkit.organisation_id == organisation_id).first()
     if not toolkit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
     tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).first()

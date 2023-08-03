@@ -16,6 +16,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
 from superagi.config.config import get_config
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 router = APIRouter()
 
@@ -23,9 +24,15 @@ router = APIRouter()
 async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
     toolkit_id = int(state)
     client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID", ToolConfig.toolkit_id == toolkit_id).first()
-    client_id = client_id.value
+    if(is_encrypted(client_id.value)):
+        client_id = decrypt_data(client_id.value)
+    else:
+        client_id = client_id.value
     client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET", ToolConfig.toolkit_id == toolkit_id).first()
-    client_secret = client_secret.value
+    if(is_encrypted(client_secret.value)):
+        client_id = decrypt_data(client_secret.value)
+    else:
+        client_secret = client_secret.value
     token_uri = 'https://oauth2.googleapis.com/token'
     scope = 'https://www.googleapis.com/auth/calendar'
     env = get_config("ENV", "DEV")
@@ -74,6 +81,8 @@ def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize:
 def get_google_calendar_tool_configs(toolkit_id: int):
     google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,
                                                                  ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    if is_encrypted(google_calendar_config.value):
+        google_calendar_config.value = decrypt_data(google_calendar_config.value)
     return {
         "client_id": google_calendar_config.value
     }
