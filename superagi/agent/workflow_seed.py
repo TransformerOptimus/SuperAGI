@@ -22,6 +22,7 @@ from superagi.tools.jira.create_issue import CreateIssueTool
 from superagi.tools.searx.searx import SearxSearchTool
 from superagi.tools.slack.send_message import SlackMessageTool
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.tools.twitter.send_tweets import SendTweetsTool
 from superagi.tools.webscaper.tools import WebScraperTool
 
 
@@ -31,8 +32,8 @@ class AgentWorkflowSeed:
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Research Workflow", "Sales Research Workflow")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
-                                                                    ListFileTool().name,
-                                                                    "list all resumes in directory",
+                                                                    ReadFileTool().name,
+                                                                    "Read the leads from the file",
                                                                     step_type="TRIGGER")
 
         # task queue ends when the elements gets over
@@ -42,45 +43,64 @@ class AgentWorkflowSeed:
                                                                     "Break the above response array of items",
                                                                     completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
 
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    SearxSearchTool().name,
+                                                                    "Search about the last input lead")
 
-        # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step2",
-        #                                                             ThinkingTool().name,
-        #                                                             "Pick the next lead which is yet to be processed")
-        #
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    SendEmailTool().name,
+                                                                    "Email details about the lead with custom template for the lead")
 
-        # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step2",
-        #                                                             ReadFileTool().name,
-        #                                                             "Read all leads from leads.csv",
-        #                                                             "Return 'YES' if new lead exists in file else return 'NO'")
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id)
+        session.commit()
+
+    @classmethod
+    def build_recruitment_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Recruitment Workflow",
+                                                              "Recruitment Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "Read files from the resource manager",
+                                                                    step_type="TRIGGER")
+
+        # task queue ends when the elements gets over
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    "TASK_QUEUE",
+                                                                    "Break the above response array of items",
+                                                                    completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
 
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     ReadFileTool().name,
-                                                                    "Read the files mentioned in last input",
-                                                                    "Filter candidates who where are CGPA > 8, experience working in backend, minimum 2 internship experience, colleges from IIT, BITs, NITS")
+                                                                    "Read the resume from above input")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
-                                                                    AppendFileTool().name,
-                                                                    "Append the candidates details in a candidate.csv file")
+                                                                    ReadFileTool().name,
+                                                                    "Read the job description from job description file",
+                                                                    "Check if the resume matches the job description in goal")
 
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    SendEmailTool().name,
+                                                                    "Write a custom Email the candidates for job profile based on their experience")
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step1.id, "YES")
-        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id, "NO")
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step2.id, "NO")
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1)
-        # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step1.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
         session.commit()
+
 
     @classmethod
     def build_coding_workflow(cls, session):
@@ -93,119 +113,33 @@ class AgentWorkflowSeed:
 
         step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step2",
+                                                                    WriteTestTool().name,
+                                                                    "Test description")
+
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
                                                                     CodingTool().name,
                                                                     "Code description")
 
-        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step3",
-                                                                    "WAIT_FOR_PERMISSION",
-                                                                    "Your code is ready. Do you want end?")
-        # step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step3",
-        #                                                             WriteTestTool().name,
-        #                                                             "Test description")
-
-        # step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step4",
-        #                                                             CreateIssueTool().name,
-        #                                                             "Raise issue in JIRA on details")
-        #
-        # step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step5",
-        #                                                             GithubAddFileTool().name,
-        #                                                             "Raise a github PR")
-        # #
-        # step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step4",
-        #                                                             "WAIT_FOR_PERMISSION",
-        #                                                             "Your code is ready. Do you want end?")
-
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step2.id, "NO")
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1)
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id, "NO")
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "YES")
-        # AgentWorkflowStep.add_next_workflow_step(session, step3.id, step3.id)
-
-
-    @classmethod
-    def build_research_email_workflow(cls, session):
-        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Research & send email", "ResearchEmail")
-        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step1",
-                                                                    ReadEmailTool().name,
-                                                                    "Read top 5 emails",
-                                                                    step_type="TRIGGER")
-
-        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step2",
-                                                                    SlackMessageTool().name,
-                                                                    "Summarize the emails and send it to slack channel")
-
-        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step3",
-                                                                    SendEmailTool().name,
-                                                                    "Reply to email if it is from contlo employee")
-
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1)
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1)
-
-
-    @classmethod
-    def doc_search_and_code(cls, session):
-        "Webscrape documenation from https://apolloio.github.io/apollo-api-docs/?shell#search"
-        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "DocSuperCoder", "DocSuperCoder")
-        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step1",
-                                                                    SearxSearchTool().name,
-                                                                    "Search about relevant documentation",
-                                                                    step_type="TRIGGER")
-
-        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step2",
-                                                                    WebScraperTool().name,
-                                                                    "Read documentation from url",
-                                                                    step_type="NORMAL")
-
-        # step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step3",
-        #                                                             WriteSpecTool().name,
-        #                                                             "Spec description",
-        #                                                             step_type="NORMAL")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
-                                                                    CodingTool().name,
-                                                                    "Code description")
-        # step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step5",
-        #                                                             WriteTestTool().name,
-        #                                                             "Test description")
-
-        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step6",
                                                                     "WAIT_FOR_PERMISSION",
                                                                     "Your code is ready. Do you want end?")
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step4.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step6.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step4.id, "NO")
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step3.id, "NO")
+
 
     @classmethod
     def build_goal_based_agent(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Goal Based Workflow", "Goal Based Workflow")
         step1 = AgentWorkflowStep.find_or_create_iteration_workflow_step(session, agent_workflow.id,
                                                                          str(agent_workflow.id) + "_step1",
-                                                                         "Goal Based Agent", step_type="TRIGGER")
+                                                                         "Goal Based Agent-I", step_type="TRIGGER")
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step1.id)
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, -1, "COMPLETE")
 
@@ -214,10 +148,10 @@ class AgentWorkflowSeed:
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Dynamic Task Workflow", "Dynamic Task Workflow")
         step1 = AgentWorkflowStep.find_or_create_iteration_workflow_step(session, agent_workflow.id,
                                                                          str(agent_workflow.id) + "_step1",
-                                                                         "Initialize Tasks", step_type="TRIGGER")
+                                                                         "Initialize Tasks-I", step_type="TRIGGER")
         step2 = AgentWorkflowStep.find_or_create_iteration_workflow_step(session, agent_workflow.id,
                                                                          str(agent_workflow.id) + "_step2",
-                                                                         "Dynamic Task Queue", step_type="NORMAL")
+                                                                         "Dynamic Task Queue-I", step_type="NORMAL")
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
@@ -227,10 +161,10 @@ class AgentWorkflowSeed:
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Fixed Task Workflow", "Fixed Task Workflow")
         step1 = AgentWorkflowStep.find_or_create_iteration_workflow_step(session, agent_workflow.id,
                                                                          str(agent_workflow.id) + "_step1",
-                                                                         "Initialize Tasks", step_type="TRIGGER")
+                                                                         "Initialize Tasks-I", step_type="TRIGGER")
         step2 = AgentWorkflowStep.find_or_create_iteration_workflow_step(session, agent_workflow.id,
                                                                          str(agent_workflow.id) + "_step2",
-                                                                         "Fixed Task Queue", step_type="NORMAL")
+                                                                         "Fixed Task Queue-I", step_type="NORMAL")
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")

@@ -20,6 +20,10 @@ class ApolloSearchSchema(BaseModel):
         25,
         description="The number of results to retrieve per page. Default value is 25.",
     )
+    num_of_employees: list[int] = Field(
+        [],
+        description="The number of employees to filter by in format [start_range, end_range]. Default value is empty array.",
+    )
     organization_domains: str = Field(
         "",
         description="The organization domains to search within. It is optional field.",
@@ -49,21 +53,22 @@ class ApolloSearchTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, person_titles: list[str], page: int = 1, per_page: int = 25, organization_domains: str = "",
+    def _execute(self, person_titles: list[str], page: int = 1, per_page: int = 25, num_of_employees: list[int] = [],
                  person_location: str = "") -> str:
         """
         Execute the Apollo search tool.
 
         Args:
-            organization_domains : The organization domains to search within.
-            page : The page of results to retrieve.
             person_titles : The titles of the people to search for.
+            page : The page of results to retrieve.
+            num_of_employees : The number of employees to filter by in format [start_range, end_range]. It is optional.
             person_location : Region country/state/city filter to search for. It is optional.
 
         Returns:
             People data from the Apollo search.
         """
-        people_data = self.apollo_search_results(organization_domains, page, per_page, person_titles, person_location)
+        people_data = self.apollo_search_results(page, per_page, person_titles,
+                                                 num_of_employees, person_location)
         print(people_data)
         people_list = []
         if 'people' in people_data and len(people_data['people']) > 0:
@@ -79,14 +84,15 @@ class ApolloSearchTool(BaseTool):
 
         return people_list
 
-    def apollo_search_results(self, organization_domains, page, per_page, person_titles, person_location = ""):
+    def apollo_search_results(self, page, per_page, person_titles, num_of_employees = [],
+                              person_location = ""):
         """
         Execute the Apollo search tool.
 
         Args:
-            organization_domains : The organization domains to search within.
             page : The page of results to retrieve.
             person_titles : The titles of the people to search for.
+            num_of_employees : The number of employees to filter by in format [start_range, end_range]. It is optional.
             person_location: Region country/state/city filter to search for. It is optional.
 
         Returns:
@@ -105,8 +111,8 @@ class ApolloSearchTool(BaseTool):
             "contact_email_status": ["verified"]
         }
 
-        if organization_domains:
-            data["q_organization_domains"] = organization_domains
+        if num_of_employees:
+            data["num_of_employees"] = [str(num_of_employees[0]) + ","+ str(num_of_employees[1])]
         if person_location:
             data["person_locations"] = [person_location]
 

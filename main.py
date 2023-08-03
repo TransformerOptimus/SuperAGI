@@ -207,9 +207,10 @@ async def startup_event():
     AgentWorkflowSeed.build_task_based_agent(session)
     AgentWorkflowSeed.build_fixed_task_based_agent(session)
     AgentWorkflowSeed.build_sales_workflow(session)
+    AgentWorkflowSeed.build_recruitment_workflow(session)
     AgentWorkflowSeed.build_coding_workflow(session)
-    AgentWorkflowSeed.doc_search_and_code(session)
-    AgentWorkflowSeed.build_research_email_workflow(session)
+    # AgentWorkflowSeed.doc_search_and_code(session)
+    # AgentWorkflowSeed.build_research_email_workflow(session)
     replace_old_iteration_workflows(session)
 
     if env != "PROD":

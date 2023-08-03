@@ -1,4 +1,7 @@
 Analyze {tool_name} output and follow the instruction to come up with the response:
+High-Level GOAL:
+`{goals}`
+
 TOOL OUTPUT:
 `{tool_output}`
 
