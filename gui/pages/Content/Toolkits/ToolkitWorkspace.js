@@ -78,6 +78,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   };
 
   const handleAuthenticateClick = async (toolkitName) => {
+    handleUpdateChanges();
     if (toolkitName === "Google Calendar Toolkit") {
       authenticateGoogleCred(toolkitDetails.id)
         .then((response) => {
