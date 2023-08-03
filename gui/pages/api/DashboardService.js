@@ -4,6 +4,10 @@ export const getOrganisation = (userId) => {
   return api.get(`/organisations/get/user/${userId}`);
 };
 
+export const getGithubClientId = () => {
+  return api.get(`/get/github_client_id`);
+};
+
 export const addUser = (userData) => {
   return api.post(`/users/add`, userData);
 };
