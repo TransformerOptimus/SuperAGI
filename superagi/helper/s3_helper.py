@@ -64,8 +64,6 @@ class S3Helper:
         file_path = "resources" + file_path
         logger.info(f"Reading file from s3: {file_path}")
         response = self.s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=file_path)
-        print("------------------RESPONSE FROM S3------------------")
-        print(response)
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             return response['Body'].read()
         raise Exception(f"Error read_from_s3: {response}")
