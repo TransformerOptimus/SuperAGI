@@ -36,10 +36,10 @@ class ModelsHelper:
 
 
     def fetchApiKey(self, model_provider):
-        api_key_data = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
+        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.source_name, ModelsConfig.api_key).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
 
         if api_key_data is None:
             return []
         else:
-            api_key = [{'source_name': api_key_data.source_name,'api_key': api_key_data.api_key}]
+            api_key = [{'id': api_key_data.id,'source_name': api_key_data.source_name,'api_key': api_key_data.api_key}]
             return api_key

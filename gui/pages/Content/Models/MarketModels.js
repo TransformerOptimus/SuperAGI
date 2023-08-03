@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 import {loadingTextEffect, returnToolkitIcon} from "@/utils/utils";
-import {getModels} from "@/pages/api/DashboardService";
+// import {getModels} from "@/pages/api/DashboardService";
 
 export default function MarketModels(){
     const [showMarketplace, setShowMarketplace] = useState(false);
@@ -15,10 +15,6 @@ export default function MarketModels(){
 
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
-
-        getModels().then((response) => {
-            console.log(response)
-        })
     },[]);
 
     return(

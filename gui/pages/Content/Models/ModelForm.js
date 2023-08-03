@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, setLocalStorageValue} from "@/utils/utils";
+import {removeTab, openNewTab} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey} from "@/pages/api/DashboardService";
 
@@ -34,7 +34,7 @@ export default function ModelForm(){
 
     const checkModelProvider = (model_provider) => {
         fetchApiKey(model_provider).then((response) => {
-            console.log(response.data)
+            console.log(response.data.length)
             if(response.data.length <= 0)
                 setTokenError(true)
             else
@@ -73,7 +73,7 @@ export default function ModelForm(){
                 <div className="vertical_containers">
                     <span className="text_12 color_white lh_16">The <b>{selectedModel}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{selectedModel}</b> dashboard. </span>
                     <div className="horizontal_container mt_16">
-                        <button className="primary_button_small">Add auth token</button>
+                        <button className="primary_button_small" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Add auth token</button>
                         <button className="secondary_button_small ml_8">Get auth token</button>
                     </div>
                 </div>

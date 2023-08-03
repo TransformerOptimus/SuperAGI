@@ -8,9 +8,9 @@ class HuggingFace(BaseLlm):
     def __init__(
             self,
             api_key,
-            model: HuggingFaceEndpoints = HuggingFaceEndpoints.FALCON_7B,
-            task: Task = Task.TEXT_GENERATION,
-            **kwargs
+#             model: HuggingFaceEndpoints = HuggingFaceEndpoints.FALCON_7B,
+#             task: Task = Task.TEXT_GENERATION,
+#             **kwargs
         ):
             """
             Args:
@@ -19,16 +19,16 @@ class HuggingFace(BaseLlm):
                 task (Task): The task to perform.
                 **kwargs: The task parameters. If not provided, the default parameters will be used.
             """
-            self.model = model
+#             self.model = model
             self.api_key = api_key
-            self.task = task
-            self.task_params = TaskParamters().get_params(self.task, **kwargs)
-            self.API_URL = model.value
-            self.VALIDATION_URL = "https://huggingface.co/api/models"
-            self.headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
+#             self.task = task
+#             self.task_params = TaskParamters().get_params(self.task, **kwargs)
+#             self.API_URL = model.value
+#             self.VALIDATION_URL = "https://huggingface.co/api/models"
+#             self.headers = {
+#                 "Authorization": f"Bearer {self.api_key}",
+#                 "Content-Type": "application/json",
+#             }
 
     def get_source(self):
             return "hugging face"
@@ -79,31 +79,32 @@ class HuggingFace(BaseLlm):
         Returns:
             dict: The response.
         """
-        try:
-            params = self.task_params
-            if self.task == Task.TEXT_GENERATION:
-                params["max_new_tokens"] = max_tokens
-            elif self.task == Task.SUMMARIZATION:
-                params["max_length"] = max_tokens
-            payload = {
-                "inputs": messages,
-                "parameters": self.task_params,
-                "options": {
-                    "use_cache": False,
-                    "wait_for_model": True,
-                }
-            }
-            response = requests.post(self.API_URL, headers=self.headers, data=json.dumps(payload))
-            completion = json.loads(response.content.decode("utf-8"))
-            if self.task == Task.TEXT_GENERATION:
-                content = completion[0]["generated_text"]
-            elif self.task == Task.SUMMARIZATION:
-                content = completion[0]["summary_text"]
-            else:
-                content = completion[0]["answer"]
-
-            return {"response": completion, "content": content}
-        except Exception as exception:
-            print(exception)
-            # logger.info("HF Exception:", exception)
-            return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception"}
+#         try:
+#             params = self.task_params
+#             if self.task == Task.TEXT_GENERATION:
+#                 params["max_new_tokens"] = max_tokens
+#             elif self.task == Task.SUMMARIZATION:
+#                 params["max_length"] = max_tokens
+#             payload = {
+#                 "inputs": messages,
+#                 "parameters": self.task_params,
+#                 "options": {
+#                     "use_cache": False,
+#                     "wait_for_model": True,
+#                 }
+#             }
+#             response = requests.post(self.API_URL, headers=self.headers, data=json.dumps(payload))
+#             completion = json.loads(response.content.decode("utf-8"))
+#             if self.task == Task.TEXT_GENERATION:
+#                 content = completion[0]["generated_text"]
+#             elif self.task == Task.SUMMARIZATION:
+#                 content = completion[0]["summary_text"]
+#             else:
+#                 content = completion[0]["answer"]
+#
+#             return {"response": completion, "content": content}
+#         except Exception as exception:
+#             print(exception)
+#             # logger.info("HF Exception:", exception)
+#             return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception"}
+        pass
