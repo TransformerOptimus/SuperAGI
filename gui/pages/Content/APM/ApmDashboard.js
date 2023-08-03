@@ -11,7 +11,7 @@ import 'react-resizable/css/styles.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-export default function ApmDashboard(key) {
+export default function ApmDashboard() {
   const [agentDetails, setAgentDetails] = useState([]);
   const [tokenDetails, setTokenDetails] = useState([]);
   const [runDetails, setRunDetails] = useState(0);

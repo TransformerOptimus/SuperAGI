@@ -441,7 +441,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                           organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
-                    {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
+                    {tab.contentType === 'APM' && <ApmDashboard />}
                   </div>}
                 </div>
               ))}
