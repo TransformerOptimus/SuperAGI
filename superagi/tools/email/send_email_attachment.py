@@ -59,9 +59,14 @@ class SendEmailAttachmentTool(BaseTool):
                                                                      session=self.toolkit_config.session,
                                                                      agent_execution_id=self.agent_execution_id)
                                                                  )
+        
+        print("////////////////FILE PATH////////////////////")
+        print(final_path)
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{filename}' not found.")
         attachment = os.path.basename(final_path)
+        print("//////////////////////////////")
+        print(attachment)
         return self.send_email_with_attachment(to, subject, body, final_path, attachment)
 
     def send_email_with_attachment(self, to, subject, body, attachment_path, attachment) -> str:
@@ -98,8 +103,10 @@ class SendEmailAttachmentTool(BaseTool):
                 ctype = "application/octet-stream"
             maintype, subtype = ctype.split("/", 1)
             if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+                print("----------------S3 STORAG-----------------")
                 attachment_data = S3Helper().read_binary_from_s3(attachment_path)
             else:
+                print("----------------FILE STORAGE-----------------"")
                 with open(attachment_path, "rb") as file:
                     attachment_data = file.read()
             message.add_attachment(attachment_data, maintype=maintype, subtype=subtype, filename=attachment)
