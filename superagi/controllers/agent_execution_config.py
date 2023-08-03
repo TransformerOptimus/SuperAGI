@@ -48,10 +48,14 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
     if type(agent_execution_id) == None or type(agent_execution_id) == str:
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
+    # Define the agent_config keys to fetch
+    agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False)).first()
+    if not agent:
+        raise HTTPException(status_code = 404, detail = "Agent not found")
+    
     #If the agent_execution_id received is -1 then the agent_execution_id is set as the most recent execution
     if agent_execution_id == -1:
         agent_execution_id = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.created_at)).first().id
-
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
     agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
@@ -60,11 +64,6 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
     agent_id_from_execution_id = agent_execution_config.agent_id
     if agent_id != agent_id_from_execution_id:
         raise HTTPException(status_code = 404, detail = "Wrong agent id")
-
-    # Define the agent_config keys to fetch
-    agent = db.session.query(Agent).filter(agent_id == Agent.id,or_(Agent.is_deleted == False)).first()
-    if not agent:
-        raise HTTPException(status_code = 404, detail = "Agent not found")
 
     # Query the AgentConfiguration table and the AgentExecuitonConfiguration table for all the keys
     results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
