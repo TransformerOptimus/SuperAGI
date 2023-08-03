@@ -6,9 +6,12 @@ import {fetchApiKey} from "@/pages/api/DashboardService";
 export default function ModelForm(){
     const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
+    const [modelName, setModelName] = useState('');
+    const [modelDescription, setModelDescription] = useState('');
+    const [modelEndpoint, setModelEndpoint] = useState('');
     const [modelDropdown, setModelDropdown] = useState(false);
     const [tokenError, setTokenError] = useState(false);
-    const [lockAddition, setLockAddition] = useState(true)
+    const [lockAddition, setLockAddition] = useState(true);
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -42,15 +45,23 @@ export default function ModelForm(){
         })
     }
 
+    const handleAddModel = () =>{
+        console.log(modelName)
+        console.log(modelDescription)
+        console.log(modelEndpoint)
+    }
+
     return(
         <div id="model_form" className="vertical_containers text_12">
             <div className="page_title mt_10">Add new model</div>
 
             <span className="mt_4">Name</span>
-            <input className="input_medium mt_8" type="text" placeholder="Enter Model Name" />
+            <input className="input_medium mt_8" type="text" placeholder="Enter Model Name"
+                   onChange={(event) => setModelName(event.target.value)}/>
 
             <span className="mt_24">Description</span>
-            <textarea className="textarea_medium mt_8" placeholder="Write a Description" />
+            <textarea className="textarea_medium mt_8" placeholder="Write a Description"
+                      onChange={(event) => setModelDescription(event.target.value)}/>
 
             <span className="mt_24">Model Provider</span>
             <div className="dropdown_container_search mt_8 w_100">
@@ -81,13 +92,14 @@ export default function ModelForm(){
 
             {(selectedModel === 'Hugging Face' || selectedModel === 'Replicate') && <div className="mt_24">
                 <span>Model Endpoint URL</span>
-                <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"/>
+                <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"
+                       onChange={(event) => setModelEndpoint(event.target.value)}/>
             </div>}
 
             <div className="horizontal_container justify_end mt_24">
                 <button className="secondary_button mr_7"
                         onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
-                <button className="primary_button" disabled={lockAddition}>Add Model</button>
+                <button className="primary_button" onClick={() => handleAddModel()} disabled={lockAddition}>Add Model</button>
             </div>
         </div>
     )
