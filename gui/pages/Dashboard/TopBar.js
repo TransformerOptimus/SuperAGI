@@ -45,7 +45,7 @@ export default function TopBar({selectedProject, userName, env}) {
         <div className="horizontal_container gap_20">
           <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://discord.gg/ypfYJWV6", "_blank")}>
             <Image width={20} height={20} src="/images/discord.svg" alt="discord-icon" />
-            <p className="top_bar_font">Get Help?</p>
+            <p className="top_bar_font">Get Help</p>
           </div>
           <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://github.com/TransformerOptimus/SuperAGI", "_blank")}>
             <Image width={20} height={20} src="/images/github_white.svg" alt="github-icon" />
