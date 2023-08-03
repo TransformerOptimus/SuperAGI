@@ -67,7 +67,7 @@ class ToolConfig(DBBaseModel):
         if tool_config:
             # Update existing tool config
             if value is not None:
-                tool_config.value = encrypt_data(value)
+                tool_config.value = (value)
 
             if is_required is None:
                 tool_config.is_required = False
