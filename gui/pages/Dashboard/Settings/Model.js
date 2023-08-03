@@ -59,7 +59,9 @@ export default function Model({organisationId}) {
       .then((response) => {
         getKey("model_api_key");
         EventBus.emit("keySet", {});
-        toast.success("Settings updated", {autoClose: 1800});
+        if (key === "model_source") {
+          toast.success("Settings updated", {autoClose: 1800});
+        }
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
