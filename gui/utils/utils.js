@@ -285,6 +285,7 @@ const removeAgentInternalId = (internalId) => {
     localStorage.removeItem("agent_template_id_" + String(internalId));
     localStorage.removeItem("agent_knowledge_" + String(internalId));
     localStorage.removeItem("agent_knowledge_id_" + String(internalId));
+    localStorage.removeItem("is_editing_agent_" + String(internalId));
   }
 };
 
