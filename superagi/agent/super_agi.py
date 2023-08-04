@@ -26,6 +26,7 @@ from superagi.models.agent_execution import AgentExecution
 # from superagi.models.types.agent_with_config import AgentWithConfig
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_workflow_step import AgentWorkflowStep
 from superagi.models.db import connect_db
 from superagi.tools.base_tool import BaseTool
@@ -74,7 +75,7 @@ class SuperAgi:
             .all()
         return agent_feeds[2:]
 
-    def split_history(self, history: List, pending_token_limit: int) -> Tuple[List[BaseMessage], List[BaseMessage]]:
+    def split_history(self, session, history: List, pending_token_limit: int) -> Tuple[List[BaseMessage], List[BaseMessage]]:
         hist_token_count = 0
         i = len(history)
         for message in reversed(history):
@@ -82,12 +83,27 @@ class SuperAgi:
                                                             self.llm.get_model())
             hist_token_count += token_count
             if hist_token_count > pending_token_limit:
+                print("split_history inside")
+                # update last agent feed id included in summary
+                last_feed_long_term_summary_id = session.query(AgentExecutionConfiguration).filter(
+                    AgentExecutionConfiguration.agent_execution_id == self.agent_config["agent_execution_id"],
+                    AgentExecutionConfiguration.key == "last_feed_long_term_summary_id").first()
+                if last_feed_long_term_summary_id is not None:
+                    last_feed_long_term_summary_id.value = str(history[i - 1]['chat_id'])
+                else:
+                    agent_execution_config = AgentExecutionConfiguration(
+                        agent_execution_id=self.agent_config["agent_execution_id"],
+                        key="last_feed_long_term_summary_id",
+                        value=str(history[i - 1]['chat_id']))
+                    session.add(agent_execution_config)
+                session.commit()
                 return history[:i], history[i:]
             i -= 1
+        print("split_history outside")
         return [], history
 
     def execute(self, workflow_step: AgentWorkflowStep):
-
+        print("inside execute func of agents")
         session = Session()
         agent_execution_id = self.agent_config["agent_execution_id"]
         task_queue = TaskQueue(str(agent_execution_id))
@@ -101,6 +117,7 @@ class SuperAgi:
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         # adding history to the messages
         if workflow_step.history_enabled:
+            print("inside reqd function")
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_output_token_limit)
             messages.append({"role": "system", "content": prompt})
@@ -108,11 +125,77 @@ class SuperAgi:
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm.get_model())
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self.split_history(full_message_history,
-                                                                 token_limit - base_token_limit - max_output_token_limit)
+                                                                 token_limit - base_token_limit - (max_output_token_limit//4)*3)
+            print("past_messages_printed: ", past_messages)
+            print("token_limit_for_memory:", token_limit - base_token_limit - max_output_token_limit)
+            if past_messages:
+                long_term_memory_prompt = self.build_prompt_for_long_term_summary(past_messages=past_messages,
+                                                                                  token_limit=(token_limit -
+                                                                                               base_token_limit -
+                                                                                               max_output_token_limit) // 4)
+
+                # summary = query from DB
+                summary = session.query(AgentExecutionConfiguration).filter(
+                    AgentExecutionConfiguration.agent_execution_id == self.agent_config["agent_execution_id"],
+                    AgentExecutionConfiguration.key == "long_term_summary").first()
+                if summary is None:
+                    past_summary = ""
+                else:
+                    past_summary = summary.value
+                print("token count ............1", TokenCounter.count_text_tokens(long_term_memory_prompt))
+                print("token count ............2", TokenCounter.token_limit())
+                if TokenCounter.count_text_tokens(long_term_memory_prompt) - TokenCounter.token_limit() > 100:
+                    last_feed_long_term_summary_id = session.query(AgentExecutionConfiguration).filter(
+                        AgentExecutionConfiguration.agent_execution_id == self.agent_config["agent_execution_id"],
+                        AgentExecutionConfiguration.key == "last_feed_long_term_summary_id").first()
+                    last_feed_long_term_summary_id = int(last_feed_long_term_summary_id.value)
+
+                    # parse past_messages accordingly
+                    past_messages = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed,
+                                                  AgentExecutionFeed.id) \
+                        .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id,
+                                AgentExecutionFeed.id > last_feed_long_term_summary_id) \
+                        .order_by(asc(AgentExecutionFeed.created_at)) \
+                        .all()
+
+                    past_messages = [
+                        {'role': past_message.role, 'content': past_message.feed, 'chat_id': past_message.id}
+                        for past_message in past_messages]
+
+                    # past_messages = [past_message for past_message in past_messages if past_message["chat_id"] > last_feed_long_term_summary_id]
+
+                    long_term_memory_prompt = self.build_prompt_for_recursive_long_term_summary(summary=past_summary,
+                                                                                                past_messages=past_messages,
+                                                                                                token_limit=(
+                                                                                                                        token_limit -
+                                                                                                                        base_token_limit -
+                                                                                                                        max_output_token_limit) // 4)
+
+                print("long_term_memory_prompt: ", long_term_memory_prompt)
+                msgs = [{"role": "system", "content": "You are GPT Prompt writer"},
+                        {"role": "assistant", "content": long_term_memory_prompt}]
+                long_term_memory_summary = self.llm.chat_completion(msgs)
+                print("long_term_memory_summary :", long_term_memory_summary["content"])
+
+                # upsert summary in DB
+                if summary is not None:
+                    summary.value = long_term_memory_summary["content"]
+                else:
+                    agent_execution_config = AgentExecutionConfiguration(
+                        agent_execution_id=self.agent_config["agent_execution_id"],
+                        key="long_term_summary",
+                        value=long_term_memory_summary["content"])
+                    session.add(agent_execution_config)
+                session.commit()
+
+                messages.append({"role": "assistant", "content": long_term_memory_summary["content"]})
+            print("current_messages_printed: ", current_messages)
             for history in current_messages:
                 messages.append({"role": history["role"], "content": history["content"]})
             messages.append({"role": "user", "content": workflow_step.completion_prompt})
+            print("messages_printed: ", messages)
         else:
+            print("inside other func")
             prompt = self.build_agent_prompt(workflow_step.prompt, task_queue=task_queue,
                                              max_token_limit=max_output_token_limit)
             messages.append({"role": "system", "content": prompt})
@@ -315,3 +398,46 @@ class SuperAgi:
             session.commit()
             return True, {"result": "WAITING_FOR_PERMISSION", "permission_id": new_agent_execution_permission.id}
         return False, None
+
+
+    def build_prompt_for_long_term_summary(self, past_messages: List[BaseMessage], token_limit: int):
+        print("Inside build prompt function")
+        print("inside func past_messages :", past_messages)
+        long_term_memory_prompt = "AI, your task is to generate a concise summary of the previous interactions " \
+                                  "between the system, user, and assistant. The interactions are as follows:\n"
+
+        for past_message in past_messages:
+            long_term_memory_prompt += past_message["role"] + ": " + past_message["content"] + "\n"
+
+        long_term_memory_prompt += "This summary should encapsulate the main points of the conversation, " \
+                                   "highlighting the key issues discussed, decisions made, and any actions assigned. " \
+                                   "It should serve as a recap of the past interaction, providing a clear " \
+                                   "understanding of the conversation's context and outcomes. Please ensure that the " \
+                                   "summary does not exceed '{char_limit}' characters.".\
+                                   format(char_limit=token_limit * 4)
+
+        return long_term_memory_prompt
+
+    def build_prompt_for_recursive_long_term_summary(self, summary: str, past_messages: List[BaseMessage], token_limit: int):
+        print("Inside build recursive prompt function")
+        print("inside recursive func past_messages :", past_messages)
+        long_term_memory_prompt = "AI, you are provided with a previous summary of interactions between the system, " \
+                                  "user, and assistant, as well as additional conversations that were not included " \
+                                  "in the original summary. If the previous summary is empty, your task is to create " \
+                                  "a summary based solely on the new interactions.\n"
+
+        if summary:
+            long_term_memory_prompt += "Previous Summary: " + summary + "\n"
+
+        for past_message in past_messages:
+            long_term_memory_prompt += past_message["role"] + ": " + past_message["content"] + "\n"
+
+        long_term_memory_prompt += "If the previous summary is not empty, your final summary should integrate the " \
+                                   "new interactions into the existing summary to create a comprehensive recap of " \
+                                   "all interactions. If the previous summary is empty, your summary should " \
+                                   "encapsulate the main points of the new conversations. In both cases, highlight" \
+                                   " the key issues discussed, decisions made, and any actions assigned. Please " \
+                                   "ensure that the final summary does not exceed '{char_limit}' characters." \
+                                   .format(char_limit=token_limit * 4)
+
+        return long_term_memory_prompt
