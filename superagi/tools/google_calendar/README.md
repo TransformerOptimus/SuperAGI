@@ -86,9 +86,11 @@ In order to obtain the Client ID and Secret ID, you need to do the following ste
 
 ![GC14](https://github.com/TransformerOptimus/SuperAGI/assets/133874957/d2292b25-ce32-4d3d-903c-1ca9341163fb)
 
-5. Go to Authorized redirect URIs and add the following as per the image: 
+5. Go to Authorized redirect URIs and add the following URIs: 
+`https://app.superagi.com/api/google/oauth-tokens`
+`http://localhost:3000/api/google/oauth-tokens`
 
-![Google_OAuth_URI](https://github.com/Phoenix2809/SuperAGI/assets/133874957/2b9dabc9-ed8d-4980-ada6-cbeaa63f0bce)
+![Google_OAuth_URI](https://github.com/Phoenix2809/SuperAGI/assets/133874957/9f7bd411-7173-4550-9bfd-0f3cf95dad54)
 
 6. Once you have added the Authorized redirect URIs, you can click “Create” to obtain the Client ID and Client Secret Key
 
