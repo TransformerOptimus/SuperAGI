@@ -487,6 +487,8 @@ def github_client_id():
     """Get GitHub Client ID"""
 
     git_hub_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
+
+    print(git_hub_client_id)
     if git_hub_client_id:
         git_hub_client_id = git_hub_client_id.strip()
     return {"github_client_id": git_hub_client_id}
