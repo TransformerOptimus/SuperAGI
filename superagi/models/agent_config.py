@@ -38,9 +38,6 @@ class AgentConfiguration(DBBaseModel):
     @classmethod
     def update_agent_configurations_table(cls, session, agent_id: Union[int, None], updated_details: AgentRunIn):
 
-        if(type(agent_id)==None):
-            return -1;
-
         updated_details_dict = updated_details.dict()
 
         # Fetch existing 'toolkits' agent configuration for the given agent_id

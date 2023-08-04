@@ -119,14 +119,13 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     Raises:
         HTTPException (Status Code=404): If the agent is not found.
     """
-    #Update the agent configurations table with the data of the latest agent execution and returns -1 if agent id not found.
-    if((AgentConfiguration.update_agent_configurations_table(session=db.session, agent_id=agent_execution.agent_id, updated_details=agent_execution))==-1):
-        raise HTTPException(status_code=404, detail="Agent ID not found")
-    
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code = 404, detail = "Agent not found")
-
+    
+    #Update the agent configurations table with the data of the latest agent execution
+    AgentConfiguration.update_agent_configurations_table(session=db.session, agent_id=agent_execution.agent_id, updated_details=agent_execution)
+    
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
 
     db_agent_execution = AgentExecution(status = "RUNNING", last_execution_time = datetime.now(),

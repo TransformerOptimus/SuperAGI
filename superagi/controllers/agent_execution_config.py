@@ -43,9 +43,9 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
     """
 
     # Check
-    if type(agent_id) == None or type(agent_id) == str:
+    if isinstance(agent_id, str):
         raise HTTPException(status_code = 404, detail = "Agent Id undefined")
-    if type(agent_execution_id) == None or type(agent_execution_id) == str:
+    if isinstance(agent_execution_id, str):
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
     # Define the agent_config keys to fetch
