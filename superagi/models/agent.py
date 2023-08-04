@@ -1,5 +1,4 @@
 from __future__ import annotations
-import ast
 
 import json
 
@@ -114,7 +113,7 @@ class Agent(DBBaseModel):
         elif key in ["goal", "constraints", "instruction", "is_deleted"]:
             return eval(value)
         elif key == "tools":
-            return list(ast.literal_eval(value))
+            return [int(x) for x in json.loads(value)]
 
     @classmethod
     def create_agent_with_config(cls, db, agent_with_config):
