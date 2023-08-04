@@ -4,7 +4,6 @@ import Knowledge from '../Content/Knowledge/Knowledge';
 import AddKnowledge from '../Content/Knowledge/AddKnowledge';
 import KnowledgeDetails from '../Content/Knowledge/KnowledgeDetails';
 import AgentWorkspace from '../Content/Agents/AgentWorkspace';
-import AgentCreate from '../Content/Agents/AgentCreate';
 import ToolkitWorkspace from '../Content/./Toolkits/ToolkitWorkspace';
 import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
@@ -40,7 +39,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
-  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database','Edit_Agent'];
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
 
@@ -376,7 +375,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                        selectTab(tab, index)
                      }}>
                   <div style={{display: 'flex', order: '0', overflowX: 'hidden'}}>
-                    {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent' || tab.contentType === 'Edit_Agent') &&
+                    {(tab.contentType === 'Agents' || tab.contentType === 'Create_Agent') &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/agents_light.svg"
                                                                 alt="agent-icon"/></div>}
                     {(tab.contentType === 'Toolkits' || tab.contentType === 'Add_Toolkit') &&
@@ -418,7 +417,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {tab.contentType === 'Agents' &&
                       <AgentWorkspace env={env} internalId={tab.internalId || index} agentId={tab.id} agentName={tab.name}
                                       selectedView={selectedView}
-                                      agents={agents} fetchAgents={getAgentList} sendAgentData={addTab} />}
+                                      agents={agents} fetchAgents={getAgentList}/>}
                     {tab.contentType === 'Toolkits' &&
                       <ToolkitWorkspace env={env} internalId={tab.internalId || index}
                                         toolkitDetails={toolkitDetails}/>}
@@ -444,11 +443,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
                     {tab.contentType === 'APM' && <ApmDashboard />}
-                    {tab.contentType === 'Edit_Agent' &&
-                        <AgentCreate knowledge={knowledge} internalId={tab.internalId || index}
-                                     organisationId={organisationId} sendKnowledgeData={addTab}
-                                     sendAgentData={addTab} selectedProjectId={selectedProjectId} editAgentId={tab.id}
-                                     fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
                   </div>}
                 </div>
               ))}

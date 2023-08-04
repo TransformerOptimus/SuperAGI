@@ -9,8 +9,7 @@ import {
   getOrganisationConfig,
   getLlmModels,
   updateExecution,
-  uploadFile,
-  getAgentDetails, editAgent
+  uploadFile
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -35,10 +34,7 @@ export default function AgentCreate({
                                       template,
                                       internalId,
                                       sendKnowledgeData,
-                                      env,
-                                      edit,
-                                      editAgentId,
-                                      agents
+                                      env
                                     }) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
@@ -113,8 +109,6 @@ export default function AgentCreate({
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
-  const [editModal, setEditModal] = useState(false)
-
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -161,18 +155,25 @@ export default function AgentCreate({
       .catch((error) => {
         console.error('Error fetching models:', error);
       });
-    if (edit) {
-      editingAgent();
-    }
 
     if (template !== null) {
-      fillDetails(template)
+      setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
+      setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
+      setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
       setLocalStorageValue("agent_template_id_" + String(internalId), template.id, setAgentTemplateId);
 
       fetchAgentTemplateConfigLocal(template.id)
         .then((response) => {
           const data = response.data || [];
-          fillAdvancedDetails(data)
+          setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+          setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+          setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+          setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+          setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+          setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+          setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+          setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+          setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
           setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
           setLocalStorageValue("is_agent_template_" + String(internalId), true, setShowButton);
           setShowButton(true);
@@ -234,44 +235,6 @@ export default function AgentCreate({
     }
     setSearchValue('');
   };
-
-  const editingAgent = () => {
-    const isLoaded = localStorage.getItem('is_editing_agent_' + String(internalId));
-    const agent = agents.find(agent => agent.id === editAgentId);
-    if (!isLoaded) {
-      fillDetails(agent)
-    }
-    getAgentDetails(editAgentId, -1)
-        .then((response) => {
-          const data = response.data || []
-          if (!isLoaded) {
-            fillAdvancedDetails(data)
-            setLocalStorageArray("tool_names_" + String(internalId), data.tools.map(tool => tool.name), setToolNames);
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching agent details:', error);
-        });
-    localStorage.setItem('is_editing_agent_' + String(internalId), true);
-  };
-
-  const fillDetails = (agent) => {
-    setLocalStorageValue("agent_name_" + String(internalId), agent.name, setAgentName);
-    setLocalStorageValue("agent_description_" + String(internalId), agent.description, setAgentDescription);
-    setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
-  }
-  const fillAdvancedDetails = (data) => {
-    setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-    setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
-    setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
-    setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
-    setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
-    setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
-    setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
-    setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
-    setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
-  }
-
 
   const addToolkit = (toolkit) => {
     const updatedToolIds = [...selectedTools];
@@ -511,72 +474,39 @@ export default function AgentCreate({
       "schedule": scheduleData,
     }
 
-    if(edit){
-      agentData.agent_id = editAgentId;
-      const name = agentData.name
-      agentData.name = `New Run ${new Date()}`
-      editAgent(agentData)
-        .then((response) => {
-        if(response){
-          fetchAgents();
-          uploadResources(editAgentId, name)
-        }
-      })
-    }
-    else
-      {
-        createAgent(createModal ? scheduleAgentData : agentData, createModal)
-            .then((response) => {
-              const agentId = response.data.id;
-              const name = response.data.name;
-              const executionId = response.data.execution_id;
-              fetchAgents();
-              uploadResources(agentId, name, executionId)
+    createAgent(createModal ? scheduleAgentData : agentData, createModal)
+      .then((response) => {
+        const agentId = response.data.id;
+        const name = response.data.name;
+        const executionId = response.data.execution_id;
+        fetchAgents();
+
+        if (addResources && input.length > 0) {
+          const uploadPromises = input.map(fileData => {
+            return uploadResource(agentId, fileData)
+              .catch(error => {
+                console.error('Error uploading resource:', error);
+                return Promise.reject(error);
+              });
+          });
+
+          Promise.all(uploadPromises)
+            .then(() => {
+              runExecution(agentId, name, executionId, createModal);
             })
-            .catch((error) => {
-              console.error('Error creating agent:', error);
+            .catch(error => {
+              console.error('Error uploading files:', error);
               setCreateClickable(true);
             });
-      }
+        } else {
+          runExecution(agentId, name, executionId, createModal);
+        }
+      })
+      .catch((error) => {
+        console.error('Error creating agent:', error);
+        setCreateClickable(true);
+      });
   };
-
-  const uploadResources = (agentId, name, executionId) => {
-    if (addResources && input.length > 0) {
-      const uploadPromises = input.map(fileData => {
-        return uploadResource(agentId, fileData)
-            .catch(error => {
-              console.error('Error uploading resource:', error);
-              return Promise.reject(error);
-            });
-      });
-
-      Promise.all(uploadPromises)
-          .then(() => {
-            runDecision(agentId, name, executionId)
-          })
-          .catch(error => {
-            console.error('Error uploading files:', error);
-            setCreateClickable(true);
-          });
-    } else {
-      runDecision(agentId, name, executionId)
-    }
-  }
-
-  const runDecision = (agentId, name, executionId) => {
-    if(edit){
-      setEditModal(false)
-      sendAgentData({
-        id: editAgentId,
-        name: name,
-        contentType: "Agents",
-      });
-      removeTab(editAgentId, name, "Agents", internalId)
-    }
-    else {
-      runExecution(agentId, name, executionId, createModal);
-    }
-  }
 
   const finaliseAgentCreation = (agentId, name, executionId) => {
     toast.success('Agent created successfully', {autoClose: 1800});
@@ -845,20 +775,20 @@ export default function AgentCreate({
       <div className="col-3"></div>
       <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
-          {!edit ? <div className={styles.page_title}>Create new agent</div> : <div className={styles.page_title}>Edit agent</div>}
+          <div className={styles.page_title}>Create new agent</div>
         </div>
         <div style={{marginTop: '10px'}}>
           <div>
             <label className={styles.form_label}>Name</label>
-            <input className="input_medium" type="text" value={agentName} disabled={edit}  onChange={handleNameChange}/>
+            <input className="input_medium" type="text" value={agentName} onChange={handleNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Description</label>
-            <textarea className="textarea_medium" rows={3} value={agentDescription} disabled={edit} onChange={handleDescriptionChange}/>
+            <textarea className="textarea_medium" rows={3} value={agentDescription} onChange={handleDescriptionChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Goals</label></div>
-            {goals?.map((goal, index) => (<div key={index} style={{
+            {goals.map((goal, index) => (<div key={index} style={{
               marginBottom: '10px',
               display: 'flex',
               alignItems: 'center',
@@ -1171,7 +1101,7 @@ export default function AgentCreate({
               </div>
               <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
-                {constraints?.map((constraint, index) => (<div key={index} style={{
+                {constraints.map((constraint, index) => (<div key={index} style={{
                   marginBottom: '10px',
                   display: 'flex',
                   alignItems: 'center',
@@ -1215,10 +1145,10 @@ export default function AgentCreate({
               {/*    </div>*/}
               {/*  </div>*/}
               {/*</div>*/}
-              {/*<div style={{marginTop: '15px'}}>*/}
-              {/*  <label className={styles.form_label}>Time between steps (in milliseconds)</label>*/}
-              {/*  <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>*/}
-              {/*</div>*/}
+              <div style={{marginTop: '15px'}}>
+                <label className={styles.form_label}>Time between steps (in milliseconds)</label>
+                <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
+              </div>
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <div style={{display:'flex'}}>*/}
               {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
@@ -1278,7 +1208,7 @@ export default function AgentCreate({
                 Update Template
               </button>
             )}
-            {!edit ? <div style={{display: 'flex', position: 'relative'}}>
+            <div style={{display: 'flex', position: 'relative'}}>
               {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {
                 setCreateModal(true);
                 setCreateDropdown(false);
@@ -1295,29 +1225,12 @@ export default function AgentCreate({
                          alt="expand-icon"/>
                 </button>
               </div>
-            </div>: <div className="primary_button" style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
-              <button className="primary_button" style={{paddingRight: '5px'}}
-                      onClick={() => setEditModal(true)}>Update changes</button> </div>}
+            </div>
           </div>
 
           {createModal && (
             <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
-
-          {editModal && (<div className="modal" onClick={() => setEditModal(!editModal)}>
-            <div className="modal-content w_35" onClick={preventDefault}>
-              <div className={styles.detail_name}>Update agent</div>
-              <div><label className={styles.form_label}>All the new runs of this agent will be updated with the latest changes. Are you sure you want to update changes?</label></div>
-              <div className="mt_20 justify_end display_flex">
-                <button className="secondary_button mr_10" onClick={() => setEditModal(false)}>
-                  Cancel
-                </button>
-                <button className={`${styles.run_button} h_32p padding_0_15 `} onClick={handleAddAgent}>
-                  Update changes
-                </button>
-              </div>
-            </div>
-          </div>)}
 
         </div>
       </div>
