@@ -486,8 +486,10 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
 def github_client_id():
     """Get GitHub Client ID"""
 
-    github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
-    return {"github_client_id": github_client_id}
+    git_hub_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
+    if git_hub_client_id:
+        git_hub_client_id = git_hub_client_id.strip()
+    return {"github_client_id": git_hub_client_id}
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
