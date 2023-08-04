@@ -3,6 +3,7 @@ import json
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
+from superagi.lib.logger import logger
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
@@ -161,6 +162,12 @@ class AgentTemplate(DBBaseModel):
         agent_template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
         agent_workflow = db.session.query(AgentWorkflow).filter(
             AgentWorkflow.name == agent_template["agent_workflow_name"]).first()
+        # keeping it backward compatible
+        logger.info("agent_workflow:" + str(agent_template["agent_workflow_name"]))
+        if not agent_workflow:
+            workflow_id = AgentTemplate.fetch_iteration_agent_template_mapping(db.session, agent_template["agent_workflow_name"])
+            agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.id == workflow_id).first()
+
         template = AgentTemplate(organisation_id=organisation_id, agent_workflow_id=agent_workflow.id,
                                  name=agent_template["name"], description=agent_template["description"],
                                  marketplace_template_id=agent_template["id"])
@@ -178,6 +185,20 @@ class AgentTemplate(DBBaseModel):
         db.session.commit()
         db.session.flush()
         return template
+
+    @classmethod
+    def fetch_iteration_agent_template_mapping(cls, session, name):
+        if name == "Fixed Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Fixed Task Workflow")
+            return agent_workflow.id
+
+        if name == "Maintain Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Dynamic Task Workflow")
+            return agent_workflow.id
+
+        if name == "Don't Maintain Task Queue" or name == "Goal Based Agent":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
+            return agent_workflow.id
 
     @classmethod
     def eval_agent_config(cls, key, value):

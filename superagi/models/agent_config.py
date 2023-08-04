@@ -5,8 +5,8 @@ from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
 from superagi.models.configuration import Configuration
-from superagi.models.tool import Tool
 from superagi.types.model_source_types import ModelSourceType
+from superagi.models.tool import Tool
 
 
 class AgentConfiguration(DBBaseModel):

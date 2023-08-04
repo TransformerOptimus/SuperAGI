@@ -153,7 +153,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 
 def replace_old_iteration_workflows(session):
-    dateTimeObj = datetime.strptime("31-July-2023", "%d-%B-%Y")
+    dateTimeObj = datetime.strptime("4-August-2023", "%d-%B-%Y")
     templates = session.query(AgentTemplate).filter(AgentTemplate.created_at <= dateTimeObj).all()
     for template in templates:
         iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
@@ -167,7 +167,7 @@ def replace_old_iteration_workflows(session):
             template.agent_workflow_id = agent_workflow.id
             session.commit()
 
-        if iter_workflow.name == "Don't Maintain Task Queue":
+        if iter_workflow.name == "Don't Maintain Task Queue" or iter_workflow.name == "Goal Based Agent":
             agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
             template.agent_workflow_id = agent_workflow.id
             session.commit()
