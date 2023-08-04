@@ -9,6 +9,7 @@ from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store import qdrant
 
 from superagi.vector_store.qdrant import Qdrant
+from superagi.vector_store.redis import Redis
 
 
 class VectorFactory:
@@ -72,6 +73,12 @@ class VectorFactory:
 
             Qdrant.create_collection(client, index_name, len(sample_embedding))
             return qdrant.Qdrant(client, embedding_model, index_name)
+
+        if vector_store == VectorStoreType.REDIS:
+            index_name = "super-agent-index1"
+            redis = Redis(index_name, embedding_model)
+            redis.create_index()
+            return redis
 
         raise ValueError(f"Vector store {vector_store} not supported")
     
