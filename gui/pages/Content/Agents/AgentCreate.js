@@ -114,7 +114,6 @@ export default function AgentCreate({
 
   const [scheduleData, setScheduleData] = useState(null);
   const [editModal, setEditModal] = useState(false)
-  const [editAgentClicked, setEditAgentClicked] = useState(false)
 
 
   useEffect(() => {
@@ -164,10 +163,6 @@ export default function AgentCreate({
         console.error('Error fetching models:', error);
       });
     if (edit) {
-      if(internalId !== null) {
-        const agent_edit_click = localStorage.getItem("agent_edit_click" + String(internalId)) || false;
-        setEditAgentClicked(JSON.parse(agent_edit_click));
-      }
       editingAgent();
     }
 
@@ -242,15 +237,15 @@ export default function AgentCreate({
   };
 
   const editingAgent = () => {
+    const isLoaded = localStorage.getItem('is_editing_agent_' + String(internalId));
     const agent = agents.find(agent => agent.id === editAgentId);
-    console.log(editAgentClicked)
-    if(!editAgentClicked) {
+    if (!isLoaded) {
       fillDetails(agent)
     }
     getAgentDetails(editAgentId, -1)
         .then((response) => {
           const data = response.data || []
-          if(!editAgentClicked) {
+          if (!isLoaded) {
             fillAdvancedDetails(data)
             setLocalStorageArray("tool_names_" + String(internalId), data.tools.map(tool => tool.name), setToolNames);
           }
@@ -258,11 +253,10 @@ export default function AgentCreate({
         .catch((error) => {
           console.error('Error fetching agent details:', error);
         });
+    localStorage.setItem('is_editing_agent_' + String(internalId), true);
   };
 
   const fillDetails = (agent) => {
-    console.log(internalId)
-    setLocalStorageValue("agent_edit_click" + String(internalId), true, setEditAgentClicked);
     setLocalStorageValue("agent_name_" + String(internalId), agent.name, setAgentName);
     setLocalStorageValue("agent_description_" + String(internalId), agent.description, setAgentDescription);
     setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
