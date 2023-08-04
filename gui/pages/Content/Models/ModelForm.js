@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {removeTab, openNewTab} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, verifyEndPoint} from "@/pages/api/DashboardService";
+import {BeatLoader} from "react-spinners";
 
 export default function ModelForm(){
     const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
@@ -12,6 +13,7 @@ export default function ModelForm(){
     const [modelDropdown, setModelDropdown] = useState(false);
     const [tokenError, setTokenError] = useState(false);
     const [lockAddition, setLockAddition] = useState(true);
+    const [isLoading, setIsLoading] = useState(false)
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -45,14 +47,13 @@ export default function ModelForm(){
     }
 
     const handleAddModel = () =>{
-        console.log(modelName)
-        console.log(modelDescription)
-        console.log(modelEndpoint)
+        setIsLoading(true)
         fetchApiKey(selectedModel).then((response) =>{
             if(response.data.length > 0)
             {
                 verifyEndPoint(response.data[0].api_key, modelEndpoint).then((response) =>{
                     console.log(response)
+                    setIsLoading(false)
                 })
             }
         })
@@ -106,7 +107,9 @@ export default function ModelForm(){
             <div className="horizontal_container justify_end mt_24">
                 <button className="secondary_button mr_7"
                         onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
-                <button className="primary_button" onClick={() => handleAddModel()} disabled={lockAddition}>Add Model</button>
+                <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading}>
+                    {isLoading ? 'Adding Model' + <BeatLoader size={8} color={"#FFFFFF"} /> : 'Add Model'}
+                </button>
             </div>
         </div>
     )
