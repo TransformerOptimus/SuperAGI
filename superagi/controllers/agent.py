@@ -488,39 +488,15 @@ def get_agent_configuration(agent_id: int,
     if 'knowledge' in response.keys() and response['knowledge'] != 'None':
         knowledge = db.session.query(Knowledges).filter(Knowledges.id == response['knowledge']).first()
         name = knowledge.name if knowledge is not None else ""
-    print("rrrrrrrrrrrrrrrreached******",response)
-    print("response over *********")
-    # temp_obj={"name": agent.name, "description": agent.description,
-    #                             # Query the AgentConfiguration table for the speci
-    #                             "goal": eval(response["goal"]),
-    #                             "instruction": eval(response.get("instruction", '[]')),
-    #                             "knowledge_name": name,
-    #                             "calls": total_calls,
-    #                             "tokens": total_tokens,
-    #                             "constraints": eval(response.get("constraints")),
-    #                             "tools": [int(x) for x in json.loads(response["tools"])]}
-                                
-    # response = {**response,**temp_obj}
-    print(")))))))))))",response["tools"])
-    response={
-        "goal":eval(response["goal"]),
-        "name":agent.name,
-        "description":agent.description,
-        "instruction": eval(response.get("instruction", '[]')),
-        "knowledge_name": name,
-        "calls": total_calls,
-        "tokens": total_tokens,
-        "constraints": eval(response.get("constraints")),
-        "tools": [int(x) for x in json.loads(response["tools"])],
-        "agent_type":response["agent_type"],
-        "exit":response["exit"],
-        "iteration_interval":response["iteration_interval"],
-        "model":response["model"],
-        "permission_type":response["permission_type"],
-        "LTM_DB":response["LTM_DB"],
-        "max_iterations":response["max_iterations"],
-        "knowledge":response["knowledge"],
-    }
+    response = merge(response, {"name": agent.name, "description": agent.description,
+                                # Query the AgentConfiguration table for the speci
+                                "goal": eval(response["goal"]),
+                                "instruction": eval(response.get("instruction", '[]')),
+                                "knowledge_name": name,
+                                "calls": total_calls,
+                                "tokens": total_tokens,
+                                "constraints": eval(response.get("constraints")),
+                                "tools": [int(x) for x in json.loads(response["tools"])]})
     tools = db.session.query(Tool).filter(Tool.id.in_(response["tools"])).all()
     response["tools"] = tools
 
@@ -528,8 +504,6 @@ def get_agent_configuration(agent_id: int,
     db.session.close()
 
     return response
-
-
 @router.put("/delete/{agent_id}", status_code=200)
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """

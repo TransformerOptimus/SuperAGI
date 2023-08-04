@@ -42,4 +42,23 @@ class AgentConfigExtInput(BaseModel):
     user_timezone: Optional[str]
     knowledge: Optional[int]
 
+class AgentConfigUpdateExtInput(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+    project_id: Optional[int]
+    goal: Optional[List[str]]
+    instruction: Optional[List[str]]
+    agent_type: Optional[str]
+    constraints: Optional[List[str]]
+    tools: Optional[List[dict]]
+    LTM_DB:Optional[str]
+    exit: Optional[str]
+    permission_type: Optional[str]
+    iteration_interval: Optional[int]
+    model: Optional[str]
+    schedule: Optional[AgentScheduleInput]
+    max_iterations: Optional[int]
+    user_timezone: Optional[str]
+    knowledge: Optional[int]
+
 
