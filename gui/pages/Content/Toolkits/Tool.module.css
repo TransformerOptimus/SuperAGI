@@ -194,7 +194,7 @@
 }
 
 .search_box input {
-    width: 600px;
+    width: 100%;
     height: 25px;
     font-size: x-small;
     padding: 5px;

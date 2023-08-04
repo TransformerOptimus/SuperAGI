@@ -1003,6 +1003,7 @@ p {
 .w_22{width: 22%}
 .w_56{width: 56%}
 .w_100{width: 100%}
+.w_inherit{width: inherit}
 .w_fit_content{width:fit-content}
 
 .mxw_360{max-width: 360px}
@@ -1249,23 +1250,7 @@ tr{
     margin-left: 8px;
 }
 
-.tools_used_tooltip:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px;
-    color: #fff;
-    font-size: 12px;
-    white-space: pre;
-    z-index: 100;
-    border-radius: 8px;
-    background: #2E293F;
-    margin-bottom: 4px;
-}
-
-.tools_used, .tools_used_tooltip{
+.tools_used{
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.14);
@@ -1283,8 +1268,16 @@ tr{
 }
 
 .tools_used_tooltip{
-    position: relative;
-    cursor: pointer;
+    position: absolute;
+    transform: translateX(-50%);
+    padding: 6px;
+    color: #fff;
+    font-size: 12px;
+    white-space: pre;
+    z-index: 100;
+    border-radius: 8px;
+    background: #2E293F;
+    margin-top: -40px;
 }
 
 .image_class{
