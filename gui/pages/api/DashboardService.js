@@ -28,8 +28,8 @@ export const getTools = () => {
   return api.get(`/tools/list`);
 };
 
-export const getAgentDetails = (agentId, agentExecutionId) => {
-  return api.get(`/agent_executions_configs/details/agent_id/${agentId}/agent_execution_id/${agentExecutionId}`);
+export const getAgentDetails = (agentId) => {
+  return api.get(`/agents/get/details/${agentId}`);
 };
 
 export const getAgentExecutions = (agentId) => {
@@ -46,10 +46,6 @@ export const getExecutionTasks = (executionId) => {
 
 export const createAgent = (agentData, scheduledCreate) => {
   return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
-};
-
-export const editAgent = (agentData) => {
-  return api.post( `/agentexecutions/add_run`, agentData);
 };
 
 export const addTool = (toolData) => {
@@ -124,8 +120,8 @@ export const fetchAgentTemplateListLocal = () => {
   return api.get('/agent_templates/list?template_source=local');
 };
 
-export const saveAgentAsTemplate = (agentId, executionId) => {
-  return api.post(`/agent_templates/save_agent_as_template/agent_id/${agentId}/agent_execution_id/${executionId}`);
+export const saveAgentAsTemplate = (agentId) => {
+  return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
 };
 
 export const fetchAgentTemplateConfig = (templateId) => {
