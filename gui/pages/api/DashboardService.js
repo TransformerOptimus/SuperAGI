@@ -307,5 +307,9 @@ export const storeModel = (model_name, description, end_point, model_provider_id
 }
 
 export const fetchModels = () => {
-  return api.get(`models_controller/fetchModels`);
+  return api.get(`/models_controller/fetchModels`);
+}
+
+export const fetchModel = (model_id) => {
+  return api.get(`/models_controller/fetchModel/${model_id}`);
 }

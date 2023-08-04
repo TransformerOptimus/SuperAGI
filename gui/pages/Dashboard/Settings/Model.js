@@ -91,6 +91,8 @@ export default function Model({organisationId}) {
   };
 
   const storeKey = (model_provider, api_key) => {
+    if(model_provider === 'OpenAi')
+      model_provider = 'OpenAI'
     storeApiKey(model_provider,api_key).then((response) => {
       if(response.status === 200)
         toast.success(`Successfully Stored the API Key of ${model_provider}`, {autoClose: 1800})

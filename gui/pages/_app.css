@@ -1027,7 +1027,6 @@ p {
 }
 
 .margin_0{margin: 0}
-.padding_0{padding: 0}
 
 .r_0{right: 0}
 
@@ -1096,14 +1095,17 @@ p {
 .lh_16{line-height: 16px;}
 .lh_17{line-height: 17px;}
 
+.padding_0{padding: 0}
 .padding_5{padding: 5px;}
 .padding_8{padding: 8px;}
 .padding_10{padding: 10px;}
 .padding_12{padding: 12px;}
+.padding_16{padding: 16px;}
 
 .padding_8_6{padding: 8px 6px;}
 .padding_2_8{padding: 2px 8px;}
 .padding_0_8{padding: 0px 8px;}
+.padding_16_8{padding: 16px 8px;}
 
 .flex_wrap{flex-wrap: wrap;}
 
