@@ -187,12 +187,14 @@ export default function App() {
       // If `github_client_id` does not exist, make the API call
       if (!github_client_id) {
         const response = await getGithubClientId();
-        console.log('response', response);
-        console.log('response.data', response.data);
         github_client_id = response.data.github_client_id;
       }
-    console.log('github_client_id', github_client_id);
-    window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+      if(!github_client_id) {
+         console.error('Error fetching github client id make sure to set it in the config file');
+      }
+      else {
+        window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+      }
   }
 
   useEffect(() => {
