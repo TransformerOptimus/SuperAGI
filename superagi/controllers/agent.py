@@ -28,7 +28,6 @@ from superagi.controllers.types.agent_with_config_schedule import AgentConfigSch
 from jsonmerge import merge
 from datetime import datetime
 import json
-import ast
 from superagi.models.toolkit import Toolkit
 from superagi.models.knowledges import Knowledges
 
@@ -504,6 +503,8 @@ def get_agent_configuration(agent_id: int,
     db.session.close()
 
     return response
+
+
 @router.put("/delete/{agent_id}", status_code=200)
 def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """

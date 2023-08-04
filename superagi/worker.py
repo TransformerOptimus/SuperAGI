@@ -38,11 +38,6 @@ app.conf.beat_schedule = beat_schedule
 
 @event.listens_for(AgentExecution.status, "set")
 def unique_constraint_name(target, val,old_val,initiator):
-    print('from worker')
-    print("****target",target)
-    print("*****val",val)
-    print("****oldval",old_val)
-    print("****Inititator",initiator)
     webhook_callback.delay(target.id,val,old_val)
     
     
@@ -97,7 +92,6 @@ def summarize_resource(agent_id: int, resource_id: int):
 
 @app.task(name="webhook_callback", autoretry_for=(Exception,), retry_backoff=2, max_retries=5,serializer='pickle')
 def webhook_callback(agent_execution_id,val,old_val):
-    print("*******TEST****************")
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     with Session() as session:

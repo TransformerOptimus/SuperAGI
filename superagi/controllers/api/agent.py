@@ -380,7 +380,7 @@ def resume_agent_runs(agent_id:int,state_config:StateChangeConfigIn,api_key: str
 @router.get("/resources/output",status_code=201)
 def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     run_ids_arr=run_id_config.run_ids
-    if len(run_ids_arr)==0:  # If the returned value is not True (then it is an invalid tool_id)
+    if len(run_ids_arr)==0:  
         raise HTTPException(status_code=404,
                             detail=f"No execution_id found")
     response_obj={}

@@ -496,9 +496,4 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
 
 @event.listens_for(AgentExecution.status, "set",active_history=True)
 def unique_constraint_name(target, val,old_val,initiator):
-    print('from main')
-    print("****target",target)
-    print("*****val",val)
-    print("****oldval",old_val)
-    print("****Inititator",initiator)
     webhook_callback.delay(target.id,val,old_val)
