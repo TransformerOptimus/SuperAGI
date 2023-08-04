@@ -1,0 +1,6 @@
+Use the below instruction and break down the last response to an individual array of items that can be inserted into the queue.
+
+INSTRUCTION: `{instruction}`
+
+Respond with an array of items that are JSON parsable and can be inserted into the queue.
+Ignore the header row in the case of csv.
