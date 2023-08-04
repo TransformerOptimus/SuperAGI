@@ -147,7 +147,6 @@ export default function AgentCreate({
   }, [toolNames]);
 
   useEffect(() => {
-    console.log(internalId)
     getLlmModels()
       .then((response) => {
         const models = response.data || [];
@@ -376,7 +375,6 @@ export default function AgentCreate({
   };
 
   const addGoal = () => {
-    console.log(internalId)
     setLocalStorageArray("agent_goals_" + String(internalId), [...goals, 'new goal'], setGoals);
   };
 
@@ -729,7 +727,6 @@ export default function AgentCreate({
   };
 
   useEffect(() => {
-    console.log(internalId)
     if (internalId !== null) {
       const has_resource = localStorage.getItem("has_resource_" + String(internalId)) || 'true';
       if (has_resource) {
