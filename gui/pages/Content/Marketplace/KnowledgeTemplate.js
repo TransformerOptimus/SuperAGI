@@ -60,7 +60,7 @@ export default function KnowledgeTemplate({template, env}) {
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
       setInstalled('Sign in to install');
-      axios.get(`https://app.superagi.com/api/knowledge/marketplace/get/details/${template.name}`)
+      axios.get(`https://app.superagi.com/api/knowledges/marketplace/get/details/${template.name}`)
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
