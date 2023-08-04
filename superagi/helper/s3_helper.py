@@ -6,13 +6,13 @@ import json
 
 
 class S3Helper:
-    def __init__(self):
+    def __init__(self, bucket_name = get_config("BUCKET_NAME")):
         """
         Initialize the S3Helper class.
         Using the AWS credentials from the configuration file, create a boto3 client.
         """
         self.s3 = S3Helper.__get_s3_client()
-        self.bucket_name = get_config("BUCKET_NAME")
+        self.bucket_name = bucket_name
 
     @classmethod
     def __get_s3_client(cls):
@@ -45,7 +45,7 @@ class S3Helper:
         try:
             self.s3.upload_fileobj(file, self.bucket_name, path)
             logger.info("File uploaded to S3 successfully!")
-        except:
+        except Exception:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
     def check_file_exists_in_s3(self, file_path):
@@ -99,7 +99,14 @@ class S3Helper:
             None
         """
         try:
+            path = "resources" + path
             self.s3.delete_object(Bucket=self.bucket_name, Key=path)
             logger.info("File deleted from S3 successfully!")
+        except:
+            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+        
+    def upload_file_content(self, content, file_path):
+        try:
+            self.s3.put_object(Bucket=self.bucket_name, Key=file_path, Body=content)
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")

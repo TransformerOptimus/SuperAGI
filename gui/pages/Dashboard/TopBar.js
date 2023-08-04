@@ -45,7 +45,7 @@ export default function TopBar({selectedProject, userName, env}) {
         <div className="horizontal_container gap_20">
           <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://discord.gg/ypfYJWV6", "_blank")}>
             <Image width={20} height={20} src="/images/discord.svg" alt="discord-icon" />
-            <p className="top_bar_font">Get Help?</p>
+            <p className="top_bar_font">Get Help</p>
           </div>
           <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://github.com/TransformerOptimus/SuperAGI", "_blank")}>
             <Image width={20} height={20} src="/images/github_white.svg" alt="github-icon" />
@@ -57,15 +57,14 @@ export default function TopBar({selectedProject, userName, env}) {
 
         <div onClick={() => openNewTab(-3, "Settings", "Settings", false)} className={styles.top_right_icon}><Image
           width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/></div>
-        <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}
-             onMouseLeave={() => setDropdown(false)}>
+        <div className={styles.top_right_icon} onMouseEnter={() => setDropdown(true)}>
           <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
         </div>
         {dropdown && env === 'PROD' &&
-          <div style={{marginTop: '3vh', marginRight: '74px'}} onMouseEnter={() => setDropdown(true)}
+          <div style={{marginTop: '3vh', marginLeft: '140px', position: 'absolute'}} onMouseEnter={() => setDropdown(true)}
                onMouseLeave={() => setDropdown(false)}>
             <ul className="dropdown_container" style={{width: '120px'}}>
-              <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
+              {userName !== '' && <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>}
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>
             </ul>
           </div>}

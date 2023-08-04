@@ -60,7 +60,7 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
       setInstalled('Sign in to install');
-      axios.get(`https://app.superagi.com/api/knowledge/marketplace/get/details/${template.name}`)
+      axios.get(`https://app.superagi.com/api/knowledges/marketplace/get/details/${template.name}`)
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
@@ -157,6 +157,18 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
     return [isValid, errorMessage];
   }
 
+  const installClicked = () => {
+    setIndexDropdown(!indexDropdown)
+    if (window.location.href.toLowerCase().includes('marketplace')) {
+      if (env === 'PROD') {
+        window.open(`https://app.superagi.com/`, '_self');
+      } else {
+        window.location.href = '/';
+      }
+      return;
+    }
+  }
+
   return (
     <>
       <div>
@@ -176,7 +188,7 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
                 style={{marginBottom: '1px'}}/>&nbsp;{'\u00B7'}&nbsp;{templateData?.install_number || 0}</span>
 
               {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
-                <div className="primary_button" onClick={() => setIndexDropdown(!indexDropdown)}
+                <div className="primary_button" onClick={installClicked}
                      style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;
                   <span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
