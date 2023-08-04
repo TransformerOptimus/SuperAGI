@@ -54,7 +54,7 @@ export default function ModelForm(){
             if(response.data.length > 0)
             {
                 const modelProviderId = response.data[0].id
-                verifyEndPoint(response.data[0].api_key, modelEndpoint).then((response) =>{
+                verifyEndPoint(response.data[0].api_key, modelEndpoint, selectedModel).then((response) =>{
                     if(response.status === 200)
                         storeModelDetails(modelProviderId)
                 }).catch((error) => {

@@ -20,7 +20,7 @@ import {
   getKnowledge,
   getLastActiveAgent,
   sendGoogleCreds,
-  sendTwitterCreds
+  sendTwitterCreds, fetchModels
 } from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
@@ -40,12 +40,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [knowledge, setKnowledge] = useState(null);
   const tabContainerRef = useRef(null);
   const [toolkitDetails, setToolkitDetails] = useState({});
+  const [models, setModels] = useState([]);
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
   const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database', 'Add_Model'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
-  const models = [{'id':1,'name':'model_1', 'provider': 'Google'},{'id':2,'name':'model_2', 'provider': 'Replicate'}, {'id':3,'name':'model_3', 'provider': 'Hugging Face'}];
 
   useEffect(() => {
     if (prevView !== selectedView) {
@@ -101,6 +101,17 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       });
   }
 
+  async function getModels() {
+    try{
+      const response = await fetchModels();
+      console.log(response.data)
+      setModels(response.data)
+
+    } catch(error){
+      console.error('Error fetching models:', error);
+    }
+  }
+
   async function fetchKnowledge() {
     try {
       const response = await getKnowledge();
@@ -127,6 +138,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   useEffect(() => {
     getAgentList();
     getToolkitList();
+    getModels();
   }, [selectedProjectId])
 
   useEffect(() => {

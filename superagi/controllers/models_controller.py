@@ -44,9 +44,9 @@ async def getApiKey(model_provider: str = None, organisation=Depends(get_user_or
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/verifyEndPoint")
-async def verifyEndPoint(model_api_key: str = None, end_point: str = None, organisation=Depends(get_user_organisation)):
+async def verifyEndPoint(model_api_key: str = None, end_point: str = None, model_provider: str = None, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).validateEndPoint(model_api_key, end_point)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).validateEndPoint(model_api_key, end_point, model_provider)
     except Exception as e:
         logging.error(f"Error validating Endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

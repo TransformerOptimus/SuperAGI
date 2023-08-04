@@ -50,8 +50,14 @@ class ModelsHelper:
             return api_key
 
 
-    def validateEndPoint(self, model_api_key, end_point):
-        result = HuggingFace(api_key=model_api_key,end_point=end_point).get_model()
+    def validateEndPoint(self, model_api_key, end_point, model_provider):
+        result = {}
+        if(model_provider == 'Hugging Face'):
+            try:
+                result = HuggingFace(api_key=model_api_key,end_point=end_point).get_model()
+            except Exception as e:
+                result = {'error': str(e)}
+
         if 'error' in result:
             return result['error']
 
@@ -89,19 +95,15 @@ class ModelsHelper:
 
     def fetchModels(self) -> List[Dict[str, Union[str, int]]]:
         try:
-            models = self.session.query(Models.id, Models.model_name, Models.description,Models.end_point, Models.token_limit, Models.model_provider_id,Models.org_id, ModelsConfig.source_name).join(ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(Models.org_id == self.organisation_id).all()
+            models = self.session.query(Models.id, Models.model_name, Models.description, ModelsConfig.source_name).join(ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(Models.org_id == self.organisation_id).all()
 
             result = []
             for model in models:
                 result.append({
                     "id": model[0],
-                    "model_name": model[1],
+                    "name": model[1],
                     "description": model[2],
-                    "end_point": model[3],
-                    "token_limit": model[4],
-                    "model_provider_id": model[5],
-                    "org_id": model[6],
-                    "source_name": model[7]
+                    "model_provider": model[3]
                 })
 
         except Exception as e:
@@ -109,3 +111,30 @@ class ModelsHelper:
             return {"error": "Unexpected Error Occured"}
 
         return result
+
+    def fetchModelDetails(self, model_id: int) -> Dict[str, Union[str, int]]:
+        try:
+            model = self.session.query(
+                Models.id, Models.model_name, Models.description,
+                Models.end_point, Models.token_limit, ModelsConfig.source_name
+            ).join(
+                ModelsConfig, Models.model_provider_id == ModelsConfig.id
+            ).filter(
+                and_(Models.org_id == self.organisation_id, Models.id == model_id)
+            ).first()
+
+            if model:
+                return {
+                    "id": model[0],
+                    "name": model[1],
+                    "description": model[2],
+                    "end_point": model[3],
+                    "token_limit": model[4],
+                    "model_provider": model[5]
+                }
+            else:
+                return {"error": "Model with the given ID doesn't exist."}
+
+        except Exception as e:
+            logging.error(f"Unexpected Error Occured: {e}")
+            return {"error": "Unexpected Error Occured"}
