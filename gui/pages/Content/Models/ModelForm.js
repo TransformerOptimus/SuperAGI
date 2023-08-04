@@ -1,14 +1,16 @@
 import React, {useEffect, useRef, useState} from "react";
 import {removeTab, openNewTab} from "@/utils/utils";
 import Image from "next/image";
-import {fetchApiKey, verifyEndPoint} from "@/pages/api/DashboardService";
-import {BeatLoader} from "react-spinners";
+import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
+import {BeatLoader, ClipLoader} from "react-spinners";
+import {ToastContainer, toast} from 'react-toastify';
 
 export default function ModelForm(){
     const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');
+    const [modelTokenLimit, setModelTokenLimit] = useState(4096);
     const [modelEndpoint, setModelEndpoint] = useState('');
     const [modelDropdown, setModelDropdown] = useState(false);
     const [tokenError, setTokenError] = useState(false);
@@ -51,12 +53,29 @@ export default function ModelForm(){
         fetchApiKey(selectedModel).then((response) =>{
             if(response.data.length > 0)
             {
+                const modelProviderId = response.data[0].id
                 verifyEndPoint(response.data[0].api_key, modelEndpoint).then((response) =>{
-                    console.log(response)
-                    setIsLoading(false)
+                    if(response.status === 200)
+                        storeModelDetails(modelProviderId)
+                }).catch((error) => {
+                    console.log("Error Message:: " + error)
                 })
             }
         })
+    }
+
+    const storeModelDetails = (modelProviderId) => {
+        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit).then((response) =>{
+            setIsLoading(false)
+            if (response.data.error) {
+                toast.error(response.data.error,{autoClose: 1800});
+            } else if (response.data.success) {
+                toast.success(response.data.success,{autoClose: 1800});
+            }
+        }).catch((error) => {
+            console.log("SORRY, There was an error storing the model details" + error);
+            setIsLoading(false)
+        });
     }
 
     return(
@@ -104,13 +123,20 @@ export default function ModelForm(){
                        onChange={(event) => setModelEndpoint(event.target.value)}/>
             </div>}
 
+            <div className="mt_24">
+                <span>Token Limit</span>
+                <input className="input_medium mt_8" type="numbrt" placeholder="Enter Model Token Limit" value={modelTokenLimit}
+                       onChange={(event) => setModelTokenLimit(+event.target.value)}/>
+            </div>
+
             <div className="horizontal_container justify_end mt_24">
                 <button className="secondary_button mr_7"
                         onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
                 <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading}>
-                    {isLoading ? 'Adding Model' + <BeatLoader size={8} color={"#FFFFFF"} /> : 'Add Model'}
+                    {isLoading ? <><span>Adding Model &nbsp;</span><ClipLoader size={16} color={"#000000"} /></> : 'Add Model'}
                 </button>
             </div>
+            <ToastContainer className="text_16"/>
         </div>
     )
 }

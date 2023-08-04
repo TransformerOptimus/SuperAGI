@@ -289,15 +289,23 @@ export const storeApiKey = (model_provider, model_api_key) => {
 }
 
 export const fetchApiKeys = () => {
-  return api.get(`/models_controller/getApiKeys`)
+  return api.get(`/models_controller/getApiKeys`);
 }
 
 export const fetchApiKey = (model_provider) => {
-  return api.get(`/models_controller/getApiKey?model_provider=${model_provider}`)
+  return api.get(`/models_controller/getApiKey?model_provider=${model_provider}`);
 }
 
 export const verifyEndPoint = (model_api_key, end_point) => {
   return api.get(`/models_controller/verifyEndPoint`, {
     params: { model_api_key, end_point }
   });
+}
+
+export const storeModel = (model_name, description, end_point, model_provider_id, token_limit) => {
+  return api.post(`/models_controller/storeModel`,{model_name, description, end_point, model_provider_id, token_limit});
+}
+
+export const fetchModels = () => {
+  return api.get(`models_controller/fetchModels`);
 }
