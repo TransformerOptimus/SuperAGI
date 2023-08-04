@@ -1305,14 +1305,14 @@ export default function AgentCreate({
           )}
 
           {editModal && (<div className="modal" onClick={() => setEditModal(!editModal)}>
-            <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+            <div className="modal-content w_35" onClick={preventDefault}>
               <div className={styles.detail_name}>Update agent</div>
               <div><label className={styles.form_label}>All the new runs of this agent will be updated with the latest changes. Are you sure you want to update changes?</label></div>
-              <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '20px'}}>
-                <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setEditModal(false)}>
+              <div className="mt_20 justify_end display_flex">
+                <button className="secondary_button mr_10" onClick={() => setEditModal(false)}>
                   Cancel
                 </button>
-                <button className={styles.run_button} style={{paddingLeft: '15px', paddingRight: '15px', height: '32px'}} onClick={handleAddAgent}>
+                <button className={`${styles.run_button} h_32p padding_0_15 `} onClick={handleAddAgent}>
                   Update changes
                 </button>
               </div>

@@ -1002,6 +1002,7 @@ p {
 .w_20{width: 20%}
 .w_22{width: 22%}
 .w_56{width: 56%}
+.w_35{width: 35%}
 .w_100{width: 100%}
 .w_inherit{width: inherit}
 .w_fit_content{width:fit-content}
@@ -1012,6 +1013,7 @@ p {
 .h_100{height: 100%}
 .h_auto{height: auto}
 .h_75vh{height: 75vh}
+.h_32p{height: 32px}
 
 .mxh_78vh{max-height: 78vh}
 
@@ -1065,6 +1067,7 @@ p {
 .padding_8_6{padding: 8px 6px;}
 .padding_2_8{padding: 2px 8px;}
 .padding_0_8{padding: 0px 8px;}
+.padding_0_15{padding: 0px 15px;}
 
 .flex_wrap{flex-wrap: wrap;}
 
