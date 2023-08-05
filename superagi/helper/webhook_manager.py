@@ -17,7 +17,6 @@ class WebHookManager:
         org=agent.get_agent_organisation(self.session)
         org_id=org.id
         org_webhooks=self.session.query(WebHooks).filter(org_id==org_id).all()
-        print("**********",org_webhooks)
 
         for webhook_obj in org_webhooks:
             webhook_obj_body={"agent_id":agent_id,"org_id":org_id,"event":f"{old_val} to {val}"}
@@ -29,7 +28,6 @@ class WebHookManager:
             except Exception as e:
                 logger.error(f"Exception occured in webhooks {e}")
                 error=str(e)
-            print(error,'************(((((((')
             if r is not None and r.status_code not in [200,201] and error is None:
                 error=r.text
             if error is not None:
@@ -38,11 +36,3 @@ class WebHookManager:
             self.session.add(web_hook_event)
             self.session.commit()
         return
-
-    # def send_post_req(self,url,headers,body):
-    #     try:
-    #         r = requests.post(url, data=json.dumps(body), headers=headers)
-    #     except Exception as e:
-    #         logger.error(f"Exception occured in webhooks {e}")
-    #     return
-    

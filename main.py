@@ -494,6 +494,6 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 
-@event.listens_for(AgentExecution.status, "set",active_history=True)
-def unique_constraint_name(target, val,old_val,initiator):
-    webhook_callback.delay(target.id,val,old_val)
+# @event.listens_for(AgentExecution.status, "set",active_history=True)
+# def unique_constraint_name(target, val,old_val,initiator):
+#     webhook_callback.delay(target.id,val,old_val)

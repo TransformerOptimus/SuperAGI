@@ -59,7 +59,7 @@ def execute_agent(agent_execution_id: int, time):
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
 
 
-@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
+@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5,serializer='pickle')
 def summarize_resource(agent_id: int, resource_id: int):
     """Summarize a resource in background."""
     from superagi.resource_manager.resource_summary import ResourceSummarizer

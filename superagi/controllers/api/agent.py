@@ -72,33 +72,11 @@ class RunIDConfig(BaseModel):
     class Config:
         orm_mode = True
 
-@router.post("/add",status_code=201)
+@router.post("",status_code=201)
 def create_agent_with_config(agent_with_config: AgentConfigExtInput,
                              api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     """
     Create a new agent with configurations.
-
-    Args:
-        agent_with_config (AgentConfigInput): Data for creating a new agent with configurations.
-            - name (str): Name of the agent.
-            - description (str): Description of the agent.
-            - goal (List[str]): List of goals for the agent.
-            - agent_type (str): Type of the agent.
-            - constraints (List[str]): List of constraints for the agent.
-            - tools (List[int]): List of tool identifiers associated with the agent.
-            - exit (str): Exit condition for the agent.
-            - iteration_interval (int): Interval between iterations for the agent.
-            - model (str): Model information for the agent.
-            - permission_type (str): Permission type for the agent.
-            - LTM_DB (str): LTM database for the agent.
-            - max_iterations (int): Maximum number of iterations for the agent.
-            - user_timezone (string): Timezone of the user
-
-    Returns:
-        dict: Dictionary containing the created agent's ID, execution ID, name, and content type.
-
-    Raises:
-        HTTPException (status_code=404): If the associated project or any of the tools is not found.
 """
     org_id=organisation.id
     project=db.session.query(Project).filter(Project.organisation_id==org_id).first()
@@ -180,6 +158,9 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
 
 @router.post("/run/{agent_id}",status_code=201)
 def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
+    """
+    starts the run
+    """
     agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -255,14 +236,14 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     db_execution=db.session.query(AgentExecution).filter(AgentExecution.agent_id==db_agent.id).first()
 
     if(db_execution.status=="RUNNING"):
-        raise HTTPException(status_code=409, detail="Agent is already running, cannot update")  ## ******
+        raise HTTPException(status_code=409, detail="Agent is already running,please pause and then update") 
     
     toolkits_arr,tools_arr=get_tool_and_toolkit_arr(agent_with_config.tools,db)
     invalid_tools = Tool.get_invalid_tools(tools_arr, db.session)
 
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
         raise HTTPException(status_code=404,
-                            detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
+                            detail=f"Tool with IDs {str(invalid_tools)} does not exist.")
     
     agent_with_config.tools=tools_arr
     agent_with_config.project_id=project.id
@@ -298,7 +279,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     }
 
 
-@router.get("/run/{agent_id}",status_code=201)
+@router.get("/run/{agent_id}")
 def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
 
     agent = db.session.query(Agent).filter(Agent.id == agent_id, Agent.is_deleted == False).first()
@@ -389,9 +370,8 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
         aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
     )
-
+    #Checking if the run_ids whose output files are requested belong to the organisation 
     for run_id in run_ids_arr:
-        run_id_file_urls=[]
         db_execution=db.session.query(AgentExecution).filter(AgentExecution.id==run_id).first()
 
         if db_execution is None:
@@ -404,22 +384,23 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
 
         if project.organisation_id!=organisation.id:
             raise HTTPException(status_code=404, detail=f"Run ID {run_id} not found")
-        
-        files=db.session.query(Resource).filter(Resource.agent_execution_id==run_id).all()
-        for file in files:
-            response = s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=file.path)
-            content = response["Body"].read()
-            bucket_name = get_config("INSTAGRAM_TOOL_BUCKET_NAME")
-            file_name=file.path.split('/')[-1]
-            file_name=''.join(char for char in file_name if char != "`")
-            object_key=f"public_resources/run_id{run_id}/{file_name}"
-            s3.put_object(Bucket=bucket_name, Key=object_key, Body=content)
-            file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
-            run_id_file_urls.append(file_url)
-
-        response_obj["run_id_"+str(run_id)]=run_id_file_urls
-        
-
+    
+    db_resources_arr=db.session.query(Resource).filter(Resource.agent_execution_id.in_(run_ids_arr)).all()
+    for db_resource in db_resources_arr:
+        response = s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=db_resource.path)
+        content = response["Body"].read()
+        bucket_name = get_config("INSTAGRAM_TOOL_BUCKET_NAME")
+        file_name=db_resource.path.split('/')[-1]
+        file_name=''.join(char for char in file_name if char != "`")
+        object_key=f"public_resources/run_id{db_resource.agent_execution_id}/{file_name}"
+        s3.put_object(Bucket=bucket_name, Key=object_key, Body=content)
+        file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
+        resource_execution_id=db_resource.agent_execution_id
+        if resource_execution_id in response_obj:
+            response_obj[resource_execution_id].append(file_url)
+        else:
+            response_obj[resource_execution_id]=[file_url]
+ 
     return response_obj
 
 def get_tool_and_toolkit_arr(agent_config_tools_arr,db):
