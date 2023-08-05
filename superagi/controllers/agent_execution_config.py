@@ -83,20 +83,23 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
             results_agent_dict[key] = value
         
     # Construct the response
-    results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
+    if 'goal' in results_agent_dict:
+        results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
 
     if "toolkits" in results_agent_dict:
         results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
 
-    results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
-    tools = db.session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
-    results_agent_dict["tools"] = tools
+    if 'tools' in results_agent_dict:
+        results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
+        tools = db.session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
+        results_agent_dict["tools"] = tools
+    if 'instruction' in results_agent_dict:
+        results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
 
-    results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
-
-    constraints_str = results_agent_dict["constraints"]
-    constraints_list = eval(constraints_str)
-    results_agent_dict["constraints"] = constraints_list
+    if 'constraints' in results_agent_dict:
+        constraints_str = results_agent_dict["constraints"]
+        constraints_list = eval(constraints_str)
+        results_agent_dict["constraints"] = constraints_list
 
     results_agent_dict["name"] = agent.name
     results_agent_dict["description"] = agent.description
