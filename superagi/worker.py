@@ -37,7 +37,7 @@ beat_schedule = {
 app.conf.beat_schedule = beat_schedule
 
 @event.listens_for(AgentExecution.status, "set")
-def unique_constraint_name(target, val,old_val,initiator):
+def agent_status_change(target, val,old_val,initiator):
     webhook_callback.delay(target.id,val,old_val)
     
     
