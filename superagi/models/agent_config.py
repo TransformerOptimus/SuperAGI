@@ -75,9 +75,8 @@ class AgentConfiguration(DBBaseModel):
         # Fetch agent configurations
         agent_configs = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
         for agent_config in agent_configs:
-            key = agent_config.key
-            if key in updated_details_dict:
-                agent_config.value = updated_details_dict[key]
+            if agent_config.key in updated_details_dict:
+                agent_config.value = updated_details_dict[agent_config.key]
 
         # Commit the changes to the database
         session.commit()
