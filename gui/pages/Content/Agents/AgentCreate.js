@@ -10,7 +10,8 @@ import {
   getLlmModels,
   updateExecution,
   uploadFile,
-  getAgentDetails, editAgent
+  getAgentDetails, editAgent,
+  getAgentWorkflows
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -72,8 +73,12 @@ export default function AgentCreate({
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Fixed Task Queue"]
+  // const agentTypes = ["Goal Based Workflow",
+  //   "Dynamic Task Workflow", "Fixed Task Workflow", "Sales Research Workflow", "SuperCoder", "DocSuperCoder", "Research & send email"]
+  // const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Fixed Task Queue"]
+  const [agentTypes, setAgentTypes] = useState('');
   const [agentType, setAgentType] = useState(agentTypes[0]);
+
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
 
@@ -164,6 +169,21 @@ export default function AgentCreate({
     if (edit) {
       editingAgent();
     }
+
+    getAgentWorkflows()
+      .then((response) => {
+        const agentTypes = response.data || [];
+        const selectedAgentType = localStorage.getItem("agent_type_" + String(internalId)) || '';
+        setAgentTypes(agentTypes);
+        if (agentTypes.length > 0 && !selectedAgentType) {
+          setLocalStorageValue("agent_type_" + String(internalId), agentTypes[0], setAgentType);
+        } else {
+          setAgentType(selectedAgentType);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching agent workflows:', error);
+      });
 
     if (template !== null) {
       fillDetails(template)
