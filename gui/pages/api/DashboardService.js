@@ -232,6 +232,10 @@ export const getLlmModels = () => {
   return api.get(`organisations/llm_models`);
 };
 
+export const getAgentWorkflows = () => {
+  return api.get(`organisations/agent_workflows`);
+};
+
 export const fetchVectorDBList = () => {
   return api.get(`/vector_dbs/get/list`);
 };

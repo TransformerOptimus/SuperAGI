@@ -24,7 +24,7 @@ def test_execute_scheduled_agent(AgentExecutionMock, AgentWorkflowMock, AgentMoc
     mock_agent.id = agent_id
     session_mock.query.return_value.get.return_value = mock_agent
 
-    db_agent_execution_mock = AgentExecution(status="RUNNING",last_execution_time=datetime.now(),agent_id=agent_id, name=name, num_of_calls=0, num_of_tokens=0, current_step_id=1)
+    db_agent_execution_mock = AgentExecution(status="RUNNING",last_execution_time=datetime.now(),agent_id=agent_id, name=name, num_of_calls=0, num_of_tokens=0, current_agent_step_id=1)
     type(db_agent_execution_mock).id = PropertyMock(return_value=123)
     AgentExecutionMock.return_value = db_agent_execution_mock
 

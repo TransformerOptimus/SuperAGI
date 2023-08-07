@@ -11,7 +11,7 @@ from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.tool import Tool
 import json
 # from superagi.types.db import AgentTemplateIn, AgentTemplateOut

@@ -28,6 +28,7 @@ class AgentExecutionPermission(DBBaseModel):
     status = Column(String)
     tool_name = Column(String)
     user_feedback = Column(Text)
+    question = Column(Text)
     assistant_reply = Column(Text)
 
     def __repr__(self):
@@ -38,4 +39,6 @@ class AgentExecutionPermission(DBBaseModel):
                f"agent_execution_id={self.agent_execution_id}, " \
                f"agent_id={self.agent_id}, " \
                f"status={self.status}, " \
+               f"tool_name={self.tool_name}, " \
+               f"question={self.question}, " \
                f"response={self.user_feedback})"
