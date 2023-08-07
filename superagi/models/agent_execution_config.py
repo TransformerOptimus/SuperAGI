@@ -2,6 +2,12 @@ from sqlalchemy import Column, Integer, String, Text
 
 from superagi.models.base_model import DBBaseModel
 
+import ast
+import json
+from superagi.models.knowledges import Knowledges
+
+from superagi.models.tool import Tool
+
 
 class AgentExecutionConfiguration(DBBaseModel):
     """
@@ -100,3 +106,46 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         if key == "goal" or key == "instruction":
             return eval(value)
+
+    @classmethod
+    def fetch_details_api(cls, session, agent, results_agent, results_agent_execution, total_calls, total_tokens):
+        results_agent_dict = {result.key: result.value for result in results_agent}
+        results_agent_execution_dict = {result.key: result.value for result in results_agent_execution}
+
+        for key, value in results_agent_execution_dict.items():
+            if key in results_agent_dict and value is not None:
+                results_agent_dict[key] = value
+            
+        # Construct the response
+        if 'goal' in results_agent_dict:
+            results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
+
+        if "toolkits" in results_agent_dict:
+            results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
+
+        if 'tools' in results_agent_dict:
+            results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
+            tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
+            results_agent_dict["tools"] = tools
+        if 'instruction' in results_agent_dict:
+            results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
+
+        if 'constraints' in results_agent_dict:
+            constraints_str = results_agent_dict["constraints"]
+            constraints_list = eval(constraints_str)
+            results_agent_dict["constraints"] = constraints_list
+
+        results_agent_dict["name"] = agent.name
+        results_agent_dict["description"] = agent.description
+        results_agent_dict["calls"] = total_calls
+        results_agent_dict["tokens"] = total_tokens
+
+        knowledge_name = ""
+        if 'knowledge' in results_agent_dict and results_agent_dict['knowledge'] != 'None':
+            if type(results_agent_dict['knowledge'])==int:
+                results_agent_dict['knowledge'] = int(results_agent_dict['knowledge'])
+            knowledge = session.query(Knowledges).filter(Knowledges.id == results_agent_dict['knowledge']).first()
+            knowledge_name = knowledge.name if knowledge is not None else ""
+        results_agent_dict['knowledge_name'] = knowledge_name 
+
+        return results_agent_dict
