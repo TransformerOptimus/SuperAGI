@@ -85,10 +85,25 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_step_id=start_step_id)
+    
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction
     }
+
+    agent_configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_execution.agent_id).all()
+    keys_to_exclude = ["goal", "instruction"]
+    for agent_config in agent_configs:
+        if agent_config.key not in keys_to_exclude:
+            if agent_config.key == "toolkits":
+                toolkits = [int(item) for item in agent_config.value.strip('{}').split(',')]
+                agent_execution_configs[agent_config.key] = toolkits
+            elif agent_config.key == "constraints":
+                constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
+                agent_execution_configs[agent_config.key] = constraints
+            else:
+                agent_execution_configs[agent_config.key] = agent_config.value
+
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
