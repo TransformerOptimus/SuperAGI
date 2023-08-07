@@ -56,7 +56,7 @@ class AgentExecutor:
             model_llm_source = ModelSourceType.get_model_source_from_model(agent_config["model"]).value
             try:
                 vector_store_type = VectorStoreType.get_vector_store_type(agent_config["LTM_DB"])
-                memory = VectorFactory.get_vector_storage("Pinecone", "super-agent-index1",
+                memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
             except:
                 logger.info("Unable to setup the connection...")

@@ -63,32 +63,19 @@ class ToolOutputHandler:
             tool_response = self._check_for_completion(tool_response)
         # print("Tool Response:", tool_response)
         
-        if self.memory is not None:
-            data = json.loads(assistant_reply)
-            task_description = data['thoughts']['text']
-            print("Here is the task Description: ",task_description,"ENDD")
-            final_tool_response = tool_response.result
-            print("Here is the final tool response: ",final_tool_response,"ENDD")
-            
-            prompt = task_description+final_tool_response
         
-            
-            text_splitter = TokenTextSplitter(chunk_size=512, chunk_overlap=10)
-            chunk_response = text_splitter.split_text(prompt)
-            
-            metadata = {"agent_execution_id":self.agent_execution_id}
-            print("Here is the metadata: ",metadata,"ENDD")
-            
-            metadatas = []
-            for _ in chunk_response:
-                metadatas.append(metadata)
-                
-            print("Here are the metadatas: ",metadatas,"END") 
-            self.memory.add_texts(chunk_response,metadatas)
-        else:
-            logger.info("memory not initiated")       
+        data = json.loads(assistant_reply)
+        task_description = data['thoughts']['text']
+        final_tool_response = tool_response.result
+        prompt = task_description+final_tool_response
+        text_splitter = TokenTextSplitter(chunk_size=512, chunk_overlap=10)
+        chunk_response = text_splitter.split_text(prompt)
+        metadata = {"agent_execution_id":self.agent_execution_id}
+        metadatas = []
+        for _ in chunk_response:
+            metadatas.append(metadata)
         
-        
+        self.memory.add_texts(chunk_response,metadatas)     
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):
