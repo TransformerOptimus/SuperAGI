@@ -108,7 +108,7 @@ class AgentExecutionConfiguration(DBBaseModel):
             return eval(value)
 
     @classmethod
-    def fetch_details_api(cls, session, agent, results_agent, results_agent_execution, total_calls, total_tokens):
+    def build_agent_execution_config(cls, session, agent, results_agent, results_agent_execution, total_calls, total_tokens):
         results_agent_dict = {result.key: result.value for result in results_agent}
         results_agent_execution_dict = {result.key: result.value for result in results_agent_execution}
 

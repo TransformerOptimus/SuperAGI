@@ -74,7 +74,7 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     
-    response = AgentExecutionConfiguration.fetch_details_api(db.session, agent, results_agent, results_agent_execution, total_calls, total_tokens)
+    response = AgentExecutionConfiguration.build_agent_execution_config(db.session, agent, results_agent, results_agent_execution, total_calls, total_tokens)
 
     # Close the session
     db.session.close()
