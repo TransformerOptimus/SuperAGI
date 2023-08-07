@@ -41,3 +41,10 @@ class TaskQueue:
             return None
 
         return eval(response)
+
+    def set_status(self, status):
+        self.db.set(self.queue_name + "_status", status)
+
+    def get_status(self):
+        return self.db.get(self.queue_name + "_status")
+

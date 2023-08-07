@@ -2,7 +2,11 @@ from fastapi import HTTPException
 from sqlalchemy import Column, Integer, Text, String
 from typing import Union
 
+from superagi.config.config import get_config
+from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
+from superagi.models.configuration import Configuration
+from superagi.types.model_source_types import ModelSourceType
 from superagi.models.tool import Tool
 from superagi.controllers.types.agent_execution_config import AgentRunIn
 
@@ -33,8 +37,8 @@ class AgentConfiguration(DBBaseModel):
             str: String representation of the Agent Configuration.
 
         """
-        return f"AgentConfiguration(id={self.id}, key={self.key}, value={self.value})"
-    
+        return f"AgentConfiguration(id={self.id}, key={self.key}, value={self.value})"    
+
     @classmethod
     def update_agent_configurations_table(cls, session, agent_id: Union[int, None], updated_details: AgentRunIn):
 
@@ -82,3 +86,30 @@ class AgentConfiguration(DBBaseModel):
         session.commit()
 
         return "Details updated successfully"
+    @classmethod
+    def get_model_api_key(cls, session, agent_id: int, model: str):
+        """
+        Get the model API key from the agent id.
+
+        Args:
+            session (Session): The database session
+            agent_id (int): The agent identifier
+            model (str): The model name
+
+        Returns:
+            str: The model API key.
+        """
+        config_model_source = Configuration.fetch_value_by_agent_id(session, agent_id,
+                                                                    "model_source") or "OpenAi"
+        selected_model_source = ModelSourceType.get_model_source_from_model(model)
+        if selected_model_source.value == config_model_source:
+            config_value = Configuration.fetch_value_by_agent_id(session, agent_id, "model_api_key")
+            model_api_key = decrypt_data(config_value)
+            return model_api_key
+
+        if selected_model_source == ModelSourceType.GooglePalm:
+            return get_config("PALM_API_KEY")
+
+        if selected_model_source == ModelSourceType.Replicate:
+            return get_config("REPLICATE_API_TOKEN")
+        return get_config("OPENAI_API_KEY")

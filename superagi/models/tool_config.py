@@ -67,7 +67,7 @@ class ToolConfig(DBBaseModel):
         if tool_config:
             # Update existing tool config
             if value is not None:
-                tool_config.value = encrypt_data(value)
+                tool_config.value = (value)
 
             if is_required is None:
                 tool_config.is_required = False
@@ -100,3 +100,7 @@ class ToolConfig(DBBaseModel):
             session.add(tool_config)
 
         session.commit()
+
+    @classmethod
+    def get_toolkit_tool_config(cls, session: Session, toolkit_id: int):
+        return session.query(ToolConfig).filter_by(toolkit_id=toolkit_id).all()

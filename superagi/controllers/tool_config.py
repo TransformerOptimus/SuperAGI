@@ -10,6 +10,8 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.helper.encyption_helper import encrypt_data
 from superagi.helper.encyption_helper import decrypt_data, is_encrypted
+from superagi.types.key_type import ToolConfigKeyType
+import json
 
 router = APIRouter()
 
@@ -57,6 +59,8 @@ def update_tool_config(toolkit_name: str, configs: list, organisation: Organisat
             if key is not None:
                 tool_config = db.session.query(ToolConfig).filter_by(toolkit_id=toolkit.id, key=key).first()
                 if tool_config:
+                    if tool_config.key_type ==  ToolConfigKeyType.FILE.value:
+                        value = json.dumps(value)
                     # Update existing tool config
                     # added encryption
                     tool_config.value = encrypt_data(value)
@@ -98,6 +102,8 @@ def create_or_update_tool_config(toolkit_name: str, tool_configs,
 
         if existing_tool_config.value:
             # Update the existing tool config
+            if existing_tool_config.key_type == ToolConfigKeyType.FILE.value:
+                existing_tool_config.value = json.dumps(existing_tool_config.value)
             existing_tool_config.value = encrypt_data(tool_config.value)
         else:
             # Create a new tool config
@@ -139,9 +145,8 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
         if tool_config.value:
             if(is_encrypted(tool_config.value)):
                 tool_config.value = decrypt_data(tool_config.value)
-        
-    if not tool_configs:
-        raise HTTPException(status_code=404, detail="Tool configuration not found")
+            if tool_config.key_type == ToolConfigKeyType.FILE.value:
+                tool_config.value = json.loads(tool_config.value)
     
     return tool_configs
 
@@ -174,10 +179,11 @@ def get_tool_config(toolkit_name: str, key: str, organisation: Organisation = De
         ToolConfig.toolkit_id == toolkit.id,
         ToolConfig.key == key
     ).first()
-    if(is_encrypted(tool_config.value)):
-        tool_config.value = decrypt_data(tool_config.value)
-
     if not tool_config:
         raise HTTPException(status_code=404, detail="Tool configuration not found")
+    if(is_encrypted(tool_config.value)):
+        tool_config.value = decrypt_data(tool_config.value)
+    if tool_config.key_type == ToolConfigKeyType.FILE.value:
+        tool_config.value = json.loads(tool_config.value)
 
     return tool_config
