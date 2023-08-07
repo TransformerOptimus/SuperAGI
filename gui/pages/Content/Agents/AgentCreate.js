@@ -166,9 +166,6 @@ export default function AgentCreate({
       .catch((error) => {
         console.error('Error fetching models:', error);
       });
-    if (edit) {
-      editingAgent();
-    }
 
     getAgentWorkflows()
       .then((response) => {
@@ -184,6 +181,9 @@ export default function AgentCreate({
       .catch((error) => {
         console.error('Error fetching agent workflows:', error);
       });
+    if (edit) {
+      editingAgent();
+    }
 
     if (template !== null) {
       fillDetails(template)
