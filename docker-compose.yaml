@@ -1,39 +1,37 @@
 version: '3.8'
 services:
   backend:
-    image: "superagidev/superagi:main"
     volumes:
-      - "./workspace:/app/workspace"
+      - "./:/app"
+    build: .
     depends_on:
       - super__redis
       - super__postgres
     networks:
       - super_network
-    env_file:
-      - config.yaml
     command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
-
   celery:
-    image: "superagidev/superagi:main"
     volumes:
-      - "./workspace:/app/workspace"
+      - "./:/app"
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
+    build: .
     depends_on:
       - super__redis
       - super__postgres
     networks:
       - super_network
-    env_file:
-      - config.yaml
     command: ["/app/entrypoint_celery.sh"]
-
   gui:
-    image: "superagidev/superagi-frontend:main"
-    environment:
-      - NEXT_PUBLIC_API_BASE_URL=/api
+    build:
+      context: ./gui
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "/api"
     networks:
       - super_network
-
+#    volumes:
+#      - ./gui:/app
+#      - /app/node_modules/
+#      - /app/.next/
   super__redis:
     image: "redis/redis-stack-server:latest"
     networks:

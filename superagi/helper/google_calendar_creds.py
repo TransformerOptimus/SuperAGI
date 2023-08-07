@@ -15,6 +15,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.resource_manager.file_manager import FileManager
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 class GoogleCalendarCreds:
 
@@ -36,9 +37,15 @@ class GoogleCalendarCreds:
             for credentials in google_creds:
                 credentials = credentials.__dict__
                 if credentials["key"] == "GOOGLE_CLIENT_ID":
-                    client_id = credentials["value"]
+                    if is_encrypted(credentials["value"]):
+                        client_id = decrypt_data(credentials["value"])
+                    else:
+                        client_id = credentials["value"]
                 if credentials["key"] == "GOOGLE_CLIENT_SECRET":
-                    client_secret = credentials["value"]
+                    if is_encrypted(credentials["value"]):
+                        client_secret = decrypt_data(credentials["value"])
+                    else:
+                        client_secret = credentials["value"]
             creds = Credentials.from_authorized_user_info(info={
                 "client_id": client_id,
                 "client_secret": client_secret,

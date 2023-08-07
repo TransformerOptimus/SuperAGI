@@ -153,7 +153,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 
 def replace_old_iteration_workflows(session):
-    dateTimeObj = datetime.strptime("31-July-2023", "%d-%B-%Y")
+    dateTimeObj = datetime.strptime("4-August-2023", "%d-%B-%Y")
     templates = session.query(AgentTemplate).filter(AgentTemplate.created_at <= dateTimeObj).all()
     for template in templates:
         iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
@@ -167,7 +167,7 @@ def replace_old_iteration_workflows(session):
             template.agent_workflow_id = agent_workflow.id
             session.commit()
 
-        if iter_workflow.name == "Don't Maintain Task Queue":
+        if iter_workflow.name == "Don't Maintain Task Queue" or iter_workflow.name == "Goal Based Agent":
             agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
             template.agent_workflow_id = agent_workflow.id
             session.commit()
@@ -207,9 +207,10 @@ async def startup_event():
     AgentWorkflowSeed.build_task_based_agent(session)
     AgentWorkflowSeed.build_fixed_task_based_agent(session)
     AgentWorkflowSeed.build_sales_workflow(session)
+    AgentWorkflowSeed.build_recruitment_workflow(session)
     AgentWorkflowSeed.build_coding_workflow(session)
-    AgentWorkflowSeed.doc_search_and_code(session)
-    AgentWorkflowSeed.build_research_email_workflow(session)
+    # AgentWorkflowSeed.doc_search_and_code(session)
+    # AgentWorkflowSeed.build_research_email_workflow(session)
     replace_old_iteration_workflows(session)
 
     if env != "PROD":
@@ -351,6 +352,15 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
 async def say_hello(name: str, Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
+
+@app.get('/get/github_client_id')
+def github_client_id():
+    """Get GitHub Client ID"""
+
+    git_hub_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
+    if git_hub_client_id:
+        git_hub_client_id = git_hub_client_id.strip()
+    return {"github_client_id": git_hub_client_id}
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload

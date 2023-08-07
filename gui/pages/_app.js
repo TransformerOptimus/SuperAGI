@@ -17,6 +17,9 @@ import {
   installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
 import {githubClientId} from "@/pages/api/apiConfig";
+import {
+  getGithubClientId
+} from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
@@ -178,9 +181,20 @@ export default function App() {
     setSelectedView(data);
   };
 
-  function signInUser() {
-    const github_client_id = githubClientId();
-    window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+  async function signInUser() {
+    let github_client_id = githubClientId();
+
+      // If `github_client_id` does not exist, make the API call
+      if (!github_client_id) {
+        const response = await getGithubClientId();
+        github_client_id = response.data.github_client_id;
+      }
+      if(!github_client_id) {
+         console.error('Error fetching github client id make sure to set it in the config file');
+      }
+      else {
+        window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+      }
   }
 
   useEffect(() => {
