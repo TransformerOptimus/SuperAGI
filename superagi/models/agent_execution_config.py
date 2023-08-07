@@ -100,3 +100,22 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         if key == "goal" or key == "instruction":
             return eval(value)
+
+    @classmethod
+    def fetch_value(cls, session, execution_id, key):
+        """
+           Fetches the value of a specific execution configuration setting for an agent.
+
+           Args:
+               session: The database session object.
+               execution_id (int): The ID of the agent execution.
+               key (str): The key of the execution configuration setting.
+
+           Returns:
+               AgentExecutionConfiguration: The execution configuration setting object if found, else None.
+
+       """
+
+        return session.query(AgentExecutionConfiguration).filter(
+            AgentExecutionConfiguration.agent_execution_id == execution_id,
+            AgentExecutionConfiguration.key == key).first()
