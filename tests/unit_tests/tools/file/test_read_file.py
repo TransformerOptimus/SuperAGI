@@ -58,6 +58,21 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.tools.file.read_file import ReadFileTool
 from superagi.models.agent import Agent
 
+@pytest.fixture
+def mock_os_path_exists():
+    with patch("os.path.exists") as mock_exists:
+        yield mock_exists
+
+@pytest.fixture
+def mock_os_makedirs():
+    with patch("os.makedirs") as mock_makedirs:
+        yield mock_makedirs
+
+@pytest.fixture
+def mock_get_config():
+    with patch("superagi.config.config.get_config") as mock_get_config:
+        yield mock_get_config
+
 
 @pytest.fixture
 def read_file_tool():
