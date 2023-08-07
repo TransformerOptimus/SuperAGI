@@ -13,16 +13,17 @@ const toolkitData = {
   'Google Search Toolkit': '/images/google_search_icon.svg',
   'Searx Toolkit': '/images/searx_icon.svg',
   'Slack Toolkit': '/images/slack_icon.svg',
-  'Web Scrapper Toolkit': '/images/webscraper_icon.svg',
+  'Web Scraper Toolkit': '/images/webscraper_icon.svg',
   'Twitter Toolkit': '/images/twitter_icon.svg',
   'Google SERP Toolkit': '/images/google_serp_icon.svg',
   'File Toolkit': '/images/filemanager_icon.svg',
-  'CodingToolkit': '/images/app-logo-light.png',
-  'Thinking Toolkit': '/images/app-logo-light.png',
-  'Image Generation Toolkit': '/images/app-logo-light.png',
+  'CodingToolkit': '/images/superagi_logo.png',
+  'Thinking Toolkit': '/images/superagi_logo.png',
+  'Image Generation Toolkit': '/images/superagi_logo.png',
   'DuckDuckGo Search Toolkit': '/images/duckduckgo_icon.png',
   'Instagram Toolkit': '/images/instagram.png',
-  'Knowledge Search Toolkit': '/images/knowledeg_logo.png'
+  'Knowledge Search Toolkit': '/images/knowledeg_logo.png',
+  'Notion Toolkit': '/images/notion_logo.png',
 };
 
 export const getUserTimezone = () => {

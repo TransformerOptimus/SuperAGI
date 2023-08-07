@@ -1,7 +1,8 @@
 from abc import ABC
 from typing import List
-from superagi.tools.base_tool import BaseTool, BaseToolkit
+from superagi.tools.base_tool import BaseTool, BaseToolkit, ToolConfiguration
 from superagi.tools.resource.query_resource import QueryResourceTool
+from superagi.types.key_type import ToolConfigKeyType
 
 
 class JiraToolkit(BaseToolkit, ABC):
@@ -13,8 +14,8 @@ class JiraToolkit(BaseToolkit, ABC):
             QueryResourceTool(),
         ]
 
-    def get_env_keys(self) -> List[str]:
+    def get_env_keys(self) -> List[ToolConfiguration]:
         return [
-            "RESOURCE_VECTOR_STORE",
-            "RESOURCE_VECTOR_STORE_INDEX_NAME",
+            ToolConfiguration(key="RESOURCE_VECTOR_STORE", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = True),
+            ToolConfiguration(key="RESOURCE_VECTOR_STORE_INDEX_NAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=True)
         ]

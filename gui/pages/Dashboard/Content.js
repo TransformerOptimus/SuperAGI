@@ -79,7 +79,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const response = await getToolKit();
       const data = response.data || [];
       const updatedData = data.map(item => {
-        return {...item, contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
+        let updatedName = item.name === "Web Scrapper Toolkit" ? "Web Scraper Toolkit" : item.name;
+        return {...item,name: updatedName,  contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
       });
       setToolkits(updatedData);
     } catch (error) {
@@ -313,7 +314,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-            {selectedView === 'toolkits' && <div><Toolkits sendToolkitData={addTab} toolkits={toolkits}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
           </div>}
 
@@ -364,7 +365,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>
           </div>
         </div> : <div className={styles.main_workspace}
-                      style={(selectedView === 'agents' || selectedView === 'toolkits') ? {width: '80.5vw'} : {width: '100%'}}>
+                      style={(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') ? {width: '80.5vw'} : {width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (
@@ -424,6 +425,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <KnowledgeDetails internalId={tab.internalId || index} knowledgeId={tab.id}/>}
                     {tab.contentType === 'Database' &&
                       <DatabaseDetails internalId={tab.internalId || index} databaseId={tab.id}/>}
+                    {tab.contentType === 'Knowledge' &&
+                      <KnowledgeDetails internalId={tab.internalId || index} knowledgeId={tab.id}/>}
+                    {tab.contentType === 'Database' &&
+                      <DatabaseDetails internalId={tab.internalId || index} databaseId={tab.id}/>}
                     {tab.contentType === 'Settings' &&
                       <Settings organisationId={organisationId} sendDatabaseData={addTab}/>}
                     {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
@@ -437,7 +442,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                           organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
                                           fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
-                    {isApmOpened && tab.contentType === 'APM' && <ApmDashboard key={prevView}/>}
+                    {tab.contentType === 'APM' && <ApmDashboard />}
                   </div>}
                 </div>
               ))}
