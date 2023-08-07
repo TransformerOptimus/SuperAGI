@@ -289,7 +289,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   // }
 
   function saveAgentTemplate() {
-    saveAgentAsTemplate(agentId, selectedRun?.id)
+    saveAgentAsTemplate(agentId)
       .then((response) => {
         toast.success("Agent saved as template successfully", {autoClose: 1800});
       })
