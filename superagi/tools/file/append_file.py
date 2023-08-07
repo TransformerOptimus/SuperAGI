@@ -51,7 +51,7 @@ class AppendFileTool(BaseTool):
         try:
             directory = os.path.dirname(final_path)
             os.makedirs(directory, exist_ok=True)
-            with open(final_path, 'a', encoding="utf-8") as file:
+            with open(final_path, 'a+', encoding="utf-8") as file:
                 file.write(content)
             return "File written to successfully."
         except Exception as err:

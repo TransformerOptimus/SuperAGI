@@ -72,7 +72,8 @@ def create_agent_execution_feed(agent_execution_feed: AgentExecutionFeedIn,
 
     db_agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_feed.agent_execution_id,
                                                  feed=agent_execution_feed.feed, type=agent_execution_feed.type,
-                                                 extra_info=agent_execution_feed.extra_info)
+                                                 extra_info=agent_execution_feed.extra_info,
+                                                 feed_group_id=agent_execution.current_feed_group_id)
     db.session.add(db_agent_execution_feed)
     db.session.commit()
     return db_agent_execution_feed
@@ -180,6 +181,7 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "response": permission.user_feedback,
                 "status": permission.status,
                 "tool_name": permission.tool_name,
+                "question": permission.question,
                 "user_feedback": permission.user_feedback,
                 "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
         } for permission in execution_permissions

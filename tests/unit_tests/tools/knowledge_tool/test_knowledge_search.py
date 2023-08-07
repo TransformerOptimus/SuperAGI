@@ -26,6 +26,3 @@ class TestKnowledgeSearchTool(unittest.TestCase):
         self.assertEqual(result, "Selected Knowledge not found")
 
     # other test methods
-
-if __name__ == "__main__":
-    unittest.main()

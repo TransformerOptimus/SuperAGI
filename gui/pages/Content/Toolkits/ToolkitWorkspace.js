@@ -33,7 +33,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
     }
     const client_id = client_data.client_id
     const scope = 'https://www.googleapis.com/auth/calendar';
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}`;
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&access_type=offline&response_type=code&scope=${scope}&state=${toolkitDetails.id}`;
   }
 
   function getTwitterToken(oauth_data) {
@@ -52,7 +52,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           const apiConfigs = response.data || [];
           setApiConfigs(localStoredConfigs ? JSON.parse(localStoredConfigs) : apiConfigs);
         })
-        .catch((errPor) => {
+        .catch((error) => {
           console.log('Error fetching API data:', error);
         })
         .finally(() => {
@@ -62,6 +62,10 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   }, [toolkitDetails]);
 
   const handleUpdateChanges = async () => {
+    if(apiConfigs.some(config => config?.is_required && !config.value)){
+      toast.error("Please input necessary details", 1800)
+      return
+    }
     const updatedConfigData = apiConfigs.map((config) => ({
       key: config.key,
       value: config.value,
@@ -78,6 +82,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   };
 
   const handleAuthenticateClick = async (toolkitName) => {
+    handleUpdateChanges();
     if (toolkitName === "Google Calendar Toolkit") {
       authenticateGoogleCred(toolkitDetails.id)
         .then((response) => {
@@ -85,6 +90,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           getGoogleToken(response.data);
         })
         .catch((error) => {
+          toast.error('Unable to authenticate tool', {autoClose: 1800});
           console.error('Error fetching data:', error);
         });
     } else if (toolkitName === "Twitter Toolkit") {
@@ -94,6 +100,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           getTwitterToken(response.data);
         })
         .catch((error) => {
+          toast.error('Unable to authenticate tool', {autoClose: 1800});
           console.error('Error fetching data: ', error);
         });
     }
@@ -143,7 +150,8 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
                 <div className="vertical_containers w_100 color_gray mb_20 text_align_left">
                   <label className="mb_6">{convertToTitleCase(config.key)}</label>
                   <div className={styles.search_box}>
-                    <input className="color_white w_100" type="text" value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>
+                    {config?.key_type !== "file" && <input className="color_white" type={config?.is_secret ? 'password' : 'text'} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>}
+                    {config?.key_type === "file" && <textarea className="color_white" type={config?.is_secret ? 'password' : 'text'} value={config.value || ''} onChange={(event) => handleKeyChange(event, index)}/>}
                   </div>
                 </div>
               </div>
