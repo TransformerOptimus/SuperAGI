@@ -1043,6 +1043,7 @@ p {
 .w_fit_content{width:fit-content}
 .w_inherit{width: inherit}
 
+.mxw_100{max-width: 100%}
 .mxw_360{max-width: 360px}
 
 .h_44p{height: 44px}
@@ -1091,6 +1092,8 @@ p {
 .border_radius_8{border-radius: 8px;}
 .border_radius_25{border-radius: 25px;}
 
+.bt_white{border-top: 1px solid rgba(255, 255, 255, 0.08);}
+
 .color_white{color:#FFFFFF}
 .color_gray{color:#888888}
 
@@ -1108,6 +1111,7 @@ p {
 .padding_2_8{padding: 2px 8px;}
 .padding_0_8{padding: 0px 8px;}
 .padding_16_8{padding: 16px 8px;}
+.padding_12_14{padding: 12px 14px;}
 
 .flex_wrap{flex-wrap: wrap;}
 
@@ -1115,6 +1119,15 @@ p {
 
 .ff_sourceCode{font-family: 'Source Code Pro'}
 .ff_robotoFlex{font-family: 'Roboto Flex'}
+
+.model_options{
+    max-height: 100px;
+    overflow-y: auto;
+}
+.sticky_option{
+    position: sticky;
+    bottom: 0;
+}
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
 .my_rows {

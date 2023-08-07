@@ -51,8 +51,11 @@ class AgentExecutor:
                 logger.error(f"Agent execution stopped. Max iteration exceeded. {agent.id}: {agent_execution.status}")
                 return
 
-            model_api_key = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
-            model_llm_source = ModelSourceType.get_model_source_from_model(agent_config["model"]).value
+            model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
+            print("//////////////////////////////////////////////")
+            print(model_config)
+            model_api_key = model_config['api_key']
+            model_llm_source = model_config['source_name']
             try:
                 vector_store_type = VectorStoreType.get_vector_store_type(agent_config["LTM_DB"])
                 memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
@@ -64,14 +67,22 @@ class AgentExecutor:
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             try:
+                print(agent_config["model"])
+                print(model_api_key)
+                print(agent.id)
+                print(agent_execution_id)
+                print(memory)
+                print(agent_workflow_step.action_type)
+                print("qqqqqqqqqqqqqqqqqqqqqqqqqqq")
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
                                                              llm=get_model(model=agent_config["model"], api_key=model_api_key)
                                                              , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                              memory=memory)
+                    print("@@@@@@@@@@@@@@@@@@@@@@@2")
                     tool_step_handler.execute_step()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
-                    iteration_step_handler = AgentIterationStepHandler(session,
+                    iteration_step_handler = AgentIterationSteepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
                                                                                 api_key=model_api_key)
                                                                        , agent_id=agent.id,

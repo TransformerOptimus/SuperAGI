@@ -863,13 +863,28 @@ export default function AgentCreate({
                               alt="expand-icon"/>
               </div>
               <div>
-                {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {modelsArray?.map((model, index) => (
-                    <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
-                         style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {model}
-                    </div>))}
-                </div>}
+                {modelDropdown && (
+                    <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
+                      <div class="model_options">
+                        {modelsArray?.map((model, index) => (
+                            <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
+                                 style={{padding: '12px 14px', maxWidth: '100%'}}>
+                              {model}
+                            </div>
+                        ))}
+                      </div>
+                      <div className="vertical_containers sticky_option">
+                        <div onClick={() => openNewTab(-4, "Marketplace", "Marketplace", false)} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                          <Image width={16} height={16} src="/images/marketplace_logo.png" alt="marketplace_logo" />
+                          <span>Browse models from marketplace</span>
+                        </div>
+                        <div onClick={() => openNewTab(-5, "new model", "Add_Model", false)} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                          <Image width={16} height={16} src="/images/plus.png" alt="plus_image" />
+                          <span>Add new custom model</span>
+                        </div>
+                      </div>
+                    </div>
+                )}
               </div>
             </div>
           </div>

@@ -133,7 +133,7 @@ class Agent(DBBaseModel):
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.agent_type)
+        agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.)
         logger.info("Agent workflow:", str(agent_workflow))
         db_agent.agent_workflow_id = agent_workflow.id
         #
