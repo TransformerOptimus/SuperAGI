@@ -45,7 +45,7 @@ class JsonCleaner:
         return input_str
 
     @classmethod
-    def extract_square_json_section(cls, input_str: str = ""):
+    def extract_json_array_section(cls, input_str: str = ""):
         """
         Extract the json section from the given string.
 
@@ -103,3 +103,5 @@ class JsonCleaner:
             json_string += '}' * (open_braces_count - closed_braces_count)
 
         return json_string
+
+

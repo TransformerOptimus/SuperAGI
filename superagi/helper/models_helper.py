@@ -63,28 +63,42 @@ class ModelsHelper:
 
         return result
 
+    def fetchModelById(self, model_provider_id):
+        model = self.session.query(ModelsConfig.source_name).filter(ModelsConfig.id == model_provider_id, ModelsConfig.org_id == self.organisation_id).first()
+        if model is None:
+            return {"error": "Model not found"}
+        else:
+            return {"source_name": model.source_name}
+
     def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit, type):
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
         if not description:
             return {"error": "Description is empty or undefined"}
-        if not end_point:
-            return {"error": "End Point is empty or undefined"}
         if not model_provider_id:
             return {"error": "Model Provider Id is null or undefined or 0"}
         if not token_limit:
             return {"error": "Token Limit is null or undefined or 0"}
 
+        # Get the source_name of the model
+        model = self.fetchModelById(model_provider_id)
+        if "error" in model:
+            return model  # Return error message if model not found
+
+        # Check the 'source_name' from ModelsConfig table
+        if not end_point and model["source_name"] not in ['OpenAI', 'Google Palm']:
+            return {"error": "End Point is empty or undefined"}
+
         try:
             model = Models(
-                    model_name=model_name,
-                    description=description,
-                    end_point=end_point,
-                    token_limit=token_limit,
-                    model_provider_id=model_provider_id,
-                    type=type,
-                    org_id=self.organisation_id
-                )
+                model_name=model_name,
+                description=description,
+                end_point=end_point,
+                token_limit=token_limit,
+                model_provider_id=model_provider_id,
+                type=type,
+                org_id=self.organisation_id
+            )
             self.session.add(model)
             self.session.commit()
 
@@ -117,7 +131,8 @@ class ModelsHelper:
         try:
             model = self.session.query(
                 Models.id, Models.model_name, Models.description,
-                Models.end_point, Models.token_limit, ModelsConfig.source_name
+                Models.end_point, Models.token_limit, Models.type,
+                ModelsConfig.source_name,
             ).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id
             ).filter(
@@ -131,7 +146,8 @@ class ModelsHelper:
                     "description": model[2],
                     "end_point": model[3],
                     "token_limit": model[4],
-                    "model_provider": model[5]
+                    "type": model[5],
+                    "model_provider": model[6]
                 }
             else:
                 return {"error": "Model with the given ID doesn't exist."}

@@ -26,7 +26,7 @@ export default function ModelMetrics(){
                 </div>
             </div>
             <div className="my_rows mt_8">
-                <div className="my_col_12 display_column_container">
+                <div className="my_col_12 display_column_container h_60vh">
                     <span className="text_14 mb_8">Call Logs</span>
                 </div>
             </div>

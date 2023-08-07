@@ -132,7 +132,7 @@ export default function ModelForm(){
 
             <div className="mt_24">
                 <span>Token Limit</span>
-                <input className="input_medium mt_8" type="numbrt" placeholder="Enter Model Token Limit" value={modelTokenLimit}
+                <input className="input_medium mt_8" type="number" placeholder="Enter Model Token Limit" value={modelTokenLimit}
                        onChange={(event) => setModelTokenLimit(+event.target.value)}/>
             </div>
 
