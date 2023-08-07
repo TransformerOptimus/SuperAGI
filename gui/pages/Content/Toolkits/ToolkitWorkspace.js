@@ -52,7 +52,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           const apiConfigs = response.data || [];
           setApiConfigs(localStoredConfigs ? JSON.parse(localStoredConfigs) : apiConfigs);
         })
-        .catch((errPor) => {
+        .catch((error) => {
           console.log('Error fetching API data:', error);
         })
         .finally(() => {
