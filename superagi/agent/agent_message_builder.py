@@ -142,10 +142,7 @@ class AgentLlmMessageBuilder:
                                                       token_limit: int):
         long_term_summary_prompt = PromptReader.read_agent_prompt(__file__, "agent_recursive_summary.txt")
 
-        if summary:
-            long_term_summary_prompt = long_term_summary_prompt.replace("{Previous Summary}", summary)
-        else:
-            long_term_summary_prompt = long_term_summary_prompt.replace("{Previous Summary}", "")
+        long_term_summary_prompt = long_term_summary_prompt.replace("{Previous Summary}", summary)
 
         past_messages_prompt = ""
         for past_message in past_messages:
