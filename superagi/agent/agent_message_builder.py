@@ -42,7 +42,7 @@ class AgentLlmMessageBuilder:
                                                   ((token_limit - base_token_limit - max_output_token_limit) // 4) * 3)
             if past_messages:
                 long_term_memory_summary = self._build_long_term_summary(past_messages=past_messages, llm=llm,
-                                         token_limit=(token_limit - base_token_limit - max_output_token_limit) // 4)
+                                     output_token_limit=(token_limit - base_token_limit - max_output_token_limit) // 4)
                 messages.append({"role": "assistant", "content": long_term_memory_summary})
 
             for history in current_messages:
@@ -81,9 +81,9 @@ class AgentLlmMessageBuilder:
             self.session.add(agent_execution_feed)
             self.session.commit()
 
-    def _build_long_term_summary(self, past_messages, llm, token_limit) -> str:
+    def _build_long_term_summary(self, past_messages, llm, output_token_limit) -> str:
         long_term_memory_prompt = self._build_prompt_for_long_term_summary(past_messages=past_messages,
-                                                                           token_limit=token_limit)
+                                                                           token_limit=output_token_limit)
 
         summary = AgentExecutionConfiguration.fetch_value(self.session, self.agent_execution_id, "long_term_summary")
         if summary is None:
@@ -92,8 +92,8 @@ class AgentLlmMessageBuilder:
             past_summary = summary.value
 
         long_term_summary_base_token_limit = 100
-        if (TokenCounter.count_text_tokens(long_term_memory_prompt) + long_term_summary_base_token_limit + token_limit)\
-                - TokenCounter.token_limit() > 0:
+        if ((TokenCounter.count_text_tokens(long_term_memory_prompt) + long_term_summary_base_token_limit +
+            output_token_limit) - TokenCounter.token_limit()) > 0:
             last_agent_feed_long_term_summary_id = AgentExecutionConfiguration.fetch_value(self.session,
                                                        self.agent_execution_id, "last_agent_feed_long_term_summary_id")
             last_agent_feed_long_term_summary_id = int(last_agent_feed_long_term_summary_id.value)
@@ -111,7 +111,7 @@ class AgentLlmMessageBuilder:
 
             long_term_memory_prompt = self._build_prompt_for_recursive_long_term_summary(summary=past_summary,
                                                                                          past_messages=past_messages,
-                                                                                         token_limit=token_limit)
+                                                                                         token_limit=output_token_limit)
 
         msgs = [{"role": "system", "content": "You are GPT Prompt writer"},
                 {"role": "assistant", "content": long_term_memory_prompt}]
