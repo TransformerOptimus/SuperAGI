@@ -18,6 +18,7 @@ class StoreModelRequest(BaseModel):
     end_point: str
     model_provider_id: int
     token_limit: int
+    type: str
 
 @router.post("/storeApiKeys", status_code=200)
 async def storeApiKeys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
@@ -54,7 +55,7 @@ async def verifyEndPoint(model_api_key: str = None, end_point: str = None, model
 @router.post("/storeModel", status_code=200)
 async def storeModel(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).storeModelDetails(request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).storeModelDetails(request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type)
     except Exception as e:
         logging.error(f"Error storing the Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

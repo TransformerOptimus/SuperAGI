@@ -51,6 +51,7 @@ export default function AgentCreate({
   const [searchValue, setSearchValue] = useState('');
   const [showButton, setShowButton] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
+  const [modelsArray, setModelsArray] = useState([]);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",

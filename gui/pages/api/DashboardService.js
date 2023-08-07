@@ -302,8 +302,8 @@ export const verifyEndPoint = (model_api_key, end_point, model_provider) => {
   });
 }
 
-export const storeModel = (model_name, description, end_point, model_provider_id, token_limit) => {
-  return api.post(`/models_controller/storeModel`,{model_name, description, end_point, model_provider_id, token_limit});
+export const storeModel = (model_name, description, end_point, model_provider_id, token_limit, type) => {
+  return api.post(`/models_controller/storeModel`,{model_name, description, end_point, model_provider_id, token_limit, type});
 }
 
 export const fetchModels = () => {

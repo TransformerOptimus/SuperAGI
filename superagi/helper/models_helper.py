@@ -63,7 +63,7 @@ class ModelsHelper:
 
         return result
 
-    def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit):
+    def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit, type):
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
         if not description:
@@ -82,6 +82,7 @@ class ModelsHelper:
                     end_point=end_point,
                     token_limit=token_limit,
                     model_provider_id=model_provider_id,
+                    type=type,
                     org_id=self.organisation_id
                 )
             self.session.add(model)

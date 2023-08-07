@@ -27,25 +27,32 @@ export default function ModelForm(){
     },[]);
 
     useEffect(() => {
-        if(selectedModel !== 'Select a Model' && tokenError)
-            setLockAddition(false)
-        else
-            setLockAddition(true)
+        const fetchMyAPI = async () => {
+            const error = await checkModelProvider(selectedModel)
+            if(selectedModel !== 'Select a Model' && !error)
+                setLockAddition(false)
+            else
+                setLockAddition(true)
+        }
+
+        fetchMyAPI();
     },[selectedModel])
 
-    const handleModelSelect = (index) => {
+    const handleModelSelect = async (index) => {
         setSelectedModel(models[index])
         setModelDropdown(false);
-        checkModelProvider(models[index])
     }
 
-    const checkModelProvider = (model_provider) => {
-        fetchApiKey(model_provider).then((response) => {
-            if(response.data.length <= 0)
-                setTokenError(true)
-            else
-                setTokenError(false)
-        })
+    const checkModelProvider = async (model_provider) => {
+        const response = await fetchApiKey(model_provider);
+        if(response && response.data && response.data.length <= 0 && selectedModel !== 'Select a Model') {
+            setTokenError(true)
+            return true
+        }
+        else {
+            setTokenError(false)
+            return false
+        }
     }
 
     const handleAddModel = () =>{
@@ -65,7 +72,7 @@ export default function ModelForm(){
     }
 
     const storeModelDetails = (modelProviderId) => {
-        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit).then((response) =>{
+        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom").then((response) =>{
             setIsLoading(false)
             if (response.data.error) {
                 toast.error(response.data.error,{autoClose: 1800});
