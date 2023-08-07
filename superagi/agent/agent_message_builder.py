@@ -91,7 +91,9 @@ class AgentLlmMessageBuilder:
         else:
             past_summary = summary.value
 
-        if TokenCounter.count_text_tokens(long_term_memory_prompt) - TokenCounter.token_limit() > 100:
+        long_term_summary_base_token_limit = 100
+        if (TokenCounter.count_text_tokens(long_term_memory_prompt) + long_term_summary_base_token_limit + token_limit)\
+                - TokenCounter.token_limit() > 0:
             last_agent_feed_long_term_summary_id = AgentExecutionConfiguration.fetch_value(self.session,
                                                        self.agent_execution_id, "last_agent_feed_long_term_summary_id")
             last_agent_feed_long_term_summary_id = int(last_agent_feed_long_term_summary_id.value)
