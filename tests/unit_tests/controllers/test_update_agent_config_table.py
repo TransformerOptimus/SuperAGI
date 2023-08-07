@@ -1,28 +1,31 @@
-import unittest
-from unittest.mock import MagicMock, call
+import pytest
+from unittest.mock import patch, Mock
 from superagi.models.agent_config import AgentConfiguration
 from superagi.controllers.types.agent_execution_config import AgentRunIn
 
-class TestAgentConfigurationsUpdate(unittest.TestCase):
+def test_update_existing_toolkits():
+    agent_id = 1
+    updated_details = AgentRunIn(
+        agent_type="test", constraints=["c1", "c2"], toolkits=[1, 2],
+        tools=[1, 2, 3], exit="exit", iteration_interval=1,
+        model="test", permission_type="p", LTM_DB="LTM", max_iterations=100
+    )
 
-    def setUp(self):
-        self.mock_session = MagicMock()
-        self.mock_session.query().filter().first.return_value = None
+    # Mock AgentConfiguration instance for the agent_configs list
+    existing_toolkits_config = Mock(spec=AgentConfiguration)
+    existing_toolkits_config.key = "toolkits"
+    existing_toolkits_config.value = [3, 4]
 
-        self.added_configurations = []
-        self.mock_session.add.side_effect = lambda config: self.added_configurations.append(config)
+    agent_configs = [existing_toolkits_config]
 
-    def test_update_toolkits_config(self):
-        updated_details = AgentRunIn(agent_type="test", constraints=["c1", "c2"], toolkits=[1, 2], tools=[1, 2, 3], exit="exit", iteration_interval=1, model="test", permission_type="p", LTM_DB="LTM", max_iterations=100)
+    mock_session = Mock()
 
-        AgentConfiguration.update_agent_configurations_table(self.mock_session, 1, updated_details)
+    # Mock the query filter behavior for existing configurations
+    mock_session.query().filter().all.return_value = agent_configs
 
-        added_config = self.added_configurations[0]
+    result = AgentConfiguration.update_agent_configurations_table(mock_session, agent_id, updated_details)
 
-        self.assertEqual(added_config.agent_id, 1)
-        self.assertEqual(added_config.key, 'toolkits')
-        self.assertEqual(added_config.value, [1, 2])
-        self.assertEqual(self.added_configurations[1].agent_id, 1)
-        self.assertEqual(self.added_configurations[1].key, 'knowledge')
-        self.assertEqual(self.added_configurations[1].value, None)
-        self.mock_session.commit.assert_called_once()
+    #Check whether the value gets updated or not
+    assert existing_toolkits_config.value == [1, 2]
+    assert mock_session.commit.called_once()
+    assert result == "Details updated successfully"

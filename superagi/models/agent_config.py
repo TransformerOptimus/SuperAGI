@@ -80,3 +80,5 @@ class AgentConfiguration(DBBaseModel):
 
         # Commit the changes to the database
         session.commit()
+
+        return "Details updated successfully"
