@@ -34,6 +34,7 @@ from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
+from superagi.vector_store.redis import Redis
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -212,16 +213,18 @@ class AgentExecutor:
         model_api_key = AgentExecutor.get_model_api_key_from_execution(parsed_config["model"], agent_execution, session)
         model_llm_source = ModelSourceType.get_model_source_from_model(parsed_config["model"]).value
         organisation = AgentExecutor.get_organisation(agent_execution, session)
-        try:
-            if parsed_config["LTM_DB"] == "Pinecone":
-                memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
-                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
+
+        try:    
+            ltm_db = parsed_config["LTM_DB"]
+            
+            if ltm_db or "Redis":   
+                      memory = VectorFactory.get_vector_storage(parsed_config["LTM_DB"], "super-agent-index1", AgentExecutor.get_embedding(model_llm_source, model_api_key))
             else:
-                memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
-                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
+                      memory = VectorFactory.get_vector_storage("Redis", "super-agent-index1", AgentExecutor.get_embedding(model_llm_source, model_api_key))
+          
         except:
-            logger.info("Unable to setup the pinecone connection...")
-            memory = None
+            logger.info("Unable to setup the Database connection....")
+            memory=None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()
         for tool in user_tools:
