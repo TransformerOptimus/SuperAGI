@@ -88,7 +88,9 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
-                                        current_step_id=start_step_id)
+                                        current_agent_step_id=start_step.id,
+                                        iteration_workflow_step_id=iteration_step_id)
+    
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction
