@@ -2,6 +2,7 @@ import pinecone
 from pinecone import UnauthorizedException
 
 from superagi.vector_store.pinecone import Pinecone
+from superagi.vector_store.milvus import Milvus
 from superagi.vector_store import weaviate
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
@@ -72,6 +73,18 @@ class VectorFactory:
 
             Qdrant.create_collection(client, index_name, len(sample_embedding))
             return qdrant.Qdrant(client, embedding_model, index_name)
+
+
+        if vector_store == VectorStoreType.MILVUS:
+            uri = get_config("MILVUS_URI") or "http://localhost:19530"
+            token = get_config("MILVUS_TOKEN") or None
+
+            return Milvus(
+                embedding_model=embedding_model,
+                collection_name=index_name,
+                uri=uri,
+                token=token,
+            )
 
         raise ValueError(f"Vector store {vector_store} not supported")
     
