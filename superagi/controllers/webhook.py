@@ -19,7 +19,6 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_schedule import AgentSchedule
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.project import Project
-from superagi.models.agent_workflow import AgentWorkflow
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.tool import Tool
 from superagi.models.web_hooks import WebHooks

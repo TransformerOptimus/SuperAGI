@@ -13,6 +13,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_config import AgentConfiguration
+from sqlalchemy import or_
 
 class Agent(DBBaseModel):
     """
@@ -292,3 +293,8 @@ class Agent(DBBaseModel):
         agent = session.query(Agent).filter_by(id=agent_id).first()
         project = session.query(Project).filter(Project.id == agent.project_id).first()
         return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+    
+    @classmethod
+    def get_agent_from_id_with_filter(cls,session,agent_id,isDeleted):
+        db_agent = session.query(Agent).filter(Agent.id == agent_id, or_(Agent.is_deleted == isDeleted, Agent.is_deleted is None)).first()
+        return db_agent

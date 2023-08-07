@@ -165,3 +165,60 @@ class AgentExecution(DBBaseModel):
             trigger_step = IterationWorkflow.fetch_trigger_step_id(session, next_step.action_reference_id)
             agent_execution.iteration_workflow_step_id = trigger_step.id
         session.commit()
+
+    @classmethod
+    def get_execution_from_agent_id_with_status(cls,session,agent_id,status_filter):
+        db_agent_execution = session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id,AgentExecution.status==status_filter).first()
+        return db_agent_execution
+    
+    @classmethod
+    def get_updated_execution_config_obj(cls,agent_execution):
+        agent_execution_configs={}
+        if agent_execution.goal is not None:
+            agent_execution_configs = {
+                "goal": agent_execution.goal,
+            }
+        
+        if agent_execution.instruction is not None:
+            agent_execution_configs["instructions"]=agent_execution.instruction,
+        return agent_execution_configs
+    
+    @classmethod
+    def get_all_executions_with_status_and_agent_id(cls,session,agent_id,ExecutionStateChangeConfigIn,current_status):
+        db_execution_arr=[]
+        if ExecutionStateChangeConfigIn.run_ids is not None:
+            db_execution_arr=session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id,AgentExecution.status==current_status,AgentExecution.id.in_(ExecutionStateChangeConfigIn.run_ids)).all()
+        else:
+            db_execution_arr=session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id,AgentExecution.status==current_status).all()
+        return db_execution_arr
+    
+    @classmethod
+    def get_all_executions_with_filter_config_and_agent_id(cls,session,agent_id,filter_config):
+        db_execution_arr=[]
+        if filter_config.run_ids is not None and filter_config.run_status_filter is not None and filter_config.run_status_filter in ["CREATED", "RUNNING", "PAUSED", "COMPLETED", "TERMINATED"]:
+            db_execution_arr=session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id,AgentExecution.id.in_(filter_config.run_ids),AgentExecution.status==filter_config.run_status_filter).all()
+        elif filter_config.run_ids is not None:
+            db_execution_arr=session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id,AgentExecution.id.in_(filter_config.run_ids)).all()
+        elif filter_config.run_status_filter is not None and filter_config.run_status_filter in ["CREATED", "RUNNING", "PAUSED", "COMPLETED", "TERMINATED"]:
+            db_execution_arr=session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id,AgentExecution.status==filter_config.run_status_filter).all()
+        else:
+            db_execution_arr=session.query(AgentExecution).filter(AgentExecution.agent_id==agent_id)
+        return db_execution_arr
+    
+    @classmethod
+    def validate_run_ids(cls,session,run_ids_arr,organisation_id):
+        from superagi.models.agent import Agent
+        from superagi.models.project import Project
+        for run_id in run_ids_arr:
+            db_execution=session.query(AgentExecution).filter(AgentExecution.id==run_id).first()
+
+            if db_execution is None:
+                raise Exception(f"Run ID {run_id} not found")
+            
+            agent_id=db_execution.agent_id
+            db_agent=session.query(Agent).filter(Agent.id==agent_id).first()
+            project_id=db_agent.project_id
+            project=session.query(Project).filter(Project.id==project_id).first()
+
+            if project.organisation_id!=organisation_id:
+                raise Exception(f"Run ID {run_id} not found")

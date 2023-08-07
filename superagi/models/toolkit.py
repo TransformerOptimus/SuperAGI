@@ -138,3 +138,29 @@ class Toolkit(DBBaseModel):
                 if tool is not None:
                     agent_toolkit_tools.append(tool.id)
         return agent_toolkit_tools
+
+    @classmethod
+    def get_tool_and_toolkit_arr(cls,session,agent_config_tools_arr):
+        toolkits_arr=set()
+        tools_arr=set()
+
+        for tool_obj in agent_config_tools_arr:
+            toolkit=session.query(Toolkit).filter(Toolkit.name==tool_obj["name"].strip()).first()
+            if toolkit is None:
+                raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
+            toolkits_arr.add(toolkit.id)
+            if tool_obj.get("tools"):
+                for tool_name_str in tool_obj["tools"]:
+                    tool_db_obj=session.query(Tool).filter(Tool.name==tool_name_str.strip()).first()
+                    if tool_db_obj is None:
+                            raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
+
+                    tools_arr.add(tool_db_obj.id)
+            else:
+                tools=session.query(Tool).filter(Tool.toolkit_id==toolkit.id).all()
+                if tools is None:
+                        raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
+
+                for tool_db_obj in tools:
+                    tools_arr.add(tool_db_obj.id)
+        return list(tools_arr)

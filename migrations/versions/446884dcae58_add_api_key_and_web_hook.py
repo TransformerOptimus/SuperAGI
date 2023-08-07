@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '446884dcae58'
-down_revision = '71e3980d55f5'
+down_revision = '2fbd6472112c'
 branch_labels = None
 depends_on = None
 
@@ -61,4 +61,5 @@ def downgrade() -> None:
     op.drop_table('web_hooks')
     op.drop_table('api_key')
     op.drop_table('web_hook_events')
+
     # ### end Alembic commands ###
