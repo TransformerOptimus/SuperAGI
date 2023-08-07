@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import List
-from superagi.tools.base_tool import BaseTool, BaseToolkit
+from superagi.tools.base_tool import BaseTool, BaseToolkit, ToolConfiguration
 from superagi.tools.knowledge_search.knowledge_search import KnowledgeSearchTool
 
 
@@ -11,5 +11,5 @@ class KnowledgeSearchToolkit(BaseToolkit, ABC):
     def get_tools(self) -> List[BaseTool]:
         return [KnowledgeSearchTool()]
 
-    def get_env_keys(self) -> List[str]:
+    def get_env_keys(self) -> List[ToolConfiguration]:
         return []

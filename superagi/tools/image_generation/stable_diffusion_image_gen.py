@@ -61,7 +61,6 @@ class StableDiffusionImageGenTool(BaseTool):
         for artifact in artifacts:
             base64_strings.append(artifact['base64'])
 
-        image_paths=[]
         for i in range(num):
             image_base64 = base64_strings[i]
             img_data = base64.b64decode(image_base64)
@@ -72,16 +71,7 @@ class StableDiffusionImageGenTool(BaseTool):
 
             self.resource_manager.write_binary_file(image_names[i], img_byte_arr.getvalue())
 
-        for image in image_names:
-            final_path = ResourceHelper.get_agent_read_resource_path(image, agent=Agent.get_agent_from_id(
-            session=self.toolkit_config.session, agent_id=self.agent_id), agent_execution=AgentExecution
-                                                                 .get_agent_execution_from_id(session=self
-                                                                                              .toolkit_config.session,
-                                                                                              agent_execution_id=self
-                                                                                              .agent_execution_id))
-            image_paths.append(final_path)
-
-        return f"Images downloaded and saved successfully at the following locations: {image_paths}"
+        return f"Images downloaded and saved successfully!!"
 
     def call_stable_diffusion(self, api_key, width, height, num, prompt, steps):
         engine_id = self.get_tool_config("ENGINE_ID")
