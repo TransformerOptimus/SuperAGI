@@ -113,8 +113,7 @@ class S3Helper:
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
         
-    @classmethod
-    def get_download_url_of_resources(cls,db_resources_arr):
+    def get_download_url_of_resources(self,db_resources_arr):
         s3 = boto3.client(
             's3',
             aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
@@ -122,7 +121,7 @@ class S3Helper:
         )
         response_obj={}
         for db_resource in db_resources_arr:
-            response = s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=db_resource.path)
+            response = self.s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=db_resource.path)
             content = response["Body"].read()
             bucket_name = get_config("INSTAGRAM_TOOL_BUCKET_NAME")
             file_name=db_resource.path.split('/')[-1]

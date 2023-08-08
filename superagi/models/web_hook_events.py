@@ -12,7 +12,7 @@ class WebHookEvents(DBBaseModel):
 
     Methods:
     """
-    __tablename__ = 'web_hook_events'
+    __tablename__ = 'webhook_events'
 
     id = Column(Integer, primary_key=True)
     agent_id=Column(Integer)

@@ -77,27 +77,23 @@ class RunIDConfig(BaseModel):
 @router.post("",status_code=200)
 def create_agent_with_config(agent_with_config: AgentConfigExtInput,
                              api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
-
     project=Project.get_project_from_org_id(db.session,organisation.id)
-    tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
-    invalid_tools = Tool.get_invalid_tools(tools_arr, db.session)
-    if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
-        raise HTTPException(status_code=404,
-                            detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
-    
+    try:
+        tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=str(e))
+
     agent_with_config.tools=tools_arr
     agent_with_config.project_id=project.id
     agent_with_config.exit="No exit criterion"
     agent_with_config.permission_type="God Mode"
     agent_with_config.LTM_DB=None
-
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
     if agent_with_config.schedule is not None:
         agent_schedule = AgentSchedule.get_schedule_from_config(db.session,db_agent,agent_with_config.schedule)
         if agent_schedule is None:
             raise HTTPException(status_code=500, detail="Failed to schedule agent")
-            
         EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name,
                                                                             'model': agent_with_config.model}, db_agent.id,
                                                         organisation.id if organisation else 0)
@@ -196,12 +192,11 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     db_schedule=AgentSchedule.get_schedule_from_agent_id(db.session,agent_id)
     if db_schedule is not None:
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot update")
-     
-    tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
-    invalid_tools = Tool.get_invalid_tools(tools_arr, db.session)
-    if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
-        raise HTTPException(status_code=404,
-                            detail=f"Tool with IDs {str(invalid_tools)} does not exist.")
+    
+    try:
+        tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
+    except Exception as e:
+        raise HTTPException(status_code=404,detail=str(e))
     
     agent_with_config.tools=tools_arr
     agent_with_config.project_id=project.id
@@ -270,6 +265,13 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
     
+    #Checking if the run_ids whose output files are requested belong to the organisation 
+    if execution_state_change_input.run_ids is not None:
+        try:
+            AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=str(e))
+    
     db_execution_arr=AgentExecution.get_all_executions_with_status_and_agent_id(db.session,agent.id,execution_state_change_input,"RUNNING")
     for ind_execution in db_execution_arr:
         ind_execution.status="PAUSED"
@@ -288,6 +290,12 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
     project=Project.get_project_from_id(db.session,agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
+    
+    if execution_state_change_input.run_ids is not None:
+        try:
+            AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=str(e))
     
     db_execution_arr=AgentExecution.get_all_executions_with_status_and_agent_id(db.session,agent.id,execution_state_change_input,"PAUSED")
     for ind_execution in db_execution_arr:
@@ -312,6 +320,6 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
         raise HTTPException(status_code=404, detail=str(e))
     
     db_resources_arr=Resource.get_all_resources_from_run_ids(db.session,run_ids_arr)
-    response_obj=S3Helper.get_download_url_of_resources(db_resources_arr)
+    response_obj=S3Helper().get_download_url_of_resources(db_resources_arr)
     return response_obj
 

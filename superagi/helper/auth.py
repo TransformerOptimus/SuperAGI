@@ -63,7 +63,7 @@ api_key_header = APIKeyHeader(name="X-API-Key")
 
 def validate_api_key(api_key: str = Security(api_key_header)) -> str:
     query_result = db.session.query(ApiKey).filter(ApiKey.key == api_key,
-                                                   or_(ApiKey.revoked == False, ApiKey.revoked == None)).first()
+                                                   or_(ApiKey.is_expired == False, ApiKey.is_expired == None)).first()
     if query_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -75,7 +75,7 @@ def validate_api_key(api_key: str = Security(api_key_header)) -> str:
 
 def get_organisation_from_api_key(api_key: str = Security(api_key_header)) -> Organisation:
     query_result = db.session.query(ApiKey).filter(ApiKey.key == api_key,
-                                                   or_(ApiKey.revoked == False, ApiKey.revoked == None)).first()
+                                                   or_(ApiKey.is_expired == False, ApiKey.is_expired == None)).first()
     if query_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

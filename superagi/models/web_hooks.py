@@ -12,11 +12,11 @@ class WebHooks(DBBaseModel):
 
     Methods:
     """
-    __tablename__ = 'web_hooks'
+    __tablename__ = 'webhooks'
 
     id = Column(Integer, primary_key=True)
     name=Column(String)
     org_id = Column(Integer)
     url = Column(String)
     headers=Column(JSON)
-    isDeleted=Column(Boolean)
+    is_deleted=Column(Boolean)

@@ -21,15 +21,15 @@ class WebHookManager:
         for webhook_obj in org_webhooks:
             webhook_obj_body={"agent_id":agent_id,"org_id":org_id,"event":f"{old_val} to {val}"}
             error=None
-            r=None
+            request=None
             status='sent'
             try:
-                r = requests.post(webhook_obj.url.strip(), data=json.dumps(webhook_obj_body), headers=webhook_obj.headers)
+                request = requests.post(webhook_obj.url.strip(), data=json.dumps(webhook_obj_body), headers=webhook_obj.headers)
             except Exception as e:
                 logger.error(f"Exception occured in webhooks {e}")
                 error=str(e)
-            if r is not None and r.status_code not in [200,201] and error is None:
-                error=r.text
+            if request is not None and request.status_code not in [200,201] and error is None:
+                error=request.text
             if error is not None:
                 status='Error'
             web_hook_event=WebHookEvents(agent_id=agent_id,run_id=agent_execution_id,event=f"{old_val} to {val}",status=status,errors=error)
