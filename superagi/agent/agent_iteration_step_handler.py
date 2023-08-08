@@ -1,8 +1,8 @@
 from datetime import datetime
-
+import json
 from sqlalchemy import asc
 from sqlalchemy.sql.operators import and_
-
+import logging
 import superagi
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
@@ -28,6 +28,7 @@ from superagi.models.workflows.iteration_workflow_step import IterationWorkflowS
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.helper.models_helper import ModelsHelper
 
 
 class AgentIterationStepHandler:
@@ -53,8 +54,8 @@ class AgentIterationStepHandler:
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
         organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
-
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
+
         if not agent_feeds:
             self.task_queue.clear_tasks()
 
@@ -71,7 +72,14 @@ class AgentIterationStepHandler:
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+
+        print(TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+#         content_dict =
+#         tool_name = content_dict
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(response['response'].usage)
+        ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
 
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
@@ -140,11 +148,14 @@ class AgentIterationStepHandler:
     def _build_tools(self, agent_config: dict, agent_execution_config: dict):
         agent_tools = [ThinkingTool()]
 
-        model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
+        config_data = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
+        model_api_key = config_data['api_key']
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
-        resource_summary = ResourceSummarizer(session=self.session,
-                                              agent_id=self.agent_id).fetch_or_create_agent_resource_summary(
-            default_summary=agent_config.get("resource_summary"))
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print(agent_config['model'])
+        resource_summary = ResourceSummarizer(session=self.session, agent_id=self.agent_id, model=agent_config['model']).fetch_or_create_agent_resource_summary(default_summary=agent_config.get("resource_summary"))
+        print(resource_summary)
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         if resource_summary is not None:
             agent_tools.append(QueryResourceTool())
         user_tools = self.session.query(Tool).filter(

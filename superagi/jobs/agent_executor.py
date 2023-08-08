@@ -74,6 +74,7 @@ class AgentExecutor:
                 print(memory)
                 print(agent_workflow_step.action_type)
                 print("qqqqqqqqqqqqqqqqqqqqqqqqqqq")
+                print(agent_config["model"],'999999999999999999999999')
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
                                                              llm=get_model(model=agent_config["model"], api_key=model_api_key)
@@ -82,11 +83,12 @@ class AgentExecutor:
                     print("@@@@@@@@@@@@@@@@@@@@@@@2")
                     tool_step_handler.execute_step()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
-                    iteration_step_handler = AgentIterationSteepHandler(session,
+                    iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
                                                                                 api_key=model_api_key)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
+                    print(get_model(model=agent_config["model"],api_key=model_api_key))
                     iteration_step_handler.execute_step()
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))

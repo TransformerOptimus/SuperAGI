@@ -34,7 +34,7 @@ export default function ModelDetails({modelId, modelName}){
                             onClick={() => setSelectedOption('details')}>Details</button>
                 </div>
             </div>
-            {selectedOption === 'metrics' && <ModelMetrics />}
+            {selectedOption === 'metrics' && <ModelMetrics modelDetails={modelDetails} />}
             {selectedOption === 'details' && <ModelInfo modelDetails={modelDetails} />}
         </div>
     )

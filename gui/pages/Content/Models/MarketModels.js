@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 import {loadingTextEffect, returnToolkitIcon} from "@/utils/utils";
+import {EventBus} from "@/utils/eventBus";
 // import {getModels} from "@/pages/api/DashboardService";
 
 export default function MarketModels(){
@@ -16,6 +17,11 @@ export default function MarketModels(){
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
     },[]);
+
+    function handleTemplateClick(item) {
+        const contentType = 'agent_template';
+        EventBus.emit('openTemplateDetails', {item, contentType});
+    }
 
     return(
         <div id="market_models" className={showMarketplace ? 'ml_8' : 'ml_3'}>

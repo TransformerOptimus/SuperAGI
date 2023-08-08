@@ -228,6 +228,10 @@ export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
 };
 
+export const modelInfo = (model) => {
+  return api.get(`analytics/model_details/${model}`)
+}
+
 export const getLlmModels = () => {
   return api.get(`organisations/llm_models`);
 };
@@ -328,4 +332,8 @@ export const fetchModels = () => {
 
 export const fetchModel = (model_id) => {
   return api.get(`/models_controller/fetchModel/${model_id}`);
+}
+
+export const fetchModelData = (model) => {
+  return api.get(`/models_controller/fetchModelData/${model}`)
 }
