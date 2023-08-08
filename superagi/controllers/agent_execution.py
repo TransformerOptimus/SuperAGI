@@ -101,11 +101,17 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     for agent_config in agent_configs:
         if agent_config.key not in keys_to_exclude:
             if agent_config.key == "toolkits":
-                toolkits = [int(item) for item in agent_config.value.strip('{}').split(',')]
-                agent_execution_configs[agent_config.key] = toolkits
+                if agent_config.value:
+                    toolkits = [int(item) for item in agent_config.value.strip('{}').split(',') if item.strip()]
+                    agent_execution_configs[agent_config.key] = toolkits
+                else:
+                    agent_execution_configs[agent_config.key] = []
             elif agent_config.key == "constraints":
-                constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
-                agent_execution_configs[agent_config.key] = constraints
+                if agent_config.value:
+                    constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
+                    agent_execution_configs[agent_config.key] = constraints
+                else:
+                    agent_execution_configs[agent_config.key] = []
             else:
                 agent_execution_configs[agent_config.key] = agent_config.value
 
