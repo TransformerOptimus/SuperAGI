@@ -56,17 +56,18 @@ class ModelsHelper:
 
 
     def validateEndPoint(self, model_api_key, end_point, model_provider):
-        result = {}
+        response = {"success": True}
+
         if(model_provider == 'Hugging Face'):
             try:
                 result = HuggingFace(api_key=model_api_key,end_point=end_point).get_model()
             except Exception as e:
-                result = {'error': str(e)}
+                response['success'] = False
+                response['error'] = str(e)
+            else:
+                response['result'] = result
 
-        if 'error' in result:
-            return result['error']
-
-        return result
+        return response
 
     def fetchModelById(self, model_provider_id):
         model = self.session.query(ModelsConfig.source_name).filter(ModelsConfig.id == model_provider_id, ModelsConfig.org_id == self.organisation_id).first()

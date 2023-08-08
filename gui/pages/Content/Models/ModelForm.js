@@ -62,8 +62,13 @@ export default function ModelForm(){
             {
                 const modelProviderId = response.data[0].id
                 verifyEndPoint(response.data[0].api_key, modelEndpoint, selectedModel).then((response) =>{
-                    if(response.status === 200)
+                    console.log(response)
+                    if(response.data.success)
                         storeModelDetails(modelProviderId)
+                    else{
+                        toast.error("The Endpoint is not Valid",{autoClose: 1800});
+                        setIsLoading(false);
+                    }
                 }).catch((error) => {
                     console.log("Error Message:: " + error)
                 })
