@@ -146,12 +146,16 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     #Update the agent configurations table with the data of the latest agent execution
     AgentConfiguration.update_agent_configurations_table(session=db.session, agent_id=agent_execution.agent_id, updated_details=agent_execution)
     
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+    start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
 
-    db_agent_execution = AgentExecution(status = "RUNNING", last_execution_time = datetime.now(),
-                                        agent_id = agent_execution.agent_id, name = agent_execution.name, num_of_calls = 0,
-                                        num_of_tokens = 0,
-                                        current_step_id = start_step_id)
+    iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
+                                                                start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+
+    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
+                                        num_of_tokens=0,
+                                        current_agent_step_id=start_step.id,
+                                        iteration_workflow_step_id=iteration_step_id)
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction,
