@@ -75,3 +75,31 @@ def test_read_from_s3(s3helper_object, http_status, expected_result, raises):
             s3helper_object.read_from_s3('path')
     else:
         assert s3helper_object.read_from_s3('path') == expected_result
+
+@pytest.mark.parametrize('http_status, expected_result, raises',
+                         [(200, b'file_content', False),
+                          (500, None, True)])
+def test_read_binary_from_s3(s3helper_object, http_status, expected_result, raises):
+    s3helper_object.s3.get_object = MagicMock(
+        return_value={'ResponseMetadata': {'HTTPStatusCode': http_status},
+                      'Body': MagicMock(read=lambda: (expected_result))}
+    )
+
+    if raises:
+        with pytest.raises(Exception):
+            s3helper_object.read_binary_from_s3('path')
+    else:
+        assert s3helper_object.read_binary_from_s3('path') == expected_result
+
+def test_delete_file_success(s3helper_object):
+    s3helper_object.s3.delete_object = MagicMock()
+    try:
+        s3helper_object.delete_file('path')
+    except:
+        pytest.fail("Unexpected Exception !")
+
+def test_delete_file_fail(s3helper_object):
+    s3helper_object.s3.delete_object = MagicMock(side_effect=Exception())
+    with pytest.raises(HTTPException):
+        s3helper_object.delete_file('path')
+

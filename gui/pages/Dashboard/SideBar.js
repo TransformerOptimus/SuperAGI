@@ -3,7 +3,7 @@ import Image from 'next/image';
 import styles from './Dashboard.module.css';
 import {openNewTab} from "@/utils/utils";
 
-export default function SideBar({onSelectEvent}) {
+export default function SideBar({onSelectEvent, env}) {
   const [sectionSelected, setSelection] = useState('');
 
   const handleClick = (value) => {
@@ -16,7 +16,8 @@ export default function SideBar({onSelectEvent}) {
 
   return (
     <div className={styles.side_bar}>
-      <div><Image width={64} height={48} className={styles.logo} src="/images/app-logo-light.png" alt="super-agi-logo"/>
+      <div><Image width={64} height={48} className={styles.logo}
+                  src={env === 'PROD' ? '/images/superagi_logo_beta.png' : '/images/superagi_logo.png'} alt="super-agi-logo"/>
       </div>
       <div className={styles.selection_section}>
         <div onClick={() => handleClick(sectionSelected !== 'agents' ? 'agents' : '')}
