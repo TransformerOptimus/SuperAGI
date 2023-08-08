@@ -26,7 +26,7 @@ def test_tool_output_handle(parse_mock, execute_mock, get_completed_tasks_mock, 
     # Define what the mock response status should be
     execute_mock.return_value = Mock(status='PENDING', is_permission_required=False)
 
-    handler = ToolOutputHandler(agent_execution_id, agent_config, [])
+    handler = ToolOutputHandler(agent_execution_id, agent_config, [],None)
 
     # Mock session
     session_mock = MagicMock()
@@ -54,7 +54,7 @@ def test_tool_handler_check_permission_in_restricted_mode(op_mock):
     tool = MagicMock()
     tool.name = "someAction"
     tool.permission_required = True
-    handler = ToolOutputHandler(agent_execution_id, agent_config, [tool])
+    handler = ToolOutputHandler(agent_execution_id, agent_config, [tool],None)
 
     # Act
     response = handler._check_permission_in_restricted_mode(session_mock, assistant_reply)
