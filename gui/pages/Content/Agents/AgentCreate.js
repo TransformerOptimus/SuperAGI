@@ -119,6 +119,7 @@ export default function AgentCreate({
 
   const [scheduleData, setScheduleData] = useState(null);
   const [editModal, setEditModal] = useState(false)
+  const [editButtonClicked, setEditButtonClicked] = useState(false);
 
 
   useEffect(() => {
@@ -532,6 +533,8 @@ export default function AgentCreate({
     }
 
     if(edit){
+      if (editButtonClicked) return;
+      setEditButtonClicked(true);
       agentData.agent_id = editAgentId;
       const name = agentData.name
       agentData.name = `New Run ${new Date()}`
