@@ -111,7 +111,13 @@ class Weaviate(VectorStore):
         return {'vector_count': vector_count}
 
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
-        pass
-
+        try:
+            with self.client.batch as batch:
+                for i in range(len(embeddings['ids'])):
+                    data_object = {key: value for key, value in embeddings['data_object'][i].items()}
+                    batch.add_data_object(data_object, class_name=self.index, uuid=embeddings['ids'][i], vector=embeddings['vectors'][i])
+        except Exception as err:
+            raise err
+        
     def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
         pass
