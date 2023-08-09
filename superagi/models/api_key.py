@@ -19,6 +19,28 @@ class ApiKey(DBBaseModel):
     name = Column(String)
     key = Column(String)
     is_expired= Column(Boolean)
-    
 
+    @classmethod
+    def get_all_by_org_id(cls, session, org_id: int):
+        db_api_keys=session.query(ApiKey).filter(ApiKey.org_id == org_id).all()
+        return db_api_keys
+
+    @classmethod
+    def get_by_id(cls, session, id: int):
+        db_api_key=session.query(ApiKey).filter(ApiKey.id == id).first()
+        return db_api_key
+
+    @classmethod
+    def delete_by_id(cls, session,id: int):
+        db_api_key = session.query(ApiKey).filter(ApiKey.id == id).first()
+        db_api_key.is_expired=True
+        session.commit()
+        session.flush()
+
+    @classmethod
+    def edit_by_id(cls,session,id: int, name: str):
+        db_api_key = session.query(ApiKey).filter(ApiKey.id == id).first()
+        db_api_key.name = name
+        session.commit()
+        session.flush()
     

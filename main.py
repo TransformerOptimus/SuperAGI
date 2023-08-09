@@ -40,7 +40,7 @@ from superagi.controllers.knowledge_configs import router as knowledge_configs_r
 from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.vector_db_indices import router as vector_db_indices_router
 from superagi.controllers.marketplace_stats import router as marketplace_stats_router
-from superagi.controllers.create_api_key import router as create_api_key_router
+from superagi.controllers.api_key import router as api_key_router
 from superagi.controllers.api.agent import router as api_agent_router
 from superagi.controllers.webhook import router as web_hook_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
@@ -118,7 +118,7 @@ app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
 app.include_router(vector_dbs_router, prefix="/vector_dbs")
 app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
 app.include_router(marketplace_stats_router, prefix="/marketplace")
-app.include_router(create_api_key_router,prefix="/api-keys")
+app.include_router(api_key_router, prefix="/api-keys")
 app.include_router(api_agent_router,prefix="/v1/agent")
 app.include_router(web_hook_router,prefix="/webhook")
 
