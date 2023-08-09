@@ -448,7 +448,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       <div style={{width: '40%'}}>
         <div className={styles.detail_top}>
           <div style={{display: 'flex', overflowX: 'scroll'}}>
-            {agentDetails && pendingPermission > 0 && <div>
+            {(agentDetails || pendingPermission > 0) && agentDetails.permission_type === 'RESTRICTED' && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
                 <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/action_console.svg"
@@ -487,7 +487,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight: '0'}}>
-          {rightPanel === 'action_console' && agentDetails && pendingPermission > 0 && (
+          {rightPanel === 'action_console' && agentDetails && (
             <div className={styles.detail_content}>
               <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData}
                              pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
