@@ -229,3 +229,20 @@ class ModelsHelper:
         except SQLAlchemyError as err:
             logging.error(f"Error while fetching call log data: {str(err)}")
             return None
+
+    def fetchModelTokens(self) -> Dict[str, int]:
+        try:
+            models = self.session.query(
+                Models.model_name, Models.token_limit
+            ).filter(
+                Models.org_id == self.organisation_id
+            ).all()
+
+            if models:
+                return dict(models)
+            else:
+                return {"error": "No models found for the given organisation ID."}
+
+        except Exception as e:
+            logging.error(f"Unexpected Error Occured: {e}")
+            return {"error": "Unexpected Error Occured"}

@@ -4,6 +4,7 @@ import tiktoken
 
 from superagi.types.common import BaseMessage
 from superagi.lib.logger import logger
+from superagi.helpers.models_helper import ModelsHelper
 
 
 class TokenCounter:

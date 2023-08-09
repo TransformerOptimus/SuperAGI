@@ -83,3 +83,10 @@ async def fetchModels(model: str, organisation=Depends(get_user_organisation)):
     except Exception as e:
         logging.error(f"Error Fetching Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+async def fetchModelToken(organisation=Depends(get_user_organisation)):
+    try:
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchModelTokens()
+    except Exception as e:
+        logging.error(f"Error Fetching Model Tokens: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
