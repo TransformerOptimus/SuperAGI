@@ -5,6 +5,7 @@ from superagi.config.config import get_config
 from superagi.helper.token_counter import TokenCounter
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.types.common import BaseMessage
+from superagi.models.agent import Agent
 
 
 class AgentLlmMessageBuilder:
@@ -27,7 +28,9 @@ class AgentLlmMessageBuilder:
         """
         print("88888888888888888888888888888888")
         print(self.llm_model)
-        token_limit = TokenCounter.token_limit(self.llm_model)
+        organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
+        print(organisation.id)
+        token_limit = TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm_model)
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]
         print("88888888888888888888888888888888")

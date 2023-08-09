@@ -79,7 +79,8 @@ class AgentIterationStepHandler:
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         print("33333333333333333333333333333333333")
-        response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+        print(current_tokens)
+        response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
         print(response)
 #         ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
         print("33333333333333333333333333333333333")
@@ -142,7 +143,7 @@ class AgentIterationStepHandler:
             response = self.task_queue.get_last_task_details()
             last_task, last_task_result = (response["task"], response["response"]) if response is not None else ("", "")
             current_task = self.task_queue.get_first_task() or ""
-            token_limit = TokenCounter.token_limit() - max_token_limit
+            token_limit = TokenCounter(session=self.session, organisation_id=organisation.id).token_limit() - max_token_limit
             prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                      self.task_queue.get_tasks(),
                                                                      self.task_queue.get_completed_tasks(), token_limit)

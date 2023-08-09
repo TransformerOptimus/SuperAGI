@@ -63,6 +63,7 @@ class OpenAi(BaseLlm):
         """
         try:
             # openai.api_key = get_config("OPENAI_API_KEY")
+            print(max_tokens,'ssssssssssssss')
             response = openai.ChatCompletion.create(
                 n=self.number_of_results,
                 model=self.model,
@@ -74,6 +75,8 @@ class OpenAi(BaseLlm):
                 presence_penalty=self.presence_penalty
             )
             content = response.choices[0].message["content"]
+            print("nnnnnnnnnnnnnnnnnnnnnnn")
+            print(content)
             return {"response": response, "content": content}
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)

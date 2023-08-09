@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, NamedTuple, List
 import re
 import ast
-import json5
+import json
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
 

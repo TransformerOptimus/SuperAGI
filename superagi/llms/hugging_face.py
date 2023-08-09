@@ -11,8 +11,8 @@ class HuggingFace(BaseLlm):
     def __init__(
         self,
         api_key,
-        model,
-        end_point,
+        model = None ,
+        end_point = None,
         task=Tasks.TEXT_GENERATION,
         **kwargs
     ):
@@ -84,11 +84,11 @@ class HuggingFace(BaseLlm):
             print("77777777777777777777777777777777777777777")
             # temporary fix: some fucker is calling this function with the open=-ai schema
             if isinstance(messages, list):
-                messages = messages[0]["content"]
+                messages = messages[0]["content"] + "\nThe response in json schema:"
             params = self.task_params
             if self.task == Tasks.TEXT_GENERATION:
                 params["max_new_tokens"] = 1000
-            params['return_full_text'] = False
+#             params['return_full_text'] = False
             payload = {
                 "inputs": messages,
                 "parameters": self.task_params,
