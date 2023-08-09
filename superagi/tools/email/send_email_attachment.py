@@ -23,7 +23,7 @@ from superagi.types.storage_types import StorageType
 class SendEmailAttachmentInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
-    body: str = Field(..., description="Email Body to be sent")
+    body: str = Field(..., description="Email Body to be sent, Do not add senders details in the email body and end it with Warm Regards without entering any name.")
     filename: str = Field(..., description="Name of the file to be sent as an Attachment with Email")
 
 
