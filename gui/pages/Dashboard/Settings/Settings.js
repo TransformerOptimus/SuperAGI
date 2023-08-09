@@ -4,6 +4,7 @@ import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 import Model from "@/pages/Dashboard/Settings/Model";
 import Database from "@/pages/Dashboard/Settings/Database";
+import ApiKeys from "@/pages/Dashboard/Settings/ApiKeys";
 
 export default function Settings({organisationId, sendDatabaseData}) {
   const [activeTab, setActiveTab] = useState('model');
@@ -44,11 +45,22 @@ export default function Settings({organisationId, sendDatabaseData}) {
                        alt="database-icon"/>&nbsp;Database
               </button>
             </div>
+            <div>
+              <button onClick={() => switchTab('apikeys')} className={styles.tab_button}
+                      style={activeTab === 'apikeys' ? {
+                        background: '#454254',
+                        paddingRight: '15px'
+                      } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/key_white.svg"
+                       alt="database-icon"/>&nbsp;Api Keys
+              </button>
+            </div>
           </div>
         </div>
         <div>
           {activeTab === 'model' && <Model organisationId={organisationId}/>}
           {activeTab === 'database' && <Database sendDatabaseData={sendDatabaseData} organisationId={organisationId}/>}
+          {activeTab === 'apikeys' && <ApiKeys />}
         </div>
       </div>
     </div>
