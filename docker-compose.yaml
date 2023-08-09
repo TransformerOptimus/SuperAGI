@@ -37,8 +37,8 @@ services:
     networks:
       - super_network
 #    uncomment to expose redis port to host
-    # ports:
-    #   - "6379:6379"
+#    ports:
+#      - "6379:6379"
     volumes:
       - redis_data:/data
 
