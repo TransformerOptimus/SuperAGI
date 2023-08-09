@@ -153,8 +153,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 
 def replace_old_iteration_workflows(session):
-    dateTimeObj = datetime.strptime("4-August-2023", "%d-%B-%Y")
-    templates = session.query(AgentTemplate).filter(AgentTemplate.created_at <= dateTimeObj).all()
+    templates = session.query(AgentTemplate).all()
     for template in templates:
         iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
         if iter_workflow.name == "Fixed Task Queue":

@@ -119,6 +119,7 @@ export default function AgentCreate({
 
   const [scheduleData, setScheduleData] = useState(null);
   const [editModal, setEditModal] = useState(false)
+  const [editButtonClicked, setEditButtonClicked] = useState(false);
 
 
   useEffect(() => {
@@ -532,6 +533,8 @@ export default function AgentCreate({
     }
 
     if(edit){
+      if (editButtonClicked) return;
+      setEditButtonClicked(true);
       agentData.agent_id = editAgentId;
       const name = agentData.name
       agentData.name = `New Run ${new Date()}`
@@ -1124,7 +1127,7 @@ export default function AgentCreate({
           {advancedOptions &&
             <div>
               <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Agent Type</label><br/>
+                <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
                        style={{width: '100%'}}>
