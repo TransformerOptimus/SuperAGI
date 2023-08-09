@@ -41,3 +41,6 @@ class VectorEmbeddingFactory:
 
         if vector_store == VectorStoreType.QDRANT:
             return Qdrant(uuid, embeds, metadata)
+        
+        if vector_store == VectorStoreType.WEAVIATE:
+            return Weaviate(uuid, embeds, metadata)

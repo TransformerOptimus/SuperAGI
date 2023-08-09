@@ -101,6 +101,26 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
     
     return {"id": qdrant_db.id, "name": qdrant_db.name}
 
+@router.post("/connect/weaviate")
+def connect_weaviate_vector_db(data: dict, organisation = Depends(get_user_organisation)):
+    db_creds = {
+        "api_key": data["api_key"],
+        "url": data["url"]
+    }
+    for collection in data["collections"]:
+        try:
+            vector_db_storage = VectorFactory.build_vector_storage("weaviate", collection, **db_creds)
+            db_connect_for_index = vector_db_storage.get_index_stats()
+            index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
+        except:
+            raise HTTPException(status_code=400, detail="Unable to connect Weaviate")
+    weaviate_db = Vectordbs.add_vector_db(db.session, data["name"], "Weaviate", organisation)
+    VectordbConfigs.add_vector_db_config(db.session, weaviate_db.id, db_creds)
+    for collection in data["collections"]:
+        VectordbIndices.add_vector_index(db.session, collection, weaviate_db.id, data["dimensions"], index_state)
+
+    return {"id": weaviate_db.id, "name": weaviate_db.name}
+
 @router.put("/update/vector_db/{vector_db_id}")
 def update_vector_db(new_indices: list, vector_db_id: int):
     vector_db = Vectordbs.get_vector_db_from_id(db.session, vector_db_id)
