@@ -1,7 +1,5 @@
 import json
 import uuid
-import secrets
-from datetime import datetime       
 from fastapi import APIRouter, Body
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
@@ -34,15 +32,15 @@ def get_all(Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_u
     return api_keys
 
 @router.delete("")
-def delete_api_key(id: Annotated[int,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
+def delete_api_key(id: Annotated[int,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth)):
     api_key=ApiKey.get_by_id(db.session,id)
     if api_key is None:
         raise HTTPException(status_code=404, detail="API key not found")
-    ApiKey.delete_by_id(db.session, id)
+    ApiKey.delete_by_id(db.session, api_key.id)
     return {"success": True}
 
 @router.put("")
-def edit_api_key(api_key_in:ApiKeyIn,Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
+def edit_api_key(api_key_in:ApiKeyIn,Authorize: AuthJWT = Depends(check_auth)):
     api_key=ApiKey.get_by_id(db.session, api_key_in.id)
     if api_key is None:
         raise HTTPException(status_code=404, detail="API key not found")
