@@ -7,7 +7,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from pydantic import BaseModel
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi
@@ -55,10 +55,6 @@ from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
-from superagi.models.agent_execution import AgentExecution
-from superagi.helper.webhook_manager import WebHookManager
-from superagi.models.db import connect_db
-from superagi.worker import webhook_callback
 app = FastAPI()
 
 database_url = get_config('POSTGRES_URL')

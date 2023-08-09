@@ -1,7 +1,7 @@
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.web_hooks import Webhooks
-from superagi.models.web_hook_events import WebhookEvents
+from superagi.models.webhooks import Webhooks
+from superagi.models.webhook_events import WebhookEvents
 import requests
 import json
 from superagi.lib.logger import logger

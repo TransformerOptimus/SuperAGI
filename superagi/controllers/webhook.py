@@ -1,36 +1,26 @@
-
 from datetime import datetime
 
 from fastapi import APIRouter
-from fastapi import Depends 
+from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 
-
-
-
-from superagi.helper.auth import check_auth
-
-from superagi.models.web_hooks import Webhooks
-
-from datetime import datetime
-
-
 # from superagi.types.db import AgentOut, AgentIn
 from superagi.helper.auth import check_auth, get_user_organisation
-
+from superagi.models.webhooks import Webhooks
 
 router = APIRouter()
 
 
 class WebHookIn(BaseModel):
     name: str
-    url : str
-    headers : dict
+    url: str
+    headers: dict
 
     class Config:
         orm_mode = True
+
 
 class WebHookOut(BaseModel):
     id: int
@@ -47,8 +37,9 @@ class WebHookOut(BaseModel):
 
 
 # CRUD Operations
-@router.post("/add",response_model=WebHookOut ,status_code=201)
-def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
+@router.post("/add", response_model=WebHookOut, status_code=201)
+def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
+                   organisation=Depends(get_user_organisation)):
     """
         Creates a new webhook
 
@@ -60,7 +51,8 @@ def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
         Raises:
             HTTPException (Status Code=404): If the associated project is not found.
     """
-    db_webhook=Webhooks(name=webhook.name, url=webhook.url, headers=webhook.headers, org_id=organisation.id, is_deleted= False)
+    db_webhook = Webhooks(name=webhook.name, url=webhook.url, headers=webhook.headers, org_id=organisation.id,
+                          is_deleted=False)
     db.session.add(db_webhook)
     db.session.commit()
     db.session.flush()
