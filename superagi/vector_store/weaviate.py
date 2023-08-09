@@ -106,7 +106,7 @@ class Weaviate(VectorStore):
         return property_names
 
     def get_index_stats(self) -> dict:
-        result = self.client.query.get(self.index).with_meta_count().do()
+        result = self.client.query.aggregate(self.index).with_meta_count().do()
         vector_count = result['data']['Aggregate'][self.index][0]['meta']['count']
         return {'vector_count': vector_count}
 
