@@ -240,7 +240,6 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   function fetchAgentDetails(agentId, runId) {
-    console.log('in fetching')
     getAgentDetails(agentId, runId ? runId : -1)
       .then((response) => {
         const data = response.data
