@@ -1124,7 +1124,7 @@ export default function AgentCreate({
           {advancedOptions &&
             <div>
               <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Agent Type</label><br/>
+                <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
                        style={{width: '100%'}}>
