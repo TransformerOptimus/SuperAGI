@@ -16,9 +16,9 @@ router = APIRouter()
 
 
 @router.post("/")
-def create_api_key(name: Annotated[str,Body(embed=True)],Authorize: AuthJWT = Depends(check_auth),organisation=Depends(get_user_organisation)):
+def create_api_key(name: Annotated[str,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
     api_key=str(uuid.uuid4())
-    obj=ApiKey(key=api_key,key_name=name,org_id=organisation.id)
+    obj=ApiKey(key=api_key,name=name,org_id=organisation.id)
     db.session.add(obj)
     db.session.commit()
     return api_key

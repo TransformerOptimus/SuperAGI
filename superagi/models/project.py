@@ -57,11 +57,11 @@ class Project(DBBaseModel):
         return default_project
 
     @classmethod
-    def get_project_from_org_id(cls,session,org_id):
-        project=session.query(Project).filter(Project.organisation_id==org_id).first()
+    def find_by_org_id(cls, session, org_id: int):
+        project = session.query(Project).filter(Project.organisation_id == org_id).first()
         return project
     
     @classmethod
-    def get_project_from_id(cls,session,project_id):
-        project=session.query(Project).filter(Project.id==project_id).first()
-        return project  
+    def find_by_id(cls, session, project_id: int):
+        project = session.query(Project).filter(Project.id == project_id).first()
+        return project

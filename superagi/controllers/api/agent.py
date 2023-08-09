@@ -21,28 +21,14 @@ from superagi.models.agent_template import AgentTemplate
 from superagi.models.project import Project
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_execution import AgentExecution
-from superagi.models.tool import Tool
-from superagi.models.api_key import ApiKey
 from superagi.models.organisation import Organisation
 from superagi.models.resource import Resource
-from superagi.controllers.types.agent_schedule import AgentScheduleInput
-from superagi.controllers.types.agent_with_config import AgentConfigInput
-from superagi.controllers.types.agent_with_config_schedule import AgentConfigSchedule
 from superagi.controllers.types.agent_with_config import AgentConfigExtInput,AgentConfigUpdateExtInput
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.helper.s3_helper import S3Helper
-from jsonmerge import merge
 from datetime import datetime
-import json
 from typing import Optional,List
-import pytz
-import boto3
-from superagi.config.config import get_config
 from superagi.models.toolkit import Toolkit
-from superagi.models.knowledges import Knowledges
-
-from sqlalchemy import func
-from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.apm.event_handler import EventHandler
 
 router = APIRouter()
@@ -74,14 +60,14 @@ class RunIDConfig(BaseModel):
     class Config:
         orm_mode = True
 
-@router.post("",status_code=200)
+@router.post("", status_code=200)
 def create_agent_with_config(agent_with_config: AgentConfigExtInput,
-                             api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
-    project=Project.get_project_from_org_id(db.session,organisation.id)
+                             api_key: str = Security(validate_api_key), organisation:Organisation = Depends(get_organisation_from_api_key)):
+    project=Project.find_by_org_id(db.session, organisation.id)
     try:
         tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
     except Exception as e:
-        raise HTTPException(status_code=404,detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e))
 
     agent_with_config.tools=tools_arr
     agent_with_config.project_id=project.id
@@ -91,7 +77,7 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
 
     if agent_with_config.schedule is not None:
-        agent_schedule = AgentSchedule.get_schedule_from_config(db.session,db_agent,agent_with_config.schedule)
+        agent_schedule = AgentSchedule.save_schedule_from_config(db.session, db_agent, agent_with_config.schedule)
         if agent_schedule is None:
             raise HTTPException(status_code=500, detail="Failed to schedule agent")
         EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name,
@@ -99,7 +85,7 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
                                                         organisation.id if organisation else 0)
         db.session.commit()
         return {
-            "agent_id":db_agent.id
+            "agent_id": db_agent.id
         }
     
     start_step = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
@@ -125,7 +111,7 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
     # execute_agent.delay(execution.id, datetime.now())
     db.session.commit()
     return {
-        "agent_id":db_agent.id
+        "agent_id": db_agent.id
     }
 
 @router.post("/run/{agent_id}",status_code=200)
@@ -134,16 +120,16 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    project=Project.get_project_from_id(db.session,agent.project_id)
+    project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    db_schedule=AgentSchedule.get_schedule_from_agent_id(db.session,agent_id)
+    db_schedule=AgentSchedule.find_by_agent_id(db.session, agent_id)
     if db_schedule is not None:
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot run")
     
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
-    db_agent_execution=AgentExecution.get_execution_from_agent_id_with_status(db.session,agent_id,"CREATED")
+    db_agent_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "CREATED")
 
     if db_agent_execution is None:
         db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
@@ -156,8 +142,16 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
 
     db.session.commit()
     db.session.flush()
-    agent_execution_configs=AgentExecution.get_updated_execution_config_obj(agent_execution)
-    
+
+    agent_execution_configs = {}
+    if agent_execution.goal is not None:
+        agent_execution_configs = {
+            "goal": agent_execution.goal,
+        }
+
+    if agent_execution.instruction is not None:
+        agent_execution_configs["instructions"] = agent_execution.instruction,
+
     if agent_execution_configs != {}:
         AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
@@ -174,22 +168,22 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
 def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api_key: str = Security(validate_api_key),
                                         organisation:Organisation = Depends(get_organisation_from_api_key)):
     
-    db_agent=Agent.get_agent_from_id_with_filter(db.session,agent_id,False)
+    db_agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
     
-    project=Project.get_project_from_id(db.session,db_agent.project_id)
+    project=Project.find_by_id(db.session, db_agent.project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    db_execution=AgentExecution.get_execution_from_agent_id_with_status(db.session,agent_id,"RUNNING")
+    db_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "RUNNING")
     if db_execution is not None:
         raise HTTPException(status_code=409, detail="Agent is already running,please pause and then update")
      
-    db_schedule=AgentSchedule.get_schedule_from_agent_id(db.session,agent_id)
+    db_schedule=AgentSchedule.find_by_agent_id(db.session, agent_id)
     if db_schedule is not None:
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot update")
     
@@ -197,7 +191,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
         tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
     except Exception as e:
         raise HTTPException(status_code=404,detail=str(e))
-    
+    print("tools arr",tools_arr)
     agent_with_config.tools=tools_arr
     agent_with_config.project_id=project.id
     agent_with_config.exit="No exit criterion"
@@ -207,7 +201,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     for key,value in agent_with_config.dict().items():
         if hasattr(db_agent,key) and value is not None:
             setattr(db_agent,key,value)
-        
+    print("db_agent",db_agent)
     db.session.commit()
     db.session.flush()
 
@@ -218,8 +212,19 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
                                name="New Run", current_agent_step_id=start_step.id, iteration_workflow_step_id=iteration_step_id)
     agent_execution_configs = {
         "goal": agent_with_config.goal,
-        "instruction": agent_with_config.instruction
+        "instruction": agent_with_config.instruction,
+        "tools":agent_with_config.tools,
+        "constraints": agent_with_config.constraints,
+        "iteration_interval": agent_with_config.iteration_interval,
+        "model": agent_with_config.model,
+        "max_iterations": agent_with_config.max_iterations,
+        "agent_type": agent_with_config.agent_type,
     }
+    agent_configurations = [
+        AgentConfiguration(agent_id=db_agent.id, key=key, value=str(value))
+        for key, value in agent_execution_configs.items()
+    ]
+    db.session.add_all(agent_configurations)
     db.session.add(execution)
     db.session.commit()
     db.session.flush()
@@ -234,11 +239,11 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
 
 @router.get("/run/{agent_id}")
 def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
-    agent=Agent.get_agent_from_id_with_filter(db.session,agent_id,False)
+    agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    project=Project.get_project_from_id(db.session,agent.project_id)
+    project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
     
@@ -246,7 +251,7 @@ def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = S
     if filter_config.run_status_filter is not None:
         filter_config.run_status_filter=filter_config.run_status_filter.upper()
 
-    db_execution_arr=AgentExecution.get_all_executions_with_filter_config_and_agent_id(db.session,agent.id,filter_config)
+    db_execution_arr=AgentExecution.get_all_executions_by_filter_config(db.session, agent.id, filter_config)
     
     response_arr=[]
     for ind_execution in db_execution_arr:
@@ -257,11 +262,11 @@ def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = S
 
 @router.get("/pause/{agent_id}",status_code=200)
 def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateChangeConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
-    agent=Agent.get_agent_from_id_with_filter(db.session,agent_id,False)
+    agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    project=Project.get_project_from_id(db.session,agent.project_id)
+    project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
     
@@ -272,7 +277,7 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
         except Exception as e:
             raise HTTPException(status_code=404, detail=str(e))
     
-    db_execution_arr=AgentExecution.get_all_executions_with_status_and_agent_id(db.session,agent.id,execution_state_change_input,"RUNNING")
+    db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "RUNNING")
     for ind_execution in db_execution_arr:
         ind_execution.status="PAUSED"
     db.session.commit()
@@ -283,11 +288,11 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
 
 @router.get("/resume/{agent_id}",status_code=200)
 def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateChangeConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
-    agent=Agent.get_agent_from_id_with_filter(db.session,agent_id,False)
+    agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    project=Project.get_project_from_id(db.session,agent.project_id)
+    project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
     
@@ -297,7 +302,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
         except Exception as e:
             raise HTTPException(status_code=404, detail=str(e))
     
-    db_execution_arr=AgentExecution.get_all_executions_with_status_and_agent_id(db.session,agent.id,execution_state_change_input,"PAUSED")
+    db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "PAUSED")
     for ind_execution in db_execution_arr:
         ind_execution.status="RUNNING"
         
@@ -319,7 +324,7 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
     
-    db_resources_arr=Resource.get_all_resources_from_run_ids(db.session,run_ids_arr)
+    db_resources_arr=Resource.find_by_run_ids(db.session, run_ids_arr)
     response_obj=S3Helper().get_download_url_of_resources(db_resources_arr)
     return response_obj
 

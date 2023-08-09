@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 
-from superagi.models.web_hooks import WebHooks
+from superagi.models.web_hooks import Webhooks
 
 from datetime import datetime
 
@@ -48,7 +48,7 @@ class WebHookOut(BaseModel):
 
 # CRUD Operations
 @router.post("/add",response_model=WebHookOut ,status_code=201)
-def create_webhook(webhook: WebHookIn,Authorize: AuthJWT = Depends(check_auth),organisation=Depends(get_user_organisation)):
+def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
     """
         Creates a new webhook
 
@@ -60,7 +60,7 @@ def create_webhook(webhook: WebHookIn,Authorize: AuthJWT = Depends(check_auth),o
         Raises:
             HTTPException (Status Code=404): If the associated project is not found.
     """
-    db_webhook=WebHooks(name=webhook.name,url=webhook.url,headers=webhook.headers,org_id=organisation.id,is_deleted=False)
+    db_webhook=Webhooks(name=webhook.name, url=webhook.url, headers=webhook.headers, org_id=organisation.id, is_deleted= False)
     db.session.add(db_webhook)
     db.session.commit()
     db.session.flush()

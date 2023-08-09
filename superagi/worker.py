@@ -93,5 +93,5 @@ def webhook_callback(agent_execution_id,val,old_val):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     with Session() as session:
-        WebHookManager(session).agentStatusChangeCallback(agent_execution_id,val,old_val)
+        WebHookManager(session).agent_status_change_callback(agent_execution_id, val, old_val)
     

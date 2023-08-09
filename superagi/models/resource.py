@@ -60,8 +60,8 @@ class Resource(DBBaseModel):
             raise InvalidResourceType("Invalid resource type")
     
     @classmethod
-    def get_all_resources_from_run_ids(cls,session,execution_ids):
-        db_resources_arr=session.query(Resource).filter(Resource.agent_execution_id.in_(execution_ids)).all()
+    def find_by_run_ids(cls, session, run_ids: list):
+        db_resources_arr=session.query(Resource).filter(Resource.agent_execution_id.in_(run_ids)).all()
         return db_resources_arr
     
 class InvalidResourceType(Exception):

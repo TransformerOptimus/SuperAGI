@@ -4,7 +4,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.agent_execution import AgentExecution
 
 
-class WebHookEvents(DBBaseModel):
+class WebhookEvents(DBBaseModel):
     """
 
     Attributes:

@@ -12,11 +12,11 @@ class ApiKey(DBBaseModel):
 
     Methods:
     """
-    __tablename__ = 'api_key'
+    __tablename__ = 'api_keys'
 
     id = Column(Integer, primary_key=True)
     org_id = Column(Integer)
-    key_name = Column(String)
+    name = Column(String)
     key = Column(String)
     is_expired= Column(Boolean)
     

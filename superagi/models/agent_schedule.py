@@ -48,7 +48,7 @@ class AgentSchedule(DBBaseModel):
                f"status={self.status}), " 
     
     @classmethod
-    def get_schedule_from_config(cls,session,db_agent,schedule_config):
+    def save_schedule_from_config(cls, session, db_agent, schedule_config: AgentScheduleInput):
         agent_schedule = AgentSchedule(
             agent_id=db_agent.id,
             start_time=schedule_config.start_time,
@@ -66,6 +66,6 @@ class AgentSchedule(DBBaseModel):
         return agent_schedule
     
     @classmethod
-    def get_schedule_from_agent_id(self,session,agent_id):
-        db_schedule=session.query(AgentSchedule).filter(AgentSchedule.agent_id==agent_id).first()
+    def find_by_agent_id(cls, session, agent_id: int):
+        db_schedule=session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id).first()
         return db_schedule

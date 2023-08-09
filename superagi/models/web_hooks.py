@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from superagi.models.base_model import DBBaseModel
 from superagi.models.agent_execution import AgentExecution
 
-class WebHooks(DBBaseModel):
+class Webhooks(DBBaseModel):
     """
 
     Attributes:
