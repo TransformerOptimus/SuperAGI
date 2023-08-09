@@ -120,4 +120,11 @@ class Weaviate(VectorStore):
             raise err
         
     def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
-        pass
+        try:
+            for id in ids:
+                self.client.data_object.delete(
+                    uuid = id,
+                    class_name = self.index
+                )
+        except Exception as err:
+            raise err
