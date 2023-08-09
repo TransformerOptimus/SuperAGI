@@ -19,34 +19,34 @@ class ApiKeyIn(BaseModel):
     class Config:
         orm_mode = True
 
-@router.post("/")
+@router.post("")
 def create_api_key(name: Annotated[str,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
     api_key=str(uuid.uuid4())
     obj=ApiKey(key=api_key,name=name,org_id=organisation.id)
     db.session.add(obj)
     db.session.commit()
     db.session.flush()
-    return api_key
+    return {"api_key": api_key}
 
-@router.get("/")
+@router.get("")
 def get_all(Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
-    api_keys=ApiKey.get_all_by_org_id(db.session, organisation.id)
+    api_keys=ApiKey.get_by_org_id(db.session, organisation.id)
     return api_keys
 
-@router.delete("/")
+@router.delete("")
 def delete_api_key(id: Annotated[int,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
     api_key=ApiKey.get_by_id(db.session,id)
     if api_key is None:
-        return "API key not found"
-    ApiKey.delete_by_id(db.session,id)
-    return {"API key successfully deleted"}
+        raise HTTPException(status_code=404, detail="API key not found")
+    ApiKey.delete_by_id(db.session, id)
+    return {"success": True}
 
-@router.put("/")
+@router.put("")
 def edit_api_key(api_key_in:ApiKeyIn,Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
-    api_key=ApiKey.get_by_id(db.session,api_key_in.id)
+    api_key=ApiKey.get_by_id(db.session, api_key_in.id)
     if api_key is None:
-        return "API key not found"
-    ApiKey.edit_by_id(db.session,api_key_in.id,api_key_in.name)
-    return {"API key successfully edited"}
+        raise HTTPException(status_code=404, detail="API key not found")
+    ApiKey.edit_by_id(db.session, api_key_in.id, api_key_in.name)
+    return {"success": True}
 
 

@@ -21,7 +21,7 @@ class ApiKey(DBBaseModel):
     is_expired= Column(Boolean)
 
     @classmethod
-    def get_all_by_org_id(cls, session, org_id: int):
+    def get_by_org_id(cls, session, org_id: int):
         db_api_keys=session.query(ApiKey).filter(ApiKey.org_id == org_id).all()
         return db_api_keys
 
