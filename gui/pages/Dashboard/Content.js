@@ -79,7 +79,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     try {
       const response = await getToolKit();
       const data = response.data || [];
-      const updatedData = data.map(item => {
+      const filteredData = data.filter(item => item.name !== "ApolloToolkit");
+      const updatedData = filteredData.map(item => {
         let updatedName = item.name === "Web Scrapper Toolkit" ? "Web Scraper Toolkit" : item.name;
         return {...item,name: updatedName,  contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
       });
