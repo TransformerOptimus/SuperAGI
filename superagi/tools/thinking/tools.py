@@ -60,8 +60,6 @@ class ThinkingTool(BaseTool):
             metadata = {"agent_execution_id":self.agent_execution_id}
             relevant_tool_response = self.tool_response_manager.get_relevant_response(query=task_description,metadata=metadata)
             prompt = prompt.replace("{relevant_tool_response}",relevant_tool_response)
-            print("Here is the relevant tool response: ",relevant_tool_response,"ENDD")
-            print("Here is the prompt response: ",prompt,"ENDD")
             messages = [{"role": "system", "content": prompt}]
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             return result["content"]
