@@ -151,7 +151,7 @@ class AgentExecutionConfiguration(DBBaseModel):
         return results_agent_dict
 
     @classmethod
-    def fetch_value(cls, session, execution_id, key):
+    def fetch_value(cls, session, execution_id: int, key: str):
         """
            Fetches the value of a specific execution configuration setting for an agent.
 

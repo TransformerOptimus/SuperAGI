@@ -65,9 +65,9 @@ class AgentIterationStepHandler:
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
 
-        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
-                                  completion_prompt=iteration_workflow_step.completion_prompt, llm=self.llm)
+                                  completion_prompt=iteration_workflow_step.completion_prompt)
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
