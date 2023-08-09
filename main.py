@@ -12,11 +12,9 @@ from sqlalchemy.orm import sessionmaker
 
 import superagi
 from datetime import timedelta, datetime
-from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
-from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
 from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
@@ -96,7 +94,6 @@ app.include_router(organisation_router, prefix="/organisations")
 app.include_router(project_router, prefix="/projects")
 app.include_router(budget_router, prefix="/budgets")
 app.include_router(agent_router, prefix="/agents")
-app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")

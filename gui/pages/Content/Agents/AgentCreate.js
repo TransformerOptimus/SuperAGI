@@ -10,7 +10,7 @@ import {
   getLlmModels,
   updateExecution,
   uploadFile,
-  getAgentDetails, editAgent,
+  getAgentDetails, addAgentRun,
   getAgentWorkflows
 } from "@/pages/api/DashboardService";
 import {
@@ -76,8 +76,8 @@ export default function AgentCreate({
   // const agentTypes = ["Goal Based Workflow",
   //   "Dynamic Task Workflow", "Fixed Task Workflow", "Sales Research Workflow", "SuperCoder", "DocSuperCoder", "Research & send email"]
   // const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Fixed Task Queue"]
-  const [agentTypes, setAgentTypes] = useState('');
-  const [agentType, setAgentType] = useState(agentTypes[0]);
+  const [agentWorkflows, setAgentWorkflows] = useState('');
+  const [agentWorkflow, setAgentWorkflow] = useState(agentWorkflows[0]);
 
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
@@ -170,13 +170,13 @@ export default function AgentCreate({
 
     getAgentWorkflows()
       .then((response) => {
-        const agentTypes = response.data || [];
-        const selectedAgentType = localStorage.getItem("agent_type_" + String(internalId)) || '';
-        setAgentTypes(agentTypes);
-        if (agentTypes.length > 0 && !selectedAgentType) {
-          setLocalStorageValue("agent_type_" + String(internalId), agentTypes[0], setAgentType);
+        const agentWorkflows = response.data || [];
+        const selectedAgentWorkflow = localStorage.getItem("agent_workflow_" + String(internalId)) || '';
+        setAgentWorkflows(agentWorkflows);
+        if (agentWorkflows.length > 0 && !selectedAgentWorkflow) {
+          setLocalStorageValue("agent_workflow_" + String(internalId), agentWorkflows[0], setAgentWorkflow);
         } else {
-          setAgentType(selectedAgentType);
+          setAgentWorkflow(selectedAgentWorkflow);
         }
       })
       .catch((error) => {
@@ -283,7 +283,7 @@ export default function AgentCreate({
   }
   const fillAdvancedDetails = (data) => {
     setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-    setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
+    setLocalStorageValue("agent_workflow_" + String(internalId), data.agent_workflow, setAgentWorkflow);
     setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
     setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
     setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
@@ -347,14 +347,14 @@ export default function AgentCreate({
   };
 
   const handleAgentSelect = (index) => {
-    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
+    setLocalStorageValue("agent_workflow_" + String(internalId), agentWorkflows[index], setAgentWorkflow);
     setAgentDropdown(false);
   };
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
     if (modelsArray[index] === "google-palm-bison-001") {
-      setAgentType("Fixed Task Queue")
+      setAgentWorkflow("Fixed Task Queue")
     }
     setModelDropdown(false);
   };
@@ -513,7 +513,7 @@ export default function AgentCreate({
       "description": agentDescription,
       "goal": goals,
       "instruction": instructions,
-      "agent_type": agentType,
+      "agent_workflow": agentWorkflow,
       "constraints": constraints,
       "toolkits": [],
       "tools": selectedTools,
@@ -538,7 +538,7 @@ export default function AgentCreate({
       agentData.agent_id = editAgentId;
       const name = agentData.name
       agentData.name = `New Run ${new Date()}`
-      editAgent(agentData)
+      addAgentRun(agentData)
         .then((response) => {
         if(response){
           fetchAgents();
@@ -690,7 +690,7 @@ export default function AgentCreate({
     const agentTemplateConfigData = {
       "goal": goals,
       "instruction": instructions,
-      "agent_type": agentType,
+      "agent_workflow": agentWorkflow,
       "constraints": constraints,
       "tools": toolNames,
       "exit": exitCriterion,
@@ -816,9 +816,9 @@ export default function AgentCreate({
         setModel(agent_model);
       }
 
-      const agent_type = localStorage.getItem("agent_type_" + String(internalId));
-      if (agent_type) {
-        setAgentType(agent_type);
+      const agent_workflow = localStorage.getItem("agent_workflow_" + String(internalId));
+      if (agent_workflow) {
+        setAgentWorkflow(agent_workflow);
       }
 
       const agent_database = localStorage.getItem("agent_database_" + String(internalId));
@@ -1131,13 +1131,13 @@ export default function AgentCreate({
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
                        style={{width: '100%'}}>
-                    {agentType}<Image width={20} height={21}
+                    {agentWorkflow}<Image width={20} height={21}
                                       src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
                                       alt="expand-icon"/>
                   </div>
                   <div>
                     {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width: '100%'}}>
-                      {agentTypes.map((agent, index) => (
+                      {agentWorkflows.map((agent, index) => (
                         <div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)}
                              style={{padding: '12px 14px', maxWidth: '100%'}}>
                           {agent}

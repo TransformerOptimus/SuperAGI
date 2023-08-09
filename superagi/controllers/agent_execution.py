@@ -165,7 +165,6 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction,
-        "agent_type": agent_execution.agent_type,
         "constraints": agent_execution.constraints,
         "toolkits": agent_execution.toolkits,
         "exit": agent_execution.exit,

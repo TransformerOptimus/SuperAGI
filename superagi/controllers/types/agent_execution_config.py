@@ -15,7 +15,7 @@ class AgentRunIn(BaseModel):
     permission_id: Optional[int]
     goal: Optional[List[str]]
     instruction: Optional[List[str]]
-    agent_type: str
+    agent_workflow: str
     constraints: List[str]
     toolkits: List[int]
     tools: List[int]
