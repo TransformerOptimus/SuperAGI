@@ -240,6 +240,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   function fetchAgentDetails(agentId, runId) {
+    console.log('in fetching')
     getAgentDetails(agentId, runId ? runId : -1)
       .then((response) => {
         const data = response.data
@@ -411,7 +412,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
             {createModal &&
               <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
-                             agentId={agentId} setCreateModal={() => setCreateModal(false)}  refreshDetails={fetchAgentDetails(agent.id,-1)}/>}
+                             agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
               <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal}
                              type="edit_schedule_agent"

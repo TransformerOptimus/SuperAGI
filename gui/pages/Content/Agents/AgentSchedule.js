@@ -17,7 +17,6 @@ export default function AgentSchedule({
                                         setCreateModal,
                                         setCreateEditModal,
                                         env,
-                                        refreshDetails
                                       }) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [timeDropdown, setTimeDropdown] = useState(false);
@@ -169,7 +168,6 @@ export default function AgentSchedule({
             setCreateModal();
             EventBus.emit('refreshDate', {});
             EventBus.emit('reFetchAgents', {});
-            refreshDetails();
           })
           .catch(error => {
             console.error('Error:', error);
