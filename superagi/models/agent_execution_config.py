@@ -7,6 +7,7 @@ import json
 from superagi.models.knowledges import Knowledges
 
 from superagi.models.tool import Tool
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 
 
 class AgentExecutionConfiguration(DBBaseModel):
@@ -134,6 +135,8 @@ class AgentExecutionConfiguration(DBBaseModel):
             results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
 
         results_agent_dict["name"] = agent.name
+        agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)
+        results_agent_dict["agent_workflow"] = agent_workflow.name
         results_agent_dict["description"] = agent.description
         results_agent_dict["calls"] = total_calls
         results_agent_dict["tokens"] = total_tokens

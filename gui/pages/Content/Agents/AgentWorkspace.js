@@ -353,10 +353,10 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 Feed
               </button>
             </div>
-            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Fixed Task Queue") &&
+            {agentDetails && (agentDetails.agent_workflow === 'Dynamic Task Workflow' || agentDetails.agent_workflow === "Fixed Task Workflow") &&
               <div style={{marginLeft: '7px'}}>
-                <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button}
-                        style={leftPanel === 'agent_type' ? {background: '#454254'} : {background: 'transparent'}}>Task
+                <button onClick={() => setLeftPanel('agent_workflow')} className={styles.tab_button}
+                        style={leftPanel === 'agent_workflow' ? {background: '#454254'} : {background: 'transparent'}}>Task
                   Queue
                 </button>
               </div>}
@@ -441,7 +441,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
                           setFetchedData={setFetchedData} agent={agent}/>
           </div>}
-          {leftPanel === 'agent_type' &&
+          {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>

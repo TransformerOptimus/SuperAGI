@@ -57,101 +57,6 @@ class AgentIn(BaseModel):
         orm_mode = True
 
 
-# CRUD Operations
-@router.post("/add", response_model=AgentOut, status_code=201)
-def create_agent(agent: AgentIn,
-                 Authorize: AuthJWT = Depends(check_auth)):
-    """
-        Creates a new Agent
-
-        Args:
-            agent (Agent): An object representing the Agent to be created.
-                Contains the following attributes:
-                - name (str): Name of the Agent
-                - project_id (int): Identifier of the associated project
-                - description (str): Description of the Agent
-                - agent_workflow_id (int): Identifier of the Agent Workflow in use
-
-        Returns:
-            Agent: An object of Agent representing the created Agent.
-
-        Raises:
-            HTTPException (Status Code=404): If the associated project is not found.
-    """
-
-    project = db.session.query(Project).get(agent.project_id)
-
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    db_agent = Agent(name=agent.name, description=agent.description, project_id=agent.project_id)
-    db.session.add(db_agent)
-    db.session.commit()
-    return db_agent
-
-
-@router.get("/get/{agent_id}", response_model=AgentOut)
-def get_agent(agent_id: int,
-              Authorize: AuthJWT = Depends(check_auth)):
-    """
-        Get an Agent by ID
-
-        Args:
-            agent_id (int): Identifier of the Agent to retrieve
-
-        Returns:
-            Agent: An object of Agent representing the retrieved Agent.
-
-        Raises:
-            HTTPException (Status Code=404): If the Agent is not found or deleted.
-    """
-
-    if (db_agent := db.session.query(Agent)
-            .filter(Agent.id == agent_id, or_(Agent.is_deleted == False, Agent.is_deleted is None))
-            .first()):
-        return db_agent
-    else:
-        raise HTTPException(status_code=404, detail="agent not found")
-
-
-@router.put("/update/{agent_id}", response_model=AgentOut)
-def update_agent(agent_id: int, agent: AgentIn,
-                 Authorize: AuthJWT = Depends(check_auth)):
-    """
-        Update an existing Agent
-
-        Args:
-            agent_id (int): Identifier of the Agent to update
-            agent (Agent):  Updated Agent data
-                Contains the following attributes:
-                - name (str): Name of the Agent
-                - project_id (int): Identifier of the associated project
-                - description (str): Description of the Agent
-                - agent_workflow_id (int): Identifier of the Agent Workflow in use
-
-        Returns:
-            Agent: An object of Agent representing the updated Agent.
-
-        Raises:
-            HTTPException (Status Code=404): If the Agent or associated Project is not found.
-    """
-
-    db_agent = db.session.query(Agent).filter(Agent.id == agent_id, or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
-    if not db_agent:
-        raise HTTPException(status_code=404, detail="agent not found")
-
-    if agent.project_id:
-        if project := db.session.query(Project).get(agent.project_id):
-            db_agent.project_id = project.id
-        else:
-            raise HTTPException(status_code=404, detail="Project not found")
-    db_agent.name = agent.name
-    db_agent.description = agent.description
-
-    db.session.commit()
-    return db_agent
-
-
 @router.post("/create", status_code=201)
 def create_agent_with_config(agent_with_config: AgentConfigInput,
                              Authorize: AuthJWT = Depends(check_auth)):
@@ -164,7 +69,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
             - project_id (int): Identifier of the associated project.
             - description (str): Description of the agent.
             - goal (List[str]): List of goals for the agent.
-            - agent_type (str): Type of the agent.
             - constraints (List[str]): List of constraints for the agent.
             - tools (List[int]): List of tool identifiers associated with the agent.
             - exit (str): Exit condition for the agent.
@@ -208,7 +112,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     agent_execution_configs = {
         "goal": agent_with_config.goal,
         "instruction": agent_with_config.instruction,
-        "agent_type": agent_with_config.agent_type,
         "constraints": agent_with_config.constraints,
         "toolkits": agent_with_config.toolkits,
         "exit": agent_with_config.exit,
@@ -230,7 +133,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     agent = db.session.query(Agent).filter(Agent.id == db_agent.id,  ).first()
     organisation = agent.get_agent_organisation(db.session)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,
-                                                                  
                                                                   'agent_execution_name':  execution.name}, db_agent.id,
                                                  
                                                   organisation.id if organisation else 0),

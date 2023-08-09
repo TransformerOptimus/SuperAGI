@@ -165,7 +165,7 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
-        <div style={info_text}>{agentDetails?.agent_type || ''}</div>
+        <div style={info_text}>{agentDetails?.agent_workflow || ''}</div>
       </div>
       {agentDetails?.knowledge_name && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
