@@ -1,6 +1,7 @@
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
+from superagi.llms.hugging_face import HuggingFace
 
 
 class ModelFactory:
@@ -27,6 +28,7 @@ factory.register_format("replicate-llama13b-v2-chat",
                         lambda **kwargs: Replicate(model='replicate/llama70b-v2-chat',
                                                    version="e951f18578850b652510200860fc4ea62b3b16fac280f83ff32282f87bbd2e48",
                                                    **kwargs))
+factory.register_format("Llama-2-7b-hf", lambda **kwargs: HuggingFace(model="Llama-2-7b-hf", end_point="https://npwopr9feccz7a5x.us-east-1.aws.endpoints.huggingface.cloud/", **kwargs))
 
 
 def get_model(api_key, model="gpt-3.5-turbo", **kwargs):

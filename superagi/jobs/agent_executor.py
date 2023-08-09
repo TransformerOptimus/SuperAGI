@@ -83,11 +83,14 @@ class AgentExecutor:
                     print("@@@@@@@@@@@@@@@@@@@@@@@2")
                     tool_step_handler.execute_step()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
+                    print("1224234324353453535435")
+                    print()
                     iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
                                                                                 api_key=model_api_key)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
+                    print("..............................................")
                     print(get_model(model=agent_config["model"],api_key=model_api_key))
                     iteration_step_handler.execute_step()
             except Exception as e:

@@ -34,19 +34,22 @@ from superagi.helper.models_helper import ModelsHelper
 class AgentIterationStepHandler:
     """ Handles iteration workflow steps in the agent workflow."""
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
+        print(session, llm, agent_execution_id, agent_id, memory)
         self.session = session
         self.llm = llm
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
         self.memory = memory
         self.task_queue = TaskQueue(str(self.agent_execution_id))
+        print(self.task_queue)
 
     def execute_step(self):
+        print("5555555555555555555555555555555555")
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         if not self._handle_wait_for_permission(execution, agent_config, agent_execution_config,
                                                 iteration_workflow_step):
             return
@@ -55,7 +58,7 @@ class AgentIterationStepHandler:
         organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         if not agent_feeds:
             self.task_queue.clear_tasks()
 
@@ -65,21 +68,21 @@ class AgentIterationStepHandler:
                                           agent_execution_config=agent_execution_config,
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
-
+        print("33333333333333333333333333333333333")
+        print(self.agent_id)
+        print(self.llm)
+        print(self.llm.get_model())
         messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
                                   completion_prompt=iteration_workflow_step.completion_prompt)
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-
-        print(TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+        print("33333333333333333333333333333333333")
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
-#         content_dict =
-#         tool_name = content_dict
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(response['response'].usage)
-        ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
+        print(response)
+#         ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
+        print("33333333333333333333333333333333333")
 
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")

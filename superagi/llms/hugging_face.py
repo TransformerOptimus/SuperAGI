@@ -4,113 +4,102 @@ import json
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.llms.utils.huggingface_utils.tasks import Tasks, TaskParameters
+from superagi.llms.utils.huggingface_utils.public_endpoints import ACCOUNT_VERIFICATION_URL
 
 class HuggingFace(BaseLlm):
-    def __init__(
-            self,
-            api_key,
-            end_point= '',
-        ):
-            self.api_key = api_key
-            self.end_point = end_point
-#             self.task = task
-#             self.task_params = TaskParamters().get_params(self.task, **kwargs)
-#             self.API_URL = model.value
-#             self.VALIDATION_URL = "https://huggingface.co/api/models"
-#             self.headers = {
-#                 "Authorization": f"Bearer {self.api_key}",
-#                 "Content-Type": "application/json",
-#             }
+	def __init__(
+		self,
+		api_key,
+		model,
+		end_point,
+		task=Tasks.TEXT_GENERATION,
+		**kwargs
+	):
+		self.api_key = api_key
+		self.model = model
+		self.end_point = end_point
+		self.task = task
+		self.task_params = TaskParameters().get_params(self.task, **kwargs)
+		self.headers = {
+			"Authorization": f"Bearer {self.api_key}",
+			"Content-Type": "application/json",
+		}
 
-    def get_source(self):
-            return "hugging face"
+	def get_source(self):
+			return "hugging face"
 
-    def get_api_key(self):
-        """
-        Returns:
-            str: The API key.
-        """
-        return self.api_key
+	def get_api_key(self):
+		"""
+		Returns:
+			str: The API key.
+		"""
+		return self.api_key
 
-    def get_model(self):
-        """
-        The API needs a POST request with the parameter "inputs".
+	def get_model(self):
+		"""
+		The API needs a POST request with the parameter "inputs".
 
-        Args:
-            inputs (dict): The inputs to send over POST.
+		Returns:
+			response from the endpoint
+		"""
+		# Returning the endpoint response from the function `get_model` is not a good idea. If the model name is not accessible, it is better to return a fixed schema for now that informs the user about the situation and a possible fix.
+# 		data = json.dumps({"inputs": "validating end_point"})
+# 		response = requests.post(self.end_point, headers=self.headers, data=data)
+# 		model = response.json()
 
-        Returns:
-            dict: The model.
-        """
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
+		return self.model
 
-        data = json.dumps({"inputs": "validating end_point"})
-        response = requests.post(self.end_point, headers=headers, data=data)
-        model = response.json()
+	def get_models(self):
+		"""
+		Returns:
+			str: The model.
+		"""
+		return self.model
 
-        return model
+	def verify_access_key(self):
+		"""
+		Verify the access key is valid.
 
-    def get_models(self):
-        """
-        Returns:
-            str: The model.
-        """
-        return self.model
+		Returns:
+			bool: True if the access key is valid, False otherwise.
+		"""
+		response = requests.get(ACCOUNT_VERIFICATION_URL, headers=self.headers)
 
-    def verify_access_key(self):
-        """
-        Verify the access key is valid.
+		# A more sophisticated check could be done here. 
+		# Ideally we should be checking the response from the endpoint along with the status code. 
+		# If the desired response is not received, we should return False and log the response.
+		return response.status_code == 200
 
-        Returns:
-            bool: True if the access key is valid, False otherwise.
-        """
-        headers = {"Authorization": "Bearer " + self.api_key}
-        response = requests.get("https://huggingface.co/api/whoami-v2", headers=headers)
+	def chat_completion(self, messages, max_tokens=100):
+		"""
+		Call the HuggingFace inference API.
+		Args:
+			messages (list): The messages.
+			max_tokens (int): The maximum number of tokens.
+		Returns:
+			dict: The response.
+		"""
+		try:
+			params = self.task_params
+			if self.task == Tasks.TEXT_GENERATION:
+				params["max_new_tokens"] = max_tokens
+			payload = {
+				"inputs": messages,
+				"parameters": self.task_params,
+				"options": {
+					"use_cache": False,
+					"wait_for_model": True,
+				}
+			}
+			response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload))
+			completion = json.loads(response.content.decode("utf-8"))
+			if self.task == Tasks.TEXT_GENERATION:
+				content = completion[0]["generated_text"]
+			else:
+				content = completion[0]["answer"]
 
-        # If the request is successful, status code will be 200
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-
-    def chat_completion(self, messages, max_tokens=100):
-        """
-        Call the HuggingFace inference API.
-        Args:
-            messages (list): The messages.
-            max_tokens (int): The maximum number of tokens.
-        Returns:
-            dict: The response.
-        """
-#         try:
-#             params = self.task_params
-#             if self.task == Task.TEXT_GENERATION:
-#                 params["max_new_tokens"] = max_tokens
-#             elif self.task == Task.SUMMARIZATION:
-#                 params["max_length"] = max_tokens
-#             payload = {
-#                 "inputs": messages,
-#                 "parameters": self.task_params,
-#                 "options": {
-#                     "use_cache": False,
-#                     "wait_for_model": True,
-#                 }
-#             }
-#             response = requests.post(self.API_URL, headers=self.headers, data=json.dumps(payload))
-#             completion = json.loads(response.content.decode("utf-8"))
-#             if self.task == Task.TEXT_GENERATION:
-#                 content = completion[0]["generated_text"]
-#             elif self.task == Task.SUMMARIZATION:
-#                 content = completion[0]["summary_text"]
-#             else:
-#                 content = completion[0]["answer"]
-#
-#             return {"response": completion, "content": content}
-#         except Exception as exception:
-#             print(exception)
-#             # logger.info("HF Exception:", exception)
-#             return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception"}
-        pass
+			return {"response": completion, "content": content}
+		except Exception as exception:
+			# logger.info("HF Exception:", exception)
+			return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception"}
