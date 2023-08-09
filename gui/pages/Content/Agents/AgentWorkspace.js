@@ -411,7 +411,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
             {createModal &&
               <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
-                             agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
+                             agentId={agentId} setCreateModal={() => setCreateModal(false)}  refreshDetails={fetchAgentDetails(agent.id,-1)}/>}
             {createEditModal &&
               <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal}
                              type="edit_schedule_agent"

@@ -863,6 +863,13 @@ export default function AgentCreate({
     localStorage.setItem('marketplace_tab', 'market_knowledge');
   }
 
+  const checkPermissionValidity = (permit) => {
+   if((agentType === 'Sales Research Workflow' || agentType === 'Recruitment Workflow' || agentType === 'SuperCoder' ) && permit === 'RESTRICTED (Will ask for permission before using any tool)')
+     return true;
+   else
+     return false;
+  }
+
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
       <div className="col-3"></div>
@@ -1277,9 +1284,8 @@ export default function AgentCreate({
                   <div className="mb_34">
                     {permissionDropdown &&
                       <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
-                        {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
-                                                                  onClick={() => handlePermissionSelect(index)}
-                                                                  style={{padding: '12px 14px', maxWidth: '100%'}}>
+                        {permissions.map((permit, index) => (<div key={index} className="custom_select_option padding_12_14 mxw_100"
+                                                                  onClick={() => handlePermissionSelect(index)}  style={checkPermissionValidity(permit) ? {color: '#888888', textDecoration: 'line-through',pointerEvents: 'none'} : {}}>
                           {permit}
                         </div>))}
                       </div>}
