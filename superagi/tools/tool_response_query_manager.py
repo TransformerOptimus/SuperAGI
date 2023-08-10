@@ -11,5 +11,5 @@ class ToolResponseQueryManager:
     def get_last_response(self, tool_name: str = None):
         return AgentExecutionFeed.get_last_tool_response(self.session, self.agent_execution_id, tool_name)
     
-    def get_all_responses(self, tool_names: list = None):
-        return AgentExecutionFeed.get_all_tools_response(self.session, self.agent_execution_id, tool_names)
+    def get_responses(self, tool_names: list = None):
+        return AgentExecutionFeed.get_tools_response(self.session, self.agent_execution_id, tool_names)

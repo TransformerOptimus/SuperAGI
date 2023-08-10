@@ -54,7 +54,7 @@ class AgentExecutionFeed(DBBaseModel):
         return ""
     
     @classmethod
-    def get_all_tools_response(cls, session: Session, agent_execution_id: int, tool_names: list = None):
+    def get_tools_response(cls, session: Session, agent_execution_id: int, tool_names: list = None):
         """
         Returns all system generated responses by the tools
         Args:
