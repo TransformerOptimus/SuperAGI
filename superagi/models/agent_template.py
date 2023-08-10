@@ -98,7 +98,7 @@ class AgentTemplate(DBBaseModel):
             list: List of main keys.
         """
 
-        keys_to_fetch = ["goal", "instruction", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
+        keys_to_fetch = ["goal", "instruction", "constraints", "tools", "exit", "iteration_interval", "model",
                          "permission_type", "LTM_DB", "max_iterations", "knowledge"]
         return keys_to_fetch
 
@@ -213,7 +213,7 @@ class AgentTemplate(DBBaseModel):
             object: The evaluated value of the agent configuration.
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
+        if key in ["name", "description", "exit", "model", "permission_type", "LTM_DB"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval", "knowledge"]:
             if value is not None and value != 'None':

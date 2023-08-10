@@ -101,11 +101,17 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     for agent_config in agent_configs:
         if agent_config.key not in keys_to_exclude:
             if agent_config.key == "toolkits":
-                toolkits = [int(item) for item in agent_config.value.strip('{}').split(',')]
-                agent_execution_configs[agent_config.key] = toolkits
+                if agent_config.value:
+                    toolkits = [int(item) for item in agent_config.value.strip('{}').split(',') if item.strip()]
+                    agent_execution_configs[agent_config.key] = toolkits
+                else:
+                    agent_execution_configs[agent_config.key] = []
             elif agent_config.key == "constraints":
-                constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
-                agent_execution_configs[agent_config.key] = constraints
+                if agent_config.value:
+                    constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
+                    agent_execution_configs[agent_config.key] = constraints
+                else:
+                    agent_execution_configs[agent_config.key] = []
             else:
                 agent_execution_configs[agent_config.key] = agent_config.value
 
@@ -146,16 +152,19 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     #Update the agent configurations table with the data of the latest agent execution
     AgentConfiguration.update_agent_configurations_table(session=db.session, agent_id=agent_execution.agent_id, updated_details=agent_execution)
     
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+    start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
 
-    db_agent_execution = AgentExecution(status = "RUNNING", last_execution_time = datetime.now(),
-                                        agent_id = agent_execution.agent_id, name = agent_execution.name, num_of_calls = 0,
-                                        num_of_tokens = 0,
-                                        current_step_id = start_step_id)
+    iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
+                                                                start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+
+    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
+                                        num_of_tokens=0,
+                                        current_agent_step_id=start_step.id,
+                                        iteration_workflow_step_id=iteration_step_id)
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction,
-        "agent_type": agent_execution.agent_type,
         "constraints": agent_execution.constraints,
         "toolkits": agent_execution.toolkits,
         "exit": agent_execution.exit,

@@ -7,6 +7,7 @@ import json
 from superagi.models.knowledges import Knowledges
 
 from superagi.models.tool import Tool
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 
 
 class AgentExecutionConfiguration(DBBaseModel):
@@ -118,7 +119,7 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         # Construct the response
         if 'goal' in results_agent_dict:
-            results_agent_dict['goal'] = json.loads(results_agent_dict['goal'].replace("'", '"'))
+            results_agent_dict['goal'] = eval(results_agent_dict['goal'])
 
         if "toolkits" in results_agent_dict:
             results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
@@ -128,14 +129,14 @@ class AgentExecutionConfiguration(DBBaseModel):
             tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
             results_agent_dict["tools"] = tools
         if 'instruction' in results_agent_dict:
-            results_agent_dict['instruction'] = json.loads(results_agent_dict['instruction'].replace("'", '"'))
+            results_agent_dict['instruction'] = eval(results_agent_dict['instruction'])
 
         if 'constraints' in results_agent_dict:
-            constraints_str = results_agent_dict["constraints"]
-            constraints_list = eval(constraints_str)
-            results_agent_dict["constraints"] = constraints_list
+            results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
 
         results_agent_dict["name"] = agent.name
+        agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)
+        results_agent_dict["agent_workflow"] = agent_workflow.name
         results_agent_dict["description"] = agent.description
         results_agent_dict["calls"] = total_calls
         results_agent_dict["tokens"] = total_tokens

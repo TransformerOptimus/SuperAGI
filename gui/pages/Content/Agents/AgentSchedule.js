@@ -16,7 +16,7 @@ export default function AgentSchedule({
                                         agentId,
                                         setCreateModal,
                                         setCreateEditModal,
-                                        env
+                                        env,
                                       }) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [timeDropdown, setTimeDropdown] = useState(false);

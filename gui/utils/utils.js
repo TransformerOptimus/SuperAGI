@@ -14,6 +14,7 @@ const toolkitData = {
   'Searx Toolkit': '/images/searx_icon.svg',
   'Slack Toolkit': '/images/slack_icon.svg',
   'Web Scraper Toolkit': '/images/webscraper_icon.svg',
+  'Web Scrapper Toolkit': '/images/webscraper_icon.svg',
   'Twitter Toolkit': '/images/twitter_icon.svg',
   'Google SERP Toolkit': '/images/google_serp_icon.svg',
   'File Toolkit': '/images/filemanager_icon.svg',

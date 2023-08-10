@@ -1008,6 +1008,7 @@ p {
 .w_fit_content{width:fit-content}
 
 .mxw_360{max-width: 360px}
+.mxw_100{max-width: 100%}
 
 .h_44p{height: 44px}
 .h_100{height: 100%}
@@ -1066,6 +1067,7 @@ p {
 
 .padding_8_6{padding: 8px 6px;}
 .padding_2_8{padding: 2px 8px;}
+.padding_12_14{padding: 12px 14px;}
 .padding_0_8{padding: 0px 8px;}
 .padding_0_15{padding: 0px 15px;}
 
