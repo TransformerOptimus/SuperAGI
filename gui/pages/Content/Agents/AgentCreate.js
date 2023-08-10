@@ -537,7 +537,7 @@ export default function AgentCreate({
       setEditButtonClicked(true);
       agentData.agent_id = editAgentId;
       const name = agentData.name
-      agentData.name = `New Run ${new Date()}`
+      agentData.name = "New Run"
       addAgentRun(agentData)
         .then((response) => {
         if(response){
