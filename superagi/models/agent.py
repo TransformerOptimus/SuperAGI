@@ -73,7 +73,6 @@ class Agent(DBBaseModel):
             "description": agent.description,
             "goal": [],
             "instruction": [],
-            "agent_type": None,
             "constraints": [],
             "tools": [],
             "exit": None,
@@ -106,7 +105,7 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary", "knowledge"]:
+        if key in ["name", "description", "exit", "model", "permission_type", "LTM_DB", "resource_summary", "knowledge"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
@@ -134,7 +133,7 @@ class Agent(DBBaseModel):
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.agent_type)
+        agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.agent_workflow)
         logger.info("Agent workflow:", str(agent_workflow))
         db_agent.agent_workflow_id = agent_workflow.id
         #
@@ -158,7 +157,6 @@ class Agent(DBBaseModel):
         agent_config_values = {
             "goal": agent_with_config.goal,
             "instruction": agent_with_config.instruction,
-            "agent_type": agent_with_config.agent_type,
             "constraints": agent_with_config.constraints,
             "tools": agent_with_config.tools,
             "exit": agent_with_config.exit,

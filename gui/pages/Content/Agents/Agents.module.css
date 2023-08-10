@@ -424,3 +424,9 @@
     color: white;
     outline: none;
 }
+
+.permission_changes {
+    color: #888888 !important;
+    text-decoration: line-through;
+    pointerEvents: none !important;
+}

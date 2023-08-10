@@ -6,7 +6,7 @@ from superagi.controllers.types.agent_execution_config import AgentRunIn
 def test_update_existing_toolkits():
     agent_id = 1
     updated_details = AgentRunIn(
-        agent_type="test", constraints=["c1", "c2"], toolkits=[1, 2],
+        agent_workflow="test", constraints=["c1", "c2"], toolkits=[1, 2],
         tools=[1, 2, 3], exit="exit", iteration_interval=1,
         model="test", permission_type="p", LTM_DB="LTM", max_iterations=100
     )

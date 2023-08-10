@@ -43,36 +43,6 @@ class AgentTemplateIn(BaseModel):
     class Config:
         orm_mode = True
 
-@router.post("/create", status_code=201, response_model=AgentTemplateOut)
-def create_agent_template(agent_template: AgentTemplateIn,
-                          organisation=Depends(get_user_organisation)):
-    """
-    Create an agent template.
-
-    Args:
-        agent_template (AgentTemplate): Data for creating an agent template.
-        organisation (Depends): Dependency to get the user organisation.
-
-    Returns:
-        AgentTemplate: The created agent template.
-
-    Raises:
-        HTTPException (status_code=404): If the associated agent workflow is not found.
-    """
-
-    agent_workflow = db.session.query(AgentWorkflow).get(agent_template.agent_workflow_id)
-
-    if not agent_workflow:
-        raise HTTPException(status_code=404, detail="Agent Workflow not found")
-    db_agent_template = AgentTemplate(agent_workflow_id=agent_template.agent_workflow_id,
-                                      name=agent_template.name,
-                                      organisation_id=organisation.id,
-                                      description=agent_template.description)
-    db.session.add(db_agent_template)
-    db.session.commit()
-
-    return db_agent_template
-
 
 @router.get("/get/{agent_template_id}")
 def get_agent_template(template_source, agent_template_id: int, organisation=Depends(get_user_organisation)):
@@ -99,51 +69,17 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
         configs = {}
         agent_template_configs = db.session.query(AgentTemplateConfig).filter(
             AgentTemplateConfig.agent_template_id == agent_template_id).all()
+        agent_workflow = AgentWorkflow.find_by_id(db_agent_template.agent_workflow_id)
         for agent_template_config in agent_template_configs:
             config_value = AgentTemplate.eval_agent_config(agent_template_config.key, agent_template_config.value)
             configs[agent_template_config.key] = {"value": config_value}
         template["configs"] = configs
+        template["agent_workflow_name"] = agent_workflow.name
     else:
         template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
 
     return template
 
-
-@router.post("/update_details/{agent_template_id}", response_model=AgentTemplateOut)
-def update_agent_template(agent_template_id: int,
-                          agent_configs: dict,
-                          organisation=Depends(get_user_organisation)):
-    """
-    Update the details of an agent template.
-
-    Args:
-        agent_template_id (int): The ID of the agent template to update.
-        agent_configs (dict): The updated agent configurations.
-        organisation (Depends): Dependency to get the user organisation.
-
-    Returns:
-        dict: The updated agent template.
-
-    Raises:
-        HTTPException (status_code=404): If the agent template is not found.
-    """
-
-    db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
-                                                               AgentTemplate.id == agent_template_id).first()
-    if db_agent_template is None:
-        raise HTTPException(status_code=404, detail="Agent Template not found")
-
-    for key, value in agent_configs.items():
-        agent_template_config = db.session.query(AgentTemplateConfig).filter(
-            AgentTemplateConfig.agent_template_id == agent_template_id, AgentTemplateConfig.key == key).first()
-        if agent_template_config is None:
-            # create the template config
-            agent_template_config = AgentTemplateConfig(agent_template_id=agent_template_id, key=key)
-        agent_template_config.value = value["value"]
-        db.session.add(agent_template_config)
-    db.session.commit()
-
-    return db_agent_template
 
 @router.put("/update_agent_template/{agent_template_id}", status_code=200)
 def edit_agent_template(agent_template_id: int,
@@ -169,9 +105,11 @@ def edit_agent_template(agent_template_id: int,
                                                                AgentTemplate.id == agent_template_id).first()
     if db_agent_template is None:
         raise HTTPException(status_code=404, detail="Agent Template not found")
-    
+
+    agent_workflow = AgentWorkflow.find_by_name(db.session, updated_agent_configs["agent_workflow"])
     db_agent_template.name = updated_agent_configs["name"]
     db_agent_template.description = updated_agent_configs["description"]
+    db_agent_template.agent_workflow_id = agent_workflow.id
 
     db.session.commit()
 
@@ -387,5 +325,7 @@ def fetch_agent_config_from_template(agent_template_id: int,
     if "instruction" not in template_config_dict:
         template_config_dict["instruction"] = []
     template_config_dict["agent_template_id"] = agent_template.id
+    agent_workflow = AgentWorkflow.find_by_id(db.session, agent_template.agent_workflow_id)
+    template_config_dict["agent_workflow"] = agent_workflow.name
 
     return template_config_dict

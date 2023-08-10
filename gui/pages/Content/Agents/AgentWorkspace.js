@@ -353,10 +353,10 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 Feed
               </button>
             </div>
-            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Fixed Task Queue") &&
+            {agentDetails && (agentDetails.agent_workflow === 'Dynamic Task Workflow' || agentDetails.agent_workflow === "Fixed Task Workflow") &&
               <div style={{marginLeft: '7px'}}>
-                <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button}
-                        style={leftPanel === 'agent_type' ? {background: '#454254'} : {background: 'transparent'}}>Task
+                <button onClick={() => setLeftPanel('agent_workflow')} className={styles.tab_button}
+                        style={leftPanel === 'agent_workflow' ? {background: '#454254'} : {background: 'transparent'}}>Task
                   Queue
                 </button>
               </div>}
@@ -441,14 +441,14 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
                           setFetchedData={setFetchedData} agent={agent}/>
           </div>}
-          {leftPanel === 'agent_type' &&
+          {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
       <div style={{width: '40%'}}>
         <div className={styles.detail_top}>
           <div style={{display: 'flex', overflowX: 'scroll'}}>
-            {agentDetails && pendingPermission > 0 && <div>
+            {(agentDetails || pendingPermission > 0) && agentDetails.permission_type === 'RESTRICTED' && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
                 <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/action_console.svg"
@@ -487,7 +487,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight: '0'}}>
-          {rightPanel === 'action_console' && agentDetails && pendingPermission > 0 && (
+          {rightPanel === 'action_console' && agentDetails && (
             <div className={styles.detail_content}>
               <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData}
                              pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
