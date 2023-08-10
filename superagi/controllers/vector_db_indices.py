@@ -28,6 +28,7 @@ def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(ge
             if vector_db.db_type == "Qdrant":
                 qdrant.append(data)
             if vector_db.db_type == "Weaviate":
+                data["is_valid_dimension"] = True
                 weaviate.append(data)
     return {"pinecone": pinecone, "qdrant": qdrant, "weaviate": weaviate}
 
