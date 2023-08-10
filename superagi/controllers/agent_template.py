@@ -156,6 +156,8 @@ def save_agent_as_template(agent_execution_id: str,
     Raises:
         HTTPException (status_code=404): If the agent or agent execution configurations are not found.
     """
+    if agent_execution_id == 'undefined':
+        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
     agent_executions = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
     if agent_executions is None:
