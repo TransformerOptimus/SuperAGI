@@ -143,6 +143,7 @@ class Weaviate(VectorStore):
     def _get_search_res(self, results, query):
         text = [item['text'] for item in results]
         search_res = f"Query: {query}\n"
+        i = 0
         for context in text:
             search_res += f"Chunk{i}: \n{context}\n"
             i += 1
