@@ -424,3 +424,19 @@
     color: white;
     outline: none;
 }
+
+.modal_buttons{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px
+}
+
+.modal_input{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.modal_info_class{
+    margin-left: -5px;
+    margin-right: 5px;
+}

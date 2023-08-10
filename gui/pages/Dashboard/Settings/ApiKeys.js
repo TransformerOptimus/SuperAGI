@@ -3,11 +3,8 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {
-  createApiKey,
-  deleteVectorDB, getApiKeys,
-  getOrganisationConfig,
-  updateOrganisationConfig,
-  validateLLMApiKey
+  createApiKey, deleteApiKey,
+  editApiKey, getApiKeys,
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {createInternalId, loadingTextEffect, preventDefault, removeTab, returnToolkitIcon} from "@/utils/utils";
@@ -18,12 +15,20 @@ import styles1 from "@/pages/Content/Knowledge/Knowledge.module.css";
 export default function ApiKeys() {
   const [apiKeys, setApiKeys] = useState([]);
   const [keyName, setKeyName] = useState('');
-  const [apiKeyGenerated, setApiKeyGenerated] = useState('');
+  const [editKey, setEditKey] = useState('');
   const apiKeyRef = useRef(null);
+  const [editKeyId, setEditKeyId] = useState(-1);
+  const [deleteKey, setDeleteKey] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [editModal, setEditModal] = useState(false);
+  const [deleteKeyId, setDeleteKeyId] = useState(-1);
+  const [deleteModal, setDeleteModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
   const [displayModal, setDisplayModal] = useState(false);
+  const [apiKeyGenerated, setApiKeyGenerated] = useState('');
   const [loadingText, setLoadingText] = useState("Loading Api Keys");
+
 
 
   useEffect(() => {
@@ -31,8 +36,13 @@ export default function ApiKeys() {
     fetchApiKeys()
   }, []);
 
+
   const handleModelApiKey = (event) => {
     setKeyName(event.target.value);
+  };
+
+  const handleEditApiKey = (event) => {
+    setEditKey(event.target.value);
   };
 
   const createApikey = () => {
@@ -74,6 +84,39 @@ export default function ApiKeys() {
       });
   }
 
+  const handleEditClick = () => {
+    if(!editKey){
+      toast.error("Enter valid key name", {autoClose: 1800});
+      return;
+    }
+    editApiKey({id: editKeyId,name : editKey})
+      .then((response) => {
+        toast.success("Api Key Edited", {autoClose: 1800});
+        fetchApiKeys();
+        setEditModal(false);
+        setEditKey('')
+        setEditKeyId(-1)
+      })
+      .catch((error) => {
+        console.error('Error editing api key', error);
+      });
+  }
+
+  const handleDeleteClick = () => {
+    deleteApiKey({id: deleteKeyId})
+      .then((response) => {
+        toast.success("Api Key Deleted", {autoClose: 1800});
+        fetchApiKeys();
+        setDeleteModal(false);
+        setDeleteKeyId(-1)
+        setDeleteKey('')
+      })
+      .catch((error) => {
+        toast.error("Error deleting api key", {autoClose: 1800});
+        console.error('Error deleting api key', error);
+      });
+  }
+
   return (<>
     <div className="row">
       <div className="col-2"></div>
@@ -103,10 +146,10 @@ export default function ApiKeys() {
               <table className="table_css margin_0 padding_0">
                 <thead>
                 <tr style={{borderTop: 'none'}}>
-                  <th className="table_header w_56">Name</th>
-                  <th className="table_header w_22">Key</th>
-                  <th className="table_header w_22">Created Date</th>
-                  <th className="table_header w_22"></th>
+                  <th className="table_header w_60">Name</th>
+                  <th className="table_header w_18">Key</th>
+                  <th className="table_header w_18">Created Date</th>
+                  <th className="table_header w_4"></th>
                 </tr>
                 </thead>
               </table>
@@ -115,10 +158,16 @@ export default function ApiKeys() {
                   <tbody>
                   {apiKeys.map((item, index) => (
                     <tr key={index}>
-                      <td className="table_data w_56">{item.name}</td>
-                      <td className="table_data w_22">{item.key.slice(0, 2) + "****" + item.key.slice(-4)}</td>
-                      <td className="table_data w_22">23-JUN-2023</td>
-                      <td className="table_data w_22"></td>
+                      <td className="table_data w_60">{item.name}</td>
+                      <td className="table_data w_18">{item.key.slice(0, 2) + "****" + item.key.slice(-4)}</td>
+                      <td className="table_data w_18">23-JUN-2023</td>
+                      <td className="table_data w_4" onMouseEnter={() => setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
+                        <Image style={{transform: 'rotate(90deg)'}} width={16} height={16} src="/images/three_dots.svg" alt="run-icon"/>
+                       <div style={activeDropdown === index ? {display: 'block'} : {display: 'none'}} onMouseLeave={() => setActiveDropdown(null)}>
+                          <ul className="dropdown_container">
+                            <li className="dropdown_item" onClick={() => {setEditKey(item.name); setEditKeyId(item.id); setEditModal(true)}}>Edit</li>
+                            <li className="dropdown_item" onClick={() => {setDeleteKeyId(item.id); setDeleteKey(item.name) ; setDeleteModal(true)}}>Delete</li>
+                          </ul> </div></td>
                     </tr>
                   ))}
                   </tbody>
@@ -152,12 +201,12 @@ export default function ApiKeys() {
     </div>)}
 
     {displayModal && apiKeyGenerated && (<div className="modal" onClick={() => setDisplayModal(false)}>
-      <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+      <div className="modal-content w_35" onClick={preventDefault}>
         <div className={styles.detail_name}>{keyName} is created</div>
         <div>
-          <div style={{marginTop: '15px',marginBottom: '25px'}}>
+          <div className="mt_15 mb_25">
             <div className={styles1.knowledge_alert}>
-              <div style={{marginRight: '5px', marginLeft: '-5px'}}>
+              <div className={agentStyles.modal_info_class}>
                 <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
               </div>
               <div>
@@ -165,20 +214,55 @@ export default function ApiKeys() {
             </div>
           </div>
           <div>
-           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-              <div style={{flex: '1'}}><input ref={apiKeyRef} className="input_medium" type="text" value={apiKeyGenerated} disabled />
+           <div className={agentStyles.modal_input}>
+              <div className="flex_1"><input ref={apiKeyRef} className="input_medium" type="text" value={apiKeyGenerated} disabled />
               </div>
              <div>
-                <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}} onClick={handleCopyClick}>
+                <button className="secondary_button ml_4 padding_5" onClick={handleCopyClick}>
                   <Image width={20} height={21} src="/images/copy_icon.svg" alt="copy-icon"/>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '20px'}}>
+        <div className={agentStyles.modal_buttons}>
           <button className="primary_button" onClick={() => setDisplayModal(false)}>
             OK
+          </button>
+        </div>
+      </div>
+    </div>)}
+
+    {editModal && editKey && (<div className="modal" onClick={() => {setEditModal(false); setEditKey(''); setEditKeyId(-1)}}>
+      <div className="modal-content w_35" onClick={preventDefault}>
+        <div className={styles.detail_name}>Edit Api Key</div>
+            <div>
+                <label className={styles.form_label}>Name</label>
+                <input placeholder={editKey} className="input_medium" type="text" onChange={handleEditApiKey}/>
+            </div>
+        <div className={agentStyles.modal_buttons}>
+          <button className="secondary_button mr_10" onClick={() => {setEditModal(false); setEditKey(''); setEditKeyId(-1)}}>
+            Cancel
+          </button>
+          <button className="primary_button" onClick={() => handleEditClick()}>
+            Update Changes
+          </button>
+        </div>
+      </div>
+    </div>)}
+
+    {deleteModal && (<div className="modal" onClick={() => {setDeleteModal(false); setDeleteKeyId(-1); setDeleteKey('')}}>
+      <div className="modal-content w_35" onClick={preventDefault}>
+        <div className={styles.detail_name}>Delete {deleteKey} Key</div>
+        <div>
+          <label className={styles.form_label}>Deleting this API key will make it unusable. Any API requests made using this key will be rejected. Once this key is deleted, you will no longer be able to see it any longer. Are you sure you want to proceed?</label>
+        </div>
+        <div className={agentStyles.modal_buttons}>
+          <button className="secondary_button mr_10" onClick={() => {setDeleteModal(false); setDeleteKeyId(-1); setDeleteKey('')}}>
+            Cancel
+          </button>
+          <button className="primary_button" onClick={() => handleDeleteClick()}>
+            Delete Key
           </button>
         </div>
       </div>

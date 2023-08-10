@@ -311,3 +311,13 @@ export const createApiKey = (apiName) => {
 export const getApiKeys = () => {
   return api.get(`/api-keys`);
 };
+
+export const editApiKey = (apiDetails) => {
+  return api.put(`/api-keys`, apiDetails);
+};
+
+export const deleteApiKey = (apiId) => {
+  console.log(apiId)
+  return api.delete(`/api-keys`, apiId);
+};
+
