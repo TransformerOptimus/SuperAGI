@@ -139,9 +139,8 @@ def edit_agent_template(agent_template_id: int,
     db.session.flush()
 
 
-@router.post("/save_agent_as_template/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
-def save_agent_as_template(agent_id: str,
-                           agent_execution_id: str,
+@router.post("/save_agent_as_template/agent_execution_id/{agent_execution_id}")
+def save_agent_as_template(agent_execution_id: str,
                            organisation=Depends(get_user_organisation)):
     """
     Save an agent as a template.
@@ -158,6 +157,11 @@ def save_agent_as_template(agent_id: str,
         HTTPException (status_code=404): If the agent or agent execution configurations are not found.
     """
 
+    agent_executions = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
+    if agent_executions is None:
+        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
+    agent_id = agent_executions.agent_id
+
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -165,14 +169,6 @@ def save_agent_as_template(agent_id: str,
     agent_execution_configurations = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
     if not agent_execution_configurations:
         raise HTTPException(status_code=404, detail="Agent configurations not found")
-
-    #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
-    agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
-    if agent_execution_config is None:
-        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
-    agent_id_from_execution_id = agent_execution_config.agent_id
-    if int(agent_id) != int(agent_id_from_execution_id):
-        raise HTTPException(status_code = 404, detail = "Wrong agent id")
 
     agent_template = AgentTemplate(name=agent.name, description=agent.description,
                                    agent_workflow_id=agent.agent_workflow_id,
