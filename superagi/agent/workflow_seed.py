@@ -29,7 +29,7 @@ from superagi.tools.webscaper.tools import WebScraperTool
 class AgentWorkflowSeed:
     @classmethod
     def build_sales_workflow(cls, session):
-        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Research Workflow", "Sales Research Workflow")
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow", "Sales Engagement Workflow")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
                                                                     ReadFileTool().name,

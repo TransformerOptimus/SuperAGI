@@ -36,7 +36,7 @@ class AgentExecutor:
         try:
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             '''Avoiding running old agent executions'''
-            if agent_execution.created_at < datetime.utcnow() - timedelta(days=1):
+            if agent_execution and agent_execution.created_at < datetime.utcnow() - timedelta(days=1):
                 logger.error("Older agent execution found, skipping execution")
                 return
 
