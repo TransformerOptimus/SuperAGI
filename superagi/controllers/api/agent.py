@@ -22,7 +22,7 @@ from datetime import datetime
 from typing import Optional,List
 from superagi.models.toolkit import Toolkit
 from superagi.apm.event_handler import EventHandler
-
+from superagi.config.config import get_config
 router = APIRouter()
 
 class AgentExecutionIn(BaseModel):
@@ -183,7 +183,9 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
         tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
     except Exception as e:
         raise HTTPException(status_code=404,detail=str(e))
-    print("tools arr",tools_arr)
+
+    if agent_with_config.schedule is not None:
+        raise HTTPException(status_code=400,detail="Cannot schedule an existing agent")
     agent_with_config.tools=tools_arr
     agent_with_config.project_id=project.id
     agent_with_config.exit="No exit criterion"
@@ -306,6 +308,8 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
 
 @router.get("/resources/output",status_code=201)
 def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
+    if get_config('STORAGE_TYPE') != "S3":
+        raise HTTPException(status_code=401,detail="This endpoint only works when S3 is configured")
     run_ids_arr=run_id_config.run_ids
     if len(run_ids_arr)==0:  
         raise HTTPException(status_code=404,
@@ -317,6 +321,9 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
         raise HTTPException(status_code=404, detail=str(e))
     
     db_resources_arr=Resource.find_by_run_ids(db.session, run_ids_arr)
-    response_obj=S3Helper().get_download_url_of_resources(db_resources_arr)
+    try:
+        response_obj=S3Helper().get_download_url_of_resources(db_resources_arr)
+    except:
+        raise HTTPException(status_code=404, detail="Invalid S3 credentials")
     return response_obj
 
