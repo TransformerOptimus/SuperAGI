@@ -18,8 +18,6 @@ from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-from superagi.vector_store.redis import Redis
-from superagi.config.config import get_config
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -56,11 +54,11 @@ class AgentExecutor:
             model_api_key = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
             model_llm_source = ModelSourceType.get_model_source_from_model(agent_config["model"]).value
             try:
-                vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
+                vector_store_type = VectorStoreType.get_vector_store_type(agent_config["LTM_DB"])
                 memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
             except:
-                logger.info("Unable to setup the connection...")
+                logger.info("Unable to setup the pinecone connection...")
                 memory = None
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
