@@ -82,7 +82,7 @@ class AgentIterationStepHandler:
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,
                                             agent_execution_id=self.agent_execution_id,
-                                            agent_config=agent_config, agent_tools=agent_tools)
+                                            agent_config=agent_config,memory=self.memory,agent_tools=agent_tools)
         response = output_handler.handle(self.session, assistant_reply)
         if response.status == "COMPLETE":
             execution.status = "COMPLETED"
@@ -153,7 +153,7 @@ class AgentIterationStepHandler:
             agent_tools.append(tool_builder.build_tool(tool))
 
         agent_tools = [tool_builder.set_default_params_tool(tool, agent_config, agent_execution_config,
-                                                            model_api_key, resource_summary) for tool in agent_tools]
+                                                            model_api_key, resource_summary,self.memory) for tool in agent_tools]
         return agent_tools
 
     def _handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,
@@ -179,7 +179,7 @@ class AgentIterationStepHandler:
             return False
         if agent_execution_permission.status == "APPROVED":
             agent_tools = self._build_tools(agent_config, agent_execution_config)
-            tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, agent_tools)
+            tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, agent_tools,self.memory)
             tool_result = tool_output_handler.handle_tool_response(self.session,
                                                                    agent_execution_permission.assistant_reply)
             result = tool_result.result
