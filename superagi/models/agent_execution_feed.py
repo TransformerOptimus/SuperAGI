@@ -52,6 +52,21 @@ class AgentExecutionFeed(DBBaseModel):
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
         return ""
+    
+    @classmethod
+    def get_tools_response(cls, session: Session, agent_execution_id: int, tool_names: list = None):
+        """
+        Returns all system generated responses by the tools
+        Args:
+            session : Current Agent Session running
+            agent_execution_id (int) : Agent Execution id 
+            tool name (list) : Tool Name(s), whose responses are to be queried
+        Returns:
+            list: List of responses queried
+        """
+        agent_execution_feeds = session.query(AgentExecutionFeed).filter(
+            AgentExecutionFeed.agent_execution_id == agent_execution_id,
+            AgentExecutionFeed.role == "system").all()
 
     @classmethod
     def fetch_agent_execution_feeds(cls, session, agent_execution_id: int):
