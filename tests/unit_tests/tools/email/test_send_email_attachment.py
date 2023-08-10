@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, ANY
 from superagi.models.agent import Agent
 import os
 from superagi.tools.email.send_email_attachment import SendEmailAttachmentTool, SendEmailAttachmentInput
@@ -10,9 +10,11 @@ class TestSendEmailAttachmentTool(unittest.TestCase):
     @patch("superagi.helper.resource_helper.ResourceHelper.get_agent_read_resource_path")
     @patch("superagi.helper.resource_helper.ResourceHelper.get_root_input_dir")
     @patch("os.path.exists")
-    def test__execute(self, mock_exists, mock_get_root_input_dir, mock_get_agent_resource_path,
+    @patch("superagi.helper.s3_helper.S3Helper.read_binary_from_s3")
+    def test__execute(self, mock_s3_file_read, mock_exists, mock_get_root_input_dir, mock_get_agent_resource_path,
                       mock_send_email_with_attachment, mock_get_agent_from_id):
-        # Arrange
+
+        # arrange
         tool = SendEmailAttachmentTool()
         tool.agent_id = 1
         mock_exists.return_value = True
@@ -23,13 +25,15 @@ class TestSendEmailAttachmentTool(unittest.TestCase):
         mock_get_agent_from_id.return_value = Agent(id=1, name='Test Agent')
         tool.agent_execution_id = 1
         tool.toolkit_config.session = MagicMock()
+        mock_s3_file_read.return_value = b"file contents"
 
         # Act
         result = tool._execute("test@example.com", "test subject", "test body", "test.txt")
 
         # Assert
         self.assertEqual(result, expected_result)
-        mock_send_email_with_attachment.assert_called_once_with("test@example.com", "test subject", "test body", "/test/path/test.txt", "test.txt")
+        mock_send_email_with_attachment.assert_called_once_with("test@example.com", "test subject", "test body", ANY)
+        mock_s3_file_read.assert_called_once_with("/test/path/test.txt")
 
 if __name__ == "__main__":
     unittest.main()
