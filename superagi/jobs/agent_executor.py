@@ -216,11 +216,16 @@ class AgentExecutor:
             if parsed_config["LTM_DB"] == "Pinecone":
                 memory = VectorFactory.get_vector_storage(VectorStoreType.PINECONE, "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
+
+            elif parsed_config["LTM_DB"] == "LanceDB":
+                memory = VectorFactory.get_vector_storage(VectorStoreType.LANCEDB, "super-agent-index1",
+                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
+
             else:
                 memory = VectorFactory.get_vector_storage("PineCone", "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
         except:
-            logger.info("Unable to setup the pinecone connection...")
+            logger.info("Unable to setup the connection...")
             memory = None
 
         user_tools = session.query(Tool).filter(Tool.id.in_(parsed_config["tools"])).all()

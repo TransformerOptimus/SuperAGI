@@ -88,7 +88,7 @@ export default function AgentCreate({
   const knowledgeRef = useRef(null);
   const [knowledgeDropdown, setKnowledgeDropdown] = useState(false);
 
-  const databases = ["Pinecone"]
+  const databases = ["Pinecone", "LanceDB"]
   const [database, setDatabase] = useState(databases[0]);
   const databaseRef = useRef(null);
   const [databaseDropdown, setDatabaseDropdown] = useState(false);
