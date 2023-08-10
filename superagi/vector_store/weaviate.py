@@ -10,7 +10,6 @@ from superagi.vector_store.document import Document
 
 
 def create_weaviate_client(
-    use_embedded: bool = False,
     url: Optional[str] = None,
     api_key: Optional[str] = None,
 ) -> weaviate.Client:
@@ -28,9 +27,7 @@ def create_weaviate_client(
     Raises:
         ValueError: If invalid argument combination are passed.
     """
-    if use_embedded:
-        client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions())
-    elif url:
+    if url:
         if api_key:
             auth_config = weaviate.AuthApiKey(api_key=api_key)
         else:
