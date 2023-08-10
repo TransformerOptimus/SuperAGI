@@ -864,7 +864,7 @@ export default function AgentCreate({
   }
 
   const checkPermissionValidity = (permit) => {
-   if((agentType === 'Sales Research Workflow' || agentType === 'Recruitment Workflow' || agentType === 'SuperCoder' ) && permit === 'RESTRICTED (Will ask for permission before using any tool)')
+   if(!(agentWorkflow === 'Fixed Task Workflow' || agentWorkflow === 'Dynamic Task Workflow' || agentWorkflow === 'Goal Based Workflow' ) && permit === 'RESTRICTED (Will ask for permission before using any tool)')
      return true;
    else
      return false;
