@@ -94,9 +94,9 @@ class SendEmailAttachmentTool(BaseTool):
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
-        if email_sender == "" or email_sender.isspace():
+        if email_sender is None or email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
-        if email_password == "" or email_password.isspace():
+        if email_password is None or email_password == "" or email_password.isspace():
             return "Error: Email Not Sent. Enter a valid Email Password."
         message = MIMEMultipart()
         message["Subject"] = subject
