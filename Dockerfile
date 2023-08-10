@@ -3,11 +3,9 @@ FROM python:3.10-slim-bullseye AS compile-image
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y wget libpq-dev gcc g++ python3-dev && \
+    apt-get install --no-install-recommends -y wget libpq-dev gcc g++ python3-dev wkhtmltopdf && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y wkhtmltopdf
 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
@@ -25,11 +23,9 @@ FROM python:3.10-slim-bullseye AS build-image
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y libpq-dev && \
+    apt-get install --no-install-recommends -y libpq-dev wkhtmltopdf && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-    
-RUN apt-get update && apt-get install -y wkhtmltopdf
 
 COPY --from=compile-image /opt/venv /opt/venv
 COPY --from=compile-image /app /app
