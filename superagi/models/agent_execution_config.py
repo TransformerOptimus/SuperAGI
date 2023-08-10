@@ -116,7 +116,7 @@ class AgentExecutionConfiguration(DBBaseModel):
         for key, value in results_agent_execution_dict.items():
             if key in results_agent_dict and value is not None:
                 results_agent_dict[key] = value
-            
+
         # Construct the response
         if 'goal' in results_agent_dict:
             results_agent_dict['goal'] = eval(results_agent_dict['goal'])
@@ -147,6 +147,25 @@ class AgentExecutionConfiguration(DBBaseModel):
                 results_agent_dict['knowledge'] = int(results_agent_dict['knowledge'])
             knowledge = session.query(Knowledges).filter(Knowledges.id == results_agent_dict['knowledge']).first()
             knowledge_name = knowledge.name if knowledge is not None else ""
-        results_agent_dict['knowledge_name'] = knowledge_name 
+        results_agent_dict['knowledge_name'] = knowledge_name
 
         return results_agent_dict
+
+    @classmethod
+    def fetch_value(cls, session, execution_id: int, key: str):
+        """
+           Fetches the value of a specific execution configuration setting for an agent.
+
+           Args:
+               session: The database session object.
+               execution_id (int): The ID of the agent execution.
+               key (str): The key of the execution configuration setting.
+
+           Returns:
+               AgentExecutionConfiguration: The execution configuration setting object if found, else None.
+
+       """
+
+        return session.query(AgentExecutionConfiguration).filter(
+            AgentExecutionConfiguration.agent_execution_id == execution_id,
+            AgentExecutionConfiguration.key == key).first()

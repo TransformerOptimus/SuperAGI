@@ -56,7 +56,7 @@ class AgentExecutionFeed(DBBaseModel):
     @classmethod
     def fetch_agent_execution_feeds(cls, session, agent_execution_id: int):
         agent_execution = AgentExecution.find_by_id(session, agent_execution_id)
-        agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed) \
+        agent_feeds = session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed, AgentExecutionFeed.id) \
             .filter(AgentExecutionFeed.agent_execution_id == agent_execution_id,
                     AgentExecutionFeed.feed_group_id == agent_execution.current_feed_group_id) \
             .order_by(asc(AgentExecutionFeed.created_at)) \

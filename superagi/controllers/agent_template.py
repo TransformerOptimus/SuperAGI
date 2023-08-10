@@ -9,6 +9,8 @@ from main import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 from superagi.models.workflows.agent_workflow import AgentWorkflow
@@ -85,7 +87,7 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
 def edit_agent_template(agent_template_id: int,
                         updated_agent_configs: dict,
                         organisation=Depends(get_user_organisation)):
-    
+
     """
     Update the details of an agent template.
 
@@ -100,7 +102,7 @@ def edit_agent_template(agent_template_id: int,
     Raises:
         HTTPException (status_code=404): If the agent template is not found.
     """
-    
+
     db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
                                                                AgentTemplate.id == agent_template_id).first()
     if db_agent_template is None:
@@ -137,44 +139,56 @@ def edit_agent_template(agent_template_id: int,
     db.session.flush()
 
 
-@router.post("/save_agent_as_template/{agent_id}")
-def save_agent_as_template(agent_id: str,
+@router.post("/save_agent_as_template/agent_execution_id/{agent_execution_id}")
+def save_agent_as_template(agent_execution_id: str,
                            organisation=Depends(get_user_organisation)):
     """
     Save an agent as a template.
 
     Args:
         agent_id (str): The ID of the agent to save as a template.
+        agent_execution_id (str): The ID of the agent execution to save as a template.
         organisation (Depends): Dependency to get the user organisation.
 
     Returns:
         dict: The saved agent template.
 
     Raises:
-        HTTPException (status_code=404): If the agent or agent configurations are not found.
+        HTTPException (status_code=404): If the agent or agent execution configurations are not found.
     """
+    if agent_execution_id == 'undefined':
+        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
+
+    agent_executions = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
+    if agent_executions is None:
+        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
+    agent_id = agent_executions.agent_id
 
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
-    agent_configurations = db.session.query(AgentConfiguration).filter_by(agent_id=agent_id).all()
-    if not agent_configurations:
+
+    agent_execution_configurations = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+    if not agent_execution_configurations:
         raise HTTPException(status_code=404, detail="Agent configurations not found")
+
     agent_template = AgentTemplate(name=agent.name, description=agent.description,
                                    agent_workflow_id=agent.agent_workflow_id,
                                    organisation_id=organisation.id)
     db.session.add(agent_template)
     db.session.commit()
     main_keys = AgentTemplate.main_keys()
-    for agent_configuration in agent_configurations:
-        config_value = agent_configuration.value
-        if agent_configuration.key not in main_keys:
+
+    for agent_execution_configuration in agent_execution_configurations:
+        config_value = agent_execution_configuration.value
+        if agent_execution_configuration.key not in main_keys:
             continue
-        if agent_configuration.key == "tools":
-            config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_configuration.value)))
-        agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_configuration.key,
+        if agent_execution_configuration.key == "tools":
+            config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_execution_configuration.value)))
+        agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_execution_configuration.key,
                                                     value=config_value)
         db.session.add(agent_template_config)
+
     db.session.commit()
     db.session.flush()
     return agent_template.to_dict()
@@ -322,8 +336,17 @@ def fetch_agent_config_from_template(agent_template_id: int,
     for config in template_config:
         if config.key in main_keys:
             template_config_dict[config.key] = AgentTemplate.eval_agent_config(config.key, config.value)
+
     if "instruction" not in template_config_dict:
         template_config_dict["instruction"] = []
+
+    if "constraints" not in template_config_dict:
+        template_config_dict["constraints"] = []
+
+    for key in main_keys:
+        if key not in template_config_dict:
+            template_config_dict[key] = ""
+
     template_config_dict["agent_template_id"] = agent_template.id
     agent_workflow = AgentWorkflow.find_by_id(db.session, agent_template.agent_workflow_id)
     template_config_dict["agent_workflow"] = agent_workflow.name

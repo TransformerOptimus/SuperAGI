@@ -153,6 +153,8 @@ def replace_old_iteration_workflows(session):
     templates = session.query(AgentTemplate).all()
     for template in templates:
         iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
+        if not iter_workflow:
+            continue
         if iter_workflow.name == "Fixed Task Queue":
             agent_workflow = AgentWorkflow.find_by_name(session, "Fixed Task Workflow")
             template.agent_workflow_id = agent_workflow.id
