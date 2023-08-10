@@ -351,7 +351,7 @@ def get_agent_by_latest_execution(project_id: int,
     latest_execution = (
         db.session.query(AgentExecution)
         .join(Agent, AgentExecution.agent_id == Agent.id)
-        .filter(Agent.project_id == project_id)
+        .filter(Agent.project_id == project_id, Agent.is_deleted == False)
         .order_by(desc(AgentExecution.last_execution_time))
         .first()
     )
