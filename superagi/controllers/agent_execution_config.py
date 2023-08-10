@@ -76,8 +76,11 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
         AgentExecution.agent_id == agent_id).scalar()
     
     response = {}
-    if agent_execution_id!=-1: response = AgentExecutionConfiguration.build_agent_execution_config(db.session, agent, results_agent, results_agent_execution, total_calls, total_tokens)
-    else: response = AgentExecutionConfiguration.build_scheduled_agent_execution_config(db.session, agent, results_agent, total_calls, total_tokens)
+    if agent_execution_id!=-1: 
+        response = AgentExecutionConfiguration.build_agent_execution_config(db.session, agent, results_agent, results_agent_execution, total_calls, total_tokens)
+    else: 
+        response = AgentExecutionConfiguration.build_scheduled_agent_execution_config(db.session, agent, results_agent, total_calls, total_tokens)
+        
     # Close the session
     db.session.close()
 
