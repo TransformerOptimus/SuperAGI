@@ -10,7 +10,7 @@ from superagi.vector_store.document import Document
 
 
 def create_weaviate_client(
-    use_embedded: bool = True,
+    use_embedded: bool = False,
     url: Optional[str] = None,
     api_key: Optional[str] = None,
 ) -> weaviate.Client:
