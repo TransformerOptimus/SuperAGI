@@ -79,7 +79,7 @@ class Weaviate(VectorStore):
                 filters = {
                     "path": [key],
                     "operator": "Equal",
-                    
+                    "valueString": value
                 }
 
         results = self.client.query.get(
