@@ -79,7 +79,9 @@ class AgentIterationStepHandler:
 
         logger.debug("Prompt messages:", messages)
         print(self.llm.get_model())
-        current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+        print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+        print(messages)
+        current_tokens = TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(messages = messages, model = self.llm.get_model())
         print("33333333333333333333333333333333333")
         print(current_tokens)
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
@@ -90,7 +92,7 @@ class AgentIterationStepHandler:
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
 
-        total_tokens = current_tokens + TokenCounter.count_message_tokens(response['content'], self.llm.get_model())
+        total_tokens = current_tokens + TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
 
         assistant_reply = response['content']

@@ -88,7 +88,7 @@ class HuggingFace(BaseLlm):
             params = self.task_params
             if self.task == Tasks.TEXT_GENERATION:
                 params["max_new_tokens"] = 1000
-#             params['return_full_text'] = False
+            params['return_full_text'] = False
             payload = {
                 "inputs": messages,
                 "parameters": self.task_params,
@@ -104,6 +104,7 @@ class HuggingFace(BaseLlm):
                 content = completion[0]["generated_text"]
             else:
                 content = completion[0]["answer"]
+            print("6666666666666666666666666666666666666")
             print(content)
 
             return {"response": completion, "content": content}

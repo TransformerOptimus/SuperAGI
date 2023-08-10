@@ -15,6 +15,7 @@ class AgentLlmMessageBuilder:
         self.llm_model = llm_model
         self.agent_id = agent_id
         self.agent_execution_id = agent_execution_id
+        self.organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
 
     def build_agent_messages(self, prompt: str, agent_feeds: list, history_enabled=False,
                              completion_prompt: str = None):
@@ -27,16 +28,13 @@ class AgentLlmMessageBuilder:
             completion_prompt (str): The completion prompt to be used for generating the agent messages.
         """
         print("88888888888888888888888888888888")
-        print(self.llm_model)
-        organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
-        print(organisation.id)
-        token_limit = TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm_model)
+        token_limit = TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm_model)
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]
         print("88888888888888888888888888888888")
         if history_enabled:
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
-            base_token_limit = TokenCounter.count_message_tokens(messages, self.llm_model)
+            base_token_limit = TokenCounter(session=self.session, organisation_id=self.organisation.id).count_message_tokens(messages, self.llm_model)
             full_message_history = [{'role': role, 'content': feed} for role, feed in agent_feeds]
             past_messages, current_messages = self._split_history(full_message_history,
                                                                 token_limit - base_token_limit - max_output_token_limit)
@@ -53,7 +51,7 @@ class AgentLlmMessageBuilder:
         hist_token_count = 0
         i = len(history)
         for message in reversed(history):
-            token_count = TokenCounter.count_message_tokens([{"role": message["role"], "content": message["content"]}],
+            token_count = TokenCounter(session=self.session, organisation_id=self.organisation.id).count_message_tokens([{"role": message["role"], "content": message["content"]}],
                                                             self.llm_model)
             hist_token_count += token_count
             if hist_token_count > pending_token_limit:

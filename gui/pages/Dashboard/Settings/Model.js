@@ -10,7 +10,7 @@ import Image from "next/image";
 export default function Model({organisationId}) {
   const [temperature, setTemperature] = useState(0.5);
   const [models, setModels] = useState([
-    {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAI', 'api_key': ''},
+    {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAi', 'api_key': ''},
     {'name':'Hugging Face auth token','logo':'/images/huggingface_logo.svg','source':'Hugging Face', 'api_key': ''},
     {'name':'Replicate auth token','logo':'/images/replicate_logo.svg','source':'Replicate', 'api_key': ''},
     {'name':'Google AI API key','logo':'/images/google_palm_logo.svg','source':'Google Palm', 'api_key': ''}

@@ -13,6 +13,7 @@ export default function ModelForm(){
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
     const [modelEndpoint, setModelEndpoint] = useState('');
     const [modelDropdown, setModelDropdown] = useState(false);
+    const [modelVersion, setModelVersion] = useState('');
     const [tokenError, setTokenError] = useState(false);
     const [lockAddition, setLockAddition] = useState(true);
     const [isLoading, setIsLoading] = useState(false)
@@ -133,6 +134,12 @@ export default function ModelForm(){
                 <span>Model Endpoint URL</span>
                 <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"
                        onChange={(event) => setModelEndpoint(event.target.value)}/>
+            </div>}
+
+            {(selectedModel === 'Replicate') && <div className="mt_24">
+                <span>Model Version</span>
+                <input className="input_medium mt_8" type="text" placeholder="Enter Model Version"
+                       onChange={(event) => setModelVersion(event.target.value)}/>
             </div>}
 
             <div className="mt_24">

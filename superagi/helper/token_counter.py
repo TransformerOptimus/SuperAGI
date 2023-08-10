@@ -10,12 +10,9 @@ from sqlalchemy.orm import Session
 
 class TokenCounter:
 
-    def __init__(self, session:Session, organisation_id: int):
-        print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+    def __init__(self, session:Session=None, organisation_id: int=None):
         self.session = session
-        print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
         self.organisation_id = organisation_id
-        print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
 
     def token_limit(self, model: str = "gpt-3.5-turbo-0301") -> int:
         """
@@ -30,18 +27,14 @@ class TokenCounter:
         Returns:
             int: The token limit.
         """
-        print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-        print(self.organisation_id)
         try:
             model_token_limit_dict = ModelsHelper(session=self.session, organisation_id=self.organisation_id).fetchModelTokens()
-            print("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
-            print(model_token_limit_dict)
             return model_token_limit_dict[model]
         except KeyError:
             logger.warning("Warning: model not found. Using cl100k_base encoding.")
             return 8092
 
-    def count_message_tokens(self, messages: List[BaseMessage], model: str = "gpt-4") -> int:
+    def count_message_tokens(self, messages: List[BaseMessage], model: str = "gpt-3.5-turbo-0301") -> int:
         """
         Function to count the number of tokens in a list of messages.
 
@@ -55,8 +48,6 @@ class TokenCounter:
         Returns:
             int: The number of tokens in the messages.
         """
-        print("vxxxxxxxxxxxxxx")
-        print(model)
         try:
             default_tokens_per_message = 4
             model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3,
