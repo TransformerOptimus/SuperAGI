@@ -5,8 +5,7 @@ from fastapi import HTTPException
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
-
-
+from urllib.parse import unquote
 class S3Helper:
     def __init__(self, bucket_name = get_config("BUCKET_NAME")):
         """

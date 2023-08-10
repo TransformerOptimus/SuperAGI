@@ -195,7 +195,6 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     for key,value in agent_with_config.dict().items():
         if hasattr(db_agent,key) and value is not None:
             setattr(db_agent,key,value)
-    print("db_agent",db_agent)
     db.session.commit()
     db.session.flush()
 
@@ -309,7 +308,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
 @router.get("/resources/output",status_code=201)
 def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     if get_config('STORAGE_TYPE') != "S3":
-        raise HTTPException(status_code=401,detail="This endpoint only works when S3 is configured")
+        raise HTTPException(status_code=400,detail="This endpoint only works when S3 is configured")
     run_ids_arr=run_id_config.run_ids
     if len(run_ids_arr)==0:  
         raise HTTPException(status_code=404,
@@ -321,9 +320,10 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
         raise HTTPException(status_code=404, detail=str(e))
     
     db_resources_arr=Resource.find_by_run_ids(db.session, run_ids_arr)
+
     try:
         response_obj=S3Helper().get_download_url_of_resources(db_resources_arr)
     except:
-        raise HTTPException(status_code=404, detail="Invalid S3 credentials")
+        raise HTTPException(status_code=400,detail="Invalid S3 credentials")
     return response_obj
 
