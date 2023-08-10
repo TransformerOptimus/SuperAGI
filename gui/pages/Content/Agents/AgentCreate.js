@@ -73,9 +73,6 @@ export default function AgentCreate({
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  // const agentTypes = ["Goal Based Workflow",
-  //   "Dynamic Task Workflow", "Fixed Task Workflow", "Sales Research Workflow", "SuperCoder", "DocSuperCoder", "Research & send email"]
-  // const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Fixed Task Queue"]
   const [agentWorkflows, setAgentWorkflows] = useState('');
   const [agentWorkflow, setAgentWorkflow] = useState(agentWorkflows[0]);
 
