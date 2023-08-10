@@ -72,6 +72,7 @@ class Weaviate(VectorStore):
     def get_matching_text(
         self, query: str, top_k: int = 5, metadata: dict = None, **kwargs: Any
     ) -> List[Document]:
+        metadata_fields = self._get_metadata_fields()
         query_vector = self.embedding_model.get_embedding(query)
         if metadata is not None:
             for key, value in metadata.items():
@@ -83,21 +84,25 @@ class Weaviate(VectorStore):
 
         results = self.client.query.get(
             self.index,
-            [self.text_field],
+            metadata_fields + [self.text_field],
         ).with_near_vector(
             {"vector": query_vector, "certainty": 0.7}
         ).with_where(filters).with_limit(top_k).do()
-        results_data = results["data"]["Get"][self.index]
-        documents = []
-        for result in results_data:
-            text_content = result[self.text_field]
-            metadata = {}
-            for field in metadata_fields:
-                metadata[field] = result[field]
-            document = Document(text_content=text_content, metadata=metadata)
-            documents.append(document)
 
-        return documents
+        results_data = results["data"]["Get"][self.index]
+        search_res = self._get_search_res(results_data, query)
+        documents = self._build_documents(results_data, metadata_fields)
+
+        return {"search_res": search_res, "documents": documents}
+    
+    def _get_metadata_fields(self) -> List[str]:
+        schema = self.client.schema.get(self.index)
+        property_names = []
+        for property_schema in schema["properties"]:
+            property_names.append(property_schema["name"])
+
+        property_names.remove(self.text_field)
+        return property_names
 
     def get_index_stats(self) -> dict:
         result = self.client.query.aggregate(self.index).with_meta_count().do()
@@ -122,3 +127,23 @@ class Weaviate(VectorStore):
                 )
         except Exception as err:
             raise err
+    
+    def _build_documents(self, results_data, metadata_fields) -> List[Document]:
+        documents = []
+        for result in results_data:
+            text_content = result[self.text_field]
+            metadata = {}
+            for field in metadata_fields:
+                metadata[field] = result[field]
+            document = Document(text_content=text_content, metadata=metadata)
+            documents.append(document)
+        
+        return documents
+    
+    def _get_search_res(self, results, query):
+        text = [item['text'] for item in results['data']['Get']['Knowledge']]
+        search_res = f"Query: {text}\n"
+        for context in text:
+            search_res += f"Chunk{i}: \n{context}\n"
+            i += 1
+        return search_res
