@@ -41,7 +41,7 @@ class TokenCounter:
             logger.warning("Warning: model not found. Using cl100k_base encoding.")
             return 8092
 
-    def count_message_tokens(self, messages: List[BaseMessage], model: str = "gpt-3.5-turbo-0301") -> int:
+    def count_message_tokens(self, messages: List[BaseMessage], model: str = "gpt-4") -> int:
         """
         Function to count the number of tokens in a list of messages.
 
@@ -55,6 +55,8 @@ class TokenCounter:
         Returns:
             int: The number of tokens in the messages.
         """
+        print("vxxxxxxxxxxxxxx")
+        print(model)
         try:
             default_tokens_per_message = 4
             model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3,
@@ -85,6 +87,7 @@ class TokenCounter:
             num_tokens += len(encoding.encode(message['content']))
 
         num_tokens += 3
+        print("tokens",num_tokens)
         return num_tokens
 
     def count_text_tokens(self, message: str) -> int:

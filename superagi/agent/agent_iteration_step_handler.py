@@ -69,6 +69,7 @@ class AgentIterationStepHandler:
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
         print("33333333333333333333333333333333333")
+        print(prompt)
         print(self.agent_id)
         print(self.llm)
         print(self.llm.get_model())
@@ -77,6 +78,7 @@ class AgentIterationStepHandler:
                                   completion_prompt=iteration_workflow_step.completion_prompt)
 
         logger.debug("Prompt messages:", messages)
+        print(self.llm.get_model())
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         print("33333333333333333333333333333333333")
         print(current_tokens)

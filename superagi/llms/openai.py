@@ -64,6 +64,7 @@ class OpenAi(BaseLlm):
         try:
             # openai.api_key = get_config("OPENAI_API_KEY")
             print(max_tokens,'ssssssssssssss')
+            print(messages)
             response = openai.ChatCompletion.create(
                 n=self.number_of_results,
                 model=self.model,
