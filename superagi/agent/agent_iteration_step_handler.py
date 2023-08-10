@@ -63,6 +63,7 @@ class AgentIterationStepHandler:
             self.task_queue.clear_tasks()
 
         agent_tools = self._build_tools(agent_config, agent_execution_config)
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%2")
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
@@ -137,16 +138,18 @@ class AgentIterationStepHandler:
     def _build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
                             agent_execution_config: dict,
                             prompt: str, agent_tools: list):
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
                                                            agent_config["constraints"], agent_tools,
                                                            (not iteration_workflow.has_task_queue))
-
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         if iteration_workflow.has_task_queue:
             response = self.task_queue.get_last_task_details()
             last_task, last_task_result = (response["task"], response["response"]) if response is not None else ("", "")
             current_task = self.task_queue.get_first_task() or ""
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             token_limit = TokenCounter(session=self.session, organisation_id=organisation.id).token_limit() - max_token_limit
             prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                      self.task_queue.get_tasks(),
@@ -168,11 +171,13 @@ class AgentIterationStepHandler:
             agent_tools.append(QueryResourceTool())
         user_tools = self.session.query(Tool).filter(
             and_(Tool.id.in_(agent_config["tools"]), Tool.file_name is not None)).all()
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         for tool in user_tools:
             agent_tools.append(tool_builder.build_tool(tool))
-
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         agent_tools = [tool_builder.set_default_params_tool(tool, agent_config, agent_execution_config,
                                                             model_api_key, resource_summary) for tool in agent_tools]
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%1")
         return agent_tools
 
     def _handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,

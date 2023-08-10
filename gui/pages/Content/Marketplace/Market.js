@@ -6,6 +6,7 @@ import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
 import MarketModels from '../Models/MarketModels';
 import ToolkitTemplate from './ToolkitTemplate';
+import ModelTemplate from "../Models/ModelTemplate";
 import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "./AgentTemplate";
 import KnowledgeTemplate from "./KnowledgeTemplate";
@@ -94,6 +95,7 @@ export default function Market({env}) {
         {detailType === 'agent_template' && <AgentTemplate env={env} template={templateData}/>}
         {detailType === 'knowledge_template' && <KnowledgeTemplate env={env} template={templateData}/>}
         {detailType === 'tool_template' && <ToolkitTemplate env={env} template={templateData}/>}
+        {detailType === 'model_template' && <ModelTemplate env={env} template={templateData} />}
       </div>}
     </div>
   );

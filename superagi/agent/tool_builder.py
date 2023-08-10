@@ -4,6 +4,7 @@ from superagi.config.config import get_config
 from superagi.llms.llm_model_factory import get_model
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
+from superagi.models.agent import Agent
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseToolkitConfiguration
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
@@ -92,15 +93,16 @@ class ToolBuilder:
         Returns:
             list: The list of tools with default parameters.
         """
+        organisation = Agent.find_org_by_agent_id(self.session, agent_id=agent_config['agent_id'])
         if hasattr(tool, 'goals'):
             tool.goals = agent_execution_config["goal"]
         if hasattr(tool, 'instructions'):
             tool.instructions = agent_execution_config["instruction"]
         if hasattr(tool, 'llm') and (agent_config["model"] == "gpt4" or agent_config[
             "model"] == "gpt-3.5-turbo") and tool.name != "QueryResource":
-            tool.llm = get_model(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
+            tool.llm = get_model(model="gpt-3.5-turbo", api_key=model_api_key, organisation_id=organisation.id , temperature=0.4)
         elif hasattr(tool, 'llm'):
-            tool.llm = get_model(model=agent_config["model"], api_key=model_api_key, temperature=0.4)
+            tool.llm = get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id, temperature=0.4)
         if hasattr(tool, 'agent_id'):
             tool.agent_id = self.agent_id
         if hasattr(tool, 'agent_execution_id'):

@@ -81,7 +81,7 @@ class WriteTestTool(BaseTool):
         messages = [{"role": "system", "content": prompt}]
         logger.info(prompt)
 
-        total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+        total_tokens = TokenCounter().count_message_tokens(messages, self.llm.get_model())
         token_limit = TokenCounter.token_limit(self.llm.get_model())
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 

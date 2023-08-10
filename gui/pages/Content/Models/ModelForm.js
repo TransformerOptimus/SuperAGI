@@ -78,7 +78,7 @@ export default function ModelForm(){
     }
 
     const storeModelDetails = (modelProviderId) => {
-        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom").then((response) =>{
+        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom", modelVersion).then((response) =>{
             setIsLoading(false)
             if (response.data.error) {
                 toast.error(response.data.error,{autoClose: 1800});
@@ -130,7 +130,7 @@ export default function ModelForm(){
                 </div>
             </div>}
 
-            {(selectedModel === 'Hugging Face' || selectedModel === 'Replicate') && <div className="mt_24">
+            {(selectedModel === 'Hugging Face') && <div className="mt_24">
                 <span>Model Endpoint URL</span>
                 <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"
                        onChange={(event) => setModelEndpoint(event.target.value)}/>

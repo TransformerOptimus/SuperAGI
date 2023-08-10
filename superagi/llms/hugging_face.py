@@ -43,10 +43,6 @@ class HuggingFace(BaseLlm):
         Returns:
             response from the endpoint
         """
-        # Returning the endpoint response from the function `get_model` is not a good idea. If the model name is not accessible, it is better to return a fixed schema for now that informs the user about the situation and a possible fix.
-    # 		data = json.dumps({"inputs": "validating end_point"})
-    # 		response = requests.post(self.end_point, headers=self.headers, data=data)
-    # 		model = response.json()
 
         return self.model
 
@@ -71,7 +67,7 @@ class HuggingFace(BaseLlm):
         # If the desired response is not received, we should return False and log the response.
         return response.status_code == 200
 
-    def chat_completion(self, messages, max_tokens=100):
+    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         """
         Call the HuggingFace inference API.
         Args:
@@ -82,12 +78,11 @@ class HuggingFace(BaseLlm):
         """
         try:
             print("77777777777777777777777777777777777777777")
-            # temporary fix: some fucker is calling this function with the open=-ai schema
             if isinstance(messages, list):
                 messages = messages[0]["content"] + "\nThe response in json schema:"
             params = self.task_params
             if self.task == Tasks.TEXT_GENERATION:
-                params["max_new_tokens"] = 1000
+                params["max_new_tokens"] = max_tokens
             params['return_full_text'] = False
             payload = {
                 "inputs": messages,
@@ -111,3 +106,9 @@ class HuggingFace(BaseLlm):
         except Exception as exception:
             # logger.info("HF Exception:", exception)
             return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception", "details": exception}
+
+    def verify_end_point(self):
+        data = json.dumps({"inputs": "validating end_point"})
+        response = requests.post(self.end_point, headers=self.headers, data=data)
+
+        return response.json()

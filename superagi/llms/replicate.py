@@ -64,6 +64,9 @@ class Replicate(BaseLlm):
         """
 
         prompt = "\n".join([message["role"] + ": " + message["content"] + "" for message in messages])
+        print("000000000000000000000000000000000")
+        print(prompt)
+        print(messages)
         # role does not yield right results in case of single step prompt
         if len(messages) == 1:
             prompt = "System:" + messages[0]['content'] + "\nResponse:"
@@ -82,6 +85,9 @@ class Replicate(BaseLlm):
                 final_output = final_output + item
 
             logger.info("Replicate response:", final_output)
+            print("777777777777777777777777777")
+            print(final_output)
+            print(output)
             return {"response": output, "content": final_output}
         except Exception as exception:
             logger.info('Replicate model ' + self.model + ' Exception:', exception)

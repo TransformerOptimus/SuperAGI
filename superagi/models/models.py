@@ -13,6 +13,7 @@ class Models(DBBaseModel):
         model_provider_id (Integer): The unique id of the model_provider from the models_config table.
         token_limit (Integer): The maximum number of tokens for a model.
         type (Strng): The place it is added from.
+        version (String): The version of the replicate model.
         org_id (Integer): The ID of the organisation.
     """
 
@@ -25,6 +26,7 @@ class Models(DBBaseModel):
     model_provider_id = Column(Integer, nullable=False)
     token_limit = Column(Integer, nullable=False)
     type = Column(String, nullable=False)
+    version = Column(String, nullable=False)
     org_id = Column(Integer, nullable=False)
 
     def __repr__(self):
@@ -35,4 +37,5 @@ class Models(DBBaseModel):
                f"end_point={self.end_point}, model_provider_id={self.model_provider_id}, " \
                f"token_limit={self.token_limit}, " \
                f"type={self.type}, " \
+               f"type={self.version}, " \
                f"org_id={self.org_id})"

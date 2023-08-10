@@ -77,7 +77,7 @@ class AgentExecutor:
                 print(agent_config["model"],'999999999999999999999999')
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
-                                                             llm=get_model(model=agent_config["model"], api_key=model_api_key)
+                                                             llm=get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id)
                                                              , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                              memory=memory)
                     print("@@@@@@@@@@@@@@@@@@@@@@@2")
@@ -87,11 +87,12 @@ class AgentExecutor:
                     print()
                     iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
-                                                                                api_key=model_api_key)
+                                                                                api_key=model_api_key,
+                                                                                organisation_id=organisation.id)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
                     print("..............................................")
-                    print(get_model(model=agent_config["model"],api_key=model_api_key))
+                    print(get_model(model=agent_config["model"],api_key=model_api_key,organisation_id=organisation.id))
                     iteration_step_handler.execute_step()
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))

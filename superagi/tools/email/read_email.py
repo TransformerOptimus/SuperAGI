@@ -59,7 +59,7 @@ class ReadEmailTool(BaseTool):
             for response in msg:
                 self._process_message(email_msg, response)
             messages.append(email_msg)
-            if TokenCounter.count_text_tokens(json.dumps(messages)) > self.max_token_limit:
+            if TokenCounter().count_text_tokens(json.dumps(messages)) > self.max_token_limit:
                 break
 
         conn.logout()

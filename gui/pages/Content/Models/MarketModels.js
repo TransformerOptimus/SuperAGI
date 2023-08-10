@@ -19,7 +19,7 @@ export default function MarketModels(){
     },[]);
 
     function handleTemplateClick(item) {
-        const contentType = 'agent_template';
+        const contentType = 'model_template';
         EventBus.emit('openTemplateDetails', {item, contentType});
     }
 
@@ -28,7 +28,7 @@ export default function MarketModels(){
             <div className="w_100 overflowY_auto mxh_78vh">
                 {!isLoading ? <div>
                     {modelTemplates.length > 0 ? <div className="marketplaceGrid">{modelTemplates.map((item) => (
-                        <div className="market_containers cursor_pointer" key={item.id}>
+                        <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
                             <div>{item.name}</div>
                             <div className="color_gray lh_16 mb_8">by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
                             <div className="text_ellipsis mt_6 color_gray">{item.description}</div>

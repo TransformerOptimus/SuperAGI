@@ -2,7 +2,10 @@ from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
-
+from superagi.models.models_config import ModelsConfig
+from superagi.models.models import Models
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
 
 class ModelFactory:
     def __init__(self):
@@ -20,16 +23,32 @@ class ModelFactory:
 
 factory = ModelFactory()
 
-def get_model(api_key, model="gpt-3.5-turbo", **kwargs):
-    factory.register_format("gpt-4", lambda **kwargs: OpenAi(model="gpt-4", **kwargs))
-    factory.register_format("gpt-4-32k", lambda **kwargs: OpenAi(model="gpt-4-32k", **kwargs))
-    factory.register_format("gpt-3.5-turbo-16k", lambda **kwargs: OpenAi(model="gpt-3.5-turbo-16k", **kwargs))
-    factory.register_format("gpt-3.5-turbo", lambda **kwargs: OpenAi(model="gpt-3.5-turbo", **kwargs))
-    factory.register_format("models/chat-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
-    factory.register_format("replicate-llama13b-v2-chat",
-                            lambda **kwargs: Replicate(model='replicate/llama70b-v2-chat',
-                                                       version="e951f18578850b652510200860fc4ea62b3b16fac280f83ff32282f87bbd2e48",
+def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
+    print("Fetching model details from database...")
+    engine = connect_db()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    model_instance = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
+    response = session.query(ModelsConfig.source_name).filter(ModelsConfig.org_id == organisation_id,
+                                                                   ModelsConfig.id == model_instance.model_provider_id).first()
+    provider_name = response.source_name
+
+    session.close()
+
+    if provider_name == 'OpenAI':
+        print("Provider is OpenAI")
+        factory.register_format(model_instance.model_name, lambda **kwargs: OpenAi(model=model_instance.model_name, **kwargs))
+    elif provider_name == 'Replicate':
+        print("Provider is Replicate")
+        factory.register_format(model_instance.model_name, lambda **kwargs: Replicate(model=model_instance.model_name,
+                                                       version=model_instance.version,
                                                        **kwargs))
-    factory.register_format("Llama-2-7b-hf", lambda **kwargs: HuggingFace(model="Llama-2-7b-hf", end_point="https://npwopr9feccz7a5x.us-east-1.aws.endpoints.huggingface.cloud/", **kwargs))
-    factory.register_format("llama-2-7B-chat", lambda **kwargs: HuggingFace(model="llama-2-7B-chat", end_point="https://adtoz2wkdt9d5al6.us-east-1.aws.endpoints.huggingface.cloud/", **kwargs))
+    elif provider_name == 'Google Palm':
+        print("Provider is Google Palm")
+        factory.register_format(model_instance.model_name, lambda **kwargs: GooglePalm(model=model_instance.model_name, **kwargs))
+    elif provider_name == 'Hugging Face':
+        print("Provider is Hugging Face")
+        factory.register_format(model_instance.model_name, lambda **kwargs: HuggingFace(model=model_instance.model_name,
+                                                                                        end_point=model_instance.endpoint, **kwargs))
     return factory.get_model(model, api_key=api_key, **kwargs)

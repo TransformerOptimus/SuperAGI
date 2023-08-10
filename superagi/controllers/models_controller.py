@@ -21,6 +21,7 @@ class StoreModelRequest(BaseModel):
     model_provider_id: int
     token_limit: int
     type: str
+    version: str
 
 @router.post("/storeApiKeys", status_code=200)
 async def storeApiKeys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
@@ -57,7 +58,7 @@ async def verifyEndPoint(model_api_key: str = None, end_point: str = None, model
 @router.post("/storeModel", status_code=200)
 async def storeModel(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).storeModelDetails(request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).storeModelDetails(request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version)
     except Exception as e:
         logging.error(f"Error storing the Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -86,19 +87,17 @@ async def fetchModels(model: str, organisation=Depends(get_user_organisation)):
         logging.error(f"Error Fetching Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-# def fetchModelSourceName(model: str, organisation=Depends(get_user_organisation)):
-#     try:
-#         organisation_id = organisation.id
-#
-#         model_provider = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
-#         if not model_provider:
-#             raise HTTPException(status_code=404, detail="Model provider not found")
-#
-#         configuration = session.query(ModelsConfig.source_name).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
-#         if not configuration:
-#             raise HTTPException(status_code=404, detail="Model configuration not found")
-#
-#         return configuration.source_name
-#     except Exception as e:
-#         logging.error(f"Error Fetching Model Tokens: {str(e)}")
-#         raise HTTPException(status_code=500, detail="Internal Server Error")
+def fetchModelSourceName(model: str, organisation_id: str):
+    try:
+        model_provider = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
+        if not model_provider:
+            raise HTTPException(status_code=404, detail="Model provider not found")
+
+        configuration = session.query(ModelsConfig.source_name).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
+        if not configuration:
+            raise HTTPException(status_code=404, detail="Model configuration not found")
+
+        return configuration.source_name
+    except Exception as e:
+        logging.error(f"Error Fetching Model Tokens: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

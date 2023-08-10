@@ -60,7 +60,7 @@ class ModelsHelper:
 
         if(model_provider == 'Hugging Face'):
             try:
-                result = HuggingFace(api_key=model_api_key,end_point=end_point).get_model()
+                result = HuggingFace(api_key=model_api_key,end_point=end_point).verify_end_point()
             except Exception as e:
                 response['success'] = False
                 response['error'] = str(e)
@@ -76,7 +76,7 @@ class ModelsHelper:
         else:
             return {"source_name": model.source_name}
 
-    def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit, type):
+    def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit, type, version):
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
         if not description:
@@ -92,7 +92,7 @@ class ModelsHelper:
             return model  # Return error message if model not found
 
         # Check the 'source_name' from ModelsConfig table
-        if not end_point and model["source_name"] not in ['OpenAI', 'Google Palm']:
+        if not end_point and model["source_name"] not in ['OpenAI', 'Google Palm', 'Replicate']:
             return {"error": "End Point is empty or undefined"}
 
         try:
@@ -103,6 +103,7 @@ class ModelsHelper:
                 token_limit=token_limit,
                 model_provider_id=model_provider_id,
                 type=type,
+                version=version,
                 org_id=self.organisation_id
             )
             self.session.add(model)
