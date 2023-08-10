@@ -34,7 +34,7 @@ export default function KnowledgeForm({
         if (data) {
           setPineconeIndices(data.pinecone || []);
           setQdrantIndices(data.qdrant || []);
-          setWeaviateIndices(data.qdrant || []);
+          setWeaviateIndices(data.weaviate || []);
         }
       })
       .catch((error) => {
