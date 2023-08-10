@@ -303,3 +303,11 @@ export const fetchKnowledgeTemplateOverview = (knowledgeName) => {
 export const installKnowledgeTemplate = (knowledgeName, indexId) => {
   return api.get(`/knowledges/install/${knowledgeName}/index/${indexId}`);
 };
+
+export const createApiKey = (apiName) => {
+  return api.post(`/api-keys`, apiName);
+};
+
+export const getApiKeys = () => {
+  return api.get(`/api-keys`);
+};
