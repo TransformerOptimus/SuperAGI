@@ -4,7 +4,7 @@ from abc import abstractmethod
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import weaviate
-
+from uuid import uuid4
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 
@@ -53,19 +53,21 @@ class Weaviate(VectorStore):
     def add_texts(
         self, texts: Iterable[str], metadatas: List[dict] | None = None, **kwargs: Any
     ) -> List[str]:
-        result = []
-        with self.client.batch as batch:
-            for i, text in enumerate(texts):
-                metadata = metadatas[i] if metadatas else {}
-                data_object = metadata.copy()
-                data_object[self.text_field] = text
-                vector = self.embedding_model.get_embedding(text)
-
-                batch.add_data_object(data_object, class_name=self.index, vector=vector)
-
-                object = batch.create_objects()[0]
-                result.append(object["id"])
-        return result
+        result = {}
+        collected_ids = []
+        for i, text in enumerate(texts):
+            metadata = metadatas[i] if metadatas else {}
+            data_object = metadata.copy()
+            data_object[self.text_field] = text
+            vector = self.embedding_model.get_embedding(text)
+            id = str(uuid4())
+            result = {"ids": id, "data_object": data_object, "vectors": vector}
+            collected_ids.append(id)
+            try:
+                self.add_embeddings_to_vector_db(result)
+            except:
+                raise Exception("Error adding embeddings to vector db")
+        return collected_ids
 
     def get_matching_text(
         self, query: str, top_k: int = 5, **kwargs: Any
