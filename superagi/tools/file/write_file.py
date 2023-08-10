@@ -10,7 +10,6 @@ from superagi.llms.base_llm import BaseLlm
 from superagi.helper.prompt_reader import PromptReader
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
 
-
 # from superagi.helper.s3_helper import upload_to_s3
 
 
@@ -31,12 +30,14 @@ class WriteFileTool(BaseTool):
         args_schema : The args schema.
         resource_manager: File resource manager.
     """
+    llm: Optional[BaseLlm] = None
     name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput
-    description: str = "Writes text to a file"
+    description: str = "Writes content in a file. The content can carry text and images."
     agent_id: int = None
     resource_manager: Optional[FileManager] = None
-
+    tool_response_manager: Optional[ToolResponseQueryManager] = None
+    
     class Config:
         arbitrary_types_allowed = True
 
