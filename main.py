@@ -12,11 +12,9 @@ from sqlalchemy.orm import sessionmaker
 
 import superagi
 from datetime import timedelta, datetime
-from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
-from superagi.controllers.agent_config import router as agent_config_router
 from superagi.controllers.agent_execution import router as agent_execution_router
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
 from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
@@ -96,7 +94,6 @@ app.include_router(organisation_router, prefix="/organisations")
 app.include_router(project_router, prefix="/projects")
 app.include_router(budget_router, prefix="/budgets")
 app.include_router(agent_router, prefix="/agents")
-app.include_router(agent_config_router, prefix="/agentconfigs")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
 app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
@@ -153,8 +150,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 
 def replace_old_iteration_workflows(session):
-    dateTimeObj = datetime.strptime("4-August-2023", "%d-%B-%Y")
-    templates = session.query(AgentTemplate).filter(AgentTemplate.created_at <= dateTimeObj).all()
+    templates = session.query(AgentTemplate).all()
     for template in templates:
         iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
         if iter_workflow.name == "Fixed Task Queue":
@@ -209,6 +205,14 @@ async def startup_event():
     AgentWorkflowSeed.build_sales_workflow(session)
     AgentWorkflowSeed.build_recruitment_workflow(session)
     AgentWorkflowSeed.build_coding_workflow(session)
+
+    # NOTE: remove old workflows. Need to remove this changes later
+    workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
+     "Dynamic Task Workflow", "Fixed Task Workflow"]
+    workflows = session.query(AgentWorkflow).filter(AgentWorkflow.name.not_in(workflows))
+    for workflow in workflows:
+        session.delete(workflow)
+
     # AgentWorkflowSeed.doc_search_and_code(session)
     # AgentWorkflowSeed.build_research_email_workflow(session)
     replace_old_iteration_workflows(session)

@@ -48,12 +48,12 @@ export const createAgent = (agentData, scheduledCreate) => {
   return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
-export const addTool = (toolData) => {
-  return api.post(`/toolkits/get/local/install`, toolData);
+export const addAgentRun = (agentData) => {
+  return api.post( `/agentexecutions/add_run`, agentData);
 };
 
-export const updateAgents = (agentData) => {
-  return api.put(`/agentconfigs/update/`, agentData);
+export const addTool = (toolData) => {
+  return api.post(`/toolkits/get/local/install`, toolData);
 };
 
 export const updateExecution = (executionId, executionData) => {
@@ -102,10 +102,6 @@ export const updateOrganisationConfig = (organisationId, configData) => {
 
 export const fetchAgentTemplateList = () => {
   return api.get('/agent_templates/list?template_source=marketplace');
-};
-
-export const fetchAgentTemplateDetails = (templateId) => {
-  return api.get(`/agent_templates/get/${templateId}`);
 };
 
 export const getToolConfig = (toolKitName) => {
