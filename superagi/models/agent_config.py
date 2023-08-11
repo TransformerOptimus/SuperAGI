@@ -51,12 +51,12 @@ class AgentConfiguration(DBBaseModel):
         ).first()
 
         if agent_toolkits_config:
-            agent_toolkits_config.value = updated_details_dict['toolkits']
+            agent_toolkits_config.value = str(updated_details_dict['toolkits'])
         else:
             agent_toolkits_config = AgentConfiguration(
                 agent_id=agent_id,
                 key='toolkits',
-                value=updated_details_dict['toolkits']
+                value=str(updated_details_dict['toolkits'])
             )
             session.add(agent_toolkits_config)
         
@@ -67,20 +67,21 @@ class AgentConfiguration(DBBaseModel):
         ).first()
 
         if knowledge_config:
-            knowledge_config.value = updated_details_dict['knowledge']
+            knowledge_config.value = str(updated_details_dict['knowledge'])
         else:
             knowledge_config = AgentConfiguration(
                 agent_id=agent_id,
                 key='knowledge',
-                value=updated_details_dict['knowledge']
+                value=str(updated_details_dict['knowledge'])
             )
             session.add(knowledge_config)
             
         # Fetch agent configurations
         agent_configs = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+
         for agent_config in agent_configs:
             if agent_config.key in updated_details_dict:
-                agent_config.value = updated_details_dict[agent_config.key]
+                agent_config.value = str(updated_details_dict[agent_config.key])
 
         # Commit the changes to the database
         session.commit()
