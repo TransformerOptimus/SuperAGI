@@ -52,8 +52,6 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
     }
     response = requests.post(token_uri, data=params)
     response = response.json()
-    print("///////////////////////////")
-    print(response)
     expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
     expire_time = expire_time - timedelta(minutes=5)
     response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
