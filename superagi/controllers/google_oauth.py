@@ -47,7 +47,8 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
         'scope': scope,
         'grant_type': 'authorization_code',
         'code': code,
-        'access_type': 'offline'
+        'access_type': 'offline',
+        'approval_prompt': 'force'
     }
     response = requests.post(token_uri, data=params)
     response = response.json()
