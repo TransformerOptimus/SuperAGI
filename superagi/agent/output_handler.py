@@ -81,7 +81,7 @@ class ToolOutputHandler:
             task_description = data['thoughts']['text']
             final_tool_response = tool_response_result
             prompt = task_description + final_tool_response
-            text_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=10)
+            text_splitter = TokenTextSplitter(chunk_size=512, chunk_overlap=10)
             chunk_response = text_splitter.split_text(prompt)
             metadata = {"agent_execution_id": self.agent_execution_id}
             metadatas = []
