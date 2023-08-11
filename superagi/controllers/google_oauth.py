@@ -30,7 +30,7 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
         client_id = client_id.value
     client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET", ToolConfig.toolkit_id == toolkit_id).first()
     if(is_encrypted(client_secret.value)):
-        client_id = decrypt_data(client_secret.value)
+        client_secret = decrypt_data(client_secret.value)
     else:
         client_secret = client_secret.value
     token_uri = 'https://oauth2.googleapis.com/token'
@@ -52,6 +52,8 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
     }
     response = requests.post(token_uri, data=params)
     response = response.json()
+    print("///////////////////////////")
+    print(response)
     expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
     expire_time = expire_time - timedelta(minutes=5)
     response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
