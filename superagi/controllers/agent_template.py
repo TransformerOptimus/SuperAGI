@@ -93,7 +93,7 @@ def edit_agent_template(agent_template_id: int,
 
     Args:
         agent_template_id (int): The ID of the agent template to update.
-        edited_agent_configs (dict): The updated agent configurations.
+        updated_agent_configs (dict): The updated agent configurations.
         organisation (Depends): Dependency to get the user organisation.
 
     Returns:
@@ -108,7 +108,7 @@ def edit_agent_template(agent_template_id: int,
     if db_agent_template is None:
         raise HTTPException(status_code=404, detail="Agent Template not found")
 
-    agent_workflow = AgentWorkflow.find_by_name(db.session, updated_agent_configs["agent_workflow"])
+    agent_workflow = AgentWorkflow.find_by_name(db.session, updated_agent_configs["agent_configs"]["agent_workflow"])
     db_agent_template.name = updated_agent_configs["name"]
     db_agent_template.description = updated_agent_configs["description"]
     db_agent_template.agent_workflow_id = agent_workflow.id
