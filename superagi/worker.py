@@ -15,7 +15,7 @@ from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
 from superagi.types.model_source_types import ModelSourceType
 
-redis_url = get_config('REDIS_URL') or 'localhost:6379'
+redis_url = get_config('REDIS_URL', 'super__redis:6379')
 
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
 app.conf.broker_url = "redis://" + redis_url + "/0"
@@ -46,7 +46,7 @@ def execute_agent(agent_execution_id: int, time):
     from superagi.jobs.agent_executor import AgentExecutor
     handle_tools_import()
     logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
-    AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
+    AgentExecutor().execute_next_step(agent_execution_id=agent_execution_id)
 
 
 @app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')
@@ -73,8 +73,7 @@ def summarize_resource(agent_id: int, resource_id: int):
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
-    resource_summarizer = ResourceSummarizer(session=session)
-    resource_summarizer.add_to_vector_store_and_create_summary(agent_id=agent_id,
-                                                               resource_id=resource_id,
+    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id)
+    resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)
     session.close()

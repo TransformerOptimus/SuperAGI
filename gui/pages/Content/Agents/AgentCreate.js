@@ -9,7 +9,9 @@ import {
   getOrganisationConfig,
   getLlmModels,
   updateExecution,
-  uploadFile
+  uploadFile,
+  getAgentDetails, addAgentRun,
+  getAgentWorkflows
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -34,7 +36,10 @@ export default function AgentCreate({
                                       template,
                                       internalId,
                                       sendKnowledgeData,
-                                      env
+                                      env,
+                                      edit,
+                                      editAgentId,
+                                      agents
                                     }) {
   const [advancedOptions, setAdvancedOptions] = useState(false);
   const [agentName, setAgentName] = useState("");
@@ -68,8 +73,9 @@ export default function AgentCreate({
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Fixed Task Queue"]
-  const [agentType, setAgentType] = useState(agentTypes[0]);
+  const [agentWorkflows, setAgentWorkflows] = useState('');
+  const [agentWorkflow, setAgentWorkflow] = useState(agentWorkflows[0]);
+
   const agentRef = useRef(null);
   const [agentDropdown, setAgentDropdown] = useState(false);
 
@@ -109,6 +115,9 @@ export default function AgentCreate({
   const [createModal, setCreateModal] = useState(false);
 
   const [scheduleData, setScheduleData] = useState(null);
+  const [editModal, setEditModal] = useState(false)
+  const [editButtonClicked, setEditButtonClicked] = useState(false);
+
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -156,24 +165,32 @@ export default function AgentCreate({
         console.error('Error fetching models:', error);
       });
 
+    getAgentWorkflows()
+      .then((response) => {
+        const agentWorkflows = response.data || [];
+        const selectedAgentWorkflow = localStorage.getItem("agent_workflow_" + String(internalId)) || '';
+        setAgentWorkflows(agentWorkflows);
+        if (agentWorkflows.length > 0 && !selectedAgentWorkflow) {
+          setLocalStorageValue("agent_workflow_" + String(internalId), agentWorkflows[0], setAgentWorkflow);
+        } else {
+          setAgentWorkflow(selectedAgentWorkflow);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching agent workflows:', error);
+      });
+    if (edit) {
+      editingAgent();
+    }
+
     if (template !== null) {
-      setLocalStorageValue("agent_name_" + String(internalId), template.name, setAgentName);
-      setLocalStorageValue("agent_description_" + String(internalId), template.description, setAgentDescription);
-      setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
+      fillDetails(template)
       setLocalStorageValue("agent_template_id_" + String(internalId), template.id, setAgentTemplateId);
 
       fetchAgentTemplateConfigLocal(template.id)
         .then((response) => {
           const data = response.data || [];
-          setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
-          setLocalStorageValue("agent_type_" + String(internalId), data.agent_type, setAgentType);
-          setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
-          setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
-          setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
-          setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
-          setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
-          setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
-          setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+          fillAdvancedDetails(data)
           setLocalStorageArray("tool_names_" + String(internalId), data.tools, setToolNames);
           setLocalStorageValue("is_agent_template_" + String(internalId), true, setShowButton);
           setShowButton(true);
@@ -236,6 +253,44 @@ export default function AgentCreate({
     setSearchValue('');
   };
 
+  const editingAgent = () => {
+    const isLoaded = localStorage.getItem('is_editing_agent_' + String(internalId));
+    const agent = agents.find(agent => agent.id === editAgentId);
+    if (!isLoaded) {
+      fillDetails(agent)
+    }
+    getAgentDetails(editAgentId, -1)
+        .then((response) => {
+          const data = response.data || []
+          if (!isLoaded) {
+            fillAdvancedDetails(data)
+            setLocalStorageArray("tool_names_" + String(internalId), data.tools.map(tool => tool.name), setToolNames);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching agent details:', error);
+        });
+    localStorage.setItem('is_editing_agent_' + String(internalId), true);
+  };
+
+  const fillDetails = (agent) => {
+    setLocalStorageValue("agent_name_" + String(internalId), agent.name, setAgentName);
+    setLocalStorageValue("agent_description_" + String(internalId), agent.description, setAgentDescription);
+    setLocalStorageValue("advanced_options_" + String(internalId), true, setAdvancedOptions);
+  }
+  const fillAdvancedDetails = (data) => {
+    setLocalStorageArray("agent_goals_" + String(internalId), data.goal, setGoals);
+    setLocalStorageValue("agent_workflow_" + String(internalId), data.agent_workflow, setAgentWorkflow);
+    setLocalStorageArray("agent_constraints_" + String(internalId), data.constraints, setConstraints);
+    setLocalStorageValue("agent_iterations_" + String(internalId), data.max_iterations, setIterations);
+    setLocalStorageValue("agent_step_time_" + String(internalId), data.iteration_interval, setStepTime);
+    setLocalStorageValue("agent_permission_" + String(internalId), data.permission_type, setPermission);
+    setLocalStorageArray("agent_instructions_" + String(internalId), data.instruction, setInstructions);
+    setLocalStorageValue("agent_database_" + String(internalId), data.LTM_DB, setDatabase);
+    setLocalStorageValue("agent_model_" + String(internalId), data.model, setModel);
+  }
+
+
   const addToolkit = (toolkit) => {
     const updatedToolIds = [...selectedTools];
     const updatedToolNames = [...toolNames];
@@ -289,14 +344,14 @@ export default function AgentCreate({
   };
 
   const handleAgentSelect = (index) => {
-    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
+    setLocalStorageValue("agent_workflow_" + String(internalId), agentWorkflows[index], setAgentWorkflow);
     setAgentDropdown(false);
   };
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
     if (modelsArray[index] === "google-palm-bison-001") {
-      setAgentType("Fixed Task Queue")
+      setAgentWorkflow("Fixed Task Queue")
     }
     setModelDropdown(false);
   };
@@ -455,7 +510,7 @@ export default function AgentCreate({
       "description": agentDescription,
       "goal": goals,
       "instruction": instructions,
-      "agent_type": agentType,
+      "agent_workflow": agentWorkflow,
       "constraints": constraints,
       "toolkits": [],
       "tools": selectedTools,
@@ -474,39 +529,74 @@ export default function AgentCreate({
       "schedule": scheduleData,
     }
 
-    createAgent(createModal ? scheduleAgentData : agentData, createModal)
-      .then((response) => {
-        const agentId = response.data.id;
-        const name = response.data.name;
-        const executionId = response.data.execution_id;
-        fetchAgents();
-
-        if (addResources && input.length > 0) {
-          const uploadPromises = input.map(fileData => {
-            return uploadResource(agentId, fileData)
-              .catch(error => {
-                console.error('Error uploading resource:', error);
-                return Promise.reject(error);
-              });
-          });
-
-          Promise.all(uploadPromises)
-            .then(() => {
-              runExecution(agentId, name, executionId, createModal);
-            })
-            .catch(error => {
-              console.error('Error uploading files:', error);
-              setCreateClickable(true);
-            });
-        } else {
-          runExecution(agentId, name, executionId, createModal);
+    if(edit){
+      if (editButtonClicked) return;
+      setEditButtonClicked(true);
+      agentData.agent_id = editAgentId;
+      const name = agentData.name
+      agentData.name = "New Run"
+      addAgentRun(agentData)
+        .then((response) => {
+        if(response){
+          fetchAgents();
+          uploadResources(editAgentId, name)
         }
       })
-      .catch((error) => {
-        console.error('Error creating agent:', error);
-        setCreateClickable(true);
-      });
+    }
+    else
+      {
+        createAgent(createModal ? scheduleAgentData : agentData, createModal)
+            .then((response) => {
+              const agentId = response.data.id;
+              const name = response.data.name;
+              const executionId = response.data.execution_id;
+              fetchAgents();
+              uploadResources(agentId, name, executionId)
+            })
+            .catch((error) => {
+              console.error('Error creating agent:', error);
+              setCreateClickable(true);
+            });
+      }
   };
+
+  const uploadResources = (agentId, name, executionId) => {
+    if (addResources && input.length > 0) {
+      const uploadPromises = input.map(fileData => {
+        return uploadResource(agentId, fileData)
+            .catch(error => {
+              console.error('Error uploading resource:', error);
+              return Promise.reject(error);
+            });
+      });
+
+      Promise.all(uploadPromises)
+          .then(() => {
+            runDecision(agentId, name, executionId)
+          })
+          .catch(error => {
+            console.error('Error uploading files:', error);
+            setCreateClickable(true);
+          });
+    } else {
+      runDecision(agentId, name, executionId)
+    }
+  }
+
+  const runDecision = (agentId, name, executionId) => {
+    if(edit){
+      setEditModal(false)
+      sendAgentData({
+        id: editAgentId,
+        name: name,
+        contentType: "Agents",
+      });
+      removeTab(editAgentId, name, "Agents", internalId)
+    }
+    else {
+      runExecution(agentId, name, executionId, createModal);
+    }
+  }
 
   const finaliseAgentCreation = (agentId, name, executionId) => {
     toast.success('Agent created successfully', {autoClose: 1800});
@@ -597,7 +687,7 @@ export default function AgentCreate({
     const agentTemplateConfigData = {
       "goal": goals,
       "instruction": instructions,
-      "agent_type": agentType,
+      "agent_workflow": agentWorkflow,
       "constraints": constraints,
       "tools": toolNames,
       "exit": exitCriterion,
@@ -723,9 +813,9 @@ export default function AgentCreate({
         setModel(agent_model);
       }
 
-      const agent_type = localStorage.getItem("agent_type_" + String(internalId));
-      if (agent_type) {
-        setAgentType(agent_type);
+      const agent_workflow = localStorage.getItem("agent_workflow_" + String(internalId));
+      if (agent_workflow) {
+        setAgentWorkflow(agent_workflow);
       }
 
       const agent_database = localStorage.getItem("agent_database_" + String(internalId));
@@ -770,25 +860,32 @@ export default function AgentCreate({
     localStorage.setItem('marketplace_tab', 'market_knowledge');
   }
 
+  const checkPermissionValidity = (permit) => {
+   if(!(agentWorkflow === 'Fixed Task Workflow' || agentWorkflow === 'Dynamic Task Workflow' || agentWorkflow === 'Goal Based Workflow' ) && permit === 'RESTRICTED (Will ask for permission before using any tool)')
+     return true;
+   else
+     return false;
+  }
+
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
       <div className="col-3"></div>
       <div className="col-6" style={{padding: '25px 20px'}}>
         <div>
-          <div className={styles.page_title}>Create new agent</div>
+          {!edit ? <div className={styles.page_title}>Create new agent</div> : <div className={styles.page_title}>Edit agent</div>}
         </div>
         <div style={{marginTop: '10px'}}>
           <div>
             <label className={styles.form_label}>Name</label>
-            <input className="input_medium" type="text" value={agentName} onChange={handleNameChange}/>
+            <input className="input_medium" type="text" value={agentName} disabled={edit}  onChange={handleNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Description</label>
-            <textarea className="textarea_medium" rows={3} value={agentDescription} onChange={handleDescriptionChange}/>
+            <textarea className="textarea_medium" rows={3} value={agentDescription} disabled={edit} onChange={handleDescriptionChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Goals</label></div>
-            {goals.map((goal, index) => (<div key={index} style={{
+            {goals?.map((goal, index) => (<div key={index} style={{
               marginBottom: '10px',
               display: 'flex',
               alignItems: 'center',
@@ -1034,17 +1131,17 @@ export default function AgentCreate({
           {advancedOptions &&
             <div>
               <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Agent Type</label><br/>
+                <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
                        style={{width: '100%'}}>
-                    {agentType}<Image width={20} height={21}
+                    {agentWorkflow}<Image width={20} height={21}
                                       src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
                                       alt="expand-icon"/>
                   </div>
                   <div>
                     {agentDropdown && <div className="custom_select_options" ref={agentRef} style={{width: '100%'}}>
-                      {agentTypes.map((agent, index) => (
+                      {agentWorkflows.map((agent, index) => (
                         <div key={index} className="custom_select_option" onClick={() => handleAgentSelect(index)}
                              style={{padding: '12px 14px', maxWidth: '100%'}}>
                           {agent}
@@ -1101,7 +1198,7 @@ export default function AgentCreate({
               </div>
               <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
-                {constraints.map((constraint, index) => (<div key={index} style={{
+                {constraints?.map((constraint, index) => (<div key={index} style={{
                   marginBottom: '10px',
                   display: 'flex',
                   alignItems: 'center',
@@ -1145,10 +1242,10 @@ export default function AgentCreate({
               {/*    </div>*/}
               {/*  </div>*/}
               {/*</div>*/}
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Time between steps (in milliseconds)</label>
-                <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>
-              </div>
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <label className={styles.form_label}>Time between steps (in milliseconds)</label>*/}
+              {/*  <input className="input_medium" type="number" value={stepTime} onChange={handleStepChange}/>*/}
+              {/*</div>*/}
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <div style={{display:'flex'}}>*/}
               {/*    <input className="checkbox" type="checkbox" checked={longTermMemory} onChange={() => setLocalStorageValue("has_LTM_" + String(internalId), !longTermMemory, setLongTermMemory)} />*/}
@@ -1184,9 +1281,8 @@ export default function AgentCreate({
                   <div className="mb_34">
                     {permissionDropdown &&
                       <div className="custom_select_options mb_30" ref={permissionRef} style={{width: '100%'}}>
-                        {permissions.map((permit, index) => (<div key={index} className="custom_select_option"
-                                                                  onClick={() => handlePermissionSelect(index)}
-                                                                  style={{padding: '12px 14px', maxWidth: '100%'}}>
+                        {permissions.map((permit, index) => (<div key={index} className="custom_select_option padding_12_14 mxw_100"
+                                                                  onClick={() => handlePermissionSelect(index)}  style={checkPermissionValidity(permit) ? {color: '#888888', textDecoration: 'line-through',pointerEvents: 'none'} : {}}>
                           {permit}
                         </div>))}
                       </div>}
@@ -1208,7 +1304,7 @@ export default function AgentCreate({
                 Update Template
               </button>
             )}
-            <div style={{display: 'flex', position: 'relative'}}>
+            {!edit ? <div style={{display: 'flex', position: 'relative'}}>
               {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {
                 setCreateModal(true);
                 setCreateDropdown(false);
@@ -1225,12 +1321,29 @@ export default function AgentCreate({
                          alt="expand-icon"/>
                 </button>
               </div>
-            </div>
+            </div>: <div className="primary_button" style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
+              <button className="primary_button" style={{paddingRight: '5px'}}
+                      onClick={() => setEditModal(true)}>Update changes</button> </div>}
           </div>
 
           {createModal && (
             <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="create_agent"/>
           )}
+
+          {editModal && (<div className="modal" onClick={() => setEditModal(!editModal)}>
+            <div className="modal-content w_35" onClick={preventDefault}>
+              <div className={styles.detail_name}>Update agent</div>
+              <div><label className={styles.form_label}>All the new runs of this agent will be updated with the latest changes. Are you sure you want to update changes?</label></div>
+              <div className="mt_20 justify_end display_flex">
+                <button className="secondary_button mr_10" onClick={() => setEditModal(false)}>
+                  Cancel
+                </button>
+                <button className={`${styles.run_button} h_32p padding_0_15 `} onClick={handleAddAgent}>
+                  Update changes
+                </button>
+              </div>
+            </div>
+          </div>)}
 
         </div>
       </div>

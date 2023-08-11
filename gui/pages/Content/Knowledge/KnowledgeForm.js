@@ -18,7 +18,6 @@ export default function KnowledgeForm({
                                         setSelectedIndex,
                                         isEditing,
                                         setIsEditing,
-                                        sendDatabaseData,
                                         sendKnowledgeData
                                       }) {
   const [addClickable, setAddClickable] = useState(true);
@@ -136,13 +135,8 @@ export default function KnowledgeForm({
   }
 
   const handleIndexSelect = (index) => {
-    setIndexDropdown(false);
-
-    if (!checkIndexValidity(index.is_valid_state)[0]) {
-      return;
-    }
-
     setLocalStorageArray("knowledge_index_" + String(internalId), index, setSelectedIndex);
+    setIndexDropdown(false);
   }
 
   const checkIndexValidity = (validState) => {
@@ -167,7 +161,7 @@ export default function KnowledgeForm({
           <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
         </div>
         <div>
-          Currently we support Open AI “text-knowledge-ada-002” model knowledge only. Please make sure you add the same.
+          Currently we support Open AI “text-embedding-ada-002” model knowledge only. Please make sure you add the same.
         </div>
       </div>
     </div>
@@ -203,7 +197,7 @@ export default function KnowledgeForm({
                     <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
                       color: '#888888',
                       textDecoration: 'line-through',
-                      pointerEvents: 'none',
+                      pointerEvents : 'none',
                     } : {}}>{index.name}</div>
                     {!checkIndexValidity(index.is_valid_state)[0] &&
                       <div>
@@ -220,7 +214,7 @@ export default function KnowledgeForm({
                     <div style={!checkIndexValidity(index.is_valid_state)[0] ? {
                       color: '#888888',
                       textDecoration: 'line-through',
-                      pointerEvents: 'none',
+                      pointerEvents : 'none',
                     } : {}}>{index.name}</div>
                     {!checkIndexValidity(index.is_valid_state)[0] &&
                       <div>
@@ -229,20 +223,6 @@ export default function KnowledgeForm({
                       </div>}
                   </div>))}
                 </div>}
-              <div className={styles1.knowledge_db}
-                   style={{maxWidth: '100%', borderTop: '1px solid #3F3A4E'}}>
-                <div className="custom_select_option"
-                     style={{padding: '12px 14px', maxWidth: '100%', borderRadius: '0'}}
-                     onClick={() => sendDatabaseData({
-                       id: -7,
-                       name: "new database",
-                       contentType: "Add_Database",
-                       internalId: createInternalId()
-                     })}>
-                  <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon"/>&nbsp;&nbsp;Add
-                  vector database
-                </div>
-              </div>
             </div>}
           </div>
         </div>

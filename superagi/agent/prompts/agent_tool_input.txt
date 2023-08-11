@@ -1,0 +1,29 @@
+{tool_name} is the most suitable tool for the given instruction, use {tool_name} to perform the below instruction which lets you achieve the high level goal.
+
+High-Level GOAL:
+`{goals}`
+
+INSTRUCTION: `{instruction}`
+
+Respond with tool name and tool arguments to achieve the instruction.
+
+{tool_schema}
+
+Respond with only valid JSON conforming to the following json schema. You should generate JSON as output and not JSON schema.
+
+JSON Schema:
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+            "name": {
+                "type": "string",
+                "description": "{tool_name}",
+            },
+            "args": {
+                "type": "object",
+                "description": "tool arguments",
+            }
+     },
+     "required": ["name", "args"]
+}

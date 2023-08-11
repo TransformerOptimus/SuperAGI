@@ -12,7 +12,7 @@ import {loadingTextEffect} from "@/utils/utils";
 
 export default function AgentTemplate({template, env}) {
   const [tools, setTools] = useState([])
-  const [agentType, setAgentType] = useState('')
+  const [agentWorkflow, setAgentWorkflow] = useState('')
   const [templateModel, setTemplateModel] = useState('')
   const [rightPanel, setRightPanel] = useState('overview')
   const [goals, setGoals] = useState([])
@@ -49,7 +49,7 @@ export default function AgentTemplate({template, env}) {
   }, []);
 
   function setValues(data) {
-    setAgentType(data.configs.agent_type.value)
+    setAgentWorkflow(data.agent_workflow_name)
     setTemplateModel(data.configs.model.value)
     setGoals(data.configs.goal.value)
     setConstraints(data.configs.constraints.value)
@@ -145,9 +145,9 @@ export default function AgentTemplate({template, env}) {
                   </div>))}
               </div>
               <br/>
-              <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Agent Type</span>
+              <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Agent Workflow</span>
               <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
-                <div className={styles1.tool_text}>{agentType}</div>
+                <div className={styles1.tool_text}>{agentWorkflow}</div>
               </div>
               <br/>
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Model(s)</span>

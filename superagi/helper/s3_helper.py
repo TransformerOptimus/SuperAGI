@@ -1,8 +1,12 @@
+import json
+
 import boto3
-from superagi.config.config import get_config
 from fastapi import HTTPException
+
+from superagi.config.config import get_config
 from superagi.lib.logger import logger
 import json
+
 
 
 class S3Helper:
@@ -59,7 +63,7 @@ class S3Helper:
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             return response['Body'].read().decode('utf-8')
         raise Exception(f"Error read_from_s3: {response}")
-    
+
     def read_binary_from_s3(self, file_path):
         file_path = "resources" + file_path
         logger.info(f"Reading file from s3: {file_path}")
@@ -67,7 +71,7 @@ class S3Helper:
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             return response['Body'].read()
         raise Exception(f"Error read_from_s3: {response}")
-    
+
     def get_json_file(self, path):
         """
         Get a JSON file from S3.

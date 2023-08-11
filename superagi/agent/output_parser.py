@@ -14,7 +14,7 @@ class AgentGPTAction(NamedTuple):
 
 
 class AgentTasks(NamedTuple):
-    tasks: List[Dict] = []
+    tasks: List[str] = []
     error: str = ""
 
 
@@ -25,6 +25,7 @@ class BaseOutputParser(ABC):
 
 
 class AgentSchemaOutputParser(BaseOutputParser):
+    """Parses the output from the agent schema"""
     def parse(self, response: str) -> AgentGPTAction:
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])
@@ -36,9 +37,34 @@ class AgentSchemaOutputParser(BaseOutputParser):
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
+            args = response_obj['tool']['args'] if 'args' in response_obj['tool'] else {}
             return AgentGPTAction(
                 name=response_obj['tool']['name'],
-                args=response_obj['tool']['args'],
+                args=args,
             )
         except BaseException as e:
             logger.info(f"AgentSchemaOutputParser: Error parsing JSON respons {e}")
+            raise e
+
+
+class AgentSchemaToolOutputParser(BaseOutputParser):
+    """Parses the output from the agent schema for the tool"""
+    def parse(self, response: str) -> AgentGPTAction:
+        if response.startswith("```") and response.endswith("```"):
+            response = "```".join(response.split("```")[1:-1])
+        response = JsonCleaner.extract_json_section(response)
+        # ast throws error if true/false params passed in json
+        response = JsonCleaner.clean_boolean(response)
+
+        # OpenAI returns `str(content_dict)`, literal_eval reverses this
+        try:
+            logger.debug("AgentSchemaOutputParser: ", response)
+            response_obj = ast.literal_eval(response)
+            args = response_obj['args'] if 'args' in response_obj else {}
+            return AgentGPTAction(
+                name=response_obj['name'],
+                args=args,
+            )
+        except BaseException as e:
+            logger.info(f"AgentSchemaToolOutputParser: Error parsing JSON respons {e}")
+            raise e

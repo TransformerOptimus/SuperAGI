@@ -1,18 +1,14 @@
 import React from 'react';
 import Image from "next/image";
-import styles from './Tool.module.css';
-import styles1 from '../Agents/Agents.module.css'
 import {createInternalId, returnToolkitIcon, excludedToolkits} from "@/utils/utils";
 
 export default function Toolkits({sendToolkitData, toolkits, env}) {
   return (
     <>
-      <div className={styles1.container}>
-        <div className={styles1.title_box}>
-          <p className={styles1.title_text}>Toolkits</p>
-        </div>
-        {env !== 'PROD' && <div className={styles1.wrapper} style={{marginBottom: '10px', marginTop: '4px'}}>
-          <button style={{width: '100%'}} className="secondary_button" onClick={() => sendToolkitData({
+      <div className="container">
+        <p className="text_14 mt_8 mb_12 ml_8">Toolkits</p>
+        {env !== 'PROD' && <div className="w_100 mb_10">
+          <button className="secondary_button w_100" onClick={() => sendToolkitData({
             id: -2,
             name: "new tool",
             contentType: "Add_Toolkit",
@@ -22,38 +18,29 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
           </button>
         </div>}
         {toolkits && toolkits.length > 0 ? (
-          <div style={{overflowY: 'scroll', height: '80vh'}}>
-            <div className={styles.tool_container}>
-              {toolkits.map((tool, index) =>
-                  tool.name !== null && !excludedToolkits().includes(tool.name) && (
-                    <div key={index} className={styles.tool_box} onClick={() => sendToolkitData(tool)}>
-                      <div className="row">
-                        <div className="col-12">
-                          <div
-                            style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '5px'}}>
-                            <div>
-                              <Image className={styles.image_class} style={{background: 'black'}} width={30} height={30}
-                                     src={returnToolkitIcon(tool.name)}
-                                     alt="tool-icon"/>
-                            </div>
-                            <div style={{marginLeft: '8px'}}>
-                              <div className={styles.tool_name}>{tool.name}</div>
-                              <div className={styles.tool_publisher}>by SuperAGI</div>
-                            </div>
-                          </div>
+          <div className="vertical_selection_scroll">
+          {toolkits.map((tool, index) =>
+              tool.name !== null && !excludedToolkits().includes(tool.name) && (
+                <div key={index} className="item_box mb_10" onClick={() => sendToolkitData(tool)}>
+                  <div className="row">
+                    <div className="col-12">
+                      <div className="item_container padding_5">
+                         <Image className="image_class bg_black" width={30} height={30}
+                             src={returnToolkitIcon(tool.name)}
+                             alt="tool-icon"/>
+                        <div className="ml_8">
+                          <div className="item_name">{tool.name}</div>
+                          <div className="item_publisher">by SuperAGI</div>
                         </div>
                       </div>
                     </div>
-                  )
-              )}
-            </div>
+                  </div>
+                </div>
+              )
+          )}
           </div>
         ) : (
-          <div style={{
-            marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }} className="form_label">
-            No Toolkits found
-          </div>
+          <div className="form_label mt_20 horizontal_container justify_center">No Toolkits found</div>
         )}
       </div>
     </>

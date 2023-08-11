@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {preventDefault} from "@/utils/utils";
+import {createInternalId, preventDefault} from "@/utils/utils";
 import {
   getAgentDetails,
   getAgentExecutions,
@@ -25,7 +25,7 @@ import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId}) {
+export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId, sendAgentData}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
   const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(true)
@@ -127,6 +127,8 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
+    setGoals(goals.length< 0 ? agentDetails.goal : goals)
+    setInstructions(instructions.length < 0 ? agentDetails.instruction : instructions)
 
     if (goals.length <= 0) {
       toast.error("Agent needs to have goals", {autoClose: 1800});
@@ -144,7 +146,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       .then((response) => {
         setRunModal(false);
         fetchExecutions(agentId, response.data);
-        fetchAgentDetails(agentId);
+        fetchAgentDetails(agentId, selectedRun?.id);
         EventBus.emit('reFetchAgents', {});
         toast.success("New run created", {autoClose: 1800});
       })
@@ -209,25 +211,39 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   };
 
   useEffect(() => {
-    fetchAgentDetails(agentId);
+    fetchAgentDetails(agentId, selectedRun?.id);
     fetchExecutions(agentId);
     fetchAgentScheduleComponent()
   }, [agentId])
 
   useEffect(() => {
-    fetchExecutionDetails(selectedRun?.id);
+    // fetchExecutionDetails(selectedRun?.id);
+    fetchAgentDetails(agentId, selectedRun?.id);
   }, [selectedRun?.id])
 
   useEffect(() => {
     if (agentDetails) {
-      setRightPanel(agentDetails.permission_type.includes('RESTRICTED') ? 'action_console' : 'details');
+      setRightPanel(agentDetails.permission_type === 'RESTRICTED' ? 'action_console' : 'details');
     }
   }, [agentDetails])
 
-  function fetchAgentDetails(agentId) {
-    getAgentDetails(agentId)
+  function setNewRunDetails() {
+    getAgentDetails(agentId,  -1)
       .then((response) => {
-        setAgentDetails(response.data);
+        setGoals(response.data.goal)
+        setInstructions(response.data.instruction)
+        setRunModal(true);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent details:', error);
+      });
+  }
+
+  function fetchAgentDetails(agentId, runId) {
+    getAgentDetails(agentId, runId ? runId : -1)
+      .then((response) => {
+        const data = response.data
+        setAgentDetails(data);
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -259,21 +275,21 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       });
   }
 
-  function fetchExecutionDetails(executionId) {
-    getExecutionDetails(executionId || -1, agentId)
-      .then((response) => {
-        setGoals(response.data.goal);
-        setCurrentGoals(response.data.goal);
-        setInstructions(response.data.instruction);
-        setCurrentInstructions(response.data.instruction);
-      })
-      .catch((error) => {
-        console.error('Error fetching agent execution details:', error);
-      });
-  }
+  // function fetchExecutionDetails(executionId) {
+  //   getExecutionDetails(executionId || -1, agentId)
+  //     .then((response) => {
+  //       setGoals(response.data.goal);
+  //       setCurrentGoals(response.data.goal);
+  //       setInstructions(response.data.instruction);
+  //       setCurrentInstructions(response.data.instruction);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching agent execution details:', error);
+  //     });
+  // }
 
   function saveAgentTemplate() {
-    saveAgentAsTemplate(agentId)
+    saveAgentAsTemplate(selectedRun?.id)
       .then((response) => {
         toast.success("Agent saved as template successfully", {autoClose: 1800});
       })
@@ -337,17 +353,17 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 Feed
               </button>
             </div>
-            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Fixed Task Queue") &&
+            {agentDetails && (agentDetails.agent_workflow === 'Dynamic Task Workflow' || agentDetails.agent_workflow === "Fixed Task Workflow") &&
               <div style={{marginLeft: '7px'}}>
-                <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button}
-                        style={leftPanel === 'agent_type' ? {background: '#454254'} : {background: 'transparent'}}>Task
+                <button onClick={() => setLeftPanel('agent_workflow')} className={styles.tab_button}
+                        style={leftPanel === 'agent_workflow' ? {background: '#454254'} : {background: 'transparent'}}>Task
                   Queue
                 </button>
               </div>}
           </div>
           <div style={{display: 'flex'}}>
             <div>
-              <button className={styles.run_button} onClick={() => setRunModal(true)}>
+              <button className={styles.run_button} onClick={setNewRunDetails}>
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
@@ -379,6 +395,12 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                       setCreateModal(true)
                     }}>Schedule Run</li>}
                 </div>)}
+                <li className="dropdown_item" onClick={() => sendAgentData({
+                  id: agentId,
+                  name: "Edit Agent",
+                  contentType: "Edit_Agent",
+                  internalId: createInternalId()
+                })}>Edit Agent</li>
                 <li className="dropdown_item" onClick={() => {
                   setDropdown(false);
                   setDeleteModal(true)
@@ -419,14 +441,14 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
                           setFetchedData={setFetchedData} agent={agent}/>
           </div>}
-          {leftPanel === 'agent_type' &&
+          {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
       <div style={{width: '40%'}}>
         <div className={styles.detail_top}>
           <div style={{display: 'flex', overflowX: 'scroll'}}>
-            {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
+            {agentDetails && ((fetchedData && fetchedData.length > 0) || agentDetails.permission_type === 'RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
                 <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/action_console.svg"
@@ -465,15 +487,14 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight: '0'}}>
-          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
+          {rightPanel === 'action_console' && agentDetails && (
             <div className={styles.detail_content}>
               <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData}
                              pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
             </div>
           )}
-          {rightPanel === 'details' &&
-            <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals}
-                                                            instructions={currentInstructions}
+          {rightPanel === 'details' && agentDetails && agentDetails !== null &&
+            <div className={styles.detail_content}><Details agentDetails1={agentDetails}
                                                             runCount={agentExecutions?.length || 0}
                                                             agentScheduleDetails={agentScheduleDetails} agent={agent}/>
             </div>}

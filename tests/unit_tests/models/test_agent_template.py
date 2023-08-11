@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import requests
 
 from superagi.models.agent_template import AgentTemplate
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 
 
 def test_to_dict():

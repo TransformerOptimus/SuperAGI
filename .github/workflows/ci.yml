@@ -42,8 +42,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
  
   test:
-    # eliminate duplicate runs
-    if: github.event_name == 'push' || (github.event.pull_request.head.repo.fork == (github.event_name == 'pull_request_target'))
 
     permissions:
       # Gives the action the necessary permissions for publishing new
@@ -53,6 +51,7 @@ jobs:
       # python-coverage-comment-action branch, and for editing existing
       # comments (to avoid publishing multiple comments in the same PR)
       contents: write
+
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

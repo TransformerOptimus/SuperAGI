@@ -11,7 +11,9 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
     <div key={action.id} className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
-        <div>Tool <b>{action.tool_name}</b> is seeking for Permissions</div>
+        {action.question && (<div className={styles.feed_title}>{action.question}</div>)}
+        {!action.question && (<div>Tool <b>{action.tool_name}</b> is seeking for Permissions</div>)}
+
         {isDenied && (
           <div style={{marginTop: '26px'}}>
             <div>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></div>
