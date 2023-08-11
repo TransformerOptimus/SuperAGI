@@ -62,12 +62,8 @@ class Replicate(BaseLlm):
         Returns:
             dict: The response.
         """
-
         prompt = "\n".join([message["role"] + ": " + message["content"] + "" for message in messages])
-        print("000000000000000000000000000000000")
-        print(prompt)
-        print(messages)
-        # role does not yield right results in case of single step prompt
+
         if len(messages) == 1:
             prompt = "System:" + messages[0]['content'] + "\nResponse:"
         else:
@@ -75,22 +71,27 @@ class Replicate(BaseLlm):
         try:
             os.environ["REPLICATE_API_TOKEN"] = self.api_key
             import replicate
-            output = replicate.run(
+            output_generator = replicate.run(
                 self.model + ":" + self.version,
                 input={"prompt": prompt, "max_length": self.max_length, "temperature": self.temperature,
                        "top_p": self.top_p}
             )
+
             final_output = ""
-            for item in output:
-                final_output = final_output + item
+            temp_output = []
+            for item in output_generator:
+                final_output += item
+                temp_output.append(item)
+
+            if not final_output:
+                logger.error("Replicate model didn't return any output.")
+                return {"error": "Replicate model didn't return any output."}
 
             logger.info("Replicate response:", final_output)
-            print("777777777777777777777777777")
-            print(final_output)
-            print(output)
-            return {"response": output, "content": final_output}
+
+            return {"response": temp_output, "content": final_output}
         except Exception as exception:
-            logger.info('Replicate model ' + self.model + ' Exception:', exception)
+            logger.error('Replicate model ' + self.model + ' Exception:', exception)
             return {"error": exception}
 
     def verify_access_key(self):

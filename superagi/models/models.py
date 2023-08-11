@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
+import requests
 
+marketplace_url = "https://app.superagi.com/api"
+# marketplace_url = "http://localhost:3000/api"
 class Models(DBBaseModel):
     """
     Represents a Model record in the database
@@ -39,3 +42,24 @@ class Models(DBBaseModel):
                f"type={self.type}, " \
                f"type={self.version}, " \
                f"org_id={self.org_id})"
+
+    @classmethod
+    def fetch_marketplace_list(cls, page):
+        headers = {'Content-Type': 'application/json'}
+        response = requests.get(
+            marketplace_url + f"/models_controller/marketplace/list/{str(page)}",
+            headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []
+
+    @classmethod
+    def get_model_install_details(cls, session, marketplace_models, organisation):
+        installed_models = session.query(Models).filter(Models.org_id == organisation.id).all()
+        for knowledge in marketplace_models:
+            if knowledge["name"] in [installed_model.name for installed_model in installed_models]:
+                knowledge["is_installed"] = True
+            else:
+                knowledge["is_installed"] = False
+        return marketplace_models

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
 from superagi.models.models_config import ModelsConfig
@@ -7,6 +7,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 import logging
 from pydantic import BaseModel
+from main import get_config
 
 router = APIRouter()
 
@@ -34,6 +35,8 @@ async def storeApiKeys(request: ValidateAPIKeyRequest, organisation=Depends(get_
 @router.get("/getApiKeys")
 async def getApiKeys(organisation=Depends(get_user_organisation)):
     try:
+        print(".........>>>>>>>>>>>>>>>................")
+        print(get_config("MARKETPLACE_ORGANISATION_ID"))
         return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchApiKeys()
     except Exception as e:
         logging.error(f"Error while retrieving API Keys: {str(e)}")
@@ -87,17 +90,38 @@ async def fetchModels(model: str, organisation=Depends(get_user_organisation)):
         logging.error(f"Error Fetching Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-def fetchModelSourceName(model: str, organisation_id: str):
-    try:
-        model_provider = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
-        if not model_provider:
-            raise HTTPException(status_code=404, detail="Model provider not found")
+@router.get("/get/list", status_code=200)
+def get_knowledge_list(page: int = Query(None, title="Page Number"), organisation=Depends(get_user_organisation)):
+    """
+    Get Marketplace Model list.
 
-        configuration = session.query(ModelsConfig.source_name).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
-        if not configuration:
-            raise HTTPException(status_code=404, detail="Model configuration not found")
+    Args:
+        page (int, optional): The page number for pagination. Defaults to None.
 
-        return configuration.source_name
-    except Exception as e:
-        logging.error(f"Error Fetching Model Tokens: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+    Returns:
+        dict: The response containing the marketplace list.
+
+    """
+    if page < 0:
+        page = 0
+    marketplace_models = Models.fetch_marketplace_list(page)
+    marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation)
+    for knowledge in marketplace_models_with_install:
+        knowledge["install_number"] = MarketPlaceStats.get_knowledge_installation_number(knowledge["id"])
+    return marketplace_models_with_install
+
+@router.get("/marketplace/list/{page}", status_code=200)
+def get_marketplace_knowledge_list(page: int = 0):
+    organisation_id = 2
+    page_size = 30
+
+    # Apply search filter if provided
+    query = db.session.query(Models).filter(Models.org_id == organisation_id)
+    print("qwwwwwwwwwwwwwwww")
+    print(query)
+    if page < 0:
+        models = query.all()
+    # Paginate the results
+    models = query.offset(page * page_size).limit(page_size).all()
+
+    return models

@@ -50,5 +50,5 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
     elif provider_name == 'Hugging Face':
         print("Provider is Hugging Face")
         factory.register_format(model_instance.model_name, lambda **kwargs: HuggingFace(model=model_instance.model_name,
-                                                                                        end_point=model_instance.endpoint, **kwargs))
+                                                                                        end_point=model_instance.end_point, **kwargs))
     return factory.get_model(model, api_key=api_key, **kwargs)

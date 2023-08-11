@@ -337,3 +337,8 @@ export const fetchModel = (model_id) => {
 export const fetchModelData = (model) => {
   return api.get(`/models_controller/fetchModelData/${model}`)
 }
+
+export const fetchMarketPlaceModel = () => {
+  return api.get(`/models_controller/get/list`)
+}
+

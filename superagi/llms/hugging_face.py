@@ -93,6 +93,8 @@ class HuggingFace(BaseLlm):
                 }
             }
             response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload))
+            print("555555555555555555555555555")
+            print(response)
             completion = json.loads(response.content.decode("utf-8"))
             print(completion)
             if self.task == Tasks.TEXT_GENERATION:
