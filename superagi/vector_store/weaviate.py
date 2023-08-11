@@ -42,9 +42,9 @@ def create_weaviate_client(
 
 class Weaviate(VectorStore):
     def __init__(
-        self, client: weaviate.Client, embedding_model: Any, index: str, text_field: str = "text"
+        self, client: weaviate.Client, embedding_model: Any, class_name: str, text_field: str = "text"
     ):
-        self.index = index
+        self.class_name = class_name
         self.embedding_model = embedding_model
         self.text_field = text_field
 
@@ -63,10 +63,7 @@ class Weaviate(VectorStore):
             id = str(uuid4())
             result = {"ids": id, "data_object": data_object, "vectors": vector}
             collected_ids.append(id)
-            try:
-                self.add_embeddings_to_vector_db(result)
-            except:
-                raise Exception("Error adding embeddings to vector db")
+            self.add_embeddings_to_vector_db(result)
         return collected_ids
 
     def get_matching_text(
@@ -83,20 +80,20 @@ class Weaviate(VectorStore):
                 }
 
         results = self.client.query.get(
-            self.index,
+            self.class_name,
             metadata_fields + [self.text_field],
         ).with_near_vector(
             {"vector": query_vector, "certainty": 0.7}
         ).with_where(filters).with_limit(top_k).do()
 
-        results_data = results["data"]["Get"][self.index]
+        results_data = results["data"]["Get"][self.class_name]
         search_res = self._get_search_res(results_data, query)
         documents = self._build_documents(results_data, metadata_fields)
 
         return {"search_res": search_res, "documents": documents}
     
     def _get_metadata_fields(self) -> List[str]:
-        schema = self.client.schema.get(self.index)
+        schema = self.client.schema.get(self.class_name)
         property_names = []
         for property_schema in schema["properties"]:
             property_names.append(property_schema["name"])
@@ -105,8 +102,8 @@ class Weaviate(VectorStore):
         return property_names
 
     def get_index_stats(self) -> dict:
-        result = self.client.query.aggregate(self.index).with_meta_count().do()
-        vector_count = result['data']['Aggregate'][self.index][0]['meta']['count']
+        result = self.client.query.aggregate(self.class_name).with_meta_count().do()
+        vector_count = result['data']['Aggregate'][self.class_name][0]['meta']['count']
         return {'vector_count': vector_count}
 
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
@@ -114,7 +111,7 @@ class Weaviate(VectorStore):
             with self.client.batch as batch:
                 for i in range(len(embeddings['ids'])):
                     data_object = {key: value for key, value in embeddings['data_object'][i].items()}
-                    batch.add_data_object(data_object, class_name=self.index, uuid=embeddings['ids'][i], vector=embeddings['vectors'][i])
+                    batch.add_data_object(data_object, class_name=self.class_name, uuid=embeddings['ids'][i], vector=embeddings['vectors'][i])
         except Exception as err:
             raise err
         
@@ -123,7 +120,7 @@ class Weaviate(VectorStore):
             for id in ids:
                 self.client.data_object.delete(
                     uuid = id,
-                    class_name = self.index
+                    class_name = self.class_name
                 )
         except Exception as err:
             raise err
