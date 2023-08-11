@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from sqlalchemy.orm import sessionmaker
+from fastapi import HTTPException
 
 import superagi
 import json
@@ -51,6 +52,8 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
         'approval_prompt': 'force'
     }
     response = requests.post(token_uri, data=params)
+    if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Invalid Client Secret")
     response = response.json()
     expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
     expire_time = expire_time - timedelta(minutes=5)
