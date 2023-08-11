@@ -32,6 +32,7 @@ def test_edit_agent_template_success(mock_get_user_org, mock_auth_db, mock_db):
             "LTM_DB": "Pinecone"
         }
     }    
+
     # Mocking the user organisation
     mock_get_user_org.return_value = MagicMock(id=1)
 

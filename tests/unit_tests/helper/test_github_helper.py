@@ -131,7 +131,7 @@ class TestGithubHelper(unittest.TestCase):
             json={'message': 'message', 'sha': 'sha', 'branch': 'head'},
             headers={'header': 'value'}
         )
-        
+
     @patch('requests.post')
     def test_create_pull_request(self, mock_post):
         # Create response mock

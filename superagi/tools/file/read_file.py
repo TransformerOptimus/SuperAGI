@@ -55,6 +55,7 @@ class ReadFileTool(BaseTool):
                                                                                               .toolkit_config.session,
                                                                                               agent_execution_id=self
                                                                                               .agent_execution_id))
+
         temporary_file_path = None
         final_name = final_path.split('/')[-1]
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
