@@ -67,8 +67,7 @@ class ReadFileTool(BaseTool):
                     contents = S3Helper().read_binary_from_s3(final_path)
                     f.write(contents)
 
-
-        if final_path is None or not os.path.exists(final_path):
+        if final_path is None or not os.path.exists(final_path) and temporary_file_path is None:
             raise FileNotFoundError(f"File '{file_name}' not found.")
         directory = os.path.dirname(final_path)
         os.makedirs(directory, exist_ok=True)
