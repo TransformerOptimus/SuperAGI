@@ -8,45 +8,15 @@ baseUrl = "http://localhost:3000/api"
 
 
 def run_specific_agent(task: str) -> None:
-    org_payload = {
-        "name": "Test Org",
-        "description": "Testing agents",
-    }
+    # create and start the agent here and dynamically pass in the task
+    # must have File Toolkit, Search Toolkit minimum
 
     headers = {"Content-Type": "application/json"}
 
-    org_response = requests.request(
-        "POST",
-        f"{baseUrl}/organisations/add",
-        headers=headers,
-        data=json.dumps(org_payload),
-    )
-
-    org_json = org_response.json()
-
-    print("Org response", org_response.text)
-
-    setup_payload = {
-        "name": "Project1",
-        "description": "Project Description!",
-        "organisation_id": org_json["id"],
-    }
-
-    proj_response = requests.request(
-        "POST",
-        f"{baseUrl}/projects/add",
-        headers=headers,
-        data=json.dumps(setup_payload),
-    )
-
-    print("Org response", proj_response.text)
-
-    proj_json = proj_response.json()
-
-    # Call server to run SuperAgi
+    # EXAMPLE FROM BEFORE
     payload = {
         "name": "Agent",
-        "project_id": proj_json["id"],
+        "project_id": 0,  # project id goes here
         "description": "AI assistant to solve complex problems",
         "goal": [
             "Please fulfill the instructions you are given to the best of your ability. Make sure to output relevant information into the workspace."
@@ -83,67 +53,25 @@ def run_specific_agent(task: str) -> None:
         "POST", f"{baseUrl}/agents/create", headers=headers, data=json.dumps(payload)
     )
 
-    print(response.text)
-
-    # parse the JSON response
-    response_data = response.json()
-
-    payload2 = {"status": "RUNNING"}
-    response2 = requests.request(
-        "PUT",
-        f"{baseUrl}/agentexecutions/update/{response_data['execution_id']}",
-        headers=headers,
-        data=json.dumps(payload2),
-    )
-    print("Response 2", response2.text)
-
     with open("agbenchmark/config.json", "r") as f:
         config = json.load(f)
 
-    # Update the output workspace path in the config
-    config["workspace"]["output"] = os.path.join(
-        "workspace/output", str(response_data["id"])
-    )
+    # Update the output workspace path depending on agentexecution and agentid
+    # config["workspace"]["output"] = os.path.join(
+    #     "workspace/output", str(response_data["id"])
+    # )
+    # config["workspace"]["input"] = os.path.join(
+    #     "workspace/output", str(response_data["id"])
+    # )
 
     with open("agbenchmark/config.json", "w") as f:
         json.dump(config, f)
 
-    # this prints the logs
-    start_time = time.time()
-    completed = False
-    while True:
-        # cutoff on the benchmark side, needs to be changed in actual implementation
-        if time.time() - start_time > 20:  # TODO: config["cutoff"]
-            break
+    # agent execution stream
 
-        response = requests.get(
-            f"{baseUrl}/agentexecutions/get/agent/{response_data['id']}"
-        )
-        print("Agent execution GET", response.text)
+    # add manual timeout of 120 seconds
 
-        # response = requests.get(
-        #     f"{baseUrl}/agentexecutionfeeds/get/{response_data['execution_id']}"
-        # )
-        # print("Agent execution FEED:", response.text)
-
-        # feed_json = response.json()
-
-        # if feed_json["feed"] == "COMPLETE":
-        #     completed = True
-        #     break
-
-        time.sleep(5)
-
-    if not completed:
-        payload3 = {"status": "TERMINATED"}
-        response3 = requests.request(
-            "PUT",
-            f"{baseUrl}/agentexecutions/update/{response_data['execution_id']}",
-            headers=headers,
-            data=json.dumps(payload3),
-        )
-        print("Response 3", response3.text)
-        print("Execution timed out and was paused")
+    # terminate the agent
 
 
 if __name__ == "__main__":
