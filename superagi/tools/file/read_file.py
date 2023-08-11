@@ -55,13 +55,27 @@ class ReadFileTool(BaseTool):
                                                                                               .toolkit_config.session,
                                                                                               agent_execution_id=self
                                                                                               .agent_execution_id))
+        temporary_file_path = None
+        final_name = final_path.split('/')[-1]
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
-            return S3Helper().read_from_s3(final_path)
+            if final_path.split('/')[-1].lower().endswith('.txt'):
+                return S3Helper().read_from_s3(final_path)
+            else:
+                save_directory = "/"
+                temporary_file_path = save_directory + file_name
+                with open(temporary_file_path, "wb") as f:
+                    contents = S3Helper().read_binary_from_s3(final_path)
+                    f.write(contents)
+
 
         if final_path is None or not os.path.exists(final_path):
             raise FileNotFoundError(f"File '{file_name}' not found.")
         directory = os.path.dirname(final_path)
         os.makedirs(directory, exist_ok=True)
+
+        if temporary_file_path is not None:
+            final_path = temporary_file_path
+
         
         # Check if the file is an .epub file
         if final_path.lower().endswith('.epub'):
@@ -77,6 +91,9 @@ class ReadFileTool(BaseTool):
         else:
             elements = partition(final_path)
             content = "\n\n".join([str(el) for el in elements])
+
+        if temporary_file_path is not None:
+            os.remove(temporary_file_path)
    
         return content
     
