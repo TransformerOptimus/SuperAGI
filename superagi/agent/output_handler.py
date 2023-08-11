@@ -61,8 +61,7 @@ class ToolOutputHandler:
         session.commit()
         if not tool_response.retry:
             tool_response = self._check_for_completion(tool_response)
-        # print("Tool Response:", tool_response)
-        print("Here is the assistant reply: ",assistant_reply,"ENDD")
+
         self.add_text_to_memory(assistant_reply, tool_response.result)
         return tool_response
     
