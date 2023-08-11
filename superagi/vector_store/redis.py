@@ -83,9 +83,7 @@ class Redis(VectorStore):
             hybrid_fields = self._convert_to_redis_filters(metadata)
             
             base_query = f"{hybrid_fields}=>[KNN {top_k} @{self.vector_key} $vector AS vector_score]"
-            return_fields = [METADATA_KEY,CONTENT_KEY, "vector_score","id"]
-           
-           
+            return_fields = [METADATA_KEY,CONTENT_KEY, "vector_score",'id']          
             query = (
                 Query(base_query)
                 .return_fields(*return_fields)
@@ -116,8 +114,8 @@ class Redis(VectorStore):
         
         
 
-    def _convert_to_redis_filters(self, metadata: Optional[dict] = {}) -> str:
-        if metadata is None or len(metadata) == 0:
+    def _convert_to_redis_filters(self, metadata: Optional[dict] = None) -> str:
+        if metadata is not None or len(metadata) == 0:
             return "*"
         filter_strings = []
         for key in metadata.keys():

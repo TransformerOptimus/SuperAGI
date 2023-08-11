@@ -59,8 +59,8 @@ class AgentExecutor:
                 vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
                 memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
                                                           AgentExecutor.get_embedding(model_llm_source, model_api_key))
-            except:
-                logger.info("Unable to setup the connection...")
+            except Exception as e:
+                logger.info(f"Unable to setup the connection...{e}")
                 memory = None
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
