@@ -74,6 +74,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           toast.success('Schedule stopped successfully!', {autoClose: 1800});
           setCreateStopModal(false);
           EventBus.emit('reFetchAgents', {});
+          setAgentScheduleDetails(null)
         }
       })
       .catch((error) => {
