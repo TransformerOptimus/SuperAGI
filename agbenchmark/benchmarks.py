@@ -7,7 +7,7 @@ import os
 baseUrl = "http://localhost:3000/api"
 
 
-def run_specific_agent(task: str) -> None:
+def run_specific_agent(task: str, pused_payload=None) -> None:
     # create and start the agent here and dynamically pass in the task
     # must have File Toolkit, Search Toolkit minimum
 
@@ -16,7 +16,7 @@ def run_specific_agent(task: str) -> None:
     # EXAMPLE FROM BEFORE
     payload = {
         "name": "Agent",
-        "project_id": 0,  # project id goes here
+        "project_id": 1,  # project id goes here
         "description": "AI assistant to solve complex problems",
         "goal": [
             "Please fulfill the instructions you are given to the best of your ability. Make sure to output relevant information into the workspace."
@@ -57,12 +57,19 @@ def run_specific_agent(task: str) -> None:
         config = json.load(f)
 
     # Update the output workspace path depending on agentexecution and agentid
+    print(response.json(), 'response')
+    response = response.json()
+    output_path = f"workspace/output/{response['id']}/{response['execution_id']}"
+    input_path= f"workspace/input/{response['id']}/{response['execution_id']}"
+    config["workspace"]["output"] = output_path
+    config["workspace"]["input"] = input_path
+    print(config, 'configerino')
     # config["workspace"]["output"] = os.path.join(
-    #     "workspace/output", str(response_data["id"])
-    # )
+    #     "workspace","output", f"{response['id']}", f"{response['execution_id']}")
+    #
     # config["workspace"]["input"] = os.path.join(
-    #     "workspace/output", str(response_data["id"])
-    # )
+    #     "workspace","input", f"{response['id']}", f"{response['execution_id']}")
+
 
     with open("agbenchmark/config.json", "w") as f:
         json.dump(config, f)
@@ -70,6 +77,20 @@ def run_specific_agent(task: str) -> None:
     # agent execution stream
 
     # add manual timeout of 120 seconds
+    start_time = time.time()
+    pause_payload = {"status": "PAUSED"}
+    while True:
+        agent_stream = requests.request(
+            "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{response['id']}", headers=headers
+        )
+
+        if time.time() - start_time > 60:
+            response = requests.request(
+                "POST", f"{baseUrl}/agentexecutions/update/{response['execution_id']}", headers=headers,
+                data=json.dumps(pause_payload)
+            )
+            break
+        time.sleep(5)
 
     # terminate the agent
 
