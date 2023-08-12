@@ -1,16 +1,18 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, List
 
 from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from pydantic.fields import List
+from superagi.controllers.types.agent_execution_config import AgentRunIn
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_schedule import AgentSchedule
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
@@ -18,8 +20,9 @@ from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
-# from superagi.types.db import AgentExecutionOut, AgentExecutionIn
 from superagi.apm.event_handler import EventHandler
+from superagi.controllers.tool import ToolOut
+from superagi.models.agent_config import AgentConfiguration
 
 router = APIRouter()
 
@@ -32,14 +35,13 @@ class AgentExecutionOut(BaseModel):
     last_execution_time: datetime
     num_of_calls: int
     num_of_tokens: int
-    current_step_id: int
+    current_agent_step_id: int
     permission_id: Optional[int]
     created_at: datetime
     updated_at: datetime
 
     class Config:
         orm_mode = True
-
 
 class AgentExecutionIn(BaseModel):
     status: Optional[str]
@@ -48,13 +50,14 @@ class AgentExecutionIn(BaseModel):
     last_execution_time: Optional[datetime]
     num_of_calls: Optional[int]
     num_of_tokens: Optional[int]
-    current_step_id: Optional[int]
+    current_agent_step_id: Optional[int]
     permission_id: Optional[int]
     goal: Optional[List[str]]
     instruction: Optional[List[str]]
 
-    class Config:
+    class config:
         orm_mode = True
+
 
 # CRUD Operations
 @router.post("/add", response_model=AgentExecutionOut, status_code=201)
@@ -77,21 +80,110 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+    start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+
+    iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
+                                                                start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
     db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
-                                        current_step_id=start_step_id)
+                                        current_agent_step_id=start_step.id,
+                                        iteration_workflow_step_id=iteration_step_id)
+    
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction
     }
+
+    agent_configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_execution.agent_id).all()
+    keys_to_exclude = ["goal", "instruction"]
+    for agent_config in agent_configs:
+        if agent_config.key not in keys_to_exclude:
+            if agent_config.key == "toolkits":
+                if agent_config.value:
+                    toolkits = [int(item) for item in agent_config.value.strip('{}').split(',') if item.strip() and item != '[]']
+                    agent_execution_configs[agent_config.key] = toolkits
+                else:
+                    agent_execution_configs[agent_config.key] = []
+            elif agent_config.key == "constraints":
+                if agent_config.value:
+                    constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
+                    agent_execution_configs[agent_config.key] = constraints
+                else:
+                    agent_execution_configs[agent_config.key] = []
+            else:
+                agent_execution_configs[agent_config.key] = agent_config.value
+
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
+
+    organisation = agent.get_agent_organisation(db.session)
+    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
+                                 agent_execution.agent_id, organisation.id if organisation else 0)
+
+    if db_agent_execution.status == "RUNNING":
+      execute_agent.delay(db_agent_execution.id, datetime.now())
+
+    return db_agent_execution
+
+@router.post("/add_run", status_code = 201)
+def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(check_auth)):
+
+    """
+    Create a new agent run with all the information(goals, instructions, model, etc).
+
+    Args:
+        agent_execution (AgentExecution): The agent execution data.
+
+    Returns:
+        AgentExecution: The created agent execution.
+
+    Raises:
+        HTTPException (Status Code=404): If the agent is not found.
+    """
+    agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
+    if not agent:
+        raise HTTPException(status_code = 404, detail = "Agent not found")
+    
+    #Update the agent configurations table with the data of the latest agent execution
+    AgentConfiguration.update_agent_configurations_table(session=db.session, agent_id=agent_execution.agent_id, updated_details=agent_execution)
+    
+    start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+
+    iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
+                                                                start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+
+    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+                                        agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
+                                        num_of_tokens=0,
+                                        current_agent_step_id=start_step.id,
+                                        iteration_workflow_step_id=iteration_step_id)
+    agent_execution_configs = {
+        "goal": agent_execution.goal,
+        "instruction": agent_execution.instruction,
+        "constraints": agent_execution.constraints,
+        "toolkits": agent_execution.toolkits,
+        "exit": agent_execution.exit,
+        "tools": agent_execution.tools,
+        "iteration_interval": agent_execution.iteration_interval,
+        "model": agent_execution.model,
+        "permission_type": agent_execution.permission_type,
+        "LTM_DB": agent_execution.LTM_DB,
+        "max_iterations": agent_execution.max_iterations,
+        "user_timezone": agent_execution.user_timezone,
+        "knowledge": agent_execution.knowledge
+    }
+    
+    db.session.add(db_agent_execution)
+    db.session.commit()
+    db.session.flush()
+    
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = db_agent_execution,
+                                                                     agent_execution_configs = agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
@@ -259,7 +351,7 @@ def get_agent_by_latest_execution(project_id: int,
     latest_execution = (
         db.session.query(AgentExecution)
         .join(Agent, AgentExecution.agent_id == Agent.id)
-        .filter(Agent.project_id == project_id)
+        .filter(Agent.project_id == project_id, Agent.is_deleted == False)
         .order_by(desc(AgentExecution.last_execution_time))
         .first()
     )

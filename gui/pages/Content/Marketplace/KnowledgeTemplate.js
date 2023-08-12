@@ -14,9 +14,9 @@ import {
   getValidMarketplaceIndices,
   installKnowledgeTemplate
 } from "@/pages/api/DashboardService";
-import {createInternalId} from "@/utils/utils";
+import {loadingTextEffect} from "@/utils/utils";
 
-export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
+export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('');
   const [dropdown, setDropdown] = useState(false);
   const [templateData, setTemplateData] = useState([]);
@@ -86,18 +86,12 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
     }
   }, []);
 
-  const handleInstallClick = (index) => {
-    setIndexDropdown(false);
-
-    if (!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0]) {
-      return;
-    }
-
+  const handleInstallClick = (indexId) => {
     setInstalled("Installing");
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('knowledge_to_install', template.name);
-      localStorage.setItem('knowledge_index_to_install', index.id);
+      localStorage.setItem('knowledge_index_to_install', indexId);
 
       if (env === 'PROD') {
         window.open(`https://app.superagi.com/`, '_self');
@@ -112,11 +106,13 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
       return;
     }
 
-    installKnowledgeTemplate(template.name, index.id)
+    setIndexDropdown(false);
+
+    installKnowledgeTemplate(template.name, indexId)
       .then((response) => {
-        toast.success("Knowledge installed", {autoClose: 1800});
-        setInstalled('Installed');
-        EventBus.emit('reFetchKnowledge', {});
+          toast.success("Knowledge installed", {autoClose: 1800});
+          setInstalled('Installed');
+          EventBus.emit('reFetchKnowledge', {});
       })
       .catch((error) => {
         toast.error("Error installing Knowledge: ", {autoClose: 1800});
@@ -203,7 +199,7 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Pinecone</div>
                           {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                               onClick={() => handleInstallClick(index)} style={{
+                                                               onClick={() => handleInstallClick(index.id)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',
@@ -212,7 +208,7 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
                             <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
                               color: '#888888',
                               textDecoration: 'line-through',
-                              pointerEvents: 'none',
+                              pointerEvents : 'none',
                             } : {}}>{index.name}</div>
                             {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
                               <div>
@@ -225,7 +221,7 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Qdrant</div>
                           {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                              onClick={() => handleInstallClick(index)} style={{
+                                                              onClick={() => handleInstallClick(index.id)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',
@@ -234,7 +230,7 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
                             <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
                               color: '#888888',
                               textDecoration: 'line-through',
-                              pointerEvents: 'none',
+                              pointerEvents : 'none',
                             } : {}}>{index.name}</div>
                             {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
                               <div>
@@ -243,20 +239,6 @@ export default function KnowledgeTemplate({template, env, sendDatabaseData}) {
                               </div>}
                           </div>))}
                         </div>}
-                      <div className={styles3.knowledge_db}
-                           style={{maxWidth: '100%', borderTop: '1px solid #3F3A4E'}}>
-                        <div className="custom_select_option"
-                             style={{padding: '12px 14px', maxWidth: '100%', borderRadius: '0'}}
-                             onClick={() => sendDatabaseData({
-                               id: -7,
-                               name: "new database",
-                               contentType: "Add_Database",
-                               internalId: createInternalId()
-                             })}>
-                          <Image width={15} height={15} src="/images/plus_symbol.svg" alt="add-icon"/>&nbsp;&nbsp;Add
-                          vector database
-                        </div>
-                      </div>
                     </div>}
                 </div>
               </div>}

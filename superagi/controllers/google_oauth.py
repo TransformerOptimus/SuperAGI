@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from sqlalchemy.orm import sessionmaker
+from fastapi import HTTPException
 
 import superagi
 import json
@@ -16,6 +17,7 @@ from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
 from superagi.config.config import get_config
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 router = APIRouter()
 
@@ -23,9 +25,15 @@ router = APIRouter()
 async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
     toolkit_id = int(state)
     client_id = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_ID", ToolConfig.toolkit_id == toolkit_id).first()
-    client_id = client_id.value
+    if(is_encrypted(client_id.value)):
+        client_id = decrypt_data(client_id.value)
+    else:
+        client_id = client_id.value
     client_secret = db.session.query(ToolConfig).filter(ToolConfig.key == "GOOGLE_CLIENT_SECRET", ToolConfig.toolkit_id == toolkit_id).first()
-    client_secret = client_secret.value
+    if(is_encrypted(client_secret.value)):
+        client_secret = decrypt_data(client_secret.value)
+    else:
+        client_secret = client_secret.value
     token_uri = 'https://oauth2.googleapis.com/token'
     scope = 'https://www.googleapis.com/auth/calendar'
     env = get_config("ENV", "DEV")
@@ -40,9 +48,12 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
         'scope': scope,
         'grant_type': 'authorization_code',
         'code': code,
-        'access_type': 'offline'
+        'access_type': 'offline',
+        'approval_prompt': 'force'
     }
     response = requests.post(token_uri, data=params)
+    if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Invalid Client Secret")
     response = response.json()
     expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
     expire_time = expire_time - timedelta(minutes=5)
@@ -74,6 +85,8 @@ def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize:
 def get_google_calendar_tool_configs(toolkit_id: int):
     google_calendar_config = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id,
                                                                  ToolConfig.key == "GOOGLE_CLIENT_ID").first()
+    if is_encrypted(google_calendar_config.value):
+        google_calendar_config.value = decrypt_data(google_calendar_config.value)
     return {
         "client_id": google_calendar_config.value
     }
