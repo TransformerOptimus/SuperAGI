@@ -9,7 +9,7 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
   const [showConstraints, setShowConstraints] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [filteredInstructions, setFilteredInstructions] = useState([]);
-  const [scheduleText, setScheduleText] = useState('Agent is not Scheduled');
+  const [scheduleText, setScheduleText] = useState('');
   const [agentDetails, setAgentDetails] = useState(null)
   const info_text = {
     marginLeft: '7px',
@@ -37,6 +37,10 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
   }, [agentDetails1]);
 
   useEffect(() => {
+    if(!agentScheduleDetails){
+      setScheduleText('')
+      return
+    }
     if (agent?.is_scheduled) {
       if (agentScheduleDetails?.recurrence_interval !== null) {
         if ((agentScheduleDetails?.expiry_runs === -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null) {
@@ -191,7 +195,7 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
         <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
         <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
       </div>}
-      {agent?.is_scheduled && <div className={styles.agent_info_box}>
+      {agent?.is_scheduled && scheduleText && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/event_repeat.svg" alt="info-icon"/></div>
         <div style={info_text}>{scheduleText}</div>
       </div>}

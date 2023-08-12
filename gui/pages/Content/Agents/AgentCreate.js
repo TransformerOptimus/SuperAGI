@@ -534,7 +534,9 @@ export default function AgentCreate({
       setEditButtonClicked(true);
       agentData.agent_id = editAgentId;
       const name = agentData.name
-      agentData.name = "New Run"
+      const adjustedDate = new Date((new Date()).getTime() + 6*24*60*60*1000 - 1*60*1000);
+      const formattedDate = `${adjustedDate.getDate()} ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][adjustedDate.getMonth()]} ${adjustedDate.getFullYear()} ${adjustedDate.getHours().toString().padStart(2, '0')}:${adjustedDate.getMinutes().toString().padStart(2, '0')}`;
+      agentData.name = "Run " + formattedDate
       addAgentRun(agentData)
         .then((response) => {
         if(response){
