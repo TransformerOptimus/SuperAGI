@@ -510,6 +510,15 @@ p {
     word-break: break-all;
 }
 
+.back_button {
+    font-weight: 500;
+    font-size: 12px;
+    color: #888888;
+    cursor: pointer;
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+}
 
 .primary_button, .primary_button_small{
     width: auto;
@@ -893,6 +902,8 @@ p {
 .mr_74{margin-right: 74px;}
 .mr_80{margin-right: 80px;}
 
+.fw_500{font-weight: 500;}
+
 .text_9{
     color: #FFF;
     font-family: Inter;
@@ -943,6 +954,14 @@ p {
 .text_17{
     color: #FFF;
     font-size: 17px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.text_20 {
+    color: #FFF;
+    font-size: 20px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -1067,6 +1086,8 @@ p {
 .align_start{align-items: flex-start}
 .align_end{align-items: flex-end}
 
+.align_self_end{align-self: flex-end}
+
 .text_align_right{text-align: right}
 .text_align_center{text-align: center}
 .text_align_left{text-align: left}
@@ -1099,6 +1120,7 @@ p {
 
 .lh_16{line-height: 16px;}
 .lh_17{line-height: 17px;}
+.lh_18{line-height: 18px;}
 
 .padding_0{padding: 0}
 .padding_5{padding: 5px;}
@@ -1753,3 +1775,37 @@ tr{
     background: rgba(255, 65, 65, 0.16);
     padding: 12px;
 }
+
+.info_box{
+    border-radius: 8px;
+    border-left: 4px solid rgba(255, 255, 255, 0.60);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px;
+}
+
+.horizontal_line {
+    margin: 16px 0 16px -16px;
+    border: 1px solid #ffffff20;
+    width: calc(100% + 32px);
+    display: flex;
+    height: 0;
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 8px;
+}
+
+.col_1 {grid-column: span 1;}
+.col_2 {grid-column: span 2;}
+.col_3 {grid-column: span 3;}
+.col_4 {grid-column: span 4;}
+.col_5 {grid-column: span 5;}
+.col_6 {grid-column: span 6;}
+.col_7 {grid-column: span 7;}
+.col_8 {grid-column: span 8;}
+.col_9 {grid-column: span 9;}
+.col_10 {grid-column: span 10;}
+.col_11 {grid-column: span 11;}
+.col_12 {grid-column: span 12;}

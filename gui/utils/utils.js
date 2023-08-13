@@ -457,3 +457,12 @@ export const preventDefault = (e) => {
 export const excludedToolkits = () => {
   return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
 }
+
+export const getFormattedDate = (data) => {
+  let date = new Date(data);
+  const year = date.getFullYear();
+  const day = date.getDate();
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = months[date.getMonth()];
+  return `${day} ${month} ${year}`;
+}

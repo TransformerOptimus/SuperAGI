@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String
 from superagi.models.base_model import DBBaseModel
 import requests
 
-marketplace_url = "https://app.superagi.com/api"
-# marketplace_url = "http://localhost:3000/api"
+# marketplace_url = "https://app.superagi.com/api"
+marketplace_url = "http://localhost:8001"
 class Models(DBBaseModel):
     """
     Represents a Model record in the database
@@ -12,7 +12,7 @@ class Models(DBBaseModel):
         id (Integer): The unique identifier of the event.
         model_name (String): The name of the model.
         description (String): The description for the model.
-        end_point (String): The end_point for the model.
+        end_point (String): The end_point for the model.3001
         model_provider_id (Integer): The unique id of the model_provider from the models_config table.
         token_limit (Integer): The maximum number of tokens for a model.
         type (Strng): The place it is added from.
@@ -56,10 +56,13 @@ class Models(DBBaseModel):
 
     @classmethod
     def get_model_install_details(cls, session, marketplace_models, organisation):
+        from superagi.models.models_config import ModelsConfig
         installed_models = session.query(Models).filter(Models.org_id == organisation.id).all()
-        for knowledge in marketplace_models:
-            if knowledge["name"] in [installed_model.name for installed_model in installed_models]:
-                knowledge["is_installed"] = True
-            else:
-                knowledge["is_installed"] = False
+        installed_models_dict = {model.model_name: True for model in installed_models}
+
+        for model in marketplace_models:
+            model["is_installed"] = installed_models_dict.get(model["model_name"], False)
+            model["source_name"] = session.query(ModelsConfig).filter(
+                ModelsConfig.id == model["model_provider_id"]).first().source_name
+
         return marketplace_models

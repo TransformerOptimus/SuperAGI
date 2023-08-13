@@ -35,8 +35,6 @@ async def storeApiKeys(request: ValidateAPIKeyRequest, organisation=Depends(get_
 @router.get("/getApiKeys")
 async def getApiKeys(organisation=Depends(get_user_organisation)):
     try:
-        print(".........>>>>>>>>>>>>>>>................")
-        print(get_config("MARKETPLACE_ORGANISATION_ID"))
         return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchApiKeys()
     except Exception as e:
         logging.error(f"Error while retrieving API Keys: {str(e)}")
@@ -91,7 +89,7 @@ async def fetchModels(model: str, organisation=Depends(get_user_organisation)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get/list", status_code=200)
-def get_knowledge_list(page: int = Query(None, title="Page Number"), organisation=Depends(get_user_organisation)):
+def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation)):
     """
     Get Marketplace Model list.
 
@@ -106,22 +104,17 @@ def get_knowledge_list(page: int = Query(None, title="Page Number"), organisatio
         page = 0
     marketplace_models = Models.fetch_marketplace_list(page)
     marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation)
-    for knowledge in marketplace_models_with_install:
-        knowledge["install_number"] = MarketPlaceStats.get_knowledge_installation_number(knowledge["id"])
     return marketplace_models_with_install
 
 @router.get("/marketplace/list/{page}", status_code=200)
 def get_marketplace_knowledge_list(page: int = 0):
     organisation_id = 2
-    page_size = 30
+    page_size = 16
 
     # Apply search filter if provided
     query = db.session.query(Models).filter(Models.org_id == organisation_id)
-    print("qwwwwwwwwwwwwwwww")
-    print(query)
     if page < 0:
         models = query.all()
     # Paginate the results
     models = query.offset(page * page_size).limit(page_size).all()
-
     return models
