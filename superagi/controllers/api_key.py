@@ -44,7 +44,7 @@ def edit_api_key(api_key_in:ApiKeyIn,Authorize: AuthJWT = Depends(check_auth)):
     api_key=ApiKey.get_by_id(db.session, api_key_in.id)
     if api_key is None:
         raise HTTPException(status_code=404, detail="API key not found")
-    ApiKey.edit_by_id(db.session, api_key_in.id, api_key_in.name)
+    ApiKey.update_api_key(db.session, api_key_in.id, api_key_in.name)
     return {"success": True}
 
 

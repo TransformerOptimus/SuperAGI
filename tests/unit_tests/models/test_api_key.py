@@ -83,7 +83,7 @@ def test_edit_by_id():
     session.query.return_value.filter.return_value.first.return_value = mock_api_key
 
     # Call the method under test
-    ApiKey.edit_by_id(session, api_key_id, new_name)
+    ApiKey.update_api_key(session, api_key_id, new_name)
 
     # Assert that the api key's name attribute is updated
     assert mock_api_key.name == new_name

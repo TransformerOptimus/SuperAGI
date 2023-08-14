@@ -38,7 +38,7 @@ class ApiKey(DBBaseModel):
         session.flush()
 
     @classmethod
-    def edit_by_id(cls,session,id: int, name: str):
+    def update_api_key(cls, session, id: int, name: str):
         db_api_key = session.query(ApiKey).filter(ApiKey.id == id).first()
         db_api_key.name = name
         session.commit()
