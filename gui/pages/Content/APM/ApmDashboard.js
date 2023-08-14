@@ -294,7 +294,7 @@ export default function ApmDashboard() {
                               <div style={{display:'inline-flex'}}>
                                 {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip">
                                   {run.tools_used.slice(3).map((tool,index) =>
-                                      <div className="tools_used">{tool}</div>
+                                      <div className="tools_used" key={index}>{tool}</div>
                                   )}
                                 </div>}
                                 <div className="tools_used cursor_pointer" onMouseEnter={() => setToolTipState(true,i)} onMouseLeave={() => setToolTipState(false,i)}>
