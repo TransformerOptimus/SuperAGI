@@ -111,15 +111,12 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
     agent=Agent.get_agent_from_id(db.session,agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-    
     project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
-    
     db_schedule=AgentSchedule.find_by_agent_id(db.session, agent_id)
     if db_schedule is not None:
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot run")
-    
     start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
     db_agent_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "CREATED")
 
@@ -230,7 +227,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     }
 
 
-@router.get("/run/{agent_id}")
+@router.post("/run/{agent_id}")
 def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
@@ -253,7 +250,7 @@ def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = S
     return response_arr
 
 
-@router.get("/pause/{agent_id}",status_code=200)
+@router.post("/pause/{agent_id}",status_code=200)
 def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateChangeConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
@@ -268,7 +265,7 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
         try:
             AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
         except Exception as e:
-            raise HTTPException(status_code=404, detail=str(e))
+            raise HTTPException(status_code=404, detail="One or more run_ids not found")
     
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "RUNNING")
     for ind_execution in db_execution_arr:
@@ -279,7 +276,7 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
         "result":"success"
     }
 
-@router.get("/resume/{agent_id}",status_code=200)
+@router.post("/resume/{agent_id}",status_code=200)
 def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateChangeConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
@@ -293,7 +290,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
         try:
             AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
         except Exception as e:
-            raise HTTPException(status_code=404, detail=str(e))
+            raise HTTPException(status_code=404, detail="One or more run_ids not found")
     
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "PAUSED")
     for ind_execution in db_execution_arr:
@@ -305,7 +302,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
         "result":"success"
     }
 
-@router.get("/resources/output",status_code=201)
+@router.post("/resources/output",status_code=201)
 def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     if get_config('STORAGE_TYPE') != "S3":
         raise HTTPException(status_code=400,detail="This endpoint only works when S3 is configured")
@@ -317,13 +314,13 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
     try:
         AgentExecution.validate_run_ids(db.session,run_ids_arr,organisation.id)
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail="One or more run_ids not found")
     
     db_resources_arr=Resource.find_by_run_ids(db.session, run_ids_arr)
 
     try:
         response_obj=S3Helper().get_download_url_of_resources(db_resources_arr)
     except:
-        raise HTTPException(status_code=400,detail="Invalid S3 credentials")
+        raise HTTPException(status_code=401,detail="Invalid S3 credentials")
     return response_obj
 
