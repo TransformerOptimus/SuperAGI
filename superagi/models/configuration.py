@@ -2,7 +2,6 @@ from fastapi import HTTPException
 from sqlalchemy import Column, Integer, String,Text
 
 from superagi.helper.encyption_helper import decrypt_data
-from superagi.models.agent import Agent
 from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
@@ -73,6 +72,7 @@ class Configuration(DBBaseModel):
             dict: Parsed configuration.
 
         """
+        from superagi.models.agent import Agent
         agent = session.query(Agent).filter(Agent.id == agent_id).first()
         if not agent:
             raise HTTPException(status_code=404, detail="Agent not found")

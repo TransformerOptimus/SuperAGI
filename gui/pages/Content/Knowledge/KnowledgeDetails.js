@@ -8,7 +8,7 @@ import {deleteCustomKnowledge, deleteMarketplaceKnowledge, getKnowledgeDetails} 
 import {removeTab} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseData}) {
+export default function KnowledgeDetails({internalId, knowledgeId}) {
   const [showDescription, setShowDescription] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,8 +33,8 @@ export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseD
         .then((response) => {
           console.log(response)
           toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
-          removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
-          EventBus.emit('reFetchKnowledge', {});
+            removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
+            EventBus.emit('reFetchKnowledge', {});
         })
         .catch((error) => {
           toast.error("Unable to uninstall knowledge", {autoClose: 1800});
@@ -43,7 +43,7 @@ export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseD
     } else {
       deleteCustomKnowledge(knowledgeId)
         .then((response) => {
-          toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
+            toast.success("Knowledge uninstalled successfully", {autoClose: 1800});
           removeTab(knowledgeId, knowledgeName, "Knowledge", internalId);
           EventBus.emit('reFetchKnowledge', {});
         })
@@ -103,7 +103,6 @@ export default function KnowledgeDetails({internalId, knowledgeId, sendDatabaseD
                          isEditing={true}
                          setIsEditing={setIsEditing}
                          sendKnowledgeData={null}
-                         sendDatabaseData={sendDatabaseData}
           /> :
           <div>
             <div className={styles.tools_container}>

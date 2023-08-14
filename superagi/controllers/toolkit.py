@@ -14,6 +14,8 @@ from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
+from superagi.helper.tool_helper import compare_toolkit
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 router = APIRouter()
 
@@ -73,6 +75,9 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
                                                Toolkit.name == toolkit_name).first()
     toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
     toolkit.configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
+    for tool_configs in toolkit.configs:
+        if is_encrypted(tool_configs.value):
+            tool_configs.value = decrypt_data(tool_configs.value)
     return toolkit
 
 
@@ -145,8 +150,8 @@ def install_toolkit_from_marketplace(toolkit_name: str,
     toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
                                                toolkit_name=toolkit_name)
     db_toolkit = Toolkit.add_or_update(session=db.session, name=toolkit['name'], description=toolkit['description'],
-                          tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
-                          show_toolkit=toolkit['show_toolkit'])
+                                       tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
+                                       show_toolkit=toolkit['show_toolkit'])
     for tool in toolkit['tools']:
         Tool.add_or_update(session=db.session, tool_name=tool['name'], description=tool['description'],
                            folder_name=tool['folder_name'], class_name=tool['class_name'], file_name=tool['file_name'],
@@ -303,3 +308,60 @@ def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_org
         toolkit.tools = toolkit_tools
 
     return toolkits
+
+
+@router.get("/check_update/{toolkit_name}")
+def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+    """
+    Check if there is an update available for the installed tool kits.
+
+    Returns:
+        dict: The response containing the update details.
+
+    """
+    marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
+                                                           toolkit_name=toolkit_name)
+    if marketplace_toolkit is None:
+        raise HTTPException(status_code=404, detail="Toolkit not found in marketplace")
+    installed_toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name, organisation)
+    if installed_toolkit is None:
+        return True
+    installed_toolkit = installed_toolkit.to_dict()
+    tools = Tool.get_toolkit_tools(db.session, installed_toolkit["id"])
+    configs = ToolConfig.get_toolkit_tool_config(db.session, installed_toolkit["id"])
+    installed_toolkit["configs"] = []
+    installed_toolkit["tools"] = []
+
+    for config in configs:
+        installed_toolkit["configs"].append(config.to_dict())
+    for tool in tools:
+        installed_toolkit["tools"].append(tool.to_dict())
+
+    return compare_toolkit(marketplace_toolkit, installed_toolkit)
+
+
+@router.put("/update/{toolkit_name}")
+def update_toolkit(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+    """
+        Update the toolkit with the latest version from the marketplace.
+    """
+    marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
+                                                           toolkit_name=toolkit_name)
+
+    update_toolkit = Toolkit.add_or_update(
+        db.session,
+        name=marketplace_toolkit["name"],
+        description=marketplace_toolkit["description"],
+        show_toolkit=True if len(marketplace_toolkit["tools"]) > 1 else False,
+        organisation_id=organisation.id,
+        tool_code_link=marketplace_toolkit["tool_code_link"]
+    )
+
+    for tool in marketplace_toolkit["tools"]:
+        Tool.add_or_update(db.session, tool_name=tool["name"], folder_name=tool["folder_name"],
+                           class_name=tool["class_name"], file_name=tool["file_name"],
+                           toolkit_id=update_toolkit.id, description=tool["description"])
+
+    for tool_config_key in marketplace_toolkit["configs"]:
+        ToolConfig.add_or_update(db.session, toolkit_id=update_toolkit.id,
+                                 key=tool_config_key["key"])

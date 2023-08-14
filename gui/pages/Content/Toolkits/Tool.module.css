@@ -194,8 +194,19 @@
 }
 
 .search_box input {
-    width: 600px;
+    width: 100%;
     height: 25px;
+    font-size: x-small;
+    padding: 5px;
+    border: 1px solid rgb(96, 96, 96);
+    border-radius: 6px;
+    background-color: #454254;
+}
+
+.search_box textarea {
+    width: 100%;
+    min-height: 60px;
+    max-height: 120px;
     font-size: x-small;
     padding: 5px;
     border: 1px solid rgb(96, 96, 96);

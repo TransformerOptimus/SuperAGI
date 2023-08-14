@@ -57,3 +57,11 @@ class TwitterHelper:
 
         response = oauth.post(tweet_endpoint, json=params)
         return response
+
+    def _get_image_data(self, file_path):
+        if get_config("STORAGE_TYPE") == StorageType.S3:
+            return S3Helper().read_binary_from_s3(file_path)
+        else:
+            with open(file_path, "rb") as image_file:
+                return image_file.read()
+            
