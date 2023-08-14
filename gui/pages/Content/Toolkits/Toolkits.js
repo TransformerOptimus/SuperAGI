@@ -5,10 +5,8 @@ import {createInternalId, returnToolkitIcon, excludedToolkits} from "@/utils/uti
 export default function Toolkits({sendToolkitData, toolkits, env}) {
   return (
     <>
-      <div className={styles1.container}>
-        <div className={styles1.title_box}>
-          <p className={styles1.title_text}>Toolkits</p>
-        </div>
+      <div className="container">
+        <p className="text_14 mt_8 mb_12 ml_8">Toolkits</p>
         {toolkits && toolkits.length > 0 ? (
           <div className="vertical_selection_scroll">
           {toolkits.map((tool, index) =>
