@@ -73,9 +73,6 @@ export default function AgentCreate({
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  // const agentTypes = ["Goal Based Workflow",
-  //   "Dynamic Task Workflow", "Fixed Task Workflow", "Sales Research Workflow", "SuperCoder", "DocSuperCoder", "Research & send email"]
-  // const agentTypes = ["Don't Maintain Task Queue", "Maintain Task Queue", "Fixed Task Queue"]
   const [agentWorkflows, setAgentWorkflows] = useState('');
   const [agentWorkflow, setAgentWorkflow] = useState(agentWorkflows[0]);
 
@@ -537,7 +534,9 @@ export default function AgentCreate({
       setEditButtonClicked(true);
       agentData.agent_id = editAgentId;
       const name = agentData.name
-      agentData.name = "New Run"
+      const adjustedDate = new Date((new Date()).getTime() + 6*24*60*60*1000 - 1*60*1000);
+      const formattedDate = `${adjustedDate.getDate()} ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][adjustedDate.getMonth()]} ${adjustedDate.getFullYear()} ${adjustedDate.getHours().toString().padStart(2, '0')}:${adjustedDate.getMinutes().toString().padStart(2, '0')}`;
+      agentData.name = "Run " + formattedDate
       addAgentRun(agentData)
         .then((response) => {
         if(response){
@@ -864,7 +863,7 @@ export default function AgentCreate({
   }
 
   const checkPermissionValidity = (permit) => {
-   if((agentType === 'Sales Research Workflow' || agentType === 'Recruitment Workflow' || agentType === 'SuperCoder' ) && permit === 'RESTRICTED (Will ask for permission before using any tool)')
+   if(!(agentWorkflow === 'Fixed Task Workflow' || agentWorkflow === 'Dynamic Task Workflow' || agentWorkflow === 'Goal Based Workflow' ) && permit === 'RESTRICTED (Will ask for permission before using any tool)')
      return true;
    else
      return false;

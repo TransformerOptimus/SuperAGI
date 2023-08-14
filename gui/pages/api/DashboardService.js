@@ -104,6 +104,10 @@ export const fetchAgentTemplateList = () => {
   return api.get('/agent_templates/list?template_source=marketplace');
 };
 
+export const fetchAgentTemplateDetails = (templateId) => {
+  return api.get(`/agent_templates/get/${templateId}`);
+};
+
 export const getToolConfig = (toolKitName) => {
   return api.get(`/tool_configs/get/toolkit/${toolKitName}`);
 };
