@@ -102,7 +102,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
         if agent_config.key not in keys_to_exclude:
             if agent_config.key == "toolkits":
                 if agent_config.value:
-                    toolkits = [int(item) for item in agent_config.value.strip('{}').split(',') if item.strip()]
+                    toolkits = [int(item) for item in agent_config.value.strip('{}').split(',') if item.strip() and item != '[]']
                     agent_execution_configs[agent_config.key] = toolkits
                 else:
                     agent_execution_configs[agent_config.key] = []
