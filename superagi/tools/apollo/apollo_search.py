@@ -117,7 +117,10 @@ class ApolloSearchTool(BaseTool):
             data["q_organization_domains"] = organization_domains
 
         if num_of_employees:
-            data["num_of_employees"] = [str(num_of_employees[0]) + ","+ str(num_of_employees[1])]
+            if num_of_employees[1] == num_of_employees[0]:
+                data["num_of_employees"] = [str(num_of_employees[0]) + ","]
+            else:
+                data["num_of_employees"] = [str(num_of_employees[0]) + ","+ str(num_of_employees[1])]
         if person_location:
             data["person_locations"] = [person_location]
 
