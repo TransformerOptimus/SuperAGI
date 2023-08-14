@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from superagi.models.agent import Agent
 
 
-def find_by_agent_id():
+def test_get_agent_from_id():
     # Create a mock session
     session = create_autospec(Session)
 
