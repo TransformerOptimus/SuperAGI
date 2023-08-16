@@ -1,19 +1,25 @@
 import React, {useState, useEffect} from "react";
 import Image from "next/image";
-import {openNewTab} from "@/utils/utils";
-import {fetchApiKey} from "@/pages/api/DashboardService";
+import {openNewTab, modelIcon} from "@/utils/utils";
+import {fetchApiKey, storeModel} from "@/pages/api/DashboardService";
+import {toast} from "react-toastify";
 
 export default function AddModelMarketPlace(template){
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
-    const [modelDetail, setModelDetail] = useState('');
+    const [modelVersion, setModelVersion] = useState('');
+    const [modelEndpoint, setModelEndpoint] = useState('');
     const [tokenError, setTokenError] = useState(false);
+    const [templateData, setTemplateData] = useState(template.template);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(()=>{
-        checkModelProvider()
+        console.log(templateData)
+        checkModelProvider().then().catch();
     },[])
+
     const checkModelProvider = async () => {
-        const response = await fetchApiKey('Google Palm');
-        if(response && response.data && response.data.length <= 0) {
+        const response = await fetchApiKey(templateData.source_name);
+        if(response && response.data && response.data[0].api_key === '') {
             setTokenError(true)
             return true
         }
@@ -22,6 +28,21 @@ export default function AddModelMarketPlace(template){
             return false
         }
     }
+
+    const storeModelDetails = () => {
+        storeModel(templateData.model_name, templateData.description, modelEndpoint, templateData.model_provider_id, modelTokenLimit, "Marketplace", modelVersion).then((response) =>{
+            setIsLoading(false)
+            if (response.data.error) {
+                toast.error(response.data.error,{autoClose: 1800});
+            } else if (response.data.success) {
+                toast.success(response.data.success,{autoClose: 1800});
+            }
+        }).catch((error) => {
+            console.log("SORRY, There was an error storing the model details" + error);
+            setIsLoading(false)
+        });
+    }
+
     return(
         <div id="add_model_marketplace" className="row text_12 color_gray">
             <div className="col-3" />
@@ -29,13 +50,25 @@ export default function AddModelMarketPlace(template){
                 <div className="vertical_containers">
                     <span className="text_16 color_white">Add Model</span>
 
-                    <span className="mt_24">{template.source_name} Model Endpoint</span>
-                    <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"
-                           onChange={(event) => setModelDetail(event.target.value)}/>
+                    <div className="vertical_containers tag_container mt_24">
+                        <span className="text_14 color_white">{templateData.model_name}</span>
+                        <div className="horizontal_container mt_8">
+                            <span>By {templateData.source_name}&nbsp;·&nbsp;</span>
+                            <Image width={18} height={18} src={modelIcon(templateData.source_name)} alt="logo-icon" />
+                            <span className="ml_4">{templateData.source_name}</span>
+                        </div>
+                    </div>
+                    {templateData.source_name === 'Hugging Face' && <div className="vertical_containers">
+                        <span className="mt_24">{templateData.source_name} Model Endpoint</span>
+                        <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"
+                               onChange={(event) => setModelEndpoint(event.target.value)}/>
+                    </div>}
 
-                    <span className="mt_24">{template.source_name} Version</span>
-                    <input className="input_medium mt_8" type="text" placeholder="Enter Model Version"
-                           onChange={(event) => setModelDetail(event.target.value)}/>
+                    {templateData.source_name === 'Replicate' && <div className="vertical_containers">
+                        <span className="mt_24">{templateData.source_name} Version</span>
+                        <input className="input_medium mt_8" type="text" placeholder="Enter Model Version"
+                               onChange={(event) => setModelVersion(event.target.value)}/>
+                    </div>}
 
                     <span className="mt_24">Token Limit</span>
                     <input className="input_medium mt_8" type="number" placeholder="Enter the Token Limit" value={modelTokenLimit}
@@ -44,7 +77,7 @@ export default function AddModelMarketPlace(template){
                     {tokenError && <div className="horizontal_container align_start error_box mt_24 gap_6">
                         <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
                         <div className="vertical_containers">
-                            <span className="text_12 color_white lh_16">The <b>{template.source_name}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{template.source_name}</b> dashboard. </span>
+                            <span className="text_12 color_white lh_16">The <b>{templateData.source_name}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{templateData.source_name}</b> dashboard. </span>
                             <div className="horizontal_container mt_16">
                                 <button className="primary_button_small" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Add auth token</button>
                                 <button className="secondary_button_small ml_8">Get auth token</button>
@@ -60,7 +93,8 @@ export default function AddModelMarketPlace(template){
                         </div>
                     </div>
 
-                    <button className="primary_button w_fit_content align_self_end mt_24">Install</button>
+                    <button className="primary_button w_fit_content align_self_end mt_24" disabled={tokenError}
+                            onClick={() => storeModelDetails()}>Install</button>
                 </div>
             </div>
             <div className="col-3" />

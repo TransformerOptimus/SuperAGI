@@ -1809,3 +1809,19 @@ tr{
 .col_10 {grid-column: span 10;}
 .col_11 {grid-column: span 11;}
 .col_12 {grid-column: span 12;}
+
+.tag_container {
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.20);
+    padding: 16px;
+}
+
+.tags {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.14);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 2px 8px;
+}

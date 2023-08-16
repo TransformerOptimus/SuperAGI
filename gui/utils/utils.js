@@ -466,3 +466,14 @@ export const getFormattedDate = (data) => {
   const month = months[date.getMonth()];
   return `${day} ${month} ${year}`;
 }
+
+export const modelIcon = (model) => {
+  const icons = {
+    'Hugging Face': '/images/huggingface_logo.svg',
+    'Google Palm': '/images/google_palm_logo.svg',
+    'Replicate': '/images/replicate.svg',
+    'OpenAI': '/images/openai_logo.svg',
+  }
+
+  return icons[model];
+}
