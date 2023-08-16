@@ -10,6 +10,7 @@ import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
 import {loadingTextEffect} from "@/utils/utils";
 
+
 export default function AgentTemplate({template, env}) {
   const [tools, setTools] = useState([])
   const [agentWorkflow, setAgentWorkflow] = useState('')
