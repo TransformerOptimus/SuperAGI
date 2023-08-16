@@ -1678,8 +1678,8 @@ tr{
 
 .loading_container{
     display: flex;
-    justifyContent: center;
-    alignItems: center;
+    justify-content: center;
+    align-items: center;
     height: 50vh
 }
 
