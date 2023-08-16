@@ -18,7 +18,7 @@ export default function ModelMetrics(modelDetails) {
 
     const getModelInfo = () =>{
         if(modelData.name !== undefined){
-            fetchModelData(modelData.name).then((response)=>{
+            fetchModelData(modelData.name.includes('/') ? modelData.name.split('/')[1] : modelData.name).then((response)=>{
                 console.log(response)
                 setModelMeta(response.data)
                 setModelRunData(response.data.runs)
@@ -78,9 +78,9 @@ export default function ModelMetrics(modelDetails) {
                                             <td className="table_data w_20">{data.agent_name}</td>
                                             <td className="table_data w_20">{data.agent_execution_name}</td>
                                             <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
-                                                <Image className="image_class bg_black" width={20} height={20}
-                                                       src={returnToolkitIcon(data.toolkit_name)} alt="tool-icon"/>
-                                                <span>{data.tool_used}</span>
+                                                {data.tool_used && <Image className="image_class bg_black" width={20} height={20}
+                                                       src={returnToolkitIcon(data.toolkit_name)} alt="tool-icon"/>}
+                                                <span>{data.tool_used ? data.tool_used : '-NA-'}</span>
                                             </td>
                                             <td className="table_data text_align_right w_20">{formatNumber(data.tokens_consumed)}</td>
                                         </tr>

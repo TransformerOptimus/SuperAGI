@@ -83,7 +83,7 @@ class AgentIterationStepHandler:
         print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
         print(messages)
         current_tokens = TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(messages = messages, model = self.llm.get_model())
-        print("33333333333333333333333333333333333")
+        print("333333333333333333333333333333333331")
         print(current_tokens)
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 
@@ -92,8 +92,19 @@ class AgentIterationStepHandler:
 
         total_tokens = current_tokens + TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
-        ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
-        print("33333333333333333333333333333333333")
+        try:
+            content = json.loads(response['content'])
+            tool = content.get('tool', {})
+            tool_name = tool.get('name', '') if tool else ''
+        except json.JSONDecodeError:
+            print("Decoding JSON has failed")
+            tool_name = ''
+
+        ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,
+                                                                                            agent_config['agent_id'],
+                                                                                            total_tokens, tool_name,
+                                                                                            agent_config['model'])
+        print("3333333333333333333333333333333333356")
 
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,

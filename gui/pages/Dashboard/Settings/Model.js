@@ -60,7 +60,7 @@ export default function Model({organisationId}) {
     fetchApiKeys().then((response) => {
       if(response.data.length > 0) {
         response.data.forEach(item => {
-          const index = models.findIndex(model => model.source === item.source_name);
+          const index = models.findIndex(model => model.source.toLowerCase() === item.source_name.toLowerCase());
           if (index !== -1) {
             const newModels = [...models];
             newModels[index].api_key = item.api_key;

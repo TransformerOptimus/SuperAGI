@@ -28,8 +28,8 @@ export default function Models({sendModelData, models}){
                     {models.map((model, index) => (
                         <div key={index}>
                             <div className="sidebar_box flex_dir_col align_start w_100" onClick={() => handleModelSelect(model)}>
-                                <div className="text_ellipsis"><span className="text_13 color_white text_ellipsis">{model.name}</span></div>
-                                <div className="text_12 color_gray mt_4">by {model.model_provider} · {model.model_provider}</div>
+                                <div className="text_ellipsis"><span className="text_13 color_white text_ellipsis">{model.name.split('/')[1] || model.name}</span></div>
+                                <div className="text_12 color_gray mt_4">by {model.name.includes('/') ? model.name.split('/')[0] : model.model_provider} · {model.model_provider}</div>
                             </div>
                         </div>
                     ))}

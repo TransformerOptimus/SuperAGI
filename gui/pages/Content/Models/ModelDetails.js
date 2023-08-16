@@ -25,8 +25,8 @@ export default function ModelDetails({modelId, modelName}){
     return(
         <div id="model_details" className="ml_3 mr_3">
             <div className="vertical_containers padding_16_8">
-                <span className="text_16">{modelDetails.name}</span>
-                <span className="text_12 color_gray mt_4">{modelDetails.description}</span>
+                <span className="text_16">{ modelDetails.name ? (modelDetails.name.split('/')[1] || modelDetails.name) : ""}</span>
+                <span className="text_12 color_gray mt_8 lh_18">{modelDetails.description}</span>
                 <div className="horizontal_container gap_4 mt_16 mb_2">
                     <button className={selectedOption === 'metrics' ? 'tab_button_selected' : 'tab_button'}
                             onClick={() => setSelectedOption('metrics')}>Metrics</button>
