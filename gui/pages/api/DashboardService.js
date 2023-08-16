@@ -48,7 +48,6 @@ export const createAgent = (agentData, scheduledCreate) => {
   return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
-
 export const addAgentRun = (agentData) => {
   return api.post( `/agentexecutions/add_run`, agentData);
 };
