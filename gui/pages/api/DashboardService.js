@@ -48,6 +48,7 @@ export const createAgent = (agentData, scheduledCreate) => {
   return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
+
 export const addAgentRun = (agentData) => {
   return api.post( `/agentexecutions/add_run`, agentData);
 };
@@ -262,6 +263,10 @@ export const connectPinecone = (pineconeData) => {
 
 export const connectQdrant = (qdrantData) => {
   return api.post(`/vector_dbs/connect/qdrant`, qdrantData);
+};
+
+export const connectWeaviate = (weaviateData) => {
+  return api.post(`/vector_dbs/connect/weaviate`, weaviateData);
 };
 
 export const getKnowledge = () => {
