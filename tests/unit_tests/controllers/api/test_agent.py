@@ -107,7 +107,8 @@ def test_get_run_resources_no_run_ids(mock_run_id_config_empty,mock_api_key_get)
     with patch('superagi.helper.auth.get_organisation_from_api_key') as mock_get_user_org, \
             patch('superagi.helper.auth.validate_api_key') as mock_validate_api_key, \
                 patch('superagi.helper.auth.db') as mock_auth_db, \
-                    patch('superagi.controllers.api.agent.db') as db_mock:
+                    patch('superagi.controllers.api.agent.db') as db_mock, \
+                        patch('superagi.controllers.api.agent.get_config', return_value="S3") as mock_get_config:
 
         # Mock the session
         mock_session = create_autospec(Session)
@@ -125,7 +126,8 @@ def test_get_run_resources_invalid_run_ids(mock_run_id_config_invalid,mock_api_k
     with patch('superagi.helper.auth.get_organisation_from_api_key') as mock_get_user_org, \
             patch('superagi.helper.auth.validate_api_key') as mock_validate_api_key, \
                 patch('superagi.helper.auth.db') as mock_auth_db, \
-                    patch('superagi.controllers.api.agent.db') as db_mock:
+                    patch('superagi.controllers.api.agent.db') as db_mock, \
+                        patch('superagi.controllers.api.agent.get_config', return_value="S3") as mock_get_config:
 
         # Mock the session
         mock_session = create_autospec(Session)
