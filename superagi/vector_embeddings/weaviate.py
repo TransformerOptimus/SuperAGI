@@ -10,9 +10,5 @@ class Weaviate(VectorEmbeddings):
     
     def get_vector_embeddings_from_chunks(self):
         """ Returns embeddings for vector dbs from final chunks"""
-        result = {}
-        result['ids'] = self.uuid
-        result['data_object'] = self.metadata
-        result['vectors'] = self.embeds
 
-        return result
+        return {'id': self.uuid, 'data_object': self.metadata, 'vectors': self.embeds}

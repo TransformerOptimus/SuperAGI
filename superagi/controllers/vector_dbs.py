@@ -139,9 +139,10 @@ def update_vector_db(new_indices: list, vector_db_id: int):
             vector_db_storage  = VectorFactory.build_vector_storage(vector_db.db_type, index, **db_creds)
             vector_db_index_stats = vector_db_storage.get_index_stats()
             index_state = "Custom" if vector_db_index_stats["vector_count"] > 0 else "None"
+            dimensions = vector_db_index_stats["dimensions"] if 'dimensions' in vector_db_index_stats else None
         except:
            raise HTTPException(status_code=400, detail="Unable to update vector db")
-        VectordbIndices.add_vector_index(db.session, index, vector_db_id, index_state, vector_db_index_stats["dimensions"])
+        VectordbIndices.add_vector_index(db.session, index, vector_db_id, index_state, dimensions)
 
 
 
