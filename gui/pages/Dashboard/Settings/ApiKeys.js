@@ -17,6 +17,7 @@ export default function ApiKeys() {
   const [keyName, setKeyName] = useState('');
   const [editKey, setEditKey] = useState('');
   const apiKeyRef = useRef(null);
+  const editKeyRef = useRef(null);
   const [editKeyId, setEditKeyId] = useState(-1);
   const [deleteKey, setDeleteKey] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -85,7 +86,7 @@ export default function ApiKeys() {
   }
 
   const handleEditClick = () => {
-    if(!editKey){
+    if(editKeyRef.current.value.length <1){
       toast.error("Enter valid key name", {autoClose: 1800});
       return;
     }
@@ -120,12 +121,12 @@ export default function ApiKeys() {
   return (<>
     <div className="row">
       <div className="col-2"></div>
-      <div className="col-8" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+      <div className="col-8 col-6-scrollable">
         {!isLoading ? <div>
           <div className="title_wrapper mb_15">
           <div className={styles.page_title}>Api Keys</div>
             {apiKeys && apiKeys.length > 0 && !isLoading &&
-              <button className="primary_button" onClick={() => {setCreateModal(true); setKeyName('')}} style={{marginTop: '-10px', marginRight: '20px'}}>
+              <button className="primary_button mr_20" onClick={() => {setCreateModal(true); setKeyName('')}} style={{marginTop: '-10px'}}>
                 Create Key
               </button>}
           </div>
@@ -133,9 +134,9 @@ export default function ApiKeys() {
           <label className={agentStyles.form_label}>Your secret API keys are important and should be kept safe. Do not share them with anyone or expose them in any case.</label>
           <label className={agentStyles.form_label}>To help keep your API keys safe, you can store them in a secure location, rotate them regularly, and use different API keys for different applications. By following these tips, you can help protect your account and your data.</label>
 
-            {apiKeys.length < 1 && <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '40px', width: '100%'}}>
+            {apiKeys.length < 1 && <div className={agentStyles.table_contents}>
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-            <span className={styles.feed_title} style={{marginTop: '8px'}}>No API Keys created!</span>
+            <span className={`${styles.feed_title} ${'mt_8'}`}>No API Keys created!</span>
             <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px'}}>
               <button className="primary_button" onClick={() => {setCreateModal(true); setKeyName('')}}>Create Key
               </button>
@@ -175,22 +176,22 @@ export default function ApiKeys() {
               </div>
             </div>}
         </div>
-      </div> :  <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh'}}>
-          <div className="signInInfo" style={{fontSize: '16px', fontFamily: 'Source Code Pro'}}>{loadingText}</div>
+      </div> :  <div className="loading_container">
+          <div className="signInInfo loading_text">{loadingText}</div>
         </div>}
       </div>
       <div className="col-2"></div>
     </div>
 
     {createModal && (<div className="modal" onClick={() => setCreateModal(false)}>
-      <div className="modal-content" style={{width: '35%'}} onClick={preventDefault}>
+      <div className="modal-content w_35" onClick={preventDefault}>
         <div className={styles.detail_name}>Create new Api Key</div>
         <div>
           <label className={styles.form_label}>Name</label>
           <input placeholder="Enter your Palm API key" className="input_medium" type="text" value={keyName} onChange={handleModelApiKey}/>
         </div>
-        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '20px'}}>
-          <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setCreateModal(false)}>
+        <div className={agentStyles.modal_buttons}>
+          <button className="secondary_button mr_10" onClick={() => setCreateModal(false)}>
             Cancel
           </button>
           <button className="primary_button" onClick={() => createApikey()}>
@@ -233,12 +234,12 @@ export default function ApiKeys() {
       </div>
     </div>)}
 
-    {editModal && editKey && (<div className="modal" onClick={() => {setEditModal(false); setEditKey(''); setEditKeyId(-1)}}>
+    {editModal && (<div className="modal" onClick={() => {setEditModal(false); setEditKey(''); setEditKeyId(-1)}}>
       <div className="modal-content w_35" onClick={preventDefault}>
         <div className={styles.detail_name}>Edit Api Key</div>
             <div>
                 <label className={styles.form_label}>Name</label>
-                <input placeholder={editKey} className="input_medium" type="text" onChange={handleEditApiKey}/>
+                <input ref={editKeyRef} placeholder={editKey} className="input_medium" type="text" onChange={handleEditApiKey}/>
             </div>
         <div className={agentStyles.modal_buttons}>
           <button className="secondary_button mr_10" onClick={() => {setEditModal(false); setEditKey(''); setEditKeyId(-1)}}>

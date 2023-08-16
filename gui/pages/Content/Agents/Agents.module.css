@@ -440,3 +440,11 @@
     margin-left: -5px;
     margin-right: 5px;
 }
+.table_contents{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+    width: 100%
+}

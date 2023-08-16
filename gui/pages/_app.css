@@ -1675,3 +1675,16 @@ tr{
 .history_box_selected{
     background: #474255;
 }
+
+.loading_container{
+    display: flex;
+    justifyContent: center;
+    alignItems: center;
+    height: 50vh
+}
+
+.loading_text{
+    font-size: 16px;
+    font-family: 'Source Code Pro';
+}
+
