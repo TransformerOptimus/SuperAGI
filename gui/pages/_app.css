@@ -1673,3 +1673,9 @@ tr{
 .history_box_selected{
     background: #474255;
 }
+
+.top_bar_profile_dropdown{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
