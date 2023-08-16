@@ -1054,6 +1054,7 @@ p {
 .gap_16{gap:16px;}
 .gap_20{gap:20px;}
 
+.border_top_none{border-top: none;}
 .border_radius_8{border-radius: 8px;}
 .border_radius_25{border-radius: 25px;}
 
@@ -1079,6 +1080,8 @@ p {
 .mix_blend_mode{mix-blend-mode: exclusion;}
 
 .ff_sourceCode{font-family: 'Source Code Pro'}
+
+.rotate_90{transform: rotate(90deg)}
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
 .my_rows {
@@ -1688,3 +1691,8 @@ tr{
     font-family: 'Source Code Pro';
 }
 
+.table_container{
+    background: #272335;
+    border-radius: 8px;
+    margin-top:15px
+}

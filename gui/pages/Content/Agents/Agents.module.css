@@ -448,3 +448,10 @@
     margin-top: 40px;
     width: 100%
 }
+
+.create_settings_button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px
+}

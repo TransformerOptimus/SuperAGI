@@ -137,16 +137,16 @@ export default function ApiKeys() {
             {apiKeys.length < 1 && <div className={agentStyles.table_contents}>
             <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
             <span className={`${styles.feed_title} ${'mt_8'}`}>No API Keys created!</span>
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px'}}>
+            <div className={agentStyles.create_settings_button}>
               <button className="primary_button" onClick={() => {setCreateModal(true); setKeyName('')}}>Create Key
               </button>
             </div>
           </div>}
 
-            {apiKeys.length > 0 && <div className="scrollable_container" style={{background: '#272335', borderRadius: '8px',marginTop:'15px'}}>
+            {apiKeys.length > 0 && <div className="scrollable_container table_container">
               <table className="table_css margin_0 padding_0">
                 <thead>
-                <tr style={{borderTop: 'none'}}>
+                <tr className="border_top_none">
                   <th className="table_header w_60">Name</th>
                   <th className="table_header w_18">Key</th>
                   <th className="table_header w_18">Created Date</th>
@@ -163,7 +163,7 @@ export default function ApiKeys() {
                       <td className="table_data w_18">{item.key.slice(0, 2) + "****" + item.key.slice(-4)}</td>
                       <td className="table_data w_18">23-JUN-2023</td>
                       <td className="table_data w_4" onMouseEnter={() => setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
-                        <Image style={{transform: 'rotate(90deg)'}} width={16} height={16} src="/images/three_dots.svg" alt="run-icon"/>
+                        <Image className="rotate_90" width={16} height={16} src="/images/three_dots.svg" alt="run-icon"/>
                        <div style={activeDropdown === index ? {display: 'block'} : {display: 'none'}} onMouseLeave={() => setActiveDropdown(null)}>
                           <ul className="dropdown_container">
                             <li className="dropdown_item" onClick={() => {setEditKey(item.name); setEditKeyId(item.id); setEditModal(true)}}>Edit</li>
