@@ -56,10 +56,10 @@ export default function TopBar({selectedProject, userName, env}) {
           <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
         </div>
         {dropdown && env === 'PROD' &&
-          <div className="mt_30 mr_74" onMouseEnter={() => setDropdown(true)}
+          <div className="top_bar_profile_dropdown mt_30" onMouseEnter={() => setDropdown(true)}
                onMouseLeave={() => setDropdown(false)}>
             <ul className="dropdown_container w_120p">
-              <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>
+              {userName && <li className="dropdown_item" onClick={() => setDropdown(false)}>{userName}</li>}
               <li className="dropdown_item" onClick={logoutUser}>Logout</li>
             </ul>
           </div>}
