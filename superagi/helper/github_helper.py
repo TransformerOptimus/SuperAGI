@@ -203,8 +203,7 @@ class GithubHelper:
 
         return file_response.status_code
 
-    def add_file(self, repository_owner, repository_name, file_name, folder_path, head_branch, base_branch, headers,
-                 commit_message, agent_id, agent_execution_id, session):
+    def add_file(self, repository_owner, repository_name, file_name, folder_path, head_branch, base_branch, headers, commit_message, agent_id, agent_execution_id, session):
         """
         Adds a file to the given repository.
 
@@ -219,7 +218,7 @@ class GithubHelper:
         Returns:
             None
         """
-        body = self._get_file_contents(file_name, agent_id, agent_execution_id, session)
+        body = self._get_file_content(file_name, agent_id, agent_execution_id, session)
         body_bytes = body.encode("ascii")
         base64_bytes = base64.b64encode(body_bytes)
         file_content = base64_bytes.decode("ascii")

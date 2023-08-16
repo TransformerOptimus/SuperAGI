@@ -2,7 +2,7 @@ import json
 
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.agent_workflow_step import AgentWorkflowStep
+from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.base_model import DBBaseModel
 
 
@@ -89,7 +89,27 @@ class AgentWorkflow(DBBaseModel):
             int: The ID of the trigger step.
 
         """
-
         trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
                                                                AgentWorkflowStep.step_type == 'TRIGGER').first()
-        return trigger_step.id
+        return trigger_step
+
+    @classmethod
+    def find_by_id(cls, session, id: int):
+        """Create or find an agent workflow by name."""
+        return session.query(AgentWorkflow).filter(AgentWorkflow.id == id).first()
+
+
+    @classmethod
+    def find_by_name(cls, session, name: str):
+        """Create or find an agent workflow by name."""
+        return session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
+
+    @classmethod
+    def find_or_create_by_name(cls, session, name: str, description: str):
+        """Create or find an agent workflow by name."""
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
+        if agent_workflow is None:
+            agent_workflow = AgentWorkflow(name=name, description=description)
+            session.add(agent_workflow)
+            session.commit()
+        return agent_workflow

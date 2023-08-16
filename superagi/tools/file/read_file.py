@@ -1,7 +1,12 @@
+
 import os
 from typing import Type, Optional
+import ebooklib
+import bs4 
+from bs4 import BeautifulSoup
 
 from pydantic import BaseModel, Field
+from ebooklib import epub
 
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
@@ -11,7 +16,7 @@ from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
 from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
-
+from unstructured.partition.auto import partition
 
 class ReadFileSchema(BaseModel):
     """Input for CopyFileTool."""
@@ -50,17 +55,46 @@ class ReadFileTool(BaseTool):
                                                                                               .toolkit_config.session,
                                                                                               agent_execution_id=self
                                                                                               .agent_execution_id))
-        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
-            return S3Helper().read_from_s3(final_path)
 
-        if final_path is None or not os.path.exists(final_path):
+        temporary_file_path = None
+        final_name = final_path.split('/')[-1]
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+            if final_path.split('/')[-1].lower().endswith('.txt'):
+                return S3Helper().read_from_s3(final_path)
+            else:
+                save_directory = "/"
+                temporary_file_path = save_directory + file_name
+                with open(temporary_file_path, "wb") as f:
+                    contents = S3Helper().read_binary_from_s3(final_path)
+                    f.write(contents)
+
+        if final_path is None or not os.path.exists(final_path) and temporary_file_path is None:
             raise FileNotFoundError(f"File '{file_name}' not found.")
         directory = os.path.dirname(final_path)
         os.makedirs(directory, exist_ok=True)
 
-        with open(final_path, 'r') as file:
-            file_content = file.read()
-        max_length = len(' '.join(file_content.split(" ")[:1000]))
-        return file_content[:max_length] + "\n File " + file_name + " read successfully."
+        if temporary_file_path is not None:
+            final_path = temporary_file_path
 
+        
+        # Check if the file is an .epub file
+        if final_path.lower().endswith('.epub'):
+            # Use ebooklib to read the epub file
+            book = epub.read_epub(final_path)
+            # Get the text content from each item in the book
+            content = []
+            for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
+                soup = BeautifulSoup(item.get_content(), 'html.parser')
+                content.append(soup.get_text())
+
+            content = "\n".join(content)
+        else:
+            elements = partition(final_path)
+            content = "\n\n".join([str(el) for el in elements])
+
+        if temporary_file_path is not None:
+            os.remove(temporary_file_path)
+   
+        return content
+    
 

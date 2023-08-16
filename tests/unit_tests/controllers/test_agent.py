@@ -146,7 +146,7 @@ def mock_agent_config_schedule():
             "project_id": 1,
             "description": "AI assistant to solve complex problems",
             "goal": ["Share research on latest google news in fashion"],
-            "agent_type": "Don't Maintain Task Queue",
+            "agent_workflow": "Don't Maintain Task Queue",
             "constraints": [
                 "~4000 word limit for short term memory.",
                 "No user assistance",

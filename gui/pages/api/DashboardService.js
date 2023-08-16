@@ -28,8 +28,8 @@ export const getTools = () => {
   return api.get(`/tools/list`);
 };
 
-export const getAgentDetails = (agentId) => {
-  return api.get(`/agents/get/details/${agentId}`);
+export const getAgentDetails = (agentId, agentExecutionId) => {
+  return api.get(`/agent_executions_configs/details/agent_id/${agentId}/agent_execution_id/${agentExecutionId}`);
 };
 
 export const getAgentExecutions = (agentId) => {
@@ -48,12 +48,12 @@ export const createAgent = (agentData, scheduledCreate) => {
   return api.post(scheduledCreate ? `/agents/schedule` : `/agents/create`, agentData);
 };
 
-export const addTool = (toolData) => {
-  return api.post(`/toolkits/get/local/install`, toolData);
+export const addAgentRun = (agentData) => {
+  return api.post( `/agentexecutions/add_run`, agentData);
 };
 
-export const updateAgents = (agentData) => {
-  return api.put(`/agentconfigs/update/`, agentData);
+export const addTool = (toolData) => {
+  return api.post(`/toolkits/get/local/install`, toolData);
 };
 
 export const updateExecution = (executionId, executionData) => {
@@ -120,8 +120,8 @@ export const fetchAgentTemplateListLocal = () => {
   return api.get('/agent_templates/list?template_source=local');
 };
 
-export const saveAgentAsTemplate = (agentId) => {
-  return api.post(`/agent_templates/save_agent_as_template/${agentId}`);
+export const saveAgentAsTemplate = (executionId) => {
+  return api.post(`/agent_templates/save_agent_as_template/agent_execution_id/${executionId}`);
 };
 
 export const fetchAgentTemplateConfig = (templateId) => {
@@ -172,8 +172,16 @@ export const fetchToolTemplateOverview = (toolTemplateName) => {
   return api.get(`/toolkits/marketplace/readme/${toolTemplateName}`);
 };
 
+export const updateMarketplaceToolTemplate = (templateName) => {
+  return api.put(`/toolkits/update/${templateName}`);
+};
+
 export const installToolkitTemplate = (templateName) => {
   return api.get(`/toolkits/get/install/${templateName}`);
+};
+
+export const checkToolkitUpdate = (templateName) => {
+  return api.get(`/toolkits/check_update/${templateName}`);
 };
 
 export const getExecutionDetails = (executionId, agentId) => {
@@ -222,6 +230,10 @@ export const getToolsUsage = () => {
 
 export const getLlmModels = () => {
   return api.get(`organisations/llm_models`);
+};
+
+export const getAgentWorkflows = () => {
+  return api.get(`organisations/agent_workflows`);
 };
 
 export const fetchVectorDBList = () => {

@@ -99,7 +99,7 @@ class Pinecone(VectorStore):
 
         documents = self._build_documents(res)
         return {"documents": documents, "search_res": search_res}
-    
+
     def get_index_stats(self) -> dict:
         """
         Returns:
@@ -109,21 +109,21 @@ class Pinecone(VectorStore):
         dimensions = index_stats.dimension
         vector_count = index_stats.total_vector_count
         return {"dimensions": dimensions, "vector_count": vector_count}
-    
+
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
         """Upserts embeddings to the given vector store"""
         try:
             self.index.upsert(vectors=embeddings['vectors'])
         except Exception as err:
             raise err
-    
+
     def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
         """Deletes embeddings from the given vector store"""
         try:
             self.index.delete(ids=ids)
         except Exception as err:
             raise err
-        
+
     def _build_documents(self, results: List[dict]):
         try:
             documents = []
@@ -137,12 +137,12 @@ class Pinecone(VectorStore):
             return documents
         except Exception as err:
             raise err
-    
+
     def _get_search_text(self, results: List[dict], query: str):
         contexts = [item['metadata']['text'] for item in results['matches']]
         i = 0
         search_res = f"Query: {query}\n"
         for context in contexts:
-            search_res += f"Chunk{i}: \n{context}\n" 
+            search_res += f"Chunk{i}: \n{context}\n"
             i += 1
         return search_res

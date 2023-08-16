@@ -102,4 +102,3 @@ def test_delete_file_fail(s3helper_object):
     s3helper_object.s3.delete_object = MagicMock(side_effect=Exception())
     with pytest.raises(HTTPException):
         s3helper_object.delete_file('path')
-

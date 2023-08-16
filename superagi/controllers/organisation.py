@@ -17,6 +17,8 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.user import User
 from superagi.lib.logger import logger
+from superagi.models.workflows.agent_workflow import AgentWorkflow
+
 # from superagi.types.db import OrganisationIn, OrganisationOut
 
 router = APIRouter()
@@ -175,3 +177,20 @@ def get_llm_models(organisation=Depends(get_user_organisation)):
         models = GooglePalm(api_key=decrypted_api_key).get_models()
 
     return models
+
+
+@router.get("/agent_workflows")
+def agent_workflows(organisation=Depends(get_user_organisation)):
+    """
+    Get all the agent workflows
+
+    Args:
+        organisation: Organisation data.
+    """
+
+    agent_workflows = db.session.query(AgentWorkflow).all()
+    workflows = [workflow.name for workflow in agent_workflows]
+
+    return workflows
+
+

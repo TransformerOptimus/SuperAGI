@@ -3,9 +3,11 @@ import json
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
+from superagi.lib.logger import logger
 from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.base_model import DBBaseModel
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 marketplace_url = "https://app.superagi.com/api/"
 # marketplace_url = "http://localhost:8001/"
@@ -96,7 +98,7 @@ class AgentTemplate(DBBaseModel):
             list: List of main keys.
         """
 
-        keys_to_fetch = ["goal", "instruction", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
+        keys_to_fetch = ["goal", "instruction", "constraints", "tools", "exit", "iteration_interval", "model",
                          "permission_type", "LTM_DB", "max_iterations", "knowledge"]
         return keys_to_fetch
 
@@ -160,6 +162,12 @@ class AgentTemplate(DBBaseModel):
         agent_template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
         agent_workflow = db.session.query(AgentWorkflow).filter(
             AgentWorkflow.name == agent_template["agent_workflow_name"]).first()
+        # keeping it backward compatible
+        logger.info("agent_workflow:" + str(agent_template["agent_workflow_name"]))
+        if not agent_workflow:
+            workflow_id = AgentTemplate.fetch_iteration_agent_template_mapping(db.session, agent_template["agent_workflow_name"])
+            agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.id == workflow_id).first()
+
         template = AgentTemplate(organisation_id=organisation_id, agent_workflow_id=agent_workflow.id,
                                  name=agent_template["name"], description=agent_template["description"],
                                  marketplace_template_id=agent_template["id"])
@@ -179,6 +187,20 @@ class AgentTemplate(DBBaseModel):
         return template
 
     @classmethod
+    def fetch_iteration_agent_template_mapping(cls, session, name):
+        if name == "Fixed Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Fixed Task Workflow")
+            return agent_workflow.id
+
+        if name == "Maintain Task Queue":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Dynamic Task Workflow")
+            return agent_workflow.id
+
+        if name == "Don't Maintain Task Queue" or name == "Goal Based Agent":
+            agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
+            return agent_workflow.id
+
+    @classmethod
     def eval_agent_config(cls, key, value):
         """
         Evaluates the value of an agent configuration key.
@@ -191,13 +213,13 @@ class AgentTemplate(DBBaseModel):
             object: The evaluated value of the agent configuration.
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB"]:
+        if key in ["name", "description", "exit", "model", "permission_type", "LTM_DB"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval", "knowledge"]:
             if value is not None and value != 'None':
                 return int(value)
             else:
-                return None  
+                return None
         elif key == "goal" or key == "constraints" or key == "instruction":
             return eval(value)
         elif key == "tools":

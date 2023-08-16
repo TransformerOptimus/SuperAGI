@@ -29,20 +29,6 @@
     margin-bottom: 4px;
 }
 
-.selection_section {
-    width: 100%;
-    margin-bottom: 5px;
-}
-
-.side_bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    height: 100%;
-    color: white;
-}
-
 .selected {
     background-color: #333141;
 }
@@ -54,39 +40,6 @@
 .sideBar_image {
     margin-left: 10px;
     margin-top: -1px;
-}
-
-.top_bar {
-    padding: 8px 10px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.top_bar_section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2px 9px;
-    gap: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.top_bar_font {
-    display: flex;
-    align-items: center;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    color: white;
-    margin-left: 5px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .item_list {
@@ -158,32 +111,6 @@
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.top_right {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: fit-content;
-    order: 1;
-    height: 100%;
-}
-
-.top_left {
-    display: flex;
-    order: 0;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-.top_right_icon {
-    margin-right: 10px;
-    cursor: pointer;
-    display: flex;
-    order: 1;
-    justify-content: flex-end;
-    align-items: center;
-    height: 100%;
 }
 
 .empty_state_button {

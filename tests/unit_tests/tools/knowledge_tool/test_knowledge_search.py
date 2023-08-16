@@ -24,8 +24,3 @@ class TestKnowledgeSearchTool(unittest.TestCase):
         mock_get_knowledge_from_id.return_value = None
         result = self.tool._execute(query="test")
         self.assertEqual(result, "Selected Knowledge not found")
-
-    # other test methods
-
-if __name__ == "__main__":
-    unittest.main()

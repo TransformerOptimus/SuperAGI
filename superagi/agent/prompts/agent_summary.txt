@@ -1,0 +1,8 @@
+AI, your task is to generate a concise summary of the previous interactions between the system, user, and assistant.
+The interactions are as follows:
+
+{past_messages}
+
+This summary should encapsulate the main points of the conversation, highlighting the key issues discussed, decisions made, and any actions assigned.
+It should serve as a recap of the past interaction, providing a clear understanding of the conversation's context and outcomes.
+Please ensure that the summary does not exceed {char_limit} characters.
