@@ -47,7 +47,7 @@ class VectordbIndices(DBBaseModel):
         session.commit()
 
     @classmethod
-    def add_vector_index(cls, session, index_name, vector_db_id, dimensions, state):
+    def add_vector_index(cls, session, index_name, vector_db_id, state, dimensions = None): #will be none only in the case of weaviate
         vector_index = VectordbIndices(name=index_name, vector_db_id=vector_db_id, dimensions=dimensions, state=state)
         session.add(vector_index)
         session.commit()

@@ -77,7 +77,7 @@ def connect_pinecone_vector_db(data: dict, organisation = Depends(get_user_organ
     pinecone_db = Vectordbs.add_vector_db(db.session, data["name"], "Pinecone", organisation)
     VectordbConfigs.add_vector_db_config(db.session, pinecone_db.id, db_creds)
     for collection in data["collections"]:
-        VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, db_connect_for_index["dimensions"], index_state)
+        VectordbIndices.add_vector_index(db.session, collection, pinecone_db.id, index_state, db_connect_for_index["dimensions"])
     return {"id": pinecone_db.id, "name": pinecone_db.name}
 
 @router.post("/connect/qdrant")
@@ -97,9 +97,29 @@ def connect_qdrant_vector_db(data: dict, organisation = Depends(get_user_organis
     qdrant_db = Vectordbs.add_vector_db(db.session, data["name"], "Qdrant", organisation)
     VectordbConfigs.add_vector_db_config(db.session, qdrant_db.id, db_creds)
     for collection in data["collections"]:
-        VectordbIndices.add_vector_index(db.session, collection, qdrant_db.id, db_connect_for_index["dimensions"], index_state)
+        VectordbIndices.add_vector_index(db.session, collection, qdrant_db.id, index_state, db_connect_for_index["dimensions"])
     
     return {"id": qdrant_db.id, "name": qdrant_db.name}
+
+@router.post("/connect/weaviate")
+def connect_weaviate_vector_db(data: dict, organisation = Depends(get_user_organisation)):
+    db_creds = {
+        "api_key": data["api_key"],
+        "url": data["url"]
+    }
+    for collection in data["collections"]:
+        try:
+            vector_db_storage = VectorFactory.build_vector_storage("weaviate", collection, **db_creds)
+            db_connect_for_index = vector_db_storage.get_index_stats()
+            index_state = "Custom" if db_connect_for_index["vector_count"] > 0 else "None"
+        except:
+            raise HTTPException(status_code=400, detail="Unable to connect Weaviate")
+    weaviate_db = Vectordbs.add_vector_db(db.session, data["name"], "Weaviate", organisation)
+    VectordbConfigs.add_vector_db_config(db.session, weaviate_db.id, db_creds)
+    for collection in data["collections"]:
+        VectordbIndices.add_vector_index(db.session, collection, weaviate_db.id, index_state)
+
+    return {"id": weaviate_db.id, "name": weaviate_db.name}
 
 @router.put("/update/vector_db/{vector_db_id}")
 def update_vector_db(new_indices: list, vector_db_id: int):
@@ -119,9 +139,10 @@ def update_vector_db(new_indices: list, vector_db_id: int):
             vector_db_storage  = VectorFactory.build_vector_storage(vector_db.db_type, index, **db_creds)
             vector_db_index_stats = vector_db_storage.get_index_stats()
             index_state = "Custom" if vector_db_index_stats["vector_count"] > 0 else "None"
+            dimensions = vector_db_index_stats["dimensions"] if 'dimensions' in vector_db_index_stats else None
         except:
            raise HTTPException(status_code=400, detail="Unable to update vector db")
-        VectordbIndices.add_vector_index(db.session, index, vector_db_id, vector_db_index_stats["dimensions"], index_state)
+        VectordbIndices.add_vector_index(db.session, index, vector_db_id, index_state, dimensions)
 
 
 
