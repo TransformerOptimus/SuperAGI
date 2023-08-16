@@ -4,13 +4,13 @@ import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 
-export default function Details({agentDetails, runCount, goals, instructions, agentScheduleDetails, agent}) {
+export default function Details({agentDetails1, runCount, agentScheduleDetails, agent}) {
   const [showGoals, setShowGoals] = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
-  const [filteredInstructions, setFilteredInstructions] = useState(false);
-  const [scheduleText, setScheduleText] = useState('Agent is not Scheduled');
-
+  const [filteredInstructions, setFilteredInstructions] = useState([]);
+  const [scheduleText, setScheduleText] = useState('');
+  const [agentDetails, setAgentDetails] = useState(null)
   const info_text = {
     marginLeft: '7px',
   };
@@ -28,10 +28,19 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
   }
 
   useEffect(() => {
-    setFilteredInstructions(instructions?.filter(instruction => instruction.trim() !== ''));
-  }, [instructions]);
+    if (Array.isArray(agentDetails?.instruction)) {
+      setFilteredInstructions(agentDetails.instruction.filter(instruction => instruction.trim() !== ''));
+    }
+  }, [agentDetails]);
+  useEffect(() => {
+    setAgentDetails(agentDetails1)
+  }, [agentDetails1]);
 
   useEffect(() => {
+    if(!agentScheduleDetails){
+      setScheduleText('')
+      return
+    }
     if (agent?.is_scheduled) {
       if (agentScheduleDetails?.recurrence_interval !== null) {
         if ((agentScheduleDetails?.expiry_runs === -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null) {
@@ -96,13 +105,13 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/flag.svg" alt="goals-icon"/></div>
-        <div style={info_text}>{goals ? goals.length : 0} Goals</div>
+        <div style={info_text}>{agentDetails?.goal?.length || 0} Goals</div>
       </div>
-      {goals && goals.length > 0 && <div>
+      {agentDetails?.goal && agentDetails?.goal?.length > 0 && <div>
         <div className={styles.large_text_box} style={!showGoals ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
-          {goals.map((goal, index) => (<div key={index} style={{marginTop: '0'}}>
+          {agentDetails?.goal?.map((goal, index) => (<div key={index} style={{marginTop: '0'}}>
             <div>{index + 1}. {goal || ''}</div>
-            {index !== goals.length - 1 && <br/>}
+            {index !== agentDetails?.goal?.length - 1 && <br/>}
           </div>))}
         </div>
         <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>
@@ -134,14 +143,14 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
           <div style={info_text}>Tools assigned</div>
         </div>
         <div className={styles.agent_info_tools}>
-          {agentDetails.tools.map((tool, index) =>
+          {agentDetails?.tools?.map((tool, index) =>
             (<div onClick={() => openToolkitTab(tool.id)} key={index} className="tool_container"
                   style={{marginTop: '0', marginBottom: '5px', cursor: 'pointer'}}>
               <div className={styles.tool_text}>{tool.name || ''}</div>
             </div>))}
         </div>
       </div>}</div>}
-      {agentDetails && <div>{agentDetails.constraints && agentDetails.constraints.length > 0 && <div>
+      {agentDetails && <div>{agentDetails.constraints && agentDetails.constraints?.length > 0 && <div>
         <div className={styles.separator}></div>
         <div className={styles.agent_info_box}>
           <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
@@ -149,7 +158,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
         </div>
         <div className={styles.large_text_box}
              style={!showConstraints ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
-          {agentDetails.constraints.map((constraint, index) => (<div key={index} style={{marginTop: '0'}}>
+          {agentDetails?.constraints?.map((constraint, index) => (<div key={index} style={{marginTop: '0'}}>
             <div>{index + 1}. {constraint || ''}</div>
             {index !== agentDetails.constraints.length - 1 && <br/>}
           </div>))}
@@ -160,7 +169,7 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/fact_check.svg" alt="queue-icon"/></div>
-        <div style={info_text}>{agentDetails?.agent_type || ''}</div>
+        <div style={info_text}>{agentDetails?.agent_workflow || ''}</div>
       </div>
       {agentDetails?.knowledge_name && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/books.svg" alt="book-icon"/></div>
@@ -180,13 +189,13 @@ export default function Details({agentDetails, runCount, goals, instructions, ag
       </div> */}
       <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/key.svg" alt="permission-type-icon"/></div>
-        <div style={info_text}>{agentDetails?.permission_type.replace(/\s*\([^)]*\)/g, '') || ''}</div>
+        <div style={info_text}>{agentDetails?.permission_type?.replace(/\s*\([^)]*\)/g, '') || ''}</div>
       </div>
       {agentDetails?.max_iterations && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/info.svg" alt="info-icon"/></div>
         <div style={info_text}>Stop after {agentDetails.max_iterations} iterations</div>
       </div>}
-      {agent?.is_scheduled && <div className={styles.agent_info_box}>
+      {agent?.is_scheduled && scheduleText && <div className={styles.agent_info_box}>
         <div><Image width={15} height={15} src="/images/event_repeat.svg" alt="info-icon"/></div>
         <div style={info_text}>{scheduleText}</div>
       </div>}

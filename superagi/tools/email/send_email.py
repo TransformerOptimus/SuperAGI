@@ -12,7 +12,7 @@ from superagi.tools.base_tool import BaseTool
 class SendEmailInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
-    body: str = Field(..., description="Email Body to be sent")
+    body: str = Field(..., description="Email Body to be sent. Escape special characters in the body. Do not add senders details and end it with Warm Regards without entering any name.")
 
 
 class SendEmailTool(BaseTool):
@@ -42,9 +42,9 @@ class SendEmailTool(BaseTool):
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
-        if email_sender == "" or email_sender.isspace():
+        if email_sender is None or email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
-        if email_password == "" or email_password.isspace():
+        if email_password is None or email_password == "" or email_password.isspace():
             return "Error: Email Not Sent. Enter a valid Email Password."
         message = EmailMessage()
         message["Subject"] = subject

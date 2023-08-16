@@ -19,9 +19,9 @@ def test_edit_agent_template_success(mock_get_user_org, mock_auth_db, mock_db):
         "name": "Updated Agent Template",
         "description": "Updated Description",
         "agent_configs": {
+            "agent_workflow": "Don't Maintain Task Queue",
             "goal": ["Create a simple pacman game for me.", "Write all files properly."],
             "instruction": ["write spec","write code","improve the code","write test"],
-            "agent_type": "Don't Maintain Task Queue",
             "constraints": ["If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.","Ensure the tool and args are as per current plan and reasoning","Exclusively use the tools listed under \"TOOLS\"","REMEMBER to format your response as JSON, using double quotes (\"\") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes."],
             "tools": ["Read Email", "Send Email", "Write File"],
             "exit": "No exit criterion",
@@ -99,7 +99,8 @@ def test_edit_agent_template_with_new_config_success(mock_get_user_org, mock_aut
         "name": "Updated Agent Template",
         "description": "Updated Description",
         "agent_configs": {
-            "new_config_key": "New config value"  # This is a new config
+            "new_config_key": "New config value",
+            "agent_workflow": "Don't Maintain Task Queue", # This is a new config
         }
     }    
 

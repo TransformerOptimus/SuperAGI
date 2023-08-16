@@ -6,6 +6,8 @@ from fastapi import HTTPException
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from urllib.parse import unquote
+import json
+
 class S3Helper:
     def __init__(self, bucket_name = get_config("BUCKET_NAME")):
         """
@@ -81,7 +83,7 @@ class S3Helper:
         """
         try:
             obj = self.s3.get_object(Bucket=self.bucket_name, Key=path)
-            s3_response = obj['Body'].read().decode('utf-8')
+            s3_response =  obj['Body'].read().decode('utf-8')
             return json.loads(s3_response)
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")

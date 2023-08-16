@@ -1,10 +1,8 @@
 from unittest.mock import create_autospec
-
 from sqlalchemy.orm import Session
-
 from superagi.models.agent import Agent
-
-
+from unittest.mock import patch
+  
 def test_get_agent_from_id():
     # Create a mock session
     session = create_autospec(Session)
@@ -44,3 +42,12 @@ def test_get_active_agent_by_id():
     # Assert that the returned agent object matches the mock agent
     assert agent == mock_agent
     assert agent.is_deleted == False
+
+def test_eval_tools_key():
+    key = "tools"
+    value = "[1, 2, 3]"
+
+    result = Agent.eval_agent_config(key, value)
+
+    assert result == [1, 2, 3]
+

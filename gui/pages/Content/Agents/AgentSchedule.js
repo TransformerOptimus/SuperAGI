@@ -16,7 +16,7 @@ export default function AgentSchedule({
                                         agentId,
                                         setCreateModal,
                                         setCreateEditModal,
-                                        env
+                                        env,
                                       }) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [timeDropdown, setTimeDropdown] = useState(false);
@@ -166,8 +166,10 @@ export default function AgentSchedule({
             const {schedule_id} = response.data;
             toast.success('Scheduled successfully!', {autoClose: 1800});
             setCreateModal();
-            EventBus.emit('refreshDate', {});
             EventBus.emit('reFetchAgents', {});
+            setTimeout(() => {
+                EventBus.emit('refreshDate', {});
+            }, 1000)
           })
           .catch(error => {
             console.error('Error:', error);
