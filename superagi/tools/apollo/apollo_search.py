@@ -4,6 +4,7 @@ from typing import Type
 import requests
 from pydantic import BaseModel, Field
 
+from superagi.lib.logger import logger
 from superagi.tools.base_tool import BaseTool
 
 
@@ -54,7 +55,7 @@ class ApolloSearchTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, person_titles: list[str], page: int = 1, per_page: int = 25, num_of_employees: list[int] = [],
-                 person_location: str = "") -> str:
+                 person_location: str = "", organization_domains: str = "") -> str:
         """
         Execute the Apollo search tool.
 
@@ -63,13 +64,14 @@ class ApolloSearchTool(BaseTool):
             page : The page of results to retrieve.
             num_of_employees : The number of employees to filter by in format [start_range, end_range]. It is optional.
             person_location : Region country/state/city filter to search for. It is optional.
+            organization_domains : The organization domains to search within.
 
         Returns:
             People data from the Apollo search.
         """
         people_data = self.apollo_search_results(page, per_page, person_titles,
-                                                 num_of_employees, person_location)
-        print(people_data)
+                                                 num_of_employees, person_location, organization_domains)
+        logger.info(people_data)
         people_list = []
         if 'people' in people_data and len(people_data['people']) > 0:
             for person in people_data['people']:
@@ -85,7 +87,7 @@ class ApolloSearchTool(BaseTool):
         return people_list
 
     def apollo_search_results(self, page, per_page, person_titles, num_of_employees = [],
-                              person_location = ""):
+                              person_location = "", organization_domains = ""):
         """
         Execute the Apollo search tool.
 
@@ -111,8 +113,14 @@ class ApolloSearchTool(BaseTool):
             "contact_email_status": ["verified"]
         }
 
+        if organization_domains:
+            data["q_organization_domains"] = organization_domains
+
         if num_of_employees:
-            data["num_of_employees"] = [str(num_of_employees[0]) + ","+ str(num_of_employees[1])]
+            if num_of_employees[1] == num_of_employees[0]:
+                data["num_of_employees"] = [str(num_of_employees[0]) + ","]
+            else:
+                data["num_of_employees"] = [str(num_of_employees[0]) + ","+ str(num_of_employees[1])]
         if person_location:
             data["person_locations"] = [person_location]
 

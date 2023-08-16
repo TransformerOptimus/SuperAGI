@@ -94,6 +94,12 @@ class AgentWorkflow(DBBaseModel):
         return trigger_step
 
     @classmethod
+    def find_by_id(cls, session, id: int):
+        """Create or find an agent workflow by name."""
+        return session.query(AgentWorkflow).filter(AgentWorkflow.id == id).first()
+
+
+    @classmethod
     def find_by_name(cls, session, name: str):
         """Create or find an agent workflow by name."""
         return session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()

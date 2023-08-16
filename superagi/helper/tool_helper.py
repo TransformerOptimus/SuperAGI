@@ -264,13 +264,11 @@ def register_toolkits(session, organisation):
         process_files(tool_paths, session, organisation)
         logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
-
 def register_marketplace_toolkits(session, organisation):
-    tool_paths = ["superagi/tools", "superagi/tools/external_tools", "superagi/tools/marketplace_tools"]
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools","superagi/tools/marketplace_tools"]
     if organisation is not None:
         process_files(tool_paths, session, organisation)
         logger.info(f"Marketplace Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
-
 
 def extract_repo_name(repo_link):
     # Extract the repository name from the link
@@ -306,7 +304,6 @@ def handle_tools_import():
             folder_dir = os.path.join(tool_path, folder_name)
             if os.path.isdir(folder_dir):
                 sys.path.append(folder_dir)
-
 
 def compare_tools(tool1, tool2):
     fields = ["name", "description"]

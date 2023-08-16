@@ -19,7 +19,7 @@ from sqlalchemy import event
 from superagi.models.agent_execution import AgentExecution
 from superagi.helper.webhook_manager import WebHookManager
 
-redis_url = get_config('REDIS_URL') or 'localhost:6379'
+redis_url = get_config('REDIS_URL', 'super__redis:6379')
 
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
 app.conf.broker_url = "redis://" + redis_url + "/0"

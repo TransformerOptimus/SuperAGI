@@ -51,12 +51,12 @@ class DalleImageGenTool(BaseTool):
         Returns:
             Image generated successfully message if image is generated or error message.
         """
-
         session = self.toolkit_config.session
         toolkit = session.query(Toolkit).filter(Toolkit.id == self.toolkit_config.toolkit_id).first()
         organisation_id = toolkit.organisation_id
         if size not in [256, 512, 1024]:
-            size = min([256, 512, 1024], key=lambda x: abs(x - size))        
+            size = min([256, 512, 1024], key=lambda x: abs(x - size))
+
         api_key = self.get_tool_config("OPENAI_API_KEY")
         if api_key is None:
             model_source = Configuration.fetch_configuration(session, organisation_id, "model_source")

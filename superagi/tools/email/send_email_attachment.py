@@ -3,6 +3,7 @@ import mimetypes
 import os
 import smtplib
 import time
+from email.message import EmailMessage
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -17,13 +18,14 @@ from superagi.helper.s3_helper import S3Helper
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.tools.base_tool import BaseTool
+from superagi.config.config import get_config
 from superagi.types.storage_types import StorageType
 
 
 class SendEmailAttachmentInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
-    body: str = Field(..., description="Email Body to be sent")
+    body: str = Field(..., description="Email Body to be sent, Do not add senders details in the email body and end it with Warm Regards without entering any name.")
     filename: str = Field(..., description="Name of the file to be sent as an Attachment with Email")
 
 
@@ -63,12 +65,23 @@ class SendEmailAttachmentTool(BaseTool):
                                                                      session=self.toolkit_config.session,
                                                                      agent_execution_id=self.agent_execution_id)
                                                                  )
-        if final_path is None or not os.path.exists(final_path):
-            raise FileNotFoundError(f"File '{filename}' not found.")
-        attachment = os.path.basename(final_path)
-        return self.send_email_with_attachment(to, subject, body, final_path, attachment)
+        ctype, encoding = mimetypes.guess_type(final_path)
+        if ctype is None or encoding is not None:
+            ctype = "application/octet-stream"
+        maintype, subtype = ctype.split("/", 1)
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+            attachment_data = S3Helper().read_binary_from_s3(final_path)
+        else:
+            if final_path is None or not os.path.exists(final_path):
+                raise FileNotFoundError(f"File '{filename}' not found.")
+            with open(final_path, "rb") as file:
+                attachment_data = file.read()
+        attachment = MIMEApplication(attachment_data)
+        attachment.add_header('Content-Disposition', 'attachment', filename=final_path.split('/')[-1])
 
-    def send_email_with_attachment(self, to, subject, body, attachment_path, attachment) -> str:
+        return self.send_email_with_attachment(to, subject, body, attachment)
+
+    def send_email_with_attachment(self, to, subject, body, attachment) -> str:
         """
         Send an email with attachment.
 
@@ -76,17 +89,16 @@ class SendEmailAttachmentTool(BaseTool):
             to : The email address of the receiver.
             subject : The subject of the email.
             body : The body of the email.
-            attachment_path : The path of the file to be sent as an attachment with the email.
-            attachment : The name of the file to be sent as an attachment with the email.
+            attachment : The data of the file to be sent as an attachment with the email.
 
         Returns:
             
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
-        if email_sender == "" or email_sender.isspace():
+        if email_sender is None or email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
-        if email_password == "" or email_password.isspace():
+        if email_password is None or email_password == "" or email_password.isspace():
             return "Error: Email Not Sent. Enter a valid Email Password."
         message = MIMEMultipart()
         message["Subject"] = subject
@@ -96,18 +108,7 @@ class SendEmailAttachmentTool(BaseTool):
         if signature:
             body += f"\n{signature}"
         message.attach(MIMEText(body, 'plain'))
-        if attachment_path:
-            ctype, encoding = mimetypes.guess_type(attachment_path)
-            if ctype is None or encoding is not None:
-                ctype = "application/octet-stream"
-            maintype, subtype = ctype.split("/", 1)
-            if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
-                attachment_data = S3Helper().read_binary_from_s3(attachment_path)
-            else:
-                with open(attachment_path, "rb") as file:
-                    attachment_data = file.read()
-            attachment = MIMEApplication(attachment_data)
-            attachment.add_header('Content-Disposition', 'attachment', filename=attachment_path.split('/')[-1])
+        if attachment:
             message.attach(attachment)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
