@@ -35,7 +35,6 @@ class WriteSpecTool(BaseTool):
         goals : The goals.
         resource_manager: Manages the file resources
     """
-    print("....................///////////////////.....................1")
     llm: Optional[BaseLlm] = None
     agent_id: int = None
     name = "WriteSpecTool"
@@ -60,18 +59,13 @@ class WriteSpecTool(BaseTool):
         Returns:
             Generated specification or error message.
         """
-        print("....................///////////////////.....................2")
         prompt = PromptReader.read_tools_prompt(__file__, "write_spec.txt")
         prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
         prompt = prompt.replace("{task}", task_description)
         messages = [{"role": "system", "content": prompt}]
 
-        print("....................///////////////////.....................4")
         organisation = Agent.find_org_by_agent_id(self.toolkit_config.session, agent_id=self.agent_id)
-        print("....................///////////////////.....................5")
         total_tokens = TokenCounter().count_message_tokens(messages, self.llm.get_model())
-        print("....................///////////////////.....................3")
-        print(self.toolkit_config)
         token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 

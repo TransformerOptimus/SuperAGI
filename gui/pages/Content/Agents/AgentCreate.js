@@ -864,8 +864,8 @@ export default function AgentCreate({
               </div>
               <div>
                 {modelDropdown && (
-                    <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                      <div class="model_options">
+                    <div className="custom_select_options" ref={modelRef} style={{width: '100%', maxHeight: '300px'}}>
+                      <div className="model_options">
                         {modelsArray?.map((model, index) => (
                             <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
                                  style={{padding: '12px 14px', maxWidth: '100%'}}>

@@ -1143,7 +1143,7 @@ p {
 .ff_robotoFlex{font-family: 'Roboto Flex'}
 
 .model_options{
-    max-height: 100px;
+    max-height: 200px;
     overflow-y: auto;
 }
 .sticky_option{
