@@ -114,7 +114,7 @@ def test_get_run_resources_no_run_ids(mock_run_id_config_empty,mock_api_key_get)
         # # Configure session query methods to return None for agent
         mock_session.query.return_value.filter.return_value.first.return_value = None
         response = client.post(
-            "/v1/agent/resources/output",
+            "v1/agent/resources/output",
             headers={"X-API-Key": mock_api_key_get},  # Provide the mock API key in headers
             json=mock_run_id_config_empty
         )
@@ -132,7 +132,7 @@ def test_get_run_resources_invalid_run_ids(mock_run_id_config_invalid,mock_api_k
         # # Configure session query methods to return None for agent
         mock_session.query.return_value.filter.return_value.first.return_value = None
         response = client.post(
-            "/v1/agent/resources/output",
+            "v1/agent/resources/output",
             headers={"X-API-Key": mock_api_key_get},  # Provide the mock API key in headers
             json=mock_run_id_config_invalid
         )
