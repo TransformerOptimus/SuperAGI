@@ -264,6 +264,10 @@ export const connectQdrant = (qdrantData) => {
   return api.post(`/vector_dbs/connect/qdrant`, qdrantData);
 };
 
+export const connectWeaviate = (weaviateData) => {
+  return api.post(`/vector_dbs/connect/weaviate`, weaviateData);
+};
+
 export const getKnowledge = () => {
   return api.get(`/knowledges/user/list`);
 };
