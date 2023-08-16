@@ -1,5 +1,5 @@
 import importlib
-
+import os
 from superagi.config.config import get_config
 from superagi.llms.llm_model_factory import get_model
 from superagi.models.tool import Tool
@@ -58,9 +58,11 @@ class ToolBuilder:
         """
         file_name = self.__validate_filename(filename=tool.file_name)
 
-        tools_dir = get_config("TOOLS_DIR")
-        if tools_dir is None:
-            tools_dir = "superagi/tools"
+        tool_paths = ["superagi/tools", "superagi/tools/external_tools", "superagi/tools/marketplace_tools"]
+        for tool_path in tool_paths:
+            if os.path.exists(os.path.join(os.getcwd(), tool_path) + '/' + tool.folder_name):
+                tools_dir = tool_path
+                break
         parsed_tools_dir = tools_dir.rstrip("/")
         module_name = ".".join(parsed_tools_dir.split("/") + [tool.folder_name, file_name])
 
