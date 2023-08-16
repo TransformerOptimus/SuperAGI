@@ -4,6 +4,7 @@ from typing import Optional
 from pinecone import UnauthorizedException
 from superagi.vector_embeddings.pinecone import Pinecone
 from superagi.vector_embeddings.qdrant import Qdrant
+from superagi.vector_embeddings.weaviate import Weaviate
 from superagi.types.vector_store_types import VectorStoreType
 
 class VectorEmbeddingFactory:
@@ -41,3 +42,6 @@ class VectorEmbeddingFactory:
 
         if vector_store == VectorStoreType.QDRANT:
             return Qdrant(uuid, embeds, metadata)
+        
+        if vector_store == VectorStoreType.WEAVIATE:
+            return Weaviate(uuid, embeds, metadata)
