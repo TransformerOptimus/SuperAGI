@@ -106,7 +106,7 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
         "agent_id": db_agent.id
     }
 
-@router.post("/run/{agent_id}",status_code=200)
+@router.post("/{agent_id}/run",status_code=200)
 def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent=Agent.get_agent_from_id(db.session,agent_id)
     if not agent:
@@ -153,7 +153,7 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
         "run_id":db_agent_execution.id
     }
 
-@router.put("/update/{agent_id}")
+@router.put("/update/{agent_id}",status_code=200)
 def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api_key: str = Security(validate_api_key),
                                         organisation:Organisation = Depends(get_organisation_from_api_key)):
     
@@ -227,7 +227,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     }
 
 
-@router.post("/run-status/{agent_id}")
+@router.post("/{agent_id}/run-status")
 def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
@@ -250,7 +250,7 @@ def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = S
     return response_arr
 
 
-@router.post("/pause/{agent_id}",status_code=200)
+@router.post("/{agent_id}/pause",status_code=200)
 def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateChangeConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
@@ -276,7 +276,7 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
         "result":"success"
     }
 
-@router.post("/resume/{agent_id}",status_code=200)
+@router.post("/{agent_id}/resume",status_code=200)
 def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateChangeConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
