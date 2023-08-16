@@ -29,7 +29,7 @@ class AgentConfigExtInput(BaseModel):
     project_id: Optional[int]
     goal: List[str]
     instruction: List[str]
-    agent_type: str
+    agent_workflow: str
     constraints: List[str]
     tools: List[dict]
     LTM_DB:Optional[str]
@@ -48,7 +48,7 @@ class AgentConfigUpdateExtInput(BaseModel):
     project_id: Optional[int]
     goal: Optional[List[str]]
     instruction: Optional[List[str]]
-    agent_type: Optional[str]
+    agent_workflow: Optional[str]
     constraints: Optional[List[str]]
     tools: Optional[List[dict]]
     LTM_DB:Optional[str]

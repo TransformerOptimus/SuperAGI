@@ -208,7 +208,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
         "iteration_interval": agent_with_config.iteration_interval,
         "model": agent_with_config.model,
         "max_iterations": agent_with_config.max_iterations,
-        "agent_type": agent_with_config.agent_type,
+        "agent_workflow": agent_with_config.agent_workflow,
     }
     agent_configurations = [
         AgentConfiguration(agent_id=db_agent.id, key=key, value=str(value))
@@ -227,7 +227,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     }
 
 
-@router.post("/run/{agent_id}")
+@router.post("/run-status/{agent_id}")
 def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
