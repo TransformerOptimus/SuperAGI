@@ -95,7 +95,7 @@ def test_update_agent_not_found(mock_update_agent_config,mock_api_key_get):
         # # Configure session query methods to return None for agent
         mock_session.query.return_value.filter.return_value.first.return_value = None
         response = client.put(
-            "/v1/agent/update/1",
+            "/v1/agent/1",
             headers={"X-API-Key": mock_api_key_get},  # Provide the mock API key in headers
             json=mock_update_agent_config
         )
@@ -152,7 +152,7 @@ def test_resume_agent_runs_agent_not_found(mock_execution_state_change_input,moc
         # # Configure session query methods to return None for agent
         mock_session.query.return_value.filter.return_value.first.return_value = None
         response = client.post(
-            "/v1/agent/resume/1",
+            "/v1/agent/1/resume",
             headers={"X-API-Key": mock_api_key_get},  # Provide the mock API key in headers
             json=mock_execution_state_change_input
         )
@@ -171,7 +171,7 @@ def test_pause_agent_runs_agent_not_found(mock_execution_state_change_input,mock
         # # Configure session query methods to return None for agent
         mock_session.query.return_value.filter.return_value.first.return_value = None
         response = client.post(
-            "/v1/agent/pause/1",
+            "/v1/agent/1/pause",
             headers={"X-API-Key": mock_api_key_get},  # Provide the mock API key in headers
             json=mock_execution_state_change_input
         )
@@ -189,7 +189,7 @@ def test_create_run_agent_not_found(mock_agent_execution,mock_api_key_get):
         # # Configure session query methods to return None for agent
         mock_session.query.return_value.filter.return_value.first.return_value = None
         response = client.post(
-            "/v1/agent/run/1",
+            "/v1/agent/1/run",
             headers={"X-API-Key": mock_api_key_get},  # Provide the mock API key in headers
             json=mock_agent_execution
         )
@@ -211,7 +211,7 @@ def test_create_run_project_not_matching_org(mock_agent_execution, mock_api_key_
         db_mock.session.return_value.__enter__.return_value = mock_session
 
         response = client.post(
-            "/v1/agent/run/1",
+            "/v1/agent/1/run",
             headers={"X-API-Key": mock_api_key_get},
             json=mock_agent_execution
         )

@@ -153,7 +153,7 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
         "run_id":db_agent_execution.id
     }
 
-@router.put("/update/{agent_id}",status_code=200)
+@router.put("/{agent_id}",status_code=200)
 def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api_key: str = Security(validate_api_key),
                                         organisation:Organisation = Depends(get_organisation_from_api_key)):
     
