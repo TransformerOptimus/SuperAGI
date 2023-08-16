@@ -104,7 +104,7 @@ export default function ApiKeys() {
   }
 
   const handleDeleteClick = () => {
-    deleteApiKey({id: deleteKeyId})
+    deleteApiKey(deleteKeyId)
       .then((response) => {
         toast.success("Api Key Deleted", {autoClose: 1800});
         fetchApiKeys();
