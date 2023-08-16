@@ -104,6 +104,10 @@ export const fetchAgentTemplateList = () => {
   return api.get('/agent_templates/list?template_source=marketplace');
 };
 
+export const fetchAgentTemplateDetails = (templateId) => {
+  return api.get(`/agent_templates/get/${templateId}`);
+};
+
 export const getToolConfig = (toolKitName) => {
   return api.get(`/tool_configs/get/toolkit/${toolKitName}`);
 };
@@ -258,6 +262,10 @@ export const connectPinecone = (pineconeData) => {
 
 export const connectQdrant = (qdrantData) => {
   return api.post(`/vector_dbs/connect/qdrant`, qdrantData);
+};
+
+export const connectWeaviate = (weaviateData) => {
+  return api.post(`/vector_dbs/connect/weaviate`, weaviateData);
 };
 
 export const getKnowledge = () => {

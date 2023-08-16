@@ -322,7 +322,7 @@ class GithubHelper:
             return True
 
         return False
-    
+
     def _get_file_contents(self, file_name, agent_id, agent_execution_id, session):
         final_path = ResourceHelper().get_agent_read_resource_path(file_name,
                                                                     agent=Agent.get_agent_from_id(session, agent_id),

@@ -9,6 +9,9 @@ Test Description:
 {spec}
 
 Test should follow the following format:
+FILENAME is the lowercase file name including the file extension,
+[LANG] is the markup code block language for the code's language, and [UNIT_TEST_CODE] is the code:
+
 FILENAME
 ```[LANG]
 [UNIT_TEST_CODE]
