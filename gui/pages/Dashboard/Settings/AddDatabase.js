@@ -332,7 +332,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
             <input className="input_medium" type="text" value={databaseName} onChange={handleNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
-            <div><label className={styles.form_label}>Collection/Index</label></div>
+            <div>{selectedDB === 'Weaviate' ? <label className={styles.form_label}>Class/Collection/Index</label> : <label className={styles.form_label}>Collection/Index</label>}</div>
             {collections.map((collection, index) => (<div key={index} style={{
               marginBottom: '10px',
               display: 'flex',
