@@ -5,5 +5,5 @@ spec:
     git:
       branch: main
       deploy_on_push: true
-      repor_clone_url: https://github.com/TransformerOptimus/SuperAGI
+      repor_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     name: superagi
