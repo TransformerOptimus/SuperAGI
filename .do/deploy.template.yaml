@@ -4,5 +4,5 @@ spec:
   - dockerfile_path: Dockerfile
     git:
       branch: main
-      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+      repo_clone_url: https://github.com/Tarraann/SuperAGI.git
     name: sample-dockerfile
