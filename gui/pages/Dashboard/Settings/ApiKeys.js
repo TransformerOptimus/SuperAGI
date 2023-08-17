@@ -124,9 +124,9 @@ export default function ApiKeys() {
       <div className="col-8 col-6-scrollable">
         {!isLoading ? <div>
           <div className="title_wrapper mb_15">
-          <div className={styles.page_title}>Api Keys</div>
+          <div className={styles.page_title}>API Keys</div>
             {apiKeys && apiKeys.length > 0 && !isLoading &&
-              <button className="primary_button mr_20" onClick={() => {setCreateModal(true); setKeyName('')}} style={{marginTop: '-10px'}}>
+              <button className={`${'primary_button mr_20'} ${agentStyles.button_margin}`} onClick={() => {setCreateModal(true); setKeyName('')}}>
                 Create Key
               </button>}
           </div>
@@ -185,10 +185,10 @@ export default function ApiKeys() {
 
     {createModal && (<div className="modal" onClick={() => setCreateModal(false)}>
       <div className="modal-content w_35" onClick={preventDefault}>
-        <div className={styles.detail_name}>Create new Api Key</div>
+        <div className={styles.detail_name}>Create new API Key</div>
         <div>
           <label className={styles.form_label}>Name</label>
-          <input placeholder="Enter your Palm API key" className="input_medium" type="text" value={keyName} onChange={handleModelApiKey}/>
+          <input placeholder="Enter key name" className="input_medium" type="text" value={keyName} onChange={handleModelApiKey}/>
         </div>
         <div className={agentStyles.modal_buttons}>
           <button className="secondary_button mr_10" onClick={() => setCreateModal(false)}>
@@ -215,7 +215,7 @@ export default function ApiKeys() {
             </div>
           </div>
           <div>
-           <div className={agentStyles.modal_input}>
+           <div className="title_wrapper">
               <div className="flex_1"><input ref={apiKeyRef} className="input_medium" type="text" value={apiKeyGenerated} disabled />
               </div>
              <div>
@@ -236,7 +236,7 @@ export default function ApiKeys() {
 
     {editModal && (<div className="modal" onClick={() => {setEditModal(false); setEditKey(''); setEditKeyId(-1)}}>
       <div className="modal-content w_35" onClick={preventDefault}>
-        <div className={styles.detail_name}>Edit Api Key</div>
+        <div className={styles.detail_name}>Edit API Key</div>
             <div>
                 <label className={styles.form_label}>Name</label>
                 <input ref={editKeyRef} placeholder={editKey} className="input_medium" type="text" onChange={handleEditApiKey}/>
