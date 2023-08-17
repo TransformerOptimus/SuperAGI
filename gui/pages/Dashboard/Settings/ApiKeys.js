@@ -132,7 +132,7 @@ export default function ApiKeys() {
           <div className="title_wrapper mb_15">
           <div className={styles.page_title}>API Keys</div>
             {apiKeys && apiKeys.length > 0 && !isLoading &&
-              <button className={`${'primary_button mr_20'}`} onClick={() => {setCreateModal(true); setKeyName('')}}>
+              <button className={`${'primary_button mr_20'} ${agentStyles.button_margin}`} onClick={() => {setCreateModal(true); setKeyName('')}}>
                 Create Key
               </button>}
           </div>
