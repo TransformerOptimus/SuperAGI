@@ -759,6 +759,7 @@ p {
 .mt_10{margin-top: 10px;}
 .mt_12{margin-top: 12px;}
 .mt_14{margin-top: 14px;}
+.mt_15{margin-top: 15px;}
 .mt_16{margin-top: 16px;}
 .mt_20{margin-top: 20px;}
 .mt_24{margin-top: 24px;}
@@ -1055,6 +1056,7 @@ p {
 .w_12{width: 12%}
 .w_20{width: 20%}
 .w_22{width: 22%}
+.w_35{width: 35%}
 .w_50{width: 50%}
 .w_56{width: 56%}
 .w_100{width: 100%}
@@ -1065,6 +1067,7 @@ p {
 .mxw_100{max-width: 100%}
 .mxw_360{max-width: 360px}
 
+.h_32p{height: 32px}
 .h_44p{height: 44px}
 .h_100{height: 100%}
 .h_auto{height: auto}
@@ -1134,6 +1137,7 @@ p {
 .padding_0_8{padding: 0px 8px;}
 .padding_16_8{padding: 16px 8px;}
 .padding_12_14{padding: 12px 14px;}
+.padding_0_15{padding: 0px 15px;}
 
 .flex_wrap{flex-wrap: wrap;}
 
@@ -1824,4 +1828,9 @@ tr{
     flex-direction: row;
     align-items: center;
     padding: 2px 8px;
+}
+.top_bar_profile_dropdown{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }

@@ -112,7 +112,7 @@ class DuckDuckGoSearchTool(BaseTool):
                 time.sleep(3)
                 content = WebpageExtractor().extract_with_bs4(links[i])                     #takes in the link and returns content extracted from Webpage extractor
                 max_length = len(' '.join(content.split(" ")[:500]))    
-                content = content[:max_length]                                              #formating the content
+                content = content[:max_length]                                              #formatting the content
                 attempts = 0
                 while content == "" and attempts < WEBPAGE_EXTRACTOR_MAX_ATTEMPTS:
                     attempts += 1

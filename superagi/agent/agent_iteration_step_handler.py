@@ -74,7 +74,7 @@ class AgentIterationStepHandler:
         print(self.agent_id)
         print(self.llm)
         print(self.llm.get_model())
-        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
                                   completion_prompt=iteration_workflow_step.completion_prompt)
 

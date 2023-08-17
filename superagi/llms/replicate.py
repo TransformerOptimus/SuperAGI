@@ -71,9 +71,14 @@ class Replicate(BaseLlm):
         try:
             os.environ["REPLICATE_API_TOKEN"] = self.api_key
             import replicate
+            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+            print(prompt)
+            with open("./test-prompt.txt", "w") as f:
+                f.write(prompt)
+            custom_prompt = """Who is Lord Ram? PLease respond ONLY in a valid JSON Schema"""
             output_generator = replicate.run(
                 self.model + ":" + self.version,
-                input={"prompt": prompt, "max_length": self.max_length, "temperature": self.temperature,
+                input={"prompt": custom_prompt, "max_length": self.max_length, "temperature": self.temperature,
                        "top_p": self.top_p}
             )
 
@@ -86,7 +91,8 @@ class Replicate(BaseLlm):
             if not final_output:
                 logger.error("Replicate model didn't return any output.")
                 return {"error": "Replicate model didn't return any output."}
-
+            print(final_output)
+            print(temp_output)
             logger.info("Replicate response:", final_output)
 
             return {"response": temp_output, "content": final_output}

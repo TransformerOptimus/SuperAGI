@@ -1,5 +1,6 @@
 import json
 
+from superagi.agent.task_queue import TaskQueue
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_handler import ToolOutputHandler
@@ -30,6 +31,7 @@ class AgentToolStepHandler:
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
         self.memory = memory
+        self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
@@ -95,7 +97,7 @@ class AgentToolStepHandler:
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
         logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        messages = AgentLlmMessageBuilder(self.session, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
         # print(messages)

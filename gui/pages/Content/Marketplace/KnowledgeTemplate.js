@@ -25,6 +25,7 @@ export default function KnowledgeTemplate({template, env}) {
   const [indexDropdown, setIndexDropdown] = useState(false);
   const [pinconeIndices, setPineconeIndices] = useState([]);
   const [qdrantIndices, setQdrantIndices] = useState([]);
+  const [weaviateIndices, setWeaviateIndices] = useState([]);
 
   useEffect(() => {
     getValidMarketplaceIndices(template.name)
@@ -33,6 +34,7 @@ export default function KnowledgeTemplate({template, env}) {
         if (data) {
           setPineconeIndices(data.pinecone || []);
           setQdrantIndices(data.qdrant || []);
+          setWeaviateIndices(data.weaviate || [])
         }
       })
       .catch((error) => {
@@ -221,6 +223,28 @@ export default function KnowledgeTemplate({template, env}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Qdrant</div>
                           {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option"
+                                                              onClick={() => handleInstallClick(index.id)} style={{
+                            padding: '12px 14px',
+                            maxWidth: '100%',
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                          }}>
+                            <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
+                              color: '#888888',
+                              textDecoration: 'line-through',
+                              pointerEvents : 'none',
+                            } : {}}>{index.name}</div>
+                            {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
+                              <div>
+                                <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                                       title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
+                              </div>}
+                          </div>))}
+                        </div>}
+                      {weaviateIndices && weaviateIndices.length > 0 &&
+                        <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
+                          <div className={styles3.knowledge_db_name}>Weaviate</div>
+                          {weaviateIndices.map((index) => (<div key={index.id} className="custom_select_option"
                                                               onClick={() => handleInstallClick(index.id)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
