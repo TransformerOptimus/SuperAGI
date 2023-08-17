@@ -14,12 +14,8 @@ export default function Models({sendModelData, models}){
             <div className="container">
                 <p className="text_14 mt_8 mb_12 ml_8">Models</p>
                 <div className="w_100 mb_10">
-                    <button className="secondary_button w_100" onClick={() => sendModelData({
-                        id: -5,
-                        name: "new model",
-                        contentType: "Add_Model",
-                        internalId: createInternalId()
-                    })}>
+                    <button className="secondary_button w_100"
+                            onClick={() => sendModelData({id: -5, name: "new model", contentType: "Add_Model", internalId: createInternalId()})}>
                         + Add Model
                     </button>
                 </div>

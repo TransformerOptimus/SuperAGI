@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
-import {loadingTextEffect, returnToolkitIcon} from "@/utils/utils";
+import {loadingTextEffect, modelIcon, returnToolkitIcon} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {fetchMarketPlaceModel} from "@/pages/api/DashboardService";
 
@@ -38,8 +38,13 @@ export default function MarketModels(){
                     {modelTemplates.length > 0 ? <div className="marketplaceGrid">{modelTemplates.map((item) => (
                         <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
                             <div>{item.model_name}</div>
-                            <div className="color_gray lh_16 mb_8">by SuperAgi&nbsp;<Image width={14} height={14} src="/images/is_verified.svg" alt="is_verified"/></div>
-                            <div className="text_ellipsis mt_6 color_gray">{item.description}</div>
+                            <div className="horizontal_container color_gray">
+                                <span>by { item.name && item.name.includes('/') ? item.name.split('/')[0] : item.source_name }</span>
+                                <Image className="mr_8 ml_4" width={14} height={14} src="/images/is_verified.svg" alt="is_verified" />·
+                                <Image className="ml_8 mr_4" width={16} height={16} src={modelIcon(item.source_name)} alt="source-icon" />
+                                <span>{item.source_name}</span>
+                            </div>
+                            <div className="text_ellipsis mt_14 color_gray">{item.description}</div>
                         </div>
                     ))}</div> : <div className="center_container mt_40">
                         <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
