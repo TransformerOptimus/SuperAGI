@@ -4,6 +4,5 @@ spec:
   - dockerfile_path: docker-compose.yaml
     git:
       branch: main
-      deploy_on_push: true
       repor_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     name: superagi

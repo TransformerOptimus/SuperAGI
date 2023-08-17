@@ -1,0 +1,8 @@
+name: superagi
+services:
+- dockerfile_path: Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: TransformerOptimus/SuperAGI
+  name: superagi
