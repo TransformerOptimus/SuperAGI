@@ -91,6 +91,7 @@ jobs:
           ENV: DEV
           PLAIN_OUTPUT: True
           REDIS_URL: "localhost:6379"
+          IS_TESTING: True
           
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
