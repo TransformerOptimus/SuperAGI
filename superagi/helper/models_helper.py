@@ -9,8 +9,7 @@ from superagi.models.tool import Tool
 from superagi.models.toolkit import Toolkit
 from superagi.llms.hugging_face import HuggingFace
 from typing import Optional
-from fastapi import HTTPException
-import requests
+from superagi.helper.encyption_helper import encrypt_data
 import logging
 
 class ModelsHelper:
@@ -23,9 +22,9 @@ class ModelsHelper:
         existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
 
         if existing_entry:
-            existing_entry.api_key = model_api_key
+            existing_entry.api_key = encrypt_data(model_api_key)
         else:
-            new_entry = ModelsConfig(org_id=self.organisation_id, source_name=model_provider, api_key=model_api_key)
+            new_entry = ModelsConfig(org_id=self.organisation_id, source_name=model_provider, api_key=encrypt_data(model_api_key))
             self.session.add(new_entry)
 
         self.session.commit()
@@ -86,6 +85,11 @@ class ModelsHelper:
         if not token_limit:
             return {"error": "Token Limit is null or undefined or 0"}
 
+        # Check if model_name already exists in the database
+        existing_model = self.session.query(Models).filter(Models.model_name == model_name).first()
+        if existing_model:
+            return {"error": "Model Name already exists"}
+
         # Get the source_name of the model
         model = self.fetchModelById(model_provider_id)
         if "error" in model:
@@ -137,9 +141,7 @@ class ModelsHelper:
     def fetchModelDetails(self, model_id: int) -> Dict[str, Union[str, int]]:
         try:
             model = self.session.query(
-                Models.id, Models.model_name, Models.description,
-                Models.end_point, Models.token_limit, Models.type,
-                ModelsConfig.source_name,
+                Models.id, Models.model_name, Models.description,Models.end_point, Models.token_limit, Models.type,ModelsConfig.source_name,
             ).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id
             ).filter(
@@ -182,7 +184,6 @@ class ModelsHelper:
 
     def fetchData(self, model: str):
         try:
-            # Get data for given model
             result = self.session.query(
                 func.sum(CallLogs.tokens_consumed),
                 func.count(CallLogs.id),

@@ -111,10 +111,8 @@ def get_marketplace_knowledge_list(page: int = 0):
     organisation_id = 2
     page_size = 16
 
-    # Apply search filter if provided
     query = db.session.query(Models).filter(Models.org_id == organisation_id)
     if page < 0:
         models = query.all()
-    # Paginate the results
     models = query.offset(page * page_size).limit(page_size).all()
     return models

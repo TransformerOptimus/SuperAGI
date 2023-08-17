@@ -19,7 +19,7 @@ export default function ModelTemplate({env, template}){
             { !isInstalled ? (<div className="gridContainer">
                 <div className="col_3 display_column_container padding_16">
                     <span className="text_20 color_white">{template.model_name}</span>
-                    <span className="text_12 color_gray mt_4">by {template.model_name}</span>
+                    <span className="text_12 color_gray mt_4">by {template.model_name.includes('/') ? template.model_name.split('/')[0] : template.source_name}</span>
                     <button className="primary_button w_100 mt_16" disabled={template.is_installed} onClick={() => setIsInstalled(true)}>
                         <Image width={16} height={16} src={template.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
                         <span className="ml_8">{template.is_installed ? 'Installed' : 'Install'}</span>

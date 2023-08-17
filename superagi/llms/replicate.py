@@ -75,10 +75,9 @@ class Replicate(BaseLlm):
             print(prompt)
             with open("./test-prompt.txt", "w") as f:
                 f.write(prompt)
-            custom_prompt = """Who is Lord Ram? PLease respond ONLY in a valid JSON Schema"""
             output_generator = replicate.run(
                 self.model + ":" + self.version,
-                input={"prompt": custom_prompt, "max_length": self.max_length, "temperature": self.temperature,
+                input={"prompt": prompt, "max_length": self.max_length, "temperature": self.temperature,
                        "top_p": self.top_p}
             )
 

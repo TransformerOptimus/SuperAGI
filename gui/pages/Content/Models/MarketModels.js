@@ -35,10 +35,12 @@ export default function MarketModels(){
                         <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
                             <div>{item.model_name}</div>
                             <div className="horizontal_container color_gray">
-                                <span>by { item.name && item.name.includes('/') ? item.name.split('/')[0] : item.source_name }</span>
+                                <span>by { item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[0] : item.source_name }</span>
                                 <Image className="mr_8 ml_4" width={14} height={14} src="/images/is_verified.svg" alt="is_verified" />·
                                 <Image className="ml_8 mr_4" width={16} height={16} src={modelIcon(item.source_name)} alt="source-icon" />
-                                <span>{item.source_name}</span>
+                                <span className="mr_8">{item.source_name}</span>·
+                                <Image className="ml_8 mr_4" width={15} height={15} src="/images/upload_icon.svg" alt="download-icon" />
+                                <span>{item.installs}</span>
                             </div>
                             <div className="text_ellipsis mt_14 color_gray">{item.description}</div>
                         </div>

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.sql import func
 from superagi.models.base_model import DBBaseModel
 import requests
 
@@ -58,10 +59,13 @@ class Models(DBBaseModel):
     def get_model_install_details(cls, session, marketplace_models, organisation):
         from superagi.models.models_config import ModelsConfig
         installed_models = session.query(Models).filter(Models.org_id == organisation.id).all()
+        model_counts_dict = dict(
+            session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all())
         installed_models_dict = {model.model_name: True for model in installed_models}
 
         for model in marketplace_models:
             model["is_installed"] = installed_models_dict.get(model["model_name"], False)
+            model["installs"] = model_counts_dict.get(model["model_name"], 0)
             model["source_name"] = session.query(ModelsConfig).filter(
                 ModelsConfig.id == model["model_provider_id"]).first().source_name
 
