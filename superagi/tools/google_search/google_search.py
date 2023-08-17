@@ -48,6 +48,8 @@ class GoogleSearchTool(BaseTool):
         print("query: ", query, "/////////////////////////////////////")
         api_key = self.get_tool_config("GOOGLE_API_KEY")
         search_engine_id = self.get_tool_config("SEARCH_ENGINE_ID")
+        print("api_key: ", api_key, "/////////////////////////////////////")
+        print("search_engine_id: ", search_engine_id, "/////////////////////////////////////")
         num_results = 10
         num_pages = 1
         num_extracts = 3

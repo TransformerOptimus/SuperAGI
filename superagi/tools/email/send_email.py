@@ -45,6 +45,8 @@ class SendEmailTool(BaseTool):
         print("body: ", body, "/////////////////////////////////////")
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
+        print("email_sender: ", email_sender, "/////////////////////////////////////")
+        print("email_password: ", email_password, "/////////////////////////////////////")
         if email_sender is None or email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
         if email_password is None or email_password == "" or email_password.isspace():
