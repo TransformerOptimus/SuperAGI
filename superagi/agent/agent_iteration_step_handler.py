@@ -45,7 +45,6 @@ class AgentIterationStepHandler:
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-
         if not self._handle_wait_for_permission(execution, agent_config, agent_execution_config,
                                                 iteration_workflow_step):
             return
@@ -59,6 +58,7 @@ class AgentIterationStepHandler:
             self.task_queue.clear_tasks()
 
         agent_tools = self._build_tools(agent_config, agent_execution_config)
+        print("CHECK HERE BABY1")
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
@@ -71,19 +71,29 @@ class AgentIterationStepHandler:
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
-
+        print("CHECK HERE BABY2", response)
         if 'content' not in response or response['content'] is None:
+            print("CHECK HERE BABY3", response)
             raise RuntimeError(f"Failed to get response from llm")
-
+        print("CHECK HERE BABY3", response)
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response['content'], self.llm.get_model())
+        print("CHECK HERE BABY4", response)
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
+        print("CHECK HERE BABY5", response)
 
         assistant_reply = response['content']
+        print("CHECK HERE BABY6", response)
         output_handler = get_output_handler(iteration_workflow_step.output_type,
                                             agent_execution_id=self.agent_execution_id,
                                             agent_config=agent_config, agent_tools=agent_tools)
+        print("CHECK HERE BABY7", response)
         response = output_handler.handle(self.session, assistant_reply)
+        print("CHECK HERE BABY213123", response)
+        if iteration_workflow.name == "Web Interactor-I":
+            return response
+
         if response.status == "COMPLETE":
             execution.status = "COMPLETED"
             self.session.commit()
@@ -121,11 +131,17 @@ class AgentIterationStepHandler:
     def _build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
                             agent_execution_config: dict,
                             prompt: str, agent_tools: list):
+        print("check check1")
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
                                                            agent_config["constraints"], agent_tools,
                                                            (not iteration_workflow.has_task_queue))
+        print("check check2")
+        if iteration_workflow.name == "Web Interactor-I":
+            print("check check3", agent_execution_config)
+            prompt = AgentPromptBuilder.replace_web_action_variables(prompt,agent_execution_config['dom_content'])
+            print("check checky")
 
         if iteration_workflow.has_task_queue:
             response = self.task_queue.get_last_task_details()
@@ -135,6 +151,7 @@ class AgentIterationStepHandler:
             prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                      self.task_queue.get_tasks(),
                                                                      self.task_queue.get_completed_tasks(), token_limit)
+        print("check check5")
         return prompt
 
     def _build_tools(self, agent_config: dict, agent_execution_config: dict):

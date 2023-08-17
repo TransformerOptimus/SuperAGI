@@ -1,3 +1,5 @@
+import json
+
 import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,13 +41,17 @@ from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.vector_db_indices import router as vector_db_indices_router
 from superagi.controllers.marketplace_stats import router as marketplace_stats_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
+from superagi.jobs.agent_executor import AgentExecutor
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
+from superagi.models.types.web_interactor_action import WebInteractorActionRequest
 from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
@@ -170,6 +176,7 @@ def replace_old_iteration_workflows(session):
             template.agent_workflow_id = agent_workflow.id
             session.commit()
 
+
 @app.on_event("startup")
 async def startup_event():
     # Perform startup tasks here
@@ -210,7 +217,7 @@ async def startup_event():
 
     # NOTE: remove old workflows. Need to remove this changes later
     workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
-     "Dynamic Task Workflow", "Fixed Task Workflow"]
+                 "Dynamic Task Workflow", "Fixed Task Workflow"]
     workflows = session.query(AgentWorkflow).filter(AgentWorkflow.name.not_in(workflows))
     for workflow in workflows:
         session.delete(workflow)
@@ -359,6 +366,7 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
 
+
 @app.get('/get/github_client_id')
 def github_client_id():
     """Get GitHub Client ID"""
@@ -368,5 +376,32 @@ def github_client_id():
         git_hub_client_id = git_hub_client_id.strip()
     return {"github_client_id": git_hub_client_id}
 
+
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+
+@app.post('/web_interactor_next_action')
+async def web_interactor_next_action(action_obj: WebInteractorActionRequest):
+    agent_execution_id = action_obj.agent_execution_id
+    dom_content = action_obj.dom_content
+    # last_action_status = action_obj.last_action_status
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    print("CHECK HEREEEEE", action_obj)
+    execution = AgentExecution().get_agent_execution_from_id(session, agent_execution_id)
+    AgentExecutionConfiguration().add_or_update_agent_execution_config(session, execution, {"dom_content": dom_content})
+    if execution.status == "COMPLETED":
+        return {"status": "COMPLETED"}
+    execution.status = "RUNNING"
+    session.commit()
+    response = AgentExecutor().execute_next_step(agent_execution_id)
+    response = json.loads(response)
+    if response.status == "COMPLETED":
+        execution.status = "COMPLETED"
+    else:
+        execution = AgentExecution().get_agent_execution_from_id(session, agent_execution_id)
+        execution.status = "PAUSED"
+    session.commit()
+    return response
+

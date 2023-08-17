@@ -552,8 +552,16 @@ export default function AgentCreate({
               const agentId = response.data.id;
               const name = response.data.name;
               const executionId = response.data.execution_id;
+                         window.dispatchEvent(new CustomEvent('superagi_web_trigger', {
+  detail: {
+    agent_execution_id: executionId
+  }
+}))
               fetchAgents();
               uploadResources(agentId, name, executionId)
+              // const newWindow = window.open('https://google.com','_blank')
+
+
             })
             .catch((error) => {
               console.error('Error creating agent:', error);

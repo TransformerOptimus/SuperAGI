@@ -316,6 +316,7 @@ def update_agent_execution(agent_execution_id: int,
 
     if db_agent_execution.status == "RUNNING":
         execute_agent.delay(db_agent_execution.id, datetime.now())
+        pass
 
     return db_agent_execution
 

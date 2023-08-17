@@ -14,6 +14,7 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.db import connect_db
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
+from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
@@ -63,6 +64,7 @@ class AgentExecutor:
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
+            response = None
             try:
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
@@ -76,7 +78,9 @@ class AgentExecutor:
                                                                                 api_key=model_api_key)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
-                    iteration_step_handler.execute_step()
+
+                    response = iteration_step_handler.execute_step()
+                    print("IAM HEREEE BABYY",response)
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
@@ -87,7 +91,11 @@ class AgentExecutor:
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
+            iteration_workflow = IterationWorkflow.find_by_id(session, agent_workflow_step.action_reference_id)
+            if iteration_workflow.name == "Web Interactor-I":
+                return response
+            else:
+                superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
             # superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
         finally:
             session.close()

@@ -84,6 +84,7 @@ class AgentExecutionConfiguration(DBBaseModel):
         parsed_config = {
             "goal": [],
             "instruction": [],
+            "dom_content": ""
         }
         if not agent_configurations:
             return parsed_config
@@ -107,9 +108,11 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         if key == "goal" or key == "instruction":
             return eval(value)
+        return value
 
     @classmethod
-    def build_agent_execution_config(cls, session, agent, results_agent, results_agent_execution, total_calls, total_tokens):
+    def build_agent_execution_config(cls, session, agent, results_agent, results_agent_execution, total_calls,
+                                     total_tokens):
         results_agent_dict = {result.key: result.value for result in results_agent}
         results_agent_execution_dict = {result.key: result.value for result in results_agent_execution}
 
@@ -143,7 +146,7 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         knowledge_name = ""
         if 'knowledge' in results_agent_dict and results_agent_dict['knowledge'] != 'None':
-            if type(results_agent_dict['knowledge'])==int:
+            if type(results_agent_dict['knowledge']) == int:
                 results_agent_dict['knowledge'] = int(results_agent_dict['knowledge'])
             knowledge = session.query(Knowledges).filter(Knowledges.id == results_agent_dict['knowledge']).first()
             knowledge_name = knowledge.name if knowledge is not None else ""
@@ -154,7 +157,7 @@ class AgentExecutionConfiguration(DBBaseModel):
     @classmethod
     def build_scheduled_agent_execution_config(cls, session, agent, results_agent, total_calls, total_tokens):
         results_agent_dict = {result.key: result.value for result in results_agent}
-            
+
         # Construct the response
         if 'goal' in results_agent_dict:
             results_agent_dict['goal'] = eval(results_agent_dict['goal'])
@@ -181,14 +184,14 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         knowledge_name = ""
         if 'knowledge' in results_agent_dict and results_agent_dict['knowledge'] != 'None':
-            if type(results_agent_dict['knowledge'])==int:
+            if type(results_agent_dict['knowledge']) == int:
                 results_agent_dict['knowledge'] = int(results_agent_dict['knowledge'])
             knowledge = session.query(Knowledges).filter(Knowledges.id == results_agent_dict['knowledge']).first()
             knowledge_name = knowledge.name if knowledge is not None else ""
-        results_agent_dict['knowledge_name'] = knowledge_name 
+        results_agent_dict['knowledge_name'] = knowledge_name
 
         return results_agent_dict
-    
+
     @classmethod
     def fetch_value(cls, session, execution_id: int, key: str):
         """

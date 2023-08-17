@@ -92,6 +92,18 @@ class AgentPromptBuilder:
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt
 
+
+    @classmethod
+    def replace_web_action_variables(cls, super_agi_prompt: str, dom_content: str):
+        """Replace the web action variables in the super agi prompt.
+
+        Args:
+            super_agi_prompt (str): The super agi prompt.
+            dom_content (str): The dom content.
+        """
+        if "{dom_content}" in super_agi_prompt:
+            super_agi_prompt = super_agi_prompt.replace("{dom_content}", dom_content)
+        return super_agi_prompt
     @classmethod
     def replace_task_based_variables(cls, super_agi_prompt: str, current_task: str, last_task: str,
                                      last_task_result: str, pending_tasks: List[str], completed_tasks: list, token_limit: int):
