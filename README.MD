@@ -85,6 +85,8 @@ This video demonstrates how SuperCoder can be used to create simple applications
 <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/iSPHZ1onQ44">Learn here</a>
 </p>
 
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/{REPO-OWNER}/{REPO-NAME}/tree/{BRANCH-NAME})
+
 
 ## 💡 Features
 
@@ -105,6 +107,7 @@ This video demonstrates how SuperCoder can be used to create simple applications
 
 ## 🛠 Tools
 <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113609.png height=50px width=50px alt="Slack" valign="middle" title="Slack"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113612.png height=50px width=50px alt="Email"  valign="middle" title="Email"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/07/Group-113647.png height=50px width=50px alt="Twitter" valign="middle" title="Twitter"> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113610.png height=50px width=50px alt="Jira" valign="middle" title="Jira"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113611.png height=50px width=50px alt="File Manager" valign="middle" title="File Manager"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113613.png height=50px width=50px alt="Google Search" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113615.png height=50px width=50px alt="Dall-E" valign="middle" title="Dall-E"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113614.png height=50px width=50px alt="Github" valign="middle" title="Github"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113616.png height=50px width=50px alt="Web Interaction" valign="middle" title="Web Interaction"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113617.png height=50px width=50px alt="Zapier" valign="middle" title="Zapier"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113618.png height=50px width=50px alt="Instagram" valign="middle" title="Instagram"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113619.png height=50px width=50px alt="Trello" valign="middle" title="Trello"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113620.png height=50px width=50px alt="Google Analytics" valign="middle" title="Google Analytics"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113622.png height=50px width=50px alt="Duckduckgo" valign="middle" title="Duckduckgo"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113621.png height=50px width=50px alt="Discord" valign="middle" title="Discord">
+
 
 
 ## 💻 Screenshots
