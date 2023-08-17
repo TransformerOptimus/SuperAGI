@@ -4,5 +4,5 @@ services:
   github:
     branch: main
     deploy_on_push: true
-    repo: Tarraann/SuperAGI
+    repo: TransformerOptimus/SuperAGI
   name: sample-dockerfile
