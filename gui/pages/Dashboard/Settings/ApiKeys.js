@@ -188,7 +188,7 @@ export default function ApiKeys() {
         <div className={styles.detail_name}>Create new Api Key</div>
         <div>
           <label className={styles.form_label}>Name</label>
-          <input placeholder="Enter your Palm API key" className="input_medium" type="text" value={keyName} onChange={handleModelApiKey}/>
+          <input placeholder="Enter key name" className="input_medium" type="text" value={keyName} onChange={handleModelApiKey}/>
         </div>
         <div className={agentStyles.modal_buttons}>
           <button className="secondary_button mr_10" onClick={() => setCreateModal(false)}>
