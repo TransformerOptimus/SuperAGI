@@ -23,7 +23,7 @@ class TestWeaviate(unittest.TestCase):
         mock_batch = MagicMock()
         mock_batch.__enter__.return_value = mock_batch
         mock_batch.__exit__.return_value = None
-        
+
         self.client = Mock()
         self.client.batch = mock_batch
 
@@ -55,7 +55,7 @@ class TestWeaviate(unittest.TestCase):
         self.weaviateVectorStore.add_embeddings_to_vector_db(embeddings)
         calls = [call.add_data_object({'field': 'value1'}, class_name='class_name', uuid='id1', vector='v1'),
                 call.add_data_object({'field': 'value2'}, class_name='class_name', uuid='id2', vector='v2')]
-                
+
         self.client.batch.assert_has_calls(calls)
 
     def test_delete_embeddings_from_vector_db(self):

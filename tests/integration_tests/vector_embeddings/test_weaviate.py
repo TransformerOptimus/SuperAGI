@@ -6,7 +6,7 @@ class TestWeaviate(unittest.TestCase):
 
     def setUp(self):
         self.weaviate = Weaviate(uuid="1234", embeds=[0.1, 0.2, 0.3, 0.4], metadata={"info": "sample data"})
-       
+
     def test_init(self):
         self.assertEqual(self.weaviate.uuid, "1234")
         self.assertEqual(self.weaviate.embeds, [0.1, 0.2, 0.3, 0.4])
