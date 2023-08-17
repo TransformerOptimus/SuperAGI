@@ -516,12 +516,12 @@
     overflow-x:hidden;
 }
 
-.settings_tab_button{
+.settings_tab_button_clicked{
     background: #454254;
     padding-right: 15px
 }
 
-.settings_tab_button_clicked{
+.settings_tab_button{
     background: transparent;
     padding-right: 15px
 }

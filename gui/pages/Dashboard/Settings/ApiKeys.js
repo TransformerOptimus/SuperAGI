@@ -77,7 +77,13 @@ export default function ApiKeys() {
   const fetchApiKeys = () => {
     getApiKeys()
       .then((response) => {
-        setApiKeys(response.data)
+        const formattedData = response.data.map(item => {
+          return {
+            ...item,
+            created_at: `${new Date(item.created_at).getDate()}-${["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][new Date(item.created_at).getMonth()]}-${new Date(item.created_at).getFullYear()}`
+          };
+        });
+        setApiKeys(formattedData)
         setIsLoading(false)
       })
       .catch((error) => {
@@ -126,7 +132,7 @@ export default function ApiKeys() {
           <div className="title_wrapper mb_15">
           <div className={styles.page_title}>API Keys</div>
             {apiKeys && apiKeys.length > 0 && !isLoading &&
-              <button className={`${'primary_button mr_20'} ${agentStyles.button_margin}`} onClick={() => {setCreateModal(true); setKeyName('')}}>
+              <button className={`${'primary_button mr_20'}`} onClick={() => {setCreateModal(true); setKeyName('')}}>
                 Create Key
               </button>}
           </div>
@@ -161,7 +167,7 @@ export default function ApiKeys() {
                     <tr key={index}>
                       <td className="table_data w_60">{item.name}</td>
                       <td className="table_data w_18">{item.key.slice(0, 2) + "****" + item.key.slice(-4)}</td>
-                      <td className="table_data w_18">23-JUN-2023</td>
+                      <td className="table_data w_18">{item.created_at}</td>
                       <td className="table_data w_4" onMouseEnter={() => setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
                         <Image className="rotate_90" width={16} height={16} src="/images/three_dots.svg" alt="run-icon"/>
                        <div style={activeDropdown === index ? {display: 'block'} : {display: 'none'}} onMouseLeave={() => setActiveDropdown(null)}>
