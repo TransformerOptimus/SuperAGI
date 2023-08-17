@@ -40,6 +40,9 @@ class SendEmailTool(BaseTool):
         Returns:
             success or error message.
         """
+        print("to: ", to, "/////////////////////////////////////")
+        print("subject: ", subject, "/////////////////////////////////////")
+        print("body: ", body, "/////////////////////////////////////")
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
         if email_sender is None or email_sender == "" or email_sender.isspace():
