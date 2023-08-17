@@ -262,7 +262,7 @@ export default function ApiKeys() {
       <div className="modal-content w_35" onClick={preventDefault}>
         <div className={styles.detail_name}>Delete {deleteKey} Key</div>
         <div>
-          <label className={styles.form_label}>Deleting this API key will make it unusable. Any API requests made using this key will be rejected. Once this key is deleted, you will no longer be able to see it any longer. Are you sure you want to proceed?</label>
+          <label className={styles.form_label}>Deleting this API key will make it unusable. Any API requests made using this key will be rejected. Are you sure you want to proceed?</label>
         </div>
         <div className={agentStyles.modal_buttons}>
           <button className="secondary_button mr_10" onClick={() => {setDeleteModal(false); setDeleteKeyId(-1); setDeleteKey('')}}>
