@@ -217,7 +217,8 @@ export default function ApiKeys() {
                 <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
               </div>
               <div>
-                Your secret API keys are sensitive pieces of information that should be kept confidential. Do not share them with anyone, and do not expose them in any way. If your secret API keys are compromised, someone could use them to access your API and make unauthorized changes to your data.</div>
+                Your secret API keys are sensitive pieces of information that should be kept confidential. Do not share them with anyone, and do not expose them in any way. If your secret API keys are compromised, someone could use them to access your API and make unauthorized changes to your data. This secret key is only displayed once for security reasons. Please save it in a secure location where you can access it easily.
+              </div>
             </div>
           </div>
           <div>
