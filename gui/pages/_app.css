@@ -1698,3 +1698,9 @@ tr{
     border-radius: 8px;
     margin-top:15px
 }
+
+.top_bar_profile_dropdown{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}

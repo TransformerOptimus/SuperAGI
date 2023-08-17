@@ -46,13 +46,9 @@ export default function Settings({organisationId, sendDatabaseData}) {
               </button>
             </div>
             <div>
-              <button onClick={() => switchTab('apikeys')} className={styles.tab_button}
-                      style={activeTab === 'apikeys' ? {
-                        background: '#454254',
-                        paddingRight: '15px'
-                      } : {background: 'transparent', paddingRight: '15px'}}>
-                <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/key_white.svg"
-                       alt="database-icon"/>&nbsp;Api Keys
+              <button onClick={() => switchTab('apikeys')} className={`${styles.tab_button} ${activeTab === 'apikeys' ? styles.settings_tab_button_clicked : styles.settings_tab_button}`}>
+                <Image className={styles.settings_tab_img} width={14} height={14} src="/images/key_white.svg"
+                       alt="database-icon"/>&nbsp;API Keys
               </button>
             </div>
           </div>

@@ -317,7 +317,6 @@ export const editApiKey = (apiDetails) => {
 };
 
 export const deleteApiKey = (apiId) => {
-  console.log(apiId)
-  return api.delete(`/api-keys`, apiId);
+  return api.delete(`/api-keys/${apiId}`);
 };
 

@@ -437,15 +437,11 @@
     margin-top: 20px
 }
 
-.modal_input{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
 .modal_info_class{
     margin-left: -5px;
     margin-right: 5px;
 }
+
 .table_contents{
     display: flex;
     flex-direction: column;
@@ -460,4 +456,8 @@
     justify-content: center;
     align-items: center;
     margin-top: 10px
+}
+
+.button_margin{
+    margin-top: -10px;
 }

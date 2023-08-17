@@ -17,6 +17,11 @@ class ApiKeyIn(BaseModel):
     class Config:
         orm_mode = True
 
+class ApiKeyDeleteIn(BaseModel):
+    id:int
+    class Config:
+        orm_mode = True
+
 @router.post("")
 def create_api_key(name: Annotated[str,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_user_organisation)):
     api_key=str(uuid.uuid4())
@@ -31,12 +36,12 @@ def get_all(Authorize: AuthJWT = Depends(check_auth), organisation=Depends(get_u
     api_keys=ApiKey.get_by_org_id(db.session, organisation.id)
     return api_keys
 
-@router.delete("")
-def delete_api_key(id: Annotated[int,Body(embed=True)], Authorize: AuthJWT = Depends(check_auth)):
-    api_key=ApiKey.get_by_id(db.session,id)
+@router.delete("/{api_key_id}")
+def delete_api_key(api_key_id:int, Authorize: AuthJWT = Depends(check_auth)):
+    api_key=ApiKey.get_by_id(db.session, api_key_id)
     if api_key is None:
         raise HTTPException(status_code=404, detail="API key not found")
-    ApiKey.delete_by_id(db.session, api_key.id)
+    ApiKey.delete_by_id(db.session, api_key_id)
     return {"success": True}
 
 @router.put("")
