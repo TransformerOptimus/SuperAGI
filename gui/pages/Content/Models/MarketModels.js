@@ -9,10 +9,6 @@ export default function MarketModels(){
     const [showMarketplace, setShowMarketplace] = useState(false);
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState("Loading Models");
-    // const modelTemplates = [{'name':'model 1','description':'shifting timeline across multiple time strings. Regard shifting multiple time string is the agents to be.','provider':'Replicate'},
-    //     {'name':'model 1','description':'shifting timeline across multiple time strings. Regard shifting multiple time string is the agents to be.','provider':'Replicate'},
-    //     {'name':'model 1','description':'shifting timeline across multiple time strings. Regard shifting multiple time string is the agents to be.','provider':'Replicate'},{'name':'model 1','description':'shifting timeline across multiple time strings. Regard shifting multiple time string is the agents to be.','provider':'Replicate'},
-    //     {'name':'model 1','description':'shifting timeline across multiple time strings. Regard shifting multiple time string is the agents to be.','provider':'Replicate'},]
     const [modelTemplates, setModelTemplates] = useState([]);
 
     useEffect(() => {

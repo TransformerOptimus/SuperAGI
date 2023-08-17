@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import Image from "next/image";
 
 export default function ModelInfo(modelDetails){
-    const [modelData, setModelData] = useState(modelDetails.modelDetails)
+    const [modelData, setModelData] = useState(modelDetails?.modelDetails)
     return(
         <div id="model_info" className="text_12">
             <div className="row">

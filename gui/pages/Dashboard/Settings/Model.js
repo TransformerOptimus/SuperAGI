@@ -17,45 +17,6 @@ export default function Model({organisationId}) {
   ]);
   const [updatedModels, setUpdatedModels] = useState([]);
 
-  // function getKey(key) {
-  //   getOrganisationConfig(organisationId, key)
-  //     .then((response) => {
-  //       setKey(response.data.value);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching project:', error);
-  //     });
-  // }
-  //
-  // function getSource(key) {
-  //   getOrganisationConfig(organisationId, key)
-  //     .then((response) => {
-  //       setSource(response.data.value);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching project:', error);
-  //     });
-  // }
-
-  // useEffect(() => {
-  //   getKey("model_api_key");
-  //   getSource("model_source");
-  // }, [organisationId]);
-
-  //
-  // function updateKey(key, value) {
-  //   const configData = {"key": key, "value": value};
-  //   updateOrganisationConfig(organisationId, configData)
-  //     .then((response) => {
-  //       getKey("model_api_key");
-  //       EventBus.emit("keySet", {});
-  //       toast.success("Settings updated", {autoClose: 1800});
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching project:', error);
-  //     });
-  // }
-
   useEffect(() => {
     fetchApiKeys().then((response) => {
       if(response.data.length > 0) {
