@@ -75,8 +75,8 @@ class AgentWorkflowSeed:
                                                                     SendEmailTool().name,
                                                                     "Customize the Email according to the company information in the mail")
 
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
