@@ -168,12 +168,18 @@ export default function ApiKeys() {
                       <td className="table_data w_60">{item.name}</td>
                       <td className="table_data w_18">{item.key.slice(0, 2) + "****" + item.key.slice(-4)}</td>
                       <td className="table_data w_18">{item.created_at}</td>
-                      <td className="table_data w_4" onMouseEnter={() => setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
+                      <td className="table_data w_4 cursor_pointer" onMouseLeave={() => setActiveDropdown(null)} onClick={() => {
+                        if (activeDropdown === index) {
+                          setActiveDropdown(null);
+                        } else {
+                          setActiveDropdown(index);
+                        }
+                      }}>
                         <Image className="rotate_90" width={16} height={16} src="/images/three_dots.svg" alt="run-icon"/>
                        <div style={activeDropdown === index ? {display: 'block'} : {display: 'none'}} onMouseLeave={() => setActiveDropdown(null)}>
                           <ul className="dropdown_container">
-                            <li className="dropdown_item" onClick={() => {setEditKey(item.name); setEditKeyId(item.id); setEditModal(true)}}>Edit</li>
-                            <li className="dropdown_item" onClick={() => {setDeleteKeyId(item.id); setDeleteKey(item.name) ; setDeleteModal(true)}}>Delete</li>
+                            <li className="dropdown_item" onClick={() => {setEditKey(item.name); setEditKeyId(item.id); setEditModal(true); setActiveDropdown(null);}}>Edit</li>
+                            <li className="dropdown_item" onClick={() => {setDeleteKeyId(item.id); setDeleteKey(item.name) ; setDeleteModal(true); setActiveDropdown(null);}}>Delete</li>
                           </ul> </div></td>
                     </tr>
                   ))}
