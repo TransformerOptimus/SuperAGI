@@ -7,7 +7,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.models_config import ModelsConfig
 from superagi.models.models import Models
-
+from superagi.helper.encyption_helper import decrypt_data
 
 class Configuration(DBBaseModel):
     """
@@ -81,7 +81,7 @@ class Configuration(DBBaseModel):
 
         configuration = session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
         if key == "model_api_key":
-            return configuration.api_key if configuration else default_value
+            return decrypt_data(configuration.api_key) if configuration else default_value
         else:
             return configuration.source_name if configuration else default_value
 

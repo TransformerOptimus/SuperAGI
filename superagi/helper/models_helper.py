@@ -9,7 +9,7 @@ from superagi.models.tool import Tool
 from superagi.models.toolkit import Toolkit
 from superagi.llms.hugging_face import HuggingFace
 from typing import Optional
-from superagi.helper.encyption_helper import encrypt_data
+from superagi.helper.encyption_helper import encrypt_data, decrypt_data
 import logging
 
 class ModelsHelper:
@@ -31,26 +31,28 @@ class ModelsHelper:
 
         return {'message': 'The API key was successfully stored'}
 
-
     def fetchApiKeys(self):
-        api_key_info = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(ModelsConfig.org_id == self.organisation_id).all()
+        api_key_info = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(
+            ModelsConfig.org_id == self.organisation_id).all()
 
         if not api_key_info:
             logging.error("No API key found for the provided model provider")
             return []
 
-        api_keys = [{"source_name": source_name, "api_key": api_key} for source_name, api_key in api_key_info]
+        api_keys = [{"source_name": source_name, "api_key": decrypt_data(api_key)} for source_name, api_key in
+                    api_key_info]
 
         return api_keys
 
-
     def fetchApiKey(self, model_provider):
-        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.source_name, ModelsConfig.api_key).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
+        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.source_name, ModelsConfig.api_key).filter(
+            and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
 
         if api_key_data is None:
             return []
         else:
-            api_key = [{'id': api_key_data.id,'source_name': api_key_data.source_name,'api_key': api_key_data.api_key}]
+            api_key = [{'id': api_key_data.id, 'source_name': api_key_data.source_name,
+                        'api_key': decrypt_data(api_key_data.api_key)}]
             return api_key
 
 

@@ -3,6 +3,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.models import Models
+from superagi.helper.encyption_helper import decrypt_data
 
 class ModelsConfig(DBBaseModel):
     """
@@ -65,4 +66,4 @@ class ModelsConfig(DBBaseModel):
         if not config:
             return None
 
-        return {"source_name": config.source_name, "api_key": config.api_key} if config else None
+        return {"source_name": config.source_name, "api_key": decrypt_data(config.api_key)} if config else None
