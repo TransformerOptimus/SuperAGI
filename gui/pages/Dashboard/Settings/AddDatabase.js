@@ -13,7 +13,7 @@ import knowledgeStyles from "@/pages/Content/Knowledge/Knowledge.module.css";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
 import styles1 from "@/pages/Content/Agents/Agents.module.css";
-import {connectPinecone, connectQdrant, fetchVectorDBList} from "@/pages/api/DashboardService";
+import {connectPinecone, connectQdrant, connectWeaviate, fetchVectorDBList} from "@/pages/api/DashboardService";
 
 export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const [activeView, setActiveView] = useState('select_database');
@@ -27,6 +27,10 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
 
   const [qdrantApiKey, setQdrantApiKey] = useState('');
   const [qdrantURL, setQdrantURL] = useState('');
+
+  const [weaviateApiKey, setWeaviateApiKey] = useState('');
+  const [weaviateURL, setWeaviateURL] = useState('');
+
   const [qdrantPort, setQdrantPort] = useState(8001);
   const [connectText, setConnectText] = useState('Connect');
 
@@ -70,6 +74,17 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     if (qdrant_port) {
       setQdrantPort(Number(qdrant_port));
     }
+
+    const weaviate_api = localStorage.getItem('weaviate_api_' + String(internalId));
+    if (weaviate_api) {
+      setWeaviateApiKey(weaviate_api);
+    }
+
+    const weaviate_url = localStorage.getItem('weaviate_url_' + String(internalId));
+    if (weaviate_url) {
+      setWeaviateURL(weaviate_url);
+    }
+
   }, [internalId]);
 
   useEffect(() => {
@@ -109,6 +124,14 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
     setLocalStorageValue('qdrant_port_' + String(internalId), event.target.value, setQdrantPort);
   }
 
+  const handleWeaviateAPIKeyChange = (event) => {
+    setLocalStorageValue('weaviate_api_' + String(internalId), event.target.value, setWeaviateApiKey);
+  }
+
+  const handleWeaviateURLChange = (event) => {
+    setLocalStorageValue('weaviate_url_' + String(internalId), event.target.value, setWeaviateURL);
+  }
+
   const addCollection = () => {
     setLocalStorageArray("db_collections_" + String(internalId), [...collections, 'collection name'], setCollections);
   };
@@ -137,6 +160,11 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
   const connectDatabase = () => {
     if (databaseName.replace(/\s/g, '') === '') {
       toast.error("Database name can't be blank", {autoClose: 1800});
+      return;
+    }
+
+    if(collections.length === 1 && collections[0].length < 1){
+      toast.error("Atleast add 1 Collection/Index", {autoClose: 1800});
       return;
     }
 
@@ -198,6 +226,37 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
       }
 
       connectQdrant(qdrantData)
+        .then((response) => {
+          connectResponse(response.data);
+        })
+        .catch((error) => {
+          toast.error("Unable to connect database", {autoClose: 1800});
+          console.error('Error fetching vector databases:', error);
+          setConnectText("Connect");
+        });
+    }
+
+    if (selectedDB === 'Weaviate') {
+      if (weaviateApiKey.replace(/\s/g, '') === '') {
+        toast.error("Weaviate API key is empty", {autoClose: 1800});
+        return;
+      }
+
+      if (weaviateURL.replace(/\s/g, '') === '') {
+        toast.error("Weaviate URL is empty", {autoClose: 1800});
+        return;
+      }
+
+      setConnectText("Connecting...");
+
+      const weaviateData = {
+        "name": databaseName,
+        "collections": collections,
+        "api_key": weaviateApiKey,
+        "url": weaviateURL,
+      }
+
+      connectWeaviate(weaviateData)
         .then((response) => {
           connectResponse(response.data);
         })
@@ -273,7 +332,7 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
             <input className="input_medium" type="text" value={databaseName} onChange={handleNameChange}/>
           </div>
           <div style={{marginTop: '15px'}}>
-            <div><label className={styles.form_label}>Collection/Index</label></div>
+            <div>{selectedDB === 'Weaviate' ? <label className={styles.form_label}>Class/Collection/Index</label> : <label className={styles.form_label}>Collection/Index</label>}</div>
             {collections.map((collection, index) => (<div key={index} style={{
               marginBottom: '10px',
               display: 'flex',
@@ -319,6 +378,16 @@ export default function AddDatabase({internalId, sendDatabaseDetailsData}) {
             <div style={{marginTop: '15px'}}>
               <label className={styles1.form_label}>Port</label>
               <input className="input_medium" type="number" value={qdrantPort} onChange={handleQdrantPortChange}/>
+            </div>
+          </div>}
+          {selectedDB === 'Weaviate' && <div>
+            <div className="mt_15">
+              <label className={styles1.form_label}>Weaviate API key</label>
+              <input className="input_medium" type="password" value={weaviateApiKey} onChange={handleWeaviateAPIKeyChange}/>
+            </div>
+            <div className="mt_15">
+              <label className={styles1.form_label}>Weaviate URL</label>
+              <input className="input_medium" type="text" value={weaviateURL} onChange={handleWeaviateURLChange}/>
             </div>
           </div>}
           <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '15px'}}>
