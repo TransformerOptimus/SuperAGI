@@ -116,7 +116,7 @@ class AgentWorkflowSeed:
                                                                     "Check if the resume matches the job description in goal")
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
+                                                                    str(agent_workflow.id) + "_step5",
                                                                     SendEmailTool().name,
                                                                     "Write a custom Email the candidates for job profile based on their experience")
 
