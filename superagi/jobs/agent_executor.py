@@ -65,6 +65,7 @@ class AgentExecutor:
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             response = None
+            iteration_workflow = IterationWorkflow.find_by_id(session, agent_workflow_step.action_reference_id)
             try:
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
@@ -83,6 +84,8 @@ class AgentExecutor:
                     print("IAM HEREEE BABYY",response)
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
+                if iteration_workflow.name == "Web Interactor-I":
+                    return
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
 
@@ -91,7 +94,6 @@ class AgentExecutor:
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return
-            iteration_workflow = IterationWorkflow.find_by_id(session, agent_workflow_step.action_reference_id)
             if iteration_workflow.name == "Web Interactor-I":
                 return response
             else:

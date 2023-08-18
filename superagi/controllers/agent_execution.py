@@ -84,8 +84,11 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
 
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
-
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+    execution_status="RUNNING"
+    iteration_workflow = IterationWorkflow.find_by_id(db.session, start_step.action_reference_id)
+    if iteration_workflow.name == "Web Interactor-I":
+        execution_status = 'PAUSED'
+    db_agent_execution = AgentExecution(status=execution_status, last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_agent_step_id=start_step.id,
@@ -156,8 +159,11 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
 
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
-
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+    execution_status = 'RUNNING'
+    iteration_workflow = IterationWorkflow.find_by_id(db.session, start_step.action_reference_id)
+    if iteration_workflow.name == "Web Interactor-I":
+        execution_status = 'PAUSED'
+    db_agent_execution = AgentExecution(status=execution_status, last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_agent_step_id=start_step.id,

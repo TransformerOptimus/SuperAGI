@@ -140,7 +140,7 @@ class AgentIterationStepHandler:
         print("check check2")
         if iteration_workflow.name == "Web Interactor-I":
             print("check check3", agent_execution_config)
-            prompt = AgentPromptBuilder.replace_web_action_variables(prompt,agent_execution_config['dom_content'])
+            prompt = AgentPromptBuilder.replace_web_action_variables(prompt,agent_execution_config['dom_content'],agent_execution_config['last_action'])
             print("check checky")
 
         if iteration_workflow.has_task_queue:

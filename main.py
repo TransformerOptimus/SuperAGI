@@ -1,7 +1,9 @@
 import json
+from typing import Annotated
 
 import requests
-from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, Query, Form
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import RedirectResponse
@@ -382,26 +384,63 @@ def github_client_id():
 
 
 @app.post('/web_interactor_next_action')
-async def web_interactor_next_action(action_obj: WebInteractorActionRequest):
-    agent_execution_id = action_obj.agent_execution_id
-    dom_content = action_obj.dom_content
+async def web_interactor_next_action(request: Request):
+
+    # agent_execution_id = action_obj.agent_execution_id
+    # dom_content = action_obj.dom_content
     # last_action_status = action_obj.last_action_status
+    body = await request.form()
+    # iterate over the body to get the form data
+    items = body.getlist(' name')
+    dom_content = ""
+    agent_execution_id = ""
+    last_action_status = ""
+    last_action = ""
+    for item in items:
+        if item[1:12] == "dom_content":
+            dom_content = item[17:]
+        elif item[1:19] == "agent_execution_id":
+            agent_execution_id = item[24:]
+        elif item[1:19] == "last_action_status":
+            last_action_status = item[24:]
+        elif item[1:12] == "last_action":
+            last_action = item[17:]
+    dom_content = dom_content.split("------WebKitFormBoundary")[0]
+    last_action = last_action.split("------WebKitFormBoundary")[0]
+    agent_execution_id = agent_execution_id.split('\n')[0]
+    last_action_status = last_action_status.split('\n')[0]
+    # print("THIS IS THE DOM CONTENT", dom_content)
+    # print("THIS IS THE AGENT EXECUTION ID", int(agent_execution_id))
+    # print("THIS IS THE LAST ACTION STATUS",bool(last_action_status))
     Session = sessionmaker(bind=engine)
     session = Session()
-    print("CHECK HEREEEEE", action_obj)
     execution = AgentExecution().get_agent_execution_from_id(session, agent_execution_id)
-    AgentExecutionConfiguration().add_or_update_agent_execution_config(session, execution, {"dom_content": dom_content})
+    AgentExecutionConfiguration().add_or_update_agent_execution_config(session, execution, {"dom_content": dom_content, "last_action": last_action})
     if execution.status == "COMPLETED":
         return {"status": "COMPLETED"}
     execution.status = "RUNNING"
     session.commit()
     response = AgentExecutor().execute_next_step(agent_execution_id)
+    print("THIS IS THE ENDPOIING RESPONSE", response, type(response))
     response = json.loads(response)
-    if response.status == "COMPLETED":
+
+    if response["status"] == "COMPLETED":
         execution.status = "COMPLETED"
     else:
         execution = AgentExecution().get_agent_execution_from_id(session, agent_execution_id)
         execution.status = "PAUSED"
+    print(execution.status)
     session.commit()
+    session.flush()
     return response
 
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+
+    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    # or logger.error(f'{exc}')
+    print(request)
+    print(exc_str)
+    content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)

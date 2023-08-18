@@ -135,7 +135,7 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
-    agent = db.session.query(Agent).filter(Agent.id == db_agent.id,  ).first()
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id).first()
     organisation = agent.get_agent_organisation(db.session)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,
                                                                   'agent_execution_name':  execution.name}, db_agent.id,
