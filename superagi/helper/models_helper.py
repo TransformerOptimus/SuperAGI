@@ -3,9 +3,7 @@ from sqlalchemy import text, func, and_, distinct, create_engine, MetaData, Tabl
 from sqlalchemy.orm import Session
 from superagi.models.models_config import ModelsConfig
 from superagi.models.models import Models
-from superagi.models.call_logs import CallLogs
 from superagi.llms.hugging_face import HuggingFace
-from superagi.helper.encyption_helper import encrypt_data, decrypt_data
 import logging
 
 class ModelsHelper:
@@ -13,44 +11,6 @@ class ModelsHelper:
     def __init__(self, session:Session, organisation_id: int):
         self.session = session
         self.organisation_id = organisation_id
-
-    def store_api_key(self, model_provider, model_api_key):
-        existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
-
-        if existing_entry:
-            existing_entry.api_key = encrypt_data(model_api_key)
-        else:
-            new_entry = ModelsConfig(org_id=self.organisation_id, provider=model_provider, api_key=encrypt_data(model_api_key))
-            self.session.add(new_entry)
-
-        self.session.commit()
-
-        return {'message': 'The API key was successfully stored'}
-
-    def fetch_api_keys(self):
-        api_key_info = self.session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(
-            ModelsConfig.org_id == self.organisation_id).all()
-
-        if not api_key_info:
-            logging.error("No API key found for the provided model provider")
-            return []
-
-        api_keys = [{"provider": provider, "api_key": decrypt_data(api_key)} for provider, api_key in
-                    api_key_info]
-
-        return api_keys
-
-    def fetch_api_key(self, model_provider):
-        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
-            and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
-
-        if api_key_data is None:
-            return []
-        else:
-            api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
-                        'api_key': decrypt_data(api_key_data.api_key)}]
-            return api_key
-
 
     def validate_end_point(self, model_api_key, end_point, model_provider):
         response = {"success": True}

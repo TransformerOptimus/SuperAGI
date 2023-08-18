@@ -3,11 +3,10 @@ from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
 from superagi.apm.call_log_helper import CallLogHelper
 from superagi.models.models import Models
-from fastapi_jwt_auth import AuthJWT
+from superagi.models.models_config import ModelsConfig
 from fastapi_sqlalchemy import db
 import logging
 from pydantic import BaseModel
-from main import get_config
 
 router = APIRouter()
 
@@ -27,7 +26,7 @@ class StoreModelRequest(BaseModel):
 @router.post("/store_api_keys", status_code=200)
 async def store_api_keys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).store_api_key(request.model_provider, request.model_api_key)
+        return ModelsConfig(session=db.session, organisation_id=organisation.id).store_api_key(request.model_provider, request.model_api_key)
     except Exception as e:
         logging.error(f"Error while storing API key: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -35,7 +34,7 @@ async def store_api_keys(request: ValidateAPIKeyRequest, organisation=Depends(ge
 @router.get("/get_api_keys")
 async def get_api_keys(organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetch_api_keys()
+        return ModelsConfig(session=db.session, organisation_id=organisation.id).fetch_api_keys()
     except Exception as e:
         logging.error(f"Error while retrieving API Keys: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -43,7 +42,7 @@ async def get_api_keys(organisation=Depends(get_user_organisation)):
 @router.get("/get_api_key", status_code=200)
 async def get_api_key(model_provider: str = None, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetch_api_key(model_provider)
+        return ModelsConfig(session=db.session, organisation_id=organisation.id).fetch_api_key(model_provider)
     except Exception as e:
         logging.error(f"Error while retrieving API Key: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
