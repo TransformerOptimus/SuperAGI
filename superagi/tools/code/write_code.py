@@ -71,8 +71,10 @@ class CodingTool(BaseTool):
         messages = [{"role": "system", "content": prompt}]
 
         organisation = Agent.find_org_by_agent_id(self.toolkit_config.session, agent_id=self.agent_id)
-        total_tokens = TokenCounter().count_message_tokens(messages, self.llm.get_model())
-        token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
+        token_counter = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id)
+        total_tokens = token_counter.count_message_tokens(messages, self.llm.get_model())
+        token_limit = token_counter.token_limit(self.llm.get_model())
+
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
         # Get all filenames and corresponding code blocks
