@@ -92,13 +92,14 @@ def setup():
     return org_id, project_id
 
 
-def get_tool_ids(tool_names: list) -> int:
+def get_tool_ids(tool_names: list) -> list:
     tool_url = f"{baseUrl}/tools/list"
     tool_response = requests.request("GET", tool_url)
     tool_ids = []
     for tool in tool_response.json():
         if tool['name'] in tool_names:
             tool_ids.append(tool['id'])
+    return tool_ids
 
 def run_specific_agent(task: str) -> None:
     # create and start the agent here and dynamically pass in the task
@@ -107,6 +108,7 @@ def run_specific_agent(task: str) -> None:
 
     list_of_tools = ['Read File', 'Write File', 'WebScraperTool']
     list_of_tool_ids = get_tool_ids(list_of_tools)
+    print(list_of_tools, list_of_tool_ids)
     headers = {"Content-Type": "application/json"}
 
     payload = {
@@ -141,6 +143,10 @@ def run_specific_agent(task: str) -> None:
     response = requests.request(
         "POST", f"{baseUrl}/agents/create", headers=headers, data=json.dumps(payload)
     )
+
+    if response.status_code != 201:
+        print("Error creating agent")
+        sys.exit(1)
 
     agent_execution_id = response.json()['execution_id']
     _ = requests.request(
