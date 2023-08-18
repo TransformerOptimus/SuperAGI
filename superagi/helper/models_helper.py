@@ -167,23 +167,6 @@ class ModelsHelper:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
 
-    def create_call_log(self, agent_execution_name: str, agent_id: int, tokens_consumed: int, tool_used: str, model: str) -> Optional[CallLogs]:
-        try:
-            call_log = CallLogs(
-                agent_execution_name=agent_execution_name,
-                agent_id=agent_id,
-                tokens_consumed=tokens_consumed,
-                tool_used=tool_used,
-                model=model,
-                org_id=self.organisation_id,
-            )
-            self.session.add(call_log)
-            self.session.commit()
-            return call_log
-        except SQLAlchemyError as err:
-            logging.error(f"Error while creating call log: {str(err)}")
-            return None
-
     def fetchData(self, model: str):
         try:
             result = self.session.query(

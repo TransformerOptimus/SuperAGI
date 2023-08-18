@@ -28,7 +28,7 @@ from superagi.models.workflows.iteration_workflow_step import IterationWorkflowS
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.thinking.tools import ThinkingTool
-from superagi.helper.models_helper import ModelsHelper
+from superagi.apm.call_log_helper import CallLogHelper
 
 
 class AgentIterationStepHandler:
@@ -41,7 +41,6 @@ class AgentIterationStepHandler:
         self.agent_id = agent_id
         self.memory = memory
         self.task_queue = TaskQueue(str(self.agent_execution_id))
-        print(self.task_queue)
 
     def execute_step(self):
         print("5555555555555555555555555555555555")
@@ -100,7 +99,7 @@ class AgentIterationStepHandler:
             print("Decoding JSON has failed")
             tool_name = ''
 
-        ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,
+        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,
                                                                                             agent_config['agent_id'],
                                                                                             total_tokens, tool_name,
                                                                                             agent_config['model'])

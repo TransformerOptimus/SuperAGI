@@ -102,8 +102,9 @@ class AgentToolStepHandler:
                                   completion_prompt=step_tool.completion_prompt)
         # print(messages)
         current_tokens = TokenCounter().count_message_tokens(messages, self.llm.get_model())
+        organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
-        ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
+        # ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         total_tokens = current_tokens + TokenCounter().count_message_tokens(response, self.llm.get_model())
