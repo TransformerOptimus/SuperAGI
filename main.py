@@ -40,6 +40,9 @@ from superagi.controllers.knowledge_configs import router as knowledge_configs_r
 from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.vector_db_indices import router as vector_db_indices_router
 from superagi.controllers.marketplace_stats import router as marketplace_stats_router
+from superagi.controllers.api_key import router as api_key_router
+from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.webhook import router as web_hook_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -95,37 +98,38 @@ app.add_middleware(
 # DBBaseModel.metadata.drop_all(bind=engine,checkfirst=True)
 
 
-app.include_router(user_router, prefix="/api/users")
-app.include_router(tool_router, prefix="/api/tools")
-app.include_router(organisation_router, prefix="/api/organisations")
-app.include_router(project_router, prefix="/api/projects")
-app.include_router(budget_router, prefix="/api/budgets")
-app.include_router(agent_router, prefix="/api/agents")
-app.include_router(agent_execution_router, prefix="/api/agentexecutions")
-app.include_router(agent_execution_feed_router, prefix="/api/agentexecutionfeeds")
-app.include_router(agent_execution_permission_router, prefix="/api/agentexecutionpermissions")
-app.include_router(resources_router, prefix="/api/resources")
-app.include_router(config_router, prefix="/api/configs")
-app.include_router(toolkit_router, prefix="/api/toolkits")
-app.include_router(tool_config_router, prefix="/api/tool_configs")
-app.include_router(config_router, prefix="/api/configs")
-app.include_router(agent_template_router, prefix="/api/agent_templates")
-app.include_router(agent_workflow_router, prefix="/api/agent_workflows")
-app.include_router(twitter_oauth_router, prefix="/api/twitter")
-app.include_router(agent_execution_config, prefix="/api/agent_executions_configs")
-app.include_router(analytics_router, prefix="/api/analytics")
-app.include_router(google_oauth_router, prefix="/api/google")
-app.include_router(knowledges_router, prefix="/api/knowledges")
-app.include_router(knowledge_configs_router, prefix="/api/knowledge_configs")
-app.include_router(vector_dbs_router, prefix="/api/vector_dbs")
-app.include_router(vector_db_indices_router, prefix="/api/vector_db_indices")
-app.include_router(marketplace_stats_router, prefix="/api/marketplace")
+app.include_router(user_router, prefix="/users")
+app.include_router(tool_router, prefix="/tools")
+app.include_router(organisation_router, prefix="/organisations")
+app.include_router(project_router, prefix="/projects")
+app.include_router(budget_router, prefix="/budgets")
+app.include_router(agent_router, prefix="/agents")
+app.include_router(agent_execution_router, prefix="/agentexecutions")
+app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
+app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
+app.include_router(resources_router, prefix="/resources")
+app.include_router(config_router, prefix="/configs")
+app.include_router(toolkit_router, prefix="/toolkits")
+app.include_router(tool_config_router, prefix="/tool_configs")
+app.include_router(config_router, prefix="/configs")
+app.include_router(agent_template_router, prefix="/agent_templates")
+app.include_router(agent_workflow_router, prefix="/agent_workflows")
+app.include_router(twitter_oauth_router, prefix="/twitter")
+app.include_router(agent_execution_config, prefix="/agent_executions_configs")
+app.include_router(analytics_router, prefix="/analytics")
+app.include_router(google_oauth_router, prefix="/google")
+app.include_router(knowledges_router, prefix="/knowledges")
+app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
+app.include_router(vector_dbs_router, prefix="/vector_dbs")
+app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
+app.include_router(marketplace_stats_router, prefix="/marketplace")
+app.include_router(api_key_router, prefix="/api/api-keys")
+app.include_router(api_agent_router,prefix="/api/v1/agent")
+app.include_router(web_hook_router,prefix="/api/webhook")
 
-# add a health route to check if the server is up and return 200
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-
+app.include_router(api_key_router, prefix="/api-keys")
+app.include_router(api_agent_router,prefix="/v1/agent")
+app.include_router(web_hook_router,prefix="/webhook")
 # in production you can use Settings management
 # from pydantic to get secret key from .env
 class Settings(BaseModel):
@@ -381,3 +385,4 @@ def github_client_id():
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+

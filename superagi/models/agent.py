@@ -4,8 +4,10 @@ import ast
 import json
 
 from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import or_
 
 from superagi.lib.logger import logger
+from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
 # from superagi.models import AgentConfiguration
@@ -13,7 +15,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.workflows.agent_workflow import AgentWorkflow
-from superagi.models.agent_config import AgentConfiguration
+
 
 class Agent(DBBaseModel):
     """
@@ -35,8 +37,8 @@ class Agent(DBBaseModel):
     project_id = Column(Integer)
     description = Column(String)
     agent_workflow_id = Column(Integer)
-    is_deleted = Column(Boolean, default = False)
-    
+    is_deleted = Column(Boolean, default=False)
+
     def __repr__(self):
         """
         Returns a string representation of the Agent object.
@@ -47,8 +49,8 @@ class Agent(DBBaseModel):
         """
         return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
                f"description='{self.description}', agent_workflow_id={self.agent_workflow_id}," \
-               f"is_deleted='{self.is_deleted}')" 
-               
+               f"is_deleted='{self.is_deleted}')"
+
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
         """
@@ -105,7 +107,8 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "exit", "model", "permission_type", "LTM_DB", "resource_summary", "knowledge"]:
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB",
+                   "resource_summary", "knowledge"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
@@ -149,7 +152,6 @@ class Agent(DBBaseModel):
         #     agent_workflow = db.session.query(AgentWorkflow).filter(
         #         AgentWorkflow.name == "Fixed Task Queue").first()
         #     db_agent.agent_workflow_id = agent_workflow.id
-
 
         db.session.commit()
 
@@ -291,3 +293,9 @@ class Agent(DBBaseModel):
         agent = session.query(Agent).filter_by(id=agent_id).first()
         project = session.query(Project).filter(Project.id == agent.project_id).first()
         return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+
+    @classmethod
+    def get_active_agent_by_id(cls, session, agent_id: int):
+        db_agent = session.query(Agent).filter(Agent.id == agent_id,
+                                               or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
+        return db_agent

@@ -108,8 +108,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                     agent_execution_configs[agent_config.key] = []
             elif agent_config.key == "constraints":
                 if agent_config.value:
-                    constraints = [item.strip('"') for item in agent_config.value.strip('{}').split(',')]
-                    agent_execution_configs[agent_config.key] = constraints
+                    agent_execution_configs[agent_config.key] = agent_config.value
                 else:
                     agent_execution_configs[agent_config.key] = []
             else:

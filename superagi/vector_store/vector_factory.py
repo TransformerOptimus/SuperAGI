@@ -94,11 +94,10 @@ class VectorFactory:
                 return qdrant.Qdrant(client, embedding_model, index_name)
             except:
                 raise ValueError("Qdrant API key not found")
-        
+
         if vector_store == VectorStoreType.WEAVIATE:
             try:
                 client = weaviate.create_weaviate_client(creds["url"], creds["api_key"])
                 return weaviate.Weaviate(client, embedding_model, index_name)
             except:
                 raise ValueError("Weaviate API key not found")
-            
