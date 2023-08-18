@@ -22,6 +22,7 @@ class SendTweetsTool(BaseTool):
     agent_execution_id: int = None
 
     def _execute(self, is_media: bool, tweet_text: str = 'None', media_files: list = []):
+        print("Inside SendTweetsTool", is_media, tweet_text, media_files, '////////////////////')
         toolkit_id = self.toolkit_config.toolkit_id
         session = self.toolkit_config.session
         creds = TwitterTokens(session).get_twitter_creds(toolkit_id)

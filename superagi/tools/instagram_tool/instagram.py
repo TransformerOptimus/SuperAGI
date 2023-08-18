@@ -62,6 +62,7 @@ class InstagramTool(BaseTool):
         meta_user_access_token = self.get_tool_config("META_USER_ACCESS_TOKEN")
         facebook_page_id=self.get_tool_config("FACEBOOK_PAGE_ID")
 
+        print("Inside InstagramTool", photo_description, filename, '////////////////////')
         if meta_user_access_token is None:
             return "Error: Missing meta user access token."
 
