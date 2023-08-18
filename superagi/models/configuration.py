@@ -79,11 +79,11 @@ class Configuration(DBBaseModel):
         if not model_provider:
             raise HTTPException(status_code=404, detail="Model provider not found")
 
-        configuration = session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
+        configuration = session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
         if key == "model_api_key":
             return decrypt_data(configuration.api_key) if configuration else default_value
         else:
-            return configuration.source_name if configuration else default_value
+            return configuration.provider if configuration else default_value
 
     @classmethod
     def fetch_value_by_agent_id(cls, session, agent_id: int, key: str):

@@ -55,7 +55,7 @@ class AgentExecutor:
             print("//////////////////////////////////////////////")
             print(model_config)
             model_api_key = model_config['api_key']
-            model_llm_source = model_config['source_name']
+            model_llm_source = model_config['provider']
             try:
                 vector_store_type = VectorStoreType.get_vector_store_type(agent_config["LTM_DB"])
                 memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",

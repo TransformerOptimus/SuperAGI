@@ -19,7 +19,7 @@ export default function ModelTemplate({env, template}){
             { !isInstalled ? (<div className="gridContainer">
                 <div className="col_3 display_column_container padding_16">
                     <span className="text_20 color_white">{template.model_name}</span>
-                    <span className="text_12 color_gray mt_4">by {template.model_name.includes('/') ? template.model_name.split('/')[0] : template.source_name}</span>
+                    <span className="text_12 color_gray mt_4">by {template.model_name.includes('/') ? template.model_name.split('/')[0] : template.provider}</span>
                     <button className="primary_button w_100 mt_16" disabled={template.is_installed} onClick={() => setIsInstalled(true)}>
                         <Image width={16} height={16} src={template.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
                         <span className="ml_8">{template.is_installed ? 'Installed' : 'Install'}</span>
@@ -31,8 +31,8 @@ export default function ModelTemplate({env, template}){
 
                     <span className="text_12 color_gray">Model Provider</span>
                     <div className="tags mt_8">
-                        <Image width={18} height={18} src={modelIcon(template.source_name)} alt="logo-icon" />
-                        <span className="text_12 color_white ml_4">{template.source_name}</span>
+                        <Image width={18} height={18} src={modelIcon(template.provider)} alt="logo-icon" />
+                        <span className="text_12 color_white ml_4">{template.provider}</span>
                     </div>
 
                     <hr className="horizontal_line" />

@@ -11,7 +11,7 @@ class ModelsConfig(DBBaseModel):
 
     Attributes:
         id (Integer): The unique identifier of the event.
-        source_name (String): The name of the model provider.
+        provider (String): The name of the model provider.
         api_key (String): The api_key for individual model providers for every Organisation
         org_id (Integer): The ID of the organisation.
     """
@@ -19,7 +19,7 @@ class ModelsConfig(DBBaseModel):
     __tablename__ = 'models_config'
 
     id = Column(Integer, primary_key=True)
-    source_name = Column(String, nullable=False)
+    provider = Column(String, nullable=False)
     api_key = Column(String, nullable=False)
     org_id = Column(Integer, nullable=False)
 
@@ -27,7 +27,7 @@ class ModelsConfig(DBBaseModel):
         """
         Returns a string representation of the ModelsConfig instance.
         """
-        return f"ModelsConfig(id={self.id}, source_name={self.source_name}, " \
+        return f"ModelsConfig(id={self.id}, provider={self.provider}, " \
                f"org_id={self.org_id})"
 
     @classmethod
@@ -61,9 +61,9 @@ class ModelsConfig(DBBaseModel):
         if not model_provider:
             raise HTTPException(status_code=404, detail="Model provider not found")
 
-        config = session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation.id, ModelsConfig.id == model_provider.model_provider_id).first()
+        config = session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation.id, ModelsConfig.id == model_provider.model_provider_id).first()
 
         if not config:
             return None
 
-        return {"source_name": config.source_name, "api_key": decrypt_data(config.api_key)} if config else None
+        return {"provider": config.provider, "api_key": decrypt_data(config.api_key)} if config else None

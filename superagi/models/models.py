@@ -66,7 +66,7 @@ class Models(DBBaseModel):
         for model in marketplace_models:
             model["is_installed"] = installed_models_dict.get(model["model_name"], False)
             model["installs"] = model_counts_dict.get(model["model_name"], 0)
-            model["source_name"] = session.query(ModelsConfig).filter(
-                ModelsConfig.id == model["model_provider_id"]).first().source_name
+            model["provider"] = session.query(ModelsConfig).filter(
+                ModelsConfig.id == model["model_provider_id"]).first().provider
 
         return marketplace_models

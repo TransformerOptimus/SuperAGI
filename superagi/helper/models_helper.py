@@ -19,12 +19,12 @@ class ModelsHelper:
         self.organisation_id = organisation_id
 
     def storeApiKey(self, model_provider, model_api_key):
-        existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
+        existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
 
         if existing_entry:
             existing_entry.api_key = encrypt_data(model_api_key)
         else:
-            new_entry = ModelsConfig(org_id=self.organisation_id, source_name=model_provider, api_key=encrypt_data(model_api_key))
+            new_entry = ModelsConfig(org_id=self.organisation_id, provider=model_provider, api_key=encrypt_data(model_api_key))
             self.session.add(new_entry)
 
         self.session.commit()
@@ -32,26 +32,26 @@ class ModelsHelper:
         return {'message': 'The API key was successfully stored'}
 
     def fetchApiKeys(self):
-        api_key_info = self.session.query(ModelsConfig.source_name, ModelsConfig.api_key).filter(
+        api_key_info = self.session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(
             ModelsConfig.org_id == self.organisation_id).all()
 
         if not api_key_info:
             logging.error("No API key found for the provided model provider")
             return []
 
-        api_keys = [{"source_name": source_name, "api_key": decrypt_data(api_key)} for source_name, api_key in
+        api_keys = [{"provider": provider, "api_key": decrypt_data(api_key)} for provider, api_key in
                     api_key_info]
 
         return api_keys
 
     def fetchApiKey(self, model_provider):
-        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.source_name, ModelsConfig.api_key).filter(
-            and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.source_name == model_provider)).first()
+        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
+            and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
 
         if api_key_data is None:
             return []
         else:
-            api_key = [{'id': api_key_data.id, 'source_name': api_key_data.source_name,
+            api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
                         'api_key': decrypt_data(api_key_data.api_key)}]
             return api_key
 
@@ -71,11 +71,11 @@ class ModelsHelper:
         return response
 
     def fetchModelById(self, model_provider_id):
-        model = self.session.query(ModelsConfig.source_name).filter(ModelsConfig.id == model_provider_id, ModelsConfig.org_id == self.organisation_id).first()
+        model = self.session.query(ModelsConfig.provider).filter(ModelsConfig.id == model_provider_id, ModelsConfig.org_id == self.organisation_id).first()
         if model is None:
             return {"error": "Model not found"}
         else:
-            return {"source_name": model.source_name}
+            return {"provider": model.provider}
 
     def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit, type, version):
         if not model_name:
@@ -92,13 +92,13 @@ class ModelsHelper:
         if existing_model:
             return {"error": "Model Name already exists"}
 
-        # Get the source_name of the model
+        # Get the provider of the model
         model = self.fetchModelById(model_provider_id)
         if "error" in model:
             return model  # Return error message if model not found
 
-        # Check the 'source_name' from ModelsConfig table
-        if not end_point and model["source_name"] not in ['OpenAI', 'Google Palm', 'Replicate']:
+        # Check the 'provider' from ModelsConfig table
+        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate']:
             return {"error": "End Point is empty or undefined"}
 
         try:
@@ -123,7 +123,7 @@ class ModelsHelper:
 
     def fetchModels(self) -> List[Dict[str, Union[str, int]]]:
         try:
-            models = self.session.query(Models.id, Models.model_name, Models.description, ModelsConfig.source_name).join(ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(Models.org_id == self.organisation_id).all()
+            models = self.session.query(Models.id, Models.model_name, Models.description, ModelsConfig.provider).join(ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(Models.org_id == self.organisation_id).all()
 
             result = []
             for model in models:
@@ -143,7 +143,7 @@ class ModelsHelper:
     def fetchModelDetails(self, model_id: int) -> Dict[str, Union[str, int]]:
         try:
             model = self.session.query(
-                Models.id, Models.model_name, Models.description,Models.end_point, Models.token_limit, Models.type,ModelsConfig.source_name,
+                Models.id, Models.model_name, Models.description,Models.end_point, Models.token_limit, Models.type,ModelsConfig.provider,
             ).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id
             ).filter(

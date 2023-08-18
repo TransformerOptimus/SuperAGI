@@ -18,7 +18,7 @@ export default function AddModelMarketPlace(template){
     },[])
 
     const checkModelProvider = async () => {
-        const response = await fetchApiKey(templateData.source_name);
+        const response = await fetchApiKey(templateData.provider);
         if(response && response.data && response.data[0].api_key === '') {
             setTokenError(true)
             return true
@@ -53,19 +53,19 @@ export default function AddModelMarketPlace(template){
                     <div className="vertical_containers tag_container mt_24">
                         <span className="text_14 color_white">{templateData.model_name}</span>
                         <div className="horizontal_container mt_8">
-                            <span>By {templateData.source_name}&nbsp;·&nbsp;</span>
-                            <Image width={18} height={18} src={modelIcon(templateData.source_name)} alt="logo-icon" />
-                            <span className="ml_4">{templateData.source_name}</span>
+                            <span>By {templateData.provider}&nbsp;·&nbsp;</span>
+                            <Image width={18} height={18} src={modelIcon(templateData.provider)} alt="logo-icon" />
+                            <span className="ml_4">{templateData.provider}</span>
                         </div>
                     </div>
-                    {templateData.source_name === 'Hugging Face' && <div className="vertical_containers">
-                        <span className="mt_24">{templateData.source_name} Model Endpoint</span>
+                    {templateData.provider === 'Hugging Face' && <div className="vertical_containers">
+                        <span className="mt_24">{templateData.provider} Model Endpoint</span>
                         <input className="input_medium mt_8" type="text" placeholder="Enter Model Endpoint URL"
                                onChange={(event) => setModelEndpoint(event.target.value)}/>
                     </div>}
 
-                    {templateData.source_name === 'Replicate' && <div className="vertical_containers">
-                        <span className="mt_24">{templateData.source_name} Version</span>
+                    {templateData.provider === 'Replicate' && <div className="vertical_containers">
+                        <span className="mt_24">{templateData.provider} Version</span>
                         <input className="input_medium mt_8" type="text" placeholder="Enter Model Version"
                                onChange={(event) => setModelVersion(event.target.value)}/>
                     </div>}
@@ -77,7 +77,7 @@ export default function AddModelMarketPlace(template){
                     {tokenError && <div className="horizontal_container align_start error_box mt_24 gap_6">
                         <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
                         <div className="vertical_containers">
-                            <span className="text_12 color_white lh_16">The <b>{templateData.source_name}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{templateData.source_name}</b> dashboard. </span>
+                            <span className="text_12 color_white lh_16">The <b>{templateData.provider}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{templateData.provider}</b> dashboard. </span>
                             <div className="horizontal_container mt_16">
                                 <button className="primary_button_small" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Add auth token</button>
                                 <button className="secondary_button_small ml_8">Get auth token</button>

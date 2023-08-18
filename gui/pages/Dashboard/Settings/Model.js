@@ -21,7 +21,7 @@ export default function Model({organisationId}) {
     fetchApiKeys().then((response) => {
       if(response.data.length > 0) {
         response.data.forEach(item => {
-          const index = models.findIndex(model => model.source.toLowerCase() === item.source_name.toLowerCase());
+          const index = models.findIndex(model => model.source.toLowerCase() === item.provider.toLowerCase());
           if (index !== -1) {
             const newModels = [...models];
             newModels[index].api_key = item.api_key;
