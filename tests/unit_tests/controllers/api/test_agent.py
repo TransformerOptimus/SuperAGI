@@ -139,7 +139,7 @@ def test_get_run_resources_invalid_run_ids(mock_run_id_config_invalid,mock_api_k
             json=mock_run_id_config_invalid
         )
         assert response.status_code == 404
-        assert response.text == '{"detail":"One or more run_ids not found"}'
+        assert response.text == '{"detail":"One or more run id(s) not found"}'
 
 def test_resume_agent_runs_agent_not_found(mock_execution_state_change_input,mock_api_key_get):
     with patch('superagi.helper.auth.get_organisation_from_api_key') as mock_get_user_org, \
