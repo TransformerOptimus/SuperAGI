@@ -21,6 +21,7 @@ class TwitterHelper:
                        resource_owner_key=creds.oauth_token,
                        resource_owner_secret=creds.oauth_token_secret)
         for file in media_files:
+            file = file.strip('/')[-1]
             file_path = self.get_file_path(session, file, agent_id, agent_execution_id)
             image_data = self._get_image_data(file_path)
             b64_image = base64.b64encode(image_data)
