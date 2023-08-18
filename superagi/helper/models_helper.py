@@ -14,7 +14,7 @@ class ModelsHelper:
         self.session = session
         self.organisation_id = organisation_id
 
-    def storeApiKey(self, model_provider, model_api_key):
+    def store_api_key(self, model_provider, model_api_key):
         existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
 
         if existing_entry:
@@ -27,7 +27,7 @@ class ModelsHelper:
 
         return {'message': 'The API key was successfully stored'}
 
-    def fetchApiKeys(self):
+    def fetch_api_keys(self):
         api_key_info = self.session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(
             ModelsConfig.org_id == self.organisation_id).all()
 
@@ -40,7 +40,7 @@ class ModelsHelper:
 
         return api_keys
 
-    def fetchApiKey(self, model_provider):
+    def fetch_api_key(self, model_provider):
         api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
             and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
 
@@ -52,7 +52,7 @@ class ModelsHelper:
             return api_key
 
 
-    def validateEndPoint(self, model_api_key, end_point, model_provider):
+    def validate_end_point(self, model_api_key, end_point, model_provider):
         response = {"success": True}
 
         if(model_provider == 'Hugging Face'):
@@ -66,14 +66,14 @@ class ModelsHelper:
 
         return response
 
-    def fetchModelById(self, model_provider_id):
+    def fetch_model_by_id(self, model_provider_id):
         model = self.session.query(ModelsConfig.provider).filter(ModelsConfig.id == model_provider_id, ModelsConfig.org_id == self.organisation_id).first()
         if model is None:
             return {"error": "Model not found"}
         else:
             return {"provider": model.provider}
 
-    def storeModelDetails(self, model_name, description, end_point, model_provider_id, token_limit, type, version):
+    def store_model_details(self, model_name, description, end_point, model_provider_id, token_limit, type, version):
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
         if not description:
@@ -117,7 +117,7 @@ class ModelsHelper:
 
         return {"success": "Model Details stored successfully"}
 
-    def fetchModels(self) -> List[Dict[str, Union[str, int]]]:
+    def fetch_models(self) -> List[Dict[str, Union[str, int]]]:
         try:
             models = self.session.query(Models.id, Models.model_name, Models.description, ModelsConfig.provider).join(ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(Models.org_id == self.organisation_id).all()
 
@@ -136,7 +136,7 @@ class ModelsHelper:
 
         return result
 
-    def fetchModelDetails(self, model_id: int) -> Dict[str, Union[str, int]]:
+    def fetch_model_details(self, model_id: int) -> Dict[str, Union[str, int]]:
         try:
             model = self.session.query(
                 Models.id, Models.model_name, Models.description,Models.end_point, Models.token_limit, Models.type,ModelsConfig.provider,
@@ -163,7 +163,7 @@ class ModelsHelper:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
 
-    def fetchModelTokens(self) -> Dict[str, int]:
+    def fetch_model_tokens(self) -> Dict[str, int]:
         try:
             models = self.session.query(
                 Models.model_name, Models.token_limit

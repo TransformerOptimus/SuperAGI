@@ -261,7 +261,6 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
         Returns:
             list: A list of agent templates.
     """
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
     output_json = []
     if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()

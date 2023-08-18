@@ -25,65 +25,65 @@ class StoreModelRequest(BaseModel):
     version: str
 
 @router.post("/store_api_keys", status_code=200)
-async def storeApiKeys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
+async def store_api_keys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).storeApiKey(request.model_provider, request.model_api_key)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).store_api_key(request.model_provider, request.model_api_key)
     except Exception as e:
         logging.error(f"Error while storing API key: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_api_keys")
-async def getApiKeys(organisation=Depends(get_user_organisation)):
+async def get_api_keys(organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchApiKeys()
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetch_api_keys()
     except Exception as e:
         logging.error(f"Error while retrieving API Keys: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_api_key", status_code=200)
-async def getApiKey(model_provider: str = None, organisation=Depends(get_user_organisation)):
+async def get_api_key(model_provider: str = None, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchApiKey(model_provider)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetch_api_key(model_provider)
     except Exception as e:
         logging.error(f"Error while retrieving API Key: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/verify_end_point", status_code=200)
-async def verifyEndPoint(model_api_key: str = None, end_point: str = None, model_provider: str = None, organisation=Depends(get_user_organisation)):
+async def verify_end_point(model_api_key: str = None, end_point: str = None, model_provider: str = None, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).validateEndPoint(model_api_key, end_point, model_provider)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).validate_end_point(model_api_key, end_point, model_provider)
     except Exception as e:
         logging.error(f"Error validating Endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.post("/store_model", status_code=200)
-async def storeModel(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
+async def store_model(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).storeModelDetails(request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).store_model_details(request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version)
     except Exception as e:
         logging.error(f"Error storing the Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/fetch_models", status_code=200)
-async def fetchModels(organisation=Depends(get_user_organisation)):
+async def fetch_models(organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchModels()
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetch_models()
     except Exception as e:
         logging.error(f"Error Fetching Models: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/fetch_model/{model_id}", status_code=200)
-async def fetchModelDetails(model_id: int, organisation=Depends(get_user_organisation)):
+async def fetch_model_details(model_id: int, organisation=Depends(get_user_organisation)):
     try:
-        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetchModelDetails(model_id)
+        return ModelsHelper(session=db.session, organisation_id=organisation.id).fetch_model_details(model_id)
     except Exception as e:
         logging.error(f"Error Fetching Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/fetch_model_data/{model}", status_code=200)
-async def fetchData(model: str, organisation=Depends(get_user_organisation)):
+async def fetch_data(model: str, organisation=Depends(get_user_organisation)):
     try:
-        return CallLogHelper(session=db.session, organisation_id=organisation.id).fetchData(model)
+        return CallLogHelper(session=db.session, organisation_id=organisation.id).fetch_data(model)
     except Exception as e:
         logging.error(f"Error Fetching Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

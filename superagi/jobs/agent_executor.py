@@ -52,8 +52,6 @@ class AgentExecutor:
                 return
 
             model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
-            print("//////////////////////////////////////////////")
-            print(model_config)
             model_api_key = model_config['api_key']
             model_llm_source = model_config['provider']
             try:
@@ -69,29 +67,19 @@ class AgentExecutor:
             try:
                 print(agent_config["model"])
                 print(model_api_key)
-                print(agent.id)
-                print(agent_execution_id)
-                print(memory)
-                print(agent_workflow_step.action_type)
-                print("qqqqqqqqqqqqqqqqqqqqqqqqqqq")
-                print(agent_config["model"],'999999999999999999999999')
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
                                                              llm=get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id)
                                                              , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                              memory=memory)
-                    print("@@@@@@@@@@@@@@@@@@@@@@@2")
                     tool_step_handler.execute_step()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
-                    print("1224234324353453535435")
-                    print()
                     iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
                                                                                 api_key=model_api_key,
                                                                                 organisation_id=organisation.id)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
-                    print("..............................................")
                     print(get_model(model=agent_config["model"],api_key=model_api_key,organisation_id=organisation.id))
                     iteration_step_handler.execute_step()
             except Exception as e:

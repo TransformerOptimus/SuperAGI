@@ -28,7 +28,8 @@ class TokenCounter:
             int: The token limit.
         """
         try:
-            model_token_limit_dict = ModelsHelper(session=self.session, organisation_id=self.organisation_id).fetchModelTokens()
+            model_token_limit_dict = (ModelsHelper(session=self.session, organisation_id=self.organisation_id)
+                                      .fetch_model_tokens())
             return model_token_limit_dict[model]
         except KeyError:
             logger.warning("Warning: model not found. Using cl100k_base encoding.")

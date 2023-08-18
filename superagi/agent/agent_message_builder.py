@@ -32,11 +32,9 @@ class AgentLlmMessageBuilder:
             history_enabled (bool): Whether to use history or not.
             completion_prompt (str): The completion prompt to be used for generating the agent messages.
         """
-        print("88888888888888888888888888888888")
         token_limit = TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm_model)
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]
-        print("88888888888888888888888888888888")
         if history_enabled:
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm_model)
@@ -44,7 +42,6 @@ class AgentLlmMessageBuilder:
                                                 for agent_feed in agent_feeds]
             past_messages, current_messages = self._split_history(full_message_history,
                                                               ((token_limit - base_token_limit - max_output_token_limit) // 4) * 3)
-            print("88888888888888888888888888888888")
             if past_messages:
                 ltm_summary = self._build_ltm_summary(past_messages=past_messages,
                                                                    output_token_limit=(token_limit - base_token_limit - max_output_token_limit) // 4)

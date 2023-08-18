@@ -31,7 +31,7 @@ class CallLogHelper:
             logging.error(f"Error while creating call log: {str(err)}")
             return None
 
-    def fetchData(self, model: str):
+    def fetch_data(self, model: str):
         try:
             result = self.session.query(
                 func.sum(CallLogs.tokens_consumed),
