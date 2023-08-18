@@ -376,7 +376,7 @@ async def say_hello(name: str,Authorize:AuthJWT=Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
 
-@app.get('/get/github_client_id')
+@app.get('/api/get/github_client_id')
 def github_client_id():
     """Get GitHub Client ID"""
 
