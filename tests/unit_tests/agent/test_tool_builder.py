@@ -43,7 +43,7 @@ def test_build_tool(mock_getattr, mock_import_module, tool_builder, tool):
 
     result_tool = tool_builder.build_tool(tool)
 
-    mock_import_module.assert_called_with('superagi.tools.test_folder.test')
+    mock_import_module.assert_called_with('.test_folder.test')
     mock_getattr.assert_called_with(mock_module, tool.class_name)
 
     assert result_tool.toolkit_config.session == tool_builder.session

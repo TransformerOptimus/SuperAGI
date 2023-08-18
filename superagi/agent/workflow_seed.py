@@ -31,21 +31,22 @@ class AgentWorkflowSeed:
     def build_sales_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow",
                                                               "Sales Engagement Workflow")
-        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step1",
-                                                                    ApolloSearchTool().name,
-                                                                    "Search for leads based on the given goals",
-                                                                    step_type="TRIGGER")
-
-        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step2",
-                                                                    WriteFileTool().name,
-                                                                    "Write the leads to a csv file")
+        # step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step1",
+        #                                                             ApolloSearchTool().name,
+        #                                                             "Search for leads based on the given goals",
+        #                                                             step_type="TRIGGER")
+        #
+        # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step2",
+        #                                                             WriteFileTool().name,
+        #                                                             "Write the leads to a csv file")
 
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     ReadFileTool().name,
-                                                                    "Read the leads from the file generated in the previous run")
+                                                                    "Read the leads from the file generated in the previous run",
+                                                                    step_type="TRIGGER")
 
         # task queue ends when the elements gets over
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
@@ -74,8 +75,8 @@ class AgentWorkflowSeed:
                                                                     SendEmailTool().name,
                                                                     "Customize the Email according to the company information in the mail")
 
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
