@@ -78,6 +78,7 @@ class InstagramTool(BaseTool):
             return f"Non-200 response: {str(response.text)}"
 
         data = response.json()
+        filename=filename.split("/")[-1]
         insta_business_account_id=data["instagram_business_account"]["id"]
         file_path=self.get_file_path(session, filename, self.agent_id, self.agent_execution_id)    
         #handling case where image generation generates multiple images
