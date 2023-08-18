@@ -1,6 +1,6 @@
 name: sample-dockerfile
 services:
-- dockerfile_path: Dockerfile
+- dockerfile_path: docker-compose.yaml
   github:
     branch: main
     deploy_on_push: true

@@ -1,7 +1,7 @@
 spec:
   name: sample-dockerfile
   services:
-  - dockerfile_path: Dockerfile
+  - dockerfile_path: docker-compose.yaml
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
