@@ -145,12 +145,10 @@ class AgentIterationStepHandler:
         resource_summary = ResourceSummarizer(session=self.session,
                                               agent_id=self.agent_id).fetch_or_create_agent_resource_summary(
             default_summary=agent_config.get("resource_summary"))
-        print("CHECK ME OUT HERE 2(agent_iteration_step_handler)",agent_config,agent_config["tools"])
         if resource_summary is not None:
             agent_tools.append(QueryResourceTool())
         user_tools = self.session.query(Tool).filter(
             and_(Tool.id.in_(agent_config["tools"]), Tool.file_name is not None)).all()
-        print("CHECK ME OUT HERE 11(agent_iteration_step_handler)",user_tools)
         for tool in user_tools:
             agent_tools.append(tool_builder.build_tool(tool))
 
