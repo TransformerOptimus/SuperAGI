@@ -4,8 +4,11 @@ from typing import Type
 from pydantic import BaseModel, Field
 
 from superagi.helper.resource_helper import ResourceHelper
+from superagi.helper.s3_helper import S3Helper
 from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
+from superagi.types.storage_types import StorageType
+from superagi.config.config import get_config
 
 
 class ListFileInput(BaseModel):
@@ -52,6 +55,8 @@ class ListFileTool(BaseTool):
         return input_files #+ output_files
 
     def list_files(self, directory):
+        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+            return S3Helper().list_files_from_s3(directory)
         found_files = []
         for root, dirs, files in os.walk(directory):
             for file in files:

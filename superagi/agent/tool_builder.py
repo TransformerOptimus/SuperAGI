@@ -58,6 +58,7 @@ class ToolBuilder:
         """
         file_name = self.__validate_filename(filename=tool.file_name)
 
+        tools_dir=""
         tool_paths = ["superagi/tools", "superagi/tools/external_tools", "superagi/tools/marketplace_tools"]
         for tool_path in tool_paths:
             if os.path.exists(os.path.join(os.getcwd(), tool_path) + '/' + tool.folder_name):

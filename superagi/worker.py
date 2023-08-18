@@ -15,6 +15,10 @@ from superagi.models.configuration import Configuration
 from superagi.models.db import connect_db
 from superagi.types.model_source_types import ModelSourceType
 
+from sqlalchemy import event
+from superagi.models.agent_execution import AgentExecution
+from superagi.helper.webhook_manager import WebHookManager
+
 redis_url = get_config('REDIS_URL', 'super__redis:6379')
 
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
@@ -32,9 +36,16 @@ beat_schedule = {
 }
 app.conf.beat_schedule = beat_schedule
 
+# @event.listens_for(AgentExecution.status, "set")
+# def agent_status_change(target, val,old_val,initiator):
+#     if not get_config("IN_TESTING",False):
+#         webhook_callback.delay(target.id,val,old_val)
+    
+    
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
+    
     schedule_helper = AgentScheduleHelper()
     schedule_helper.update_next_scheduled_time()
     schedule_helper.run_scheduled_agents()
@@ -49,7 +60,7 @@ def execute_agent(agent_execution_id: int, time):
     AgentExecutor().execute_next_step(agent_execution_id=agent_execution_id)
 
 
-@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5, serializer='pickle')
+@app.task(name="summarize_resource", autoretry_for=(Exception,), retry_backoff=2, max_retries=5,serializer='pickle')
 def summarize_resource(agent_id: int, resource_id: int):
     """Summarize a resource in background."""
     from superagi.resource_manager.resource_summary import ResourceSummarizer
@@ -77,3 +88,11 @@ def summarize_resource(agent_id: int, resource_id: int):
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)
     session.close()
+
+@app.task(name="webhook_callback", autoretry_for=(Exception,), retry_backoff=2, max_retries=5,serializer='pickle')
+def webhook_callback(agent_execution_id,val,old_val):
+    engine = connect_db()
+    Session = sessionmaker(bind=engine)
+    with Session() as session:
+        WebHookManager(session).agent_status_change_callback(agent_execution_id, val, old_val)
+    
