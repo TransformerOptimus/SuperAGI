@@ -309,37 +309,37 @@ export const installKnowledgeTemplate = (knowledgeName, indexId) => {
 };
 
 export const storeApiKey = (model_provider, model_api_key) => {
-  return api.post(`/models_controller/storeApiKeys`, {model_provider, model_api_key});
+  return api.post(`/models_controller/store_api_keys`, {model_provider, model_api_key});
 }
 
 export const fetchApiKeys = () => {
-  return api.get(`/models_controller/getApiKeys`);
+  return api.get(`/models_controller/get_api_keys`);
 }
 
 export const fetchApiKey = (model_provider) => {
-  return api.get(`/models_controller/getApiKey?model_provider=${model_provider}`);
+  return api.get(`/models_controller/get_api_key?model_provider=${model_provider}`);
 }
 
 export const verifyEndPoint = (model_api_key, end_point, model_provider) => {
-  return api.get(`/models_controller/verifyEndPoint`, {
+  return api.get(`/models_controller/verify_end_point`, {
     params: { model_api_key, end_point, model_provider }
   });
 }
 
 export const storeModel = (model_name, description, end_point, model_provider_id, token_limit, type, version) => {
-  return api.post(`/models_controller/storeModel`,{model_name, description, end_point, model_provider_id, token_limit, type, version});
+  return api.post(`/models_controller/store_model`,{model_name, description, end_point, model_provider_id, token_limit, type, version});
 }
 
 export const fetchModels = () => {
-  return api.get(`/models_controller/fetchModels`);
+  return api.get(`/models_controller/fetch_models`);
 }
 
 export const fetchModel = (model_id) => {
-  return api.get(`/models_controller/fetchModel/${model_id}`);
+  return api.get(`/models_controller/fetch_model/${model_id}`);
 }
 
 export const fetchModelData = (model) => {
-  return api.get(`/models_controller/fetchModelData/${model}`)
+  return api.get(`/models_controller/fetch_model_data/${model}`)
 }
 
 export const fetchMarketPlaceModel = () => {

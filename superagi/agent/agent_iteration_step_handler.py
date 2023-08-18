@@ -91,6 +91,8 @@ class AgentIterationStepHandler:
 
         total_tokens = current_tokens + TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
+        print(",.,.,.,.,.,.,.,.,.,.")
+        print(response['content'])
         try:
             content = json.loads(response['content'])
             tool = content.get('tool', {})
@@ -99,10 +101,7 @@ class AgentIterationStepHandler:
             print("Decoding JSON has failed")
             tool_name = ''
 
-        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,
-                                                                                            agent_config['agent_id'],
-                                                                                            total_tokens, tool_name,
-                                                                                            agent_config['model'])
+        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
         print("3333333333333333333333333333333333356")
 
         assistant_reply = response['content']
