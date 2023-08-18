@@ -71,13 +71,9 @@ class Replicate(BaseLlm):
         try:
             os.environ["REPLICATE_API_TOKEN"] = self.api_key
             import replicate
-            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-            print(prompt)
-            with open("./test-prompt.txt", "w") as f:
-                f.write(prompt)
             output_generator = replicate.run(
                 self.model + ":" + self.version,
-                input={"prompt": prompt, "max_length": self.max_length, "temperature": self.temperature,
+                input={"prompt": prompt, "max_length": 40000, "temperature": self.temperature,
                        "top_p": self.top_p}
             )
 

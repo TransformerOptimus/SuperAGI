@@ -40,15 +40,14 @@ class AgentIterationStepHandler:
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
         self.memory = memory
+        self.organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
-        print("5555555555555555555555555555555555")
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         if not self._handle_wait_for_permission(execution, agent_config, agent_execution_config,
                                                 iteration_workflow_step):
             return
@@ -57,33 +56,22 @@ class AgentIterationStepHandler:
         organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         if not agent_feeds:
             self.task_queue.clear_tasks()
 
         agent_tools = self._build_tools(agent_config, agent_execution_config)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%2")
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
-        print("33333333333333333333333333333333333")
-        print(prompt)
-        print(self.agent_id)
-        print(self.llm)
-        print(self.llm.get_model())
+
         messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
                                   completion_prompt=iteration_workflow_step.completion_prompt)
 
         logger.debug("Prompt messages:", messages)
-        print(self.llm.get_model())
-        print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-        print(messages)
-        current_tokens = TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(messages = messages, model = self.llm.get_model())
-        print("333333333333333333333333333333333331")
-        print(current_tokens)
+        current_tokens = TokenCounter.count_message_tokens(messages = messages, model = self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 
         if 'content' not in response or response['content'] is None:
@@ -91,8 +79,6 @@ class AgentIterationStepHandler:
 
         total_tokens = current_tokens + TokenCounter(session=self.session, organisation_id=organisation.id).count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
-        print(",.,.,.,.,.,.,.,.,.,.")
-        print(response['content'])
         try:
             content = json.loads(response['content'])
             tool = content.get('tool', {})
@@ -102,7 +88,6 @@ class AgentIterationStepHandler:
             tool_name = ''
 
         CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
-        print("3333333333333333333333333333333333356")
 
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,
@@ -146,19 +131,16 @@ class AgentIterationStepHandler:
     def _build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
                             agent_execution_config: dict,
                             prompt: str, agent_tools: list):
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
                                                            agent_config["constraints"], agent_tools,
                                                            (not iteration_workflow.has_task_queue))
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         if iteration_workflow.has_task_queue:
             response = self.task_queue.get_last_task_details()
             last_task, last_task_result = (response["task"], response["response"]) if response is not None else ("", "")
             current_task = self.task_queue.get_first_task() or ""
-            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-            token_limit = TokenCounter(session=self.session, organisation_id=organisation.id).token_limit() - max_token_limit
+            token_limit = TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit() - max_token_limit
             prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                      self.task_queue.get_tasks(),
                                                                      self.task_queue.get_completed_tasks(), token_limit)
@@ -170,22 +152,15 @@ class AgentIterationStepHandler:
         config_data = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
         model_api_key = config_data['api_key']
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print(agent_config['model'])
         resource_summary = ResourceSummarizer(session=self.session, agent_id=self.agent_id, model=agent_config['model']).fetch_or_create_agent_resource_summary(default_summary=agent_config.get("resource_summary"))
-        print(resource_summary)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         if resource_summary is not None:
             agent_tools.append(QueryResourceTool())
         user_tools = self.session.query(Tool).filter(
             and_(Tool.id.in_(agent_config["tools"]), Tool.file_name is not None)).all()
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         for tool in user_tools:
             agent_tools.append(tool_builder.build_tool(tool))
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         agent_tools = [tool_builder.set_default_params_tool(tool, agent_config, agent_execution_config,
                                                             model_api_key, resource_summary) for tool in agent_tools]
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%1")
         return agent_tools
 
     def _handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,

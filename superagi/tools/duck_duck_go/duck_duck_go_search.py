@@ -90,7 +90,7 @@ class DuckDuckGoSearchTool(BaseTool):
         for webpage in webpages:
             results.append({"title": search_results[i]["title"], "body": webpage, "links": search_results[i]["href"]})
             i += 1
-            if TokenCounter().count_text_tokens(json.dumps(results)) > 3000:
+            if TokenCounter.count_text_tokens(json.dumps(results)) > 3000:
                 break    
 
         return results

@@ -77,7 +77,6 @@ class HuggingFace(BaseLlm):
             dict: The response.
         """
         try:
-            print("77777777777777777777777777777777777777777")
             if isinstance(messages, list):
                 messages = messages[0]["content"] + "\nThe response in json schema:"
             params = self.task_params
@@ -93,10 +92,7 @@ class HuggingFace(BaseLlm):
                 }
             }
             response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload))
-            print("555555555555555555555555555")
-            print(response)
             completion = json.loads(response.content.decode("utf-8"))
-            print(completion)
             if self.task == Tasks.TEXT_GENERATION:
                 content = completion[0]["generated_text"]
             else:

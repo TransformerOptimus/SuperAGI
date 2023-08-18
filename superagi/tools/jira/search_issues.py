@@ -91,6 +91,6 @@ class SearchJiraTool(JiraTool):
                     "related_issues": rel_issues,
                 }
             )
-            if TokenCounter().count_text_tokens(json.dumps(parsed)) > self.max_token_limit:
+            if TokenCounter.count_text_tokens(json.dumps(parsed)) > self.max_token_limit:
                 break
         return parsed
