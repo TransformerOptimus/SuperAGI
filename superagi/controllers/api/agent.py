@@ -270,7 +270,7 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "RUNNING")
 
     if len(db_execution_arr) != len(execution_state_change_input.run_ids):
-        raise HTTPException(status_code=404, detail="One or more run_ids not found")
+        raise HTTPException(status_code=404, detail="One or more run id(s) not found")
 
     for ind_execution in db_execution_arr:
         ind_execution.status="PAUSED"
@@ -299,7 +299,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "PAUSED")
 
     if len(db_execution_arr) != len(execution_state_change_input.run_ids):
-        raise HTTPException(status_code=404, detail="One or more run_ids not found")
+        raise HTTPException(status_code=404, detail="One or more run id(s) not found")
 
     for ind_execution in db_execution_arr:
         ind_execution.status="RUNNING"
