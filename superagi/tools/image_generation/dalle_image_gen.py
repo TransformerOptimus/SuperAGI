@@ -52,7 +52,7 @@ class DalleImageGenTool(BaseTool):
             Image generated successfully message if image is generated or error message.
         """
         session = self.toolkit_config.session
-        print("CHECK ME OUT BABY",self.toolkit_config)
+        print("CHECK ME OUT BABY",self.toolkit_config.toolkit_id)
         toolkit = session.query(Toolkit).filter(Toolkit.id == self.toolkit_config.toolkit_id).first()
         organisation_id = toolkit.organisation_id
         if size not in [256, 512, 1024]:
