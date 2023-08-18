@@ -315,13 +315,13 @@ def update_agent_execution(agent_execution_id: int,
         "TERMINATED",
     ]:
         raise HTTPException(status_code=400, detail="Invalid Request")
-    db_agent_execution.status = agent_execution.status
+    # db_agent_execution.status = agent_execution.status
 
-    db_agent_execution.last_execution_time = datetime.now()
-    db.session.commit()
+    # db_agent_execution.last_execution_time = datetime.now()
+    # db.session.commit()
 
     if db_agent_execution.status == "RUNNING":
-        execute_agent.delay(db_agent_execution.id, datetime.now())
+        # execute_agent.delay(db_agent_execution.id, datetime.now())
         pass
 
     return db_agent_execution

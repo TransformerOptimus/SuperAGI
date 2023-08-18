@@ -149,6 +149,11 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
 
     # execute_agent.delay(execution.id, datetime.now())
 
+    if iteration_workflow.name == "Web Interactor-I":
+        execution = db.session.query(AgentExecution).filter(AgentExecution.id == execution.id).first()
+        execution.status = "PAUSED"
+        db.session.commit()
+
     db.session.commit()
 
     return {
