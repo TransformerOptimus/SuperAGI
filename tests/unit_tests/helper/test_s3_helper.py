@@ -102,3 +102,29 @@ def test_delete_file_fail(s3helper_object):
     s3helper_object.s3.delete_object = MagicMock(side_effect=Exception())
     with pytest.raises(HTTPException):
         s3helper_object.delete_file('path')
+
+
+def test_list_files_from_s3(s3helper_object):
+    s3helper_object.s3.list_objects_v2 = MagicMock(return_value={
+        'Contents': [{'Key': 'path/to/file1.txt'}, {'Key': 'path/to/file2.jpg'}]
+    })
+
+    file_list = s3helper_object.list_files_from_s3('path/to/')
+
+    assert len(file_list) == 2
+    assert 'path/to/file1.txt' in file_list
+    assert 'path/to/file2.jpg' in file_list
+
+
+def test_list_files_from_s3_no_contents(s3helper_object):
+    s3helper_object.s3.list_objects_v2 = MagicMock(return_value={})
+
+    with pytest.raises(Exception):
+        s3helper_object.list_files_from_s3('path/to/')
+
+
+def test_list_files_from_s3_raises_exception(s3helper_object):
+    s3helper_object.s3.list_objects_v2 = MagicMock(side_effect=Exception("An error occurred"))
+
+    with pytest.raises(Exception):
+        s3helper_object.list_files_from_s3('path/to/')
