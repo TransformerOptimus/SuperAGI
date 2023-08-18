@@ -151,7 +151,7 @@ class Toolkit(DBBaseModel):
             toolkits_arr.add(toolkit.id)
             if tool_obj.get("tools"):
                 for tool_name_str in tool_obj["tools"]:
-                    tool_db_obj=session.query(Tool).filter(Tool.name == tool_name_str.strip()).first()
+                    tool_db_obj=session.query(Tool).filter(Tool.name == tool_name_str.strip(), Tool.toolkit_id == toolkit.id ).first()
                     if tool_db_obj is None:
                             raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
 
