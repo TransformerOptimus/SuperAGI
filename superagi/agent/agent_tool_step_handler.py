@@ -120,6 +120,7 @@ class AgentToolStepHandler:
 
         organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
         tool = self.session.query(Tool).join(Toolkit, and_(Tool.toolkit_id == Toolkit.id, Toolkit.organisation_id == organisation.id, Tool.name == tool_name)).first()
+        print("CHECK ME OUT ORG (agent_tool_step_handler)", organisation, tool)
         tool_obj = tool_builder.build_tool(tool)
         tool_obj = tool_builder.set_default_params_tool(tool_obj, agent_config, agent_execution_config, model_api_key,
                                                         resource_summary)
