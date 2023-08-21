@@ -5,4 +5,5 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
-    name: sample-dockerfile
+    name: sample-backend
+    http_port: 8001

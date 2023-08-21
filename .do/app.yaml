@@ -5,4 +5,5 @@ services:
     branch: main
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
-  name: sample-dockerfile
+  name: sample-backend
+  http_port: 8001
