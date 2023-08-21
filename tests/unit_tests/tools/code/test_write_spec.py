@@ -3,6 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 from superagi.tools.code.write_spec import WriteSpecTool
+from unittest.mock import MagicMock
 
 
 class MockBaseLlm:
@@ -19,6 +20,8 @@ class TestWriteSpecTool:
         tool = WriteSpecTool()
         tool.llm = MockBaseLlm()
         tool.resource_manager = Mock()
+        mock_session = MagicMock(name="session")
+        tool.toolkit_config.session = mock_session
         return tool
 
     def test_execute(self, tool):

@@ -73,10 +73,6 @@ class Models(DBBaseModel):
 
         return marketplace_models
 
-    def __init__(self, session:Session, organisation_id: int):
-        self.session = session
-        organisation_id = organisation_id
-
     @classmethod
     def fetch_model_tokens(cls, session, organisation_id) -> Dict[str, int]:
         try:

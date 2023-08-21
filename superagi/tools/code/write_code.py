@@ -70,7 +70,7 @@ class CodingTool(BaseTool):
         logger.info(prompt)
         messages = [{"role": "system", "content": prompt}]
 
-        organisation = Agent.find_org_by_agent_id(self.toolkit_config.session, agent_id=self.agent_id)
+        organisation = Agent.find_org_by_agent_id(session=self.toolkit_config.session, agent_id=self.agent_id)
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
 
