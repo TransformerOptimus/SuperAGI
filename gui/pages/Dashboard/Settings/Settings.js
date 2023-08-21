@@ -5,6 +5,7 @@ import Image from "next/image";
 import Model from "@/pages/Dashboard/Settings/Model";
 import Database from "@/pages/Dashboard/Settings/Database";
 import ApiKeys from "@/pages/Dashboard/Settings/ApiKeys";
+import Webhooks from "@/pages/Dashboard/Settings/Webhooks";
 
 export default function Settings({organisationId, sendDatabaseData}) {
   const [activeTab, setActiveTab] = useState('model');
@@ -51,12 +52,19 @@ export default function Settings({organisationId, sendDatabaseData}) {
                        alt="database-icon"/>&nbsp;API Keys
               </button>
             </div>
+            <div>
+              <button onClick={() => switchTab('webhooks')} className={`${styles.tab_button} ${activeTab === 'webhooks' ? styles.settings_tab_button_clicked : styles.settings_tab_button}`}>
+                <Image className={styles.settings_tab_img} width={14} height={14} src="/images/webhook_icon.svg"
+                       alt="database-icon"/>&nbsp;Webhooks
+              </button>
+            </div>
           </div>
         </div>
         <div>
           {activeTab === 'model' && <Model organisationId={organisationId}/>}
           {activeTab === 'database' && <Database sendDatabaseData={sendDatabaseData} organisationId={organisationId}/>}
           {activeTab === 'apikeys' && <ApiKeys />}
+          {activeTab === 'webhooks' && <Webhooks />}
         </div>
       </div>
     </div>

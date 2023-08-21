@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
@@ -58,3 +58,47 @@ def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
     db.session.flush()
 
     return db_webhook
+
+@router.get("/get", response_model=Optional[WebHookOut])
+def get_all_webhooks(
+    Authorize: AuthJWT = Depends(check_auth),
+    organisation=Depends(get_user_organisation),
+):
+    """
+    Retrieves a single webhook for the authenticated user's organisation.
+
+    Returns:
+        JSONResponse: A JSON response containing the retrieved webhook.
+
+    Raises:
+    """
+    webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.is_deleted == False).first()
+    return webhook
+
+@router.delete("/delete/{webhook_id}", response_model=WebHookOut)
+def delete_webhook(
+    webhook_id: int,
+    Authorize: AuthJWT = Depends(check_auth),
+    organisation=Depends(get_user_organisation),
+):
+    """
+    Soft-deletes a webhook by setting the value of is_deleted to True.
+
+    Args:
+        webhook_id (int): The ID of the webhook to delete.
+
+    Returns:
+        WebHookOut: The deleted webhook.
+
+    Raises:
+        HTTPException (Status Code=404): If the webhook is not found.
+    """
+    webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.id == webhook_id, Webhooks.is_deleted == False).first()
+
+    if webhook is None:
+        raise HTTPException(status_code=404, detail="Webhook not found")
+
+    webhook.is_deleted = True
+    db.session.commit()
+
+    return webhook
