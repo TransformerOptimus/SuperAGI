@@ -1,6 +1,6 @@
 name: sample-dockerfile
 services:
-- dockerfile_path: gui/DockerfileProd
+- dockerfile_path: ./gui/DockerfileProd
   github:
     branch: main
     deploy_on_push: true
