@@ -74,9 +74,9 @@ export default function AgentTemplatesList({
           </div>
           <div className={styles.rowContainer}
                style={{maxHeight: '78vh', overflowY: 'auto', marginTop: '10px', marginLeft: '3px'}}>
-            {agentTemplates.length > 0 ? <div className={styles.resources}>
+            {agentTemplates.length > 0 ? <div className="marketplaceGrid3">
               {agentTemplates.map((item) => (
-                <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer', height: '85px'}}
+                <div className="market_containers cursor_pointer" key={item.id} style={{cursor: 'pointer', height: '85px'}}
                      onClick={() => handleTemplateClick(item)}>
                   <div style={{display: 'inline', overflow: 'auto'}}>
                     <div>{item.name}</div>
@@ -84,7 +84,7 @@ export default function AgentTemplatesList({
                   </div>
                 </div>
               ))}
-              <div className={styles.market_tool} style={{cursor: 'pointer', height: '85px', background: '#413C4F'}}
+              <div className="market_containers cursor_pointer" style={{cursor: 'pointer', height: '85px', background: '#413C4F'}}
                    onClick={openMarketplace}>
                 <div style={{display: 'inline', overflow: 'auto'}}>
                   <div style={{display: 'flex', justifyContent: 'space-between', gap: '0.3vw'}}>
