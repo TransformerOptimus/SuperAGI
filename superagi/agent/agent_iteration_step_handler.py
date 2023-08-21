@@ -148,7 +148,7 @@ class AgentIterationStepHandler:
         if resource_summary is not None:
             agent_tools.append(QueryResourceTool())
         user_tools = self.session.query(Tool).filter(
-            and_(Tool.id.in_(agent_config["tools"]), Tool.file_name is not None)).all()
+            and_(Tool.id.in_(agent_execution_config["tools"]), Tool.file_name is not None)).all()
         for tool in user_tools:
             agent_tools.append(tool_builder.build_tool(tool))
 
