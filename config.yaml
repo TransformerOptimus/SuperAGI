@@ -1,1 +1,21 @@
 REDIS_VECTOR_STORE_URL: "redis://10.1.1.38:8000"
+GOOGLE_ANALYTICS_VARIABLES:
+  - Dimension:
+      - country
+    Metric:
+      - totalUsers
+  - Dimension:
+      - pageTitle
+    Metric:
+      - totalUsers
+  - Dimension:
+      - deviceModel
+      - deviceCategory
+    Metric:
+      - totalUsers
+  - Dimension:
+      - dateHour
+    Metric:
+      - totalUsers
+      - averageSessionDuration
+      - bounceRate
