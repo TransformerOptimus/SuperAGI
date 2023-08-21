@@ -1,5 +1,5 @@
 # Stage 1: Compile image
-FROM python:3.10-slim-bullseye AS compile-image
+FROM python:3.10-bullseye AS compile-image
 WORKDIR /app
 
 RUN apt-get update && \
@@ -20,7 +20,7 @@ COPY . .
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh ./install_tool_dependencies.sh ./entrypoint_celery.sh
 
 # Stage 2: Build image
-FROM python:3.10-slim-bullseye AS build-image
+FROM python:3.10-bullseye AS build-image
 WORKDIR /app
 
 RUN apt-get update && \
@@ -33,3 +33,5 @@ COPY --from=compile-image /app /app
 COPY --from=compile-image /root/nltk_data /root/nltk_data
 
 ENV PATH="/opt/venv/bin:$PATH"
+
+CMD ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
