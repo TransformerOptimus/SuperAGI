@@ -4,7 +4,7 @@ import tiktoken
 
 from superagi.types.common import BaseMessage
 from superagi.lib.logger import logger
-from superagi.helper.models_helper import ModelsHelper
+from superagi.models.models import Models
 from sqlalchemy.orm import Session
 
 
@@ -28,8 +28,7 @@ class TokenCounter:
             int: The token limit.
         """
         try:
-            model_token_limit_dict = (ModelsHelper(session=self.session, organisation_id=self.organisation_id)
-                                      .fetch_model_tokens())
+            model_token_limit_dict = (Models.fetch_model_tokens(self.session, self.organisation_id))
             return model_token_limit_dict[model]
         except KeyError:
             logger.warning("Warning: model not found. Using cl100k_base encoding.")
