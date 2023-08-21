@@ -168,9 +168,9 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    db_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "RUNNING")
-    if db_execution is not None:
-        raise HTTPException(status_code=409, detail="Agent is already running,please pause and then update")
+    # db_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "RUNNING")
+    # if db_execution is not None:
+    #     raise HTTPException(status_code=409, detail="Agent is already running,please pause and then update")
      
     db_schedule=AgentSchedule.find_by_agent_id(db.session, agent_id)
     if db_schedule is not None:
@@ -265,9 +265,13 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
         try:
             AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
         except Exception as e:
-            raise HTTPException(status_code=404, detail="One or more run_ids not found")
+            raise HTTPException(status_code=404, detail="One or more run id(s) not found")
     
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "RUNNING")
+
+    if len(db_execution_arr) != len(execution_state_change_input.run_ids):
+        raise HTTPException(status_code=404, detail="One or more run id(s) not found")
+
     for ind_execution in db_execution_arr:
         ind_execution.status="PAUSED"
     db.session.commit()
@@ -290,14 +294,20 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
         try:
             AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
         except Exception as e:
-            raise HTTPException(status_code=404, detail="One or more run_ids not found")
+            raise HTTPException(status_code=404, detail="One or more run id(s) not found")
     
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "PAUSED")
+
+    if len(db_execution_arr) != len(execution_state_change_input.run_ids):
+        raise HTTPException(status_code=404, detail="One or more run id(s) not found")
+
     for ind_execution in db_execution_arr:
         ind_execution.status="RUNNING"
+        execute_agent.delay(ind_execution.id, datetime.now())
         
     db.session.commit()
     db.session.flush()
+
     return {
         "result":"success"
     }
@@ -312,9 +322,9 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
                             detail=f"No execution_id found")
     #Checking if the run_ids whose output files are requested belong to the organisation 
     try:
-        AgentExecution.validate_run_ids(db.session,run_ids_arr,organisation.id)
+        AgentExecution.validate_run_ids(db.session, run_ids_arr, organisation.id)
     except Exception as e:
-        raise HTTPException(status_code=404, detail="One or more run_ids not found")
+        raise HTTPException(status_code=404, detail="One or more run id(s) not found")
     
     db_resources_arr=Resource.find_by_run_ids(db.session, run_ids_arr)
 

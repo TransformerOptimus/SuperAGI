@@ -36,10 +36,10 @@ beat_schedule = {
 }
 app.conf.beat_schedule = beat_schedule
 
-@event.listens_for(AgentExecution.status, "set")
-def agent_status_change(target, val,old_val,initiator):
-    if get_config("IN_TESTING",False):
-        webhook_callback.delay(target.id,val,old_val)
+# @event.listens_for(AgentExecution.status, "set")
+# def agent_status_change(target, val,old_val,initiator):
+#     if not get_config("IN_TESTING",False):
+#         webhook_callback.delay(target.id,val,old_val)
     
     
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
