@@ -77,7 +77,7 @@ def test_build_agent_prompt(test_handler, mocker):
 def test_build_tools(test_handler, mocker):
     # Arrange
     agent_config = {'model': 'gpt-3', 'tools': [1, 2, 3], 'resource_summary': True}
-    agent_execution_config = {'goal': 'Test goal', 'instruction': 'Test instruction'}
+    agent_execution_config = {'goal': 'Test goal', 'instruction': 'Test instruction', 'tools':[1]}
 
     mocker.patch.object(AgentConfiguration, 'get_model_api_key', return_value='test_api_key')
     mocker.patch.object(ToolBuilder, 'build_tool')
