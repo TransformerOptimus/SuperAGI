@@ -71,6 +71,11 @@ SEARCH_ENGINE_ID: YOUR_SEARCH_ENIGNE_ID
 # IF YOU DONT HAVE GOOGLE SEARCH KEY, YOU CAN USE SERPER.DEV KEYS
 SERP_API_KEY: YOUR_SERPER_API_KEY
 
+# You can also use serpapi.com which supports more engines besides Google
+SERPAPI_API_KEY: YOUR_SERPAPI_API_KEY
+SERPAPI_ENGINE: # SerpApi engine to use, defaults to "google". Can be "bing", "yahoo", "baidu", "duckduckgo", "yandex", "naver", ...
+SERPAPI_NO_CACHE: # Set to "true" if you want to force SerpApi to fetch the results even if a cached version is already present
+
 #ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
 EMAIL_ADDRESS: YOUR_EMAIL_ADDRESS
 EMAIL_PASSWORD: YOUR_EMAIL_APP_PASSWORD #get the app password from (https://myaccount.google.com/apppasswords)

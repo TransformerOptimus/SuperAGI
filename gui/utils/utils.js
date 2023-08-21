@@ -12,6 +12,7 @@ const toolkitData = {
   'GitHub Toolkit': '/images/github_icon.svg',
   'Google Search Toolkit': '/images/google_search_icon.svg',
   'Searx Toolkit': '/images/searx_icon.svg',
+  'SerpApi Search Toolkit': '/images/serpapi_icon.png',
   'Slack Toolkit': '/images/slack_icon.svg',
   'Web Scraper Toolkit': '/images/webscraper_icon.svg',
   'Web Scrapper Toolkit': '/images/webscraper_icon.svg',
