@@ -97,8 +97,6 @@ class HuggingFace(BaseLlm):
                 content = completion[0]["generated_text"]
             else:
                 content = completion[0]["answer"]
-            print("6666666666666666666666666666666666666")
-            print(content)
 
             return {"response": completion, "content": content}
         except Exception as exception:

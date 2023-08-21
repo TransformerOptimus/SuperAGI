@@ -70,27 +70,33 @@ class ModelsConfig(DBBaseModel):
 
         return {"provider": config.provider, "api_key": decrypt_data(config.api_key)} if config else None
 
-    def __init__(self, session:Session, organisation_id: int):
-        self.session = session
-        self.organisation_id = organisation_id
+    # def __init__(self, session:Session, organisation_id: int):
+    #     session = session
+    #     organisation_id = organisation_id
 
-    def store_api_key(self, model_provider, model_api_key):
-        existing_entry = self.session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == self.organisation_id,
+    @classmethod
+    def store_api_key(cls, session, organisation_id, model_provider, model_api_key):
+        print("//////////////////////////////////1")
+        existing_entry = session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == organisation_id,
                                                                       ModelsConfig.provider == model_provider)).first()
-
+        print("//////////////////////////////////2")
+        print(organisation_id)
+        print(model_provider)
+        print(model_api_key)
         if existing_entry:
             existing_entry.api_key = encrypt_data(model_api_key)
         else:
-            new_entry = ModelsConfig(org_id=self.organisation_id, provider=model_provider, api_key=encrypt_data(model_api_key))
-            self.session.add(new_entry)
-
-        self.session.commit()
+            new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider, api_key=encrypt_data(model_api_key))
+            session.add(new_entry)
+        print("//////////////////////////////////3")
+        session.commit()
 
         return {'message': 'The API key was successfully stored'}
 
-    def fetch_api_keys(self):
-        api_key_info = self.session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(
-            ModelsConfig.org_id == self.organisation_id).all()
+    @classmethod
+    def fetch_api_keys(cls, session, organisation_id):
+        api_key_info = session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(
+            ModelsConfig.org_id == organisation_id).all()
 
         if not api_key_info:
             logging.error("No API key found for the provided model provider")
@@ -101,9 +107,10 @@ class ModelsConfig(DBBaseModel):
 
         return api_keys
 
-    def fetch_api_key(self, model_provider):
-        api_key_data = self.session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
-            and_(ModelsConfig.org_id == self.organisation_id, ModelsConfig.provider == model_provider)).first()
+    @classmethod
+    def fetch_api_key(cls, session, organisation_id, model_provider):
+        api_key_data = session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
+            and_(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == model_provider)).first()
 
         if api_key_data is None:
             return []
@@ -111,3 +118,12 @@ class ModelsConfig(DBBaseModel):
             api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
                         'api_key': decrypt_data(api_key_data.api_key)}]
             return api_key
+
+    @classmethod
+    def fetch_model_by_id(cls, session, organisation_id, model_provider_id):
+        model = session.query(ModelsConfig.provider).filter(ModelsConfig.id == model_provider_id,
+                                                                 ModelsConfig.org_id == organisation_id).first()
+        if model is None:
+            return {"error": "Model not found"}
+        else:
+            return {"provider": model.provider}
