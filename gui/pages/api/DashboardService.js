@@ -308,6 +308,23 @@ export const installKnowledgeTemplate = (knowledgeName, indexId) => {
   return api.get(`/knowledges/install/${knowledgeName}/index/${indexId}`);
 };
 
+export const createApiKey = (apiName) => {
+  return api.post(`/api-keys`, apiName);
+};
+
+export const getApiKeys = () => {
+  return api.get(`/api-keys`);
+};
+
+export const editApiKey = (apiDetails) => {
+  return api.put(`/api-keys`, apiDetails);
+};
+
+export const deleteApiKey = (apiId) => {
+  return api.delete(`/api-keys/${apiId}`);
+};
+
+
 export const storeApiKey = (model_provider, model_api_key) => {
   return api.post(`/models_controller/store_api_keys`, {model_provider, model_api_key});
 }

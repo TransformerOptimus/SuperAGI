@@ -59,6 +59,7 @@ class ToolBuilder:
         """
         file_name = self.__validate_filename(filename=tool.file_name)
 
+        tools_dir=""
         tool_paths = ["superagi/tools", "superagi/tools/external_tools", "superagi/tools/marketplace_tools"]
         for tool_path in tool_paths:
             if os.path.exists(os.path.join(os.getcwd(), tool_path) + '/' + tool.folder_name):
@@ -81,7 +82,7 @@ class ToolBuilder:
         return new_object
 
     def set_default_params_tool(self, tool, agent_config, agent_execution_config, model_api_key: str,
-                                resource_summary: str = ""):
+                                resource_summary: str = "",memory=None):
         """
         Set the default parameters for the tools.
 
@@ -114,7 +115,7 @@ class ToolBuilder:
                                                 agent_execution_id=self.agent_execution_id)
         if hasattr(tool, 'tool_response_manager'):
             tool.tool_response_manager = ToolResponseQueryManager(session=self.session,
-                                                                  agent_execution_id=self.agent_execution_id)
+                                                                  agent_execution_id=self.agent_execution_id,memory=memory)
 
         if tool.name == "QueryResourceTool":
             tool.description = tool.description.replace("{summary}", resource_summary)

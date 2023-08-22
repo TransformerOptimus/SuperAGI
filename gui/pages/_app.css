@@ -1051,14 +1051,17 @@ p {
 .r_0{right: 0}
 
 .w_120p{width: 120px}
+.w_4{width: 4%}
 .w_6{width: 6%}
 .w_10{width: 10%}
 .w_12{width: 12%}
+.w_18{width: 18%}
 .w_20{width: 20%}
 .w_22{width: 22%}
 .w_35{width: 35%}
 .w_50{width: 50%}
 .w_56{width: 56%}
+.w_60{width: 60%}
 .w_100{width: 100%}
 .w_inherit{width: inherit}
 .w_fit_content{width:fit-content}
@@ -1113,6 +1116,7 @@ p {
 .gap_16{gap:16px;}
 .gap_20{gap:20px;}
 
+.border_top_none{border-top: none;}
 .border_radius_8{border-radius: 8px;}
 .border_radius_25{border-radius: 25px;}
 
@@ -1139,6 +1143,7 @@ p {
 .padding_12_14{padding: 12px 14px;}
 .padding_0_15{padding: 0px 15px;}
 
+.flex_1{flex: 1}
 .flex_wrap{flex-wrap: wrap;}
 
 .mix_blend_mode{mix-blend-mode: exclusion;}
@@ -1154,6 +1159,8 @@ p {
     position: sticky;
     bottom: 0;
 }
+
+.rotate_90{transform: rotate(90deg)}
 
 /*------------------------------- My ROWS AND COLUMNS -------------------------------*/
 .my_rows {
@@ -1777,6 +1784,24 @@ tr{
 
 .history_box_selected{
     background: #474255;
+}
+
+.loading_container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh
+}
+
+.loading_text{
+    font-size: 16px;
+    font-family: 'Source Code Pro';
+}
+
+.table_container{
+    background: #272335;
+    border-radius: 8px;
+    margin-top:15px
 }
 
 .error_box{
