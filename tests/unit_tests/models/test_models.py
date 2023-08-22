@@ -17,12 +17,13 @@ def test_create_model(mock_session):
     model_type = "example_type"
     version = "v1.0"
     org_id = 1
+    model_features = "example_model_feature"
     mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
     # Act
     model = Models(model_name=model_name, end_point=end_point,
                    model_provider_id=model_provider_id, token_limit=token_limit,
-                   type=model_type, version=version, org_id=org_id)
+                   type=model_type, version=version, org_id=org_id, model_features=model_features)
     mock_session.add(model)
 
     # Assert
@@ -38,12 +39,13 @@ def test_repr_method_models(mock_session):
     model_type = "example_type"
     version = "v1.0"
     org_id = 1
+    model_features = "example_model_feature"
     mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
     # Act
     model = Models(model_name=model_name, end_point=end_point,
                  model_provider_id=model_provider_id, token_limit=token_limit,
-                 type=model_type, version=version, org_id=org_id)
+                 type=model_type, version=version, org_id=org_id, model_features=model_features)
     model_repr = repr(model)
 
     # Assert
@@ -52,7 +54,9 @@ def test_repr_method_models(mock_session):
                          f"token_limit={token_limit}, " \
                          f"type={model_type}, " \
                          f"version={version}, " \
-                         f"org_id={org_id})"
+                         f"org_id={org_id}, " \
+                         f"model_features={model_features})"
+
 
 @patch('requests.get')
 def test_fetch_marketplace_list(mock_get):

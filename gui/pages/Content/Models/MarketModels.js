@@ -42,7 +42,7 @@ export default function MarketModels(){
                                 <Image className="ml_8 mr_4" width={15} height={15} src="/images/upload_icon.svg" alt="download-icon" />
                                 <span>{item.installs}</span>
                             </div>
-                            <div className="text_ellipsis mt_14 color_gray">{item.description}</div>
+                            <div className="text_ellipsis mt_14 color_gray" dangerouslySetInnerHTML={{ __html: item.description }} />
                         </div>
                     ))}</div> : <div className="center_container mt_40">
                         <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>

@@ -475,7 +475,7 @@ export const modelIcon = (model) => {
   const icons = {
     'Hugging Face': '/images/huggingface_logo.svg',
     'Google Palm': '/images/google_palm_logo.svg',
-    'Replicate': '/images/replicate.svg',
+    'Replicate': '/images/replicate_logo.svg',
     'OpenAI': '/images/openai_logo.svg',
   }
 

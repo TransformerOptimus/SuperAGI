@@ -28,6 +28,7 @@ def upgrade() -> None:
     sa.Column('type', sa.String(), nullable=False),
     sa.Column('version', sa.String(), nullable=False),
     sa.Column('org_id', sa.Integer(), nullable=False),
+    sa.Column('model_features', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')

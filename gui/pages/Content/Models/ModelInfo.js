@@ -5,6 +5,7 @@ export default function ModelInfo(modelDetails){
     const [modelData, setModelData] = useState(modelDetails?.modelDetails)
     return(
         <div id="model_info" className="text_12">
+            <hr className="horizontal_line padding_0" />
             <div className="row">
                 <div className="col-3" />
                 <div className="col-6 col-6-scrollable vertical_containers">

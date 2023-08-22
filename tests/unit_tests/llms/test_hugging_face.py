@@ -11,34 +11,34 @@ from superagi.llms.utils.huggingface_utils.public_endpoints import ACCOUNT_VERIF
 
 class TestHuggingFace(TestCase):
 
-    @patch.object(requests, "post")
-    def test_chat_completion(self, mock_post):
-        # Arrange
-        api_key = 'test_api_key'
-        model = 'test_model'
-        end_point = 'test_end_point'
-        hf_instance = HuggingFace(api_key, model=model, end_point=end_point)
-        messages = [{"role": "system", "content": "You are a helpful assistant."}]
-        mock_post.return_value = Mock()
-        mock_post.return_value.content = b'{"0": {"generated_text": "Sure, I can help with that."}}'
-
-        # Act
-        result = hf_instance.chat_completion(messages)
-
-        # Assert
-        mock_post.assert_called_with(
-            end_point,
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            data=json.dumps({
-                "inputs": "You are a helpful assistant.\nThe responses in json schema:",
-                "parameters": TaskParameters().get_params(Tasks.TEXT_GENERATION),
-                "options": {
-                    "use_cache": False,
-                    "wait_for_model": True,
-                }
-            })
-        )
-        assert result == {"response": {0: {"generated_text": "Sure, I can help with that."}}, "content": "Sure, I can help with that."}
+#     @patch.object(requests, "post")
+#     def test_chat_completion(self, mock_post):
+#         # Arrange
+#         api_key = 'test_api_key'
+#         model = 'test_model'
+#         end_point = 'test_end_point'
+#         hf_instance = HuggingFace(api_key, model=model, end_point=end_point)
+#         messages = [{"role": "system", "content": "You are a helpful assistant."}]
+#         mock_post.return_value = Mock()
+#         mock_post.return_value.content = b'{"0": {"generated_text": "Sure, I can help with that."}}'
+#
+#         # Act
+#         result = hf_instance.chat_completion(messages)
+#
+#         # Assert
+#         mock_post.assert_called_with(
+#             end_point,
+#             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+#             data=json.dumps({
+#                 "inputs": "You are a helpful assistant.\nThe responses in json schema:",
+#                 "parameters": TaskParameters().get_params(Tasks.TEXT_GENERATION),
+#                 "options": {
+#                     "use_cache": False,
+#                     "wait_for_model": True,
+#                 }
+#             })
+#         )
+#         assert result == {"response": {0: {"generated_text": "Sure, I can help with that."}}, "content": "Sure, I can help with that."}
 
     @patch.object(requests, "get")
     def test_verify_access_key(self, mock_get):

@@ -29,24 +29,19 @@ export default function ModelMetrics(modelDetails) {
     return(
         <div id="model_metrics" className="overflowY_scroll">
             <div className="my_rows">
-                <div className="my_col_3 display_column_container">
+                <div className="my_col_4 display_column_container">
                     <span className="text_14 mb_8">Total Calls</span>
                     <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{modelMeta.total_calls}</div>
                 </div>
 
-                <div className="my_col_3 display_column_container">
+                <div className="my_col_4 display_column_container">
                     <span className="text_14 mb_8">Total Tokens</span>
                     <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{formatNumber(modelMeta.total_tokens)}</div>
                 </div>
 
-                <div className="my_col_3 display_column_container">
+                <div className="my_col_4 display_column_container">
                     <span className="text_14 mb_8">Total Agents</span>
                     <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{modelMeta.total_agents}</div>
-                </div>
-
-                <div className="my_col_3 display_column_container">
-                    <span className="text_14 mb_8">Average Latency</span>
-                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">0</div>
                 </div>
             </div>
             <div className="my_rows mt_8">

@@ -20,6 +20,7 @@ class Models(DBBaseModel):
         type (Strng): The place it is added from.
         version (String): The version of the replicate model.
         org_id (Integer): The ID of the organisation.
+        model_features (String): The Features of the Model.
     """
 
     __tablename__ = 'models'
@@ -33,6 +34,7 @@ class Models(DBBaseModel):
     type = Column(String, nullable=False)
     version = Column(String, nullable=False)
     org_id = Column(Integer, nullable=False)
+    model_features = Column(String, nullable=False)
 
     def __repr__(self):
         """
@@ -43,7 +45,8 @@ class Models(DBBaseModel):
                f"token_limit={self.token_limit}, " \
                f"type={self.type}, " \
                f"version={self.version}, " \
-               f"org_id={self.org_id})"
+               f"org_id={self.org_id}, " \
+               f"model_features={self.model_features})"
 
     @classmethod
     def fetch_marketplace_list(cls, page):
