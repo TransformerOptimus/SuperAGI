@@ -16,6 +16,7 @@ from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 class ToolOutputHandler:
     """Handles the tool output response from the thinking step"""
+
     def __init__(self, agent_execution_id: int, agent_config: dict,
                  tools: list, output_parser=AgentSchemaOutputParser()):
         self.agent_execution_id = agent_execution_id
@@ -32,33 +33,18 @@ class ToolOutputHandler:
             session (Session): The database session.
             assistant_reply (str): The assistant reply.
         """
-        print("CHECK HERE BABY88", assistant_reply)
-        agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
-        print("CHECK HERE BABY881", assistant_reply)
-        agent_workflow_step = session.query(AgentWorkflowStep).filter(
-            AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
-        print("CHECK HERE BABY882", assistant_reply)
-        iteration_workflow = IterationWorkflow.find_by_id(session, agent_workflow_step.action_reference_id)
-        print("CHECK HERE BABY883", assistant_reply, iteration_workflow)
 
-        if iteration_workflow.name == "Web Interactor-I":
-            return assistant_reply
-        print("CHECK HERE BABY11",assistant_reply)
+        agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         response = self._check_permission_in_restricted_mode(session, assistant_reply)
-        print("CHECK HERE BABY111", assistant_reply)
         if response.is_permission_required:
             return response
-        print("CHECK HERE BABY112", assistant_reply)
         tool_response = self.handle_tool_response(session, assistant_reply)
-        # print(tool_response)
-        print("CHECK HERE BABY12",assistant_reply)
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                   agent_id=self.agent_config["agent_id"],
                                                   feed=assistant_reply,
                                                   role="assistant",
                                                   feed_group_id=agent_execution.current_feed_group_id)
-        print("CHECK HERE BABY13", assistant_reply)
         session.add(agent_execution_feed)
         tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                 agent_id=self.agent_config["agent_id"],
@@ -66,7 +52,6 @@ class ToolOutputHandler:
                                                 role="system",
                                                 feed_group_id=agent_execution.current_feed_group_id)
         session.add(tool_response_feed)
-        print("CHECK HERE BABY14", assistant_reply)
         session.commit()
         if not tool_response.retry:
             tool_response = self._check_for_completion(tool_response)
@@ -167,6 +152,31 @@ class ReplaceTaskOutputHandler:
         return TaskExecutorResponse(status=status, retry=False)
 
 
+class WebActionOutputHandler:
+    """Handles the webaction  output type.
+    {
+      "action": "TYPE",
+      "action_reference_element": element_id
+      "action_reference_param" : "some text",
+      "status":"RUNNING",
+      "thoughts":"Why you are taking this action"
+    }
+    """
+
+    def __init__(self, agent_execution_id: int, agent_config: dict):
+        self.agent_execution_id = agent_execution_id
+        self.agent_config = agent_config
+
+    def handle(self, session, assistant_reply):
+        agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
+                                                  agent_id=self.agent_config["agent_id"],
+                                                  feed=assistant_reply,
+                                                  role="assistant", feed_group_id="DEFAULT")
+        session.add(agent_execution_feed)
+        session.commit()
+        return assistant_reply
+
+
 def get_output_handler(output_type: str, agent_execution_id: int, agent_config: dict, agent_tools: list = []):
     if output_type == "tools":
         return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)
@@ -174,4 +184,6 @@ def get_output_handler(output_type: str, agent_execution_id: int, agent_config: 
         return ReplaceTaskOutputHandler(agent_execution_id, agent_config)
     elif output_type == "tasks":
         return TaskOutputHandler(agent_execution_id, agent_config)
+    elif output_type == 'web_action':
+        return WebActionOutputHandler(agent_execution_id, agent_config)
     return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)

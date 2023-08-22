@@ -94,7 +94,7 @@ class AgentPromptBuilder:
 
 
     @classmethod
-    def replace_web_action_variables(cls, super_agi_prompt: str, dom_content: str, last_action: str):
+    def replace_web_action_variables(cls, super_agi_prompt: str, dom_content: str, last_action: str, page_url: str, last_action_status: bool):
         """Replace the web action variables in the super agi prompt.
 
         Args:
@@ -105,6 +105,13 @@ class AgentPromptBuilder:
             super_agi_prompt = super_agi_prompt.replace("{dom_content}", dom_content)
         if "{last_action}" in super_agi_prompt:
             super_agi_prompt = super_agi_prompt.replace("{last_action}", last_action)
+        if "{page_url}" in super_agi_prompt:
+            super_agi_prompt = super_agi_prompt.replace("{page_url}", page_url)
+        if "{last_action_status}" in super_agi_prompt:
+            if last_action_status:
+                super_agi_prompt = super_agi_prompt.replace("{last_action_status}", "successful")
+            else:
+                super_agi_prompt = super_agi_prompt.replace("{last_action_status}", "failed")
         return super_agi_prompt
     @classmethod
     def replace_task_based_variables(cls, super_agi_prompt: str, current_task: str, last_task: str,

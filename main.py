@@ -396,6 +396,8 @@ async def web_interactor_next_action(request: Request):
     agent_execution_id = ""
     last_action_status = ""
     last_action = ""
+    page_url = ""
+    print("ITEMSSSSS", items)
     for item in items:
         if item[1:12] == "dom_content":
             dom_content = item[17:]
@@ -405,17 +407,28 @@ async def web_interactor_next_action(request: Request):
             last_action_status = item[24:]
         elif item[1:12] == "last_action":
             last_action = item[17:]
+        elif item[1:9] == "page_url":
+            page_url = item[14:]
+        elif item[1:19] == "last_action_status":
+            last_action_status = item[24:]
     dom_content = dom_content.split("------WebKitFormBoundary")[0]
     last_action = last_action.split("------WebKitFormBoundary")[0]
+    page_url = page_url.split("------WebKitFormBoundary")[0]
     agent_execution_id = agent_execution_id.split('\n')[0]
     last_action_status = last_action_status.split('\n')[0]
-    # print("THIS IS THE DOM CONTENT", dom_content)
-    # print("THIS IS THE AGENT EXECUTION ID", int(agent_execution_id))
-    # print("THIS IS THE LAST ACTION STATUS",bool(last_action_status))
+    # print("THIS IS THE PAGE URL", page_url)
+    # print("THIS IS THE LAST ACTION", last_action)
+    print("dom content", dom_content)
+    # print("THIS IS THE LAST ACTION STATUS", last_action_status)
+
+
     Session = sessionmaker(bind=engine)
     session = Session()
     execution = AgentExecution().get_agent_execution_from_id(session, agent_execution_id)
-    AgentExecutionConfiguration().add_or_update_agent_execution_config(session, execution, {"dom_content": dom_content, "last_action": last_action})
+
+    if execution is None or execution.status == "COMPLETED":
+        return {"status": "COMPLETED"}
+    AgentExecutionConfiguration().add_or_update_agent_execution_config(session, execution, {"dom_content": dom_content, "last_action": last_action, "page_url": page_url, "last_action_status": last_action_status})
     if execution.status == "COMPLETED":
         return {"status": "COMPLETED"}
     execution.status = "RUNNING"
@@ -440,7 +453,5 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
     exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
     # or logger.error(f'{exc}')
-    print(request)
-    print(exc_str)
     content = {'status_code': 10422, 'message': exc_str, 'data': None}
     return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
