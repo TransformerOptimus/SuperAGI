@@ -473,6 +473,19 @@ def publish_template(agent_execution_id: str,
 
 @router.post("/publish_template", status_code=201)
 def handle_publish_template(updated_details: AgentPublish, organisation=Depends(get_user_organisation), user=Depends(get_current_user)):
+    """
+    Publish a template from edit template page.
+
+    Args:
+        organisation (Depends): Dependency to get the user organisation.
+        user (Depends): Dependency to get the user.
+
+    Returns:
+        dict: The saved agent template.
+
+    Raises:
+        HTTPException (status_code=404): If the agent template or workflow are not found.
+    """
 
     old_template_id = updated_details.agent_template_id
     old_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id==old_template_id, AgentTemplate.organisation_id==organisation.id).first()
