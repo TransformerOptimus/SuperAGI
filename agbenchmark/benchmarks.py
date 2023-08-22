@@ -7,7 +7,7 @@ import os
 baseUrl = "http://localhost:3000/api"
 
 
-def setup():
+def setup(config_data: dict) -> tuple[int, int]:
     # check if organization exists
     headers = {"Content-Type": "application/json"}
 
@@ -48,7 +48,7 @@ def setup():
 
     project_id = project.json()['id']
 
-    openai_key = os.getenv('OPENAI_API_KEY')
+    openai_key = config_data.get('OPENAI_API_KEY', os.getenv('OPENAI_API_KEY'))
 
     if openai_key is None:
         print("No OpenAI key found")
@@ -104,11 +104,15 @@ def get_tool_ids(tool_names: list) -> list:
 def run_specific_agent(task: str) -> None:
     # create and start the agent here and dynamically pass in the task
     # must have File Toolkit, Search Toolkit minimum
-    org_id, project_id = setup()
+    import yaml
+    config_data = {}
+    if os.path.exists("config.yaml"):
+        with open("config.yaml", "r") as file:
+            config_data = yaml.safe_load(file)
+    org_id, project_id = setup(config_data)
 
     list_of_tools = ['Read File', 'Write File', 'WebScraperTool']
     list_of_tool_ids = get_tool_ids(list_of_tools)
-    print(list_of_tools, list_of_tool_ids)
     headers = {"Content-Type": "application/json"}
 
     payload = {
@@ -119,20 +123,19 @@ def run_specific_agent(task: str) -> None:
         'goal': [
             f"{task}"
         ],
-        'instruction': ['Please fulfill the goals you are given to the best of your ability. Make sure to output relevant information into the workspace.'],
         'agent_workflow': 'Goal Based Workflow',
+        "instruction": [],
         'constraints': [
-            "~4000 word limit for short term memory.",
-            "Your short term memory is short, so immediately save important information to files.",
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-            "No user assistance",
-            'Exclusively use the commands listed in double quotes e.g. "command name"',
+            "Ensure the tool and args are as per current plan and reasoning",
+            "Exclusively use the tools listed under 'TOOLS'",
+            "REMEMBER to format your response as JSON, using double quotes ("") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes.",
         ],
         'toolkits': [],
         'tools': list_of_tool_ids,
         'exit': 'No exit criterion',
         'iteration_interval': 500,
-        'model': 'gpt-3.5-turbo-16k',
+        'model': 'gpt-4',
         'max_iterations': 25,
         'permission_type': 'God Mode',
         'LTM_DB': 'Pinecone',
@@ -144,11 +147,10 @@ def run_specific_agent(task: str) -> None:
         "POST", f"{baseUrl}/agents/create", headers=headers, data=json.dumps(payload)
     )
 
-    if response.status_code != 201:
-        print("Error creating agent")
-        sys.exit(1)
+    print(response.json())
 
     agent_execution_id = response.json()['execution_id']
+    agent_id = response.json()['id']
     _ = requests.request(
         "PUT", f"{baseUrl}/agentexecutions/update/{agent_execution_id}", headers=headers,
         data=json.dumps({'status': 'RUNNING'}))
@@ -159,10 +161,19 @@ def run_specific_agent(task: str) -> None:
     # Update the output workspace path depending on agentexecution and agentid
     print(response.json(), 'response')
     response = response.json()
+
     output_path = f"workspace/output/"
     input_path = f"workspace/input/"
     config["workspace"]["output"] = output_path
     config["workspace"]["input"] = input_path
+
+    if "{agent_id}" in config_data.get("RESOURCES_INPUT_ROOT_DIR"):
+        config["workspace"]["input"] = config_data["RESOURCES_INPUT_ROOT_DIR"].replace("{agent_id}", "agent_"+str(agent_id))
+
+    if "{agent_id}" in config_data.get("RESOURCES_OUTPUT_ROOT_DIR"):
+        config_data["RESOURCES_OUTPUT_ROOT_DIR"] = config_data["RESOURCES_OUTPUT_ROOT_DIR"].replace("{agent_id}", "agent_"+str(agent_id))
+        config["workspace"]["output"] = config_data["RESOURCES_OUTPUT_ROOT_DIR"].replace("{agent_execution_id}", "NewRun_"+str(agent_execution_id))
+
     print(config, 'configerino')
     # config["workspace"]["output"] = os.path.join(
     #     "workspace","output", f"{response['id']}", f"{response['execution_id']}")
@@ -182,6 +193,9 @@ def run_specific_agent(task: str) -> None:
         agent_stream = requests.request(
             "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{response['id']}", headers=headers
         )
+
+        if agent_stream.json()['status'] == 'COMPLETED':
+            break
 
         if time.time() - start_time > 60:
             response = requests.request(
