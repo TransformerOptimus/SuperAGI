@@ -118,6 +118,8 @@ export default function AgentCreate({
   const [editModal, setEditModal] = useState(false)
   const [editButtonClicked, setEditButtonClicked] = useState(false);
 
+  const [dropdown, setDropdown] = useState(false);
+
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
@@ -499,30 +501,7 @@ export default function AgentCreate({
 
     setCreateClickable(false);
 
-    let permission_type = permission;
-    if (permission.includes("RESTRICTED")) {
-      permission_type = "RESTRICTED";
-    }
-
-    const agentData = {
-      "name": agentName,
-      "project_id": selectedProjectId,
-      "description": agentDescription,
-      "goal": goals,
-      "instruction": instructions,
-      "agent_workflow": agentWorkflow,
-      "constraints": constraints,
-      "toolkits": [],
-      "tools": selectedTools,
-      "exit": exitCriterion,
-      "iteration_interval": stepTime,
-      "model": model,
-      "max_iterations": maxIterations,
-      "permission_type": permission_type,
-      "LTM_DB": longTermMemory ? database : null,
-      "user_timezone": getUserTimezone(),
-      "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
-    };
+    const agentData = setAgentData()
 
     const scheduleAgentData = {
       "agent_config": agentData,
@@ -561,7 +540,34 @@ export default function AgentCreate({
             });
       }
   };
+  const setAgentData= () => {
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
 
+    const agentData = {
+      "name": agentName,
+      "project_id": selectedProjectId,
+      "description": agentDescription,
+      "goal": goals,
+      "instruction": instructions,
+      "agent_workflow": agentWorkflow,
+      "constraints": constraints,
+      "toolkits": [],
+      "tools": selectedTools,
+      "exit": exitCriterion,
+      "iteration_interval": stepTime,
+      "model": model,
+      "max_iterations": maxIterations,
+      "permission_type": permission_type,
+      "LTM_DB": longTermMemory ? database : null,
+      "user_timezone": getUserTimezone(),
+      "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
+    };
+
+    return agentData
+  }
   const uploadResources = (agentId, name, executionId) => {
     if (addResources && input.length > 0) {
       const uploadPromises = input.map(fileData => {
@@ -867,6 +873,11 @@ export default function AgentCreate({
      return true;
    else
      return false;
+  }
+
+  const handleAddToMarketplace = () => {
+    const agentData = setAgentData()
+
   }
 
   return (<>
@@ -1295,17 +1306,38 @@ export default function AgentCreate({
           }
 
           <div style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
+            {/*<div style={{display:'flex',position: 'relative'}}>*/}
+            {/*  {dropdown && <div style={{display: 'flex', position: 'relative', height:'60px', top:'-60px',  width: "fit-content", padding: '0'}} className="create_agent_dropdown_options">*/}
+            {/*    <ul style={{padding: '0', margin:'0'}}>*/}
+            {/*      <li className="dropdown_item" style={{height:'30px'}} onClick={() => updateTemplate()}>Update template</li>*/}
+            {/*      <li className="dropdown_item" style={{height:'30px'}} onClick={() => updateTemplate()}>Publish to Marketplace</li>*/}
+            {/*    </ul>*/}
+            {/*  </div>}*/}
+            {/*{showButton &&*/}
+            {/*  <button className="secondary_button mr_7" style={{padding: '8px', height: '31px'}}*/}
+            {/*          onClick={() => setDropdown(!dropdown)}>*/}
+            {/*    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>*/}
+            {/*  </button>*/}
+            {/*}*/}
+            {/*</div>*/}
+            <div style={{display: 'flex', position: 'relative', marginRight:'7px'}}>
+              <div>
+                {dropdown && (<div style={{padding: '0', width:'fit-content', height: '60px'}} className="create_agent_dropdown_options">
+                  <ul style={{padding: '0', margin:'0'}}>
+                    <li className="dropdown_item" style={{height:'30px', paddingTop:'2px', paddingBottom: '2px'}} onClick={() => updateTemplate()}>Update template</li>
+                    <li className="dropdown_item" style={{height:'30px', paddingTop:'2px', paddingBottom: '2px'}} onClick={() => handleAddToMarketplace()}>Publish to Marketplace</li>
+                </ul>
+                </div>)}
+              </div>
+                <div>
+                  <button className="secondary_button padding_8" onClick={() => setDropdown(!dropdown)}>
+                    <Image width={20} height={20} src="/images/three_dots.svg" alt="run-icon"/>
+                  </button>
+                </div>
+              </div>
             <button style={{marginRight: '7px'}} className="secondary_button"
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
-            {showButton && (
-              <button style={{marginRight: '7px'}} className="secondary_button"
-                      onClick={() => {
-                        updateTemplate()
-                      }}>
-                Update Template
-              </button>
-            )}
             {!edit ? <div style={{display: 'flex', position: 'relative'}}>
               {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {
                 setCreateModal(true);
