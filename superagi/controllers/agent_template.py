@@ -6,6 +6,7 @@ from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 
 from main import get_config
+from superagi.controllers.types.agent_execution_config import AgentRunIn
 from superagi.helper.auth import get_user_organisation
 from superagi.helper.auth import get_current_user
 from superagi.models.agent import Agent
@@ -457,6 +458,54 @@ def publish_template(agent_execution_id: str,
             config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_execution_configuration.value)))
         agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_execution_configuration.key,
                                                     value=config_value)
+        db.session.add(agent_template_config)
+
+    agent_template_configs = [
+    AgentTemplateConfig(agent_template_id=agent_template.id, key="status", value="UNDER REVIEW"),
+    AgentTemplateConfig(agent_template_id=agent_template.id, key="Contributor Name", value=user.name),
+    AgentTemplateConfig(agent_template_id=agent_template.id, key="Contributor Email", value=user.email)]
+    db.session.add_all(agent_template_configs)
+
+    db.session.commit()
+    db.session.flush()
+    return agent_template.to_dict()
+
+@router.post("/publish_template/agent_id/{agent_id}", status_code=201)
+def publish_template_without_execution(agent_execution_details: AgentRunIn, agent_id: str, organisation=Depends(get_user_organisation), user=Depends(get_current_user)):
+    
+    if agent_id == 'undefined':
+        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
+    
+    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    if agent is None:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    agent_template = AgentTemplate(name=agent.name, description=agent.description,
+                                   agent_workflow_id=agent.agent_workflow_id,
+                                   organisation_id=organisation.id)
+    db.session.add(agent_template)
+    db.session.commit()
+
+    agent_execution_configs = {
+        "goal": agent_execution_details.goal,
+        "instruction": agent_execution_details.instruction,
+        "constraints": agent_execution_details.constraints,
+        "toolkits": agent_execution_details.toolkits,
+        "exit": agent_execution_details.exit,
+        "tools": agent_execution_details.tools,
+        "iteration_interval": agent_execution_details.iteration_interval,
+        "model": agent_execution_details.model,
+        "permission_type": agent_execution_details.permission_type,
+        "LTM_DB": agent_execution_details.LTM_DB,
+        "max_iterations": agent_execution_details.max_iterations,
+        "user_timezone": agent_execution_details.user_timezone,
+        "knowledge": agent_execution_details.knowledge
+    }
+
+    for key, value in agent_execution_configs.items():
+        if key == "tools":
+            value = Tool.convert_tool_ids_to_names(db, value)
+        agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=key, value=str(value))
         db.session.add(agent_template_config)
 
     agent_template_configs = [
