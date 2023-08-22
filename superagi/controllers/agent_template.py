@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from main import get_config
 from superagi.helper.auth import get_user_organisation
+from superagi.helper.auth import get_current_user
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
@@ -83,60 +84,60 @@ def get_agent_template(template_source, agent_template_id: int, organisation=Dep
     return template
 
 
-@router.put("/update_agent_template/{agent_template_id}", status_code=200)
-def edit_agent_template(agent_template_id: int,
-                        updated_agent_configs: dict,
-                        organisation=Depends(get_user_organisation)):
+# @router.put("/update_agent_template/{agent_template_id}", status_code=200)
+# def edit_agent_template(agent_template_id: int,
+#                         updated_agent_configs: dict,
+#                         organisation=Depends(get_user_organisation)):
 
-    """
-    Update the details of an agent template.
+#     """
+#     Update the details of an agent template.
 
-    Args:
-        agent_template_id (int): The ID of the agent template to update.
-        updated_agent_configs (dict): The updated agent configurations.
-        organisation (Depends): Dependency to get the user organisation.
+#     Args:
+#         agent_template_id (int): The ID of the agent template to update.
+#         updated_agent_configs (dict): The updated agent configurations.
+#         organisation (Depends): Dependency to get the user organisation.
 
-    Returns:
-        HTTPException (status_code=200): If the agent gets successfully edited.
+#     Returns:
+#         HTTPException (status_code=200): If the agent gets successfully edited.
 
-    Raises:
-        HTTPException (status_code=404): If the agent template is not found.
-    """
+#     Raises:
+#         HTTPException (status_code=404): If the agent template is not found.
+#     """
 
-    db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
-                                                               AgentTemplate.id == agent_template_id).first()
-    if db_agent_template is None:
-        raise HTTPException(status_code=404, detail="Agent Template not found")
+#     db_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
+#                                                                AgentTemplate.id == agent_template_id).first()
+#     if db_agent_template is None:
+#         raise HTTPException(status_code=404, detail="Agent Template not found")
 
-    agent_workflow = AgentWorkflow.find_by_name(db.session, updated_agent_configs["agent_configs"]["agent_workflow"])
-    db_agent_template.name = updated_agent_configs["name"]
-    db_agent_template.description = updated_agent_configs["description"]
-    db_agent_template.agent_workflow_id = agent_workflow.id
+#     agent_workflow = AgentWorkflow.find_by_name(db.session, updated_agent_configs["agent_configs"]["agent_workflow"])
+#     db_agent_template.name = updated_agent_configs["name"]
+#     db_agent_template.description = updated_agent_configs["description"]
+#     db_agent_template.agent_workflow_id = agent_workflow.id
 
-    db.session.commit()
+#     db.session.commit()
 
-    agent_config_values = updated_agent_configs.get('agent_configs', {})
+#     agent_config_values = updated_agent_configs.get('agent_configs', {})
 
-    for key, value in agent_config_values.items():
-        if isinstance(value, (list, dict)):
-            value = json.dumps(value)
-        config = db.session.query(AgentTemplateConfig).filter(
-            AgentTemplateConfig.agent_template_id == agent_template_id,
-            AgentTemplateConfig.key == key
-        ).first()
+#     for key, value in agent_config_values.items():
+#         if isinstance(value, (list, dict)):
+#             value = json.dumps(value)
+#         config = db.session.query(AgentTemplateConfig).filter(
+#             AgentTemplateConfig.agent_template_id == agent_template_id,
+#             AgentTemplateConfig.key == key
+#         ).first()
 
-        if config is not None:
-            config.value = value
-        else:
-            new_config = AgentTemplateConfig(
-                agent_template_id=agent_template_id,
-                key=key,
-                value= value
-            )
-            db.session.add(new_config)
+#         if config is not None:
+#             config.value = value
+#         else:
+#             new_config = AgentTemplateConfig(
+#                 agent_template_id=agent_template_id,
+#                 key=key,
+#                 value= value
+#             )
+#             db.session.add(new_config)
 
-    db.session.commit()
-    db.session.flush()
+#     db.session.commit()
+#     db.session.flush()
 
 @router.put("/update_agent_template/{agent_template_id}", status_code=200)
 def edit_agent_template(agent_template_id: int,
@@ -405,3 +406,65 @@ def fetch_agent_config_from_template(agent_template_id: int,
     template_config_dict["agent_workflow"] = agent_workflow.name
 
     return template_config_dict
+
+
+@router.post("/publish_template/agent_execution_id/{agent_execution_id}", status_code=201)
+def publish_template(agent_execution_id: str,
+                           organisation=Depends(get_user_organisation),
+                           user=Depends(get_current_user)):
+    """
+    Publish an agent execution as a template.
+
+    Args:
+        agent_execution_id (str): The ID of the agent execution to save as a template.
+        organisation (Depends): Dependency to get the user organisation.
+        user (Depends): Dependency to get the user.
+
+    Returns:
+        dict: The saved agent template.
+
+    Raises:
+        HTTPException (status_code=404): If the agent or agent execution configurations are not found.
+    """
+    if agent_execution_id == 'undefined':
+        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
+
+    agent_executions = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
+    if agent_executions is None:
+        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
+    agent_id = agent_executions.agent_id
+
+    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
+    if agent is None:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    agent_execution_configurations = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+    if not agent_execution_configurations:
+        raise HTTPException(status_code=404, detail="Agent execution configurations not found")
+
+    agent_template = AgentTemplate(name=agent.name, description=agent.description,
+                                   agent_workflow_id=agent.agent_workflow_id,
+                                   organisation_id=organisation.id)
+    db.session.add(agent_template)
+    db.session.commit()
+
+    main_keys = AgentTemplate.main_keys()
+    for agent_execution_configuration in agent_execution_configurations:
+        config_value = agent_execution_configuration.value
+        if agent_execution_configuration.key not in main_keys:
+            continue
+        if agent_execution_configuration.key == "tools":
+            config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_execution_configuration.value)))
+        agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_execution_configuration.key,
+                                                    value=config_value)
+        db.session.add(agent_template_config)
+
+    agent_template_configs = [
+    AgentTemplateConfig(agent_template_id=agent_template.id, key="status", value="UNDER REVIEW"),
+    AgentTemplateConfig(agent_template_id=agent_template.id, key="Contributor Name", value=user.name),
+    AgentTemplateConfig(agent_template_id=agent_template.id, key="Contributor Email", value=user.email)]
+    db.session.add_all(agent_template_configs)
+
+    db.session.commit()
+    db.session.flush()
+    return agent_template.to_dict()
