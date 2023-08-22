@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from main import get_config
 from superagi.controllers.types.agent_execution_config import AgentRunIn
+from superagi.controllers.types.agent_publish_config import AgentPublish
 from superagi.helper.auth import get_user_organisation
 from superagi.helper.auth import get_current_user
 from superagi.models.agent import Agent
@@ -470,39 +471,40 @@ def publish_template(agent_execution_id: str,
     db.session.flush()
     return agent_template.to_dict()
 
-@router.post("/publish_template/agent_id/{agent_id}", status_code=201)
-def publish_template_without_execution(agent_execution_details: AgentRunIn, agent_id: str, organisation=Depends(get_user_organisation), user=Depends(get_current_user)):
+@router.post("/publish_template", status_code=201)
+def handle_publish_template(updated_details: AgentPublish, organisation=Depends(get_user_organisation), user=Depends(get_current_user)):
+
+    old_template_id = updated_details.agent_template_id
+    old_agent_template = db.session.query(AgentTemplate).filter(AgentTemplate.id==old_template_id, AgentTemplate.organisation_id==organisation.id).first()
+    if old_agent_template is None:
+        raise HTTPException(status_code = 404, detail = "Agent Template not found")
+    agent_workflow_id = old_agent_template.agent_workflow_id
+    if agent_workflow_id is None:
+        raise HTTPException(status_code = 404, detail = "Agent Workflow not found")
     
-    if agent_id == 'undefined':
-        raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
-    
-    agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
-    if agent is None:
-        raise HTTPException(status_code=404, detail="Agent not found")
-    
-    agent_template = AgentTemplate(name=agent.name, description=agent.description,
-                                   agent_workflow_id=agent.agent_workflow_id,
+    agent_template = AgentTemplate(name=updated_details.name, description=updated_details.description,
+                                   agent_workflow_id=agent_workflow_id,
                                    organisation_id=organisation.id)
     db.session.add(agent_template)
     db.session.commit()
 
-    agent_execution_configs = {
-        "goal": agent_execution_details.goal,
-        "instruction": agent_execution_details.instruction,
-        "constraints": agent_execution_details.constraints,
-        "toolkits": agent_execution_details.toolkits,
-        "exit": agent_execution_details.exit,
-        "tools": agent_execution_details.tools,
-        "iteration_interval": agent_execution_details.iteration_interval,
-        "model": agent_execution_details.model,
-        "permission_type": agent_execution_details.permission_type,
-        "LTM_DB": agent_execution_details.LTM_DB,
-        "max_iterations": agent_execution_details.max_iterations,
-        "user_timezone": agent_execution_details.user_timezone,
-        "knowledge": agent_execution_details.knowledge
+    agent_template_configs = {
+        "goal": updated_details.goal,
+        "instruction": updated_details.instruction,
+        "constraints": updated_details.constraints,
+        "toolkits": updated_details.toolkits,
+        "exit": updated_details.exit,
+        "tools": updated_details.tools,
+        "iteration_interval": updated_details.iteration_interval,
+        "model": updated_details.model,
+        "permission_type": updated_details.permission_type,
+        "LTM_DB": updated_details.LTM_DB,
+        "max_iterations": updated_details.max_iterations,
+        "user_timezone": updated_details.user_timezone,
+        "knowledge": updated_details.knowledge
     }
 
-    for key, value in agent_execution_configs.items():
+    for key, value in agent_template_configs.items():
         if key == "tools":
             value = Tool.convert_tool_ids_to_names(db, value)
         agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=key, value=str(value))
