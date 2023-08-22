@@ -1,11 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, openNewTab} from "@/utils/utils";
+import {removeTab, openNewTab, createInternalId} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
-export default function ModelForm(){
+export default function ModelForm(internalId){
     const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
     const [modelName, setModelName] = useState('');

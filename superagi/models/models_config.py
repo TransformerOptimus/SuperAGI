@@ -79,7 +79,7 @@ class ModelsConfig(DBBaseModel):
         else:
             new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider,
                                      api_key=encrypt_data(model_api_key))
-        session.add(new_entry)
+            session.add(new_entry)
 
         session.commit()
 

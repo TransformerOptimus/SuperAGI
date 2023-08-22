@@ -59,7 +59,7 @@ class AgentLlmMessageBuilder:
         hist_token_count = 0
         i = len(history)
         for message in reversed(history):
-            token_count = TokenCounter(session=self.session, organisation_id=self.organisation.id).count_message_tokens([{"role": message["role"], "content": message["content"]}],
+            token_count = TokenCounter.count_message_tokens([{"role": message["role"], "content": message["content"]}],
                                                             self.llm_model)
             hist_token_count += token_count
             if hist_token_count > pending_token_limit:
@@ -96,7 +96,7 @@ class AgentLlmMessageBuilder:
 
         ltm_summary_base_token_limit = 10
         if ((TokenCounter.count_text_tokens(ltm_prompt) + ltm_summary_base_token_limit + output_token_limit)
-            - TokenCounter.token_limit()) > 0:
+            - TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm_model)) > 0:
             last_agent_feed_ltm_summary_id = AgentExecutionConfiguration.fetch_value(self.session,
                                                        self.agent_execution_id, "last_agent_feed_ltm_summary_id")
             last_agent_feed_ltm_summary_id = int(last_agent_feed_ltm_summary_id.value)
