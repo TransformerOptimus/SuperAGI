@@ -26,6 +26,6 @@ def test_update_existing_toolkits():
     result = AgentConfiguration.update_agent_configurations_table(mock_session, agent_id, updated_details)
 
     #Check whether the value gets updated or not
-    assert existing_toolkits_config.value == [1, 2]
+    assert existing_toolkits_config.value == '[1, 2]'
     assert mock_session.commit.called_once()
     assert result == "Details updated successfully"

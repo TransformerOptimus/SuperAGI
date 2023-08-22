@@ -29,35 +29,62 @@ from superagi.tools.webscaper.tools import WebScraperTool
 class AgentWorkflowSeed:
     @classmethod
     def build_sales_workflow(cls, session):
-        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow", "Sales Engagement Workflow")
-        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step1",
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow",
+                                                              "Sales Engagement Workflow")
+        # step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step1",
+        #                                                             ApolloSearchTool().name,
+        #                                                             "Search for leads based on the given goals",
+        #                                                             step_type="TRIGGER")
+        #
+        # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step2",
+        #                                                             WriteFileTool().name,
+        #                                                             "Write the leads to a csv file")
+
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
                                                                     ReadFileTool().name,
-                                                                    "Read the leads from the file",
+                                                                    "Read the leads from the file generated in the previous run",
                                                                     step_type="TRIGGER")
 
         # task queue ends when the elements gets over
-        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step2",
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
                                                                     "TASK_QUEUE",
                                                                     "Break the above response array of items",
                                                                     completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
 
-        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step3",
-                                                                    SearxSearchTool().name,
-                                                                    "Search about the last input lead")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    GoogleSearchTool().name,
+                                                                    "Search about the company in which the lead is working")
 
-        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    "WAIT_FOR_PERMISSION",
+                                                                    "Email will be based on this content. Do you want send the email?")
+
+        step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step7",
+                                                                    GoogleSearchTool().name,
+                                                                    "Search about the company given in the high-end goal only")
+
+        step8 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step8",
                                                                     SendEmailTool().name,
-                                                                    "Email details about the lead with custom template for the lead")
+                                                                    "Customize the Email according to the company information in the mail")
 
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
+        # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step5.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step7.id, step8.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step8.id, step4.id)
         session.commit()
 
     @classmethod
@@ -75,7 +102,7 @@ class AgentWorkflowSeed:
                                                                     str(agent_workflow.id) + "_step2",
                                                                     "TASK_QUEUE",
                                                                     "Break the above response array of items",
-                                                                    completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
+                                                                    completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse(). Skip job_description file from list.")
 
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
@@ -85,11 +112,11 @@ class AgentWorkflowSeed:
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
                                                                     ReadFileTool().name,
-                                                                    "Read the job description from job description file",
+                                                                    "Read the job description from file mentioned in High-Level GOAL",
                                                                     "Check if the resume matches the job description in goal")
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
+                                                                    str(agent_workflow.id) + "_step5",
                                                                     SendEmailTool().name,
                                                                     "Write a custom Email the candidates for job profile based on their experience")
 
@@ -97,7 +124,8 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id, "NO")
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
         session.commit()
 

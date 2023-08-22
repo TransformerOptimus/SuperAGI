@@ -165,12 +165,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               </div>}
           </div>
         }
-        {feeds.length < 1 && !agent?.is_running && !agent?.is_scheduled ?
-          (isLoading ?
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
-              <ClipLoader/>
-            </div>
-            : <div style={{
+        {feeds.length < 1 && !agent?.is_running && !agent?.is_scheduled &&
+             <div style={{
               color: 'white',
               fontSize: '14px',
               display: 'flex',
@@ -178,7 +174,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               alignItems: 'center',
               textAlign: 'center',
               width: '100%'
-            }}>The Agent is not scheduled</div>) : null
+            }}>The Agent is not scheduled</div>
         }
       </div>
       {feedContainerRef.current && feedContainerRef.current.scrollTop >= 1200 &&

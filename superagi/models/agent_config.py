@@ -87,6 +87,7 @@ class AgentConfiguration(DBBaseModel):
         session.commit()
 
         return "Details updated successfully"
+    
     @classmethod
     def get_model_api_key(cls, session, agent_id: int, model: str):
         """

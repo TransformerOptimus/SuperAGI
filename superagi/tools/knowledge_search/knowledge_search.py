@@ -49,7 +49,7 @@ class KnowledgeSearchTool(BaseTool):
         embedding_model = AgentExecutor.get_embedding(model_source, model_api_key)
         try:
             if vector_db_index.state == "Custom":
-                filters = {}
+                filters = None
             if vector_db_index.state == "Marketplace":
                 filters = {"knowledge_name": knowledge.name}
             vector_db_storage = VectorFactory.build_vector_storage(vector_db.db_type, vector_db_index.name, embedding_model, **db_creds)

@@ -3,6 +3,7 @@ import mimetypes
 import os
 import smtplib
 import time
+from email.message import EmailMessage
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -17,6 +18,7 @@ from superagi.helper.s3_helper import S3Helper
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.tools.base_tool import BaseTool
+from superagi.config.config import get_config
 from superagi.types.storage_types import StorageType
 
 
