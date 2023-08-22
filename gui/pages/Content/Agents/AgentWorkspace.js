@@ -19,7 +19,7 @@ import {
   saveAgentAsTemplate,
   stopSchedule,
   getDateTime,
-  deleteAgent
+  deleteAgent, publishToMarketplace
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
@@ -50,6 +50,8 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const [createStopModal, setCreateStopModal] = useState(false);
   const [agentScheduleDetails, setAgentScheduleDetails] = useState(null)
 
+  const [publishModal, setPublishModal] = useState(false);
+
   const closeCreateModal = () => {
     setCreateModal(false);
     setCreateEditModal(false);
@@ -59,6 +61,17 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
     setDropdown(false);
+  };
+
+  const handlePublishToMarketplace =() => {
+    publishToMarketplace(selectedRun?.id)
+      .then((response) => {
+        setDropdown(false)
+        setPublishModal(true)
+    })
+      .catch((error) => {
+        console.error('Error publishing to marketplace:', error);
+      });
   };
 
   const handleStopScheduleClick = () => {
@@ -369,12 +382,11 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
               </button>
             </div>
             <button className="secondary_button" style={{padding: '8px', height: '31px'}}
-                    onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)} >
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
             </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className="dropdown_container" style={{marginTop: '31px', marginLeft: '-32px'}}>
-                <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
+              <ul className="dropdown_container w_180p" style={{marginTop: '31px', marginLeft: '-32px'}}>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("PAUSED")
                 }}>Pause</li>}
@@ -385,17 +397,13 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
                 }}>Delete Run</li>}
-
-                {agent?.is_scheduled ? (<div>
-                  <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
-                  <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
-                </div>) : (<div>
-                  {agent && !agent?.is_running && !agent?.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => {
-                      setDropdown(false);
-                      setCreateModal(true)
-                    }}>Schedule Run</li>}
-                </div>)}
+                <div className={styles.dropdown_separator} />
+                <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
+                {agent && !agent?.is_running &&
+                  <li className="dropdown_item" onClick={() => {
+                    handlePublishToMarketplace()
+                  }}>Publish to marketplace</li>}
+                <div className={styles.dropdown_separator} />
                 <li className="dropdown_item" onClick={() => sendAgentData({
                   id: agentId,
                   name: "Edit Agent",
@@ -407,6 +415,17 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                   setDeleteModal(true)
                 }}>Delete Agent
                 </li>
+                <div className={styles.dropdown_separator} />
+                {agent?.is_scheduled ? (<div>
+                  <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
+                  <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
+                </div>) : (<div>
+                  {agent && !agent?.is_running && !agent?.is_scheduled &&
+                    <li className="dropdown_item" onClick={() => {
+                      setDropdown(false);
+                      setCreateModal(true)
+                    }}>Schedule Run</li>}
+                </div>)}
               </ul>
             </div>}
 
@@ -582,6 +601,23 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             </button>
             <button className="primary_button" onClick={() => handleDeleteAgent()}>
               Delete Agent
+            </button>
+          </div>
+        </div>
+      </div>)}
+
+      {publishModal && (<div className="modal" onClick={() => {setPublishModal(false)}}>
+        <div className="modal-content w_35" onClick={preventDefault}>
+          <div className={styles.detail_name}>Template submitted successfully!</div>
+          <div>
+            <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
+              <a href="https://app.superagi.com/" target="_blank" rel="noopener noreferrer">
+                #agent-templates-submission
+              </a> channel.</label>
+          </div>
+          <div className={styles.modal_buttons}>
+            <button className="primary_button" onClick={() => {setPublishModal(false)}}>
+              Okay
             </button>
           </div>
         </div>
