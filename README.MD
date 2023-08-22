@@ -126,8 +126,8 @@ To create a virtual environment, follow the steps below for your respective oper
 - Install Python dependencies:
     1. Install the dependencies by running: ```pip install -r requirements.txt``` or ```pip3 install -r requirements.txt```.
     2. RUN `python superagi/tool_manager.py` then `./install_tool_dependencies.sh`
-    2. Start the Fastapi server by running: ```uvicorn main:app --host 0.0.0.0 --port 8001```
-    3. Start the Celery server by running ```celery -A superagi.worker worker --beat --loglevel=info```
+    3. Start the Fastapi server by running: ```uvicorn main:app --host 0.0.0.0 --port 8001```
+    4. Start the Celery server by running ```celery -A superagi.worker worker --beat --loglevel=info```
 
 
 - Install Node.js dependencies:
