@@ -41,7 +41,9 @@ class TwitterHelper:
         return final_path
 
     def _get_image_data(self, file_path):
+        print("LOG TEST : FILE PATH ",file_path)
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+                print("LOG TEST : STORAGE TYPE IS S3")
                 attachment_data = S3Helper().read_binary_from_s3(file_path)
         else:
             with open(file_path, "rb") as file:
@@ -58,10 +60,10 @@ class TwitterHelper:
         response = oauth.post(tweet_endpoint, json=params)
         return response
 
-    def _get_image_data(self, file_path):
-        if get_config("STORAGE_TYPE") == StorageType.S3:
-            return S3Helper().read_binary_from_s3(file_path)
-        else:
-            with open(file_path, "rb") as image_file:
-                return image_file.read()
+    # def _get_image_data(self, file_path):
+    #     if get_config("STORAGE_TYPE") == StorageType.S3:
+    #         return S3Helper().read_binary_from_s3(file_path)
+    #     else:
+    #         with open(file_path, "rb") as image_file:
+    #             return image_file.read()
             
