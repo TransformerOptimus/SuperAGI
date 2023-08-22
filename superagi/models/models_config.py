@@ -70,25 +70,17 @@ class ModelsConfig(DBBaseModel):
 
         return {"provider": config.provider, "api_key": decrypt_data(config.api_key)} if config else None
 
-    # def __init__(self, session:Session, organisation_id: int):
-    #     session = session
-    #     organisation_id = organisation_id
-
     @classmethod
     def store_api_key(cls, session, organisation_id, model_provider, model_api_key):
-        print("//////////////////////////////////1")
         existing_entry = session.query(ModelsConfig).filter(and_(ModelsConfig.org_id == organisation_id,
-                                                                      ModelsConfig.provider == model_provider)).first()
-        print("//////////////////////////////////2")
-        print(organisation_id)
-        print(model_provider)
-        print(model_api_key)
+                                                                 ModelsConfig.provider == model_provider)).first()
         if existing_entry:
             existing_entry.api_key = encrypt_data(model_api_key)
         else:
-            new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider, api_key=encrypt_data(model_api_key))
-            session.add(new_entry)
-        print("//////////////////////////////////3")
+            new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider,
+                                     api_key=encrypt_data(model_api_key))
+        session.add(new_entry)
+
         session.commit()
 
         return {'message': 'The API key was successfully stored'}

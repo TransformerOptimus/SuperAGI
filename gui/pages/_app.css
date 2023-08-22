@@ -1748,6 +1748,12 @@ tr{
     grid-gap: 6px;
 }
 
+.marketplaceGrid3 {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-gap: 6px;
+}
+
 .market_tool{
     width: 33% !important;
 }

@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, and_
 from sqlalchemy.sql import func
-from sqlalchemy.orm import Session
 from typing import List, Dict, Union
 from superagi.models.base_model import DBBaseModel
 import requests, logging
@@ -43,7 +42,7 @@ class Models(DBBaseModel):
                f"end_point={self.end_point}, model_provider_id={self.model_provider_id}, " \
                f"token_limit={self.token_limit}, " \
                f"type={self.type}, " \
-               f"type={self.version}, " \
+               f"version={self.version}, " \
                f"org_id={self.org_id})"
 
     @classmethod
@@ -62,14 +61,18 @@ class Models(DBBaseModel):
         from superagi.models.models_config import ModelsConfig
         installed_models = session.query(Models).filter(Models.org_id == organisation.id).all()
         model_counts_dict = dict(
-            session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all())
+            session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all()
+        )
         installed_models_dict = {model.model_name: True for model in installed_models}
 
         for model in marketplace_models:
-            model["is_installed"] = installed_models_dict.get(model["model_name"], False)
-            model["installs"] = model_counts_dict.get(model["model_name"], 0)
-            model["provider"] = session.query(ModelsConfig).filter(
-                ModelsConfig.id == model["model_provider_id"]).first().provider
+            try:
+                model["is_installed"] = installed_models_dict.get(model["model_name"], False)
+                model["installs"] = model_counts_dict.get(model["model_name"], 0)
+                model["provider"] = session.query(ModelsConfig).filter(
+                    ModelsConfig.id == model["model_provider_id"]).first().provider
+            except TypeError as e:
+                logging.error("Error Occurred: %s", e)
 
         return marketplace_models
 
