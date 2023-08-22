@@ -39,7 +39,7 @@ export default function ModelTemplate({env, template}){
                     <span className="text_12 color_gray">Updated At</span>
                     <span className="text_12 color_white mt_8">{getFormattedDate(template.updated_at)}</span>
                 </div>
-                <div className="col_9 display_column_container padding_16">hello</div>
+                <div className="col_9 display_column_container padding_16 color_white" dangerouslySetInnerHTML={{ __html: template.model_features }} />
             </div> ):(
                 <AddModelMarketPlace template={template} />
                 )}

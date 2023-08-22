@@ -132,7 +132,8 @@ class Models(DBBaseModel):
                 model_provider_id=model_provider_id,
                 type=type,
                 version=version,
-                org_id=organisation_id
+                org_id=organisation_id,
+                model_features=''
             )
             session.add(model)
             session.commit()
