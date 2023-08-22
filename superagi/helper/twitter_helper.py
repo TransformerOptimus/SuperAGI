@@ -43,7 +43,7 @@ class TwitterHelper:
     def _get_image_data(self, file_path):
         print("______________________________________________LOG TEST : FILE PATH _______________________ ",file_path)
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
-                print("_______________________________________________LOG TEST : STORAGE TYPE IS S3________________")
+                print("______________________Testing__________________ S3___________")
                 attachment_data = S3Helper().read_binary_from_s3(file_path)
         else:
             with open(file_path, "rb") as file:
