@@ -85,8 +85,12 @@ def test_fetch_data_success(mock_get_db):
 def test_get_marketplace_knowledge_list_success(mock_get_db):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
         patch('superagi.helper.auth.db') as mock_auth_db, \
-        requests_mock.Mocker() as m:
-        m.get("/models_controller/marketplace/list/0", json={})
+        patch('superagi.controllers.models_controller.requests.get') as mock_get:
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
         response = client.get("/models_controller/marketplace/list/0")
         assert response.status_code == 200
 
