@@ -12,8 +12,8 @@ from superagi.tools.base_tool import BaseTool
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: list[str] = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
-    content: list[str] = Field(..., description="File content to write")
+    file_names: list[str] = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
+    contents: list[str] = Field(..., description="File content to write")
 
 
 class WriteFileTool(BaseTool):

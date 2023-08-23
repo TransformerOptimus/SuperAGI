@@ -124,7 +124,8 @@ def run_specific_agent(task: str) -> None:
             f"{task}"
         ],
         'agent_workflow': 'Goal Based Workflow',
-        "instruction": [],
+        'instruction': [
+            'Please fulfill the goals you are given to the best of your ability. Make sure to output relevant information into the workspace.'],
         'constraints': [
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
             "Ensure the tool and args are as per current plan and reasoning",
