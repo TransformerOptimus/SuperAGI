@@ -119,7 +119,8 @@ class AgentToolStepHandler:
         resource_summary = ""
         if tool_name == "QueryResourceTool":
             resource_summary = ResourceSummarizer(session=self.session,
-                                                  agent_id=self.agent_id).fetch_or_create_agent_resource_summary(
+                                                  agent_id=self.agent_id,
+                                                  model= agent_config["model"]).fetch_or_create_agent_resource_summary(
                 default_summary=agent_config.get("resource_summary"))
 
         organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
