@@ -138,3 +138,27 @@ class Toolkit(DBBaseModel):
                 if tool is not None:
                     agent_toolkit_tools.append(tool.id)
         return agent_toolkit_tools
+
+    @classmethod
+    def get_tool_and_toolkit_arr(cls, session, organisation_id :int,agent_config_tools_arr: list):
+        from superagi.models.tool import Tool
+        toolkits_arr= set()
+        tools_arr= set()
+        for tool_obj in agent_config_tools_arr:
+            toolkit=session.query(Toolkit).filter(Toolkit.name == tool_obj["name"].strip(), Toolkit.organisation_id == organisation_id).first()
+            if toolkit is None:
+                raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
+            toolkits_arr.add(toolkit.id)
+            if tool_obj.get("tools"):
+                for tool_name_str in tool_obj["tools"]:
+                    tool_db_obj = session.query(Tool).filter(Tool.name == tool_name_str.strip(),
+                                                             Tool.toolkit_id == toolkit.id).first()
+                    if tool_db_obj is None:
+                            raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
+
+                    tools_arr.add(tool_db_obj.id)
+            else:
+                tools=Tool.get_toolkit_tools(session, toolkit.id)
+                for tool_db_obj in tools:
+                    tools_arr.add(tool_db_obj.id)
+        return list(tools_arr)

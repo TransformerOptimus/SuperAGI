@@ -116,7 +116,6 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   }, [internalId]);
 
   return (<>
-    '
     <div className="row">
       <div className="col-3"></div>
       <div className="col-6 col-6-scrollable">

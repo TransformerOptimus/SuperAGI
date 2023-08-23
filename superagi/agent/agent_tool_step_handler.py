@@ -16,11 +16,12 @@ from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.tool import Tool
+from superagi.models.toolkit import Toolkit
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.base_tool import BaseTool
-
+from sqlalchemy import and_
 
 class AgentToolStepHandler:
     """Handles the tools steps in the agent workflow"""
@@ -116,7 +117,9 @@ class AgentToolStepHandler:
             resource_summary = ResourceSummarizer(session=self.session,
                                                   agent_id=self.agent_id).fetch_or_create_agent_resource_summary(
                 default_summary=agent_config.get("resource_summary"))
-        tool = self.session.query(Tool).filter(Tool.name == tool_name).first()
+
+        organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
+        tool = self.session.query(Tool).join(Toolkit, and_(Tool.toolkit_id == Toolkit.id, Toolkit.organisation_id == organisation.id, Tool.name == tool_name)).first()
         tool_obj = tool_builder.build_tool(tool)
         tool_obj = tool_builder.set_default_params_tool(tool_obj, agent_config, agent_execution_config, model_api_key,
                                                         resource_summary)

@@ -1,10 +1,11 @@
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch, call,create_autospec,Mock
 
 import pytest
 
 from superagi.models.organisation import Organisation
 from superagi.models.toolkit import Toolkit
 from superagi.models.tool import Tool
+from sqlalchemy.orm import Session
 
 @pytest.fixture
 def mock_session():
@@ -243,3 +244,23 @@ def test_fetch_tool_ids_from_toolkit(mock_tool, mock_session):
 
     # Assert
     assert result == [mock_tool.id for _ in toolkit_ids]
+
+def test_get_tool_and_toolkit_arr_with_nonexistent_toolkit():
+    # Create a mock session
+    session = create_autospec(Session)
+
+    # Configure the session query to return None for toolkit
+    session.query.return_value.filter.return_value.first.return_value = None
+
+    # Call the method under test with a non-existent toolkit
+    agent_config_tools_arr = [
+        {"name": "NonExistentToolkit", "tools": ["Tool1", "Tool2"]},
+    ]
+
+    # Use a context manager to capture the raised exception and its message
+    with pytest.raises(Exception) as exc_info:
+        Toolkit.get_tool_and_toolkit_arr(session,1, agent_config_tools_arr)
+
+    # Assert that the expected error message is contained within the raised exception message
+    expected_error_message = "One or more of the Tool(s)/Toolkit(s) does not exist."
+    assert expected_error_message in str(exc_info.value)

@@ -430,3 +430,34 @@
     text-decoration: line-through;
     pointerEvents: none !important;
 }
+
+.modal_buttons{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px
+}
+
+.modal_info_class{
+    margin-left: -5px;
+    margin-right: 5px;
+}
+
+.table_contents{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+    width: 100%
+}
+
+.create_settings_button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px
+}
+
+.button_margin{
+    margin-top: -10px;
+}

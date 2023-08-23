@@ -5,12 +5,12 @@ from fastapi import HTTPException
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
+from urllib.parse import unquote
 import json
 
 
-
 class S3Helper:
-    def __init__(self, bucket_name = get_config("BUCKET_NAME")):
+    def __init__(self, bucket_name=get_config("BUCKET_NAME")):
         """
         Initialize the S3Helper class.
         Using the AWS credentials from the configuration file, create a boto3 client.
@@ -84,7 +84,7 @@ class S3Helper:
         """
         try:
             obj = self.s3.get_object(Bucket=self.bucket_name, Key=path)
-            s3_response =  obj['Body'].read().decode('utf-8')
+            s3_response = obj['Body'].read().decode('utf-8')
             return json.loads(s3_response)
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
@@ -108,9 +108,43 @@ class S3Helper:
             logger.info("File deleted from S3 successfully!")
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
-        
+
     def upload_file_content(self, content, file_path):
         try:
             self.s3.put_object(Bucket=self.bucket_name, Key=file_path, Body=content)
         except:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+
+    def get_download_url_of_resources(self, db_resources_arr):
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
+        )
+        response_obj = {}
+        for db_resource in db_resources_arr:
+            response = self.s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=db_resource.path)
+            content = response["Body"].read()
+            bucket_name = get_config("INSTAGRAM_TOOL_BUCKET_NAME")
+            file_name = db_resource.path.split('/')[-1]
+            file_name = ''.join(char for char in file_name if char != "`")
+            object_key = f"public_resources/run_id{db_resource.agent_execution_id}/{file_name}"
+            s3.put_object(Bucket=bucket_name, Key=object_key, Body=content)
+            file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
+            resource_execution_id = db_resource.agent_execution_id
+            if resource_execution_id in response_obj:
+                response_obj[resource_execution_id].append(file_url)
+            else:
+                response_obj[resource_execution_id] = [file_url]
+        return response_obj
+
+    def list_files_from_s3(self, file_path):
+        file_path = "resources" + file_path
+        logger.info(f"Listing files from s3 with prefix: {file_path}")
+        response = self.s3.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix=file_path)
+
+        if 'Contents' in response:
+            file_list = [obj['Key'] for obj in response['Contents']]
+            return file_list
+
+        raise Exception(f"Error listing files from s3")
