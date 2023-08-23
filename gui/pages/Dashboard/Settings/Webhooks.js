@@ -16,6 +16,15 @@ export default function Webhooks() {
   const [isLoading, setIsLoading] = useState(true)
   const [existingWebhook, setExistingWebhook] = useState(false)
   const [loadingText, setLoadingText] = useState("Loading Webhooks");
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
+  const checkboxes = [
+    { label: 'Agent is running', value: 'checkbox1' },
+    { label: 'Agent run is paused', value: 'checkbox2' },
+    { label: 'Agent run is completed', value: 'checkbox3' },
+    { label: 'Agent is terminated ', value: 'checkbox4' },
+    { label: 'Agent run max iteration reached', value: 'checkbox5' },
+  ];
+
 
   useEffect(() => {
     loadingTextEffect('Loading Webhooks', setLoadingText, 500);
@@ -35,7 +44,7 @@ export default function Webhooks() {
       return;
     }
 
-    saveWebhook({name : webhookName, url: webhookUrl, headers: {}})
+    saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}})
       .then((response) => {
         setExistingWebhook(true)
         setWebhookId(response.data.id)
@@ -53,13 +62,13 @@ export default function Webhooks() {
         setIsLoading(false)
         if(response.data){
           setWebhookUrl(response.data.url)
-          setWebhookName(response.data.name)
+          // setWebhookName(response.data.name)
           setExistingWebhook(true)
           setWebhookId(response.data.id)
         }
         else{
           setWebhookUrl('')
-          setWebhookName('')
+          // setWebhookName('')
           setExistingWebhook(false)
           setWebhookId(-1)
         }
@@ -80,6 +89,14 @@ export default function Webhooks() {
       });
   }
 
+  const toggleCheckbox = (value) => {
+    if (selectedCheckboxes.includes(value)) {
+      setSelectedCheckboxes(selectedCheckboxes.filter((item) => item !== value));
+    } else {
+      setSelectedCheckboxes([...selectedCheckboxes, value]);
+    }
+  };
+
   return (<>
     <div className="row">
       <div className="col-3"></div>
@@ -94,26 +111,37 @@ export default function Webhooks() {
           </div>
 
           <div>
-            <label className={agentStyles.form_label}>Name</label>
-            <input disabled={existingWebhook ? true : false} placeholder="Enter webhook name" className="input_medium" type="text" value={webhookName}
-                   onChange={handleWebhookName}/>
-            <br />
+            {/*<label className={agentStyles.form_label}>Name</label>*/}
+            {/*<input disabled={existingWebhook ? true : false} placeholder="Enter webhook name" className="input_medium" type="text" value={webhookName}*/}
+            {/*       onChange={handleWebhookName}/>*/}
+            {/*<br />*/}
             <label className={agentStyles.form_label}>Destination URL</label>
-            <div style={{display:'flex', justifyContent: 'space-between'}}>
-              <button className="secondary_button mr_5" disabled>
-                <span>POST</span>
-              </button>
               <input disabled={existingWebhook ? true : false} className="input_medium" placeholder="Enter your destination url" type="text" value={webhookUrl}
                      onChange={handleWebhookChange}/>
+            <br />
+            <label className={agentStyles.form_label}>Events to include</label>
+            <div className={styles.checkboxGroup}>
+              {checkboxes.map((checkbox) => (
+                <label key={checkbox.value} className={styles.checkboxLabel}>
+                  <input
+                    className="checkbox"
+                    type="checkbox"
+                    value={checkbox.value}
+                    checked={selectedCheckboxes.includes(checkbox.value)}
+                    onChange={() => toggleCheckbox(checkbox.value)}
+                  />
+                  <span className={styles.checkboxText}>&nbsp;{checkbox.label}</span>
+                </label>
+              ))}
             </div>
           </div>
 
-          {!existingWebhook && <div className="justify_end display_flex mt_15">
+          {!existingWebhook && <div className="justify_end display_flex_container mt_15">
             <button onClick={() => removeTab(-3, "Settings", "Settings", 0)} className="secondary_button mr_10">
               Cancel
             </button>
             <button className="primary_button" onClick={handleSaveWebhook}>
-              Update Changes
+              Create
             </button>
           </div>}
 
