@@ -878,7 +878,7 @@ export default function AgentCreate({
 
   const handleAddToMarketplace = () => {
     const agentData = setAgentData()
-    agentData.template_id = template.id
+    agentData.agent_template_id = template.id
     console.log(agentData)
     publishTemplateToMarketplace(agentData)
       .then((response) => {
@@ -1317,23 +1317,9 @@ export default function AgentCreate({
           }
 
           <div style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
-            {/*<div style={{display:'flex',position: 'relative'}}>*/}
-            {/*  {dropdown && <div style={{display: 'flex', position: 'relative', height:'60px', top:'-60px',  width: "fit-content", padding: '0'}} className="create_agent_dropdown_options">*/}
-            {/*    <ul style={{padding: '0', margin:'0'}}>*/}
-            {/*      <li className="dropdown_item" style={{height:'30px'}} onClick={() => updateTemplate()}>Update template</li>*/}
-            {/*      <li className="dropdown_item" style={{height:'30px'}} onClick={() => updateTemplate()}>Publish to Marketplace</li>*/}
-            {/*    </ul>*/}
-            {/*  </div>}*/}
-            {/*{showButton &&*/}
-            {/*  <button className="secondary_button mr_7" style={{padding: '8px', height: '31px'}}*/}
-            {/*          onClick={() => setDropdown(!dropdown)}>*/}
-            {/*    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>*/}
-            {/*  </button>*/}
-            {/*}*/}
-            {/*</div>*/}
             <div style={{display: 'flex', position: 'relative', marginRight:'7px'}}>
               <div>
-                {dropdown && (<div style={{padding: '0', width:'fit-content', height: '60px'}} className="create_agent_dropdown_options">
+                {dropdown && (<div style={{padding: '0', width:'fit-content', height: '60px'}} className="create_agent_dropdown_options" onMouseOut={() => setDropdown(false)} onMouseOver={() => setDropdown(true)}>
                   <ul style={{padding: '0', margin:'0'}}>
                     <li className="dropdown_item" style={{height:'30px', paddingTop:'2px', paddingBottom: '2px'}} onClick={() => updateTemplate()}>Update template</li>
                     <li className="dropdown_item" style={{height:'30px', paddingTop:'2px', paddingBottom: '2px'}} onClick={() => handleAddToMarketplace()}>Publish to Marketplace</li>
@@ -1341,7 +1327,7 @@ export default function AgentCreate({
                 </div>)}
               </div>
                 <div>
-                  <button className="secondary_button padding_8" onClick={() => setDropdown(!dropdown)}>
+                  <button className="secondary_button padding_8" onClick={() => setDropdown(true)} onMouseOut={() => setDropdown(false)}>
                     <Image width={20} height={20} src="/images/three_dots.svg" alt="run-icon"/>
                   </button>
                 </div>
