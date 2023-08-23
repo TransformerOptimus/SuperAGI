@@ -68,8 +68,7 @@ class FileManager:
             final_path = ResourceHelper.get_resource_path(file_name)
         
         try:
-            res = self.save_file_by_type(file_name=file_name, file_path=final_path, content=content)
-            print(f"---------------{res}-------------")
+            self.save_file_by_type(file_name=file_name, file_path=final_path, content=content)
         except Exception as err:
             return f"Error write_file: {err}"
         
@@ -107,6 +106,7 @@ class FileManager:
             }
             config = pdfkit.configuration(wkhtmltopdf = "/usr/bin/wkhtmltopdf")
             pdfkit.from_file(html_file_path, file_path, options = options, configuration = config)
+            self.write_to_s3(file_name, file_path)
             return file_path
         
         except Exception as err:
@@ -121,7 +121,7 @@ class FileManager:
         try:
             new_parser = HtmlToDocx()
             new_parser.parse_html_file(html_file_path, file_path)
-
+            self.write_to_s3(file_name, file_path)
             return file_path
         except Exception as err:
             raise FileNotCreatedError(f"Error write_file: {err}") from err
