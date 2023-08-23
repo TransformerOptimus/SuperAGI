@@ -879,7 +879,6 @@ export default function AgentCreate({
   const handleAddToMarketplace = () => {
     const agentData = setAgentData()
     agentData.agent_template_id = template.id
-    console.log(agentData)
     publishTemplateToMarketplace(agentData)
       .then((response) => {
         setDropdown(false)
@@ -1317,7 +1316,7 @@ export default function AgentCreate({
           }
 
           <div style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
-            <div style={{display: 'flex', position: 'relative', marginRight:'7px'}}>
+            <div className="display_flex_container position_relative mr_7">
               <div>
                 {dropdown && (<div className={styles.dropdown_container_agent} onMouseOver={() => setDropdown(true)} onMouseOut={() => setDropdown(false)}>
                   <ul style={{padding: '0', margin:'0'}}>
@@ -1326,11 +1325,11 @@ export default function AgentCreate({
                 </ul>
                 </div>)}
               </div>
-                <div>
+              {showButton && <div>
                   <button className="secondary_button padding_8" onClick={() => setDropdown(true)}>
                     <Image width={20} height={20} src="/images/three_dots.svg" alt="run-icon"/>
                   </button>
-                </div>
+                </div>}
               </div>
             <button style={{marginRight: '7px'}} className="secondary_button"
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
