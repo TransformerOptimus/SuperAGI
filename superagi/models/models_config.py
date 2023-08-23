@@ -4,7 +4,7 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.models import Models
 from superagi.helper.encyption_helper import encrypt_data, decrypt_data
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 import logging
 
 class ModelsConfig(DBBaseModel):
