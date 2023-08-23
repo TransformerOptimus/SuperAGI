@@ -51,19 +51,14 @@ class WriteFileTool(BaseTool):
         Returns:
             success message if message is file written successfully or failure message if writing file fails.
         """
-        print("write init -->", file_name)
         
         attached_files = self._get_attached_files()
         file_type = file_name.split('.')[-1].lower()
-        
-        print("Attached Files --> ", attached_files)
         
         if file_type not in ['pdf', 'docx', 'doc']:
             return self.resource_manager.write_file(file_name, content)
         
         html_code_content = self._convert_content_into_html(content=content, attached_files = attached_files,formated_for=file_type)
-        
-        print("html code -->", html_code_content)
         
         return self.resource_manager.write_file(file_name, html_code_content)
 
@@ -113,7 +108,6 @@ class WriteFileTool(BaseTool):
             # Check if the file extension is in the list of image extensions
             if file_extension.lower() in image_extensions:
                 image_paths.append(path)
-        print("Image Paths", image_paths)
         return image_paths
     
     def _get_file_path(self, file_name: str) -> list:
@@ -168,7 +162,6 @@ class WriteFileTool(BaseTool):
         if agent_execution is not None and "{agent_execution_id}" in output_directory:
             output_directory = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution=agent_execution, path=output_directory)
 
-        print("Output directory --> ", output_directory)
         return self._list_files(output_directory)
     
     def _list_files(self, directory):
