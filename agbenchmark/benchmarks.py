@@ -111,7 +111,7 @@ def run_specific_agent(task: str) -> None:
             config_data = yaml.safe_load(file)
     org_id, project_id = setup(config_data)
 
-    list_of_tools = ['Read File', 'Write File', 'WebScraperTool']
+    list_of_tools = ['Read File', 'Write File', 'WebScraperTool', "CodingTool", "DuckDuckGoSearch"]
     list_of_tool_ids = get_tool_ids(list_of_tools)
     headers = {"Content-Type": "application/json"}
 
@@ -191,13 +191,12 @@ def run_specific_agent(task: str) -> None:
     pause_payload = {"status": "PAUSED"}
     while True:
         agent_stream = requests.request(
-            "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{response['id']}", headers=headers
+            "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{agent_execution_id}", headers=headers
         )
-
         if agent_stream.json()['status'] == 'COMPLETED':
             break
 
-        if time.time() - start_time > 60:
+        if time.time() - start_time > 120:
             response = requests.request(
                 "PUT", f"{baseUrl}/agentexecutions/update/{response['execution_id']}", headers=headers,
                 data=json.dumps(pause_payload)
