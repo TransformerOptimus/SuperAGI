@@ -102,7 +102,10 @@ class AgentExecutor:
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):
-        if "OpenAi" in model_source:
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        print(model_source)
+        print(model_api_key)
+        if "OpenAI" in model_source:
             return OpenAiEmbedding(api_key=model_api_key)
         if "Google" in model_source:
             return GooglePalm(api_key=model_api_key)
