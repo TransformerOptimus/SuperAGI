@@ -11,7 +11,7 @@ import {
   updateExecution,
   uploadFile,
   getAgentDetails, addAgentRun,
-  getAgentWorkflows
+  getAgentWorkflows, publishTemplateToMarketplace
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -119,6 +119,7 @@ export default function AgentCreate({
   const [editButtonClicked, setEditButtonClicked] = useState(false);
 
   const [dropdown, setDropdown] = useState(false);
+  const [publishModal, setPublishModal] = useState(false);
 
 
   useEffect(() => {
@@ -877,7 +878,17 @@ export default function AgentCreate({
 
   const handleAddToMarketplace = () => {
     const agentData = setAgentData()
-
+    agentData.template_id = template.id
+    console.log(agentData)
+    publishTemplateToMarketplace(agentData)
+      .then((response) => {
+        setDropdown(false)
+        setPublishModal(true)
+      })
+      .catch((error) => {
+        toast.error("Error Publishing to marketplace")
+        console.error('Error Publishing to marketplace:', error);
+      });
   }
 
   return (<>
@@ -1378,6 +1389,23 @@ export default function AgentCreate({
               </div>
             </div>
           </div>)}
+
+          {publishModal && <div className="modal" onClick={() => {setPublishModal(false)}}>
+            <div className="modal-content w_35" onClick={preventDefault}>
+              <div className={styles.detail_name}>Template submitted successfully!</div>
+              <div>
+                <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
+                  <a href="https://app.superagi.com/" target="_blank" rel="noopener noreferrer">
+                    #agent-templates-submission
+                  </a> channel.</label>
+              </div>
+              <div className={styles.modal_buttons}>
+                <button className="primary_button" onClick={() => {setPublishModal(false)}}>
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>}
 
         </div>
       </div>

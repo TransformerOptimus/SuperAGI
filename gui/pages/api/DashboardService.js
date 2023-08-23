@@ -323,3 +323,7 @@ export const deleteApiKey = (apiId) => {
 export const publishToMarketplace = (executionId) => {
   return api.post(`/agent_templates/publish_template/agent_execution_id/${executionId}`);
 };
+
+export const publishTemplateToMarketplace = (agentData) => {
+  return api.post(`/agent_templates/publish_template`, agentData);
+};
