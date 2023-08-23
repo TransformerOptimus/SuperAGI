@@ -12,8 +12,8 @@ from superagi.tools.base_tool import BaseTool
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
-    content: str = Field(..., description="File content to write")
+    file_name: list[str] = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
+    content: list[str] = Field(..., description="File content to write")
 
 
 class WriteFileTool(BaseTool):
@@ -36,7 +36,7 @@ class WriteFileTool(BaseTool):
     class Config:
         arbitrary_types_allowed = True
 
-    def _execute(self, file_name: str, content: str):
+    def _execute(self, file_names: str, contents: str):
         """
         Execute the write file tool.
 
@@ -47,4 +47,7 @@ class WriteFileTool(BaseTool):
         Returns:
             success message if message is file written successfully or failure message if writing file fails.
         """
-        return self.resource_manager.write_file(file_name, content)
+        output = ""
+        for file_name, content in zip(file_names, contents):
+            output += self.resource_manager.write_file(file_name, content)
+        return output

@@ -24,6 +24,7 @@ services:
   gui:
     build:
       context: ./gui
+      dockerfile: DockerfileProd
       args:
         NEXT_PUBLIC_API_BASE_URL: "/api"
     networks:
