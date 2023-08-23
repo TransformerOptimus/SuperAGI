@@ -49,16 +49,11 @@ class ScheduledAgentExecutor:
         session.add(db_agent_execution)
         session.commit()
 
-        goal_value = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'goal').first()[0]
-        instruction_value = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'instruction').first()[0]
-
-        agent_execution_configs = {
-            "goal": goal_value,
-            "instruction": instruction_value
-        }
-
-
-        AgentExecutionConfiguration.add_or_update_agent_execution_config(session= session, execution=db_agent_execution,agent_execution_configs=agent_execution_configs)
+        agent_execution_id = db_agent_execution.id
+        agent_configurations = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+        for agent_config in agent_configurations:
+            agent_execution_config = AgentExecutionConfiguration(agent_execution_id=agent_execution_id, key=agent_config.key, value=agent_config.value)
+            session.add(agent_execution_config)
 
 
         organisation = agent.get_agent_organisation(session)
