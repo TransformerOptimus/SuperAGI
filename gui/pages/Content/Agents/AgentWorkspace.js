@@ -74,6 +74,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           toast.success('Schedule stopped successfully!', {autoClose: 1800});
           setCreateStopModal(false);
           EventBus.emit('reFetchAgents', {});
+          setAgentScheduleDetails(null)
         }
       })
       .catch((error) => {
@@ -289,7 +290,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   // }
 
   function saveAgentTemplate() {
-    saveAgentAsTemplate(agentId)
+    saveAgentAsTemplate(selectedRun?.id)
       .then((response) => {
         toast.success("Agent saved as template successfully", {autoClose: 1800});
       })
@@ -448,7 +449,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       <div style={{width: '40%'}}>
         <div className={styles.detail_top}>
           <div style={{display: 'flex', overflowX: 'scroll'}}>
-            {(agentDetails || pendingPermission > 0) && agentDetails.permission_type === 'RESTRICTED' && <div>
+            {agentDetails && ((fetchedData && fetchedData.length > 0) || agentDetails.permission_type === 'RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
                 <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/action_console.svg"

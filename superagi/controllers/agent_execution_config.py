@@ -20,7 +20,6 @@ from superagi.models.knowledges import Knowledges
 
 router = APIRouter()
 
-
 @router.get("/details/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
 def get_agent_execution_configuration(agent_id : Union[int, None, str],
                                       agent_execution_id: Union[int, None, str],
@@ -56,29 +55,32 @@ def get_agent_execution_configuration(agent_id : Union[int, None, str],
     #If the agent_execution_id received is -1 then the agent_execution_id is set as the most recent execution
     if agent_execution_id == -1:
         agent_execution = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).order_by(desc(AgentExecution.created_at)).first()
-        if not agent_execution:
-            raise HTTPException(status_code=404, detail="Agent Run not found")
-        agent_execution_id = agent_execution.id
+        if agent_execution: agent_execution_id = agent_execution.id
 
     #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
-    agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
-    if agent_execution_config is None:
-        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
-    agent_id_from_execution_id = agent_execution_config.agent_id
-    if agent_id != agent_id_from_execution_id:
-        raise HTTPException(status_code = 404, detail = "Wrong agent id")
+    if agent_execution_id!=-1: 
+        agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
+        if agent_execution_config is None:
+            raise HTTPException(status_code = 404, detail = "Agent Execution not found")
+        agent_id_from_execution_id = agent_execution_config.agent_id
+        if agent_id != agent_id_from_execution_id:
+            raise HTTPException(status_code = 404, detail = "Wrong agent id")
 
     # Query the AgentConfiguration table and the AgentExecuitonConfiguration table for all the keys
     results_agent = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
-    results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+    if agent_execution_id!=-1: results_agent_execution = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
     
     total_calls = db.session.query(func.sum(AgentExecution.num_of_calls)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     total_tokens = db.session.query(func.sum(AgentExecution.num_of_tokens)).filter(
         AgentExecution.agent_id == agent_id).scalar()
     
-    response = AgentExecutionConfiguration.build_agent_execution_config(db.session, agent, results_agent, results_agent_execution, total_calls, total_tokens)
-
+    response = {}
+    if agent_execution_id!=-1: 
+        response = AgentExecutionConfiguration.build_agent_execution_config(db.session, agent, results_agent, results_agent_execution, total_calls, total_tokens)
+    else: 
+        response = AgentExecutionConfiguration.build_scheduled_agent_execution_config(db.session, agent, results_agent, total_calls, total_tokens)
+        
     # Close the session
     db.session.close()
 

@@ -84,6 +84,7 @@ class AgentExecutionConfiguration(DBBaseModel):
         parsed_config = {
             "goal": [],
             "instruction": [],
+            "tools": []
         }
         if not agent_configurations:
             return parsed_config
@@ -105,7 +106,7 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         """
 
-        if key == "goal" or key == "instruction":
+        if key == "goal" or key == "instruction" or key == "tools":
             return eval(value)
 
     @classmethod
@@ -116,6 +117,44 @@ class AgentExecutionConfiguration(DBBaseModel):
         for key, value in results_agent_execution_dict.items():
             if key in results_agent_dict and value is not None:
                 results_agent_dict[key] = value
+
+        # Construct the response
+        if 'goal' in results_agent_dict:
+            results_agent_dict['goal'] = eval(results_agent_dict['goal'])
+
+        if "toolkits" in results_agent_dict:
+            results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
+
+        if 'tools' in results_agent_dict:
+            results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
+            tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
+            results_agent_dict["tools"] = tools
+        if 'instruction' in results_agent_dict:
+            results_agent_dict['instruction'] = eval(results_agent_dict['instruction'])
+
+        if 'constraints' in results_agent_dict:
+            results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
+
+        results_agent_dict["name"] = agent.name
+        agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)
+        results_agent_dict["agent_workflow"] = agent_workflow.name
+        results_agent_dict["description"] = agent.description
+        results_agent_dict["calls"] = total_calls
+        results_agent_dict["tokens"] = total_tokens
+
+        knowledge_name = ""
+        if 'knowledge' in results_agent_dict and results_agent_dict['knowledge'] != 'None':
+            if type(results_agent_dict['knowledge'])==int:
+                results_agent_dict['knowledge'] = int(results_agent_dict['knowledge'])
+            knowledge = session.query(Knowledges).filter(Knowledges.id == results_agent_dict['knowledge']).first()
+            knowledge_name = knowledge.name if knowledge is not None else ""
+        results_agent_dict['knowledge_name'] = knowledge_name
+
+        return results_agent_dict
+
+    @classmethod
+    def build_scheduled_agent_execution_config(cls, session, agent, results_agent, total_calls, total_tokens):
+        results_agent_dict = {result.key: result.value for result in results_agent}
             
         # Construct the response
         if 'goal' in results_agent_dict:
@@ -150,3 +189,22 @@ class AgentExecutionConfiguration(DBBaseModel):
         results_agent_dict['knowledge_name'] = knowledge_name 
 
         return results_agent_dict
+    
+    @classmethod
+    def fetch_value(cls, session, execution_id: int, key: str):
+        """
+           Fetches the value of a specific execution configuration setting for an agent.
+
+           Args:
+               session: The database session object.
+               execution_id (int): The ID of the agent execution.
+               key (str): The key of the execution configuration setting.
+
+           Returns:
+               AgentExecutionConfiguration: The execution configuration setting object if found, else None.
+
+       """
+
+        return session.query(AgentExecutionConfiguration).filter(
+            AgentExecutionConfiguration.agent_execution_id == execution_id,
+            AgentExecutionConfiguration.key == key).first()

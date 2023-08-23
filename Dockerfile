@@ -13,6 +13,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
+RUN python -m nltk.downloader averaged_perceptron_tagger punkt
 
 COPY . .
 
@@ -29,5 +30,6 @@ RUN apt-get update && \
 
 COPY --from=compile-image /opt/venv /opt/venv
 COPY --from=compile-image /app /app
+COPY --from=compile-image /root/nltk_data /root/nltk_data
 
 ENV PATH="/opt/venv/bin:$PATH"

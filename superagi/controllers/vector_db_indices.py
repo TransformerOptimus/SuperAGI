@@ -16,6 +16,7 @@ def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(ge
     knowledge_with_config = KnowledgeConfigs.fetch_knowledge_config_details_marketplace(knowledge['id'])
     pinecone = []
     qdrant = []
+    weaviate = []
     for vector_db in vector_dbs:
         indices =  VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db.id)
         for index in indices:
@@ -26,13 +27,17 @@ def get_marketplace_valid_indices(knowledge_name: str, organisation = Depends(ge
                 pinecone.append(data)
             if vector_db.db_type == "Qdrant":
                 qdrant.append(data)
-    return {"pinecone": pinecone, "qdrant": qdrant}
+            if vector_db.db_type == "Weaviate":
+                data["is_valid_dimension"] = True
+                weaviate.append(data)
+    return {"pinecone": pinecone, "qdrant": qdrant, "weaviate": weaviate}
 
 @router.get("/user/valid_indices")
 def get_user_valid_indices(organisation = Depends(get_user_organisation)):
     vector_dbs = Vectordbs.get_vector_db_from_organisation(db.session, organisation)
     pinecone = []
     qdrant = []
+    weaviate = []
     for vector_db in vector_dbs:
         indices =  VectordbIndices.get_vector_indices_from_vectordb(db.session, vector_db.id)
         for index in indices:
@@ -42,4 +47,6 @@ def get_user_valid_indices(organisation = Depends(get_user_organisation)):
                 pinecone.append(data)
             if vector_db.db_type == "Qdrant":
                 qdrant.append(data)
-    return {"pinecone": pinecone, "qdrant": qdrant}
+            if vector_db.db_type == "Weaviate":
+                weaviate.append(data)
+    return {"pinecone": pinecone, "qdrant": qdrant, "weaviate": weaviate}
