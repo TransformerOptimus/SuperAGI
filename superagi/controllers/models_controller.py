@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
 from superagi.apm.call_log_helper import CallLogHelper
@@ -25,6 +25,8 @@ class StoreModelRequest(BaseModel):
     type: str
     version: str
 
+class ModelName (BaseModel):
+    model: str
 
 @router.post("/store_api_keys", status_code=200)
 async def store_api_keys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
@@ -89,10 +91,10 @@ async def fetch_model_details(model_id: int, organisation=Depends(get_user_organ
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/fetch_model_data/{model}", status_code=200)
-async def fetch_data(model: str, organisation=Depends(get_user_organisation)):
+@router.post("/fetch_model_data", status_code=200)
+async def fetch_data(request: ModelName, organisation=Depends(get_user_organisation)):
     try:
-        return CallLogHelper(session=db.session, organisation_id=organisation.id).fetch_data(model)
+        return CallLogHelper(session=db.session, organisation_id=organisation.id).fetch_data(request.model)
     except Exception as e:
         logging.error(f"Error Fetching Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

@@ -33,7 +33,7 @@ export default function MarketModels(){
                 {!isLoading ? <div>
                     {modelTemplates.length > 0 ? <div className="marketplaceGrid">{modelTemplates.map((item) => (
                         <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
-                            <div>{item.model_name}</div>
+                            <div>{item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[1] : item.model_name}</div>
                             <div className="horizontal_container color_gray">
                                 <span>by { item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[0] : item.provider }</span>
                                 <Image className="mr_8 ml_4" width={14} height={14} src="/images/is_verified.svg" alt="is_verified" />·
@@ -42,7 +42,7 @@ export default function MarketModels(){
                                 <Image className="ml_8 mr_4" width={15} height={15} src="/images/upload_icon.svg" alt="download-icon" />
                                 <span>{item.installs}</span>
                             </div>
-                            <div className="text_ellipsis mt_14 color_gray" dangerouslySetInnerHTML={{ __html: item.description }} />
+                            <div className="text_ellipsis mt_14 color_gray">{item.description}</div>
                         </div>
                     ))}</div> : <div className="center_container mt_40">
                         <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>

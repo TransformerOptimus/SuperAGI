@@ -356,7 +356,7 @@ export const fetchModel = (model_id) => {
 }
 
 export const fetchModelData = (model) => {
-  return api.get(`/models_controller/fetch_model_data/${model}`)
+  return api.post(`/models_controller/fetch_model_data`, { model: model })
 }
 
 export const fetchMarketPlaceModel = () => {

@@ -18,7 +18,7 @@ export default function ModelMetrics(modelDetails) {
 
     const getModelInfo = () =>{
         if(modelData.name !== undefined){
-            fetchModelData(modelData.name.includes('/') ? modelData.name.split('/')[1] : modelData.name).then((response)=>{
+            fetchModelData(modelData.name).then((response)=>{
                 console.log(response)
                 setModelMeta(response.data)
                 setModelRunData(response.data.runs)
