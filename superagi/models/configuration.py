@@ -5,7 +5,9 @@ from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
-
+from superagi.models.models_config import ModelsConfig
+from superagi.models.models import Models
+from superagi.helper.encyption_helper import decrypt_data
 
 class Configuration(DBBaseModel):
     """
@@ -57,6 +59,31 @@ class Configuration(DBBaseModel):
             return decrypt_data(configuration.value) if configuration else default_value
         else:
             return configuration.value if configuration else default_value
+
+    @classmethod
+    def fetch_configurations(cls, session, organisation_id: int, key: str, model: str, default_value=None) -> str:
+        """
+        Fetches the configuration of an agent.
+
+        Args:
+            session: The database session object.
+            organisation_id (int): The ID of the organisation.
+            key (str): The key of the configuration.
+            default_value (str): The default value of the configuration.
+
+        Returns:
+            dict: Parsed configuration.
+
+        """
+        model_provider = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
+        if not model_provider:
+            raise HTTPException(status_code=404, detail="Model provider not found")
+
+        configuration = session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
+        if key == "model_api_key":
+            return decrypt_data(configuration.api_key) if configuration else default_value
+        else:
+            return configuration.provider if configuration else default_value
 
     @classmethod
     def fetch_value_by_agent_id(cls, session, agent_id: int, key: str):

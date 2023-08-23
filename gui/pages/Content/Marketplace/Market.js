@@ -4,7 +4,9 @@ import styles from './Market.module.css';
 import MarketKnowledge from './MarketKnowledge';
 import MarketAgent from './MarketAgent';
 import MarketTools from './MarketTools';
+import MarketModels from '../Models/MarketModels';
 import ToolkitTemplate from './ToolkitTemplate';
+import ModelTemplate from "../Models/ModelTemplate";
 import {EventBus} from "@/utils/eventBus";
 import AgentTemplate from "./AgentTemplate";
 import KnowledgeTemplate from "./KnowledgeTemplate";
@@ -64,48 +66,36 @@ export default function Market({env}) {
         <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
           <div className={styles.detail_top}>
             <div style={{display: 'flex', overflowX: 'scroll', marginLeft: '8px'}}>
-              <div>
-                <button onClick={() => switchTab('market_tools')} className={styles.tab_button}
-                        style={activeTab === 'market_tools' ? {
-                          background: '#454254',
-                          paddingRight: '15px'
-                        } : {background: 'transparent', paddingRight: '15px'}}>
-                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/tools_light.svg"
-                         alt="tools-icon"/>&nbsp;Tools
-                </button>
-              </div>
-              <div>
-                <button onClick={() => switchTab('market_knowledge')} className={styles.tab_button}
-                        style={activeTab === 'market_knowledge' ? {
-                          background: '#454254',
-                          paddingRight: '15px'
-                        } : {background: 'transparent', paddingRight: '15px'}}>
-                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/knowledge.svg"
-                         alt="knowledge-icon"/>&nbsp;Knowledge
-                </button>
-              </div>
-              <div>
-                <button onClick={() => switchTab('market_agents')} className={styles.tab_button}
-                        style={activeTab === 'market_agents' ? {
-                          background: '#454254',
-                          paddingRight: '15px'
-                        } : {background: 'transparent', paddingRight: '15px'}}>
-                  <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/agents_light.svg"
-                         alt="agent-template-icon"/>&nbsp;Agent Templates
-                </button>
-              </div>
+              <button onClick={() => switchTab('market_tools')} className={activeTab === 'market_tools' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/tools_light.svg" alt="tools-icon"/>
+                <span>Tools</span>
+              </button>
+              <button onClick={() => switchTab('market_knowledge')} className={activeTab === 'market_knowledge' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/knowledge.svg" alt="knowledge-icon"/>
+                <span>Knowledge</span>
+              </button>
+              <button onClick={() => switchTab('market_agents')} className={activeTab === 'market_agents' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/agents_light.svg" alt="agent-template-icon"/>
+                <span>Agent Templates</span>
+              </button>
+              <button onClick={() => switchTab('market_models')} className={activeTab === 'market_models' ? 'tab_button_selected' : 'tab_button'}>
+                <Image width={14} height={14} src="/images/models.svg" alt="model-template-icon"/>
+                <span>Models</span>
+              </button>
             </div>
           </div>
           <div>
             {activeTab === 'market_tools' && <MarketTools/>}
             {activeTab === 'market_knowledge' && <MarketKnowledge/>}
             {activeTab === 'market_agents' && <MarketAgent/>}
+            {activeTab === 'market_models' && <MarketModels/>}
           </div>
         </div>
       </div> : <div style={{padding: '0 3px'}}>
         {detailType === 'agent_template' && <AgentTemplate env={env} template={templateData}/>}
         {detailType === 'knowledge_template' && <KnowledgeTemplate env={env} template={templateData}/>}
         {detailType === 'tool_template' && <ToolkitTemplate env={env} template={templateData}/>}
+        {detailType === 'model_template' && <ModelTemplate env={env} template={templateData} />}
       </div>}
     </div>
   );

@@ -1,5 +1,6 @@
 import json
 
+from superagi.agent.task_queue import TaskQueue
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_handler import ToolOutputHandler
@@ -31,6 +32,8 @@ class AgentToolStepHandler:
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
         self.memory = memory
+        self.task_queue = TaskQueue(str(self.agent_execution_id))
+        self.organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
 
     def execute_step(self):
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
@@ -101,7 +104,8 @@ class AgentToolStepHandler:
                                   completion_prompt=step_tool.completion_prompt)
         # print(messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+        response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+        # ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
@@ -115,7 +119,8 @@ class AgentToolStepHandler:
         resource_summary = ""
         if tool_name == "QueryResourceTool":
             resource_summary = ResourceSummarizer(session=self.session,
-                                                  agent_id=self.agent_id).fetch_or_create_agent_resource_summary(
+                                                  agent_id=self.agent_id,
+                                                  model= agent_config["model"]).fetch_or_create_agent_resource_summary(
                 default_summary=agent_config.get("resource_summary"))
 
         organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
@@ -131,7 +136,7 @@ class AgentToolStepHandler:
         messages = [{"role": "system", "content": prompt}]
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages,
-                                            TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+                                            TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"ToolWorkflowStepHandler: Failed to get output response from llm")
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())

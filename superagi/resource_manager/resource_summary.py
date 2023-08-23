@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import logging
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
@@ -13,10 +13,11 @@ from superagi.types.model_source_types import ModelSourceType
 class ResourceSummarizer:
     """Class to summarize a resource."""
 
-    def __init__(self, session, agent_id: int):
+    def __init__(self, session, agent_id: int, model: str):
         self.session = session
         self.agent_id = agent_id
         self.organisation_id = self.__get_organisation_id()
+        self.model = model
 
     def __get_organisation_id(self):
         agent = self.session.query(Agent).filter(Agent.id == self.agent_id).first()
@@ -24,10 +25,10 @@ class ResourceSummarizer:
         return organisation.id
 
     def __get_model_api_key(self):
-        return Configuration.fetch_configuration(self.session, self.organisation_id, "model_api_key")
+        return Configuration.fetch_configurations(self.session, self.organisation_id, "model_api_key", self.model)
 
     def __get_model_source(self):
-        return Configuration.fetch_configuration(self.session, self.organisation_id, "model_source")
+        return Configuration.fetch_configurations(self.session, self.organisation_id, "model_source", self.model)
 
     def add_to_vector_store_and_create_summary(self, resource_id: int, documents: list):
         """
@@ -77,6 +78,7 @@ class ResourceSummarizer:
         self.session.commit()
 
     def fetch_or_create_agent_resource_summary(self, default_summary: str):
+        print(self.__get_model_source())
         if ModelSourceType.GooglePalm.value in self.__get_model_source():
             return
         self.generate_agent_summary(generate_all=True)
@@ -85,3 +87,4 @@ class ResourceSummarizer:
                    AgentConfiguration.key == "resource_summary").first()
         resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
         return resource_summary
+

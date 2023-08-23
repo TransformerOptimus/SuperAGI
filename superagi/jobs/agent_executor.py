@@ -53,8 +53,9 @@ class AgentExecutor:
                 logger.error(f"Agent execution stopped. Max iteration exceeded. {agent.id}: {agent_execution.status}")
                 return
 
-            model_api_key = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
-            model_llm_source = ModelSourceType.get_model_source_from_model(agent_config["model"]).value
+            model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
+            model_api_key = model_config['api_key']
+            model_llm_source = model_config['provider']
             try:
                 vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
                 memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
@@ -66,18 +67,22 @@ class AgentExecutor:
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             try:
+                print(agent_config["model"])
+                print(model_api_key)
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
-                                                             llm=get_model(model=agent_config["model"], api_key=model_api_key)
+                                                             llm=get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id)
                                                              , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                              memory=memory)
                     tool_step_handler.execute_step()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
                     iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
-                                                                                api_key=model_api_key)
+                                                                                api_key=model_api_key,
+                                                                                organisation_id=organisation.id)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
+                    print(get_model(model=agent_config["model"],api_key=model_api_key,organisation_id=organisation.id))
                     iteration_step_handler.execute_step()
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
@@ -97,7 +102,10 @@ class AgentExecutor:
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):
-        if "OpenAi" in model_source:
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        print(model_source)
+        print(model_api_key)
+        if "OpenAI" in model_source:
             return OpenAiEmbedding(api_key=model_api_key)
         if "Google" in model_source:
             return GooglePalm(api_key=model_api_key)

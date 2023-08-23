@@ -290,7 +290,7 @@
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 0.3vw;
+    gap: 6px;
 }
 
 .agent_resources {
