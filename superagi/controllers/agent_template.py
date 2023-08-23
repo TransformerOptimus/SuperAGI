@@ -411,9 +411,8 @@ def fetch_agent_config_from_template(agent_template_id: int,
 
 
 @router.post("/publish_template/agent_execution_id/{agent_execution_id}", status_code=201)
-def publish_template(agent_execution_id: str,
-                           organisation=Depends(get_user_organisation),
-                           user=Depends(get_current_user)):
+def publish_template(agent_execution_id: str, organisation=Depends(get_user_organisation), user=Depends(get_current_user)):
+
     """
     Publish an agent execution as a template.
 
@@ -428,6 +427,7 @@ def publish_template(agent_execution_id: str,
     Raises:
         HTTPException (status_code=404): If the agent or agent execution configurations are not found.
     """
+    
     if agent_execution_id == 'undefined':
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
 
@@ -473,6 +473,7 @@ def publish_template(agent_execution_id: str,
 
 @router.post("/publish_template", status_code=201)
 def handle_publish_template(updated_details: AgentPublish, organisation=Depends(get_user_organisation), user=Depends(get_current_user)):
+    
     """
     Publish a template from edit template page.
 
