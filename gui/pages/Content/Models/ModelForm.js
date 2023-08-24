@@ -51,6 +51,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
 
     const checkModelProvider = async (model_provider) => {
         const response = await fetchApiKey(model_provider);
+        console.log(response.data)
         if(selectedModel !== 'Select a Model'){
             if(response.data.length === 0) {
                 setTokenError(true)
