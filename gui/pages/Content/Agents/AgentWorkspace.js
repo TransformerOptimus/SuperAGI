@@ -397,9 +397,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
                 }}>Delete Run</li>}
-                <div className={styles.dropdown_separator} />
+                {selectedRun && <div className={styles.dropdown_separator}/>}
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
-                {agent && !agent?.is_running &&
+                {agent && !agent?.is_running && agentExecutions && agentExecutions.length > 0 &&
                   <li className="dropdown_item" onClick={() => {
                     handlePublishToMarketplace()
                   }}>Publish to marketplace</li>}
@@ -611,7 +611,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
           <div className={styles.detail_name}>Template submitted successfully!</div>
           <div>
             <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
-              <a href="https://app.superagi.com/" target="_blank" rel="noopener noreferrer">
+              <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
                 #agent-templates-submission
               </a> channel.</label>
           </div>

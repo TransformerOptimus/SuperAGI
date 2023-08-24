@@ -1380,7 +1380,7 @@ export default function AgentCreate({
               <div className={styles.detail_name}>Template submitted successfully!</div>
               <div>
                 <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
-                  <a href="https://app.superagi.com/" target="_blank" rel="noopener noreferrer">
+                  <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
                     #agent-templates-submission
                   </a> channel.</label>
               </div>
