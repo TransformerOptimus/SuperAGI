@@ -6,4 +6,5 @@ services:
     branch: main
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
+  http_port: 3000
   name: sample-gui

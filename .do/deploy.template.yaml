@@ -6,4 +6,5 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+    http_port: 3000
     name: sample-gui
