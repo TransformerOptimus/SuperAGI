@@ -2,6 +2,7 @@ spec:
   name: sample-dockerfile
   services:
   - dockerfile_path: ./gui/Dockerfile
+    source_dir: ./gui
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
