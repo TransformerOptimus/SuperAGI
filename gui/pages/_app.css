@@ -1055,6 +1055,7 @@ p {
 .w_6{width: 6%}
 .w_10{width: 10%}
 .w_12{width: 12%}
+.w_15{width: 15%}
 .w_18{width: 18%}
 .w_20{width: 20%}
 .w_22{width: 22%}
@@ -1116,6 +1117,8 @@ p {
 .gap_16{gap:16px;}
 .gap_20{gap:20px;}
 
+.border_gray{border: 1px solid rgba(255, 255, 255, 0.08)}
+.border_left_none{border-left: none;}
 .border_top_none{border-top: none;}
 .border_radius_8{border-radius: 8px;}
 .border_radius_25{border-radius: 25px;}
