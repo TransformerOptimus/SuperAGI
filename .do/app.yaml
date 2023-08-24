@@ -1,9 +1,8 @@
 name: sample-dockerfile
 services:
-- dockerfile_path: Dockerfile
+- dockerfile_path: DockerfileCelery
   github:
     branch: main
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
   name: sample-backend
-  http_port: 8001

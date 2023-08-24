@@ -1,9 +1,8 @@
 spec:
   name: sample-dockerfile
   services:
-  - dockerfile_path: Dockerfile
+  - dockerfile_path: DockerfileCelery
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     name: sample-backend
-    http_port: 8001
