@@ -1,5 +1,4 @@
 from typing import List, Dict, Union, Any
-
 from sqlalchemy import text, func, and_
 from sqlalchemy.orm import Session
 
