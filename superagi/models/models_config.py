@@ -89,8 +89,7 @@ class ModelsConfig(DBBaseModel):
     def fetch_api_keys(cls, session, organisation_id):
         api_key_info = session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(
             ModelsConfig.org_id == organisation_id).all()
-        print("////////////////////////////////")
-        print(api_key_info)
+
         if not api_key_info:
             logging.error("No API key found for the provided model provider")
             return []
@@ -104,8 +103,7 @@ class ModelsConfig(DBBaseModel):
     def fetch_api_key(cls, session, organisation_id, model_provider):
         api_key_data = session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
             and_(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == model_provider)).first()
-        print("////////////////////////////////")
-        print(api_key_data)
+
         if api_key_data is None:
             return []
         else:
