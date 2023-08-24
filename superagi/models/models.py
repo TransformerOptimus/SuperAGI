@@ -115,7 +115,11 @@ class Models(DBBaseModel):
             return {"error": "Model Name already exists"}
 
         # Get the provider of the model
-        model = ModelsConfig.fetch_model_by_id(session, organisation_id, model_provider_id)
+        if type == 'Marketplace':
+            model = ModelsConfig.fetch_model_by_id_marketplace(session, model_provider_id)
+        else:
+            model = ModelsConfig.fetch_model_by_id(session, organisation_id, model_provider_id)
+
         if "error" in model:
             return model  # Return error message if model not found
 

@@ -11,6 +11,7 @@ export default function AddModelMarketPlace(template){
     const [tokenError, setTokenError] = useState(false);
     const [templateData, setTemplateData] = useState(template.template);
     const [isLoading, setIsLoading] = useState(false);
+    const [providerId, setProviderId] = useState(1);
 
     useEffect(()=>{
         console.log(templateData)
@@ -19,19 +20,22 @@ export default function AddModelMarketPlace(template){
 
     const checkModelProvider = async () => {
         const response = await fetchApiKey(templateData.provider);
+        console.log(response.data)
         if(response.data.length === 0) {
             setTokenError(true)
             return true
         }
         else {
             setTokenError(false)
+            setProviderId(response.data[0].id)
             return false
         }
     }
 
     const storeModelDetails = () => {
-        storeModel(templateData.model_name, templateData.description, modelEndpoint, templateData.model_provider_id, modelTokenLimit, "Marketplace", modelVersion).then((response) =>{
+        storeModel(templateData.model_name, templateData.description, modelEndpoint, providerId, modelTokenLimit, "Marketplace", modelVersion).then((response) =>{
             setIsLoading(false)
+            console.log(response)
             if (response.data.error) {
                 toast.error(response.data.error,{autoClose: 1800});
             } else if (response.data.success) {
