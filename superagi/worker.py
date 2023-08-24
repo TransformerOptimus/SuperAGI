@@ -73,9 +73,6 @@ def summarize_resource(agent_id: int, resource_id: int):
     session = Session()
     agent_config = Agent.fetch_configuration(session, agent_id)
     organisation = Agent.find_org_by_agent_id(session, agent_id)
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(organisation.id)
-    print(agent_config["model"])
     model_source = Configuration.fetch_configurations(session, organisation.id, "model_source", agent_config["model"]) or "OpenAi"
     if ModelSourceType.GooglePalm.value in model_source or ModelSourceType.Replicate.value in model_source:
         return
