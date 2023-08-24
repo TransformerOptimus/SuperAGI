@@ -1,8 +1,9 @@
 name: sample-dockerfile
 services:
-- dockerfile_path: DockerfileCelery
+- dockerfile_path: Dockerfile
+  source_dir: ./gui
   github:
     branch: main
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
-  name: sample-backend
+  name: sample-gui
