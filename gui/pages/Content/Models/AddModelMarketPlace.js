@@ -19,7 +19,7 @@ export default function AddModelMarketPlace(template){
 
     const checkModelProvider = async () => {
         const response = await fetchApiKey(templateData.provider);
-        if(response && response.data && response.data[0].api_key === '') {
+        if(response.data.length === 0) {
             setTokenError(true)
             return true
         }
@@ -85,13 +85,14 @@ export default function AddModelMarketPlace(template){
                         </div>
                     </div>}
 
-                    <div className="horizontal_container align_start info_box mt_24 gap_6">
+                    {templateData.provider === 'Hugging Face' && <div className="horizontal_container align_start info_box mt_24 gap_6">
                         <Image width={16} height={16} src="/images/icon_info.svg" alt="error-icon" />
                         <div className="vertical_containers">
                             <span className="text_12 color_white lh_16">In order to get the endpoint for this model, you will need to deploy it on your Replicate dashboard. Once you have deployed your model on Hugging Face, you will be able to access the endpoint through the Hugging Face dashboard. The endpoint is a URL that you can use to send requests to your model.</span>
-                            <button className="secondary_button_small w_fit_content mt_16" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Deploy</button>
+                            <button className="secondary_button_small w_fit_content mt_16"
+                                    onClick={() => window.open("https://ui.endpoints.huggingface.co/", "_blank")}>Deploy<Image src="/images/open_in_new.svg" alt="deploy_icon" width={12} height={12} className="ml_4" /></button>
                         </div>
-                    </div>
+                    </div>}
 
                     <button className="primary_button w_fit_content align_self_end mt_24" disabled={tokenError}
                             onClick={() => storeModelDetails()}>Install</button>

@@ -137,12 +137,13 @@ class Models(DBBaseModel):
             )
             session.add(model)
             session.commit()
+            session.flush()
 
         except Exception as e:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
 
-        return {"success": "Model Details stored successfully"}
+        return {"success": "Model Details stored successfully", "model_id": model.id}
 
     @classmethod
     def fetch_models(cls, session, organisation_id) -> Union[Dict[str, str], List[Dict[str, Union[str, int]]]]:
