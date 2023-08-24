@@ -8,6 +8,8 @@ from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
 from superagi.apm.event_handler import EventHandler
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
+from superagi.llms.hugging_face import HuggingFace
+from superagi.llms.replicate import Replicate
 from superagi.llms.llm_model_factory import get_model
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
@@ -54,12 +56,15 @@ class AgentExecutor:
                 return
 
             model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
+            print(model_config)
             model_api_key = model_config['api_key']
             model_llm_source = model_config['provider']
             try:
-                vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
-                memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
-                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
+                memory = None
+                if "OpenAI" in model_llm_source:
+                    vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
+                    memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
+                                                              AgentExecutor.get_embedding(model_llm_source, model_api_key))
             except Exception as e:
                 logger.info(f"Unable to setup the connection...{e}")
                 memory = None
@@ -82,7 +87,7 @@ class AgentExecutor:
                                                                                 organisation_id=organisation.id)
                                                                        , agent_id=agent.id,
                                                                        agent_execution_id=agent_execution_id, memory=memory)
-                    print(get_model(model=agent_config["model"],api_key=model_api_key,organisation_id=organisation.id))
+                    print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
                     iteration_step_handler.execute_step()
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
@@ -109,6 +114,10 @@ class AgentExecutor:
             return OpenAiEmbedding(api_key=model_api_key)
         if "Google" in model_source:
             return GooglePalm(api_key=model_api_key)
+        if "Hugging" in model_source:
+            return HuggingFace(api_key=model_api_key)
+        if "Replicate" in model_source:
+            return Replicate(api_key=model_api_key)
         return None
 
     def _check_for_max_iterations(self, session, organisation_id, agent_config, agent_execution_id):
