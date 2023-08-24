@@ -101,7 +101,7 @@ class HuggingFace(BaseLlm):
 
             return {"response": completion, "content": content}
         except Exception as exception:
-            logger.error("HF Exception:", exception)
+            logger.error(f"HF Exception: {exception}")
             return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception", "details": exception}
 
     def verify_end_point(self):
