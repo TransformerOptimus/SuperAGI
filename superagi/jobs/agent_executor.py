@@ -8,6 +8,8 @@ from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
 from superagi.apm.event_handler import EventHandler
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
+from superagi.llms.hugging_face import HuggingFace
+from superagi.llms.replicate import Replicate
 from superagi.llms.llm_model_factory import get_model
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
@@ -110,6 +112,10 @@ class AgentExecutor:
             return OpenAiEmbedding(api_key=model_api_key)
         if "Google" in model_source:
             return GooglePalm(api_key=model_api_key)
+        if "Hugging" in model_source:
+            return HuggingFace(api_key=model_api_key)
+        if "Replicate" in model_source:
+            return Replicate(api_key=model_api_key)
         return None
 
     def _check_for_max_iterations(self, session, organisation_id, agent_config, agent_execution_id):

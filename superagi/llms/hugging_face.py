@@ -93,6 +93,7 @@ class HuggingFace(BaseLlm):
             }
             response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload))
             completion = json.loads(response.content.decode("utf-8"))
+            logger.info(f"{completion=}")
             if self.task == Tasks.TEXT_GENERATION:
                 content = completion[0]["generated_text"]
             else:
@@ -100,7 +101,7 @@ class HuggingFace(BaseLlm):
 
             return {"response": completion, "content": content}
         except Exception as exception:
-            # logger.info("HF Exception:", exception)
+            logger.error("HF Exception:", exception)
             return {"error": "ERROR_HUGGINGFACE", "message": "HuggingFace Inference exception", "details": exception}
 
     def verify_end_point(self):
