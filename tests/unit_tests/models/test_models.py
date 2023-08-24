@@ -164,7 +164,7 @@ def test_store_model_details_when_model_not_exists(mock_session, monkeypatch):
     )
 
     # Assert
-    assert response == {"success": "Model Details stored successfully"}
+    assert response == {"success": "Model Details stored successfully", "model_id": None}
     mock_session.add.assert_called_once()
     mock_session.commit.assert_called_once()
 
