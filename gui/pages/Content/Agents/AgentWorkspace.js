@@ -51,6 +51,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   const [agentScheduleDetails, setAgentScheduleDetails] = useState(null)
 
   const [publishModal, setPublishModal] = useState(false);
+  const [publishModalState, setPublishModalState] = useState(false);
 
   const closeCreateModal = () => {
     setCreateModal(false);
@@ -64,9 +65,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   };
 
   const handlePublishToMarketplace =() => {
+    if(agent?.is_scheduled && agentExecutions?.length < 1){
+      setDropdown(false)
+      setPublishModalState(true)
+      setPublishModal(true)
+      return;
+    }
     publishToMarketplace(selectedRun?.id)
       .then((response) => {
         setDropdown(false)
+        setPublishModalState(false)
         setPublishModal(true)
     })
       .catch((error) => {
@@ -399,7 +407,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 }}>Delete Run</li>}
                 {selectedRun && <div className={styles.dropdown_separator}/>}
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
-                {agent && !agent?.is_running && agentExecutions && agentExecutions.length > 0 &&
+                {agent &&
                   <li className="dropdown_item" onClick={() => {
                     handlePublishToMarketplace()
                   }}>Publish to marketplace</li>}
@@ -608,12 +616,12 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
       {publishModal && (<div className="modal" onClick={() => {setPublishModal(false)}}>
         <div className="modal-content w_35" onClick={preventDefault}>
-          <div className={styles.detail_name}>Template submitted successfully!</div>
+          {publishModalState ? <div className={styles.detail_name}>Run the agent at least once to publish!</div> : <div className={styles.detail_name}>Template submitted successfully!</div>}
           <div>
-            <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
+            {!publishModalState ? <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
               <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
                 #agent-templates-submission
-              </a> channel.</label>
+              </a> channel.</label> : <label className={styles.form_label}>Before publishing your agent to the marketplace, you need to run it at least once. To do this, click the 'New Run' button (on the agent screen). Once the agent has run successfully, you can proceed to try publishing your template.</label>}
           </div>
           <div className={styles.modal_buttons}>
             <button className="primary_button" onClick={() => {setPublishModal(false)}}>
