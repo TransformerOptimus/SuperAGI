@@ -1,7 +1,7 @@
 spec:
   name: sample-dockerfile
   services:
-  - dockerfile_path: ./gui/Dockerfile
+  - dockerfile_path: ./gui/DockerfileProd
     source_dir: ./gui
     git:
       branch: main
