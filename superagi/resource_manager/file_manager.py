@@ -66,16 +66,17 @@ class FileManager:
                                                                                                    self.agent_execution_id))
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
-        
+
         try:
             self.save_file_by_type(file_name=file_name, file_path=final_path, content=content)
         except Exception as err:
             return f"Error write_file: {err}"
+
+        logger.info(f"{file_name} - File written successfully")
         
         if return_file_path:
             return final_path
-        else:
-            return f"{file_name} - File written successfully"
+        return f"{file_name} - File written successfully"
         
     def write_csv_file(self, file_name: str, final_path: str, csv_data) -> str:
         try:
