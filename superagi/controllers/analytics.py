@@ -3,6 +3,7 @@ from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.apm.analytics_helper import AnalyticsHelper
 from superagi.apm.event_handler import EventHandler
 from superagi.apm.tools_handler import ToolsHandler
+from superagi.apm.knowledge_handler import KnowledgeHandler
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 import logging
@@ -59,3 +60,39 @@ def get_tools_used(organisation=Depends(get_user_organisation)):
     except Exception as e:
         logging.error(f"Error while calculating tool usage: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/tools/usage", status_code=200)
+def get_tool_usage(organisation=Depends(get_user_organisation)):
+    try: 
+        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_wise_usage()
+    except Exception as e:
+        logging.error(f"Error while getting the tools' usage details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/knowledge/usage", status_code=200)
+def get_knowledge_usage(organisation=Depends(get_user_organisation)):
+    try: 
+        return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_usage()
+    except Exception as e:
+        logging.error(f"Error while getting the knowledge usage details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/tools/{tool_name}/logs", status_code=200)
+def get_tool_logs(tool_name: str, organisation=Depends(get_user_organisation)):
+    try: 
+        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_logs_by_tool_name(tool_name)
+    except Exception as e:
+        logging.error(f"Error while getting tool log details: {str(e)}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+
+@router.get("/knowledge/{knowledge_name}/logs", status_code=200)
+def get_knowledge_logs(knowledge_name: str, organisation=Depends(get_user_organisation)):
+    try: 
+        return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_logs_by_name(knowledge_name)
+    except Exception as e:
+        logging.error(f"Error while getting tool log details: {str(e)}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
