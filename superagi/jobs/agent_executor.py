@@ -60,9 +60,11 @@ class AgentExecutor:
             model_api_key = model_config['api_key']
             model_llm_source = model_config['provider']
             try:
-                vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
-                memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
-                                                          AgentExecutor.get_embedding(model_llm_source, model_api_key))
+                memory = None
+                if "OpenAI" in model_llm_source:
+                    vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
+                    memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
+                                                              AgentExecutor.get_embedding(model_llm_source, model_api_key))
             except Exception as e:
                 logger.info(f"Unable to setup the connection...{e}")
                 memory = None
