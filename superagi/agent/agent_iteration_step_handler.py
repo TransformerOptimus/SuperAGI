@@ -41,6 +41,9 @@ class AgentIterationStepHandler:
         self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
+        import time
+        start = time.perf_counter()
+
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
@@ -71,7 +74,11 @@ class AgentIterationStepHandler:
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+
+        start_time1 = time.perf_counter()
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+        stop_time1 = time.perf_counter()
+        print(f"Execution time of chat_completion: {stop_time1 - start_time1} seconds")
 
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
@@ -84,6 +91,7 @@ class AgentIterationStepHandler:
                                             agent_execution_id=self.agent_execution_id,
                                             agent_config=agent_config, agent_tools=agent_tools)
         response = output_handler.handle(self.session, assistant_reply)
+
         if response.status == "COMPLETE":
             execution.status = "COMPLETED"
             self.session.commit()
@@ -105,6 +113,9 @@ class AgentIterationStepHandler:
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
+
+        end = time.perf_counter()
+        print(f"Execution time of execute_step: {end - start} seconds")
 
     def _update_agent_execution_next_step(self, execution, next_step_id, step_response: str = "default"):
         if next_step_id == -1:

@@ -312,6 +312,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
+        <button onClick={fetchAgents} style={{color:'white', backgroundColor:'black'}}>Refresh</button>
         {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}

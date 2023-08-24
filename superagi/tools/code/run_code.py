@@ -49,5 +49,5 @@ class RunCodeTool(BaseTool):
             # Error occurred
             return f"An error occurred while running the script:\n\n{result.stderr}"
         else:
-            return result.stdout
+            return f"Result of running {file_name} : {result.stdout}"
         # Run the python code

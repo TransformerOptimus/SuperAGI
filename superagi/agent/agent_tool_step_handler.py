@@ -32,40 +32,88 @@ class AgentToolStepHandler:
         self.agent_id = agent_id
         self.memory = memory
 
+    import time
+
     def execute_step(self):
+        import time
+        start_time = time.perf_counter()
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
+        print(f'Time taken for get_agent_execution_from_id: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
+        print(f'Time taken for find_by_id: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
+        print(f'Time taken for find_by_id in step_tool: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
+        print(f'Time taken for fetch_configuration: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
         # print(agent_execution_config)
+        print(f'Time taken for fetch_configuration in agent_execution_config: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
 
         if not self._handle_wait_for_permission(execution, workflow_step):
             return
 
         if step_tool.tool_name == "TASK_QUEUE":
-            step_response = QueueStepHandler(self.session, self.llm, self.agent_id, self.agent_execution_id).execute_step()
+            step_response = QueueStepHandler(self.session, self.llm, self.agent_id,
+                                             self.agent_execution_id).execute_step()
+            print(f'Time taken for execute_step in Task Queue: {time.perf_counter() - start_time}')
+            start_time = time.perf_counter()
+
             next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+            print(f'Time taken for fetch_next_step: {time.perf_counter() - start_time}')
+            start_time = time.perf_counter()
+
             self._handle_next_step(next_step)
+            print(f'Time taken for _handle_next_step: {time.perf_counter() - start_time}')
+            start_time = time.perf_counter()
             return
 
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
             self._create_permission_request(execution, step_tool)
+            print(f'Time taken for _create_permission_request: {time.perf_counter() - start_time}')
+            start_time = time.perf_counter()
             return
 
         assistant_reply = self._process_input_instruction(agent_config, agent_execution_config, step_tool,
                                                           workflow_step)
+        print(f'Time taken for _process_input_instruction: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
+        print(f'Time taken for _build_tool_obj: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, [tool_obj],
                                                 output_parser=AgentSchemaToolOutputParser())
         final_response = tool_output_handler.handle(self.session, assistant_reply)
+        print(f'Time taken for handle: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         step_response = "default"
         if step_tool.output_instruction:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
+        print(f'Time taken for _process_output_instruction: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
 
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+        print(f'Time taken for fetch_next_step II: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         self._handle_next_step(next_step)
+        print(f'Time taken for _handle_next_step II: {time.perf_counter() - start_time}')
+        start_time = time.perf_counter()
+
         self.session.flush()
+        print(f'Time taken for session flush: {time.perf_counter() - start_time}')
+
 
     def _create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):
         new_agent_execution_permission = AgentExecutionPermission(

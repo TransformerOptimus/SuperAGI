@@ -104,6 +104,7 @@ def get_tool_ids(tool_names: list) -> list:
 def run_specific_agent(task: str) -> None:
     # create and start the agent here and dynamically pass in the task
     # must have File Toolkit, Search Toolkit minimum
+    start1_time = time.perf_counter()
     import yaml
     config_data = {}
     if os.path.exists("config.yaml"):
@@ -111,7 +112,7 @@ def run_specific_agent(task: str) -> None:
             config_data = yaml.safe_load(file)
     org_id, project_id = setup(config_data)
 
-    list_of_tools = ['Read File', 'Write File', 'WebScraperTool', "CodingTool", "DuckDuckGoSearch"]
+    list_of_tools = ['Read File', 'Write File', 'WebScraperTool', "CodingTool", "RunCodeTool", "DuckDuckGoSearch"]
     list_of_tool_ids = get_tool_ids(list_of_tools)
     headers = {"Content-Type": "application/json"}
 
@@ -125,7 +126,7 @@ def run_specific_agent(task: str) -> None:
         ],
         'agent_workflow': 'Goal Based Workflow',
         'instruction': [
-            'Please fulfill the goals you are given to the best of your ability. Make sure to output relevant information into the workspace.'],
+            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .'],
         'constraints': [
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
             "Ensure the tool and args are as per current plan and reasoning",
@@ -156,6 +157,9 @@ def run_specific_agent(task: str) -> None:
         "PUT", f"{baseUrl}/agentexecutions/update/{agent_execution_id}", headers=headers,
         data=json.dumps({'status': 'RUNNING'}))
 
+    stop_time = time.perf_counter()
+    print('time to agent start', stop_time-start1_time)
+
     with open("agbenchmark/config.json", "r") as f:
         config = json.load(f)
 
@@ -163,7 +167,7 @@ def run_specific_agent(task: str) -> None:
     print(response.json(), 'response')
     response = response.json()
 
-    output_path = f"workspace/output/"
+    output_path = f"workspace/input/"
     input_path = f"workspace/input/"
     config["workspace"]["output"] = output_path
     config["workspace"]["input"] = input_path
