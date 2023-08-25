@@ -23,18 +23,18 @@ spec:
   - key: DB_USER
     value: superagi
   - key: DB_PASSWORD
-    value: password
+    value: ${super-agi-main.PASSWORD}
   - key: DB_NAME
     value: super-agi-main
   - key: POSTGRES_URL
-    value: ${superagi--postgres.POSTGRES_URL}
+    value: ${super-agi-main.DATABASE_URL}
 #  - key: REDIS_URL
 #    value: ${superagi--redis.REDIS_URL}
 
   databases:
-  - name: superagi--postgres
+  - name: super-agi-main
     db_user: superagi
-    db_name: super_agi_main
+    db_name: super-agi-main
     engine: PG
     # db_password: password
   
