@@ -33,7 +33,7 @@ spec:
 
   databases:
   - name: super-agi-main
-    db_user: superagi
+#    db_user: superagi
     db_name: super-agi-main
     engine: PG
     # db_password: password
