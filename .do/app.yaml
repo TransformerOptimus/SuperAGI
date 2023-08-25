@@ -24,7 +24,7 @@ envs:
 - key: DB_USER
   value: superagi
 - key: DB_PASSWORD
-  value: ${super-agi-main.PASSWORD}
+  value: password
 - key: DB_NAME
   value: super-agi-main
 - key: POSTGRES_URL
