@@ -47,14 +47,12 @@ class AgentExecutionFeed(DBBaseModel):
             AgentExecutionFeed.role == "system").order_by(AgentExecutionFeed.created_at.desc()).all()
 
         for agent_execution_feed in agent_execution_feeds:
-            if tool_name and not agent_execution_feed.feed.startswith(
-                f"Tool {tool_name}"
-            ):
+            if tool_name and not agent_execution_feed.feed.startswith("Tool " + tool_name):
                 continue
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
         return ""
-    
+
     @classmethod
     def fetch_agent_execution_feeds(cls, session, agent_execution_id: int):
         agent_execution = AgentExecution.find_by_id(session, agent_execution_id)
@@ -68,4 +66,3 @@ class AgentExecutionFeed(DBBaseModel):
             return agent_feeds
         else:
             return agent_feeds[2:]
-        

@@ -11,7 +11,7 @@ class ToolResponseQueryManager:
 
     def get_last_response(self, tool_name: str = None):
         return AgentExecutionFeed.get_last_tool_response(self.session, self.agent_execution_id, tool_name)
-      
+    
     def get_relevant_response(self, query: str,metadata:dict, top_k: int = 5):
         documents = self.memory.get_matching_text(query, metadata=metadata)
         relevant_responses = ""
