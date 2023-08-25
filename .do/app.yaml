@@ -1,4 +1,4 @@
-name: sample-dockerfile
+name: sample-agi-main
 services:
 - dockerfile_path: DockerfileProd
   source_dir: ./gui
