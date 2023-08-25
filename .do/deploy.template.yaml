@@ -1,45 +1,45 @@
 spec:
   name: superagi
   services:
-  - dockerfile_path: DockerfileProd
-    source_dir: ./gui
-    git:
-      branch: main
-      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
-    http_port: 3000
-    name: sample-gui
-  
-#  - dockerfile_path: Dockerfile
-#    source_dir: ./
+#  - dockerfile_path: DockerfileProd
+#    source_dir: ./gui
 #    git:
 #      branch: main
-#      repo_clone_url: https://github.com/TranshformerOptimus/SuperAGI.git
-#    http_port: 8001
-#    routes:
-#      - path: /api
-#    name: sample-backend
-#
-#  envs:
-#  - key: DB_USER
-#    value: superagi
-#  - key: DB_PASSWORD
-#    value: ${super-agi-main.PASSWORD}
-#  - key: DB_NAME
-#    value: super-agi-main
-#  - key: POSTGRES_URL
-#    value: ${super-agi-main.DATABASE_URL}
-##  - key: REDIS_URL
-##    value: ${superagi--redis.REDIS_URL}
-#
-#  databases:
-#  - name: super-agi-main
-##    db_user: superagi
-#    db_name: super-agi-main
-#    engine: PG
-#    # db_password: password
-#
-##  - name: superagi--redis
-##    engine: REDIS
-##    production: true
-##    cluster_name: superagi--redis
-#
+#      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+#    http_port: 3000
+#    name: sample-gui
+  
+  - dockerfile_path: Dockerfile
+    source_dir: ./
+    git:
+      branch: main
+      repo_clone_url: https://github.com/TranshformerOptimus/SuperAGI.git
+    http_port: 8001
+    routes:
+      - path: /api
+    name: sample-backend
+
+  envs:
+  - key: DB_USER
+    value: superagi
+  - key: DB_PASSWORD
+    value: ${super-agi-main.PASSWORD}
+  - key: DB_NAME
+    value: super-agi-main
+  - key: POSTGRES_URL
+    value: ${super-agi-main.DATABASE_URL}
+#  - key: REDIS_URL
+#    value: ${superagi--redis.REDIS_URL}
+
+  databases:
+  - name: super-agi-main
+#    db_user: superagi
+    db_name: super-agi-main
+    engine: PG
+    # db_password: password
+
+#  - name: superagi--redis
+#    engine: REDIS
+#    production: true
+#    cluster_name: superagi--redis
+
