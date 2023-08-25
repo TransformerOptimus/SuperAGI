@@ -20,12 +20,12 @@ spec:
     name: sample-backend
   
   envs:
-  - key: POSTGRES_USER
+  - key: DB_USER
     value: superagi
-  - key: POSTGRES_PASSWORD
+  - key: DB_PASSWORD
     value: password
-  - key: POSTGRES_DB
-    value: super_agi_main
+  - key: DB_NAME
+    value: super-agi-main
   - key: POSTGRES_URL
     value: ${superagi--postgres.POSTGRES_URL}
 #  - key: REDIS_URL
