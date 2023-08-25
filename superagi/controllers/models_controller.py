@@ -100,6 +100,15 @@ async def fetch_data(request: ModelName, organisation=Depends(get_user_organisat
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.get("/validate_or_add_gpt_models", status_code=200)
+async def validate_or_add_gpt_models(model: str = None, organisation=Depends(get_user_organisation)):
+    try:
+        return Models.validate_model_in_db(db.session, organisation.id, model)
+    except Exception as e:
+        logging.error(f"Error Validating or Adding GPT Models: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @router.get("/get/list", status_code=200)
 def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation)):
     """

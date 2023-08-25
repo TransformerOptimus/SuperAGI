@@ -201,3 +201,30 @@ class Models(DBBaseModel):
         except Exception as e:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
+
+    @classmethod
+    def validate_model_in_db(cls, session, organisation_id, model):
+        try:
+            from superagi.models.models_config import ModelsConfig
+            models = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032,
+                          "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184, "gpt-4-32k": 32768}
+
+            model_config = session.query(Models).filter(Models.model_name == model,
+                                                        Models.org_id == organisation_id).first()
+            if model_config is None:
+                model_provider = session.query(ModelsConfig).filter(ModelsConfig.provider == "OpenAI",
+                                                                    ModelsConfig.org_id == organisation_id).first()
+
+                if model_provider is None:
+                    return {"error": "Model not found and the API Key is missing"}
+                else:
+                    result = cls.store_model_details(session, organisation_id, model, model,'',
+                                                     model_provider.id, models[model], 'Custom', '')
+                    if result is not None:
+                        return {"success": "Model was not Installed, so I have dont it for you"}
+
+            else:
+                return {"success": "Model is found"}
+
+        except Exception as e:
+            logging.error(f"Unexpected Error occurred while Validating GPT Models: {e}")

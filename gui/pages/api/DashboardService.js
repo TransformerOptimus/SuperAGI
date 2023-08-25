@@ -363,3 +363,8 @@ export const fetchMarketPlaceModel = () => {
   return api.get(`/models_controller/get/list`)
 }
 
+export const validateOrAddModels = (model) => {
+  return api.get(`/models_controller/validate_or_add_gpt_models`, {
+    params: { model }
+  });
+}
