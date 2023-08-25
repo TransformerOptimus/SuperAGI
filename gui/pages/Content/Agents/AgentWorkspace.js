@@ -405,7 +405,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
                 }}>Delete Run</li>}
-                {selectedRun && <div className={styles.dropdown_separator}/>}
+                {agentExecutions && selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'RUNNING' || agentExecutions.length > 1) && <div className={styles.dropdown_separator}/>}
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {agent && env === 'PROD' &&
                   <li className="dropdown_item" onClick={() => {
