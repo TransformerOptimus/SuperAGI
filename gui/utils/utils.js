@@ -25,7 +25,8 @@ const toolkitData = {
   'Instagram Toolkit': '/images/instagram.png',
   'Knowledge Search Toolkit': '/images/knowledeg_logo.png',
   'Notion Toolkit': '/images/notion_logo.png',
-  'ApolloToolkit': '/images/apollo_logo.png'
+  'ApolloToolkit': '/images/apollo_logo.png',
+  'Google Analytics Toolkit': '/images/google_analytics_logo.png'
 };
 
 export const getUserTimezone = () => {
