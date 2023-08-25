@@ -1,52 +1,69 @@
-import sys
-import requests
 import json
-import time
 import os
+import sys
+import time
+
+import requests
 
 baseUrl = "http://localhost:3000/api"
 
 
-def setup(config_data: dict) -> tuple[int, int]:
+def create_superagi_api_key(name="Test API KEY") -> str:
+    headers = {"Content-Type": "application/json"}
+    create_api_key = requests.request("POST", f"{baseUrl}/api/api-keys",
+                                      data=json.dumps({"name": name}), headers=headers)
+    if create_api_key.status_code != 200:
+        raise Exception("Error creating API key")
+    return create_api_key.json()['api_key']
+
+
+def setup(config_data: dict) -> str:
     # check if organization exists
     headers = {"Content-Type": "application/json"}
 
-    organisation = requests.request("GET", f"{baseUrl}/organisations/get/1")
-    if organisation.status_code != 200:
-        organisation = requests.request(
-            "POST", f"{baseUrl}/organisations/add",
-            data=json.dumps({"name": "Test Organization", "description": "Test Organization"}),
-            headers=headers
-        )
-        if organisation.status_code != 200:
-            print("Error creating organization")
-            sys.exit(1)
+    superagi_api_key = config_data.get('SUPERAGI_API_KEY', os.getenv('SUPERAGI_API_KEY'))
+    org_id = 1
+    if superagi_api_key is None:
+        try:
+            superagi_api_key = create_superagi_api_key()
+        except Exception:
+            organisation = requests.request("GET", f"{baseUrl}/organisations/get/1")
+            if organisation.status_code != 200:
+                organisation = requests.request(
+                    "POST", f"{baseUrl}/organisations/add",
+                    data=json.dumps({"name": "Test Organization", "description": "Test Organization"}),
+                    headers=headers
+                )
+                if organisation.status_code != 200:
+                    print("Error creating organization")
+                    sys.exit(1)
 
-    org_id = organisation.json()['id']
+            org_id = organisation.json()['id']
 
-    user = requests.request("GET", f"{baseUrl}/users/get/1")
-    if user.status_code != 200:
-        user = requests.request(
-            "POST", f"{baseUrl}/users/add",
-            data=json.dumps({"name": "Test User", "email": "super6@agi.com", "password": "dummypass", "organisation_id": org_id}),
-            headers=headers)
-        if user.status_code != 201:
-            print("Error creating user")
-            sys.exit(1)
+            user = requests.request("GET", f"{baseUrl}/users/get/1")
+            if user.status_code != 200:
+                user = requests.request(
+                    "POST", f"{baseUrl}/users/add",
+                    data=json.dumps({"name": "Test User", "email": "super6@agi.com", "password": "dummypass",
+                                     "organisation_id": org_id}),
+                    headers=headers)
+                if user.status_code != 201:
+                    print("Error creating user")
+                    sys.exit(1)
 
-    # check if project exists
-    project = requests.request("GET", f"{baseUrl}/projects/get/1")
-    if project.status_code != 200:
-        project = requests.request(
-            "POST", f"{baseUrl}/projects/add",
-            data=json.dumps({"name": "Test Project", "description": "Test Project", "organization_id": 1}),
-            headers=headers
-        )
-        if project.status_code != 200:
-            print("Error creating project")
-            sys.exit(1)
+            # check if project exists
+            project = requests.request("GET", f"{baseUrl}/projects/get/1")
+            if project.status_code != 200:
+                project = requests.request(
+                    "POST", f"{baseUrl}/projects/add",
+                    data=json.dumps({"name": "Test Project", "description": "Test Project", "organization_id": 1}),
+                    headers=headers
+                )
+                if project.status_code != 200:
+                    print("Error creating project")
+                    sys.exit(1)
 
-    project_id = project.json()['id']
+            superagi_api_key = create_superagi_api_key()
 
     openai_key = config_data.get('OPENAI_API_KEY', os.getenv('OPENAI_API_KEY'))
 
@@ -89,7 +106,7 @@ def setup(config_data: dict) -> tuple[int, int]:
         json=json_data,
     )
 
-    return org_id, project_id
+    return superagi_api_key
 
 
 def get_tool_ids(tool_names: list) -> list:
@@ -101,6 +118,7 @@ def get_tool_ids(tool_names: list) -> list:
             tool_ids.append(tool['id'])
     return tool_ids
 
+
 def run_specific_agent(task: str) -> None:
     # create and start the agent here and dynamically pass in the task
     # must have File Toolkit, Search Toolkit minimum
@@ -110,16 +128,30 @@ def run_specific_agent(task: str) -> None:
     if os.path.exists("config.yaml"):
         with open("config.yaml", "r") as file:
             config_data = yaml.safe_load(file)
-    org_id, project_id = setup(config_data)
+    superagi_api_key = setup(config_data)
+    tools = [
+        {
+            "name": "File Toolkit",
+            "tools": ["Read File", "Write File"]
+        },
+        {
+            "name": "Web Scrapper Toolkit",
+            "tools": ["WebScraperTool"]
+        },
+        {
+            "name": "DuckDuckGo Search Toolkit",
+            "tools": ["DuckDuckGoSearch"]
+        },
+        {
+            "name": "CodingToolkit",
+            "tools": ["CodingTool", "RunCodeTool"]
+        }
+    ]
 
-    list_of_tools = ['Read File', 'Write File', 'WebScraperTool', "CodingTool", "RunCodeTool", "DuckDuckGoSearch"]
-    list_of_tool_ids = get_tool_ids(list_of_tools)
-    headers = {"Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json", "X-API-Key": superagi_api_key}
 
     payload = {
-        'status': 'Running',
         'name': 'agent',
-        'project_id': project_id,
         'description': 'AI assistant to solve complex problems',
         'goal': [
             f"{task}"
@@ -133,32 +165,24 @@ def run_specific_agent(task: str) -> None:
             "Exclusively use the tools listed under 'TOOLS'",
             "REMEMBER to format your response as JSON, using double quotes ("") around keys and string values, and commas (,) to separate items in arrays and objects. IMPORTANTLY, to use a JSON object as a string in another JSON object, you need to escape the double quotes.",
         ],
-        'toolkits': [],
-        'tools': list_of_tool_ids,
+        'tools': tools,
         'exit': 'No exit criterion',
         'iteration_interval': 500,
         'model': 'gpt-4',
         'max_iterations': 25,
-        'permission_type': 'God Mode',
-        'LTM_DB': 'Pinecone',
-        'user_timezone': 'Asia/Kolkata',
-        'knowledge': None,
     }
 
     response = requests.request(
-        "POST", f"{baseUrl}/agents/create", headers=headers, data=json.dumps(payload)
+        "POST", f"{baseUrl}/v1/agent", headers=headers, data=json.dumps(payload)
     )
 
-    print(response.json())
+    agent_id = response.json()['agent_id']
 
-    agent_execution_id = response.json()['execution_id']
-    agent_id = response.json()['id']
-    _ = requests.request(
-        "PUT", f"{baseUrl}/agentexecutions/update/{agent_execution_id}", headers=headers,
-        data=json.dumps({'status': 'RUNNING'}))
+    response = requests.post(url=f"{baseUrl}/v1/agent/{agent_id}/run", headers=headers, json={})
+    agent_execution_id = response.json()['run_id']
 
     stop_time = time.perf_counter()
-    print('time to agent start', stop_time-start1_time)
+    print('time to agent start', stop_time - start1_time)
 
     with open("agbenchmark/config.json", "r") as f:
         config = json.load(f)
@@ -173,11 +197,16 @@ def run_specific_agent(task: str) -> None:
     config["workspace"]["input"] = input_path
 
     if "{agent_id}" in config_data.get("RESOURCES_INPUT_ROOT_DIR"):
-        config["workspace"]["input"] = config_data["RESOURCES_INPUT_ROOT_DIR"].replace("{agent_id}", "agent_"+str(agent_id))
+        config["workspace"]["input"] = config_data["RESOURCES_INPUT_ROOT_DIR"].replace("{agent_id}",
+                                                                                       "agent_" + str(agent_id))
 
     if "{agent_id}" in config_data.get("RESOURCES_OUTPUT_ROOT_DIR"):
-        config_data["RESOURCES_OUTPUT_ROOT_DIR"] = config_data["RESOURCES_OUTPUT_ROOT_DIR"].replace("{agent_id}", "agent_"+str(agent_id))
-        config["workspace"]["output"] = config_data["RESOURCES_OUTPUT_ROOT_DIR"].replace("{agent_execution_id}", "NewRun_"+str(agent_execution_id))
+        config_data["RESOURCES_OUTPUT_ROOT_DIR"] = config_data["RESOURCES_OUTPUT_ROOT_DIR"].replace("{agent_id}",
+                                                                                                    "agent_" + str(
+                                                                                                        agent_id))
+        config["workspace"]["output"] = config_data["RESOURCES_OUTPUT_ROOT_DIR"].replace("{agent_execution_id}",
+                                                                                         "NewRun_" + str(
+                                                                                             agent_execution_id))
 
     print(config, 'configerino')
     # config["workspace"]["output"] = os.path.join(
