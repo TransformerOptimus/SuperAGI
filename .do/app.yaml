@@ -10,6 +10,7 @@ services:
   name: sample-gui
 
 - dockerfile_path: Dockerfile
+  source_dir: /
   github:
     branch: main
     deploy_on_push: true
@@ -25,9 +26,9 @@ envs:
 - key: POSTGRES_DB
   value: super_agi_main
 - key: POSTGRES_URL
-  value: ${superagi__postgres.POSTGRES_URL}
+  value: ${superagi--postgres.POSTGRES_URL}
 - key: REDIS_URL
-  value: ${superagi__redis.REDIS_URL}
+  value: ${superagi--redis.REDIS_URL}
 
 databases:
 - name: superagi--postgres
