@@ -5,9 +5,13 @@ import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardServ
 import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
-export default function ModelForm(internalId){
-    const models = ['OpenAI','Replicate','Hugging Face','Google Palm'];
+export default function ModelForm({internalId, getModels, sendModelData}){
+    const models = [{'provider':'OpenAI','link':'https://platform.openai.com/account/api-keys'},
+        {'provider':'Replicate','link':'https://huggingface.co/settings/tokens'},
+        {'provider':'Hugging Face','link':'https://huggingface.co/settings/tokens'},
+        {'provider':'Google Palm','link':'https://developers.generativeai.google/products/palm'}];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
+    const [selectedLink, setSelectedLink] = useState('');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
@@ -40,7 +44,8 @@ export default function ModelForm(internalId){
     },[selectedModel])
 
     const handleModelSelect = async (index) => {
-        setSelectedModel(models[index])
+        setSelectedModel(models[index].provider)
+        setSelectedLink(models[index].link)
         setModelDropdown(false);
     }
 
@@ -66,7 +71,6 @@ export default function ModelForm(internalId){
             {
                 const modelProviderId = response.data[0].id
                 verifyEndPoint(response.data[0].api_key, modelEndpoint, selectedModel).then((response) =>{
-                    console.log(response)
                     if(response.data.success)
                         storeModelDetails(modelProviderId)
                     else{
@@ -80,16 +84,24 @@ export default function ModelForm(internalId){
         })
     }
 
+    const handleModelSuccess = (model) => {
+        model.contentType = 'Model'
+        sendModelData(model)
+    }
+
     const storeModelDetails = (modelProviderId) => {
         storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom", modelVersion).then((response) =>{
             setIsLoading(false)
-            if (response.data.error) {
-                toast.error(response.data.error,{autoClose: 1800});
-            } else if (response.data.success) {
-                toast.success(response.data.success,{autoClose: 1800});
+            let data = response.data
+            if (data.error) {
+                toast.error(data.error,{autoClose: 1800});
+            } else if (data.success) {
+                toast.success(data.success,{autoClose: 1800});
+                getModels()
+                handleModelSuccess({id: data.model_id, name: modelName})
             }
         }).catch((error) => {
-            console.log("SORRY, There was an error storing the model details" + error);
+            console.log("SORRY, There was an error storing the model details:", error);
             setIsLoading(false)
         });
     }
@@ -116,7 +128,7 @@ export default function ModelForm(internalId){
                     {modelDropdown && <div className="custom_select_options w_100" ref={modelRef}>
                         {models.map((model, index) => (
                             <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding: '12px 14px', maxWidth: '100%'}}>
-                                {model}
+                                {model.provider}
                             </div>))}
                     </div>}
                 </div>
@@ -128,7 +140,8 @@ export default function ModelForm(internalId){
                     <span className="text_12 color_white lh_16">The <b>{selectedModel}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{selectedModel}</b> dashboard. </span>
                     <div className="horizontal_container mt_16">
                         <button className="primary_button_small" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Add auth token</button>
-                        <button className="secondary_button_small ml_8">Get auth token</button>
+                        <button className="secondary_button_small ml_8"
+                                onClick={() => window.open(selectedLink, "_blank")}>Get auth token<Image src="/images/open_in_new.svg" alt="deploy_icon" width={12} height={12} className="ml_4" /></button>
                     </div>
                 </div>
             </div>}
@@ -148,7 +161,7 @@ export default function ModelForm(internalId){
             <div className="mt_24">
                 <span>Token Limit</span>
                 <input className="input_medium mt_8" type="number" placeholder="Enter Model Token Limit" value={modelTokenLimit}
-                       onChange={(event) => setModelTokenLimit(+event.target.value)}/>
+                       onChange={(event) => setModelTokenLimit(parseInt(event.target.value, 10))}/>
             </div>
 
             <div className="horizontal_container justify_end mt_24">

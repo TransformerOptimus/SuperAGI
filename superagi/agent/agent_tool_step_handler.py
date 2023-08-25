@@ -99,7 +99,8 @@ class AgentToolStepHandler:
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
         logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        messages = AgentLlmMessageBuilder(self.session, self.llm, self.agent_id, self.agent_execution_id) \
+        print(".........//////////////..........1")
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
         # print(messages)
@@ -114,13 +115,13 @@ class AgentToolStepHandler:
         return assistant_reply
 
     def _build_tool_obj(self, agent_config, agent_execution_config, tool_name: str):
-        model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
+        model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])['api_key']
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
         resource_summary = ""
         if tool_name == "QueryResourceTool":
             resource_summary = ResourceSummarizer(session=self.session,
                                                   agent_id=self.agent_id,
-                                                  model= agent_config["model"]).fetch_or_create_agent_resource_summary(
+                                                  model=agent_config["model"]).fetch_or_create_agent_resource_summary(
                 default_summary=agent_config.get("resource_summary"))
 
         organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)

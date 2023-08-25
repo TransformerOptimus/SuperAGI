@@ -135,7 +135,7 @@ def test_build_tool_obj(handler):
     agent_config = {"model": "model1", "resource_summary": "summary"}
     agent_execution_config = {}
     tool_name = "QueryResourceTool"
-    model_api_key = "apikey"
+    model_api_key = {"provider":"provider","api_key":"apikey"}
     resource_summary = "summary"
     tool = Tool()
 

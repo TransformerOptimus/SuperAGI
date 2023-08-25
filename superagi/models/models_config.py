@@ -114,7 +114,15 @@ class ModelsConfig(DBBaseModel):
     @classmethod
     def fetch_model_by_id(cls, session, organisation_id, model_provider_id):
         model = session.query(ModelsConfig.provider).filter(ModelsConfig.id == model_provider_id,
-                                                                 ModelsConfig.org_id == organisation_id).first()
+                                                            ModelsConfig.org_id == organisation_id).first()
+        if model is None:
+            return {"error": "Model not found"}
+        else:
+            return {"provider": model.provider}
+
+    @classmethod
+    def fetch_model_by_id_marketplace(cls, session, model_provider_id):
+        model = session.query(ModelsConfig.provider).filter(ModelsConfig.id == model_provider_id).first()
         if model is None:
             return {"error": "Model not found"}
         else:
