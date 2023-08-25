@@ -1,5 +1,14 @@
 name: superagi
 services:
+- dockerfile_path: Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: TransformerOptimus/SuperAGI
+  http_port: 8001
+  routes:
+  - path: /api
+  name: sample-backend
 # - dockerfile_path: ./gui/DockerfileProd
 #   source_dir: ./gui
 #   github:
@@ -11,16 +20,15 @@ services:
 #   - path: /
 #   name: sample-gui
 
-- dockerfile_path: ./Dockerfile
-  source_dir: ./
-  github:
-    branch: main
-    deploy_on_push: true
-    repo: TransformerOptimus/SuperAGI
-  http_port: 8001
-  routes:
-  - path: /api/
-  name: sample-backend
+# - dockerfile_path: Dockerfile
+#   github:
+#     branch: main
+#     deploy_on_push: true
+#     repo: TransformerOptimus/SuperAGI
+#   http_port: 8001
+#   routes:
+#   - path: /api
+#   name: sample-backend
 
 # envs:
 # - key: DB_USER

@@ -1,6 +1,14 @@
 spec:
   name: superagi
   services:
+  - dockerfile_path: Dockerfile
+    git:
+      branch: main
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+    http_port: 8001
+    routes:
+    - path: /api
+    name: sample-backend
   # - dockerfile_path: ./gui/DockerfileProd
   #   source_dir: ./gui
   #   git:
@@ -11,14 +19,13 @@ spec:
   #   - path: /
   #   name: sample-gui
   
-  - dockerfile_path: ./Dockerfile
-    source_dir: ./
+  - dockerfile_path: Dockerfile
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 8001
     routes:
-    - path: /api/
+    - path: /api
     name: sample-backend
 
 #   envs:
