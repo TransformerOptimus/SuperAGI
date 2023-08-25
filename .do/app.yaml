@@ -16,6 +16,8 @@ services:
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
   http_port: 8001
+  routes:
+    - path: /api
   name: sample-backend
   
 envs:
