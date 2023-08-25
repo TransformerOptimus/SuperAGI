@@ -61,7 +61,7 @@ export default function Metrics() {
             </div>
               <div className="display_column_container mt_5">
                 <span className="text_14">Call Logs</span>
-                <div className="scrollable_container table_container" style={{background: 'none'}}>
+                {apiKeys.length > 0 ? <div className="scrollable_container table_container" style={{background: 'none'}}>
                   <table className="w_100 margin_0 padding_0">
                     <thead>
                     <tr className="border_top_none text_align_left" style={{borderBottom: 'none'}}>
@@ -88,7 +88,11 @@ export default function Metrics() {
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </div> :
+                  <div className="vertical_container align_center mt_70 w_100 mb_70">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No logs to show!</span>
+                  </div>}
           </div>
           </div>
           :  <div className="loading_container">
