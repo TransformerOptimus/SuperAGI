@@ -15,16 +15,28 @@ spec:
       repo_clone_url: https://github.com/TranshformerOptimus/SuperAGI.git
     http_port: 8001
     name: sample-backend
-    envs:
-    - key: POSTGRES_USER
-      value: superagi
-    - key: POSTGRES_PASSWORD
-      value: password
-    - key: POSTGRES_DB
-      value: super_agi_main
-    - key: POSTGRES_URL
-      value: ${superagi__postgres.POSTGRES_URL}
-      type: secret
-    - key: REDIS_URL
-      value: ${superagi__redis.REDIS_URL}
-      type: secret
+  
+  envs:
+  - key: POSTGRES_USER
+    value: superagi
+  - key: POSTGRES_PASSWORD
+    value: password
+  - key: POSTGRES_DB
+    value: super_agi_main
+  - key: POSTGRES_URL
+    value: ${superagi__postgres.POSTGRES_URL}
+    type: secret
+  - key: REDIS_URL
+    value: ${superagi__redis.REDIS_URL}
+    type: secret
+
+  databases:
+  - name: superagi__postgres
+    db_user: superagi
+    db_name: super_agi_main
+    engine: PG
+    # db_password: password
+  
+  - name: superagi__redis
+    engine: REDIS
+    
