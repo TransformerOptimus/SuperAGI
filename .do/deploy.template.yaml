@@ -40,4 +40,5 @@ spec:
   
   - name: superagi--redis
     engine: REDIS
+    production: true
     
