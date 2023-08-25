@@ -35,4 +35,4 @@ COPY --from=compile-image /root/nltk_data /root/nltk_data
 ENV PATH="/opt/venv/bin:$PATH"
 
 EXPOSE 8001
-CMD ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
+CMD ["/app/entrypoint.sh"]
