@@ -42,3 +42,4 @@ databases:
 - name: superagi--redis
   engine: REDIS
   production: true
+  cluster_name: superagi--redis
