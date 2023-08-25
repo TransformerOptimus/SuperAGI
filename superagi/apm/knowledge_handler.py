@@ -17,7 +17,7 @@ class KnowledgeHandler:
 
         knowledge_dict = {}
 
-        knowledge_data = self.session.query(Knowledges.id, Knowledges.name, Event.org_id == self.organisation_id).all()
+        knowledge_data = self.session.query(Knowledges.id, Knowledges.name).filter(Knowledges.organisation_id == self.organisation_id).all()
         for data in knowledge_data:
             knowledge_dict[str(data.id)] = data.name
 
