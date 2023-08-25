@@ -53,8 +53,7 @@ class SendEmailTool(BaseTool):
         signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
-        message.set_content(body)
-
+        message.set_content(body.replace('\\n', '\n'))
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":
             send_to_draft = True
