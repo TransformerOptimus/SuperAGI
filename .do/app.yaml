@@ -1,4 +1,4 @@
-name: sample-agi-main
+name: superagi
 services:
 - dockerfile_path: DockerfileProd
   source_dir: ./gui
