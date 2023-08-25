@@ -156,4 +156,6 @@ def get_output_handler(output_type: str, agent_execution_id: int, agent_config: 
         return ReplaceTaskOutputHandler(agent_execution_id, agent_config)
     elif output_type == "tasks":
         return TaskOutputHandler(agent_execution_id, agent_config)
+    elif output_type == "web_action":
+        return
     return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)

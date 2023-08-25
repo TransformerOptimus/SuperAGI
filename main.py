@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import requests
 from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,41 +13,40 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi
-from datetime import timedelta, datetime
 from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_execution import router as agent_execution_router
+from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
 from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
 from superagi.controllers.agent_template import router as agent_template_router
 from superagi.controllers.agent_workflow import router as agent_workflow_router
+from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.api_key import router as api_key_router
 from superagi.controllers.budget import router as budget_router
 from superagi.controllers.config import router as config_router
+from superagi.controllers.google_oauth import router as google_oauth_router
+from superagi.controllers.knowledge_configs import router as knowledge_configs_router
+from superagi.controllers.knowledges import router as knowledges_router
+from superagi.controllers.marketplace_stats import router as marketplace_stats_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
-from superagi.controllers.twitter_oauth import router as twitter_oauth_router
-from superagi.controllers.google_oauth import router as google_oauth_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.tool_config import router as tool_config_router
 from superagi.controllers.toolkit import router as toolkit_router
+from superagi.controllers.twitter_oauth import router as twitter_oauth_router
 from superagi.controllers.user import router as user_router
-from superagi.controllers.agent_execution_config import router as agent_execution_config
-from superagi.controllers.analytics import router as analytics_router
-from superagi.controllers.knowledges import router as knowledges_router
-from superagi.controllers.knowledge_configs import router as knowledge_configs_router
-from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.vector_db_indices import router as vector_db_indices_router
-from superagi.controllers.marketplace_stats import router as marketplace_stats_router
-from superagi.controllers.api_key import router as api_key_router
-from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.vector_dbs import router as vector_dbs_router
+from superagi.controllers.web_interactor import router as web_interactor_router
 from superagi.controllers.webhook import router as web_hook_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
-from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
@@ -53,7 +54,6 @@ from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyReq
 from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
-from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
 
 app = FastAPI()
 
@@ -120,6 +120,7 @@ app.include_router(marketplace_stats_router, prefix="/marketplace")
 app.include_router(api_key_router, prefix="/api-keys")
 app.include_router(api_agent_router, prefix="/v1/agent")
 app.include_router(web_hook_router, prefix="/webhook")
+app.include_router(web_interactor_router, prefix="/web_interactor")
 
 
 # in production you can use Settings management
@@ -367,6 +368,7 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
 
+
 @app.get('/get/github_client_id')
 def github_client_id():
     """Get GitHub Client ID"""
@@ -375,18 +377,6 @@ def github_client_id():
     if git_hub_client_id:
         git_hub_client_id = git_hub_client_id.strip()
     return {"github_client_id": git_hub_client_id}
-
-
-@app.get('/web_interactor/execution')
-def get_web_pending_execution():
-    """Get Web Pending Executions"""
-
-    pending_execution = db.session.query(AgentExecution).filter(AgentExecution.status == "FRONTEND_WAIT") \
-        .order_by(AgentExecution.created_at.desc()).first()
-    if pending_execution is None:
-        return {"agent_execution_id": None}
-    return {"agent_execution_id": pending_execution.id}
-
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
