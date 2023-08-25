@@ -8,3 +8,23 @@ spec:
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 3000
     name: sample-gui
+  
+  - dockerfile_path: Dockerfile
+    git:
+      branch: main
+      repo_clone_url: https://github.com/TranshformerOptimus/SuperAGI.git
+    http_port: 8001
+    name: sample-backend
+    envs:
+    - key: POSTGRES_USER
+      value: superagi
+    - key: POSTGRES_PASSWORD
+      value: password
+    - key: POSTGRES_DB
+      value: super_agi_main
+    - key: POSTGRES_URL
+      value: ${superagi__postgres.POSTGRES_URL}
+      type: secret
+    - key: REDIS_URL
+      value: ${superagi__redis.REDIS_URL}
+      type: secret

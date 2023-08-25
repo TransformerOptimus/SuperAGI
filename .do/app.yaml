@@ -8,3 +8,10 @@ services:
     repo: TransformerOptimus/SuperAGI
   http_port: 3000
   name: sample-gui
+
+- dockerfile_path: Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: TransformerOptimus/SuperAGI
+  http_port: 8001
