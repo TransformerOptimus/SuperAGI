@@ -28,16 +28,14 @@ envs:
 - key: DB_NAME
   value: super-agi-main
 - key: POSTGRES_URL
-  value: ${super-AGI-MAIN.DATABASE_URL}
+  value: ${super-agi-main.DATABASE_URL}
 #- key: REDIS_URL
 #  value: ${superagi--redis.REDIS_URL}
 
 databases:
 - name: super-agi-main
-#  db_user: superagi
   db_name: super-agi-main
   engine: PG
-  # db_password: password
 
 #- name: superagi--redis
 #  engine: REDIS
