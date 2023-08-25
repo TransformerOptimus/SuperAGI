@@ -161,7 +161,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
             <div className="mt_24">
                 <span>Token Limit</span>
                 <input className="input_medium mt_8" type="number" placeholder="Enter Model Token Limit" value={modelTokenLimit}
-                       onChange={(event) => setModelTokenLimit(+event.target.value)}/>
+                       onChange={(event) => setModelTokenLimit(parseInt(event.target.value, 10))}/>
             </div>
 
             <div className="horizontal_container justify_end mt_24">
