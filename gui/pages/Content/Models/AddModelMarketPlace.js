@@ -12,6 +12,14 @@ export default function AddModelMarketPlace(template){
     const [templateData, setTemplateData] = useState(template.template);
     const [isLoading, setIsLoading] = useState(false);
     const [providerId, setProviderId] = useState(1);
+    const [disableInstall, setDisableInstall] = useState(false);
+
+    useEffect(() => {
+        if(modelVersion === '' && modelEndpoint === '')
+            setDisableInstall(true)
+        else
+            setDisableInstall(false)
+    },[modelVersion, modelEndpoint])
 
     useEffect(()=>{
         console.log(templateData)
