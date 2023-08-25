@@ -1,4 +1,0 @@
-Now, you will be provided with few image path locations. You will have to attach the following images in appropriate locations inside the html code.  
-Remember to maintain the elegancy and styling of the User Interface generated. Make sure you attach all the images provided to you.
-
-The relevant paths of the images are provided below:
