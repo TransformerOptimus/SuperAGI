@@ -35,4 +35,5 @@ COPY --from=compile-image /root/nltk_data /root/nltk_data
 ENV PATH="/opt/venv/bin:$PATH"
 
 EXPOSE 8001
+
 CMD ["/app/entrypoint.sh"]
