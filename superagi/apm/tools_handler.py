@@ -83,7 +83,7 @@ class ToolsHandler:
         }
     
 
-    def get_tool_logs_by_tool_name(self, tool_name: str):
+    def get_tool_events_name(self, tool_name: str):
 
         is_tool_name_valid = self.session.query(Tool).filter_by(name=tool_name).first()
 
