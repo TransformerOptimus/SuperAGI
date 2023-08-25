@@ -1,6 +1,6 @@
 name: superagi
 services:
-- dockerfile_path: DockerfileProd
+- dockerfile_path: ./gui/DockerfileProd
   source_dir: ./gui
   github:
     branch: main
