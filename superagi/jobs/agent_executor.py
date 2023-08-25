@@ -83,8 +83,10 @@ class AgentExecutor:
                 return
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-            if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
-                logger.info("Agent Execution is completed or waiting for permission")
+            if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION" or \
+                    agent_execution.status == "FRONTEND_WAIT":
+                logger.info("Agent Execution is completed or waiting for permission or frontend wait. Stopping "
+                            "execution")
                 session.close()
                 return
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)

@@ -45,6 +45,7 @@ from superagi.helper.tool_helper import register_toolkits, register_marketplace_
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
@@ -53,6 +54,7 @@ from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
+
 app = FastAPI()
 
 database_url = get_config('POSTGRES_URL')
@@ -116,8 +118,9 @@ app.include_router(vector_dbs_router, prefix="/vector_dbs")
 app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
 app.include_router(marketplace_stats_router, prefix="/marketplace")
 app.include_router(api_key_router, prefix="/api-keys")
-app.include_router(api_agent_router,prefix="/v1/agent")
-app.include_router(web_hook_router,prefix="/webhook")
+app.include_router(api_agent_router, prefix="/v1/agent")
+app.include_router(web_hook_router, prefix="/webhook")
+
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
@@ -174,6 +177,7 @@ def replace_old_iteration_workflows(session):
             template.agent_workflow_id = agent_workflow.id
             session.commit()
 
+
 @app.on_event("startup")
 async def startup_event():
     # Perform startup tasks here
@@ -214,7 +218,7 @@ async def startup_event():
 
     # NOTE: remove old workflows. Need to remove this changes later
     workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
-     "Dynamic Task Workflow", "Fixed Task Workflow"]
+                 "Dynamic Task Workflow", "Fixed Task Workflow"]
     workflows = session.query(AgentWorkflow).filter(AgentWorkflow.name.not_in(workflows))
     for workflow in workflows:
         session.delete(workflow)
@@ -372,6 +376,17 @@ def github_client_id():
         git_hub_client_id = git_hub_client_id.strip()
     return {"github_client_id": git_hub_client_id}
 
+
+@app.get('/web_interactor/execution')
+def get_web_pending_execution():
+    """Get Web Pending Executions"""
+
+    pending_execution = db.session.query(AgentExecution).filter(AgentExecution.status == "FRONTEND_WAIT") \
+        .order_by(AgentExecution.created_at.desc()).first()
+    if pending_execution is None:
+        return {"agent_execution_id": None}
+    return {"agent_execution_id": pending_execution.id}
+
+
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-

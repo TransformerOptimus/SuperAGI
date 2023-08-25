@@ -93,7 +93,7 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     invalid_tools = Tool.get_invalid_tools(agent_with_config.tools, db.session)
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
         raise HTTPException(status_code=404,
-                           
+
                             detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
 
     agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
@@ -107,7 +107,8 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
 
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
-                               name="New Run", current_agent_step_id=start_step.id, iteration_workflow_step_id=iteration_step_id)
+                               name="New Run", current_agent_step_id=start_step.id,
+                               iteration_workflow_step_id=iteration_step_id)
 
     agent_execution_configs = {
         "goal": agent_with_config.goal,
@@ -130,16 +131,16 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
-    agent = db.session.query(Agent).filter(Agent.id == db_agent.id,  ).first()
+    agent = db.session.query(Agent).filter(Agent.id == db_agent.id).first()
     organisation = agent.get_agent_organisation(db.session)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,
-                                                                  'agent_execution_name':  execution.name}, db_agent.id,
-                                                 
+                                                                  'agent_execution_name': execution.name}, db_agent.id,
+
                                                   organisation.id if organisation else 0),
     EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name,
-                                                                   
+
                                                                     'model': agent_with_config.model}, db_agent.id,
-                                                 
+
                                                   organisation.id if organisation else 0)
 
     # execute_agent.delay(execution.id, datetime.now())
@@ -152,7 +153,6 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
         "name": db_agent.name,
         "contentType": "Agents"
     }
-
 
 
 @router.post("/schedule", status_code=201)
@@ -178,7 +178,7 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
     invalid_tools = Tool.get_invalid_tools(agent_config.tools, db.session)
     if len(invalid_tools) > 0:  # If the returned value is not True (then it is an invalid tool_id)
         raise HTTPException(status_code=404,
-                           
+
                             detail=f"Tool with IDs {str(invalid_tools)} does not exist. 404 Not Found.")
 
     agent_toolkit_tools = Toolkit.fetch_tool_ids_from_toolkit(session=db.session,
@@ -212,8 +212,8 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
     organisation = agent.get_agent_organisation(db.session)
 
     EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_config.name,
-                                                                        'model': agent_config.model}, db_agent.id,
-                                                      organisation.id if organisation else 0)
+                                                                    'model': agent_config.model}, db_agent.id,
+                                                  organisation.id if organisation else 0)
 
     db.session.commit()
 
@@ -223,7 +223,6 @@ def create_and_schedule_agent(agent_config_schedule: AgentConfigSchedule,
         "contentType": "Agents",
         "schedule_id": agent_schedule.id
     }
-
 
 
 @router.post("/stop/schedule", status_code=200)
@@ -262,8 +261,9 @@ def edit_schedule(schedule: AgentScheduleInput,
         HTTPException (status_code=404): If the agent schedule is not found.
     """
 
-    agent_to_edit = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == schedule.agent_id, AgentSchedule.status == "SCHEDULED").first()
-                        
+    agent_to_edit = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == schedule.agent_id,
+                                                           AgentSchedule.status == "SCHEDULED").first()
+
     if not agent_to_edit:
         raise HTTPException(status_code=404, detail="Schedule not found")
 
@@ -342,7 +342,9 @@ def get_agents_by_project_id(project_id: int,
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    agents = db.session.query(Agent).filter(Agent.project_id == project_id, or_(or_(Agent.is_deleted == False, Agent.is_deleted is None), Agent.is_deleted is None)).all()
+    agents = db.session.query(Agent).filter(Agent.project_id == project_id,
+                                            or_(or_(Agent.is_deleted == False, Agent.is_deleted is None),
+                                                Agent.is_deleted is None)).all()
 
     new_agents, new_agents_sorted = [], []
     for agent in agents:
@@ -358,8 +360,8 @@ def get_agents_by_project_id(project_id: int,
                 is_running = True
                 break
         # Check if the agent is scheduled
-        is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id, status="SCHEDULED").first() is not None
-                                                                 
+        is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
+                                                                 status="SCHEDULED").first() is not None
 
         new_agent = {
             **agent_dict,
@@ -391,8 +393,9 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
     db_agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     db_agent_executions = db.session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id).all()
-    db_agent_schedule = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id, AgentSchedule.status == "SCHEDULED").first()
-    
+    db_agent_schedule = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id,
+                                                               AgentSchedule.status == "SCHEDULED").first()
+
     if not db_agent or db_agent.is_deleted:
         raise HTTPException(status_code=404, detail="agent not found")
 
@@ -406,5 +409,5 @@ def delete_agent(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     if db_agent_schedule:
         # Updating the schedule status to STOPPED
         db_agent_schedule.status = "STOPPED"
-    
+
     db.session.commit()
