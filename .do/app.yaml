@@ -10,7 +10,7 @@ services:
   name: sample-gui
 
 - dockerfile_path: Dockerfile
-  source_dir: /
+  source_dir: ./
   github:
     branch: main
     deploy_on_push: true
