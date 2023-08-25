@@ -29,8 +29,8 @@ envs:
   value: super_agi_main
 - key: POSTGRES_URL
   value: ${superagi--postgres.POSTGRES_URL}
-- key: REDIS_URL
-  value: ${superagi--redis.REDIS_URL}
+#- key: REDIS_URL
+#  value: ${superagi--redis.REDIS_URL}
 
 databases:
 - name: superagi--postgres
@@ -39,7 +39,7 @@ databases:
   engine: PG
   # db_password: password
   
-- name: superagi--redis
-  engine: REDIS
-  production: true
-  cluster_name: superagi--redis
+#- name: superagi--redis
+#  engine: REDIS
+#  production: true
+#  cluster_name: superagi--redis
