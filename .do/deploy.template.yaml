@@ -13,7 +13,7 @@ spec:
     source_dir: ./
     git:
       branch: main
-      repo_clone_url: https://github.com/TranshformerOptimus/SuperAGI.git
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 8001
     routes:
       - path: /api
