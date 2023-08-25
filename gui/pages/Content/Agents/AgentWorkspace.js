@@ -407,7 +407,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 }}>Delete Run</li>}
                 {selectedRun && <div className={styles.dropdown_separator}/>}
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
-                {agent &&
+                {agent && env === 'PROD' &&
                   <li className="dropdown_item" onClick={() => {
                     handlePublishToMarketplace()
                   }}>Publish to marketplace</li>}

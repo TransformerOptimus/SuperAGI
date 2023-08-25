@@ -1337,7 +1337,7 @@ export default function AgentCreate({
                 {dropdown && (<div className={styles.dropdown_container_agent} onMouseOver={() => setDropdown(true)} onMouseOut={() => setDropdown(false)}>
                   <ul style={{padding: '0', margin:'0'}}>
                     <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => updateTemplate()}>Update template</li>
-                    <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => handleAddToMarketplace()}>Publish to Marketplace</li>
+                    {env === 'PROD' && <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => handleAddToMarketplace()}>Publish to Marketplace</li>}
                 </ul>
                 </div>)}
               </div>
