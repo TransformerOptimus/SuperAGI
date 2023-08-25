@@ -26,10 +26,8 @@ envs:
   value: super_agi_main
 - key: POSTGRES_URL
   value: ${superagi__postgres.POSTGRES_URL}
-  type: SECRET
 - key: REDIS_URL
   value: ${superagi__redis.REDIS_URL}
-  type: SECRET
 
 databases:
 - name: superagi__postgres
