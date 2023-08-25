@@ -31,11 +31,11 @@ services:
 #  value: ${super-agi-main.DATABASE_URL}
 ##- key: REDIS_URL
 ##  value: ${superagi--redis.REDIS_URL}
-
-databases:
-- name: super-agi-main
-  db_name: super-agi-main
-  engine: PG
+#
+#databases:
+#- name: super-agi-main
+#  db_name: super-agi-main
+#  engine: PG
 
 #- name: superagi--redis
 #  engine: REDIS
