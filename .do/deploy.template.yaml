@@ -7,34 +7,36 @@ spec:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 3000
+    routes:
+    - path: /
     name: sample-gui
   
-  - dockerfile_path: ./Dockerfile
-    source_dir: ./
-    git:
-      branch: main
-      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
-    http_port: 8001
-    routes:
-      - path: /api/
-    name: sample-backend
+#   - dockerfile_path: ./Dockerfile
+#     source_dir: ./
+#     git:
+#       branch: main
+#       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+#     http_port: 8001
+#     routes:
+#       - path: /api/
+#     name: sample-backend
 
-  envs:
-  - key: DB_USER
-    value: superagi
-  - key: DB_PASSWORD
-    value: password
-  - key: DB_NAME
-    value: super-agi-main
-  - key: POSTGRES_URL
-    value: ${super-agi-main.DATABASE_URL}
-##  - key: REDIS_URL
-##    value: ${superagi--redis.REDIS_URL}
+#   envs:
+#   - key: DB_USER
+#     value: superagi
+#   - key: DB_PASSWORD
+#     value: password
+#   - key: DB_NAME
+#     value: super-agi-main
+#   - key: POSTGRES_URL
+#     value: ${super-agi-main.DATABASE_URL}
+# ##  - key: REDIS_URL
+# ##    value: ${superagi--redis.REDIS_URL}
 
-  databases:
-  - name: super-agi-main
-    db_name: super-agi-main
-    engine: PG
+#   databases:
+#   - name: super-agi-main
+#     db_name: super-agi-main
+#     engine: PG
 
 #  - name: superagi--redis
 #    engine: REDIS
