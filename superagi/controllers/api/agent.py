@@ -14,6 +14,7 @@ from superagi.models.project import Project
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.organisation import Organisation
+from superagi.models.knowledges import Knowledges
 from superagi.models.resource import Resource
 from superagi.controllers.types.agent_with_config import AgentConfigExtInput,AgentConfigUpdateExtInput
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
@@ -144,8 +145,21 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
     if agent_execution_configs != {}:
         AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
-                                 agent_id, organisation.id if organisation else 0)
+    EventHandler(session=db.session).create_event('run_created', 
+                                                  {'agent_execution_id': db_agent_execution.id,
+                                                   'agent_execution_name':db_agent_execution.name
+                                                   },
+                                                   agent_id, 
+                                                   organisation.id if organisation else 0)
+    
+    agent_execution_knowledge = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == 'knowledge').filter(AgentConfiguration.agent_id == agent_id).first()
+    if agent_execution_knowledge:
+        knowledge_name = db.session.query(Knowledges.name).filter(Knowledges.id == int(agent_execution_knowledge.value)).filter(Knowledges.organisation_id == organisation.id).first()[0]
+        EventHandler(session=db.session).create_event('knowledge_picked', 
+                                                      {'knowledge_name': knowledge_name},
+                                                      agent_id,
+                                                      organisation.id if organisation else 0
+                                                      )
 
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())

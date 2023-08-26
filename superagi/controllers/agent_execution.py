@@ -23,6 +23,7 @@ from superagi.controllers.types.agent_schedule import AgentScheduleInput
 from superagi.apm.event_handler import EventHandler
 from superagi.controllers.tool import ToolOut
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.knowledges import Knowledges
 
 router = APIRouter()
 
@@ -121,9 +122,20 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                                      agent_execution_configs=agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
-                                 agent_execution.agent_id, organisation.id if organisation else 0)
-
+    agent_execution_knowledge = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == 'knowledge').filter(AgentConfiguration.agent_id == agent_execution.agent_id).first()
+    
+    EventHandler(session=db.session).create_event('run_created', 
+                                                  {'agent_execution_id': db_agent_execution.id,
+                                                   'agent_execution_name':db_agent_execution.name},
+                                                   agent_execution.agent_id, 
+                                                   organisation.id if organisation else 0)
+    if agent_execution_knowledge:
+        knowledge_name = db.session.query(Knowledges.name).filter(Knowledges.id == int(agent_execution_knowledge.value)).filter(Knowledges.organisation_id == organisation.id).first()[0]
+        EventHandler(session=db.session).create_event('knowledge_picked', 
+                                                      {'knowledge_name': knowledge_name},
+                                                      agent_execution.agent_id, 
+                                                      organisation.id if organisation else 0)
+    
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
 
@@ -185,8 +197,19 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
                                                                      agent_execution_configs = agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
-                                 agent_execution.agent_id, organisation.id if organisation else 0)
+    EventHandler(session=db.session).create_event('run_created',
+                                                  {'agent_execution_id': db_agent_execution.id,
+                                                    'agent_execution_name':db_agent_execution.name},
+                                                    agent_execution.agent_id, 
+                                                    organisation.id if organisation else 0)
+    agent_execution_knowledge = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == 'knowledge').filter(AgentConfiguration.agent_id == agent_execution.agent_id).first()
+
+    if agent_execution_knowledge:
+        knowledge_name = db.session.query(Knowledges.name).filter(Knowledges.id == int(agent_execution_knowledge.value)).filter(Knowledges.organisation_id == organisation.id).first()[0]
+        EventHandler(session=db.session).create_event('knowledge_picked', 
+                                                      {'knowledge_name': knowledge_name},
+                                                      agent_execution.agent_id, 
+                                                      organisation.id if organisation else 0)
 
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
