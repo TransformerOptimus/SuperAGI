@@ -83,7 +83,7 @@ def get_knowledge_usage(organisation=Depends(get_user_organisation)):
 @router.get("/tools/{tool_name}/logs", status_code=200)
 def get_tool_logs(tool_name: str, organisation=Depends(get_user_organisation)):
     try: 
-        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_logs_by_tool_name(tool_name)
+        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_events_by_tool_name(tool_name)
     except Exception as e:
         logging.error(f"Error while getting tool log details: {str(e)}")
         if e.status_code:
@@ -94,7 +94,7 @@ def get_tool_logs(tool_name: str, organisation=Depends(get_user_organisation)):
 @router.get("/knowledge/{knowledge_name}/logs", status_code=200)
 def get_knowledge_logs(knowledge_name: str, organisation=Depends(get_user_organisation)):
     try: 
-        return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_logs_by_name(knowledge_name)
+        return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_events_by_name(knowledge_name)
     except Exception as e:
         logging.error(f"Error while getting tool log details: {str(e)}")
         if e.status_code:

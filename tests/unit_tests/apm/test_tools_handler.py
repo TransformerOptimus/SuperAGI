@@ -80,7 +80,7 @@ def test_get_tool_wise_usage(tools_handler, mock_session):
         }
     }
 
-def test_get_tool_logs_by_tool_name(tools_handler, mock_session):
+def test_get_tool_events_by_tool_name(tools_handler, mock_session):
     tool_name = 'tool1'
 
     mock_tool = MagicMock()
@@ -99,7 +99,7 @@ def test_get_tool_logs_by_tool_name(tools_handler, mock_session):
     result_obj.other_tools = ['tool2', 'tool3']
 
     mock_session.query().join().join().join().join().all.return_value = [result_obj]
-    result = tools_handler.get_tool_logs_by_tool_name(tool_name)
+    result = tools_handler.get_tool_events_by_tool_name(tool_name)
 
     assert isinstance(result, list)
     expected_result = [{
@@ -115,11 +115,11 @@ def test_get_tool_logs_by_tool_name(tools_handler, mock_session):
     }]
     assert result == expected_result
 
-def test_get_tool_logs_by_tool_name_tool_not_found(tools_handler, mock_session):
+def test_get_tool_events_by_tool_name_tool_not_found(tools_handler, mock_session):
     tool_name = "tool1"
     
     mock_session.query().filter_by().first.return_value = None
     with pytest.raises(HTTPException):
-        tools_handler.get_tool_logs_by_tool_name(tool_name)
+        tools_handler.get_tool_events_by_tool_name(tool_name)
         
     assert mock_session.query().filter_by().first.called

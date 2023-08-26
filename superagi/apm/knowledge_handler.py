@@ -48,7 +48,7 @@ class KnowledgeHandler:
         }
     
 
-    def get_knowledge_logs_by_name(self, knowledge_name: str) -> List[Dict[str, Union[str, int]]]:
+    def get_knowledge_events_by_name(self, knowledge_name: str) -> List[Dict[str, Union[str, int]]]:
         
         is_knowledge_valid = self.session.query(Knowledges).filter_by(name=knowledge_name).first()
 

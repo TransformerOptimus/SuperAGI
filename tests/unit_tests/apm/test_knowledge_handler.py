@@ -34,7 +34,7 @@ def test_get_knowledge_wise_usage(knowledge_handler, mock_session):
         }
     }
 
-def test_get_knowledge_logs_by_name(knowledge_handler, mock_session):
+def test_get_knowledge_events_by_name(knowledge_handler, mock_session):
     knowledge_name = 'knowledge1'
     knowledge_handler.session = mock_session
 
@@ -58,7 +58,7 @@ def test_get_knowledge_logs_by_name(knowledge_handler, mock_session):
     mock_session.query().filter().group_by().subquery.return_value = mock_subquery
     mock_session.query().join().join().join().all.return_value = [result_obj]
     
-    result = knowledge_handler.get_knowledge_logs_by_name(knowledge_name)
+    result = knowledge_handler.get_knowledge_events_by_name(knowledge_name)
 
     assert isinstance(result, list)
     expected_result = [{
@@ -73,12 +73,12 @@ def test_get_knowledge_logs_by_name(knowledge_handler, mock_session):
     }]
     assert result == expected_result
 
-def test_get_knowledge_logs_by_name_knowledge_not_found(knowledge_handler, mock_session):
+def test_get_knowledge_events_by_name_knowledge_not_found(knowledge_handler, mock_session):
     knowledge_name = "knowledge1"
     
     mock_session.query().filter_by().first.return_value = None
 
     with pytest.raises(HTTPException):
-        knowledge_handler.get_knowledge_logs_by_name(knowledge_name)
+        knowledge_handler.get_knowledge_events_by_name(knowledge_name)
         
     assert mock_session.query().filter_by().first.called
