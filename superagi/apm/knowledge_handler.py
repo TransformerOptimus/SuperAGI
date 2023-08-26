@@ -27,7 +27,6 @@ class KnowledgeHandler:
         ).group_by(
             Event.event_property['knowledge_name']
         ).all()
-        print(query_data)
 
         return {
             record.knowledge_name: {
