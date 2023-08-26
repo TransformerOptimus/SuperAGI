@@ -101,7 +101,13 @@ class WriteFileTool(BaseTool):
         """
         image_extensions, image_paths = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'],[]
         for file_name in attached_files:
-            path = self._get_file_path(file_name=file_name)
+            path = ResourceHelper().get_agent_read_resource_path(
+                    file_name,
+                    agent=Agent.get_agent_from_id(self.toolkit_config.session, self.agent_id),
+                    agent_execution=AgentExecution.get_agent_execution_from_id(
+                        self.toolkit_config.session, self.agent_execution_id
+                    ),
+                )
             if not os.path.exists(path):
                 continue
             _, file_extension = os.path.splitext(path)
@@ -110,25 +116,6 @@ class WriteFileTool(BaseTool):
                 image_paths.append(path)
         return image_paths
     
-    def _get_file_path(self, file_name: str) -> list:
-        """
-        Gets the path of the file
-
-        Args:
-            file_name: Name of file 
-
-        Returns:
-            Full paths of the file
-        """
-        session = self.toolkit_config.session
-
-        return ResourceHelper().get_agent_read_resource_path(
-            file_name,
-            agent=Agent.get_agent_from_id(session, self.agent_id),
-            agent_execution=AgentExecution.get_agent_execution_from_id(
-                session, self.agent_execution_id
-            ),
-        )
     
     def _image_to_base64(self, image_path):
         with open(image_path, "rb") as image_file:

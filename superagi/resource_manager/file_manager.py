@@ -1,21 +1,18 @@
 import csv
 from sqlalchemy.orm import Session
-from superagi.config.config import get_config
 import os
+
+from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
+from superagi.exceptions.file_errors import UnsupportedFileTypeError, FileNotCreatedError
+
 import pdfkit
 from htmldocx import HtmlToDocx
-
-class UnsupportedFileTypeError(Exception):
-    pass
-
-class FileNotCreatedError(Exception):
-    pass
 
 class FileManager:
     def __init__(self, session: Session, agent_id: int = None, agent_execution_id: int = None):
@@ -56,7 +53,7 @@ class FileManager:
                 s3_helper = S3Helper()
                 s3_helper.upload_file(img, path=resource.path)
 
-    def write_file(self, file_name: str, content, return_file_path: bool = False):
+    def write_file(self, file_name: str, content):
         if self.agent_id is not None:
             final_path = ResourceHelper.get_agent_write_resource_path(file_name,
                                                                       agent=Agent.get_agent_from_id(self.session,
@@ -73,9 +70,6 @@ class FileManager:
             return f"Error write_file: {err}"
 
         logger.info(f"{file_name} - File written successfully")
-        
-        if return_file_path:
-            return final_path
         return f"{file_name} - File written successfully"
         
     def write_csv_file(self, file_name: str, final_path: str, csv_data) -> str:
@@ -87,7 +81,7 @@ class FileManager:
             logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
         except Exception as err:
-            raise FileNotCreatedError(f"Error write_file: {err}") from err
+            raise FileNotCreatedError(file_name=file_name) from err
         
     def write_pdf_file(self, file_name: str ,file_path: str, content):
         # Saving the HTML file
@@ -111,7 +105,7 @@ class FileManager:
             return file_path
         
         except Exception as err:
-            raise FileNotCreatedError(f"Error write_file: {err}") from err
+            raise FileNotCreatedError(file_name=file_name) from err
             
     def write_docx_file(self, file_name: str ,file_path: str, content):
         # Saving the HTML file
@@ -125,7 +119,7 @@ class FileManager:
             self.write_to_s3(file_name, file_path)
             return file_path
         except Exception as err:
-            raise FileNotCreatedError(f"Error write_file: {err}") from err
+            raise FileNotCreatedError(file_name=file_name) from err
         
     def write_txt_file(self, file_name: str ,file_path: str, content) -> str:
         try:
@@ -135,7 +129,7 @@ class FileManager:
             self.write_to_s3(file_name, file_path)
             return file_path
         except Exception as err:
-            raise FileNotCreatedError(f"Error write_file: {err}") from err
+            raise FileNotCreatedError(file_name=file_name) from err
     
     def get_agent_resource_path(self, file_name: str):
         return ResourceHelper.get_agent_write_resource_path(file_name, agent=Agent.get_agent_from_id(self.session,
@@ -193,8 +187,6 @@ class FileManager:
             # NOTE: Add more file types and corresponding functions as needed, These functions should be defined 
         }
         
-        if file_type in file_type_handlers:
-            return file_type_handlers[file_type](file_name, file_path, content)
-        else:
-            raise UnsupportedFileTypeError(f"Unsupported file type: {file_type}. Cannot save the file.")
+        if file_type not in file_type_handlers:
+            raise UnsupportedFileTypeError(file_name=file_name, supported_types=list(file_type_handlers))
         

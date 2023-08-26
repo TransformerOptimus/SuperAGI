@@ -47,9 +47,7 @@ class AgentExecutionFeed(DBBaseModel):
             AgentExecutionFeed.role == "system").order_by(AgentExecutionFeed.created_at.desc()).all()
 
         for agent_execution_feed in agent_execution_feeds:
-            if tool_name and not agent_execution_feed.feed.startswith(
-                f"Tool {tool_name}"
-            ):
+            if tool_name and not agent_execution_feed.feed.startswith("Tool " + tool_name):
                 continue
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
