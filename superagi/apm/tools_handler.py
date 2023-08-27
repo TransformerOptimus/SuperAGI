@@ -8,6 +8,8 @@ from superagi.models.tool import Tool
 from superagi.models.toolkit import Toolkit
 from sqlalchemy import or_
 from sqlalchemy.sql import label
+from superagi.models.agent_config import AgentConfiguration
+import pytz
 
 class ToolsHandler:
     def __init__(self, session: Session, organisation_id: int):
@@ -79,10 +81,9 @@ class ToolsHandler:
 
         return tool_data
 
-    def get_tool_events_by_tool_name(self, tool_name: str) -> List[Dict[str, Union[str, int, List[str]]]]:    
+    def get_tool_events_by_name(self, tool_name: str) -> List[Dict[str, Union[str, int, List[str]]]]:    
 
         is_tool_name_valid = self.session.query(Tool).filter_by(name=tool_name).first()
-
         if not is_tool_name_valid:
             raise HTTPException(status_code=404, detail="Tool not found")
 
@@ -153,9 +154,10 @@ class ToolsHandler:
             other_tools, event_tool_used.c.agent_id == other_tools.c.agent_id, isouter=True
         ).all()
 
+        user_timezone = self.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id == Event.agent_id).first()
         return [{
             'agent_id': row.agent_id,
-            'created_at': row.created_at,
+            'created_at': row.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),
             'event_name': row.event_name,
             'tokens_consumed': row.tokens_consumed,
             'calls': row.calls,

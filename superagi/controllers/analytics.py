@@ -83,7 +83,7 @@ def get_knowledge_usage(organisation=Depends(get_user_organisation)):
 @router.get("/tools/{tool_name}/logs", status_code=200)
 def get_tool_logs(tool_name: str, organisation=Depends(get_user_organisation)):
     try: 
-        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_events_by_tool_name(tool_name)
+        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_events_by_name(tool_name)
     except Exception as e:
         logging.error(f"Error while getting tool event details: {str(e)}")
         if hasattr(e, 'status_code'):

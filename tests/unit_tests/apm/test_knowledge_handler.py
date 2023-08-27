@@ -2,6 +2,8 @@ import pytest
 from unittest.mock import MagicMock
 from superagi.apm.knowledge_handler import KnowledgeHandler
 from fastapi import HTTPException
+from datetime import datetime
+import pytz
 
 @pytest.fixture
 def organisation_id():
@@ -44,7 +46,7 @@ def test_get_knowledge_events_by_name(knowledge_handler, mock_session):
 
     result_obj = MagicMock()
     result_obj.agent_id = 1
-    result_obj.created_at = "2022-05-25"
+    result_obj.created_at = datetime.now()
     result_obj.event_name = 'knowledge_picked'
     result_obj.tokens_consumed = 10
     result_obj.calls = 5
@@ -58,12 +60,17 @@ def test_get_knowledge_events_by_name(knowledge_handler, mock_session):
     mock_session.query().filter().group_by().subquery.return_value = mock_subquery
     mock_session.query().join().join().join().all.return_value = [result_obj]
     
+    user_timezone = MagicMock()
+    mock_session.query().filter().first.return_value = user_timezone
+    user_timezone.value = 'America/New_York'
+    
     result = knowledge_handler.get_knowledge_events_by_name(knowledge_name)
 
     assert isinstance(result, list)
+
     expected_result = [{
         'agent_id': 1,
-        'created_at': '2022-05-25',
+        'created_at': result_obj.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),
         'event_name': 'knowledge_picked',
         'tokens_consumed': 10,
         'calls': 5,

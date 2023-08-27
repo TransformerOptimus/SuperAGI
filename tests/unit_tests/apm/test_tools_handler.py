@@ -3,6 +3,8 @@ from unittest.mock import MagicMock
 from fastapi import HTTPException
 from superagi.apm.tools_handler import ToolsHandler
 from sqlalchemy.orm import Session
+from datetime import datetime
+import pytz
 
 @pytest.fixture
 def organisation_id():
@@ -80,7 +82,7 @@ def test_get_tool_wise_usage(tools_handler, mock_session):
         }
     }
 
-def test_get_tool_events_by_tool_name(tools_handler, mock_session):
+def test_get_tool_events_by_name(tools_handler, mock_session):
     tool_name = 'tool1'
 
     mock_tool = MagicMock()
@@ -89,7 +91,7 @@ def test_get_tool_events_by_tool_name(tools_handler, mock_session):
 
     result_obj = MagicMock()
     result_obj.agent_id = 1
-    result_obj.created_at = "2022-05-25"
+    result_obj.created_at = datetime.now()  # Set created_at to datetime not string
     result_obj.event_name = 'tool_used'
     result_obj.tokens_consumed = 10
     result_obj.calls = 5
@@ -98,13 +100,18 @@ def test_get_tool_events_by_tool_name(tools_handler, mock_session):
     result_obj.model = 'M1'
     result_obj.other_tools = ['tool2', 'tool3']
 
+    user_timezone = MagicMock()
+    user_timezone.value = 'UTC'
+    mock_session.query().filter().first.return_value = user_timezone
+
     mock_session.query().join().join().join().join().all.return_value = [result_obj]
-    result = tools_handler.get_tool_events_by_tool_name(tool_name)
+    result = tools_handler.get_tool_events_by_name(tool_name)
 
     assert isinstance(result, list)
+
     expected_result = [{
         'agent_id': 1,
-        'created_at': '2022-05-25',
+        'created_at': result_obj.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),
         'event_name': 'tool_used',
         'tokens_consumed': 10,
         'calls': 5,
@@ -115,11 +122,11 @@ def test_get_tool_events_by_tool_name(tools_handler, mock_session):
     }]
     assert result == expected_result
 
-def test_get_tool_events_by_tool_name_tool_not_found(tools_handler, mock_session):
+def test_get_tool_events_by_name_tool_not_found(tools_handler, mock_session):
     tool_name = "tool1"
     
     mock_session.query().filter_by().first.return_value = None
     with pytest.raises(HTTPException):
-        tools_handler.get_tool_events_by_tool_name(tool_name)
+        tools_handler.get_tool_events_by_name(tool_name)
         
     assert mock_session.query().filter_by().first.called

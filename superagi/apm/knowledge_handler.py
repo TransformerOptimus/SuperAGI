@@ -6,6 +6,8 @@ from fastapi import HTTPException
 from typing import List, Dict, Union, Any
 from sqlalchemy.sql import func
 from sqlalchemy.orm import aliased
+from superagi.models.agent_config import AgentConfiguration
+import pytz
 
 
 class KnowledgeHandler:
@@ -50,6 +52,7 @@ class KnowledgeHandler:
     def get_knowledge_events_by_name(self, knowledge_name: str) -> List[Dict[str, Union[str, int]]]:
         
         is_knowledge_valid = self.session.query(Knowledges.id).filter_by(name=knowledge_name).filter(Knowledges.organisation_id == self.organisation_id).first()
+
         if not is_knowledge_valid:
             raise HTTPException(status_code=404, detail="Knowledge not found")
 
@@ -106,9 +109,10 @@ class KnowledgeHandler:
             event_agent_created, event_knowledge_picked.c.agent_id == event_agent_created.c.agent_id
         ).all()
 
+        user_timezone = self.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id == Event.agent_id).first()
         return [{
             'agent_id': row.agent_id,
-            'created_at': row.created_at,
+            'created_at': row.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),
             'event_name': row.event_name,
             'tokens_consumed': row.tokens_consumed,
             'calls': row.calls,
