@@ -86,7 +86,7 @@ def get_tool_logs(tool_name: str, organisation=Depends(get_user_organisation)):
         return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_events_by_tool_name(tool_name)
     except Exception as e:
         logging.error(f"Error while getting tool log details: {str(e)}")
-        if e.status_code:
+        if hasattr(e, 'status_code'):
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         else:
             raise HTTPException(status_code=500, detail="Internal Server Error")    
@@ -97,7 +97,7 @@ def get_knowledge_logs(knowledge_name: str, organisation=Depends(get_user_organi
         return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_events_by_name(knowledge_name)
     except Exception as e:
         logging.error(f"Error while getting tool log details: {str(e)}")
-        if e.status_code:
+        if hasattr(e, 'status_code'):
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         else:
             raise HTTPException(status_code=500, detail="Internal Server Error")
