@@ -49,7 +49,7 @@ class KnowledgeHandler:
 
     def get_knowledge_events_by_name(self, knowledge_name: str) -> List[Dict[str, Union[str, int]]]:
         
-        is_knowledge_valid = self.session.query(Knowledges.id).filter_by(name=knowledge_name).filter(Knowledges.organisation_id == self.organisation_id).first()[0]
+        is_knowledge_valid = self.session.query(Knowledges.id).filter_by(name=knowledge_name).filter(Knowledges.organisation_id == self.organisation_id).first()
 
         if not is_knowledge_valid:
             raise HTTPException(status_code=404, detail="Knowledge not found")
