@@ -75,10 +75,14 @@ def test_get_knowledge_events_by_name(knowledge_handler, mock_session):
 
 def test_get_knowledge_events_by_name_knowledge_not_found(knowledge_handler, mock_session):
     knowledge_name = "knowledge1"
-    
-    mock_session.query().filter_by().first.return_value = None
+    not_found_message = 'Knowledge not found'
 
-    with pytest.raises(HTTPException):
+    mock_session.query().filter_by().filter().first.return_value = None
+
+    try:
         knowledge_handler.get_knowledge_events_by_name(knowledge_name)
-        
-    assert mock_session.query().filter_by().first.called
+        assert False, "Expected HTTPException has not been raised"
+    except HTTPException as e:
+        assert str(e.detail) == not_found_message, f"Expected {not_found_message}, got {e.detail}"
+    finally:
+        assert mock_session.query().filter_by().filter().first.called, "first() function not called"
