@@ -96,7 +96,7 @@ def get_knowledge_logs(knowledge_name: str, organisation=Depends(get_user_organi
     try: 
         return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_events_by_name(knowledge_name)
     except Exception as e:
-        logging.error(f"Error while getting knoelwdge event details: {str(e)}")
+        logging.error(f"Error while getting knowledge event details: {str(e)}")
         if hasattr(e, 'status_code'):
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         else:

@@ -85,7 +85,6 @@ def test_get_knowledge_events_by_name_knowledge_not_found(knowledge_handler, moc
     not_found_message = 'Knowledge not found'
 
     mock_session.query().filter_by().filter().first.return_value = None
-
     try:
         knowledge_handler.get_knowledge_events_by_name(knowledge_name)
         assert False, "Expected HTTPException has not been raised"
