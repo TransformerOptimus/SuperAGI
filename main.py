@@ -64,9 +64,9 @@ env = get_config('ENV', "DEV")
 
 if db_url is None:
     if db_username is None:
-        db_url = f'postgresql://{database_url}/{db_name}'
+        db_url = f'postgresql://{db_host}/{db_name}'
     else:
-        db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
+        db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
 
 engine = create_engine(db_url)
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
