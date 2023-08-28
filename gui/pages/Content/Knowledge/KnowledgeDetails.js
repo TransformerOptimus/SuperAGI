@@ -7,6 +7,7 @@ import KnowledgeForm from "@/pages/Content/Knowledge/KnowledgeForm";
 import {deleteCustomKnowledge, deleteMarketplaceKnowledge, getKnowledgeDetails} from "@/pages/api/DashboardService";
 import {removeTab, returnToolkitIcon, setLocalStorageValue} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import Metrics from "@/pages/Content/Toolkits/Metrics";
 
 export default function KnowledgeDetails({internalId, knowledgeId}) {
   const [showDescription, setShowDescription] = useState(false);
@@ -114,6 +115,9 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
             <div className="text_12 color_white padding_8">Configuration</div>
           </div>
         </div>
+        {activeTab === 'metrics' && <div>
+          <Metrics knowledgeName={knowledgeName} />
+        </div>}
         { activeTab === "configuration" && <div className="row">
           <div className="col-3" />
           <div className="col-6">

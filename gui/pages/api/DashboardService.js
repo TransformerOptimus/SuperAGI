@@ -370,3 +370,11 @@ export const getToolMetrics = (toolName) => {
 export const getToolLogs = (toolName) => {
   return api.get(`analytics/tools/${toolName}/logs`)
 }
+
+export const getKnowledgeMetrics = (knowledgeName) => {
+  return api.get(`analytics/knowledge/${knowledgeName}/usage`)
+}
+
+export const getKnowledgeLogs = (knowledgeName) => {
+  return api.get(`analytics/knowledge/${knowledgeName}/logs`)
+}

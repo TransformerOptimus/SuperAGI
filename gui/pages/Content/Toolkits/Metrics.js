@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
-  getApiKeys, getToolMetrics, getToolLogs,
+  getApiKeys, getToolMetrics, getToolLogs, getKnowledgeMetrics, getKnowledgeLogs
 } from "@/pages/api/DashboardService";
 import {
   loadingTextEffect,
@@ -23,19 +23,20 @@ export default function Metrics({toolName, knowledgeName}) {
 
   useEffect(() => {
     loadingTextEffect('Loading Metrics', setLoadingText, 500);
-    console.log(toolName)
-    if(toolName && knowledgeName === ''){
-      fetchToolMetrics()
-    }
-    fetchApiKeys()
   }, []);
 
   useEffect(() => {
-    if(toolName){
+    if(toolName && !knowledgeName){
       fetchToolMetrics()
       fetchToolLogs()
+      return;
     }
-  }, [toolName]);
+    if(!toolName && knowledgeName){
+      fetchKnowledgeMetrics()
+      fetchKnowledgeLogs()
+      return;
+    }
+  }, [toolName, knowledgeName]);
 
   const fetchToolMetrics = () => {
     getToolMetrics(toolName)
@@ -60,16 +61,22 @@ export default function Metrics({toolName, knowledgeName}) {
       });
   }
 
-  const fetchApiKeys = () => {
-    getApiKeys()
+  const fetchKnowledgeMetrics = () => {
+    getKnowledgeMetrics(knowledgeName)
       .then((response) => {
-        const formattedData = response.data.map(item => {
-          return {
-            ...item,
-            created_at: `${new Date(item.created_at).getDate()}-${["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][new Date(item.created_at).getMonth()]}-${new Date(item.created_at).getFullYear()}`
-          };
-        });
-        setApiKeys(formattedData)
+        setTotalAgentsUsing(response.data.knowledge_unique_agents ? response.data.knowledge_unique_agents : 0)
+        setTotalCalls(response.data.knowledge_calls ? response.data.knowledge_calls : 0)
+        setIsLoading(false)
+      })
+      .catch((error) => {
+        console.error('Error fetching Metrics', error);
+      });
+  }
+
+  const fetchKnowledgeLogs = () => {
+    getKnowledgeLogs(knowledgeName)
+      .then((response) => {
+        setCallLogs(response.data ? response.data : [])
         setIsLoading(false)
       })
       .catch((error) => {
