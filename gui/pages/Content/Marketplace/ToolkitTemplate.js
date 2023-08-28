@@ -54,13 +54,13 @@ export default function ToolkitTemplate({template, env}) {
             setInstalled('Installed');
           })
           .catch((error) => {
-            console.error('Error installing template:', error);
+            console.error('Error installing Toolkit:', error);
           });
       return;
     }
 
     if (template && template.is_installed) {
-      toast.error("Template is already installed", {autoClose: 1800});
+      toast.error("Toolkit is already installed", {autoClose: 1800});
       return;
     }
 
@@ -70,7 +70,7 @@ export default function ToolkitTemplate({template, env}) {
         setInstalled('Installed');
       })
       .catch((error) => {
-        console.error('Error installing template:', error);
+        console.error('Error installing Toolkit', error);
       });
   }
 
