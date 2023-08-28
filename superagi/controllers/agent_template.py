@@ -219,25 +219,13 @@ def save_agent_as_template(agent_execution_id: str,
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
-    
-    #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
-    if agent_execution_id!="-1": 
-        agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
-        if agent_execution_config is None:
-            raise HTTPException(status_code = 404, detail = "Agent Execution not found")
-        agent_id_from_execution_id = agent_execution_config.agent_id
-        if agent_id != agent_id_from_execution_id:
-            raise HTTPException(status_code = 404, detail = "Wrong agent id")
-
-    main_keys = AgentTemplate.main_keys()
 
     configs = None
 
     if agent_execution_id == "-1":
         configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
         if not configs:
-            raise HTTPException(status_code=404, detail="Agent configurations not found")
-              
+            raise HTTPException(status_code=404, detail="Agent configurations not found")    
     else:
         configs = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
         if not configs:
@@ -254,7 +242,7 @@ def save_agent_as_template(agent_execution_id: str,
 
     for config in configs:
             config_value = config.value
-            if config.key not in main_keys:
+            if config.key not in AgentTemplate.main_keys():
                 continue
             if config.key == "tools":
                 config_value = str(Tool.convert_tool_ids_to_names(db, eval(config.value)))
