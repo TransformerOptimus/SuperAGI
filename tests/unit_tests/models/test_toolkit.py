@@ -259,7 +259,7 @@ def test_get_tool_and_toolkit_arr_with_nonexistent_toolkit():
 
     # Use a context manager to capture the raised exception and its message
     with pytest.raises(Exception) as exc_info:
-        Toolkit.get_tool_and_toolkit_arr(session, agent_config_tools_arr)
+        Toolkit.get_tool_and_toolkit_arr(session,1, agent_config_tools_arr)
 
     # Assert that the expected error message is contained within the raised exception message
     expected_error_message = "One or more of the Tool(s)/Toolkit(s) does not exist."
