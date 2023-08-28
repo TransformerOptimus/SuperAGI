@@ -55,7 +55,7 @@ from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
 app = FastAPI()
 
-db_host = get_config('DB_HOST')
+db_host = get_config('DB_HOST','super__postgres')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
