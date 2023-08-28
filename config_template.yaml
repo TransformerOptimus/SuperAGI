@@ -20,7 +20,7 @@ MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
 #DATABASE INFO
 # redis details
 DB_NAME: super_agi_main
-POSTGRES_URL: super__postgres
+DB_HOST: super__postgres
 DB_USERNAME: superagi
 DB_PASSWORD: password
 REDIS_URL: "super__redis:6379"
