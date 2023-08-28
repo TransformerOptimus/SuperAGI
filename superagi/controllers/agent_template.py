@@ -219,51 +219,49 @@ def save_agent_as_template(agent_execution_id: str,
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
+    
+    #Fetch agent id from agent execution id and check whether the agent_id received is correct or not.
+    if agent_execution_id!="-1": 
+        agent_execution_config = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
+        if agent_execution_config is None:
+            raise HTTPException(status_code = 404, detail = "Agent Execution not found")
+        agent_id_from_execution_id = agent_execution_config.agent_id
+        if agent_id != agent_id_from_execution_id:
+            raise HTTPException(status_code = 404, detail = "Wrong agent id")
 
     main_keys = AgentTemplate.main_keys()
 
+    configs = None
+
     if agent_execution_id == "-1":
-        agent_configurations = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
-        if not agent_configurations:
+        configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+        if not configs:
             raise HTTPException(status_code=404, detail="Agent configurations not found")
-        
-        agent_template = AgentTemplate(name=agent.name, description=agent.description,
-                                   agent_workflow_id=agent.agent_workflow_id,
-                                   organisation_id=organisation.id)
-        db.session.add(agent_template)
-        db.session.commit()
-
-        for agent_configuration in agent_configurations:
-            config_value = agent_configuration.value
-            if agent_configuration.key not in main_keys:
-                continue
-            if agent_configuration.key == "tools":
-                config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_configuration.value)))
-            agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_configuration.key,
-                                                        value=config_value)
-            db.session.add(agent_template_config)    
+              
     else:
-        agent_execution_configurations = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
-        if not agent_execution_configurations:
+        configs = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+        if not configs:
             raise HTTPException(status_code=404, detail="Agent execution configurations not found")
-        
-        agent_template = AgentTemplate(name=agent.name, description=agent.description,
+
+    if configs is None:
+        raise HTTPException(status_code=404, detail="Configurations not found")
+    
+    agent_template = AgentTemplate(name=agent.name, description=agent.description,
                                    agent_workflow_id=agent.agent_workflow_id,
                                    organisation_id=organisation.id)
-        db.session.add(agent_template)
-        db.session.commit()
-        
-        for agent_execution_configuration in agent_execution_configurations:
-            config_value = agent_execution_configuration.value
-            if agent_execution_configuration.key not in main_keys:
-                continue
-            if agent_execution_configuration.key == "tools":
-                config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_execution_configuration.value)))
-            agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_execution_configuration.key,
-                                                        value=config_value)
-            db.session.add(agent_template_config)
-        
+    db.session.add(agent_template)
+    db.session.commit()
 
+    for config in configs:
+            config_value = config.value
+            if config.key not in main_keys:
+                continue
+            if config.key == "tools":
+                config_value = str(Tool.convert_tool_ids_to_names(db, eval(config.value)))
+            agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=config.key,
+                                                        value=config_value)
+            db.session.add(agent_template_config)       
+        
     db.session.commit()
     db.session.flush()
     return agent_template.to_dict()
