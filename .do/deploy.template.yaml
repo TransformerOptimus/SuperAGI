@@ -1,4 +1,15 @@
 spec:
+  databases:
+  - engine: PG
+    name: super-agi-main
+    num_nodes: 1
+  ingress:
+    rules:
+    - component:
+        name: superagi-backend
+      match:
+        path:
+          prefix: /api
   name: superagi
   services:
   - dockerfile_path: ./gui/DockerfileProd
@@ -7,6 +18,13 @@ spec:
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 3000
     instance_count: 1
-    instance_size_slug: basic-xs
     name: superagi-frontend
     source_dir: ./gui
+  - dockerfile_path: Dockerfile
+    git:
+      branch: main
+      repo_clone_url: https://github.com/TransformerOptimus
+    http_port: 8001
+    instance_count: 1
+    name: superagi-backend
+    source_dir: /
