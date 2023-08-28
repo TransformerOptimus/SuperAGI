@@ -2,7 +2,8 @@ from sqlalchemy import Column, Integer, String, and_
 from sqlalchemy.sql import func
 from typing import List, Dict, Union
 from superagi.models.base_model import DBBaseModel
-from superagi.helper.encyption_helper import encrypt_data, decrypt_data
+from superagi.llms.openai import OpenAi
+from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
 
 # marketplace_url = "https://app.superagi.com/api"
@@ -154,6 +155,31 @@ class Models(DBBaseModel):
     def fetch_models(cls, session, organisation_id) -> Union[Dict[str, str], List[Dict[str, Union[str, int]]]]:
         try:
             from superagi.models.models_config import ModelsConfig
+            from superagi.models.configuration import Configuration
+
+            model_provider = session.query(ModelsConfig).filter(ModelsConfig.provider == "OpenAI",
+                                                                ModelsConfig.org_id == organisation_id).first()
+            if model_provider is None:
+                configurations = session.query(Configuration).filter(Configuration.key == 'model_api_key',
+                                                                     Configuration.organisation_id == organisation_id).first()
+
+                if configurations is None:
+                    return {"error": "API Key is Missing"}
+                else:
+                    default_models = {"gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184}
+                    model_api_key = decrypt_data(configurations.value)
+
+                    model_details = ModelsConfig.store_api_key(session, organisation_id, "OpenAI", model_api_key)
+                    model_provider_id = model_details.get('model_provider_id')
+                    models = OpenAi(api_key=model_api_key).get_models()
+
+                    installed_models = [model[0] for model in session.query(Models.model_name).filter(Models.org_id == organisation_id).all()]
+
+                    for model in models:
+                        if model not in installed_models and model in default_models:
+                            result = cls.store_model_details(session, organisation_id, model, model, '',
+                                                             model_provider_id, default_models[model], 'Custom', '')
+
             models = session.query(Models.id, Models.model_name, Models.description, ModelsConfig.provider).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(
                 Models.org_id == organisation_id).all()
@@ -203,47 +229,48 @@ class Models(DBBaseModel):
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
 
-    @classmethod
-    def validate_model_in_db(cls, session, organisation_id, model):
-        try:
-            from superagi.models.models_config import ModelsConfig
-            from superagi.models.configuration import Configuration
-
-            models = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032,
-                          "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184, "gpt-4-32k": 32768}
-
-            model_config = session.query(Models).filter(Models.model_name == model,
-                                                        Models.org_id == organisation_id).first()
-            if model_config is None:
-                model_provider = session.query(ModelsConfig).filter(ModelsConfig.provider == "OpenAI",
-                                                                    ModelsConfig.org_id == organisation_id).first()
-
-                if model_provider is None:
-                    configurations = session.query(Configuration).filter(Configuration.key == 'model_api_key',
-                                                                         Configuration.organisation_id == organisation_id).first()
-                    model_api_key = decrypt_data(configurations.value)
-
-                    if configurations is None:
-                        return {"error": "Model not found and the API Key is missing"}
-
-                    model_details = ModelsConfig.store_api_key(session, organisation_id, "OpenAI", model_api_key)
-
-                    # Get 'model_provider_id'
-                    model_provider_id = model_details.get('model_provider_id')
-
-                    result = cls.store_model_details(session, organisation_id, model, model, '',
-                                                     model_provider_id, models[model], 'Custom', '')
-                    if result is not None:
-                        return {"success": "The Model has been Successfully installed as it was not previously set up"}
-
-                else:
-                    result = cls.store_model_details(session, organisation_id, model, model, '',
-                                                     model_provider.id, models[model], 'Custom', '')
-                    if result is not None:
-                        return {"success": "The Model has been Successfully installed as it was not previously set up"}
-
-            else:
-                return {"success": "Model is found"}
-
-        except Exception as e:
-            logging.error(f"Unexpected Error occurred while Validating GPT Models: {e}")
+    # @classmethod
+    # def validate_model_in_db(cls, session, organisation_id, model):
+    #     try:
+    #         from superagi.models.models_config import ModelsConfig
+    #         from superagi.models.configuration import Configuration
+    #
+    #         models = {"gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184}
+    #
+    #         model_config = session.query(Models).filter(Models.model_name == model,
+    #                                                     Models.org_id == organisation_id).first()
+    #         if model_config is None:
+    #             model_provider = session.query(ModelsConfig).filter(ModelsConfig.provider == "OpenAI",
+    #                                                                 ModelsConfig.org_id == organisation_id).first()
+    #
+    #             if model_provider is None:
+    #                 configurations = session.query(Configuration).filter(Configuration.key == 'model_api_key',
+    #                                                                      Configuration.organisation_id == organisation_id).first()
+    #                 model_api_key = decrypt_data(configurations.value)
+    #
+    #                 if configurations is None:
+    #                     return {"error": "Model not found and the API Key is missing"}
+    #
+    #                 model_details = ModelsConfig.store_api_key(session, organisation_id, "OpenAI", model_api_key)
+    #                 print("///////////////////////////////////////1")
+    #                 models = OpenAi(api_key=model_api_key).get_models()
+    #                 print("////////////////////////////////////////2")
+    #                 print(models)
+    #                 model_provider_id = model_details.get('model_provider_id')
+    #
+    #                 result = cls.store_model_details(session, organisation_id, model, model, '',
+    #                                                  model_provider_id, models[model], 'Custom', '')
+    #                 if result is not None:
+    #                     return {"success": "The Model has been Successfully installed as it was not previously set up"}
+    #
+    #             else:
+    #                 result = cls.store_model_details(session, organisation_id, model, model, '',
+    #                                                  model_provider.id, models[model], 'Custom', '')
+    #                 if result is not None:
+    #                     return {"success": "The Model has been Successfully installed as it was not previously set up"}
+    #
+    #         else:
+    #             return {"success": "Model is found"}
+    #
+    #     except Exception as e:
+    #         logging.error(f"Unexpected Error occurred while Validating GPT Models: {e}")
