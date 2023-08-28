@@ -1,17 +1,12 @@
 spec:
-  ingress:
-    rules:
-    - component:
-        name: sample-backend
-      match:
-        path:
-          prefix: /api
   name: superagi
   services:
-  - dockerfile_path: Dockerfile
+  - dockerfile_path: DockerfileProd
     git:
       branch: main
-      repo_clone_url: https://github.com/TransformerOptimus/Superagi.git
-    http_port: 8001
-    source_dir: ./
-    name: sample-backend
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: basic-xs
+    name: superagi-frontend
+    source_dir: ./gui

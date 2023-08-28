@@ -1,17 +1,23 @@
-ingress:
-  rules:
-  - component:
-      name: sample-backend
-    match:
-      path:
-        prefix: /api
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+databases:
+- engine: PG
+  name: super-agi-main
+  num_nodes: 1
+  size: basic-xs
+  version: "12"
+
 name: superagi
+region: blr
 services:
 - dockerfile_path: Dockerfile
   github:
     branch: main
     deploy_on_push: true
-    repo: TransformerOptimus/Superagi
-  http_port: 8001
-  source_dir: ./
-  name: sample-backend
+    repo: TransformerOptimus/SuperAGI
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: basic-xs
+  name: superagi-frontend
+  source_dir: ./gui
