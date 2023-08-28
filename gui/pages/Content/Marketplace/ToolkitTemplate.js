@@ -50,7 +50,7 @@ export default function ToolkitTemplate({template, env}) {
     if(installed === "Update"){
       updateMarketplaceToolTemplate(template.name)
           .then((response) => {
-            toast.success("Template Updated", {autoClose: 1800});
+            toast.success("Toolkit Updated", {autoClose: 1800});
             setInstalled('Installed');
           })
           .catch((error) => {
@@ -66,7 +66,7 @@ export default function ToolkitTemplate({template, env}) {
 
     installToolkitTemplate(template.name)
       .then((response) => {
-        toast.success("Template installed", {autoClose: 1800});
+        toast.success("Toolkit installed", {autoClose: 1800});
         setInstalled('Installed');
       })
       .catch((error) => {
