@@ -877,6 +877,11 @@ export default function AgentCreate({
      return false;
   }
 
+  const openModelMarket = () => {
+    openNewTab(-4, "Marketplace", "Marketplace", false);
+    localStorage.setItem('marketplace_tab', 'market_models');
+  }
+
   const handleAddToMarketplace = () => {
     const agentData = setAgentData()
     agentData.agent_template_id = template.id
@@ -974,7 +979,7 @@ export default function AgentCreate({
                         ))}
                       </div>
                       <div className="vertical_containers sticky_option">
-                        <div onClick={() => openNewTab(-4, "Marketplace", "Marketplace", false)} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                        <div onClick={() => openModelMarket()} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
                           <Image width={16} height={16} src="/images/marketplace_logo.png" alt="marketplace_logo" />
                           <span>Browse models from marketplace</span>
                         </div>
