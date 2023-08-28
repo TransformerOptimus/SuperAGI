@@ -79,7 +79,6 @@ class AgentConfiguration(DBBaseModel):
             
         # Fetch agent configurations
         agent_configs = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
-
         for agent_config in agent_configs:
             if agent_config.key in updated_details_dict:
                 agent_config.value = str(updated_details_dict[agent_config.key])
