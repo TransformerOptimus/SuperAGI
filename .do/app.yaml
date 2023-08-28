@@ -1,17 +1,10 @@
 alerts:
 - rule: DEPLOYMENT_FAILED
 - rule: DOMAIN_FAILED
-databases:
-- engine: PG
-  name: super-agi-main
-  num_nodes: 1
-  size: basic-xs
-  version: "12"
-
 name: superagi
 region: blr
 services:
-- dockerfile_path: Dockerfile
+- dockerfile_path: ./gui/DockerfileProd
   github:
     branch: main
     deploy_on_push: true
