@@ -5,9 +5,6 @@ from superagi.models.webhook_events import WebhookEvents
 import requests
 import json
 from superagi.lib.logger import logger
-from sqlalchemy import func
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy import text
 
 class WebHookManager:
     def __init__(self,session):
