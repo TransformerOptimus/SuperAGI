@@ -28,6 +28,13 @@ class AgentPromptTemplate:
         return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "constraints", "tools"]}
 
     @classmethod
+    def get_web_interactor_prompt(cls):
+        prompt = PromptReader.read_agent_prompt(__file__, "web_interactor.txt")
+
+        return {"prompt": prompt,
+                "variables": ["goals", "page_url", "dom_content", "last_action", "last_action_status"]}
+
+    @classmethod
     def start_task_based(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "initialize_tasks.txt")
 

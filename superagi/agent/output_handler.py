@@ -1,4 +1,4 @@
-from superagi.agent.common_types import TaskExecutorResponse, ToolExecutorResponse
+from superagi.agent.common_types import TaskExecutorResponse, ToolExecutorResponse, WebActionExecutorResponse
 from superagi.agent.output_parser import AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
 from superagi.agent.tool_executor import ToolExecutor
@@ -14,6 +14,7 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 class ToolOutputHandler:
     """Handles the tool output response from the thinking step"""
+
     def __init__(self, agent_execution_id: int, agent_config: dict,
                  tools: list, output_parser=AgentSchemaOutputParser()):
         self.agent_execution_id = agent_execution_id
@@ -149,6 +150,39 @@ class ReplaceTaskOutputHandler:
         return TaskExecutorResponse(status=status, retry=False)
 
 
+class WebActionOutputHandler:
+    """Handles the web action  output type.
+    {
+      "action": "TYPE",
+      "action_reference_element": element_id
+      "action_reference_param" : "some text",
+      "status":"RUNNING",
+      "thoughts":"Why you are taking this action"
+    }
+    """
+
+    def __init__(self, agent_execution_id: int, agent_config: dict):
+        self.agent_execution_id = agent_execution_id
+        self.agent_config = agent_config
+
+    def handle(self, session, assistant_reply):
+        agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
+                                                  agent_id=self.agent_config["agent_id"],
+                                                  feed=assistant_reply,
+                                                  role="assistant", feed_group_id="DEFAULT")
+        assistant_reply = JsonCleaner.extract_json_section(assistant_reply)
+        if assistant_reply["status"] == "COMPLETED":
+            assistant_reply["status"] = "RUNNING"
+        session.add(agent_execution_feed)
+        session.commit()
+
+        return WebActionExecutorResponse(action=assistant_reply["action"],
+                                         action_reference_element=assistant_reply["action_reference_element"],
+                                         action_reference_param=assistant_reply["action_reference_param"],
+                                         status=assistant_reply["status"],
+                                         thoughts=assistant_reply["thoughts"])
+
+
 def get_output_handler(output_type: str, agent_execution_id: int, agent_config: dict, agent_tools: list = []):
     if output_type == "tools":
         return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)
@@ -157,5 +191,5 @@ def get_output_handler(output_type: str, agent_execution_id: int, agent_config: 
     elif output_type == "tasks":
         return TaskOutputHandler(agent_execution_id, agent_config)
     elif output_type == "web_action":
-        return
+        return WebActionOutputHandler(agent_execution_id, agent_config)
     return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)

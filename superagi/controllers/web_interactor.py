@@ -69,9 +69,8 @@ async def web_interactor_next_action(request: Request):
     db.session.commit()
     response = AgentExecutor().execute_next_step(agent_execution_id)
     print("THIS IS THE ENDPOINT RESPONSE", response, type(response))
-    response = json.loads(response)
 
-    if response["status"] == "COMPLETED":
+    if response.status == "COMPLETED":
         execution.status = "COMPLETED"
     else:
         execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)

@@ -112,13 +112,14 @@ class AgentIterationStepHandler:
             if str(next_step) == "COMPLETE":
                 execution.current_agent_step_id = -1
                 execution.status = "COMPLETED"
-            elif next_step.output_type == "web_action":
-                execution.current_agent_step_id = next_step.id
-                execution.status = "FRONTEND_WAIT"
             else:
                 AgentExecution.assign_next_step_id(self.session, self.agent_execution_id, next_step.id)
         else:
             execution.iteration_workflow_step_id = next_step_id
+            next_step = IterationWorkflowStep.find_by_id(self.session, next_step_id)
+            if next_step.output_type == "web_action":
+                execution.status = "FRONTEND_WAIT"
+
         self.session.commit()
 
     def _build_agent_prompt(self, iteration_workflow: IterationWorkflow, agent_config: dict,
