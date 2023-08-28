@@ -34,7 +34,7 @@ spec:
   #   source_dir: /
   - dockerfile_path: ./gui/DockerfileProd
     git:
-      branch: docker-digitalocean
+      branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 3000
     instance_count: 1

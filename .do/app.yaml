@@ -34,7 +34,7 @@ services:
 #   source_dir: /
 - dockerfile_path: ./gui/DockerfileProd
   github:
-    branch: docker-digitalocean
+    branch: main
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
   http_port: 3000
