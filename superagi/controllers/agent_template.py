@@ -261,7 +261,6 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
         Returns:
             list: A list of agent templates.
     """
-
     output_json = []
     if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
@@ -274,8 +273,9 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
         local_templates_hash = {}
         for local_template in local_templates:
             local_templates_hash[local_template.marketplace_template_id] = True
+        print(local_templates_hash)
         templates = AgentTemplate.fetch_marketplace_list(search_str, page)
-
+        print(templates)
         for template in templates:
             template["is_installed"] = local_templates_hash.get(template["id"], False)
             template["organisation_id"] = organisation.id
