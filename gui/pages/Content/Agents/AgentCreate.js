@@ -494,21 +494,7 @@ export default function AgentCreate({
     return true;
   }
 
-  const validateModel = async () => {
-    const response = await validateOrAddModels(model)
-    if (response.data.error) {
-      toast.error(response.data.error, {autoClose: 1800});
-      return false;
-    }
-    return true;
-  }
-
   const handleAddAgent = async () => {
-    // if(env === 'DEV' && models.includes(model)) {
-    //   const bool = await validateModel()
-    //   if(!bool) return;
-    // }
-
     if (!validateAgentData(true)) {
       return;
     }
