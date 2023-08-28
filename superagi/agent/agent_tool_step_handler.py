@@ -64,9 +64,9 @@ class AgentToolStepHandler:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
 
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+        self._handle_next_step(next_step)
         if step_tool.tool_name == "WebInteractor":
             return final_response
-        self._handle_next_step(next_step)
         self.session.flush()
 
     def _create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):

@@ -47,12 +47,8 @@ class AgentWorkflowSeed:
                                                                     WriteFileTool().name,
                                                                     "Write a csv file containing the Name, email id, "
                                                                     "contact no")
-        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
-                                                                    ReadFileTool().name,
-                                                                    "Read the contact info csv file")
-        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, str(agent_workflow.id) +"_step5", WebInteractorTool().name, "GO_TO 'https://linkedin.com'")
-        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, str(agent_workflow.id) +"_step5", WebInteractorTool().name, "GO_TO 'https://linkedin.com'")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     WebInteractorTool().name,
                                                                     "Search for the candidate on linkedin")
@@ -60,8 +56,7 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
         session.commit()
 
     @classmethod

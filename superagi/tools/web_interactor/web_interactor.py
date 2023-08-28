@@ -98,8 +98,11 @@ class WebInteractorTool(BaseTool):
         goal = db_agent_workflow_step_tool.input_instruction
         print(goal, "goal")
         history = AgentExecutionFeed.fetch_agent_execution_feeds(self.toolkit_config.session, self.agent_execution_id)
-        history = history.join("/n")
-        output_obj = self.get_element_from_llm(current_page_url, goal, dom_content, history)
+        history_var = ""
+        for feed_obj in history:
+            feed = feed_obj.feed
+            history_var = history_var + feed + "\n"
+        output_obj = self.get_element_from_llm(current_page_url, goal, dom_content, history_var)
 
         # print("************output obj" ,output_obj)
         return output_obj
