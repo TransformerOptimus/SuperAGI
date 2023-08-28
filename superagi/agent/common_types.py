@@ -17,6 +17,6 @@ class TaskExecutorResponse(BaseModel):
 class WebActionExecutorResponse(BaseModel):
     action: str
     action_reference_element: int
-    action_reference_element_param: str
+    action_reference_param: str
     status: str
     thoughts: str

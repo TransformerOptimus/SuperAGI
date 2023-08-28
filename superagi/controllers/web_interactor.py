@@ -3,6 +3,7 @@ import json
 from fastapi import APIRouter, Request
 from fastapi_sqlalchemy import db
 
+from superagi.agent.common_types import WebActionExecutorResponse
 from superagi.jobs.agent_executor import AgentExecutor
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
@@ -68,14 +69,28 @@ async def web_interactor_next_action(request: Request):
     execution.status = "RUNNING"
     db.session.commit()
     response = AgentExecutor().execute_next_step(agent_execution_id)
-    print("THIS IS THE ENDPOINT RESPONSE", response, type(response))
-
-    if response.status == "COMPLETED":
-        execution.status = "COMPLETED"
+    print("RESPONSE HERE", response)
+    if "Tool WebInteractor returned:" in str(response):
+        response = response.result.split("Tool WebInteractor returned:")[1]
+        response = response.strip()
+        response = json.loads(response)
+        response["status"] = "COMPLETED"
+        print("CHECEK HERE TOO", response)
+        action_reference_element = 0
+        if action_reference_element is not None:
+            action_reference_element = int(action_reference_element)
+        response1 = WebActionExecutorResponse(action=response["action"], status=response["status"], action_reference_element= action_reference_element, action_reference_param= response["action_reference_param"], thoughts=response["thoughts"])
+        if response["action_reference_element"] is None:
+            response1.action_reference_element = 0
+        return response1
     else:
-        execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)
-        execution.status = "PAUSED"
-    print(execution.status)
-    db.session.commit()
-    db.session.flush()
-    return response
+        print("THIS IS THE ENDPOINT RESPONSE", response, type(response))
+        if response.status == "COMPLETED":
+            execution.status = "COMPLETED"
+        else:
+            execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)
+            execution.status = "FRONTEND_WAIT"
+        print(execution.status)
+        db.session.commit()
+        db.session.flush()
+        return response

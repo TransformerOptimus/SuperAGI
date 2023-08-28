@@ -167,7 +167,7 @@ class AgentExecution(DBBaseModel):
             agent_execution.iteration_workflow_step_id = trigger_step.id
         elif next_step.action_type == "TOOL":
             next_step_tool = AgentWorkflowStepTool.find_by_id(session, next_step.action_reference_id)
-            if next_step_tool.tool_name == "Web Interactor":
+            if next_step_tool.tool_name == "WebInteractor":
                 agent_execution.status = "FRONTEND_WAIT"
         session.commit()
 

@@ -38,7 +38,7 @@ class AgentWorkflowStepTool(DBBaseModel):
         """
 
         return f"AgentWorkflowStep(id={self.id}, " \
-               f"prompt='{self.tool_name}', agent_id={self.tool_instruction})"
+               f"prompt='{self.tool_name}', agent_id={self.input_instruction})"
     
     def to_dict(self):
         """

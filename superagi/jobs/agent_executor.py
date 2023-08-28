@@ -63,13 +63,14 @@ class AgentExecutor:
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
+            web_interactor_response = None
             try:
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
                                                              llm=get_model(model=agent_config["model"], api_key=model_api_key)
                                                              , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                              memory=memory)
-                    tool_step_handler.execute_step()
+                    web_interactor_response = tool_step_handler.execute_step()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
                     iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],
@@ -89,6 +90,8 @@ class AgentExecutor:
                             "execution")
                 session.close()
                 return
+            if web_interactor_response is not None:
+                return web_interactor_response
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=10)
             # superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
         finally:

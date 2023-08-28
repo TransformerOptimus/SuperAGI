@@ -23,6 +23,7 @@ from superagi.tools.searx.searx import SearxSearchTool
 from superagi.tools.slack.send_message import SlackMessageTool
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.tools.twitter.send_tweets import SendTweetsTool
+from superagi.tools.web_interactor.web_interactor import WebInteractorTool
 from superagi.tools.webscaper.tools import WebScraperTool
 
 
@@ -46,10 +47,21 @@ class AgentWorkflowSeed:
                                                                     WriteFileTool().name,
                                                                     "Write a csv file containing the Name, email id, "
                                                                     "contact no")
-        # step4 = AgentWorkflowStep.find_or_create_web_action_workflow_step(session, agent_workflow.id, "GO_TO"
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    ReadFileTool().name,
+                                                                    "Read the contact info csv file")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, str(agent_workflow.id) +"_step5", WebInteractorTool().name, "GO_TO 'https://linkedin.com'")
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "Search for the candidate on linkedin")
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "COMPLETE")
         session.commit()
 
     @classmethod
