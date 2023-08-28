@@ -15,7 +15,7 @@ spec:
       match:
         path:
           prefix: /api
-  name: monkfish-app
+  name: superagi
   region: blr
   services:
   - dockerfile_path: Dockerfile
