@@ -5,6 +5,8 @@ databases:
 - engine: PG
   name: super-agi-main
   num_nodes: 1
+  size: basic-xs
+  version: "12"
 ingress:
   rules:
   - component:
@@ -26,5 +28,6 @@ services:
     repo: TransformerOptimus/SuperAGI
   http_port: 8001
   instance_count: 1
+  instance_size_slug: basic-xs
   name: superagi-backend
   source_dir: /

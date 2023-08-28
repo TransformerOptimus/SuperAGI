@@ -1,5 +1,5 @@
 # Stage 1: Compile image
-FROM python:3.10-slim-bullseye AS compile-image
+FROM python:3.10-bullseye AS compile-image
 WORKDIR /app
 
 RUN apt-get update && \
@@ -20,7 +20,7 @@ COPY . .
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh ./install_tool_dependencies.sh ./entrypoint_celery.sh
 
 # Stage 2: Build image
-FROM python:3.10-slim-bullseye AS build-image
+FROM python:3.10-bullseye AS build-image
 WORKDIR /app
 
 RUN apt-get update && \
@@ -36,4 +36,4 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 EXPOSE 8001
 
-CMD ["./entrypoint.sh"]
+CMD ["/app/entrypoint.sh"]
