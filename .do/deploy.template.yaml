@@ -29,5 +29,6 @@ spec:
     http_port: 8001
     instance_count: 1
     instance_size_slug: basic-xs
+    run_command: /app/entrypoint.sh
     name: superagi-backend
     source_dir: /
