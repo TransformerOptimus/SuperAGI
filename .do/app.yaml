@@ -41,3 +41,4 @@ services:
   instance_count: 1
   instance_size_slug: basic-xs
   name: superagi-gui
+  source_dir: ./gui
