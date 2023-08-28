@@ -20,3 +20,4 @@ class Webhooks(DBBaseModel):
     url = Column(String)
     headers=Column(JSON)
     is_deleted=Column(Boolean)
+    filters=Column(JSON)

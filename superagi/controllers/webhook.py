@@ -17,6 +17,7 @@ class WebHookIn(BaseModel):
     name: str
     url: str
     headers: dict
+    filters: dict
 
     class Config:
         orm_mode = True
@@ -52,7 +53,7 @@ def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
             HTTPException (Status Code=404): If the associated project is not found.
     """
     db_webhook = Webhooks(name=webhook.name, url=webhook.url, headers=webhook.headers, org_id=organisation.id,
-                          is_deleted=False)
+                          is_deleted=False, filters=webhook.filters)
     db.session.add(db_webhook)
     db.session.commit()
     db.session.flush()
