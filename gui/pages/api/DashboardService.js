@@ -362,3 +362,4 @@ export const fetchModelData = (model) => {
 export const fetchMarketPlaceModel = () => {
   return api.get(`/models_controller/get/list`)
 }
+
