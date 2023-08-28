@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, and_
 from sqlalchemy.sql import func
 from typing import List, Dict, Union
 from superagi.models.base_model import DBBaseModel
+from superagi.helper.encyption_helper import encrypt_data, decrypt_data
 import requests, logging
 
 # marketplace_url = "https://app.superagi.com/api"
@@ -206,6 +207,8 @@ class Models(DBBaseModel):
     def validate_model_in_db(cls, session, organisation_id, model):
         try:
             from superagi.models.models_config import ModelsConfig
+            from superagi.models.configuration import Configuration
+
             models = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032,
                           "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184, "gpt-4-32k": 32768}
 
@@ -216,9 +219,25 @@ class Models(DBBaseModel):
                                                                     ModelsConfig.org_id == organisation_id).first()
 
                 if model_provider is None:
-                    return {"error": "Model not found and the API Key is missing"}
+                    configurations = session.query(Configuration).filter(Configuration.key == 'model_api_key',
+                                                                         Configuration.organisation_id == organisation_id).first()
+                    model_api_key = decrypt_data(configurations.value)
+
+                    if configurations is None:
+                        return {"error": "Model not found and the API Key is missing"}
+
+                    model_details = ModelsConfig.store_api_key(session, organisation_id, "OpenAI", model_api_key)
+
+                    # Get 'model_provider_id'
+                    model_provider_id = model_details.get('model_provider_id')
+
+                    result = cls.store_model_details(session, organisation_id, model, model, '',
+                                                     model_provider_id, models[model], 'Custom', '')
+                    if result is not None:
+                        return {"success": "Model was not Installed, so I have dont it for you"}
+
                 else:
-                    result = cls.store_model_details(session, organisation_id, model, model,'',
+                    result = cls.store_model_details(session, organisation_id, model, model, '',
                                                      model_provider.id, models[model], 'Custom', '')
                     if result is not None:
                         return {"success": "Model was not Installed, so I have dont it for you"}
