@@ -16,24 +16,29 @@ class KnowledgeHandler:
         self.organisation_id = organisation_id
 
 
-    def get_knowledge_wise_usage(self) -> Dict[str, Dict[str, int]]:
+    def get_knowledge_usage_by_name(self, knowledge_name: str) -> Dict[str, Dict[str, int]]:
 
+        is_knowledge_valid = self.session.query(Knowledges.id).filter_by(name=knowledge_name).filter(Knowledges.organisation_id == self.organisation_id).first()
+        if not is_knowledge_valid:
+            raise HTTPException(status_code=404, detail="Knowledge not found")
         EventAlias = aliased(Event)
 
-        query_data = self.session.query(
+        knowledge_used_event = self.session.query(
             Event.event_property['knowledge_name'].label('knowledge_name'),
             func.count(Event.agent_id.distinct()).label('knowledge_unique_agents')
         ).filter(
             Event.event_name == 'knowledge_picked',
-            Event.org_id == self.organisation_id
+            Event.org_id == self.organisation_id,
+            Event.event_property['knowledge_name'].astext == knowledge_name
         ).group_by(
             Event.event_property['knowledge_name']
-        ).all()
-        print(query_data)
+        ).first()
 
-        return {
-            record.knowledge_name: {
-                'knowledge_unique_agents': record.knowledge_unique_agents,
+        if knowledge_used_event is None:
+            return {}
+
+        knowledge_data = {
+                'knowledge_unique_agents': knowledge_used_event.knowledge_unique_agents,
                 'knowledge_calls': self.session.query(
                     EventAlias
                 ).filter(
@@ -43,11 +48,12 @@ class KnowledgeHandler:
                     EventAlias.agent_id.in_(self.session.query(Event.agent_id).filter(
                         Event.event_name == 'knowledge_picked',
                         Event.org_id == self.organisation_id,
-                        Event.event_property['knowledge_name'].astext == record.knowledge_name
+                        Event.event_property['knowledge_name'].astext == knowledge_name
                     ))
                 ).count()
-            } for record in query_data
-        }
+            }
+
+        return knowledge_data
     
 
     def get_knowledge_events_by_name(self, knowledge_name: str) -> List[Dict[str, Union[str, int]]]:

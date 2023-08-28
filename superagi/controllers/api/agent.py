@@ -152,7 +152,7 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
                                                    agent_id, 
                                                    organisation.id if organisation else 0)
     
-    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(db.session, 'knowledge', agent_id)
+    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_id)
     if agent_execution_knowledge:
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:

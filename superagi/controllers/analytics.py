@@ -62,22 +62,26 @@ def get_tools_used(organisation=Depends(get_user_organisation)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/tools/usage", status_code=200)
-def get_tool_usage(organisation=Depends(get_user_organisation)):
+@router.get("/tools/{tool_name}/usage", status_code=200)
+def get_tool_usage(tool_name: str, organisation=Depends(get_user_organisation)):
     try: 
-        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_wise_usage()
+        return ToolsHandler(session=db.session, organisation_id=organisation.id).get_tool_usage_by_name(tool_name)
     except Exception as e:
-        logging.error(f"Error while getting the tools' usage details: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        if hasattr(e, 'status_code'):
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        else:
+            raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/knowledge/usage", status_code=200)
-def get_knowledge_usage(organisation=Depends(get_user_organisation)):
+@router.get("/knowledge/{knowledge_name}/usage", status_code=200)
+def get_knowledge_usage(knowledge_name:str, organisation=Depends(get_user_organisation)):
     try: 
-        return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_wise_usage()
+        return KnowledgeHandler(session=db.session, organisation_id=organisation.id).get_knowledge_usage_by_name(knowledge_name)
     except Exception as e:
-        logging.error(f"Error while getting the knowledge usage details: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        if hasattr(e, 'status_code'):
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+        else:
+            raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.get("/tools/{tool_name}/logs", status_code=200)
@@ -89,7 +93,7 @@ def get_tool_logs(tool_name: str, organisation=Depends(get_user_organisation)):
         if hasattr(e, 'status_code'):
             raise HTTPException(status_code=e.status_code, detail=e.detail)
         else:
-            raise HTTPException(status_code=500, detail="Internal Server Error")    
+            raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/knowledge/{knowledge_name}/logs", status_code=200)
 def get_knowledge_logs(knowledge_name: str, organisation=Depends(get_user_organisation)):

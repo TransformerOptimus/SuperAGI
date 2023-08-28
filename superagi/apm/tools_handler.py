@@ -59,25 +59,32 @@ class ToolsHandler:
 
         return tool_usage
     
-    def get_tool_wise_usage(self) -> Dict[str, Dict[str, int]]:
+    def get_tool_usage_by_name(self, tool_name: str) -> Dict[str, Dict[str, int]]:
+        is_tool_name_valid = self.session.query(Tool).filter_by(name=tool_name).first()
 
-        tool_used_events = self.session.query(
+        if not is_tool_name_valid:
+            raise HTTPException(status_code=404, detail="Tool not found")
+        formatted_tool_name = tool_name.lower().replace(" ", "")
+
+        tool_used_event = self.session.query(
             Event.event_property['tool_name'].label('tool_name'), 
             func.count(Event.id).label('tool_calls'),
             func.count(distinct(Event.agent_id)).label('tool_unique_agents')
         ).filter(
             Event.event_name == 'tool_used', 
-            Event.org_id == self.organisation_id
+            Event.org_id == self.organisation_id,
+            Event.event_property['tool_name'].astext == formatted_tool_name
         ).group_by(
             Event.event_property['tool_name']
-        )
+        ).first()
+
+        if tool_used_event is None:
+            return {}
 
         tool_data = {
-            event.tool_name: {
-                'tool_calls': event.tool_calls,
-                'tool_unique_agents': event.tool_unique_agents
-            } for event in tool_used_events
-        }
+                'tool_calls': tool_used_event.tool_calls,
+                'tool_unique_agents': tool_used_event.tool_unique_agents
+            }
 
         return tool_data
 

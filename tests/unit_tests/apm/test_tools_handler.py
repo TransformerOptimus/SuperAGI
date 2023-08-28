@@ -64,23 +64,34 @@ def test_get_tool_and_toolkit(tools_handler, mock_session):
     assert isinstance(output, dict)
     assert output == {'tool 1': 'toolkit 1'} 
 
-def test_get_tool_wise_usage(tools_handler, mock_session):
+def test_get_tool_usage_by_name(tools_handler, mock_session):
     tools_handler.session = mock_session
+    tool_name = 'Tool1'
+    formatted_tool_name = tool_name.lower().replace(" ", "")
+
+    mock_tool = MagicMock()
+    mock_tool.name = tool_name
+    
     mock_tool_event = MagicMock()
-    mock_tool_event.tool_name = 'Tool1'
+    mock_tool_event.tool_name = formatted_tool_name
     mock_tool_event.tool_calls = 10
     mock_tool_event.tool_unique_agents = 5
+    
+    mock_session.query.return_value.filter_by.return_value.first.return_value = mock_tool
+    mock_session.query.return_value.filter.return_value.group_by.return_value.first.return_value = mock_tool_event
 
-    mock_session.query.return_value.filter.return_value.group_by.return_value = [mock_tool_event]
-    result = tools_handler.get_tool_wise_usage()
-
+    result = tools_handler.get_tool_usage_by_name(tool_name=tool_name)
+  
     assert isinstance(result, dict)
     assert result == {
-        'Tool1': {
-            'tool_calls': 10,
-            'tool_unique_agents': 5
-        }
+        'tool_calls': 10,
+        'tool_unique_agents': 5
     }
+
+    mock_session.query.return_value.filter_by.return_value.first.return_value = None
+
+    with pytest.raises(HTTPException):
+        tools_handler.get_tool_usage_by_name(tool_name="NonexistentTool")
 
 def test_get_tool_events_by_name(tools_handler, mock_session):
     tool_name = 'tool1'

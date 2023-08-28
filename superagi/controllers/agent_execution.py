@@ -122,7 +122,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                                      agent_execution_configs=agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
-    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(db.session, 'knowledge', agent_execution.agent_id)
+    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_execution.agent_id)
     
     EventHandler(session=db.session).create_event('run_created', 
                                                   {'agent_execution_id': db_agent_execution.id,
@@ -203,7 +203,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
                                                     'agent_execution_name':db_agent_execution.name},
                                                     agent_execution.agent_id, 
                                                     organisation.id if organisation else 0)
-    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(db.session, 'knowledge', agent_execution.agent_id)
+    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_execution.agent_id)
     if agent_execution_knowledge:
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
