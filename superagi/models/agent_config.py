@@ -115,3 +115,12 @@ class AgentConfiguration(DBBaseModel):
 #         if selected_model_source == ModelSourceType.Replicate:
 #             return get_config("REPLICATE_API_TOKEN")
 #         return get_config("OPENAI_API_KEY")
+#  
+    @classmethod
+    def get_agent_config_by_key_and_agent_id(cls, session, key: str, agent_id: int):
+        knowledge_config = session.query(AgentConfiguration).filter(
+            AgentConfiguration.agent_id == agent_id,
+            AgentConfiguration.key == key
+        ).first()
+
+        return knowledge_config

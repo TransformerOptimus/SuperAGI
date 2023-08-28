@@ -84,6 +84,7 @@ class ToolsHandler:
     def get_tool_events_by_name(self, tool_name: str) -> List[Dict[str, Union[str, int, List[str]]]]:    
 
         is_tool_name_valid = self.session.query(Tool).filter_by(name=tool_name).first()
+
         if not is_tool_name_valid:
             raise HTTPException(status_code=404, detail="Tool not found")
 
@@ -154,7 +155,10 @@ class ToolsHandler:
             other_tools, event_tool_used.c.agent_id == other_tools.c.agent_id, isouter=True
         ).all()
 
-        user_timezone = self.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id == Event.agent_id).first()
+        user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= self.session,key= 'user_timezone', agent_id= Event.agent_id)
+        if user_timezone.value is None:
+            user_timezone.value = 'GMT'
+
         return [{
             'agent_id': row.agent_id,
             'created_at': row.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),

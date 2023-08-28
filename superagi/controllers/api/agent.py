@@ -152,14 +152,15 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
                                                    agent_id, 
                                                    organisation.id if organisation else 0)
     
-    agent_execution_knowledge = db.session.query(AgentConfiguration).filter(AgentConfiguration.key == 'knowledge').filter(AgentConfiguration.agent_id == agent_id).first()
+    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(db.session, 'knowledge', agent_id)
     if agent_execution_knowledge:
-        knowledge_name = db.session.query(Knowledges.name).filter(Knowledges.id == int(agent_execution_knowledge.value)).filter(Knowledges.organisation_id == organisation.id).first()[0]
-        EventHandler(session=db.session).create_event('knowledge_picked', 
-                                                      {'knowledge_name': knowledge_name},
-                                                      agent_id,
-                                                      organisation.id if organisation else 0
-                                                      )
+        knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
+        if knowledge_name is not None:
+            EventHandler(session=db.session).create_event('knowledge_picked', 
+                                                        {'knowledge_name': knowledge_name},
+                                                        agent_id,
+                                                        organisation.id if organisation else 0
+                                                        )
 
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())

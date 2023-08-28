@@ -29,6 +29,7 @@ class KnowledgeHandler:
         ).group_by(
             Event.event_property['knowledge_name']
         ).all()
+        print(query_data)
 
         return {
             record.knowledge_name: {
@@ -92,6 +93,7 @@ class KnowledgeHandler:
             Event.event_name == 'agent_created'
         ).group_by(Event.agent_id).subquery()
 
+
         result = self.session.query(
             event_knowledge_picked.c.agent_id,
             event_knowledge_picked.c.created_at,
@@ -109,7 +111,10 @@ class KnowledgeHandler:
             event_agent_created, event_knowledge_picked.c.agent_id == event_agent_created.c.agent_id
         ).all()
 
-        user_timezone = self.session.query(AgentConfiguration).filter(AgentConfiguration.key == "user_timezone", AgentConfiguration.agent_id == Event.agent_id).first()
+        user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= self.session,key= 'user_timezone', agent_id= Event.agent_id)
+        if user_timezone.value is None:
+            user_timezone.value = 'GMT'
+
         return [{
             'agent_id': row.agent_id,
             'created_at': row.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),

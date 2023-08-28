@@ -62,13 +62,14 @@ class ScheduledAgentExecutor:
                                                     'agent_execution_name':db_agent_execution.name},
                                                     agent_id,
                                                     organisation.id if organisation else 0)
-        agent_execution_knowledge = session.query(AgentConfiguration).filter(AgentConfiguration.key == 'knowledge').filter(AgentConfiguration.agent_id == agent_id).first()
+        agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session, 'knowledge', agent_id)
         if agent_execution_knowledge:
-            knowledge_name = session.query(Knowledges.name).filter(Knowledges.id == int(agent_execution_knowledge.value)).filter(Knowledges.organisation_id == organisation.id).first()[0]
-            EventHandler(session=session).create_event('knowledge_picked', 
-                                                       {'knowledge_name': knowledge_name},
-                                                       agent_id, 
-                                                       organisation.id if organisation else 0)
+            knowledge_name = Knowledges.get_knowledge_from_id(session, int(agent_execution_knowledge.value)).name
+            if knowledge_name is not None:
+                EventHandler(session=session).create_event('knowledge_picked', 
+                                                        {'knowledge_name': knowledge_name},
+                                                        agent_id, 
+                                                        organisation.id if organisation else 0)
         session.commit()
 
         if db_agent_execution.status == "RUNNING":
