@@ -36,4 +36,4 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 EXPOSE 8001
 
-CMD ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
