@@ -21,6 +21,10 @@ spec:
     name: superagi-frontend
     source_dir: ./gui
   - dockerfile_path: Dockerfile
+    envs:
+    - key: DB_URL
+      scope: RUN_TIME
+      value: ${super-agi-main.DATABASE_URL}
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus
