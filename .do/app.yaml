@@ -23,7 +23,7 @@ services:
     scope: RUN_TIME
     value: ${super-agi-main.DATABASE_URL}
   github:
-    branch: main
+    branch: docker-digitalocean
     deploy_on_push: true
     repo: TransformerOptimus/SuperAGI
   http_port: 8001
@@ -32,3 +32,12 @@ services:
   run_command: /app/entrypoint.sh
   name: superagi-backend
   source_dir: /
+- dockerfile_path: ./gui/DockerfileProd
+  github:
+    branch: docker-digitalocean
+    deploy_on_push: true
+    repo: TransformerOptimus/SuperAGI
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: basic-xs
+  name: superagi-gui

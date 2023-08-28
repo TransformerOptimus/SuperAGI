@@ -24,7 +24,7 @@ spec:
       scope: RUN_TIME
       value: ${super-agi-main.DATABASE_URL}
     git:
-      branch: main
+      branch: docker-digitalocean
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 8001
     instance_count: 1
@@ -32,3 +32,13 @@ spec:
     run_command: /app/entrypoint.sh
     name: superagi-backend
     source_dir: /
+  - dockerfile_path: ./gui/DockerfileProd
+    git:
+      branch: docker-digitalocean
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: basic-xs
+    run_command: /app/entrypoint.sh
+    name: superagi-gui
+    source_dir: ./gui
