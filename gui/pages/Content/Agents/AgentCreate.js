@@ -11,7 +11,7 @@ import {
   updateExecution,
   uploadFile,
   getAgentDetails, addAgentRun, fetchModels,
-  getAgentWorkflows
+  getAgentWorkflows, validateOrAddModels
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -56,7 +56,7 @@ export default function AgentCreate({
   const [searchValue, setSearchValue] = useState('');
   const [showButton, setShowButton] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
-  const [modelsArray, setModelsArray] = useState([]);
+  const [modelsArray, setModelsArray] = useState(['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -69,7 +69,7 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001', 'replicate-llama13b-v2-chat']
+  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -494,7 +494,7 @@ export default function AgentCreate({
     return true;
   }
 
-  const handleAddAgent = () => {
+  const handleAddAgent = async () => {
     if (!validateAgentData(true)) {
       return;
     }
