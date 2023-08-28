@@ -2,30 +2,63 @@ import React, {useState, useEffect, useRef} from 'react';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
- getApiKeys,
+  getApiKeys, getToolMetrics, getToolLogs,
 } from "@/pages/api/DashboardService";
 import {
   loadingTextEffect,
 } from "@/utils/utils";
 
-export default function Metrics() {
+export default function Metrics({toolName, knowledgeName}) {
   const [apiKeys, setApiKeys] = useState([]);
   const [totalTokens, setTotalTokens] = useState(0)
   const [totalAgentsUsing, setTotalAgentsUsing] = useState(0)
   const [totalCalls, setTotalCalls] = useState(0)
-  const [callLogs, setCallLogs] = useState(null)
+  const [callLogs, setCallLogs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadingText, setLoadingText] = useState("Loading Metrics");
   const metricsData = [
     { label: 'Total Calls', value: totalCalls },
-    { label: 'Total Tokens Consumed', value: totalTokens },
     { label: 'Total Agents Using', value: totalAgentsUsing }
   ];
 
   useEffect(() => {
     loadingTextEffect('Loading Metrics', setLoadingText, 500);
+    console.log(toolName)
+    if(toolName && knowledgeName === ''){
+      fetchToolMetrics()
+    }
     fetchApiKeys()
   }, []);
+
+  useEffect(() => {
+    if(toolName){
+      fetchToolMetrics()
+      fetchToolLogs()
+    }
+  }, [toolName]);
+
+  const fetchToolMetrics = () => {
+    getToolMetrics(toolName)
+      .then((response) => {
+        setTotalAgentsUsing(response.data.tool_unique_agents ? response.data.tool_unique_agents : 0)
+        setTotalCalls(response.data.tool_calls ? response.data.tool_calls : 0)
+        setIsLoading(false)
+      })
+      .catch((error) => {
+        console.error('Error fetching Metrics', error);
+      });
+  }
+
+  const fetchToolLogs = () => {
+    getToolLogs(toolName)
+      .then((response) => {
+        setCallLogs(response.data ? response.data : [])
+        setIsLoading(false)
+      })
+      .catch((error) => {
+        console.error('Error fetching Metrics', error);
+      });
+  }
 
   const fetchApiKeys = () => {
     getApiKeys()
@@ -61,7 +94,7 @@ export default function Metrics() {
             </div>
               <div className="display_column_container mt_5">
                 <span className="text_14">Call Logs</span>
-                {apiKeys.length > 0 ? <div className="scrollable_container table_container" style={{background: 'none'}}>
+                {callLogs.length > 0 ? <div className="scrollable_container table_container" style={{background: 'none'}}>
                   <table className="w_100 margin_0 padding_0">
                     <thead>
                     <tr className="border_top_none text_align_left" style={{borderBottom: 'none'}}>
@@ -76,13 +109,13 @@ export default function Metrics() {
                   <div className="overflow_auto w_100">
                     <table className="table_css margin_0">
                       <tbody>
-                      {apiKeys.map((item, index) => (
+                      {callLogs.map((item, index) => (
                         <tr key={index} className="text_align_left">
                           <td className="table_data w_15 border_gray border_left_none">{item.created_at}</td>
-                          <td className="table_data w_15 border_gray">{item.name}</td>
-                          <td className="table_data w_40 border_gray">{item.name}</td>
-                          <td className="table_data w_15 border_gray">{item.name}</td>
-                          <td className="table_data w_15 border_gray">34</td>
+                          <td className="table_data w_15 border_gray">{item.agent_name}</td>
+                          <td className="table_data w_40 border_gray">{item.agent_execution_name}</td>
+                          <td className="table_data w_15 border_gray">{item.model}</td>
+                          <td className="table_data w_15 border_gray">{item.tokens_consumed}</td>
                         </tr>
                       ))}
                       </tbody>

@@ -363,3 +363,10 @@ export const fetchMarketPlaceModel = () => {
   return api.get(`/models_controller/get/list`)
 }
 
+export const getToolMetrics = (toolName) => {
+  return api.get(`analytics/tools/${toolName}/usage`)
+}
+
+export const getToolLogs = (toolName) => {
+  return api.get(`analytics/tools/${toolName}/logs`)
+}

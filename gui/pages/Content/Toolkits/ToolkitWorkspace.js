@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import {
@@ -18,6 +18,10 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   const [toolsIncluded, setToolsIncluded] = useState([]);
   const [loading, setLoading] = useState(true);
   const authenticateToolkits = ['Google Calendar Toolkit', 'Twitter Toolkit'];
+  const [toolDropdown, setToolDropdown] = useState(false);
+  const toolRef = useRef(null);
+  const [currTool, setCurrTool] = useState(false);
+
 
   let handleKeyChange = (event, index) => {
     const updatedData = [...apiConfigs];
@@ -45,6 +49,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
     if (toolkitDetails !== null) {
       if (toolkitDetails.tools) {
         setToolsIncluded(toolkitDetails.tools);
+        setCurrTool(toolkitDetails.tools[0].name)
       }
 
       getToolConfig(toolkitDetails.name)
@@ -116,6 +121,17 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
     }
   }, [internalId]);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (toolRef.current && !toolRef.current.contains(event.target)) {
+        setToolDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   return (<>
     <div className="row">
       <div className="col-12 col-6-scrollable">
@@ -146,6 +162,24 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
                  onClick={() => setLocalStorageValue('toolkit_tab_' + String(internalId), 'tools_included', setActiveTab)}>
               <div className="text_12 color_white padding_8">Tools Included</div>
             </div>
+            {!loading && activeTab === 'metrics' && <div className="display_flex_container w_73 justify_end">
+              <div className="dropdown_container_search w_20">
+                <div className="custom_select_container" onClick={() => setToolDropdown(!toolDropdown)}
+                     style={{width: '100%'}}>
+                  {currTool}<Image width={20} height={21}
+                                        src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                        alt="expand-icon"/>
+                </div>
+                <div>
+                  {toolDropdown && <div className="custom_select_options text_align_left w_100" ref={toolRef}>
+                    {toolsIncluded.map((tool, index) => (
+                      <div key={index} className="custom_select_option mxw_100 padding_12_14" onClick={() => {setCurrTool(tool.name); setToolDropdown(false)}}>
+                        {tool.name}
+                      </div>))}
+                  </div>}
+                </div>
+              </div>
+            </div>}
           </div>
           <div className="row">
             <div className="col-3"></div>
@@ -187,7 +221,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
           <div className="col-3"></div>
           </div>
           {activeTab === 'metrics' && <div>
-            <Metrics />
+            <Metrics toolName={currTool} />
           </div>}
         </div>
       </div>
