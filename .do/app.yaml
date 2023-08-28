@@ -1,9 +1,17 @@
+ingress:
+  rules:
+  - component:
+      name: sample-backend
+    match:
+      path:
+        prefix: /api
 name: superagi
 services:
 - dockerfile_path: Dockerfile
   github:
     branch: main
     deploy_on_push: true
-    repo: TransformerOptimus/SuperAGI
+    repo: TransformerOptimus/Superagi
   http_port: 8001
+  source_dir: ./
   name: sample-backend
