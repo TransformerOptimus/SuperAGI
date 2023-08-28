@@ -25,7 +25,6 @@ spec:
       value: ${super-agi-main.DATABASE_URL}
     git:
       branch: main
-      deploy_on_push: true
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 8001
     instance_count: 1
