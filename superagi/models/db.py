@@ -2,10 +2,11 @@ from sqlalchemy import create_engine
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 
-database_url = get_config('POSTGRES_URL')
+db_host = get_config('DB_HOST', 'super__postgres')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
+database_url = get_config('DB_URL', None)
 
 engine = None
 
@@ -23,10 +24,12 @@ def connect_db():
         return engine
 
     # Create the connection URL
-    if db_username is None:
-        db_url = f'postgresql://{database_url}/{db_name}'
-    else:
-        db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
+    db_url = database_url
+    if db_url is None:
+        if db_username is None:
+            db_url = f'postgresql://{db_host}/{db_name}'
+        else:
+            db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
 
     # Create the SQLAlchemy engine
     engine = create_engine(db_url,

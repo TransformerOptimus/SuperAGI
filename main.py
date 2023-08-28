@@ -38,6 +38,9 @@ from superagi.controllers.knowledge_configs import router as knowledge_configs_r
 from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.vector_db_indices import router as vector_db_indices_router
 from superagi.controllers.marketplace_stats import router as marketplace_stats_router
+from superagi.controllers.api_key import router as api_key_router
+from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.webhook import router as web_hook_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -50,19 +53,20 @@ from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
-
 app = FastAPI()
 
-database_url = get_config('POSTGRES_URL')
+db_host = get_config('DB_HOST')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
+db_url = get_config('DB_URL', None)
 env = get_config('ENV', "DEV")
 
-if db_username is None:
-    db_url = f'postgresql://{database_url}/{db_name}'
-else:
-    db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
+if db_url is None:
+    if db_username is None:
+        db_url = f'postgresql://{db_host}/{db_name}'
+    else:
+        db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
 
 engine = create_engine(db_url)
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -113,7 +117,9 @@ app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
 app.include_router(vector_dbs_router, prefix="/vector_dbs")
 app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
 app.include_router(marketplace_stats_router, prefix="/marketplace")
-
+app.include_router(api_key_router, prefix="/api-keys")
+app.include_router(api_agent_router,prefix="/v1/agent")
+app.include_router(web_hook_router,prefix="/webhook")
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
@@ -370,3 +376,4 @@ def github_client_id():
 
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
