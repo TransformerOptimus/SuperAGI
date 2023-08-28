@@ -56,7 +56,6 @@ class AgentExecutor:
                 return
 
             model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
-            print(model_config)
             model_api_key = model_config['api_key']
             model_llm_source = model_config['provider']
             try:
@@ -72,8 +71,6 @@ class AgentExecutor:
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             try:
-                print(agent_config["model"])
-                print(model_api_key)
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
                                                              llm=get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id)
@@ -107,9 +104,6 @@ class AgentExecutor:
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):
-        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-        print(model_source)
-        print(model_api_key)
         if "OpenAI" in model_source:
             return OpenAiEmbedding(api_key=model_api_key)
         if "Google" in model_source:

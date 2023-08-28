@@ -110,8 +110,6 @@ class ModelsConfig(DBBaseModel):
         if api_key_data is None:
             return []
         else:
-            print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-            print(decrypt_data(api_key_data.api_key))
             api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
                         'api_key': decrypt_data(api_key_data.api_key)}]
             return api_key
