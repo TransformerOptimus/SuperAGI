@@ -240,7 +240,7 @@ class Models(DBBaseModel):
                     result = cls.store_model_details(session, organisation_id, model, model, '',
                                                      model_provider.id, models[model], 'Custom', '')
                     if result is not None:
-                        return {"success": "Model was not Installed, so I have dont it for you"}
+                        return {"success": "The Model has been Successfully installed as it was not previously set up"}
 
             else:
                 return {"success": "Model is found"}
