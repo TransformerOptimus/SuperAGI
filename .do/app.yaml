@@ -1,37 +1,37 @@
 alerts:
 - rule: DEPLOYMENT_FAILED
 - rule: DOMAIN_FAILED
-databases:
-- engine: PG
-  name: super-agi-main
-  num_nodes: 1
-  size: basic-xs
-  version: "12"
-ingress:
-  rules:
-  - component:
-      name: superagi-backend
-    match:
-      path:
-        prefix: /api
+# databases:
+# - engine: PG
+#   name: super-agi-main
+#   num_nodes: 1
+#   size: basic-xs
+#   version: "12"
+# ingress:
+#   rules:
+#   - component:
+#       name: superagi-backend
+#     match:
+#       path:
+#         prefix: /api
 name: superagi
 region: blr
 services:
-- dockerfile_path: Dockerfile
-  envs:
-  - key: DB_URL
-    scope: RUN_TIME
-    value: ${super-agi-main.DATABASE_URL}
-  github:
-    branch: docker-digitalocean
-    deploy_on_push: true
-    repo: TransformerOptimus/SuperAGI
-  http_port: 8001
-  instance_count: 1
-  instance_size_slug: basic-xs
-  run_command: /app/entrypoint.sh
-  name: superagi-backend
-  source_dir: /
+# - dockerfile_path: Dockerfile
+#   envs:
+#   - key: DB_URL
+#     scope: RUN_TIME
+#     value: ${super-agi-main.DATABASE_URL}
+#   github:
+#     branch: docker-digitalocean
+#     deploy_on_push: true
+#     repo: TransformerOptimus/SuperAGI
+#   http_port: 8001
+#   instance_count: 1
+#   instance_size_slug: basic-xs
+#   run_command: /app/entrypoint.sh
+#   name: superagi-backend
+#   source_dir: /
 - dockerfile_path: ./gui/DockerfileProd
   github:
     branch: docker-digitalocean
