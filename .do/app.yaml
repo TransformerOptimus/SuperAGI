@@ -15,20 +15,11 @@ ingress:
 name: superagi
 region: blr
 services:
-- dockerfile_path: ./gui/DockerfileProd
+- dockerfile_path: Dockerfile
   envs:
   - key: DB_URL
     scope: RUN_TIME
     value: ${super-agi-main.DATABASE_URL}
-  github:
-    branch: main
-    deploy_on_push: true
-    repo: TransformerOptimus/SuperAGI
-  http_port: 3000
-  instance_count: 1
-  name: superagi-frontend
-  source_dir: ./gui
-- dockerfile_path: Dockerfile
   github:
     branch: main
     deploy_on_push: true

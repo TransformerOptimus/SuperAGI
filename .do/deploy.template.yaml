@@ -12,14 +12,6 @@ spec:
           prefix: /api
   name: superagi
   services:
-  - dockerfile_path: ./gui/DockerfileProd
-    git:
-      branch: main
-      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
-    http_port: 3000
-    instance_count: 1
-    name: superagi-frontend
-    source_dir: ./gui
   - dockerfile_path: Dockerfile
     envs:
     - key: DB_URL
@@ -27,8 +19,8 @@ spec:
       value: ${super-agi-main.DATABASE_URL}
     git:
       branch: main
-      repo_clone_url: https://github.com/TransformerOptimus
-    http_port: 8001
-    instance_count: 1
-    name: superagi-backend
-    source_dir: /
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+  http_port: 8001
+  instance_count: 1
+  name: superagi-backend
+  source_dir: /
