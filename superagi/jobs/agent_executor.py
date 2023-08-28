@@ -70,9 +70,6 @@ class AgentExecutor:
                                                              , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                              memory=memory)
                     tool_step_handler.execute_step()
-                elif agent_workflow_step.action_type == "WEB_ACTION":
-                    agent_execution.status = "FRONTEND_WAIT"
-                    session.commit()
                 elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
                     iteration_step_handler = AgentIterationStepHandler(session,
                                                                   llm=get_model(model=agent_config["model"],

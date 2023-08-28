@@ -5,6 +5,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 
 from superagi.models.base_model import DBBaseModel
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
+from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 
@@ -164,6 +165,10 @@ class AgentExecution(DBBaseModel):
         if next_step.action_type == "ITERATION_WORKFLOW":
             trigger_step = IterationWorkflow.fetch_trigger_step_id(session, next_step.action_reference_id)
             agent_execution.iteration_workflow_step_id = trigger_step.id
+        elif next_step.action_type == "TOOL":
+            next_step_tool = AgentWorkflowStepTool.find_by_id(session, next_step.action_reference_id)
+            if next_step_tool.tool_name == "Web Interactor":
+                agent_execution.status = "FRONTEND_WAIT"
         session.commit()
 
     @classmethod
