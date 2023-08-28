@@ -6,7 +6,7 @@ db_host = get_config('DB_HOST', 'super__postgres')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
-full_db_url = get_config('DB_URL')
+database_url = get_config('DB_URL', None)
 
 engine = None
 
@@ -24,8 +24,8 @@ def connect_db():
         return engine
 
     # Create the connection URL
-    db_url = full_db_url
-    if not db_url:
+    db_url = database_url
+    if db_url is None:
         if db_username is None:
             db_url = f'postgresql://{db_host}/{db_name}'
         else:
