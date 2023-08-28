@@ -20,7 +20,7 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
-  http_port: 8001
-  instance_count: 1
-  name: superagi-backend
-  source_dir: /
+    http_port: 8001
+    instance_count: 1
+    name: superagi-backend
+    source_dir: /
