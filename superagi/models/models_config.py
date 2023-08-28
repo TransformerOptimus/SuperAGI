@@ -76,14 +76,17 @@ class ModelsConfig(DBBaseModel):
                                                                  ModelsConfig.provider == model_provider)).first()
         if existing_entry:
             existing_entry.api_key = encrypt_data(model_api_key)
+            session.commit()
+            result = {'message': 'The API key was successfully updated'}
         else:
             new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider,
                                      api_key=encrypt_data(model_api_key))
             session.add(new_entry)
+            session.commit()
+            session.flush()
+            result = {'message': 'The API key was successfully stored', 'model_provider_id': new_entry.id}
 
-        session.commit()
-
-        return {'message': 'The API key was successfully stored'}
+        return result
 
     @classmethod
     def fetch_api_keys(cls, session, organisation_id):
