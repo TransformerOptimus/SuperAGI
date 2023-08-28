@@ -17,7 +17,9 @@ def test_add_or_update_existing_tool_config(mock_session):
     key = "example_key"
     value = "example_value"
     existing_tool_config = ToolConfig(toolkit_id=toolkit_id, key=key, value="old_value")
-    mock_session.query.return_value.filter_by.return_value.first.return_value = existing_tool_config
+    mock_session.query.return_value.filter_by.return_value.first.return_value = (
+        existing_tool_config
+    )
 
     # Act
     ToolConfig.add_or_update(mock_session, toolkit_id, key, value)

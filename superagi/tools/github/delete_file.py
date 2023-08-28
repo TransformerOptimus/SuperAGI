@@ -1,9 +1,10 @@
 from typing import Type
 
 from pydantic import BaseModel, Field
-from superagi.tools.base_tool import BaseTool
+
 from superagi.helper.github_helper import GithubHelper
 from superagi.lib.logger import logger
+from superagi.tools.base_tool import BaseTool
 
 
 class GithubDeleteFileSchema(BaseModel):
@@ -43,12 +44,20 @@ class GithubDeleteFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     name: str = "Github Delete File"
     args_schema: Type[BaseModel] = GithubDeleteFileSchema
     description: str = "Delete a file or folder inside a particular github repository"
 
-    def _execute(self, repository_name: str, base_branch: str, file_name: str, commit_message: str,
-                 repository_owner: str, folder_path=None) -> str:
+    def _execute(
+        self,
+        repository_name: str,
+        base_branch: str,
+        file_name: str,
+        commit_message: str,
+        repository_owner: str,
+        folder_path=None,
+    ) -> str:
         """
         Execute the delete file tool.
 
@@ -68,22 +77,37 @@ class GithubDeleteFileTool(BaseTool):
             github_access_token = self.get_tool_config("GITHUB_ACCESS_TOKEN")
             github_username = self.get_tool_config("GITHUB_USERNAME")
             github_helper = GithubHelper(github_access_token, github_username)
-            head_branch = 'new-file'
+            head_branch = "new-file"
             headers = {
-                "Authorization": f"token {github_access_token}" if github_access_token else None,
-                "Content-Type": "application/vnd.github+json"
+                "Authorization": f"token {github_access_token}"
+                if github_access_token
+                else None,
+                "Content-Type": "application/vnd.github+json",
             }
             if repository_owner != github_username:
-                fork_response = github_helper.make_fork(repository_owner, repository_name, base_branch, headers)
-            branch_response = github_helper.create_branch(repository_name, base_branch, head_branch, headers)
+                fork_response = github_helper.make_fork(
+                    repository_owner, repository_name, base_branch, headers
+                )
+            branch_response = github_helper.create_branch(
+                repository_name, base_branch, head_branch, headers
+            )
             logger.info("branch_response", branch_response)
             if branch_response == 201 or branch_response == 422:
-                github_helper.sync_branch(github_username, repository_name, base_branch, head_branch, headers)
+                github_helper.sync_branch(
+                    github_username, repository_name, base_branch, head_branch, headers
+                )
 
-            file_response = github_helper.delete_file(repository_name, file_name, folder_path, commit_message,
-                                                      head_branch, headers)
-            pr_response = github_helper.create_pull_request(repository_owner, repository_name, head_branch, base_branch,
-                                                            headers)
+            file_response = github_helper.delete_file(
+                repository_name,
+                file_name,
+                folder_path,
+                commit_message,
+                head_branch,
+                headers,
+            )
+            pr_response = github_helper.create_pull_request(
+                repository_owner, repository_name, head_branch, base_branch, headers
+            )
             if (pr_response == 201 or pr_response == 422) and (file_response == 200):
                 return f"Pull request to Delete {file_name} has been created"
             else:

@@ -1,12 +1,9 @@
-import datetime
 import os
 from pathlib import Path
 
 import boto3
 from botocore.exceptions import NoCredentialsError
-from fastapi import APIRouter
-from fastapi import File, Form, UploadFile
-from fastapi import HTTPException, Depends
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -17,21 +14,27 @@ from superagi.helper.resource_helper import ResourceHelper
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.resource import Resource
-from superagi.worker import summarize_resource
 from superagi.types.storage_types import StorageType
+from superagi.worker import summarize_resource
 
 router = APIRouter()
 
 s3 = boto3.client(
-    's3',
+    "s3",
     aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
     aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
 )
 
 
 @router.post("/add/{agent_id}", status_code=201)
-async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), size=Form(...), type=Form(...),
-                 Authorize: AuthJWT = Depends(check_auth)):
+async def upload(
+    agent_id: int,
+    file: UploadFile = File(...),
+    name=Form(...),
+    size=Form(...),
+    type=Form(...),
+    Authorize: AuthJWT = Depends(check_auth),
+):
     """
     Upload a file as a resource for an agent.
 
@@ -61,13 +64,15 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     if not name.endswith(accepted_file_types):
         raise HTTPException(status_code=400, detail="File type not supported!")
 
-    storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
+    storage_type = StorageType.get_storage_type(
+        get_config("STORAGE_TYPE", StorageType.FILE.value)
+    )
     save_directory = ResourceHelper.get_root_input_dir()
     if "{agent_id}" in save_directory:
-        save_directory = ResourceHelper.get_formatted_agent_level_path(agent=Agent
-                                                                       .get_agent_from_id(session=db.session,
-                                                                                    agent_id=agent_id),
-                                                                       path=save_directory)
+        save_directory = ResourceHelper.get_formatted_agent_level_path(
+            agent=Agent.get_agent_from_id(session=db.session, agent_id=agent_id),
+            path=save_directory,
+        )
     file_path = os.path.join(save_directory, file.filename)
     if storage_type == StorageType.FILE:
         os.makedirs(save_directory, exist_ok=True)
@@ -77,15 +82,25 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
             file.file.close()
     elif storage_type == StorageType.S3:
         bucket_name = get_config("BUCKET_NAME")
-        file_path = 'resources' + file_path
+        file_path = "resources" + file_path
         try:
             s3.upload_fileobj(file.file, bucket_name, file_path)
             logger.info("File uploaded successfully!")
         except NoCredentialsError:
-            raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
+            raise HTTPException(
+                status_code=500,
+                detail="AWS credentials not found. Check your configuration.",
+            )
 
-    resource = Resource(name=name, path=file_path, storage_type=storage_type.value, size=size, type=type, channel="INPUT",
-                        agent_id=agent.id)
+    resource = Resource(
+        name=name,
+        path=file_path,
+        storage_type=storage_type.value,
+        size=size,
+        type=type,
+        channel="INPUT",
+        agent_id=agent.id,
+    )
 
     db.session.add(resource)
     db.session.commit()
@@ -98,8 +113,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
 
 
 @router.get("/get/all/{agent_id}", status_code=200)
-def get_all_resources(agent_id: int,
-                      Authorize: AuthJWT = Depends(check_auth)):
+def get_all_resources(agent_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     Get all resources for an agent.
 
@@ -116,8 +130,7 @@ def get_all_resources(agent_id: int,
 
 
 @router.get("/get/{resource_id}", status_code=200)
-def download_file_by_id(resource_id: int,
-                        Authorize: AuthJWT = Depends(check_auth)):
+def download_file_by_id(resource_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     Download a particular resource by resource_id.
 
@@ -155,7 +168,5 @@ def download_file_by_id(resource_id: int,
     return StreamingResponse(
         content,
         media_type="application/octet-stream",
-        headers={
-            "Content-Disposition": f"attachment; filename={file_name}"
-        }
+        headers={"Content-Disposition": f"attachment; filename={file_name}"},
     )

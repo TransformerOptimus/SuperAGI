@@ -1,3 +1,5 @@
+import numpy as np
+
 from superagi.agent.common_types import TaskExecutorResponse, ToolExecutorResponse
 from superagi.agent.output_parser import AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
@@ -7,15 +9,19 @@ from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
-import numpy as np
-
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 
 
 class ToolOutputHandler:
     """Handles the tool output response from the thinking step"""
-    def __init__(self, agent_execution_id: int, agent_config: dict,
-                 tools: list, output_parser=AgentSchemaOutputParser()):
+
+    def __init__(
+        self,
+        agent_execution_id: int,
+        agent_config: dict,
+        tools: list,
+        output_parser=AgentSchemaOutputParser(),
+    ):
         self.agent_execution_id = agent_execution_id
         self.task_queue = TaskQueue(str(agent_execution_id))
         self.agent_config = agent_config
@@ -38,17 +44,21 @@ class ToolOutputHandler:
         # print(tool_response)
 
         agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
-        agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
-                                                  agent_id=self.agent_config["agent_id"],
-                                                  feed=assistant_reply,
-                                                  role="assistant",
-                                                  feed_group_id=agent_execution.current_feed_group_id)
+        agent_execution_feed = AgentExecutionFeed(
+            agent_execution_id=self.agent_execution_id,
+            agent_id=self.agent_config["agent_id"],
+            feed=assistant_reply,
+            role="assistant",
+            feed_group_id=agent_execution.current_feed_group_id,
+        )
         session.add(agent_execution_feed)
-        tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
-                                                agent_id=self.agent_config["agent_id"],
-                                                feed=tool_response.result,
-                                                role="system",
-                                                feed_group_id=agent_execution.current_feed_group_id)
+        tool_response_feed = AgentExecutionFeed(
+            agent_execution_id=self.agent_execution_id,
+            agent_id=self.agent_config["agent_id"],
+            feed=tool_response.result,
+            role="system",
+            feed_group_id=agent_execution.current_feed_group_id,
+        )
         session.add(tool_response_feed)
         session.commit()
         if not tool_response.retry:
@@ -59,30 +69,44 @@ class ToolOutputHandler:
     def handle_tool_response(self, session, assistant_reply):
         """Only handle processing of tool response"""
         action = self.output_parser.parse(assistant_reply)
-        agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
+        agent = (
+            session.query(Agent)
+            .filter(Agent.id == self.agent_config["agent_id"])
+            .first()
+        )
         organisation = agent.get_agent_organisation(session)
-        tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools)
+        tool_executor = ToolExecutor(
+            organisation_id=organisation.id, agent_id=agent.id, tools=self.tools
+        )
         return tool_executor.execute(session, action.name, action.args)
 
     def _check_permission_in_restricted_mode(self, session, assistant_reply: str):
         action = self.output_parser.parse(assistant_reply)
         tools = {t.name: t for t in self.tools}
 
-        excluded_tools = [ToolExecutor.FINISH, '', None]
+        excluded_tools = [ToolExecutor.FINISH, "", None]
 
-        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
-                tools.get(action.name) and tools[action.name].permission_required:
+        if (
+            self.agent_config["permission_type"].upper() == "RESTRICTED"
+            and action.name not in excluded_tools
+            and tools.get(action.name)
+            and tools[action.name].permission_required
+        ):
             new_agent_execution_permission = AgentExecutionPermission(
                 agent_execution_id=self.agent_execution_id,
                 status="PENDING",
                 agent_id=self.agent_config["agent_id"],
                 tool_name=action.name,
-                assistant_reply=assistant_reply)
+                assistant_reply=assistant_reply,
+            )
 
             session.add(new_agent_execution_permission)
             session.commit()
-            return ToolExecutorResponse(is_permission_required=True, status="WAITING_FOR_PERMISSION",
-                                        permission_id=new_agent_execution_permission.id)
+            return ToolExecutorResponse(
+                is_permission_required=True,
+                status="WAITING_FOR_PERMISSION",
+                permission_id=new_agent_execution_permission.id,
+            )
         return ToolExecutorResponse(status="PENDING", is_permission_required=False)
 
     def _check_for_completion(self, tool_response):
@@ -115,11 +139,13 @@ class TaskOutputHandler:
             logger.info("Adding task to queue: " + str(tasks))
         agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         for task in tasks:
-            agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
-                                                      agent_id=self.agent_config["agent_id"],
-                                                      feed="New Task Added: " + task,
-                                                      role="system",
-                                                      feed_group_id=agent_execution.current_feed_group_id)
+            agent_execution_feed = AgentExecutionFeed(
+                agent_execution_id=self.agent_execution_id,
+                agent_id=self.agent_config["agent_id"],
+                feed="New Task Added: " + task,
+                role="system",
+                feed_group_id=agent_execution.current_feed_group_id,
+            )
             session.add(agent_execution_feed)
         status = "COMPLETE" if len(self.task_queue.get_tasks()) == 0 else "PENDING"
         session.commit()
@@ -149,7 +175,12 @@ class ReplaceTaskOutputHandler:
         return TaskExecutorResponse(status=status, retry=False)
 
 
-def get_output_handler(output_type: str, agent_execution_id: int, agent_config: dict, agent_tools: list = []):
+def get_output_handler(
+    output_type: str,
+    agent_execution_id: int,
+    agent_config: dict,
+    agent_tools: list = [],
+):
     if output_type == "tools":
         return ToolOutputHandler(agent_execution_id, agent_config, agent_tools)
     elif output_type == "replace_tasks":

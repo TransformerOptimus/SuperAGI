@@ -2,7 +2,7 @@ from typing import Type
 
 from pydantic import BaseModel, Field
 
-from superagi.tools.jira.tool import JiraTool, JiraIssueSchema
+from superagi.tools.jira.tool import JiraTool
 
 
 class CreateIssueSchema(BaseModel):
@@ -21,6 +21,7 @@ class CreateIssueTool(JiraTool):
         description : The description.
         args_schema : The args schema.
     """
+
     name = "CreateJiraIssue"
     description = "Create a new Jira issue."
     args_schema: Type[CreateIssueSchema] = CreateIssueSchema

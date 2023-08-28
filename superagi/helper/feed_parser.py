@@ -37,8 +37,12 @@ def parse_feed(feed):
             if "command" in parsed:
                 final_output += "Tool: " + parsed["command"]["name"] + "\n"
 
-            return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at,
-                    "time_difference": feed.time_difference}
+            return {
+                "role": "assistant",
+                "feed": final_output,
+                "updated_at": feed.updated_at,
+                "time_difference": feed.time_difference,
+            }
         except Exception:
             return feed
 
@@ -46,7 +50,11 @@ def parse_feed(feed):
         final_output = feed.feed
         if "json-schema.org" in feed.feed:
             final_output = feed.feed.split("TOOLS:")[0]
-        return {"role": "system", "feed": final_output, "updated_at": feed.updated_at,
-                "time_difference": feed.time_difference}
+        return {
+            "role": "system",
+            "feed": final_output,
+            "updated_at": feed.updated_at,
+            "time_difference": feed.time_difference,
+        }
 
     return feed

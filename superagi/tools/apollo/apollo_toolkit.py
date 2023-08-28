@@ -2,7 +2,7 @@ from abc import ABC
 from typing import List
 
 from superagi.tools.apollo.apollo_search import ApolloSearchTool
-from superagi.tools.base_tool import BaseToolkit, BaseTool, ToolConfiguration
+from superagi.tools.base_tool import BaseTool, BaseToolkit, ToolConfiguration
 from superagi.types.key_type import ToolConfigKeyType
 
 
@@ -14,4 +14,10 @@ class ApolloToolkit(BaseToolkit, ABC):
         return [ApolloSearchTool()]
 
     def get_env_keys(self) -> List[str]:
-        return [ToolConfiguration(key="APOLLO_SEARCH_KEY", key_type=ToolConfigKeyType.STRING, is_required=True)]
+        return [
+            ToolConfiguration(
+                key="APOLLO_SEARCH_KEY",
+                key_type=ToolConfigKeyType.STRING,
+                is_required=True,
+            )
+        ]

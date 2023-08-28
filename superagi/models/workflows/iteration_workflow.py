@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, String, Text, Boolean
+from sqlalchemy import Boolean, Column, Integer, String, Text
 
 from superagi.models.base_model import DBBaseModel
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
@@ -16,7 +16,7 @@ class IterationWorkflow(DBBaseModel):
         description (str): The description of the agent workflow.
     """
 
-    __tablename__ = 'iteration_workflows'
+    __tablename__ = "iteration_workflows"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -31,22 +31,20 @@ class IterationWorkflow(DBBaseModel):
             str: String representation of the AgentWorkflow.
         """
 
-        return f"AgentWorkflow(id={self.id}, name='{self.name}', " \
-               f"description='{self.description}')"
+        return (
+            f"AgentWorkflow(id={self.id}, name='{self.name}', "
+            f"description='{self.description}')"
+        )
 
     def to_dict(self):
         """
-            Converts the AgentWorkflow object to a dictionary.
+        Converts the AgentWorkflow object to a dictionary.
 
-            Returns:
-                dict: Dictionary representation of the AgentWorkflow.
+        Returns:
+            dict: Dictionary representation of the AgentWorkflow.
         """
 
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description
-        }
+        return {"id": self.id, "name": self.name, "description": self.description}
 
     def to_json(self):
         """
@@ -71,11 +69,7 @@ class IterationWorkflow(DBBaseModel):
         """
 
         data = json.loads(json_data)
-        return cls(
-            id=data['id'],
-            name=data['name'],
-            description=data['description']
-        )
+        return cls(id=data["id"], name=data["name"], description=data["description"])
 
     @classmethod
     def fetch_trigger_step_id(cls, session, workflow_id):
@@ -91,9 +85,14 @@ class IterationWorkflow(DBBaseModel):
 
         """
 
-        trigger_step = session.query(IterationWorkflowStep).filter(
-            IterationWorkflowStep.iteration_workflow_id == workflow_id,
-            IterationWorkflowStep.step_type == 'TRIGGER').first()
+        trigger_step = (
+            session.query(IterationWorkflowStep)
+            .filter(
+                IterationWorkflowStep.iteration_workflow_id == workflow_id,
+                IterationWorkflowStep.step_type == "TRIGGER",
+            )
+            .first()
+        )
         return trigger_step
 
     @classmethod
@@ -108,10 +107,16 @@ class IterationWorkflow(DBBaseModel):
         Returns:
             AgentWorkflow: AgentWorkflow object with the given name.
         """
-        return session.query(IterationWorkflow).filter(IterationWorkflow.name == name).first()
+        return (
+            session.query(IterationWorkflow)
+            .filter(IterationWorkflow.name == name)
+            .first()
+        )
 
     @classmethod
-    def find_or_create_by_name(cls, session, name: str, description: str, has_task_queue: bool = False):
+    def find_or_create_by_name(
+        cls, session, name: str, description: str, has_task_queue: bool = False
+    ):
         """
         Finds an IterationWorkflow by name or creates it if it does not exist.
         Args:
@@ -119,8 +124,11 @@ class IterationWorkflow(DBBaseModel):
             name (str): Name of the AgentWorkflow.
             description (str): Description of the AgentWorkflow.
         """
-        iteration_workflow = session.query(IterationWorkflow).filter(
-            IterationWorkflow.name == name).first()
+        iteration_workflow = (
+            session.query(IterationWorkflow)
+            .filter(IterationWorkflow.name == name)
+            .first()
+        )
         if iteration_workflow is None:
             iteration_workflow = IterationWorkflow(name=name, description=description)
             session.add(iteration_workflow)
@@ -132,5 +140,7 @@ class IterationWorkflow(DBBaseModel):
 
     @classmethod
     def find_by_id(cls, session, id: int):
-        """ Find the workflow step by id"""
-        return session.query(IterationWorkflow).filter(IterationWorkflow.id == id).first()
+        """Find the workflow step by id"""
+        return (
+            session.query(IterationWorkflow).filter(IterationWorkflow.id == id).first()
+        )

@@ -1,15 +1,12 @@
 import os
 
 from llama_index import SimpleDirectoryReader
-from sqlalchemy.orm import Session
 
 from superagi.config.config import get_config
-from superagi.helper.resource_helper import ResourceHelper
 from superagi.lib.logger import logger
 from superagi.resource_manager.llama_vector_store_factory import LlamaVectorStoreFactory
 from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
-from superagi.models.agent import Agent
 
 
 class ResourceManager:
@@ -47,8 +44,9 @@ class ResourceManager:
         temporary_file_path = ""
         try:
             import boto3
+
             s3 = boto3.client(
-                's3',
+                "s3",
                 aws_access_key_id=get_config("AWS_ACCESS_KEY_ID"),
                 aws_secret_access_key=get_config("AWS_SECRET_ACCESS_KEY"),
             )
@@ -58,19 +56,29 @@ class ResourceManager:
             save_directory = "/"
             temporary_file_path = save_directory + file_name
             with open(temporary_file_path, "wb") as f:
-                contents = file['Body'].read()
+                contents = file["Body"].read()
                 f.write(contents)
 
-            documents = SimpleDirectoryReader(input_files=[temporary_file_path]).load_data()
+            documents = SimpleDirectoryReader(
+                input_files=[temporary_file_path]
+            ).load_data()
             return documents
         except Exception as e:
-            logger.error("superagi/resource_manager/resource_manager.py - create_llama_document_s3 threw : ", e)
+            logger.error(
+                "superagi/resource_manager/resource_manager.py - create_llama_document_s3 threw : ",
+                e,
+            )
         finally:
             if os.path.exists(temporary_file_path):
                 os.remove(temporary_file_path)
 
-    def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None,
-                                      model_source: str = ""):
+    def save_document_to_vector_store(
+        self,
+        documents: list,
+        resource_id: str,
+        mode_api_key: str = None,
+        model_source: str = "",
+    ):
         """
         Saves a document to the vector store.
 
@@ -78,11 +86,13 @@ class ResourceManager:
         :param resource_id: The resource id to use when saving the documents to the vector store.
         :param mode_api_key: The mode api key to use when creating embedding to the vector store.
         """
-        from llama_index import VectorStoreIndex, StorageContext
+        from llama_index import StorageContext, VectorStoreIndex
+
         if ModelSourceType.GooglePalm.value in model_source:
             logger.info("Resource embedding not supported for Google Palm..")
             return
         import openai
+
         openai.api_key = get_config("OPENAI_API_KEY") or mode_api_key
         os.environ["OPENAI_API_KEY"] = get_config("OPENAI_API_KEY", "") or mode_api_key
         for docs in documents:
@@ -92,18 +102,29 @@ class ResourceManager:
             docs.metadata["resource_id"] = resource_id
         vector_store = None
         storage_context = None
-        vector_store_name = VectorStoreType.get_vector_store_type(get_config("RESOURCE_VECTOR_STORE") or "Redis")
-        vector_store_index_name = get_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
+        vector_store_name = VectorStoreType.get_vector_store_type(
+            get_config("RESOURCE_VECTOR_STORE") or "Redis"
+        )
+        vector_store_index_name = (
+            get_config("RESOURCE_VECTOR_STORE_INDEX_NAME") or "super-agent-index"
+        )
         try:
-            vector_store = LlamaVectorStoreFactory(vector_store_name, vector_store_index_name).get_vector_store()
+            vector_store = LlamaVectorStoreFactory(
+                vector_store_name, vector_store_index_name
+            ).get_vector_store()
             storage_context = StorageContext.from_defaults(vector_store=vector_store)
         except ValueError as e:
             logger.error(f"Vector store not found{e}")
         try:
-            index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
-            index.set_index_id(f'Agent {self.agent_id}')
+            index = VectorStoreIndex.from_documents(
+                documents, storage_context=storage_context
+            )
+            index.set_index_id(f"Agent {self.agent_id}")
         except Exception as e:
-            logger.error("save_document_to_vector_store - unable to create documents from vector", e)
+            logger.error(
+                "save_document_to_vector_store - unable to create documents from vector",
+                e,
+            )
         # persisting the data in case of redis
         if vector_store_name == VectorStoreType.REDIS:
             vector_store.persist(persist_path="")

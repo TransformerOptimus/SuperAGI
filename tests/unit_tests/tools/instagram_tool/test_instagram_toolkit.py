@@ -1,6 +1,8 @@
 import pytest
+
 from superagi.tools.instagram_tool.instagram import InstagramTool
 from superagi.tools.instagram_tool.instagram_toolkit import InstagramToolkit
+
 
 class TestInstagramToolKit:
     def setup_method(self):

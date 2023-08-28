@@ -1,9 +1,11 @@
-from sqlalchemy import Column, Integer, String, DateTime, Sequence
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
-from superagi.models.base_model import DBBaseModel
 from sqlalchemy.ext.declarative import declarative_base
 
+from superagi.models.base_model import DBBaseModel
+
 Base = declarative_base()
+
 
 class Event(DBBaseModel):
     """
@@ -17,7 +19,8 @@ class Event(DBBaseModel):
         agent_id (Integer): The ID of the agent.
         org_id (Integer): The ID of the organisation.
     """
-    __tablename__ = 'events'
+
+    __tablename__ = "events"
 
     id = Column(Integer, primary_key=True)
     event_name = Column(String, nullable=False)
@@ -30,7 +33,9 @@ class Event(DBBaseModel):
         """
         Returns a string representation of the Event instance.
         """
-        return f"Event(id={self.id}, event_name={self.event_name}, " \
-               f"event_value={self.event_value}, " \
-               f"agent_id={self.agent_id}, " \
-               f"org_id={self.org_id})"
+        return (
+            f"Event(id={self.id}, event_name={self.event_name}, "
+            f"event_value={self.event_value}, "
+            f"agent_id={self.agent_id}, "
+            f"org_id={self.org_id})"
+        )

@@ -1,14 +1,15 @@
-import requests
 import time
-from pydantic import BaseModel
-from superagi.lib.logger import logger
+
+import requests
 
 from superagi.helper.webpage_extractor import WebpageExtractor
+from superagi.lib.logger import logger
 
 
 class GoogleSearchWrap:
-
-    def __init__(self, api_key, search_engine_id, num_results=3, num_pages=1, num_extracts=3):
+    def __init__(
+        self, api_key, search_engine_id, num_results=3, num_pages=1, num_extracts=3
+    ):
         """
         Initialize the GoogleSearchWrap class.
 
@@ -46,7 +47,7 @@ class GoogleSearchWrap:
                 "cx": self.search_engine_id,
                 "q": query,
                 "num": self.num_results,
-                "start": page
+                "start": page,
             }
             response = requests.get(url, params=params, timeout=100)
 
@@ -96,7 +97,7 @@ class GoogleSearchWrap:
                 #     attempts += 1
                 #     content = self.extractor.extract_with_3k(links[i])
                 content = self.extractor.extract_with_bs4(links[i])
-                max_length = len(' '.join(content.split(" ")[:500]))
+                max_length = len(" ".join(content.split(" ")[:500]))
                 content = content[:max_length]
                 attempts = 0
                 while content == "" and attempts < 2:

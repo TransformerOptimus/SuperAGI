@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, Date, DateTime
-from superagi.models.base_model import DBBaseModel
+from sqlalchemy import Column, DateTime, Integer, String
+
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
+from superagi.models.base_model import DBBaseModel
+
 
 class AgentSchedule(DBBaseModel):
     """
@@ -21,12 +23,13 @@ class AgentSchedule(DBBaseModel):
         __repr__: Returns a string representation of the AgentSchedule instance.
 
     """
-    __tablename__ = 'agent_schedule'
+
+    __tablename__ = "agent_schedule"
 
     id = Column(Integer, primary_key=True)
     agent_id = Column(Integer)
     start_time = Column(DateTime)
-    next_scheduled_time =  Column(DateTime)
+    next_scheduled_time = Column(DateTime)
     recurrence_interval = Column(String)
     expiry_date = Column(DateTime)
     expiry_runs = Column(Integer)
@@ -37,18 +40,22 @@ class AgentSchedule(DBBaseModel):
         """
         Returns a string representation of the AgentSchedule instance.
         """
-        return f"AgentSchedule(id={self.id}, " \
-               f"agent_id={self.agent_id}, " \
-               f"start_time={self.start_time}, " \
-               f"next_scheduled_time={self.next_scheduled_time}, " \
-               f"recurrence_interval={self.recurrence_interval}, " \
-               f"expiry_date={self.expiry_date}, " \
-               f"expiry_runs={self.expiry_runs}), " \
-               f"current_runs={self.expiry_runs}), " \
-               f"status={self.status}), " 
-    
+        return (
+            f"AgentSchedule(id={self.id}, "
+            f"agent_id={self.agent_id}, "
+            f"start_time={self.start_time}, "
+            f"next_scheduled_time={self.next_scheduled_time}, "
+            f"recurrence_interval={self.recurrence_interval}, "
+            f"expiry_date={self.expiry_date}, "
+            f"expiry_runs={self.expiry_runs}), "
+            f"current_runs={self.expiry_runs}), "
+            f"status={self.status}), "
+        )
+
     @classmethod
-    def save_schedule_from_config(cls, session, db_agent, schedule_config: AgentScheduleInput):
+    def save_schedule_from_config(
+        cls, session, db_agent, schedule_config: AgentScheduleInput
+    ):
         agent_schedule = AgentSchedule(
             agent_id=db_agent.id,
             start_time=schedule_config.start_time,
@@ -57,15 +64,19 @@ class AgentSchedule(DBBaseModel):
             expiry_date=schedule_config.expiry_date,
             expiry_runs=schedule_config.expiry_runs,
             current_runs=0,
-            status="SCHEDULED"
+            status="SCHEDULED",
         )
 
         agent_schedule.agent_id = db_agent.id
         session.add(agent_schedule)
         session.commit()
         return agent_schedule
-    
+
     @classmethod
     def find_by_agent_id(cls, session, agent_id: int):
-        db_schedule=session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id).first()
+        db_schedule = (
+            session.query(AgentSchedule)
+            .filter(AgentSchedule.agent_id == agent_id)
+            .first()
+        )
         return db_schedule

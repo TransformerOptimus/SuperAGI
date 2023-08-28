@@ -1,5 +1,7 @@
-from typing import Type, Optional
+from typing import Optional, Type
+
 from pydantic import BaseModel, Field
+
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.searx.search_scraper import search_results
@@ -11,6 +13,7 @@ class SearxSearchSchema(BaseModel):
         description="The search query for the Searx search engine.",
     )
 
+
 class SearxSearchTool(BaseTool):
     """
     Searx Search tool
@@ -20,6 +23,7 @@ class SearxSearchTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     llm: Optional[BaseLlm] = None
     name = "SearxSearch"
     description = (

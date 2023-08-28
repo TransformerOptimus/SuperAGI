@@ -1,5 +1,5 @@
-import logging
 import inspect
+import logging
 
 
 class CustomLogRecord(logging.LogRecord):
@@ -8,7 +8,10 @@ class CustomLogRecord(logging.LogRecord):
 
         frame = inspect.currentframe().f_back
         while frame:
-            if frame.f_globals['__name__'] != __name__ and frame.f_globals['__name__'] != 'logging':
+            if (
+                frame.f_globals["__name__"] != __name__
+                and frame.f_globals["__name__"] != "logging"
+            ):
                 break
             frame = frame.f_back
 
@@ -31,8 +34,8 @@ class SingletonMeta(type):
 
 
 class Logger(metaclass=SingletonMeta):
-    def __init__(self, logger_name='Super AGI', log_level=logging.DEBUG):
-        if not hasattr(self, 'logger'):
+    def __init__(self, logger_name="Super AGI", log_level=logging.DEBUG):
+        if not hasattr(self, "logger"):
             self.logger = logging.getLogger(logger_name)
             self.logger.setLevel(log_level)
             self.logger.makeRecord = self._make_custom_log_record
@@ -41,14 +44,38 @@ class Logger(metaclass=SingletonMeta):
             console_handler.setLevel(log_level)
 
             formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S %Z')
+                "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S %Z",
+            )
 
             console_handler.setFormatter(formatter)
             self.logger.addHandler(console_handler)
 
-    def _make_custom_log_record(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
-        return CustomLogRecord(name, level, fn, lno, msg, args, exc_info, func=func, extra=extra, sinfo=sinfo)
+    def _make_custom_log_record(
+        self,
+        name,
+        level,
+        fn,
+        lno,
+        msg,
+        args,
+        exc_info,
+        func=None,
+        extra=None,
+        sinfo=None,
+    ):
+        return CustomLogRecord(
+            name,
+            level,
+            fn,
+            lno,
+            msg,
+            args,
+            exc_info,
+            func=func,
+            extra=extra,
+            sinfo=sinfo,
+        )
 
     def debug(self, message, *args):
         self.logger.debug(message)
@@ -76,4 +103,4 @@ class Logger(metaclass=SingletonMeta):
             self.logger.critical(*args)
 
 
-logger = Logger('Super AGI')
+logger = Logger("Super AGI")

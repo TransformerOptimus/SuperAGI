@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
+
 import requests
-from fastapi import FastAPI, HTTPException, Depends, Request, status, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi_sqlalchemy import DBSessionMiddleware, db
@@ -11,37 +12,40 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import superagi
-from datetime import timedelta, datetime
-from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
+from superagi.agent.workflow_seed import AgentWorkflowSeed, IterationWorkflowSeed
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
 from superagi.controllers.agent_execution import router as agent_execution_router
-from superagi.controllers.agent_execution_feed import router as agent_execution_feed_router
-from superagi.controllers.agent_execution_permission import router as agent_execution_permission_router
+from superagi.controllers.agent_execution_config import router as agent_execution_config
+from superagi.controllers.agent_execution_feed import (
+    router as agent_execution_feed_router,
+)
+from superagi.controllers.agent_execution_permission import (
+    router as agent_execution_permission_router,
+)
 from superagi.controllers.agent_template import router as agent_template_router
 from superagi.controllers.agent_workflow import router as agent_workflow_router
+from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.api_key import router as api_key_router
 from superagi.controllers.budget import router as budget_router
 from superagi.controllers.config import router as config_router
+from superagi.controllers.google_oauth import router as google_oauth_router
+from superagi.controllers.knowledge_configs import router as knowledge_configs_router
+from superagi.controllers.knowledges import router as knowledges_router
+from superagi.controllers.marketplace_stats import router as marketplace_stats_router
 from superagi.controllers.organisation import router as organisation_router
 from superagi.controllers.project import router as project_router
-from superagi.controllers.twitter_oauth import router as twitter_oauth_router
-from superagi.controllers.google_oauth import router as google_oauth_router
 from superagi.controllers.resources import router as resources_router
 from superagi.controllers.tool import router as tool_router
 from superagi.controllers.tool_config import router as tool_config_router
 from superagi.controllers.toolkit import router as toolkit_router
+from superagi.controllers.twitter_oauth import router as twitter_oauth_router
 from superagi.controllers.user import router as user_router
-from superagi.controllers.agent_execution_config import router as agent_execution_config
-from superagi.controllers.analytics import router as analytics_router
-from superagi.controllers.knowledges import router as knowledges_router
-from superagi.controllers.knowledge_configs import router as knowledge_configs_router
-from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.vector_db_indices import router as vector_db_indices_router
-from superagi.controllers.marketplace_stats import router as marketplace_stats_router
-from superagi.controllers.api_key import router as api_key_router
-from superagi.controllers.api.agent import router as api_agent_router
+from superagi.controllers.vector_dbs import router as vector_dbs_router
 from superagi.controllers.webhook import router as web_hook_router
-from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
+from superagi.helper.tool_helper import register_marketplace_toolkits, register_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
@@ -53,18 +57,19 @@ from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
+
 app = FastAPI()
 
-database_url = get_config('POSTGRES_URL')
-db_username = get_config('DB_USERNAME')
-db_password = get_config('DB_PASSWORD')
-db_name = get_config('DB_NAME')
-env = get_config('ENV', "DEV")
+database_url = get_config("POSTGRES_URL")
+db_username = get_config("DB_USERNAME")
+db_password = get_config("DB_PASSWORD")
+db_name = get_config("DB_NAME")
+env = get_config("ENV", "DEV")
 
 if db_username is None:
-    db_url = f'postgresql://{database_url}/{db_name}'
+    db_url = f"postgresql://{database_url}/{db_name}"
 else:
-    db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
+    db_url = f"postgresql://{db_username}:{db_password}@{database_url}/{db_name}"
 
 engine = create_engine(db_url)
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -98,7 +103,9 @@ app.include_router(budget_router, prefix="/budgets")
 app.include_router(agent_router, prefix="/agents")
 app.include_router(agent_execution_router, prefix="/agentexecutions")
 app.include_router(agent_execution_feed_router, prefix="/agentexecutionfeeds")
-app.include_router(agent_execution_permission_router, prefix="/agentexecutionpermissions")
+app.include_router(
+    agent_execution_permission_router, prefix="/agentexecutionpermissions"
+)
 app.include_router(resources_router, prefix="/resources")
 app.include_router(config_router, prefix="/configs")
 app.include_router(toolkit_router, prefix="/toolkits")
@@ -116,8 +123,9 @@ app.include_router(vector_dbs_router, prefix="/vector_dbs")
 app.include_router(vector_db_indices_router, prefix="/vector_db_indices")
 app.include_router(marketplace_stats_router, prefix="/marketplace")
 app.include_router(api_key_router, prefix="/api-keys")
-app.include_router(api_agent_router,prefix="/v1/agent")
-app.include_router(web_hook_router,prefix="/webhook")
+app.include_router(api_agent_router, prefix="/v1/agent")
+app.include_router(web_hook_router, prefix="/webhook")
+
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
@@ -147,16 +155,15 @@ def get_config():
 # in production, you can tweak performance using orjson response
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.message}
-    )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 def replace_old_iteration_workflows(session):
     templates = session.query(AgentTemplate).all()
     for template in templates:
-        iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
+        iter_workflow = IterationWorkflow.find_by_id(
+            session, template.agent_workflow_id
+        )
         if not iter_workflow:
             continue
         if iter_workflow.name == "Fixed Task Queue":
@@ -165,14 +172,20 @@ def replace_old_iteration_workflows(session):
             session.commit()
 
         if iter_workflow.name == "Maintain Task Queue":
-            agent_workflow = AgentWorkflow.find_by_name(session, "Dynamic Task Workflow")
+            agent_workflow = AgentWorkflow.find_by_name(
+                session, "Dynamic Task Workflow"
+            )
             template.agent_workflow_id = agent_workflow.id
             session.commit()
 
-        if iter_workflow.name == "Don't Maintain Task Queue" or iter_workflow.name == "Goal Based Agent":
+        if (
+            iter_workflow.name == "Don't Maintain Task Queue"
+            or iter_workflow.name == "Goal Based Agent"
+        ):
             agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
             template.agent_workflow_id = agent_workflow.id
             session.commit()
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -183,7 +196,11 @@ async def startup_event():
     default_user = session.query(User).filter(User.email == "super6@agi.com").first()
     logger.info(default_user)
     if default_user is not None:
-        organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
+        organisation = (
+            session.query(Organisation)
+            .filter_by(id=default_user.organisation_id)
+            .first()
+        )
         logger.info(organisation)
         register_toolkits(session, organisation)
 
@@ -194,9 +211,14 @@ async def startup_event():
         logger.info("Successfully registered local toolkits for all Organisations!")
 
     def register_toolkit_for_master_organisation():
-        marketplace_organisation_id = superagi.config.config.get_config("MARKETPLACE_ORGANISATION_ID")
-        marketplace_organisation = session.query(Organisation).filter(
-            Organisation.id == marketplace_organisation_id).first()
+        marketplace_organisation_id = superagi.config.config.get_config(
+            "MARKETPLACE_ORGANISATION_ID"
+        )
+        marketplace_organisation = (
+            session.query(Organisation)
+            .filter(Organisation.id == marketplace_organisation_id)
+            .first()
+        )
         if marketplace_organisation is not None:
             register_marketplace_toolkits(session, marketplace_organisation)
 
@@ -213,9 +235,17 @@ async def startup_event():
     AgentWorkflowSeed.build_coding_workflow(session)
 
     # NOTE: remove old workflows. Need to remove this changes later
-    workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
-     "Dynamic Task Workflow", "Fixed Task Workflow"]
-    workflows = session.query(AgentWorkflow).filter(AgentWorkflow.name.not_in(workflows))
+    workflows = [
+        "Sales Engagement Workflow",
+        "Recruitment Workflow",
+        "SuperCoder",
+        "Goal Based Workflow",
+        "Dynamic Task Workflow",
+        "Fixed Task Workflow",
+    ]
+    workflows = session.query(AgentWorkflow).filter(
+        AgentWorkflow.name.not_in(workflows)
+    )
     for workflow in workflows:
         session.delete(workflow)
 
@@ -230,7 +260,7 @@ async def startup_event():
     session.close()
 
 
-@app.post('/login')
+@app.post("/login")
 def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
     """Login API for email and password based login"""
 
@@ -249,46 +279,49 @@ def login(request: LoginRequest, Authorize: AuthJWT = Depends()):
 #     access_token = Authorize.create_access_token(subject=user_email)
 #     return access_token
 
-@app.get('/github-login')
+
+@app.get("/github-login")
 def github_login():
     """GitHub login"""
 
     github_client_id = ""
-    return RedirectResponse(f'https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}')
+    return RedirectResponse(
+        f"https://github.com/login/oauth/authorize?scope=user:email&client_id={github_client_id}"
+    )
 
 
-@app.get('/github-auth')
+@app.get("/github-auth")
 def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
     """GitHub login callback"""
 
-    github_token_url = 'https://github.com/login/oauth/access_token'
+    github_token_url = "https://github.com/login/oauth/access_token"
     github_client_id = superagi.config.config.get_config("GITHUB_CLIENT_ID")
     github_client_secret = superagi.config.config.get_config("GITHUB_CLIENT_SECRET")
 
-    frontend_url = superagi.config.config.get_config("FRONTEND_URL", "http://localhost:3000")
+    frontend_url = superagi.config.config.get_config(
+        "FRONTEND_URL", "http://localhost:3000"
+    )
     params = {
-        'client_id': github_client_id,
-        'client_secret': github_client_secret,
-        'code': code
+        "client_id": github_client_id,
+        "client_secret": github_client_secret,
+        "code": code,
     }
-    headers = {
-        'Accept': 'application/json'
-    }
+    headers = {"Accept": "application/json"}
     response = requests.post(github_token_url, params=params, headers=headers)
     if response.ok:
         data = response.json()
-        access_token = data.get('access_token')
-        github_api_url = 'https://api.github.com/user'
-        headers = {
-            'Authorization': f'Bearer {access_token}'
-        }
+        access_token = data.get("access_token")
+        github_api_url = "https://api.github.com/user"
+        headers = {"Authorization": f"Bearer {access_token}"}
         response = requests.get(github_api_url, headers=headers)
         if response.ok:
             user_data = response.json()
             user_email = user_data["email"]
             if user_email is None:
                 user_email = user_data["login"] + "@github.com"
-            db_user: User = db.session.query(User).filter(User.email == user_email).first()
+            db_user: User = (
+                db.session.query(User).filter(User.email == user_email).first()
+            )
             if db_user is not None:
                 jwt_token = create_access_token(user_email, Authorize)
                 redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
@@ -308,7 +341,7 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
         return RedirectResponse(url=redirect_url_failure)
 
 
-@app.get('/user')
+@app.get("/user")
 def user(Authorize: AuthJWT = Depends()):
     """API to get current logged in User"""
 
@@ -324,14 +357,20 @@ async def root(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
         current_user_email = Authorize.get_jwt_subject()
-        current_user = db.session.query(User).filter(User.email == current_user_email).first()
+        current_user = (
+            db.session.query(User).filter(User.email == current_user_email).first()
+        )
         return current_user
     except:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
 
 @app.post("/validate-llm-api-key")
-async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJWT = Depends()):
+async def validate_llm_api_key(
+    request: ValidateAPIKeyRequest, Authorize: AuthJWT = Depends()
+):
     """API to validate LLM API Key"""
     source = request.model_source
     api_key = request.model_api_key
@@ -354,7 +393,9 @@ async def root(open_ai_key: str, Authorize: AuthJWT = Depends()):
         llm = OpenAi(api_key=open_ai_key)
         response = llm.chat_completion([{"role": "system", "content": "Hey!"}])
     except:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key"
+        )
 
 
 # #Unprotected route
@@ -363,7 +404,8 @@ async def say_hello(name: str, Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     return {"message": f"Hello {name}"}
 
-@app.get('/get/github_client_id')
+
+@app.get("/get/github_client_id")
 def github_client_id():
     """Get GitHub Client ID"""
 
@@ -372,6 +414,6 @@ def github_client_id():
         git_hub_client_id = git_hub_client_id.strip()
     return {"github_client_id": git_hub_client_id}
 
+
 # # __________________TO RUN____________________________
 # # uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-

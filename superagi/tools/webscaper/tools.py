@@ -1,4 +1,4 @@
-from typing import Type, Optional
+from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -23,11 +23,10 @@ class WebScraperTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     llm: Optional[BaseLlm] = None
     name = "WebScraperTool"
-    description = (
-        "Used to scrape website urls and extract text content"
-    )
+    description = "Used to scrape website urls and extract text content"
     args_schema: Type[WebScraperSchema] = WebScraperSchema
 
     class Config:
@@ -44,5 +43,5 @@ class WebScraperTool(BaseTool):
             The text content of the website.
         """
         content = WebpageExtractor().extract_with_bs4(website_url)
-        max_length = len(' '.join(content.split(" ")[:600]))
+        max_length = len(" ".join(content.split(" ")[:600]))
         return content[:max_length]

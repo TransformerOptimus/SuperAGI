@@ -9,4 +9,6 @@ class ToolResponseQueryManager:
         self.agent_execution_id = agent_execution_id
 
     def get_last_response(self, tool_name: str = None):
-        return AgentExecutionFeed.get_last_tool_response(self.session, self.agent_execution_id, tool_name)
+        return AgentExecutionFeed.get_last_tool_response(
+            self.session, self.agent_execution_id, tool_name
+        )

@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import Column, Integer, String,Text
+from sqlalchemy import Column, Integer, String, Text
 
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
@@ -18,7 +18,7 @@ class Configuration(DBBaseModel):
         value (Text): The configuration value.
     """
 
-    __tablename__ = 'configurations'
+    __tablename__ = "configurations"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     organisation_id = Column(Integer)
@@ -35,9 +35,10 @@ class Configuration(DBBaseModel):
 
         return f"Config(id={self.id}, organisation_id={self.organisation_id}, key={self.key}, value={self.value})"
 
-
     @classmethod
-    def fetch_configuration(cls, session, organisation_id: int, key: str, default_value=None) -> str:
+    def fetch_configuration(
+        cls, session, organisation_id: int, key: str, default_value=None
+    ) -> str:
         """
         Fetches the configuration of an agent.
 
@@ -52,7 +53,11 @@ class Configuration(DBBaseModel):
 
         """
 
-        configuration = session.query(Configuration).filter_by(organisation_id=organisation_id, key=key).first()
+        configuration = (
+            session.query(Configuration)
+            .filter_by(organisation_id=organisation_id, key=key)
+            .first()
+        )
         if key == "model_api_key":
             return decrypt_data(configuration.value) if configuration else default_value
         else:
@@ -73,17 +78,28 @@ class Configuration(DBBaseModel):
 
         """
         from superagi.models.agent import Agent
+
         agent = session.query(Agent).filter(Agent.id == agent_id).first()
         if not agent:
             raise HTTPException(status_code=404, detail="Agent not found")
         project = session.query(Project).filter(Project.id == agent.project_id).first()
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        organisation = session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+        organisation = (
+            session.query(Organisation)
+            .filter(Organisation.id == project.organisation_id)
+            .first()
+        )
         if not organisation:
             raise HTTPException(status_code=404, detail="Organisation not found")
-        config = session.query(Configuration).filter(Configuration.organisation_id == organisation.id,
-                                                     Configuration.key == key).first()
+        config = (
+            session.query(Configuration)
+            .filter(
+                Configuration.organisation_id == organisation.id,
+                Configuration.key == key,
+            )
+            .first()
+        )
         if not config:
             return None
         return config.value if config else None

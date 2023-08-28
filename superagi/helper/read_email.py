@@ -16,7 +16,8 @@ class ReadEmail:
         Returns:
             str: The cleaned email body.
         """
-        if email_body is None: email_body = ""
+        if email_body is None:
+            email_body = ""
         email_body = BeautifulSoup(email_body, "html.parser")
         email_body = email_body.get_text()
         email_body = "".join(email_body.splitlines())
@@ -59,7 +60,7 @@ class ReadEmail:
                     Subject = Subject.decode(encoding)
                 else:
                     Subject = ""
-            except[LookupError] as err:
+            except [LookupError] as err:
                 pass
         From = msg["From"]
         To = msg["To"]

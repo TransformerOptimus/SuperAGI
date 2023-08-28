@@ -1,6 +1,6 @@
-import pytest
 from unittest.mock import patch
 
+import pytest
 from llama_index.vector_stores import PineconeVectorStore, RedisVectorStore
 
 from superagi.resource_manager.llama_vector_store_factory import LlamaVectorStoreFactory
@@ -20,8 +20,9 @@ def test_llama_vector_store_factory():
 
     # Test case for VectorStoreType.REDIS
     factory.vector_store_name = VectorStoreType.REDIS
-    with patch.object(RedisVectorStore, "__init__", return_value=None), \
-            patch('superagi.config.config.get_config', return_value=None):
+    with patch.object(RedisVectorStore, "__init__", return_value=None), patch(
+        "superagi.config.config.get_config", return_value=None
+    ):
         vector_store = factory.get_vector_store()
         assert isinstance(vector_store, RedisVectorStore)
 

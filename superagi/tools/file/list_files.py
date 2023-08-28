@@ -1,14 +1,14 @@
 import os
 from typing import Type
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+from superagi.config.config import get_config
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
-from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
+from superagi.tools.base_tool import BaseTool
 from superagi.types.storage_types import StorageType
-from superagi.config.config import get_config
 
 
 class ListFileInput(BaseModel):
@@ -25,6 +25,7 @@ class ListFileTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     name: str = "List File"
     agent_id: int = None
     args_schema: Type[BaseModel] = ListFileInput
@@ -41,21 +42,27 @@ class ListFileTool(BaseTool):
             list of files in directory.
         """
         input_directory = ResourceHelper.get_root_input_dir()
-        #output_directory = ResourceHelper.get_root_output_dir()
+        # output_directory = ResourceHelper.get_root_output_dir()
         if "{agent_id}" in input_directory:
-            input_directory = ResourceHelper.get_formatted_agent_level_path(agent=Agent
-                                                                            .get_agent_from_id(session=self
-                                                                                               .toolkit_config.session,
-                                                                                               agent_id=self.agent_id),
-                                                                            path=input_directory)
+            input_directory = ResourceHelper.get_formatted_agent_level_path(
+                agent=Agent.get_agent_from_id(
+                    session=self.toolkit_config.session, agent_id=self.agent_id
+                ),
+                path=input_directory,
+            )
         # if "{agent_id}" in output_directory:
         #     output_directory = output_directory.replace("{agent_id}", str(self.agent_id))
         input_files = self.list_files(input_directory)
         # output_files = self.list_files(output_directory)
-        return input_files #+ output_files
+        return input_files  # + output_files
 
     def list_files(self, directory):
-        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+        if (
+            StorageType.get_storage_type(
+                get_config("STORAGE_TYPE", StorageType.FILE.value)
+            )
+            == StorageType.S3
+        ):
             return S3Helper().list_files_from_s3(directory)
         found_files = []
         for root, dirs, files in os.walk(directory):

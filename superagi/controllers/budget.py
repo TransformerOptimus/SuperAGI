@@ -1,11 +1,11 @@
-from fastapi import APIRouter
-from fastapi import HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 
 from superagi.helper.auth import check_auth
 from superagi.models.budget import Budget
+
 # from superagi.types.db import BudgetIn, BudgetOut
 
 router = APIRouter()
@@ -27,9 +27,9 @@ class BudgetIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 @router.post("/add", response_model=BudgetOut, status_code=201)
-def create_budget(budget: BudgetIn,
-                  Authorize: AuthJWT = Depends(check_auth)):
+def create_budget(budget: BudgetIn, Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new budget.
 
@@ -41,10 +41,7 @@ def create_budget(budget: BudgetIn,
 
     """
 
-    new_budget = Budget(
-        budget=budget.budget,
-        cycle=budget.cycle
-    )
+    new_budget = Budget(budget=budget.budget, cycle=budget.cycle)
     db.session.add(new_budget)
     db.session.commit()
 
@@ -52,8 +49,7 @@ def create_budget(budget: BudgetIn,
 
 
 @router.get("/get/{budget_id}", response_model=BudgetOut)
-def get_budget(budget_id: int,
-               Authorize: AuthJWT = Depends(check_auth)):
+def get_budget(budget_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     Get a budget by budget_id.
 
@@ -72,8 +68,9 @@ def get_budget(budget_id: int,
 
 
 @router.put("/update/{budget_id}", response_model=BudgetOut)
-def update_budget(budget_id: int, budget: BudgetIn,
-                  Authorize: AuthJWT = Depends(check_auth)):
+def update_budget(
+    budget_id: int, budget: BudgetIn, Authorize: AuthJWT = Depends(check_auth)
+):
     """
     Update budget details by budget_id.
 

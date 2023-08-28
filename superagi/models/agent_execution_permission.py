@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, Text, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Text
+
 from superagi.models.base_model import DBBaseModel
-from superagi.models.agent_execution import AgentExecution
 
 
 class AgentExecutionPermission(DBBaseModel):
@@ -20,7 +19,8 @@ class AgentExecutionPermission(DBBaseModel):
     Methods:
         __repr__: Returns a string representation of the AgentExecutionPermission instance.
     """
-    __tablename__ = 'agent_execution_permissions'
+
+    __tablename__ = "agent_execution_permissions"
 
     id = Column(Integer, primary_key=True)
     agent_execution_id = Column(Integer)
@@ -35,10 +35,12 @@ class AgentExecutionPermission(DBBaseModel):
         """
         Returns a string representation of the AgentExecutionPermission instance.
         """
-        return f"AgentExecutionPermission(id={self.id}, " \
-               f"agent_execution_id={self.agent_execution_id}, " \
-               f"agent_id={self.agent_id}, " \
-               f"status={self.status}, " \
-               f"tool_name={self.tool_name}, " \
-               f"question={self.question}, " \
-               f"response={self.user_feedback})"
+        return (
+            f"AgentExecutionPermission(id={self.id}, "
+            f"agent_execution_id={self.agent_execution_id}, "
+            f"agent_id={self.agent_id}, "
+            f"status={self.status}, "
+            f"tool_name={self.tool_name}, "
+            f"question={self.question}, "
+            f"response={self.user_feedback})"
+        )

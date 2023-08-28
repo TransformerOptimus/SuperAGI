@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, String
+from sqlalchemy import Column, Integer, String, Text
 
 from superagi.models.base_model import DBBaseModel
 
@@ -13,7 +13,7 @@ class VectordbConfigs(DBBaseModel):
         value (str): The value of the configuration setting.
     """
 
-    __tablename__ = 'vector_db_configs'
+    __tablename__ = "vector_db_configs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     vector_db_id = Column(Integer)
@@ -30,7 +30,11 @@ class VectordbConfigs(DBBaseModel):
 
     @classmethod
     def get_vector_db_config_from_db_id(cls, session, vector_db_id):
-        vector_db_configs = session.query(VectordbConfigs).filter(VectordbConfigs.vector_db_id == vector_db_id).all()
+        vector_db_configs = (
+            session.query(VectordbConfigs)
+            .filter(VectordbConfigs.vector_db_id == vector_db_id)
+            .all()
+        )
         config_data = {}
         for config in vector_db_configs:
             config_data[config.key] = config.value
@@ -39,11 +43,15 @@ class VectordbConfigs(DBBaseModel):
     @classmethod
     def add_vector_db_config(cls, session, vector_db_id, db_creds):
         for key, value in db_creds.items():
-            vector_db_config = VectordbConfigs(vector_db_id=vector_db_id, key=key, value=value)
+            vector_db_config = VectordbConfigs(
+                vector_db_id=vector_db_id, key=key, value=value
+            )
             session.add(vector_db_config)
             session.commit()
 
     @classmethod
     def delete_vector_db_configs(cls, session, vector_db_id):
-        session.query(VectordbConfigs).filter(VectordbConfigs.vector_db_id == vector_db_id).delete()
+        session.query(VectordbConfigs).filter(
+            VectordbConfigs.vector_db_id == vector_db_id
+        ).delete()
         session.commit()

@@ -1,5 +1,5 @@
 import re
-from typing import Type, Optional, List
+from typing import List, Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -32,6 +32,7 @@ class CodingTool(BaseTool):
         goals : The goals.
         resource_manager: Manages the file resources
     """
+
     llm: Optional[BaseLlm] = None
     agent_id: int = None
     name = "CodingTool"
@@ -61,18 +62,28 @@ class CodingTool(BaseTool):
         Returns:
             Generated code with where the code is being saved or error message.
         """
-        prompt = PromptReader.read_tools_prompt(__file__, "write_code.txt") + "\nUseful to know:\n" + PromptReader.read_tools_prompt(__file__, "generate_logic.txt")
-        prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+        prompt = (
+            PromptReader.read_tools_prompt(__file__, "write_code.txt")
+            + "\nUseful to know:\n"
+            + PromptReader.read_tools_prompt(__file__, "generate_logic.txt")
+        )
+        prompt = prompt.replace(
+            "{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals)
+        )
         prompt = prompt.replace("{code_description}", code_description)
         spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
         if spec_response != "":
-            prompt = prompt.replace("{spec}", "Use this specs for generating the code:\n" + spec_response)
+            prompt = prompt.replace(
+                "{spec}", "Use this specs for generating the code:\n" + spec_response
+            )
         logger.info(prompt)
         messages = [{"role": "system", "content": prompt}]
 
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         token_limit = TokenCounter.token_limit(self.llm.get_model())
-        result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        result = self.llm.chat_completion(
+            messages, max_tokens=(token_limit - total_tokens - 100)
+        )
 
         # Get all filenames and corresponding code blocks
         regex = r"(\S+?)\n```\S*\n(.+?)```"
@@ -107,4 +118,8 @@ class CodingTool(BaseTool):
             if save_readme_result.startswith("Error"):
                 return save_readme_result
 
-        return result["content"] + "\n Codes generated and saved successfully in " + ", ".join(file_names)
+        return (
+            result["content"]
+            + "\n Codes generated and saved successfully in "
+            + ", ".join(file_names)
+        )

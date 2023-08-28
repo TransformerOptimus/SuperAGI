@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class QueueStatus(Enum):
-    INITIATED = 'INITIATED'
-    PROCESSING = 'PROCESSING'
-    COMPLETE = 'COMPLETE'
+    INITIATED = "INITIATED"
+    PROCESSING = "PROCESSING"
+    COMPLETE = "COMPLETE"
 
     @classmethod
     def get_queue_type(cls, store):

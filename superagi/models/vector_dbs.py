@@ -1,6 +1,6 @@
 from __future__ import annotations
-import requests
 
+import requests
 from sqlalchemy import Column, Integer, String
 
 # from superagi.models import AgentConfiguration
@@ -8,6 +8,7 @@ from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
+
 
 class Vectordbs(DBBaseModel):
     """
@@ -19,7 +20,7 @@ class Vectordbs(DBBaseModel):
         organisation_id (int): The identifier of the associated organisation.
     """
 
-    __tablename__ = 'vector_dbs'
+    __tablename__ = "vector_dbs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -36,15 +37,19 @@ class Vectordbs(DBBaseModel):
 
     @classmethod
     def get_vector_db_from_id(cls, session, vector_db_id):
-        vector_db = session.query(Vectordbs).filter(Vectordbs.id == vector_db_id).first()
+        vector_db = (
+            session.query(Vectordbs).filter(Vectordbs.id == vector_db_id).first()
+        )
         return vector_db
 
     @classmethod
     def fetch_marketplace_list(cls):
-        headers = {'Content-Type': 'application/json'}
+        headers = {"Content-Type": "application/json"}
         response = requests.get(
             marketplace_url + f"/vector_dbs/marketplace/list",
-            headers=headers, timeout=10)
+            headers=headers,
+            timeout=10,
+        )
         if response.status_code == 200:
             return response.json()
         else:
@@ -52,12 +57,18 @@ class Vectordbs(DBBaseModel):
 
     @classmethod
     def get_vector_db_from_organisation(cls, session, organisation):
-        vector_db_list = session.query(Vectordbs).filter(Vectordbs.organisation_id == organisation.id).all()
+        vector_db_list = (
+            session.query(Vectordbs)
+            .filter(Vectordbs.organisation_id == organisation.id)
+            .all()
+        )
         return vector_db_list
 
     @classmethod
     def add_vector_db(cls, session, name, db_type, organisation):
-        vector_db = Vectordbs(name=name, db_type=db_type, organisation_id=organisation.id)
+        vector_db = Vectordbs(
+            name=name, db_type=db_type, organisation_id=organisation.id
+        )
         session.add(vector_db)
         session.commit()
         return vector_db

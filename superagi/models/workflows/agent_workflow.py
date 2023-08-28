@@ -2,8 +2,8 @@ import json
 
 from sqlalchemy import Column, Integer, String, Text
 
-from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.base_model import DBBaseModel
+from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 
 
 class AgentWorkflow(DBBaseModel):
@@ -16,7 +16,7 @@ class AgentWorkflow(DBBaseModel):
         description (str): The description of the agent workflow.
     """
 
-    __tablename__ = 'agent_workflows'
+    __tablename__ = "agent_workflows"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -30,22 +30,20 @@ class AgentWorkflow(DBBaseModel):
             str: String representation of the AgentWorkflow.
         """
 
-        return f"AgentWorkflow(id={self.id}, name='{self.name}', " \
-               f"description='{self.description}')"
+        return (
+            f"AgentWorkflow(id={self.id}, name='{self.name}', "
+            f"description='{self.description}')"
+        )
 
     def to_dict(self):
         """
-            Converts the AgentWorkflow object to a dictionary.
+        Converts the AgentWorkflow object to a dictionary.
 
-            Returns:
-                dict: Dictionary representation of the AgentWorkflow.
+        Returns:
+            dict: Dictionary representation of the AgentWorkflow.
         """
 
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description
-        }
+        return {"id": self.id, "name": self.name, "description": self.description}
 
     def to_json(self):
         """
@@ -70,11 +68,7 @@ class AgentWorkflow(DBBaseModel):
         """
 
         data = json.loads(json_data)
-        return cls(
-            id=data['id'],
-            name=data['name'],
-            description=data['description']
-        )
+        return cls(id=data["id"], name=data["name"], description=data["description"])
 
     @classmethod
     def fetch_trigger_step_id(cls, session, workflow_id):
@@ -89,15 +83,20 @@ class AgentWorkflow(DBBaseModel):
             int: The ID of the trigger step.
 
         """
-        trigger_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.agent_workflow_id == workflow_id,
-                                                               AgentWorkflowStep.step_type == 'TRIGGER').first()
+        trigger_step = (
+            session.query(AgentWorkflowStep)
+            .filter(
+                AgentWorkflowStep.agent_workflow_id == workflow_id,
+                AgentWorkflowStep.step_type == "TRIGGER",
+            )
+            .first()
+        )
         return trigger_step
 
     @classmethod
     def find_by_id(cls, session, id: int):
         """Create or find an agent workflow by name."""
         return session.query(AgentWorkflow).filter(AgentWorkflow.id == id).first()
-
 
     @classmethod
     def find_by_name(cls, session, name: str):
@@ -107,7 +106,9 @@ class AgentWorkflow(DBBaseModel):
     @classmethod
     def find_or_create_by_name(cls, session, name: str, description: str):
         """Create or find an agent workflow by name."""
-        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
+        agent_workflow = (
+            session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
+        )
         if agent_workflow is None:
             agent_workflow = AgentWorkflow(name=name, description=description)
             session.add(agent_workflow)

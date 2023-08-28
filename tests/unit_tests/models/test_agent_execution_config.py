@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 from distlib.util import AND
 
@@ -7,19 +7,24 @@ from superagi.models.agent_execution_config import AgentExecutionConfiguration
 
 
 class TestAgentExecutionConfiguration(unittest.TestCase):
-
     def setUp(self):
         self.session = MagicMock()
         self.execution = MagicMock()
         self.execution.id = 1
 
     def test_fetch_configuration(self):
-        test_db_response = [MagicMock(key="goal", value="['test_goal']"),
-                            MagicMock(key="instruction", value="['test_instruction']")]
+        test_db_response = [
+            MagicMock(key="goal", value="['test_goal']"),
+            MagicMock(key="instruction", value="['test_instruction']"),
+        ]
 
-        self.session.query.return_value.filter_by.return_value.all.return_value = test_db_response
+        self.session.query.return_value.filter_by.return_value.all.return_value = (
+            test_db_response
+        )
 
-        result = AgentExecutionConfiguration.fetch_configuration(self.session, self.execution)
+        result = AgentExecutionConfiguration.fetch_configuration(
+            self.session, self.execution
+        )
 
         expected_result = {"goal": ["test_goal"], "instruction": ["test_instruction"]}
         self.assertDictEqual(result, expected_result)

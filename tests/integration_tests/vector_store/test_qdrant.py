@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
+import pytest
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams
 
 from superagi.vector_store import qdrant
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
-from qdrant_client.models import Distance, VectorParams
-from qdrant_client import QdrantClient
 
 
 @pytest.fixture
@@ -28,7 +28,9 @@ def store(client, mock_openai_embedding):
         collection_name="Test_collection",
         vectors_config=VectorParams(size=3, distance=Distance.COSINE),
     )
-    yield qdrant.Qdrant(client, OpenAiEmbedding(api_key="test_api_key"), "Test_collection")
+    yield qdrant.Qdrant(
+        client, OpenAiEmbedding(api_key="test_api_key"), "Test_collection"
+    )
     client.delete_collection("Test_collection")
 
 
@@ -43,7 +45,7 @@ def test_add_texts(store):
         "Bugatti",
         "Maserati",
         "McLaren",
-        "Mercedes-Benz"
+        "Mercedes-Benz",
     ]
     assert len(store.add_texts(car_companies)) == len(car_companies)
 
@@ -59,7 +61,7 @@ def test_get_matching_text(store):
         "Bugatti",
         "Maserati",
         "McLaren",
-        "Mercedes-Benz"
+        "Mercedes-Benz",
     ]
     store.add_texts(car_companies)
     assert len(store.get_matching_text(k=2, text="McLaren")) == 2

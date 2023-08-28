@@ -1,8 +1,8 @@
-from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
+from cryptography.fernet import Fernet, InvalidSignature, InvalidToken
 
 # Generate a key
 # key = Fernet.generate_key()
-key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
+key = b"e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58="
 
 cipher_suite = Fernet(key)
 
@@ -36,7 +36,7 @@ def decrypt_data(encrypted_data):
 
 
 def is_encrypted(value):
-    key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
+    key = b"e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58="
     try:
         f = Fernet(key)
         f.decrypt(value)

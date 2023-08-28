@@ -1,10 +1,8 @@
 import uuid
+from typing import Any, Iterable, List, Optional
 
-from superagi.vector_store.document import Document
 from superagi.vector_store.base import VectorStore
-from typing import Any, Callable, Optional, Iterable, List
-
-from superagi.vector_store.embedding.base import BaseEmbedding
+from superagi.vector_store.document import Document
 
 
 class Pinecone(VectorStore):
@@ -17,12 +15,13 @@ class Pinecone(VectorStore):
         text_field : The text field is the name of the field where the corresponding text for an embedding is stored.
         namespace : The namespace.
     """
+
     def __init__(
-            self,
-            index: Any,
-            embedding_model: Optional[Any] = None,
-            text_field: Optional[str] = 'text',
-            namespace: Optional[str] = '',
+        self,
+        index: Any,
+        embedding_model: Optional[Any] = None,
+        text_field: Optional[str] = "text",
+        namespace: Optional[str] = "",
     ):
         try:
             import pinecone
@@ -38,13 +37,13 @@ class Pinecone(VectorStore):
         self.namespace = namespace
 
     def add_texts(
-            self,
-            texts: Iterable[str],
-            metadatas: Optional[list[dict]] = None,
-            ids: Optional[list[str]] = None,
-            namespace: Optional[str] = None,
-            batch_size: int = 32,
-            **kwargs: Any,
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[list[dict]] = None,
+        ids: Optional[list[str]] = None,
+        namespace: Optional[str] = None,
+        batch_size: int = 32,
+        **kwargs: Any,
     ) -> list[str]:
         """
         Add texts to the vector store.
@@ -76,7 +75,9 @@ class Pinecone(VectorStore):
         self.add_embeddings_to_vector_db({"vectors": vectors})
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = None, **kwargs: Any) -> List[Document]:
+    def get_matching_text(
+        self, query: str, top_k: int = 5, metadata: Optional[dict] = None, **kwargs: Any
+    ) -> List[Document]:
         """
         Return docs most similar to query using specified search type.
 
@@ -94,7 +95,13 @@ class Pinecone(VectorStore):
             for key in metadata.keys():
                 filters[key] = {"$eq": metadata[key]}
         embed_text = self.embedding_model.get_embedding(query)
-        res = self.index.query(embed_text, filter=filters, top_k=top_k, namespace=namespace,include_metadata=True)
+        res = self.index.query(
+            embed_text,
+            filter=filters,
+            top_k=top_k,
+            namespace=namespace,
+            include_metadata=True,
+        )
         search_res = self._get_search_text(res, query)
 
         documents = self._build_documents(res)
@@ -113,7 +120,7 @@ class Pinecone(VectorStore):
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
         """Upserts embeddings to the given vector store"""
         try:
-            self.index.upsert(vectors=embeddings['vectors'])
+            self.index.upsert(vectors=embeddings["vectors"])
         except Exception as err:
             raise err
 
@@ -127,11 +134,11 @@ class Pinecone(VectorStore):
     def _build_documents(self, results: List[dict]):
         try:
             documents = []
-            for doc in results['matches']:
+            for doc in results["matches"]:
                 documents.append(
                     Document(
-                        text_content=doc['metadata'][self.text_field],
-                        metadata=doc['metadata'],
+                        text_content=doc["metadata"][self.text_field],
+                        metadata=doc["metadata"],
                     )
                 )
             return documents
@@ -139,7 +146,7 @@ class Pinecone(VectorStore):
             raise err
 
     def _get_search_text(self, results: List[dict], query: str):
-        contexts = [item['metadata']['text'] for item in results['matches']]
+        contexts = [item["metadata"]["text"] for item in results["matches"]]
         i = 0
         search_res = f"Query: {query}\n"
         for context in contexts:

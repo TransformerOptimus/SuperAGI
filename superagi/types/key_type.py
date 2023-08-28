@@ -1,9 +1,10 @@
 from enum import Enum
 
+
 class ToolConfigKeyType(Enum):
-    STRING = 'string'
-    FILE = 'file'
-    INT = 'int'
+    STRING = "string"
+    FILE = "file"
+    INT = "int"
 
     @classmethod
     def get_key_type(cls, store):

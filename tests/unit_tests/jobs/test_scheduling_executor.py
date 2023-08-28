@@ -1,19 +1,28 @@
+from datetime import datetime
+from unittest.mock import ANY, MagicMock, PropertyMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, ANY, PropertyMock
+
+from superagi.jobs.scheduling_executor import ScheduledAgentExecutor
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
-from superagi.jobs.scheduling_executor import ScheduledAgentExecutor
-from datetime import datetime
 
-@patch('superagi.worker.execute_agent.delay')
-@patch('superagi.jobs.scheduling_executor.Session')
-@patch('superagi.models.agent.Agent')
-@patch('superagi.jobs.scheduling_executor.AgentWorkflow')
-@patch('superagi.models.agent_execution.AgentExecution')
-def test_execute_scheduled_agent(AgentExecutionMock, AgentWorkflowMock, AgentMock, SessionMock, execute_agent_delay_mock):
+
+@patch("superagi.worker.execute_agent.delay")
+@patch("superagi.jobs.scheduling_executor.Session")
+@patch("superagi.models.agent.Agent")
+@patch("superagi.jobs.scheduling_executor.AgentWorkflow")
+@patch("superagi.models.agent_execution.AgentExecution")
+def test_execute_scheduled_agent(
+    AgentExecutionMock,
+    AgentWorkflowMock,
+    AgentMock,
+    SessionMock,
+    execute_agent_delay_mock,
+):
     # Arrange
     agent_id = 1
-    name = 'Test Agent'
+    name = "Test Agent"
 
     # session setup
     session_mock = MagicMock()
@@ -24,16 +33,23 @@ def test_execute_scheduled_agent(AgentExecutionMock, AgentWorkflowMock, AgentMoc
     mock_agent.id = agent_id
     session_mock.query.return_value.get.return_value = mock_agent
 
-    db_agent_execution_mock = AgentExecution(status="RUNNING",last_execution_time=datetime.now(),agent_id=agent_id, name=name, num_of_calls=0, num_of_tokens=0, current_agent_step_id=1)
+    db_agent_execution_mock = AgentExecution(
+        status="RUNNING",
+        last_execution_time=datetime.now(),
+        agent_id=agent_id,
+        name=name,
+        num_of_calls=0,
+        num_of_tokens=0,
+        current_agent_step_id=1,
+    )
     type(db_agent_execution_mock).id = PropertyMock(return_value=123)
     AgentExecutionMock.return_value = db_agent_execution_mock
 
     # Create a ScheduledAgentExecutor object and then call execute_scheduled_agent
     executor = ScheduledAgentExecutor()
-    
+
     # Act
     executor.execute_scheduled_agent(agent_id, name)
-
 
     # Assert
     assert session_mock.query.called

@@ -1,8 +1,8 @@
 from typing import Type
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
-from superagi.tools.jira.tool import JiraTool, JiraIssueSchema
+from superagi.tools.jira.tool import JiraTool
 
 
 class EditIssueSchema(BaseModel):
@@ -25,6 +25,7 @@ class EditIssueTool(JiraTool):
         description : The description.
         args_schema : The args schema.
     """
+
     name = "EditJiraIssue"
     description = "Edit a Jira issue."
     args_schema: Type[EditIssueSchema] = EditIssueSchema
@@ -43,7 +44,7 @@ class EditIssueTool(JiraTool):
             The success message mentioning key of the edited issue or Issue not found!
         """
         jira = self.build_jira_instance()
-        issues = jira.search_issues('key=')
+        issues = jira.search_issues("key=")
         if issues:
             issues[0].update(fields=fields)
             return f"Issue '{issues[0].key}' created successfully!"

@@ -1,15 +1,14 @@
 from __future__ import annotations
+
 import ast
 
-import json
-
-from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy import or_
+from sqlalchemy import Boolean, Column, Integer, String, or_
 
 from superagi.lib.logger import logger
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
+
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
@@ -30,7 +29,7 @@ class Agent(DBBaseModel):
         is_deleted (bool): The flag associated for agent deletion
     """
 
-    __tablename__ = 'agents'
+    __tablename__ = "agents"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -47,9 +46,11 @@ class Agent(DBBaseModel):
             str: String representation of the Agent.
 
         """
-        return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
-               f"description='{self.description}', agent_workflow_id={self.agent_workflow_id}," \
-               f"is_deleted='{self.is_deleted}')"
+        return (
+            f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, "
+            f"description='{self.description}', agent_workflow_id={self.agent_workflow_id},"
+            f"is_deleted='{self.is_deleted}')"
+        )
 
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
@@ -66,8 +67,9 @@ class Agent(DBBaseModel):
         """
 
         agent = session.query(Agent).filter_by(id=agent_id).first()
-        agent_configurations = session.query(AgentConfiguration).filter_by(
-            agent_id=agent_id).all()
+        agent_configurations = (
+            session.query(AgentConfiguration).filter_by(agent_id=agent_id).all()
+        )
         parsed_config = {
             "agent_id": agent.id,
             "name": agent.name,
@@ -85,7 +87,7 @@ class Agent(DBBaseModel):
             "memory_window": None,
             "max_iterations": None,
             "is_deleted": agent.is_deleted,
-            "knowledge": None
+            "knowledge": None,
         }
         if not agent_configurations:
             return parsed_config
@@ -107,10 +109,24 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB",
-                   "resource_summary", "knowledge"]:
+        if key in [
+            "name",
+            "description",
+            "agent_type",
+            "exit",
+            "model",
+            "permission_type",
+            "LTM_DB",
+            "resource_summary",
+            "knowledge",
+        ]:
             return value
-        elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
+        elif key in [
+            "project_id",
+            "memory_window",
+            "max_iterations",
+            "iteration_interval",
+        ]:
             return int(value)
         elif key in ["goal", "constraints", "instruction", "is_deleted"]:
             return eval(value)
@@ -130,13 +146,18 @@ class Agent(DBBaseModel):
             Agent: The created agent.
 
         """
-        db_agent = Agent(name=agent_with_config.name, description=agent_with_config.description,
-                         project_id=agent_with_config.project_id)
+        db_agent = Agent(
+            name=agent_with_config.name,
+            description=agent_with_config.description,
+            project_id=agent_with_config.project_id,
+        )
         db.session.add(db_agent)
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.agent_workflow)
+        agent_workflow = AgentWorkflow.find_by_name(
+            session=db.session, name=agent_with_config.agent_workflow
+        )
         logger.info("Agent workflow:", str(agent_workflow))
         db_agent.agent_workflow_id = agent_workflow.id
         #
@@ -196,20 +217,24 @@ class Agent(DBBaseModel):
 
         """
 
-        db_agent = Agent(name=agent_template.name, description=agent_template.description,
-                         project_id=project_id,
-                         agent_workflow_id=agent_template.agent_workflow_id)
+        db_agent = Agent(
+            name=agent_template.name,
+            description=agent_template.description,
+            project_id=project_id,
+            agent_workflow_id=agent_template.agent_workflow_id,
+        )
         db.session.add(db_agent)
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        configs = db.session.query(AgentTemplateConfig).filter(
-            AgentTemplateConfig.agent_template_id == agent_template.id).all()
+        configs = (
+            db.session.query(AgentTemplateConfig)
+            .filter(AgentTemplateConfig.agent_template_id == agent_template.id)
+            .all()
+        )
 
         agent_configurations = [
-            AgentConfiguration(
-                agent_id=db_agent.id, key=config.key, value=config.value
-            )
+            AgentConfiguration(agent_id=db_agent.id, key=config.key, value=config.value)
             for config in configs
         ]
         db.session.add_all(agent_configurations)
@@ -218,7 +243,9 @@ class Agent(DBBaseModel):
         return db_agent
 
     @classmethod
-    def create_agent_with_marketplace_template_id(cls, db, project_id, agent_template_id):
+    def create_agent_with_marketplace_template_id(
+        cls, db, project_id, agent_template_id
+    ):
         """
         Creates a new agent using the agent template ID from the marketplace.
 
@@ -234,9 +261,12 @@ class Agent(DBBaseModel):
 
         agent_template = AgentTemplate.fetch_marketplace_detail(agent_template_id)
         # we need to create agent workflow if not present. Add it once we get org id in agent workflow
-        db_agent = Agent(name=agent_template["name"], description=agent_template["description"],
-                         project_id=project_id,
-                         agent_workflow_id=agent_template["agent_workflow_id"])
+        db_agent = Agent(
+            name=agent_template["name"],
+            description=agent_template["description"],
+            project_id=project_id,
+            agent_workflow_id=agent_template["agent_workflow_id"],
+        )
         db.session.add(db_agent)
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
@@ -262,19 +292,23 @@ class Agent(DBBaseModel):
 
         """
         project = session.query(Project).filter(Project.id == self.project_id).first()
-        return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+        return (
+            session.query(Organisation)
+            .filter(Organisation.id == project.organisation_id)
+            .first()
+        )
 
     @classmethod
     def get_agent_from_id(cls, session, agent_id):
         """
-            Get Agent from agent_id
+        Get Agent from agent_id
 
-            Args:
-                session: The database session.
-                agent_id(int) : Unique identifier of an Agent.
+        Args:
+            session: The database session.
+            agent_id(int) : Unique identifier of an Agent.
 
-            Returns:
-                Agent: Agent object is returned.
+        Returns:
+            Agent: Agent object is returned.
         """
         return session.query(Agent).filter(Agent.id == agent_id).first()
 
@@ -292,10 +326,20 @@ class Agent(DBBaseModel):
         """
         agent = session.query(Agent).filter_by(id=agent_id).first()
         project = session.query(Project).filter(Project.id == agent.project_id).first()
-        return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+        return (
+            session.query(Organisation)
+            .filter(Organisation.id == project.organisation_id)
+            .first()
+        )
 
     @classmethod
     def get_active_agent_by_id(cls, session, agent_id: int):
-        db_agent = session.query(Agent).filter(Agent.id == agent_id,
-                                               or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
+        db_agent = (
+            session.query(Agent)
+            .filter(
+                Agent.id == agent_id,
+                or_(Agent.is_deleted == False, Agent.is_deleted is None),
+            )
+            .first()
+        )
         return db_agent

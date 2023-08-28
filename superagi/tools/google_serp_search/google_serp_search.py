@@ -1,12 +1,10 @@
-from typing import Type, Optional, Any
+from typing import Optional, Type
+
 from pydantic import BaseModel, Field
-import aiohttp
+
 from superagi.helper.google_serp import GoogleSerpApiWrap
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
-import os
-
-import json
 
 
 class GoogleSerpSchema(BaseModel):
@@ -16,7 +14,9 @@ class GoogleSerpSchema(BaseModel):
     )
 
 
-'''Google search using serper.dev. Use server.dev api keys'''
+"""Google search using serper.dev. Use server.dev api keys"""
+
+
 class GoogleSerpTool(BaseTool):
     """
     Google Search tool
@@ -26,6 +26,7 @@ class GoogleSerpTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     llm: Optional[BaseLlm] = None
     name = "GoogleSerp"
     description = (
@@ -52,7 +53,11 @@ class GoogleSerpTool(BaseTool):
         response = serp_api.search_run(query)
         summary = self.summarise_result(query, response["snippets"])
         if response["links"]:
-            return summary + "\n\nLinks:\n" + "\n".join("- " + link for link in response["links"][:3])
+            return (
+                summary
+                + "\n\nLinks:\n"
+                + "\n".join("- " + link for link in response["links"][:3])
+            )
         return summary
 
     def summarise_result(self, query, snippets):

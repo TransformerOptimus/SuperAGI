@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import APIRouter, Depends
 from fastapi_sqlalchemy import db
 
 from superagi.helper.auth import get_user_organisation

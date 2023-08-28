@@ -1,7 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, String, Text, Boolean
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Boolean, Column, Integer, String, Text
 
 from superagi.models.base_model import DBBaseModel
 
@@ -19,7 +18,7 @@ class AgentWorkflowStepTool(DBBaseModel):
         completion_prompt: completion prompt in the llm conversations
     """
 
-    __tablename__ = 'agent_workflow_step_tools'
+    __tablename__ = "agent_workflow_step_tools"
 
     id = Column(Integer, primary_key=True)
     tool_name = Column(String)
@@ -28,7 +27,7 @@ class AgentWorkflowStepTool(DBBaseModel):
     output_instruction = Column(Text)
     history_enabled = Column(Boolean)
     completion_prompt = Column(Text)
-    
+
     def __repr__(self):
         """
         Returns a string representation of the AgentWorkflowStep object.
@@ -37,9 +36,11 @@ class AgentWorkflowStepTool(DBBaseModel):
             str: String representation of the AgentWorkflowStep.
         """
 
-        return f"AgentWorkflowStep(id={self.id}, " \
-               f"prompt='{self.tool_name}', agent_id={self.tool_instruction})"
-    
+        return (
+            f"AgentWorkflowStep(id={self.id}, "
+            f"prompt='{self.tool_name}', agent_id={self.tool_instruction})"
+        )
+
     def to_dict(self):
         """
         Converts the AgentWorkflowStep object to a dictionary.
@@ -49,12 +50,12 @@ class AgentWorkflowStepTool(DBBaseModel):
         """
 
         return {
-            'id': self.id,
-            'tool_name': self.tool_name,
-            'input_instruction': self.input_instruction,
-            'output_instruction': self.output_instruction,
-            'history_enabled': self.history_enabled,
-            'completion_prompt': self.completion_prompt,
+            "id": self.id,
+            "tool_name": self.tool_name,
+            "input_instruction": self.input_instruction,
+            "output_instruction": self.output_instruction,
+            "history_enabled": self.history_enabled,
+            "completion_prompt": self.completion_prompt,
         }
 
     def to_json(self):
@@ -81,22 +82,33 @@ class AgentWorkflowStepTool(DBBaseModel):
 
         data = json.loads(json_data)
         return cls(
-            id=data['id'],
-            tool_name=data['tool_name'],
-            input_instruction=data['input_instruction'],
-            output_instruction=data['output_instruction'],
-            history_enabled=data['history_enabled'],
-            completion_prompt=data['completion_prompt'],
+            id=data["id"],
+            tool_name=data["tool_name"],
+            input_instruction=data["input_instruction"],
+            output_instruction=data["output_instruction"],
+            history_enabled=data["history_enabled"],
+            completion_prompt=data["completion_prompt"],
         )
 
     @classmethod
     def find_by_id(cls, session, step_id: int):
-        return session.query(AgentWorkflowStepTool).filter(AgentWorkflowStepTool.id == step_id).first()
+        return (
+            session.query(AgentWorkflowStepTool)
+            .filter(AgentWorkflowStepTool.id == step_id)
+            .first()
+        )
 
     @classmethod
-    def find_or_create_tool(cls, session, step_unique_id: str, tool_name: str,
-                            input_instruction: str, output_instruction: str,
-                            history_enabled: bool = False, completion_prompt: str = None):
+    def find_or_create_tool(
+        cls,
+        session,
+        step_unique_id: str,
+        tool_name: str,
+        input_instruction: str,
+        output_instruction: str,
+        history_enabled: bool = False,
+        completion_prompt: str = None,
+    ):
         """
         Finds or creates a tool in the database.
 
@@ -113,16 +125,19 @@ class AgentWorkflowStepTool(DBBaseModel):
             AgentWorkflowStepTool: The AgentWorkflowStepTool object.
         """
         unique_id = f"{step_unique_id}_{tool_name}"
-        tool = session.query(AgentWorkflowStepTool).filter_by(
-            unique_id=unique_id
-        ).first()
+        tool = (
+            session.query(AgentWorkflowStepTool).filter_by(unique_id=unique_id).first()
+        )
 
         if tool is None:
-            tool = AgentWorkflowStepTool(tool_name=tool_name, unique_id=unique_id,
-                                         input_instruction=input_instruction,
-                                         output_instruction=output_instruction,
-                                         history_enabled=history_enabled,
-                                         completion_prompt=completion_prompt)
+            tool = AgentWorkflowStepTool(
+                tool_name=tool_name,
+                unique_id=unique_id,
+                input_instruction=input_instruction,
+                output_instruction=output_instruction,
+                history_enabled=history_enabled,
+                completion_prompt=completion_prompt,
+            )
             session.add(tool)
         else:
             tool.tool_name = tool_name
@@ -132,4 +147,3 @@ class AgentWorkflowStepTool(DBBaseModel):
             tool.completion_prompt = completion_prompt
         session.commit()
         return tool
-

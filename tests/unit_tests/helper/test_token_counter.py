@@ -1,9 +1,10 @@
+from typing import List
+from unittest.mock import MagicMock
+
 import pytest
 
-from typing import List
 from superagi.helper.token_counter import TokenCounter
 from superagi.types.common import BaseMessage
-from unittest.mock import MagicMock
 
 
 def test_token_limit():

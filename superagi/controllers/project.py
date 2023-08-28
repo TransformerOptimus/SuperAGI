@@ -1,13 +1,13 @@
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 
-from superagi.models.project import Project
-from superagi.models.organisation import Organisation
-from fastapi import APIRouter
 from superagi.helper.auth import check_auth
 from superagi.lib.logger import logger
+from superagi.models.organisation import Organisation
+from superagi.models.project import Project
+
 # from superagi.types.db import ProjectIn, ProjectOut
 
 router = APIRouter()
@@ -31,10 +31,10 @@ class ProjectIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 # CRUD Operations
 @router.post("/add", response_model=ProjectOut, status_code=201)
-def create_project(project: ProjectIn,
-                   Authorize: AuthJWT = Depends(check_auth)):
+def create_project(project: ProjectIn, Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new project.
 
@@ -58,7 +58,7 @@ def create_project(project: ProjectIn,
     project = Project(
         name=project.name,
         organisation_id=organisation.id,
-        description=project.description
+        description=project.description,
     )
 
     db.session.add(project)
@@ -90,8 +90,9 @@ def get_project(project_id: int, Authorize: AuthJWT = Depends(check_auth)):
 
 
 @router.put("/update/{project_id}", response_model=ProjectOut)
-def update_project(project_id: int, project: ProjectIn,
-                   Authorize: AuthJWT = Depends(check_auth)):
+def update_project(
+    project_id: int, project: ProjectIn, Authorize: AuthJWT = Depends(check_auth)
+):
     """
     Update a project detail by project_id.
 
@@ -125,8 +126,9 @@ def update_project(project_id: int, project: ProjectIn,
 
 
 @router.get("/get/organisation/{organisation_id}")
-def get_projects_organisation(organisation_id: int,
-                              Authorize: AuthJWT = Depends(check_auth)):
+def get_projects_organisation(
+    organisation_id: int, Authorize: AuthJWT = Depends(check_auth)
+):
     """
     Get all projects by organisation_id and create default if no project.
 
@@ -142,9 +144,15 @@ def get_projects_organisation(organisation_id: int,
     """
 
     Project.find_or_create_default_project(db.session, organisation_id)
-    projects = db.session.query(Project).filter(Project.organisation_id == organisation_id).all()
+    projects = (
+        db.session.query(Project)
+        .filter(Project.organisation_id == organisation_id)
+        .all()
+    )
     if len(projects) <= 0:
-        default_project = Project.find_or_create_default_project(db.session, organisation_id)
+        default_project = Project.find_or_create_default_project(
+            db.session, organisation_id
+        )
         projects.append(default_project)
 
     return projects

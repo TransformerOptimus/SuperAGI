@@ -2,8 +2,9 @@ import imaplib
 
 
 class ImapEmail:
-
-    def imap_open(self, imap_folder, email_sender, email_password, imap_server) -> imaplib.IMAP4_SSL:
+    def imap_open(
+        self, imap_folder, email_sender, email_password, imap_server
+    ) -> imaplib.IMAP4_SSL:
         """
         Function to open an IMAP connection to the email server.
 

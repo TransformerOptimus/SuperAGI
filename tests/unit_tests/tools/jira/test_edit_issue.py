@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 
 from superagi.tools.jira.edit_issue import EditIssueTool
 

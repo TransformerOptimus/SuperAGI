@@ -1,9 +1,8 @@
-import json
-from abc import ABC, abstractmethod
-from typing import Dict, NamedTuple, List
-import re
 import ast
-import json5
+from abc import ABC, abstractmethod
+from typing import Dict, List, NamedTuple
+
+
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
 
@@ -26,6 +25,7 @@ class BaseOutputParser(ABC):
 
 class AgentSchemaOutputParser(BaseOutputParser):
     """Parses the output from the agent schema"""
+
     def parse(self, response: str) -> AgentGPTAction:
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])
@@ -37,9 +37,11 @@ class AgentSchemaOutputParser(BaseOutputParser):
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
-            args = response_obj['tool']['args'] if 'args' in response_obj['tool'] else {}
+            args = (
+                response_obj["tool"]["args"] if "args" in response_obj["tool"] else {}
+            )
             return AgentGPTAction(
-                name=response_obj['tool']['name'],
+                name=response_obj["tool"]["name"],
                 args=args,
             )
         except BaseException as e:
@@ -49,6 +51,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
 
 class AgentSchemaToolOutputParser(BaseOutputParser):
     """Parses the output from the agent schema for the tool"""
+
     def parse(self, response: str) -> AgentGPTAction:
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])
@@ -60,9 +63,9 @@ class AgentSchemaToolOutputParser(BaseOutputParser):
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
-            args = response_obj['args'] if 'args' in response_obj else {}
+            args = response_obj["args"] if "args" in response_obj else {}
             return AgentGPTAction(
-                name=response_obj['name'],
+                name=response_obj["name"],
                 args=args,
             )
         except BaseException as e:

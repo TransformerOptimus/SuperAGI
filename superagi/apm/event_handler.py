@@ -1,17 +1,24 @@
 import logging
-from typing import Optional, Dict
+from typing import Dict, Optional
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from superagi.models.events import Event
 
-class EventHandler:
 
+class EventHandler:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_event(self, event_name: str, event_property: Dict, agent_id: int,
-                     org_id: int, event_value: int = 1) -> Optional[Event]:
+    def create_event(
+        self,
+        event_name: str,
+        event_property: Dict,
+        agent_id: int,
+        org_id: int,
+        event_value: int = 1,
+    ) -> Optional[Event]:
         try:
             event = Event(
                 event_name=event_name,

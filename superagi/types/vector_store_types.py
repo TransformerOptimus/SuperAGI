@@ -2,12 +2,12 @@ from enum import Enum
 
 
 class VectorStoreType(Enum):
-    REDIS = 'redis'
-    PINECONE = 'pinecone'
-    CHROMA = 'chroma'
-    WEAVIATE = 'weaviate'
-    QDRANT = 'qdrant'
-    LANCEDB = 'LanceDB'
+    REDIS = "redis"
+    PINECONE = "pinecone"
+    CHROMA = "chroma"
+    WEAVIATE = "weaviate"
+    QDRANT = "qdrant"
+    LANCEDB = "LanceDB"
 
     @classmethod
     def get_vector_store_type(cls, store):

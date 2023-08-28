@@ -1,8 +1,12 @@
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
 from superagi.tools.jira.create_issue import CreateIssueTool
 
 CreateIssueTool
+
+
 @patch("superagi.tools.jira.create_issue.JiraTool.build_jira_instance")
 def test_create_issue_tool(mock_build_jira_instance):
     # Arrange

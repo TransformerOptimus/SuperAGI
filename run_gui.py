@@ -1,14 +1,17 @@
 import os
-import sys
-import subprocess
-from time import sleep
 import shutil
+import subprocess
+import sys
+from time import sleep
+
 from superagi.lib.logger import logger
+
 
 def check_command(command, message):
     if not shutil.which(command):
         logger.info(message)
         sys.exit(1)
+
 
 def run_npm_commands():
     os.chdir("gui")
@@ -19,12 +22,16 @@ def run_npm_commands():
         sys.exit(1)
     os.chdir("..")
 
+
 def run_server():
-    api_process = subprocess.Popen(["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"])
+    api_process = subprocess.Popen(
+        ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    )
     os.chdir("gui")
     ui_process = subprocess.Popen(["npm", "run", "dev"])
     os.chdir("..")
     return api_process, ui_process
+
 
 def cleanup(api_process, ui_process):
     logger.info("Shutting down processes...")
@@ -33,10 +40,13 @@ def cleanup(api_process, ui_process):
     logger.info("Processes terminated. Exiting.")
     sys.exit(1)
 
+
 if __name__ == "__main__":
     check_command("node", "Node.js is not installed. Please install it and try again.")
     check_command("npm", "npm is not installed. Please install npm to proceed.")
-    check_command("uvicorn", "uvicorn is not installed. Please install uvicorn to proceed.")
+    check_command(
+        "uvicorn", "uvicorn is not installed. Please install uvicorn to proceed."
+    )
 
     run_npm_commands()
 

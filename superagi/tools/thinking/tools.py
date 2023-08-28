@@ -1,4 +1,4 @@
-from typing import Type, Optional, List
+from typing import List, Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,7 @@ class ThinkingSchema(BaseModel):
         description="Task description which needs reasoning.",
     )
 
+
 class ThinkingTool(BaseTool):
     """
     Thinking tool
@@ -26,11 +27,10 @@ class ThinkingTool(BaseTool):
         args_schema : The args schema.
         llm: LLM used for thinking.
     """
+
     llm: Optional[BaseLlm] = None
     name = "ThinkingTool"
-    description = (
-        "Intelligent problem-solving assistant that comprehends tasks, identifies key variables, and makes efficient decisions, all while providing detailed, self-driven reasoning for its choices. Do not assume anything, take the details from given data only."
-    )
+    description = "Intelligent problem-solving assistant that comprehends tasks, identifies key variables, and makes efficient decisions, all while providing detailed, self-driven reasoning for its choices. Do not assume anything, take the details from given data only."
     args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
     permission_required: bool = False
@@ -38,7 +38,6 @@ class ThinkingTool(BaseTool):
 
     class Config:
         arbitrary_types_allowed = True
-
 
     def _execute(self, task_description: str):
         """
@@ -52,7 +51,9 @@ class ThinkingTool(BaseTool):
         """
         try:
             prompt = PromptReader.read_tools_prompt(__file__, "thinking.txt")
-            prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+            prompt = prompt.replace(
+                "{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals)
+            )
             prompt = prompt.replace("{task_description}", task_description)
             last_tool_response = self.tool_response_manager.get_last_response()
             prompt = prompt.replace("{last_tool_response}", last_tool_response)

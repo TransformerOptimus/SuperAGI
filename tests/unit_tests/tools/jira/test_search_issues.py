@@ -1,9 +1,6 @@
 from unittest.mock import Mock, patch
 
 from superagi.tools.jira.search_issues import SearchJiraTool
-from unittest.mock import Mock, patch
-
-from superagi.tools.jira.search_issues import SearchJiraTool
 
 
 @patch("superagi.tools.jira.tool.JiraTool.build_jira_instance")

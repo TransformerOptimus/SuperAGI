@@ -1,21 +1,21 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
 from pydantic import BaseModel
-
-from superagi.models.organisation import Organisation
-from superagi.models.project import Project
-from superagi.models.user import User
-from fastapi import APIRouter
 
 from superagi.helper.auth import check_auth
 from superagi.lib.logger import logger
+from superagi.models.organisation import Organisation
+from superagi.models.project import Project
+from superagi.models.user import User
+
 # from superagi.types.db import UserBase, UserIn, UserOut
 
 router = APIRouter()
+
 
 class UserBase(BaseModel):
     name: str
@@ -42,10 +42,10 @@ class UserIn(UserBase):
     class Config:
         orm_mode = True
 
+
 # CRUD Operations
 @router.post("/add", response_model=UserOut, status_code=201)
-def create_user(user: UserIn,
-                Authorize: AuthJWT = Depends(check_auth)):
+def create_user(user: UserIn, Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new user.
 
@@ -63,7 +63,12 @@ def create_user(user: UserIn,
     db_user = db.session.query(User).filter(User.email == user.email).first()
     if db_user:
         return db_user
-    db_user = User(name=user.name, email=user.email, password=user.password, organisation_id=user.organisation_id)
+    db_user = User(
+        name=user.name,
+        email=user.email,
+        password=user.password,
+        organisation_id=user.organisation_id,
+    )
     db.session.add(db_user)
     db.session.commit()
     db.session.flush()
@@ -74,8 +79,7 @@ def create_user(user: UserIn,
 
 
 @router.get("/get/{user_id}", response_model=UserOut)
-def get_user(user_id: int,
-             Authorize: AuthJWT = Depends(check_auth)):
+def get_user(user_id: int, Authorize: AuthJWT = Depends(check_auth)):
     """
     Get a particular user details.
 
@@ -98,9 +102,7 @@ def get_user(user_id: int,
 
 
 @router.put("/update/{user_id}", response_model=UserOut)
-def update_user(user_id: int,
-                user: UserBase,
-                Authorize: AuthJWT = Depends(check_auth)):
+def update_user(user_id: int, user: UserBase, Authorize: AuthJWT = Depends(check_auth)):
     """
     Update a particular user.
 

@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import List
+
 from superagi.tools.base_tool import BaseTool, BaseToolkit, ToolConfiguration
 from superagi.tools.github.add_file import GithubAddFileTool
 from superagi.tools.github.delete_file import GithubDeleteFileTool
@@ -16,8 +17,16 @@ class GitHubToolkit(BaseToolkit, ABC):
 
     def get_env_keys(self) -> List[ToolConfiguration]:
         return [
-            ToolConfiguration(key="GITHUB_ACCESS_TOKEN", key_type=ToolConfigKeyType.STRING, is_required= True, is_secret = True),
-            ToolConfiguration(key="GITHUB_USERNAME", key_type=ToolConfigKeyType.STRING, is_required=True, is_secret=False)
+            ToolConfiguration(
+                key="GITHUB_ACCESS_TOKEN",
+                key_type=ToolConfigKeyType.STRING,
+                is_required=True,
+                is_secret=True,
+            ),
+            ToolConfiguration(
+                key="GITHUB_USERNAME",
+                key_type=ToolConfigKeyType.STRING,
+                is_required=True,
+                is_secret=False,
+            ),
         ]
-
-

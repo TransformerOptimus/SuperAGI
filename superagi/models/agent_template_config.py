@@ -16,7 +16,7 @@ class AgentTemplateConfig(DBBaseModel):
         value (str): The value of the configuration setting.
     """
 
-    __tablename__ = 'agent_template_configs'
+    __tablename__ = "agent_template_configs"
 
     id = Column(Integer, primary_key=True)
     agent_template_id = Column(Integer)
@@ -31,8 +31,10 @@ class AgentTemplateConfig(DBBaseModel):
             str: String representation of the AgentTemplateConfig.
         """
 
-        return f"AgentTemplateConfig(id={self.id}, agent_template_id='{self.agent_template_id}', " \
-               f"key='{self.key}', value='{self.value}')"
+        return (
+            f"AgentTemplateConfig(id={self.id}, agent_template_id='{self.agent_template_id}', "
+            f"key='{self.key}', value='{self.value}')"
+        )
 
     def to_dict(self):
         """
@@ -43,10 +45,10 @@ class AgentTemplateConfig(DBBaseModel):
         """
 
         return {
-            'id': self.id,
-            'agent_template_id': self.agent_template_id,
-            'key': self.key,
-            'value': self.value
+            "id": self.id,
+            "agent_template_id": self.agent_template_id,
+            "key": self.key,
+            "value": self.value,
         }
 
     def to_json(self):
@@ -73,8 +75,8 @@ class AgentTemplateConfig(DBBaseModel):
 
         data = json.loads(json_data)
         return cls(
-            id=data['id'],
-            agent_template_id=data['agent_template_id'],
-            key=data['key'],
-            value=data['value']
+            id=data["id"],
+            agent_template_id=data["agent_template_id"],
+            key=data["key"],
+            value=data["value"],
         )

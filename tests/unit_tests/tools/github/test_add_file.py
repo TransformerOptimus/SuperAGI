@@ -1,8 +1,9 @@
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from superagi.helper.github_helper import GithubHelper
-from superagi.tools.github.add_file import GithubAddFileTool, GithubAddFileSchema
+from superagi.tools.github.add_file import GithubAddFileSchema, GithubAddFileTool
 
 
 def test_github_add_file_schema():
@@ -12,7 +13,7 @@ def test_github_add_file_schema():
         file_name="test_file",
         folder_path="test_folder",
         commit_message="test_commit",
-        repository_owner="test_owner"
+        repository_owner="test_owner",
     )
 
     assert schema.repository_name == "test_repo"
@@ -32,8 +33,16 @@ def github_add_file_tool():
 @patch.object(GithubHelper, "create_branch")
 @patch.object(GithubHelper, "add_file")
 @patch.object(GithubHelper, "create_pull_request")
-def test_github_add_file_tool_execute(mock_make_fork, mock_create_branch, mock_add_file, mock_create_pull_request, github_add_file_tool):
-    github_add_file_tool.toolkit_config.get_tool_config = MagicMock(side_effect=["test_token", "test_username"])
+def test_github_add_file_tool_execute(
+    mock_make_fork,
+    mock_create_branch,
+    mock_add_file,
+    mock_create_pull_request,
+    github_add_file_tool,
+):
+    github_add_file_tool.toolkit_config.get_tool_config = MagicMock(
+        side_effect=["test_token", "test_username"]
+    )
 
     mock_make_fork.return_value = 201
     mock_create_branch.return_value = 201
@@ -46,7 +55,7 @@ def test_github_add_file_tool_execute(mock_make_fork, mock_create_branch, mock_a
         commit_message="test_commit",
         repository_owner="test_owner",
         file_name="test_file",
-        folder_path="test_folder"
+        folder_path="test_folder",
     )
 
     assert response == "Pull request to add file/folder has been created"
@@ -62,7 +71,7 @@ def test_github_add_file_tool_execute(mock_make_fork, mock_create_branch, mock_a
         commit_message="test_commit",
         repository_owner="test_owner",
         file_name="test_file",
-        folder_path="test_folder"
+        folder_path="test_folder",
     )
 
     assert response == "Error: Unable to add file/folder to repository "

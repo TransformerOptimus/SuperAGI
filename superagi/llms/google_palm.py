@@ -6,8 +6,15 @@ from superagi.llms.base_llm import BaseLlm
 
 
 class GooglePalm(BaseLlm):
-    def __init__(self, api_key, model='models/chat-bison-001', temperature=0.6, candidate_count=1, top_k=40,
-                 top_p=0.95):
+    def __init__(
+        self,
+        api_key,
+        model="models/chat-bison-001",
+        temperature=0.6,
+        candidate_count=1,
+        top_k=40,
+        top_p=0.95,
+    ):
         """
         Args:
             api_key (str): The Google PALM API key.
@@ -42,7 +49,13 @@ class GooglePalm(BaseLlm):
         """
         return self.model
 
-    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT") or 800, examples=[], context=""):
+    def chat_completion(
+        self,
+        messages,
+        max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT") or 800,
+        examples=[],
+        context="",
+    ):
         """
         Call the Google PALM chat API.
 
@@ -55,13 +68,22 @@ class GooglePalm(BaseLlm):
             dict: The response.
         """
 
-        prompt = "\n".join(["`" + message["role"] + "`: " + message["content"] + "" for message in messages])
+        prompt = "\n".join(
+            [
+                "`" + message["role"] + "`: " + message["content"] + ""
+                for message in messages
+            ]
+        )
         # role does not yield right results in case of single step prompt
         if len(messages) == 1:
-            prompt = messages[0]['content']
+            prompt = messages[0]["content"]
         try:
             # NOTE: Default chat based palm bison model has different issues. We will switch to it once it gets fixed.
-            final_model = "models/text-bison-001" if self.model == "models/chat-bison-001" else self.model
+            final_model = (
+                "models/text-bison-001"
+                if self.model == "models/chat-bison-001"
+                else self.model
+            )
             completion = palm.generate_text(
                 model=final_model,
                 temperature=self.temperature,

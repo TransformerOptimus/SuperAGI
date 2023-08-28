@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Float, Integer, String
+
 from superagi.models.base_model import DBBaseModel
 
 
@@ -12,7 +13,7 @@ class Budget(DBBaseModel):
         cycle (String): The cycle of the budget.
     """
 
-    __tablename__ = 'budgets'
+    __tablename__ = "budgets"
 
     id = Column(Integer, primary_key=True)
     budget = Column(Float)
@@ -26,5 +27,4 @@ class Budget(DBBaseModel):
             str: String representation of the Budget object.
         """
 
-        return (f"Budget(id={self.id}, budget={self.budget}, "
-                f"cycle='{self.cycle}')")
+        return f"Budget(id={self.id}, budget={self.budget}, " f"cycle='{self.cycle}')"

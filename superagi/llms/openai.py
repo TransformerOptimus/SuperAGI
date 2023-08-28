@@ -1,6 +1,6 @@
 import openai
-from openai import APIError, InvalidRequestError
-from openai.error import RateLimitError, AuthenticationError
+from openai import InvalidRequestError
+from openai.error import AuthenticationError, RateLimitError
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
@@ -8,9 +8,17 @@ from superagi.llms.base_llm import BaseLlm
 
 
 class OpenAi(BaseLlm):
-    def __init__(self, api_key, model="gpt-4", temperature=0.6, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), top_p=1,
-                 frequency_penalty=0,
-                 presence_penalty=0, number_of_results=1):
+    def __init__(
+        self,
+        api_key,
+        model="gpt-4",
+        temperature=0.6,
+        max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"),
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        number_of_results=1,
+    ):
         """
         Args:
             api_key (str): The OpenAI API key.
@@ -71,19 +79,28 @@ class OpenAi(BaseLlm):
                 max_tokens=max_tokens,
                 top_p=self.top_p,
                 frequency_penalty=self.frequency_penalty,
-                presence_penalty=self.presence_penalty
+                presence_penalty=self.presence_penalty,
             )
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)
-            return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys.."}
+            return {
+                "error": "ERROR_AUTHENTICATION",
+                "message": "Authentication error please check the api keys..",
+            }
         except RateLimitError as api_error:
             logger.info("OpenAi RateLimitError:", api_error)
-            return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded.."}
+            return {
+                "error": "ERROR_RATE_LIMIT",
+                "message": "Openai rate limit exceeded..",
+            }
         except InvalidRequestError as invalid_request_error:
             logger.info("OpenAi InvalidRequestError:", invalid_request_error)
-            return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error.."}
+            return {
+                "error": "ERROR_INVALID_REQUEST",
+                "message": "Openai invalid request error..",
+            }
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)
             return {"error": "ERROR_OPENAI", "message": "Open ai exception"}
@@ -112,7 +129,12 @@ class OpenAi(BaseLlm):
         try:
             models = openai.Model.list()
             models = [model["id"] for model in models["data"]]
-            models_supported = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
+            models_supported = [
+                "gpt-4",
+                "gpt-3.5-turbo",
+                "gpt-3.5-turbo-16k",
+                "gpt-4-32k",
+            ]
             models = [model for model in models if model in models_supported]
             return models
         except Exception as exception:

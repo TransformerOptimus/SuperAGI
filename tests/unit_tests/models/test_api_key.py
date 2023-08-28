@@ -1,7 +1,9 @@
 from unittest.mock import create_autospec
 
 from sqlalchemy.orm import Session
+
 from superagi.models.api_key import ApiKey
+
 
 def test_get_by_org_id():
     # Create a mock session
@@ -45,6 +47,7 @@ def test_get_by_id():
     # Assert that the returned api key matches the mock api key
     assert api_key == mock_api_key
 
+
 def test_delete_by_id():
     # Create a mock session
     session = create_autospec(Session)
@@ -67,6 +70,7 @@ def test_delete_by_id():
     # Assert that the session.commit and session.flush methods were called
     session.commit.assert_called_once()
     session.flush.assert_called_once()
+
 
 def test_edit_by_id():
     # Create a mock session

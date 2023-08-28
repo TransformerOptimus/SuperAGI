@@ -1,5 +1,5 @@
 import json
-from typing import Type, Optional
+from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -15,6 +15,7 @@ class GoogleSearchSchema(BaseModel):
         description="The search query for Google search.",
     )
 
+
 class GoogleSearchTool(BaseTool):
     """
     Google Search tool
@@ -24,6 +25,7 @@ class GoogleSearchTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     llm: Optional[BaseLlm] = None
     name = "GoogleSearch"
     description = (
@@ -51,7 +53,9 @@ class GoogleSearchTool(BaseTool):
         num_pages = 1
         num_extracts = 3
 
-        google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
+        google_search = GoogleSearchWrap(
+            api_key, search_engine_id, num_results, num_pages, num_extracts
+        )
         snippets, webpages, links = google_search.get_result(query)
 
         results = []
@@ -64,7 +68,9 @@ class GoogleSearchTool(BaseTool):
         summary = self.summarise_result(query, results)
         links = [result["links"] for result in results if len(result["links"]) > 0]
         if len(links) > 0:
-            return summary + "\n\nLinks:\n" + "\n".join("- " + link for link in links[:3])
+            return (
+                summary + "\n\nLinks:\n" + "\n".join("- " + link for link in links[:3])
+            )
         return summary
 
     def summarise_result(self, query, snippets):
@@ -78,7 +84,7 @@ class GoogleSearchTool(BaseTool):
         Returns:
             A summary of the search result.
         """
-        summarize_prompt ="""Summarize the following text `{snippets}`
+        summarize_prompt = """Summarize the following text `{snippets}`
             Write a concise or as descriptive as necessary and attempt to
             answer the query: `{query}` as best as possible. Use markdown formatting for
             longer responses."""

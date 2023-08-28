@@ -1,4 +1,3 @@
-import openai
 import google.generativeai as palm
 
 
@@ -10,6 +9,6 @@ class PalmEmbedding:
     def get_embedding(self, text):
         try:
             response = palm.generate_embeddings(model=self.model, text=text)
-            return response['embedding']
+            return response["embedding"]
         except Exception as exception:
             return {"error": exception}

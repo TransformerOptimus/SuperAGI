@@ -1,4 +1,5 @@
 from abc import abstractmethod
+
 from pydantic import BaseModel, Field
 
 
@@ -44,4 +45,5 @@ class SystemMessage(BaseMessage):
 
 class GitHubLinkRequest(BaseModel):
     """Used for Request body in install API"""
+
     github_link: str

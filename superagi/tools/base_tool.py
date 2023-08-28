@@ -1,27 +1,25 @@
 from abc import abstractmethod
 from functools import wraps
 from inspect import signature
-from typing import List
-from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
-import yaml
-from pydantic import BaseModel, create_model, validate_arguments, Extra
-from superagi.models.tool_config import ToolConfig
-from sqlalchemy import Column, Integer, String, Boolean
-from superagi.types.key_type import ToolConfigKeyType
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
+import yaml
+from pydantic import BaseModel, Extra, create_model, validate_arguments
 
 from superagi.config.config import get_config
+from superagi.types.key_type import ToolConfigKeyType
 
 
 class SchemaSettings:
     """Configuration for the pydantic model."""
+
     extra = Extra.forbid
     arbitrary_types_allowed = True
 
 
 def extract_valid_parameters(
-        inferred_type: Type[BaseModel],
-        function: Callable,
+    inferred_type: Type[BaseModel],
+    function: Callable,
 ) -> dict:
     """Get the arguments from a function's signature."""
     schema = inferred_type.schema()["properties"]
@@ -30,7 +28,7 @@ def extract_valid_parameters(
 
 
 def _construct_model_subset(
-        model_name: str, original_model: BaseModel, required_fields: list
+    model_name: str, original_model: BaseModel, required_fields: list
 ) -> Type[BaseModel]:
     """Create a pydantic model with only a subset of model's fields."""
     fields = {
@@ -45,8 +43,8 @@ def _construct_model_subset(
 
 
 def create_function_schema(
-        schema_name: str,
-        function: Callable,
+    schema_name: str,
+    function: Callable,
 ) -> Type[BaseModel]:
     """Create a pydantic schema from a function's signature."""
     validated = validate_arguments(function, config=SchemaSettings)  # type: ignore
@@ -60,7 +58,6 @@ def create_function_schema(
 
 
 class BaseToolkitConfiguration:
-
     def __init__(self):
         self.session = None
 
@@ -101,8 +98,8 @@ class BaseTool(BaseModel):
         return int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
 
     def _parse_input(
-            self,
-            tool_input: Union[str, Dict],
+        self,
+        tool_input: Union[str, Dict],
     ) -> Union[str, Dict[str, Any]]:
         """Convert tool input to pydantic model."""
         input_args = self.args_schema
@@ -125,19 +122,13 @@ class BaseTool(BaseModel):
         else:
             return (), tool_input
 
-    def execute(
-            self,
-            tool_input: Union[str, Dict],
-            **kwargs: Any
-    ) -> Any:
+    def execute(self, tool_input: Union[str, Dict], **kwargs: Any) -> Any:
         """Run the tool."""
         parsed_input = self._parse_input(tool_input)
 
         try:
             tool_args, tool_kwargs = self._to_args_and_kwargs(parsed_input)
-            observation = (
-                self._execute(*tool_args, **tool_kwargs)
-            )
+            observation = self._execute(*tool_args, **tool_kwargs)
         except (Exception, KeyboardInterrupt) as e:
             raise e
         return observation
@@ -183,8 +174,11 @@ class FunctionalTool(BaseTool):
         return cls
 
 
-def tool(*args: Union[str, Callable], return_direct: bool = False,
-         args_schema: Optional[Type[BaseModel]] = None) -> Callable:
+def tool(
+    *args: Union[str, Callable],
+    return_direct: bool = False,
+    args_schema: Optional[Type[BaseModel]] = None,
+) -> Callable:
     def decorator(func: Callable) -> Callable:
         nonlocal args_schema
 
@@ -203,10 +197,16 @@ def tool(*args: Union[str, Callable], return_direct: bool = False,
         return decorator(args[0])
     else:
         return decorator
-    
-class ToolConfiguration:
 
-    def __init__(self, key: str, key_type: str = None, is_required: bool = False, is_secret: bool = False):
+
+class ToolConfiguration:
+    def __init__(
+        self,
+        key: str,
+        key_type: str = None,
+        is_required: bool = False,
+        is_secret: bool = False,
+    ):
         self.key = key
         if is_secret is None:
             self.is_secret = False
@@ -220,10 +220,10 @@ class ToolConfiguration:
             self.is_required = is_required
         else:
             raise ValueError("is_required should be a boolean value")
-        
+
         if key_type is None:
             self.key_type = ToolConfigKeyType.STRING
-        elif isinstance(key_type,ToolConfigKeyType):
+        elif isinstance(key_type, ToolConfigKeyType):
             self.key_type = key_type
         else:
             raise ValueError("key_type should be string/file/integer")

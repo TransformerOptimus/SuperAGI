@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String,ForeignKey
+from sqlalchemy import Column, Integer, String
+
 from superagi.models.base_model import DBBaseModel
 
 
@@ -13,7 +14,7 @@ class Project(DBBaseModel):
         description (String): The description of the project.
     """
 
-    __tablename__ = 'projects'
+    __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -33,21 +34,28 @@ class Project(DBBaseModel):
     @classmethod
     def find_or_create_default_project(cls, session, organisation_id):
         """
-            Finds or creates the default project for the given organization.
+        Finds or creates the default project for the given organization.
 
-            Args:
-                session: The database session.
-                organisation_id (int): The ID of the organization.
+        Args:
+            session: The database session.
+            organisation_id (int): The ID of the organization.
 
-            Returns:
-                Project: The found or created default project.
+        Returns:
+            Project: The found or created default project.
         """
-        project = session.query(Project).filter(Project.organisation_id == organisation_id, Project.name == "Default Project").first()
+        project = (
+            session.query(Project)
+            .filter(
+                Project.organisation_id == organisation_id,
+                Project.name == "Default Project",
+            )
+            .first()
+        )
         if project is None:
             default_project = Project(
                 name="Default Project",
                 organisation_id=organisation_id,
-                description="New Default Project"
+                description="New Default Project",
             )
             session.add(default_project)
             session.commit()
@@ -58,9 +66,11 @@ class Project(DBBaseModel):
 
     @classmethod
     def find_by_org_id(cls, session, org_id: int):
-        project = session.query(Project).filter(Project.organisation_id == org_id).first()
+        project = (
+            session.query(Project).filter(Project.organisation_id == org_id).first()
+        )
         return project
-    
+
     @classmethod
     def find_by_id(cls, session, project_id: int):
         project = session.query(Project).filter(Project.id == project_id).first()

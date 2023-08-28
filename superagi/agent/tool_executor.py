@@ -7,6 +7,7 @@ from superagi.lib.logger import logger
 
 class ToolExecutor:
     """Executes the tool with the given args."""
+
     FINISH = "finish"
 
     def __init__(self, organisation_id: int, agent_id: int, tools: list):
@@ -31,27 +32,32 @@ class ToolExecutor:
             status = "SUCCESS"
             tool = tools[tool_name]
             retry = False
-            EventHandler(session=session).create_event('tool_used', {'tool_name': tool_name}, self.agent_id,
-                                                       self.organisation_id),
+            EventHandler(session=session).create_event(
+                "tool_used",
+                {"tool_name": tool_name},
+                self.agent_id,
+                self.organisation_id,
+            ),
             try:
                 parsed_args = self.clean_tool_args(tool_args)
                 observation = tool.execute(parsed_args)
             except ValidationError as e:
                 status = "ERROR"
                 retry = True
-                observation = (
-                    f"Validation Error in args: {str(e)}, args: {tool_args}"
-                )
+                observation = f"Validation Error in args: {str(e)}, args: {tool_args}"
             except Exception as e:
                 status = "ERROR"
                 retry = True
-                observation = (
-                    f"Error1: {str(e)}, {type(e).__name__}, args: {tool_args}"
-                )
-            output = ToolExecutorResponse(status=status, result=f"Tool {tool.name} returned: {observation}",
-                                          retry=retry)
+                observation = f"Error1: {str(e)}, {type(e).__name__}, args: {tool_args}"
+            output = ToolExecutorResponse(
+                status=status,
+                result=f"Tool {tool.name} returned: {observation}",
+                retry=retry,
+            )
         elif tool_name == "ERROR":
-            output = ToolExecutorResponse(status="ERROR", result=f"Error Tool Name: {tool_args}. ", retry=False)
+            output = ToolExecutorResponse(
+                status="ERROR", result=f"Error Tool Name: {tool_args}. ", retry=False
+            )
         else:
             result = (
                 f"Unknown tool '{tool_name}'. "

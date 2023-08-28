@@ -2,22 +2,23 @@ from __future__ import annotations
 
 import uuid
 from mimetypes import common_types
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Sequence, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
 
 from qdrant_client import QdrantClient
-from qdrant_client.http import models
 from qdrant_client.conversions import common_types
+from qdrant_client.http import models
 from qdrant_client.models import Distance, VectorParams
 
+from superagi.config.config import get_config
 from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
-from superagi.config.config import get_config
 
 DictFilter = Dict[str, Union[str, int, bool, dict, list]]
 MetadataFilter = Union[DictFilter, common_types.Filter]
 
 
-def create_qdrant_client(api_key: Optional[str] = None, url: Optional[str] = None, port: Optional[int] = None
+def create_qdrant_client(
+    api_key: Optional[str] = None, url: Optional[str] = None, port: Optional[int] = None
 ) -> QdrantClient:
     if api_key is None:
         qdrant_host_name = get_config("QDRANT_HOST_NAME") or "localhost"
@@ -39,16 +40,17 @@ class Qdrant(VectorStore):
         text_field_payload_key : Name of the field where the corresponding text for point is stored in the collection.
         metadata_payload_key : Name of the field where the corresponding metadata for point is stored in the collection.
     """
+
     TEXT_FIELD_KEY = "text"
     METADATA_KEY = "metadata"
 
     def __init__(
-            self,
-            client: QdrantClient,
-            embedding_model: Optional[Any] = None,
-            collection_name: str = None,
-            text_field_payload_key: str = TEXT_FIELD_KEY,
-            metadata_payload_key: str = METADATA_KEY,
+        self,
+        client: QdrantClient,
+        embedding_model: Optional[Any] = None,
+        collection_name: str = None,
+        text_field_payload_key: str = TEXT_FIELD_KEY,
+        metadata_payload_key: str = METADATA_KEY,
     ):
         self.client = client
         self.embedding_model = embedding_model
@@ -57,11 +59,11 @@ class Qdrant(VectorStore):
         self.metadata_payload_key = metadata_payload_key or self.METADATA_KEY
 
     def add_texts(
-            self,
-            input_texts: Iterable[str],
-            metadata_list: Optional[List[dict]] = None,
-            id_list: Optional[Sequence[str]] = None,
-            batch_limit: int = 64,
+        self,
+        input_texts: Iterable[str],
+        metadata_list: Optional[List[dict]] = None,
+        id_list: Optional[Sequence[str]] = None,
+        batch_limit: int = 64,
     ) -> List[str]:
         """
         Add texts to the vector store.
@@ -78,12 +80,16 @@ class Qdrant(VectorStore):
         collected_ids = []
         metadata_list = metadata_list or []
         id_list = id_list or [uuid.uuid4().hex for _ in input_texts]
-        num_batches = len(input_texts) // batch_limit + (len(input_texts) % batch_limit != 0)
+        num_batches = len(input_texts) // batch_limit + (
+            len(input_texts) % batch_limit != 0
+        )
 
         for i in range(num_batches):
-            text_batch = input_texts[i * batch_limit: (i + 1) * batch_limit]
-            metadata_batch = metadata_list[i * batch_limit: (i + 1) * batch_limit] or None
-            id_batch = id_list[i * batch_limit: (i + 1) * batch_limit]
+            text_batch = input_texts[i * batch_limit : (i + 1) * batch_limit]
+            metadata_batch = (
+                metadata_list[i * batch_limit : (i + 1) * batch_limit] or None
+            )
+            id_batch = id_list[i * batch_limit : (i + 1) * batch_limit]
             vectors = self.__get_embeddings(text_batch)
             payloads = self.__build_payloads(
                 text_batch,
@@ -91,22 +97,24 @@ class Qdrant(VectorStore):
                 self.text_field_payload_key,
                 self.metadata_payload_key,
             )
-            self.add_embeddings_to_vector_db({"ids": id_batch, "vectors": vectors, "payloads": payloads})
+            self.add_embeddings_to_vector_db(
+                {"ids": id_batch, "vectors": vectors, "payloads": payloads}
+            )
             collected_ids.extend(id_batch)
 
         return collected_ids
-    
+
     def get_matching_text(
-            self,
-            text: str = None,
-            embedding: List[float] = None,
-            k: int = 4,
-            metadata: Optional[dict] = None,
-            search_params: Optional[common_types.SearchParams] = None,
-            offset: int = 0,
-            score_threshold: Optional[float] = None,
-            consistency: Optional[common_types.ReadConsistency] = None,
-            **kwargs: Any,
+        self,
+        text: str = None,
+        embedding: List[float] = None,
+        k: int = 4,
+        metadata: Optional[dict] = None,
+        search_params: Optional[common_types.SearchParams] = None,
+        offset: int = 0,
+        score_threshold: Optional[float] = None,
+        consistency: Optional[common_types.ReadConsistency] = None,
+        **kwargs: Any,
     ) -> Dict:
         """
         Return docs most similar to query using specified search type.
@@ -138,41 +146,41 @@ class Qdrant(VectorStore):
                 metadata_filter["key"] = key
                 metadata_filter["match"] = {"value": value}
                 filter_conditions.append(metadata_filter)
-            filter = models.Filter(
-                must = filter_conditions
-            )
+            filter = models.Filter(must=filter_conditions)
         try:
             results = self.client.search(
-            collection_name=self.collection_name,
-            query_vector=embedding,
-            query_filter=filter,
-            search_params=search_params,
-            limit=k,
-            offset=offset,
-            with_payload=True,
-            with_vectors=False,
-            score_threshold=score_threshold,
-            consistency=consistency,
-            **kwargs,
+                collection_name=self.collection_name,
+                query_vector=embedding,
+                query_filter=filter,
+                search_params=search_params,
+                limit=k,
+                offset=offset,
+                with_payload=True,
+                with_vectors=False,
+                score_threshold=score_threshold,
+                consistency=consistency,
+                **kwargs,
             )
         except Exception as err:
             raise err
         search_res = self._get_search_res(results, text)
-        documents =  self.__build_documents(results)
+        documents = self.__build_documents(results)
 
         return {"documents": documents, "search_res": search_res}
-    
+
     def get_index_stats(self) -> dict:
         """
         Returns:
             Stats or Information about a collection
         """
-        collection_info = self.client.get_collection(collection_name=self.collection_name)
+        collection_info = self.client.get_collection(
+            collection_name=self.collection_name
+        )
         dimensions = collection_info.config.params.vectors.size
         vector_count = collection_info.vectors_count
 
         return {"dimensions": dimensions, "vector_count": vector_count}
-    
+
     def add_embeddings_to_vector_db(self, embeddings: dict) -> None:
         """Upserts embeddings to the given vector store"""
         try:
@@ -181,28 +189,23 @@ class Qdrant(VectorStore):
                 points=models.Batch(
                     ids=embeddings["ids"],
                     vectors=embeddings["vectors"],
-                    payloads=embeddings["payload"]
+                    payloads=embeddings["payload"],
                 ),
             )
         except Exception as err:
             raise err
-        
+
     def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
         """Deletes embeddings from the given vector store"""
         try:
             self.client.delete(
                 collection_name=self.collection_name,
-                points_selector = models.PointIdsList(
-                    points = ids
-                ),
+                points_selector=models.PointIdsList(points=ids),
             )
         except Exception as err:
             raise err
-        
-    def __get_embeddings(
-            self,
-            texts: Iterable[str]
-    ) -> List[List[float]]:
+
+    def __get_embeddings(self, texts: Iterable[str]) -> List[List[float]]:
         """Return embeddings for a list of texts using the embedding model."""
         if self.embedding_model is not None:
             query_vectors = []
@@ -211,15 +214,15 @@ class Qdrant(VectorStore):
                 query_vectors.append(query_vector)
         else:
             raise ValueError("Embedding model is not set")
-        
+
         return query_vectors
-    
+
     def __build_payloads(
-            self,
-            texts: Iterable[str],
-            metadatas: Optional[List[dict]],
-            text_field_payload_key: str,
-            metadata_payload_key: str,
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[dict]],
+        text_field_payload_key: str,
+        metadata_payload_key: str,
     ) -> List[dict]:
         """
         Builds and returns a list of payloads containing text and
@@ -241,11 +244,8 @@ class Qdrant(VectorStore):
             )
 
         return payloads
-    
-    def __build_documents(
-            self,
-            results: List[Dict]
-    ) -> List[Document]:
+
+    def __build_documents(self, results: List[Dict]) -> List[Document]:
         """Return the document version corresponding to each result."""
         documents = []
         for result in results:
@@ -257,27 +257,26 @@ class Qdrant(VectorStore):
             )
 
         return documents
-    
+
     @classmethod
-    def create_collection(cls,
-                          client: QdrantClient,
-                          collection_name: str,
-                          size: int
-                          ):
+    def create_collection(cls, client: QdrantClient, collection_name: str, size: int):
         """
         Create a new collection in Qdrant if it does not exist.
-        
+
         Args:
             client : The Qdrant client.
             collection_name: The name of the collection to create.
             size: The size for the new collection.
         """
-        if not any(collection.name == collection_name for collection in client.get_collections().collections):
+        if not any(
+            collection.name == collection_name
+            for collection in client.get_collections().collections
+        ):
             client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=size, distance=Distance.COSINE),
             )
-    
+
     def _get_search_res(self, results, text):
         contexts = [res.payload for res in results]
         i = 0

@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String
 
 from superagi.models.base_model import DBBaseModel
 
-
 # from pydantic import BaseModel
+
 
 class User(DBBaseModel):
     """
@@ -17,7 +17,7 @@ class User(DBBaseModel):
         organisation_id (Integer): The ID of the associated organisation.
     """
 
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -33,5 +33,7 @@ class User(DBBaseModel):
             str: String representation of the User object.
         """
 
-        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}'," \
-               f"organisation_id={self.organisation_id})"
+        return (
+            f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}',"
+            f"organisation_id={self.organisation_id})"
+        )

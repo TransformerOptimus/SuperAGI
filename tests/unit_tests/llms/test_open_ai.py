@@ -1,13 +1,15 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from superagi.llms.openai import OpenAi
 
 
-@patch('superagi.llms.openai.openai')
+@patch("superagi.llms.openai.openai")
 def test_chat_completion(mock_openai):
     # Arrange
-    model = 'gpt-4'
-    api_key = 'test_key'
+    model = "gpt-4"
+    api_key = "test_key"
     openai_instance = OpenAi(api_key, model=model)
 
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
@@ -29,13 +31,13 @@ def test_chat_completion(mock_openai):
         max_tokens=max_tokens,
         top_p=openai_instance.top_p,
         frequency_penalty=openai_instance.frequency_penalty,
-        presence_penalty=openai_instance.presence_penalty
+        presence_penalty=openai_instance.presence_penalty,
     )
 
 
 def test_verify_access_key():
-    model = 'gpt-4'
-    api_key = 'test_key'
+    model = "gpt-4"
+    api_key = "test_key"
     openai_instance = OpenAi(api_key, model=model)
     result = openai_instance.verify_access_key()
     assert result is False

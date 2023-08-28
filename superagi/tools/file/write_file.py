@@ -1,4 +1,4 @@
-from typing import Type, Optional
+from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -6,13 +6,16 @@ from pydantic import BaseModel, Field
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 
-
 # from superagi.helper.s3_helper import upload_to_s3
 
 
 class WriteFileInput(BaseModel):
     """Input for CopyFileTool."""
-    file_name: str = Field(..., description="Name of the file to write. Only include the file name. Don't include path.")
+
+    file_name: str = Field(
+        ...,
+        description="Name of the file to write. Only include the file name. Don't include path.",
+    )
     content: str = Field(..., description="File content to write")
 
 
@@ -27,6 +30,7 @@ class WriteFileTool(BaseTool):
         args_schema : The args schema.
         resource_manager: File resource manager.
     """
+
     name: str = "Write File"
     args_schema: Type[BaseModel] = WriteFileInput
     description: str = "Writes text to a file"

@@ -1,16 +1,22 @@
-import pytest
-from unittest.mock import MagicMock, call
-from sqlalchemy.orm.exc import NoResultFound
-from superagi.models.tool import Tool
-from superagi.controllers.types.agent_with_config import AgentConfigInput
-from fastapi import HTTPException
 from typing import List
+from unittest.mock import MagicMock, call
+
+import pytest
+from fastapi import HTTPException
+from sqlalchemy.orm.exc import NoResultFound
+
+from superagi.controllers.types.agent_with_config import AgentConfigInput
+from superagi.models.tool import Tool
+
 
 @pytest.fixture
 def mock_session():
     session = MagicMock()
     get_mock = MagicMock()
-    get_mock.side_effect = [MagicMock(), NoResultFound()]   # assuming 2nd tool won't be found
+    get_mock.side_effect = [
+        MagicMock(),
+        NoResultFound(),
+    ]  # assuming 2nd tool won't be found
     session.query.return_value.get = get_mock
     return session
 
@@ -28,6 +34,3 @@ def test_get_invalid_tools(mock_session):
     # Assert that mock_session.query().get() was called with the correct arguments
     calls = [call(Tool).get(1), call(Tool).get(2)]
     mock_session.query.assert_has_calls(calls, any_order=True)
-
-
-

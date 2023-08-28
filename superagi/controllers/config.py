@@ -1,18 +1,18 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi_jwt_auth import AuthJWT
+from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 
-from superagi.models.configuration import Configuration
-from superagi.models.organisation import Organisation
-from fastapi_sqlalchemy import db
-from fastapi import HTTPException, Depends, Request
 from superagi.config.config import get_config
 from superagi.helper.auth import check_auth
-from fastapi_jwt_auth import AuthJWT
-from superagi.helper.encyption_helper import encrypt_data,decrypt_data
+from superagi.helper.encyption_helper import decrypt_data, encrypt_data
 from superagi.lib.logger import logger
+from superagi.models.configuration import Configuration
+from superagi.models.organisation import Organisation
+
 # from superagi.types.db import ConfigurationIn, ConfigurationOut
 
 router = APIRouter()
@@ -38,11 +38,18 @@ class ConfigurationIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 # CRUD Operations
-@router.post("/add/organisation/{organisation_id}", status_code=201,
-             response_model=ConfigurationOut)
-def create_config(config: ConfigurationIn, organisation_id: int,
-                  Authorize: AuthJWT = Depends(check_auth)):
+@router.post(
+    "/add/organisation/{organisation_id}",
+    status_code=201,
+    response_model=ConfigurationOut,
+)
+def create_config(
+    config: ConfigurationIn,
+    organisation_id: int,
+    Authorize: AuthJWT = Depends(check_auth),
+):
     """
     Creates a new Organisation level config.
 
@@ -55,13 +62,20 @@ def create_config(config: ConfigurationIn, organisation_id: int,
 
     """
 
-    db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
+    db_organisation = (
+        db.session.query(Organisation)
+        .filter(Organisation.id == organisation_id)
+        .first()
+    )
     if not db_organisation:
         raise HTTPException(status_code=404, detail="Organisation not found")
 
     existing_config = (
         db.session.query(Configuration)
-        .filter(Configuration.organisation_id == organisation_id, Configuration.key == config.key)
+        .filter(
+            Configuration.organisation_id == organisation_id,
+            Configuration.key == config.key,
+        )
         .first()
     )
 
@@ -77,7 +91,9 @@ def create_config(config: ConfigurationIn, organisation_id: int,
         return existing_config
 
     logger.info("NEW CONFIG")
-    new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
+    new_config = Configuration(
+        organisation_id=organisation_id, key=config.key, value=config.value
+    )
     logger.info(new_config)
     logger.info("ORGANISATION ID : ", organisation_id)
     db.session.add(new_config)
@@ -87,8 +103,9 @@ def create_config(config: ConfigurationIn, organisation_id: int,
 
 
 @router.get("/get/organisation/{organisation_id}/key/{key}", status_code=200)
-def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
-                                          Authorize: AuthJWT = Depends(check_auth)):
+def get_config_by_organisation_id_and_key(
+    organisation_id: int, key: str, Authorize: AuthJWT = Depends(check_auth)
+):
     """
     Get a configuration by organisation ID and key.
 
@@ -102,18 +119,32 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
 
     """
 
-    db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
+    db_organisation = (
+        db.session.query(Organisation)
+        .filter(Organisation.id == organisation_id)
+        .first()
+    )
     if not db_organisation:
         raise HTTPException(status_code=404, detail="Organisation not found")
 
-    config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
-                                                    Configuration.key == key).first()
+    config = (
+        db.session.query(Configuration)
+        .filter(
+            Configuration.organisation_id == organisation_id, Configuration.key == key
+        )
+        .first()
+    )
     if config is None and key == "model_api_key":
         api_key = get_config("OPENAI_API_KEY") or get_config("PALM_API_KEY")
         if (api_key is not None and api_key != "YOUR_OPEN_API_KEY") or (
-                api_key is not None and api_key != "YOUR_PALM_API_KEY"):
+            api_key is not None and api_key != "YOUR_PALM_API_KEY"
+        ):
             encrypted_data = encrypt_data(api_key)
-            new_config = Configuration(organisation_id=organisation_id, key="model_api_key",value=encrypted_data)
+            new_config = Configuration(
+                organisation_id=organisation_id,
+                key="model_api_key",
+                value=encrypted_data,
+            )
             db.session.add(new_config)
             db.session.commit()
             db.session.flush()
@@ -130,8 +161,9 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
 
 
 @router.get("/get/organisation/{organisation_id}", status_code=201)
-def get_config_by_organisation_id(organisation_id: int,
-                                  Authorize: AuthJWT = Depends(check_auth)):
+def get_config_by_organisation_id(
+    organisation_id: int, Authorize: AuthJWT = Depends(check_auth)
+):
     """
     Get all configurations for a given organisation ID.
 
@@ -144,11 +176,19 @@ def get_config_by_organisation_id(organisation_id: int,
 
     """
 
-    db_organisation = db.session.query(Organisation).filter(Organisation.id == organisation_id).first()
+    db_organisation = (
+        db.session.query(Organisation)
+        .filter(Organisation.id == organisation_id)
+        .first()
+    )
     if not db_organisation:
         raise HTTPException(status_code=404, detail="Organisation not found")
 
-    configs = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id).all()
+    configs = (
+        db.session.query(Configuration)
+        .filter(Configuration.organisation_id == organisation_id)
+        .all()
+    )
 
     # Decrypt the API key if the key is "model_api_key"
     for config in configs:
@@ -170,6 +210,4 @@ def current_env():
     """
 
     env = get_config("ENV", "DEV")
-    return {
-        "env": env
-    }
+    return {"env": env}

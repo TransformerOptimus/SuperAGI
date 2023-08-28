@@ -11,7 +11,9 @@ from superagi.types.storage_types import StorageType
 
 class ResourceHelper:
     @classmethod
-    def make_written_file_resource(cls, file_name: str, agent: Agent, agent_execution: AgentExecution, session):
+    def make_written_file_resource(
+        cls, file_name: str, agent: Agent, agent_execution: AgentExecution, session
+    ):
         """
         Function to create a Resource object for a written file.
 
@@ -24,7 +26,9 @@ class ResourceHelper:
         Returns:
             Resource: The Resource object.
         """
-        storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
+        storage_type = StorageType.get_storage_type(
+            get_config("STORAGE_TYPE", StorageType.FILE.value)
+        )
         file_parts = os.path.splitext(file_name)
         if len(file_parts) <= 1:
             file_name = file_name + ".txt"
@@ -38,25 +42,38 @@ class ResourceHelper:
             file_type = "application/misc"
 
         if agent is not None:
-            final_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
+            final_path = ResourceHelper.get_agent_write_resource_path(
+                file_name, agent, agent_execution
+            )
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
 
-        file_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
+        file_path = ResourceHelper.get_agent_write_resource_path(
+            file_name, agent, agent_execution
+        )
 
         logger.info("make_written_file_resource:", final_path)
-        if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
+        if (
+            StorageType.get_storage_type(
+                get_config("STORAGE_TYPE", StorageType.FILE.value)
+            )
+            == StorageType.S3
+        ):
             file_path = "resources" + file_path
-        existing_resource = session.query(Resource).filter_by(
-            name=file_name,
-            path=file_path,
-            storage_type=storage_type.value,
-            type=file_type,
-            channel="OUTPUT",
-            agent_id=agent.id,
-            agent_execution_id=agent_execution.id
-        ).first()
+        existing_resource = (
+            session.query(Resource)
+            .filter_by(
+                name=file_name,
+                path=file_path,
+                storage_type=storage_type.value,
+                type=file_type,
+                channel="OUTPUT",
+                agent_id=agent.id,
+                agent_execution_id=agent_execution.id,
+            )
+            .first()
+        )
 
         if existing_resource:
             # Update the existing resource attributes
@@ -73,7 +90,7 @@ class ResourceHelper:
                 type=file_type,
                 channel="OUTPUT",
                 agent_id=agent.id,
-                agent_execution_id=agent_execution.id
+                agent_execution_id=agent_execution.id,
             )
             session.add(resource)
             session.commit()
@@ -82,12 +99,17 @@ class ResourceHelper:
     @classmethod
     def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
         formatted_agent_name = agent.name.replace(" ", "")
-        return path.replace("{agent_id}", formatted_agent_name + '_' + str(agent.id))
+        return path.replace("{agent_id}", formatted_agent_name + "_" + str(agent.id))
 
     @classmethod
-    def get_formatted_agent_execution_level_path(cls, agent_execution: AgentExecution, path):
+    def get_formatted_agent_execution_level_path(
+        cls, agent_execution: AgentExecution, path
+    ):
         formatted_agent_execution_name = agent_execution.name.replace(" ", "")
-        return path.replace("{agent_execution_id}", (formatted_agent_execution_name + '_' + str(agent_execution.id)))
+        return path.replace(
+            "{agent_execution_id}",
+            (formatted_agent_execution_name + "_" + str(agent_execution.id)),
+        )
 
     @classmethod
     def get_resource_path(cls, file_name: str):
@@ -100,12 +122,13 @@ class ResourceHelper:
 
     @classmethod
     def get_root_output_dir(cls):
-        """Get root dir of the resource.
-        """
-        root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
+        """Get root dir of the resource."""
+        root_dir = get_config("RESOURCES_OUTPUT_ROOT_DIR")
 
         if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            root_dir = (
+                root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            )
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
         else:
             root_dir = os.getcwd() + "/"
@@ -113,19 +136,22 @@ class ResourceHelper:
 
     @classmethod
     def get_root_input_dir(cls):
-        """Get root dir of the resource.
-        """
-        root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
+        """Get root dir of the resource."""
+        root_dir = get_config("RESOURCES_INPUT_ROOT_DIR")
 
         if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            root_dir = (
+                root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
+            )
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
         else:
             root_dir = os.getcwd() + "/"
         return root_dir
 
     @classmethod
-    def get_agent_write_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
+    def get_agent_write_resource_path(
+        cls, file_name: str, agent: Agent, agent_execution: AgentExecution
+    ):
         """Get agent resource path to write files
 
         Args:
@@ -137,7 +163,9 @@ class ResourceHelper:
         if agent is not None and "{agent_id}" in root_dir:
             root_dir = ResourceHelper.get_formatted_agent_level_path(agent, root_dir)
             if agent_execution is not None and "{agent_execution_id}" in root_dir:
-                root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
+                root_dir = ResourceHelper.get_formatted_agent_execution_level_path(
+                    agent_execution, root_dir
+                )
             directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
         final_path = root_dir + file_name
@@ -145,15 +173,24 @@ class ResourceHelper:
 
     @staticmethod
     def __check_file_path_exists(path):
-        return (StorageType.get_storage_type(get_config("STORAGE_TYPE",
-                                                        StorageType.FILE.value)) is StorageType.S3 and
-                not S3Helper().check_file_exists_in_s3(path)) or (
-                StorageType.get_storage_type(
-                    get_config("STORAGE_TYPE", StorageType.FILE.value)) is StorageType.FILE
-                and not os.path.exists(path))
+        return (
+            StorageType.get_storage_type(
+                get_config("STORAGE_TYPE", StorageType.FILE.value)
+            )
+            is StorageType.S3
+            and not S3Helper().check_file_exists_in_s3(path)
+        ) or (
+            StorageType.get_storage_type(
+                get_config("STORAGE_TYPE", StorageType.FILE.value)
+            )
+            is StorageType.FILE
+            and not os.path.exists(path)
+        )
 
     @classmethod
-    def get_agent_read_resource_path(cls, file_name, agent: Agent, agent_execution: AgentExecution):
+    def get_agent_read_resource_path(
+        cls, file_name, agent: Agent, agent_execution: AgentExecution
+    ):
         """Get agent resource path to read files i.e. both input and output directory
             at agent level.
 
@@ -165,18 +202,20 @@ class ResourceHelper:
         final_path = ResourceHelper.get_root_input_dir() + file_name
         if "{agent_id}" in final_path:
             final_path = ResourceHelper.get_formatted_agent_level_path(
-                agent=agent,
-                path=final_path)
+                agent=agent, path=final_path
+            )
         output_root_dir = ResourceHelper.get_root_output_dir()
         if final_path is None or cls.__check_file_path_exists(final_path):
             if output_root_dir is not None:
                 final_path = ResourceHelper.get_root_output_dir() + file_name
                 if "{agent_id}" in final_path:
                     final_path = ResourceHelper.get_formatted_agent_level_path(
-                        agent=agent,
-                        path=final_path)
+                        agent=agent, path=final_path
+                    )
                     if "{agent_execution_id}" in final_path:
-                        final_path = ResourceHelper.get_formatted_agent_execution_level_path(
-                            agent_execution=agent_execution,
-                            path=final_path)
+                        final_path = (
+                            ResourceHelper.get_formatted_agent_execution_level_path(
+                                agent_execution=agent_execution, path=final_path
+                            )
+                        )
         return final_path

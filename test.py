@@ -1,22 +1,22 @@
 import argparse
 from datetime import datetime
 from time import time
-from superagi.lib.logger import logger
 
 from sqlalchemy.orm import sessionmaker
 
-from superagi.worker import execute_agent
+from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.db import connect_db
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
+from superagi.worker import execute_agent
 
-parser = argparse.ArgumentParser(description='Create a new agent.')
-parser.add_argument('--name', type=str, help='Agent name for the script.')
-parser.add_argument('--description', type=str, help='Agent description for the script.')
-parser.add_argument('--goals', type=str, nargs='+', help='Agent goals for the script.')
+parser = argparse.ArgumentParser(description="Create a new agent.")
+parser.add_argument("--name", type=str, help="Agent name for the script.")
+parser.add_argument("--description", type=str, help="Agent description for the script.")
+parser.add_argument("--goals", type=str, nargs="+", help="Agent goals for the script.")
 args = parser.parse_args()
 
 agent_name = args.name
@@ -32,7 +32,7 @@ def ask_user_for_goals():
     goals = []
     while True:
         goal = input("Enter a goal (or 'q' to quit): ")
-        if goal == 'q':
+        if goal == "q":
             break
         goals.append(goal)
     return goals
@@ -40,15 +40,20 @@ def ask_user_for_goals():
 
 def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     # Create default organization
-    organization = Organisation(name='Default Organization', description='Default organization description')
+    organization = Organisation(
+        name="Default Organization", description="Default organization description"
+    )
     session.add(organization)
     session.flush()  # Flush pending changes to generate the agent's ID
     session.commit()
     logger.info(organization)
 
     # Create default project associated with the organization
-    project = Project(name='Default Project', description='Default project description',
-                      organisation_id=organization.id)
+    project = Project(
+        name="Default Project",
+        description="Default project description",
+        organisation_id=organization.id,
+    )
     session.add(project)
     session.flush()  # Flush pending changes to generate the agent's ID
     session.commit()
@@ -70,19 +75,20 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     agent_config_values = {
         "goal": ask_user_for_goals() if agent_goals is None else agent_goals,
         "agent_type": "Type Non-Queue",
-        "constraints": ["~4000 word limit for short term memory. ",
-                        "Your short term memory is short, so immediately save important information to files.",
-                        "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
-                        "No user assistance",
-                        "Exclusively use the commands listed in double quotes e.g. \"command name\""
-                        ],
+        "constraints": [
+            "~4000 word limit for short term memory. ",
+            "Your short term memory is short, so immediately save important information to files.",
+            "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
+            "No user assistance",
+            'Exclusively use the commands listed in double quotes e.g. "command name"',
+        ],
         "tools": [],
         "exit": "Default",
         "iteration_interval": 0,
         "model": "gpt-4",
         "permission_type": "Default",
         "LTM_DB": "Pinecone",
-        "memory_window": 10
+        "memory_window": 10,
     }
 
     agent_configurations = [
@@ -96,7 +102,9 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     logger.info(agent_configurations)
 
     # Create agent execution in RUNNING state associated with the agent
-    execution = AgentExecution(status='RUNNING', agent_id=agent.id, last_execution_time=datetime.utcnow())
+    execution = AgentExecution(
+        status="RUNNING", agent_id=agent.id, last_execution_time=datetime.utcnow()
+    )
     session.add(execution)
     session.commit()
 
@@ -106,4 +114,6 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     execute_agent.delay(execution.id, datetime.now())
 
 
-run_superagi_cli(agent_name=agent_name, agent_description=agent_description, agent_goals=agent_goals)
+run_superagi_cli(
+    agent_name=agent_name, agent_description=agent_description, agent_goals=agent_goals
+)

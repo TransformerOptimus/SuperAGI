@@ -1,14 +1,15 @@
-from fastapi import Depends, HTTPException, Header, Security, status
+
+from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import APIKeyHeader
+from fastapi.security.api_key import APIKeyHeader
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
-from fastapi.security.api_key import APIKeyHeader
+from sqlalchemy import or_
+
 from superagi.config.config import get_config
+from superagi.models.api_key import ApiKey
 from superagi.models.organisation import Organisation
 from superagi.models.user import User
-from superagi.models.api_key import ApiKey
-from typing import Optional
-from sqlalchemy import or_
 
 
 def check_auth(Authorize: AuthJWT = Depends()):
@@ -40,7 +41,11 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     user = get_current_user(Authorize)
     if user is None:
         raise HTTPException(status_code=401, detail="Unauthenticated")
-    organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
+    organisation = (
+        db.session.query(Organisation)
+        .filter(Organisation.id == user.organisation_id)
+        .first()
+    )
     return organisation
 
 
@@ -62,8 +67,14 @@ api_key_header = APIKeyHeader(name="X-API-Key")
 
 
 def validate_api_key(api_key: str = Security(api_key_header)) -> str:
-    query_result = db.session.query(ApiKey).filter(ApiKey.key == api_key,
-                                                   or_(ApiKey.is_expired == False, ApiKey.is_expired == None)).first()
+    query_result = (
+        db.session.query(ApiKey)
+        .filter(
+            ApiKey.key == api_key,
+            or_(ApiKey.is_expired == False, ApiKey.is_expired == None),
+        )
+        .first()
+    )
     if query_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,14 +84,26 @@ def validate_api_key(api_key: str = Security(api_key_header)) -> str:
     return query_result.key
 
 
-def get_organisation_from_api_key(api_key: str = Security(api_key_header)) -> Organisation:
-    query_result = db.session.query(ApiKey).filter(ApiKey.key == api_key,
-                                                   or_(ApiKey.is_expired == False, ApiKey.is_expired == None)).first()
+def get_organisation_from_api_key(
+    api_key: str = Security(api_key_header),
+) -> Organisation:
+    query_result = (
+        db.session.query(ApiKey)
+        .filter(
+            ApiKey.key == api_key,
+            or_(ApiKey.is_expired == False, ApiKey.is_expired == None),
+        )
+        .first()
+    )
     if query_result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing API Key",
         )
 
-    organisation = db.session.query(Organisation).filter(Organisation.id == query_result.org_id).first()
-    return  organisation
+    organisation = (
+        db.session.query(Organisation)
+        .filter(Organisation.id == query_result.org_id)
+        .first()
+    )
+    return organisation

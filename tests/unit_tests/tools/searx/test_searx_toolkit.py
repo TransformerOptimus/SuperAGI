@@ -5,7 +5,6 @@ from superagi.tools.searx.searx_toolkit import SearxSearchToolkit
 
 
 class TestSearxSearchToolkit(unittest.TestCase):
-
     def setUp(self):
         """
         Set up the test fixture.

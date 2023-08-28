@@ -1,13 +1,13 @@
+import json
 import os
+import zipfile
 from pathlib import Path
 
 import requests
-import zipfile
-import json
 
 
 def parse_github_url(github_url):
-    parts = github_url.split('/')
+    parts = github_url.split("/")
     owner = parts[3]
     repo = parts[4]
     branch = "main"
@@ -22,18 +22,22 @@ def download_tool(tool_url, target_folder):
 
     response = requests.get(archive_url)
 
-    tool_zip_file_path = os.path.join(target_folder, 'tool.zip')
+    tool_zip_file_path = os.path.join(target_folder, "tool.zip")
 
-    with open(tool_zip_file_path, 'wb') as f:
+    with open(tool_zip_file_path, "wb") as f:
         f.write(response.content)
 
-    with zipfile.ZipFile(tool_zip_file_path, 'r') as z:
-        members = [m for m in z.namelist() if m.startswith(f"{owner}-{repo}") and f"{path}" in m]
+    with zipfile.ZipFile(tool_zip_file_path, "r") as z:
+        members = [
+            m
+            for m in z.namelist()
+            if m.startswith(f"{owner}-{repo}") and f"{path}" in m
+        ]
         for member in members:
             archive_folder = f"{owner}-{repo}"
             target_name = member.replace(f"{archive_folder}/", "", 1)
             # Skip the unique hash folder while extracting:
-            segments = target_name.split('/', 1)
+            segments = target_name.split("/", 1)
             if len(segments) > 1:
                 target_name = segments[1]
             else:
@@ -41,10 +45,10 @@ def download_tool(tool_url, target_folder):
             target_path = os.path.join(target_folder, target_name)
             if not target_name:
                 continue
-            if member.endswith('/'):
+            if member.endswith("/"):
                 os.makedirs(target_path, exist_ok=True)
             else:
-                with open(target_path, 'wb') as outfile, z.open(member) as infile:
+                with open(target_path, "wb") as outfile, z.open(member) as infile:
                     outfile.write(infile.read())
 
     os.remove(tool_zip_file_path)
@@ -55,19 +59,19 @@ def download_marketplace_tool(tool_url, target_folder):
     owner, repo = parsed_url[3], parsed_url[4]
     archive_url = f"https://api.github.com/repos/{owner}/{repo}/zipball/main"
     response = requests.get(archive_url)
-    tool_zip_file_path = os.path.join(target_folder, 'tool.zip')
+    tool_zip_file_path = os.path.join(target_folder, "tool.zip")
 
-    with open(tool_zip_file_path, 'wb') as f:
+    with open(tool_zip_file_path, "wb") as f:
         f.write(response.content)
 
-    with zipfile.ZipFile(tool_zip_file_path, 'r') as z:
+    with zipfile.ZipFile(tool_zip_file_path, "r") as z:
         for member in z.namelist():
-            archive_folder, target_name = member.split('/', 1)
+            archive_folder, target_name = member.split("/", 1)
             target_name = os.path.join(target_folder, target_name)
-            if member.endswith('/'):
+            if member.endswith("/"):
                 os.makedirs(target_name, exist_ok=True)
-            elif not target_name.endswith('.md'):
-                with open(target_name, 'wb') as outfile, z.open(member) as infile:
+            elif not target_name.endswith(".md"):
+                with open(target_name, "wb") as outfile, z.open(member) as infile:
                     outfile.write(infile.read())
 
     os.remove(tool_zip_file_path)
@@ -117,6 +121,7 @@ def load_marketplace_tools():
 
 def is_marketplace_url(url):
     return url.startswith("https://github.com/TransformerOptimus/SuperAGI-Tools/tree")
+
 
 def download_and_extract_tools():
     tools_config = load_tools_config()

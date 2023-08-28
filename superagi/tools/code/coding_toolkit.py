@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 
-from superagi.tools.base_tool import BaseToolkit, BaseTool, ToolConfiguration
+from superagi.tools.base_tool import BaseTool, BaseToolkit, ToolConfiguration
 from superagi.tools.code.improve_code import ImproveCodeTool
 from superagi.tools.code.write_code import CodingTool
 from superagi.tools.code.write_spec import WriteSpecTool

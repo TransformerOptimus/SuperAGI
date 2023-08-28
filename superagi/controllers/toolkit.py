@@ -1,21 +1,21 @@
-from typing import Optional
 
-import requests
-from fastapi import APIRouter, Body
-from fastapi import HTTPException, Depends, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastapi_sqlalchemy import db
+
 from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
-from superagi.helper.tool_helper import get_readme_content_from_code_link, download_tool, process_files, \
-    add_tool_to_json
+from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 from superagi.helper.github_helper import GithubHelper
+from superagi.helper.tool_helper import (
+    add_tool_to_json,
+    compare_toolkit,
+    get_readme_content_from_code_link,
+)
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
 from superagi.types.common import GitHubLinkRequest
-from superagi.helper.tool_helper import compare_toolkit
-from superagi.helper.encyption_helper import decrypt_data, is_encrypted
 
 router = APIRouter()
 
@@ -27,7 +27,7 @@ router = APIRouter()
 # For internal use
 @router.get("/marketplace/list/{page}")
 def get_marketplace_toolkits(
-        page: int = 0,
+    page: int = 0,
 ):
     """
     Get marketplace tool kits.
@@ -51,8 +51,10 @@ def get_marketplace_toolkits(
 
     # Fetch tools for each tool kit
     for toolkit in toolkits:
-        toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
-        toolkit.updated_at = toolkit.updated_at.strftime('%d-%b-%Y').upper()
+        toolkit.tools = (
+            db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
+        )
+        toolkit.updated_at = toolkit.updated_at.strftime("%d-%b-%Y").upper()
     return toolkits
 
 
@@ -71,10 +73,17 @@ def get_marketplace_toolkit_detail(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation_id,
-                                               Toolkit.name == toolkit_name).first()
+    toolkit = (
+        db.session.query(Toolkit)
+        .filter(
+            Toolkit.organisation_id == organisation_id, Toolkit.name == toolkit_name
+        )
+        .first()
+    )
     toolkit.tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
-    toolkit.configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
+    toolkit.configs = (
+        db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
+    )
     for tool_configs in toolkit.configs:
         if is_encrypted(tool_configs.value):
             tool_configs.value = decrypt_data(tool_configs.value)
@@ -99,10 +108,15 @@ def get_marketplace_toolkit_readme(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Toolkit.organisation_id == organisation_id).first()
+    toolkit = (
+        db.session.query(Toolkit)
+        .filter(
+            Toolkit.name == toolkit_name, Toolkit.organisation_id == organisation_id
+        )
+        .first()
+    )
     if not toolkit:
-        raise HTTPException(status_code=404, detail='ToolKit not found')
+        raise HTTPException(status_code=404, detail="ToolKit not found")
     return get_readme_content_from_code_link(toolkit.tool_code_link)
 
 
@@ -124,8 +138,13 @@ def get_marketplace_toolkit_tools(toolkit_name: str):
     """
 
     organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Toolkit.organisation_id == organisation_id).first()
+    toolkit = (
+        db.session.query(Toolkit)
+        .filter(
+            Toolkit.name == toolkit_name, Toolkit.organisation_id == organisation_id
+        )
+        .first()
+    )
     if not toolkit:
         raise HTTPException(status_code=404, detail="ToolKit not found")
     tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).first()
@@ -133,8 +152,9 @@ def get_marketplace_toolkit_tools(toolkit_name: str):
 
 
 @router.get("/get/install/{toolkit_name}")
-def install_toolkit_from_marketplace(toolkit_name: str,
-                                     organisation: Organisation = Depends(get_user_organisation)):
+def install_toolkit_from_marketplace(
+    toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)
+):
     """
     Download and install a tool kit from the marketplace.
 
@@ -147,23 +167,44 @@ def install_toolkit_from_marketplace(toolkit_name: str,
 
     """
     # Check if the tool kit exists
-    toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
-                                               toolkit_name=toolkit_name)
-    db_toolkit = Toolkit.add_or_update(session=db.session, name=toolkit['name'], description=toolkit['description'],
-                                       tool_code_link=toolkit['tool_code_link'], organisation_id=organisation.id,
-                                       show_toolkit=toolkit['show_toolkit'])
-    for tool in toolkit['tools']:
-        Tool.add_or_update(session=db.session, tool_name=tool['name'], description=tool['description'],
-                           folder_name=tool['folder_name'], class_name=tool['class_name'], file_name=tool['file_name'],
-                           toolkit_id=db_toolkit.id)
-    for config in toolkit['configs']:
-        ToolConfig.add_or_update(session=db.session, toolkit_id=db_toolkit.id, key=config['key'], value=config['value'], key_type = config['key_type'], is_secret = config['is_secret'], is_required = config['is_required'])
+    toolkit = Toolkit.fetch_marketplace_detail(
+        search_str="details", toolkit_name=toolkit_name
+    )
+    db_toolkit = Toolkit.add_or_update(
+        session=db.session,
+        name=toolkit["name"],
+        description=toolkit["description"],
+        tool_code_link=toolkit["tool_code_link"],
+        organisation_id=organisation.id,
+        show_toolkit=toolkit["show_toolkit"],
+    )
+    for tool in toolkit["tools"]:
+        Tool.add_or_update(
+            session=db.session,
+            tool_name=tool["name"],
+            description=tool["description"],
+            folder_name=tool["folder_name"],
+            class_name=tool["class_name"],
+            file_name=tool["file_name"],
+            toolkit_id=db_toolkit.id,
+        )
+    for config in toolkit["configs"]:
+        ToolConfig.add_or_update(
+            session=db.session,
+            toolkit_id=db_toolkit.id,
+            key=config["key"],
+            value=config["value"],
+            key_type=config["key_type"],
+            is_secret=config["is_secret"],
+            is_required=config["is_required"],
+        )
     return {"message": "ToolKit installed successfully"}
 
 
 @router.get("/get/toolkit_name/{toolkit_name}")
-def get_installed_toolkit_details(toolkit_name: str,
-                                  organisation: Organisation = Depends(get_user_organisation)):
+def get_installed_toolkit_details(
+    toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)
+):
     """
     Get details of a locally installed tool kit by its name, including the details of its tools.
 
@@ -180,12 +221,15 @@ def get_installed_toolkit_details(toolkit_name: str,
     """
 
     # Fetch the tool kit by its ID
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Organisation.id == organisation.id).first()
+    toolkit = (
+        db.session.query(Toolkit)
+        .filter(Toolkit.name == toolkit_name, Organisation.id == organisation.id)
+        .first()
+    )
 
     if not toolkit:
         # Return an appropriate response if the tool kit doesn't exist
-        raise HTTPException(status_code=404, detail='ToolKit not found')
+        raise HTTPException(status_code=404, detail="ToolKit not found")
 
     # Fetch the tools associated with the tool kit
     tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
@@ -196,8 +240,10 @@ def get_installed_toolkit_details(toolkit_name: str,
 
 
 @router.post("/get/local/install", status_code=200)
-def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...),
-                              organisation: Organisation = Depends(get_user_organisation)):
+def download_and_install_tool(
+    github_link_request: GitHubLinkRequest = Body(...),
+    organisation: Organisation = Depends(get_user_organisation),
+):
     """
     Install a tool locally from a GitHub link.
 
@@ -222,7 +268,9 @@ def download_and_install_tool(github_link_request: GitHubLinkRequest = Body(...)
 
 
 @router.get("/get/readme/{toolkit_name}")
-def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+def get_installed_toolkit_readme(
+    toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)
+):
     """
     Get the readme content of a toolkit.
 
@@ -238,10 +286,13 @@ def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation =
 
     """
 
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Organisation.id == organisation.id).first()
+    toolkit = (
+        db.session.query(Toolkit)
+        .filter(Toolkit.name == toolkit_name, Organisation.id == organisation.id)
+        .first()
+    )
     if not toolkit:
-        raise HTTPException(status_code=404, detail='ToolKit not found')
+        raise HTTPException(status_code=404, detail="ToolKit not found")
     readme_content = get_readme_content_from_code_link(toolkit.tool_code_link)
     return readme_content
 
@@ -249,8 +300,8 @@ def get_installed_toolkit_readme(toolkit_name: str, organisation: Organisation =
 # Following APIs will be used to get marketplace related information
 @router.get("/get")
 def handle_marketplace_operations(
-        search_str: str = Query(None, title="Search String"),
-        toolkit_name: str = Query(None, title="Tool Kit Name")
+    search_str: str = Query(None, title="Search String"),
+    toolkit_name: str = Query(None, title="Tool Kit Name"),
 ):
     """
     Handle marketplace operations.
@@ -269,8 +320,8 @@ def handle_marketplace_operations(
 
 @router.get("/get/list")
 def handle_marketplace_operations_list(
-        page: int = Query(None, title="Page Number"),
-        organisation: Organisation = Depends(get_user_organisation)
+    page: int = Query(None, title="Page Number"),
+    organisation: Organisation = Depends(get_user_organisation),
 ):
     """
     Handle marketplace operation list.
@@ -284,13 +335,16 @@ def handle_marketplace_operations_list(
     """
 
     marketplace_toolkits = Toolkit.fetch_marketplace_list(page=page)
-    marketplace_toolkits_with_install = Toolkit.get_toolkit_installed_details(db.session, marketplace_toolkits,
-                                                                              organisation)
+    marketplace_toolkits_with_install = Toolkit.get_toolkit_installed_details(
+        db.session, marketplace_toolkits, organisation
+    )
     return marketplace_toolkits_with_install
 
 
 @router.get("/get/local/list")
-def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_organisation)):
+def get_installed_toolkit_list(
+    organisation: Organisation = Depends(get_user_organisation),
+):
     """
     Get the list of installed tool kits.
 
@@ -302,16 +356,24 @@ def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_org
 
     """
 
-    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
+    toolkits = (
+        db.session.query(Toolkit)
+        .filter(Toolkit.organisation_id == organisation.id)
+        .all()
+    )
     for toolkit in toolkits:
-        toolkit_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
+        toolkit_tools = (
+            db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
+        )
         toolkit.tools = toolkit_tools
 
     return toolkits
 
 
 @router.get("/check_update/{toolkit_name}")
-def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+def check_toolkit_update(
+    toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)
+):
     """
     Check if there is an update available for the installed tool kits.
 
@@ -319,11 +381,14 @@ def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends
         dict: The response containing the update details.
 
     """
-    marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
-                                                           toolkit_name=toolkit_name)
+    marketplace_toolkit = Toolkit.fetch_marketplace_detail(
+        search_str="details", toolkit_name=toolkit_name
+    )
     if marketplace_toolkit is None:
         raise HTTPException(status_code=404, detail="Toolkit not found in marketplace")
-    installed_toolkit = Toolkit.get_toolkit_from_name(db.session, toolkit_name, organisation)
+    installed_toolkit = Toolkit.get_toolkit_from_name(
+        db.session, toolkit_name, organisation
+    )
     if installed_toolkit is None:
         return True
     installed_toolkit = installed_toolkit.to_dict()
@@ -341,12 +406,15 @@ def check_toolkit_update(toolkit_name: str, organisation: Organisation = Depends
 
 
 @router.put("/update/{toolkit_name}")
-def update_toolkit(toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)):
+def update_toolkit(
+    toolkit_name: str, organisation: Organisation = Depends(get_user_organisation)
+):
     """
-        Update the toolkit with the latest version from the marketplace.
+    Update the toolkit with the latest version from the marketplace.
     """
-    marketplace_toolkit = Toolkit.fetch_marketplace_detail(search_str="details",
-                                                           toolkit_name=toolkit_name)
+    marketplace_toolkit = Toolkit.fetch_marketplace_detail(
+        search_str="details", toolkit_name=toolkit_name
+    )
 
     update_toolkit = Toolkit.add_or_update(
         db.session,
@@ -354,14 +422,26 @@ def update_toolkit(toolkit_name: str, organisation: Organisation = Depends(get_u
         description=marketplace_toolkit["description"],
         show_toolkit=True if len(marketplace_toolkit["tools"]) > 1 else False,
         organisation_id=organisation.id,
-        tool_code_link=marketplace_toolkit["tool_code_link"]
+        tool_code_link=marketplace_toolkit["tool_code_link"],
     )
 
     for tool in marketplace_toolkit["tools"]:
-        Tool.add_or_update(db.session, tool_name=tool["name"], folder_name=tool["folder_name"],
-                           class_name=tool["class_name"], file_name=tool["file_name"],
-                           toolkit_id=update_toolkit.id, description=tool["description"])
+        Tool.add_or_update(
+            db.session,
+            tool_name=tool["name"],
+            folder_name=tool["folder_name"],
+            class_name=tool["class_name"],
+            file_name=tool["file_name"],
+            toolkit_id=update_toolkit.id,
+            description=tool["description"],
+        )
 
     for tool_config_key in marketplace_toolkit["configs"]:
-        ToolConfig.add_or_update(db.session, toolkit_id=update_toolkit.id,
-                                 key=tool_config_key["key"], key_type = tool_config_key['key_type'], is_secret = tool_config_key['is_secret'], is_required = tool_config_key['is_required'])
+        ToolConfig.add_or_update(
+            db.session,
+            toolkit_id=update_toolkit.id,
+            key=tool_config_key["key"],
+            key_type=tool_config_key["key_type"],
+            is_secret=tool_config_key["is_secret"],
+            is_required=tool_config_key["is_required"],
+        )

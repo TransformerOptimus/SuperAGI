@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Optional, Iterable, List
+from typing import Any, Iterable, List, Optional
 
 import chromadb
 from chromadb import Settings
@@ -9,20 +9,26 @@ from superagi.vector_store.base import VectorStore
 from superagi.vector_store.document import Document
 from superagi.vector_store.embedding.base import BaseEmbedding
 
+
 def _build_chroma_client():
     chroma_host_name = get_config("CHROMA_HOST_NAME") or "localhost"
     chroma_port = get_config("CHROMA_PORT") or 8000
-    return chromadb.Client(Settings(chroma_api_impl="rest", chroma_server_host=chroma_host_name,
-                                    chroma_server_http_port=chroma_port))
+    return chromadb.Client(
+        Settings(
+            chroma_api_impl="rest",
+            chroma_server_host=chroma_host_name,
+            chroma_server_http_port=chroma_port,
+        )
+    )
 
 
 class ChromaDB(VectorStore):
     def __init__(
-            self,
-            collection_name: str,
-            embedding_model: BaseEmbedding,
-            text_field: str,
-            namespace: Optional[str] = "",
+        self,
+        collection_name: str,
+        embedding_model: BaseEmbedding,
+        text_field: str,
+        namespace: Optional[str] = "",
     ):
         self.client = _build_chroma_client()
         self.collection_name = collection_name
@@ -40,13 +46,13 @@ class ChromaDB(VectorStore):
         return chroma_client.get_or_create_collection(name=collection_name)
 
     def add_texts(
-            self,
-            texts: Iterable[str],
-            metadatas: Optional[List[dict]] = None,
-            ids: Optional[List[str]] = None,
-            namespace: Optional[str] = None,
-            batch_size: int = 32,
-            **kwargs: Any,
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[dict]] = None,
+        ids: Optional[List[str]] = None,
+        namespace: Optional[str] = None,
+        batch_size: int = 32,
+        **kwargs: Any,
     ) -> List[str]:
         """Add texts to the vector store."""
         if namespace is None:
@@ -62,16 +68,13 @@ class ChromaDB(VectorStore):
             metadata[self.text_field] = text
             metadatas.append(metadata)
         collection = self.client.get_collection(name=self.collection_name)
-        collection.add(
-            documents=texts,
-            metadatas=metadatas,
-            ids=ids
-        )
+        collection.add(documents=texts, metadatas=metadatas, ids=ids)
 
         return ids
 
-    def get_matching_text(self, query: str, top_k: int = 5, metadata: Optional[dict] = {}, **kwargs: Any) -> List[
-        Document]:
+    def get_matching_text(
+        self, query: str, top_k: int = 5, metadata: Optional[dict] = {}, **kwargs: Any
+    ) -> List[Document]:
         """Return docs most similar to query using specified search type."""
         embedding_vector = self.embedding_model.get_embedding(query)
         collection = self.client.get_collection(name=self.collection_name)
@@ -82,21 +85,15 @@ class ChromaDB(VectorStore):
             query_embeddings=embedding_vector,
             include=["documents"],
             n_results=top_k,
-            where=filters
+            where=filters,
         )
 
         documents = []
 
         for node_id, text, metadata in zip(
-                results["ids"][0],
-                results["documents"][0],
-                results["metadatas"][0]):
-            documents.append(
-                Document(
-                    text_content=text,
-                    metadata=metadata
-                )
-            )
+            results["ids"][0], results["documents"][0], results["metadatas"][0]
+        ):
+            documents.append(Document(text_content=text, metadata=metadata))
 
         return documents
 

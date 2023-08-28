@@ -1,7 +1,9 @@
 import os
-from pydantic import BaseSettings
 from pathlib import Path
+
 import yaml
+from pydantic import BaseSettings
+
 from superagi.lib.logger import logger
 
 CONFIG_FILE = "config.yaml"
@@ -22,9 +24,11 @@ class Config(BaseSettings):
                 config_data = {}
         else:
             # If config file doesn't exist, prompt for credentials and create new file
-            logger.info("\033[91m\033[1m"
-        + "\nConfig file not found. Enter required keys and values."
-        + "\033[0m\033[0m")
+            logger.info(
+                "\033[91m\033[1m"
+                + "\nConfig file not found. Enter required keys and values."
+                + "\033[0m\033[0m"
+            )
             config_data = {}
             with open(config_file, "w") as file:
                 yaml.dump(config_data, file, default_flow_style=False)

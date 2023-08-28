@@ -1,7 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, String, Text, Boolean
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Boolean, Column, Integer, String, Text
 
 from superagi.models.base_model import DBBaseModel
 
@@ -23,7 +22,7 @@ class IterationWorkflowStep(DBBaseModel):
         completion_prompt (str): The completion prompt for the step.
     """
 
-    __tablename__ = 'iteration_workflow_steps'
+    __tablename__ = "iteration_workflow_steps"
 
     id = Column(Integer, primary_key=True)
     iteration_workflow_id = Column(Integer)
@@ -44,9 +43,11 @@ class IterationWorkflowStep(DBBaseModel):
             str: String representation of the AgentWorkflowStep.
         """
 
-        return f"AgentWorkflowStep(id={self.id}, status='{self.next_step_id}', " \
-               f"prompt='{self.prompt}', agent_id={self.agent_id})"
-    
+        return (
+            f"AgentWorkflowStep(id={self.id}, status='{self.next_step_id}', "
+            f"prompt='{self.prompt}', agent_id={self.agent_id})"
+        )
+
     def to_dict(self):
         """
         Converts the AgentWorkflowStep object to a dictionary.
@@ -56,10 +57,10 @@ class IterationWorkflowStep(DBBaseModel):
         """
 
         return {
-            'id': self.id,
-            'next_step_id': self.next_step_id,
-            'agent_id': self.agent_id,
-            'prompt': self.prompt
+            "id": self.id,
+            "next_step_id": self.next_step_id,
+            "agent_id": self.agent_id,
+            "prompt": self.prompt,
         }
 
     def to_json(self):
@@ -86,21 +87,38 @@ class IterationWorkflowStep(DBBaseModel):
 
         data = json.loads(json_data)
         return cls(
-            id=data['id'],
-            prompt=data['prompt'],
-            agent_id=data['agent_id'],
-            next_step_id=data['next_step_id']
+            id=data["id"],
+            prompt=data["prompt"],
+            agent_id=data["agent_id"],
+            next_step_id=data["next_step_id"],
         )
 
     @classmethod
     def find_by_id(cls, session, step_id: int):
-        return session.query(IterationWorkflowStep).filter(IterationWorkflowStep.id == step_id).first()
+        return (
+            session.query(IterationWorkflowStep)
+            .filter(IterationWorkflowStep.id == step_id)
+            .first()
+        )
 
     @classmethod
-    def find_or_create_step(self, session, iteration_workflow_id: int, unique_id: str,
-                            prompt: str, variables: str, step_type: str, output_type: str,
-                            completion_prompt: str = "", history_enabled: bool = False):
-        workflow_step = session.query(IterationWorkflowStep).filter(IterationWorkflowStep.unique_id == unique_id).first()
+    def find_or_create_step(
+        self,
+        session,
+        iteration_workflow_id: int,
+        unique_id: str,
+        prompt: str,
+        variables: str,
+        step_type: str,
+        output_type: str,
+        completion_prompt: str = "",
+        history_enabled: bool = False,
+    ):
+        workflow_step = (
+            session.query(IterationWorkflowStep)
+            .filter(IterationWorkflowStep.unique_id == unique_id)
+            .first()
+        )
         if workflow_step is None:
             workflow_step = IterationWorkflowStep(unique_id=unique_id)
             session.add(workflow_step)
@@ -117,6 +135,3 @@ class IterationWorkflowStep(DBBaseModel):
             workflow_step.completion_prompt = completion_prompt
         session.commit()
         return workflow_step
-
-
-

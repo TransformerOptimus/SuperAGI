@@ -10,10 +10,8 @@ class OpenAiEmbedding:
         try:
             # openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.Embedding.create(
-                api_key=self.api_key,
-                input=[text],
-                engine=self.model
+                api_key=self.api_key, input=[text], engine=self.model
             )
-            return response['data'][0]['embedding']
+            return response["data"][0]["embedding"]
         except Exception as exception:
             return {"error": exception}

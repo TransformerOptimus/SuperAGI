@@ -1,12 +1,9 @@
-import json
 import re
-from superagi.lib.logger import logger
 
-import json5
+
 
 
 class JsonCleaner:
-
     @classmethod
     def clean_boolean(cls, input_str: str = ""):
         """
@@ -18,10 +15,9 @@ class JsonCleaner:
         Returns:
             str: The extracted json section.
         """
-        input_str = re.sub(r':\s*false', ': False', input_str)
-        input_str = re.sub(r':\s*true', ': True', input_str)
+        input_str = re.sub(r":\s*false", ": False", input_str)
+        input_str = re.sub(r":\s*true", ": True", input_str)
         return input_str
-
 
     @classmethod
     def extract_json_section(cls, input_str: str = ""):
@@ -76,7 +72,12 @@ class JsonCleaner:
         Returns:
             str: The string with escape sequences removed.
         """
-        return string.encode('utf-8').decode('unicode_escape').encode('raw_unicode_escape').decode('utf-8')
+        return (
+            string.encode("utf-8")
+            .decode("unicode_escape")
+            .encode("raw_unicode_escape")
+            .decode("utf-8")
+        )
 
     @classmethod
     def balance_braces(cls, json_string: str) -> str:
@@ -89,19 +90,17 @@ class JsonCleaner:
         Returns:
             str: The json string with balanced braces.
         """
-        open_braces_count = json_string.count('{')
-        closed_braces_count = json_string.count('}')
+        open_braces_count = json_string.count("{")
+        closed_braces_count = json_string.count("}")
 
         while closed_braces_count > open_braces_count:
             json_string = json_string.rstrip("}")
             closed_braces_count -= 1
 
-        open_braces_count = json_string.count('{')
-        closed_braces_count = json_string.count('}')
+        open_braces_count = json_string.count("{")
+        closed_braces_count = json_string.count("}")
 
         if open_braces_count > closed_braces_count:
-            json_string += '}' * (open_braces_count - closed_braces_count)
+            json_string += "}" * (open_braces_count - closed_braces_count)
 
         return json_string
-
-

@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String
 
 from superagi.models.base_model import DBBaseModel
 
-
 # from pydantic import BaseModel
+
 
 class Tool(DBBaseModel):
     """
@@ -17,7 +17,7 @@ class Tool(DBBaseModel):
         file_name (String): The file name of the tool.
     """
 
-    __tablename__ = 'tools'
+    __tablename__ = "tools"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -35,8 +35,10 @@ class Tool(DBBaseModel):
             str: String representation of the Tool object.
         """
 
-        return f"Tool(id={self.id}, name='{self.name}',description='{self.description}' folder_name='{self.folder_name}'," \
-               f" file_name = {self.file_name}, class_name='{self.class_name}, toolkit_id={self.toolkit_id}')"
+        return (
+            f"Tool(id={self.id}, name='{self.name}',description='{self.description}' folder_name='{self.folder_name}',"
+            f" file_name = {self.file_name}, class_name='{self.class_name}, toolkit_id={self.toolkit_id}')"
+        )
 
     def to_dict(self):
         """
@@ -52,14 +54,23 @@ class Tool(DBBaseModel):
             "folder_name": self.folder_name,
             "class_name": self.class_name,
             "file_name": self.file_name,
-            "toolkit_id": self.toolkit_id
+            "toolkit_id": self.toolkit_id,
         }
+
     @staticmethod
-    def add_or_update(session, tool_name: str, description: str, folder_name: str, class_name: str, file_name: str,
-                      toolkit_id: int):
+    def add_or_update(
+        session,
+        tool_name: str,
+        description: str,
+        folder_name: str,
+        class_name: str,
+        file_name: str,
+        toolkit_id: int,
+    ):
         # Check if a record with the given tool name already exists inside a toolkit
-        tool = session.query(Tool).filter_by(name=tool_name,
-                                             toolkit_id=toolkit_id).first()
+        tool = (
+            session.query(Tool).filter_by(name=tool_name, toolkit_id=toolkit_id).first()
+        )
         if tool is not None:
             # Update the attributes of the existing tool record
             tool.folder_name = folder_name
@@ -68,9 +79,14 @@ class Tool(DBBaseModel):
             tool.description = description
         else:
             # Create a new tool record
-            tool = Tool(name=tool_name, description=description, folder_name=folder_name, class_name=class_name,
-                        file_name=file_name,
-                        toolkit_id=toolkit_id)
+            tool = Tool(
+                name=tool_name,
+                description=description,
+                folder_name=folder_name,
+                class_name=class_name,
+                file_name=file_name,
+                toolkit_id=toolkit_id,
+            )
             session.add(tool)
 
         session.commit()
@@ -127,5 +143,5 @@ class Tool(DBBaseModel):
         return invalid_tool_ids
 
     @classmethod
-    def get_toolkit_tools(cls, session, toolkit_id : int):
+    def get_toolkit_tools(cls, session, toolkit_id: int):
         return session.query(Tool).filter(Tool.toolkit_id == toolkit_id).all()

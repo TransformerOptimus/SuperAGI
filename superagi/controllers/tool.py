@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter
-from fastapi import HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
@@ -36,11 +35,12 @@ class ToolIn(BaseModel):
     class Config:
         orm_mode = True
 
+
 # CRUD Operations
 @router.post("/add", response_model=ToolOut, status_code=201)
 def create_tool(
-        tool: ToolIn,
-        Authorize: AuthJWT = Depends(check_auth),
+    tool: ToolIn,
+    Authorize: AuthJWT = Depends(check_auth),
 ):
     """
     Create a new tool.
@@ -69,8 +69,8 @@ def create_tool(
 
 @router.get("/get/{tool_id}", response_model=ToolOut)
 def get_tool(
-        tool_id: int,
-        Authorize: AuthJWT = Depends(check_auth),
+    tool_id: int,
+    Authorize: AuthJWT = Depends(check_auth),
 ):
     """
     Get a particular tool details.
@@ -93,10 +93,13 @@ def get_tool(
 
 
 @router.get("/list")
-def get_tools(
-        organisation: Organisation = Depends(get_user_organisation)):
+def get_tools(organisation: Organisation = Depends(get_user_organisation)):
     """Get all tools"""
-    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
+    toolkits = (
+        db.session.query(Toolkit)
+        .filter(Toolkit.organisation_id == organisation.id)
+        .all()
+    )
     tools = []
     for toolkit in toolkits:
         db_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
@@ -106,9 +109,9 @@ def get_tools(
 
 @router.put("/update/{tool_id}", response_model=ToolOut)
 def update_tool(
-        tool_id: int,
-        tool: ToolIn,
-        Authorize: AuthJWT = Depends(check_auth),
+    tool_id: int,
+    tool: ToolIn,
+    Authorize: AuthJWT = Depends(check_auth),
 ):
     """
     Update a particular tool.

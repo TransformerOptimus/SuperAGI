@@ -1,6 +1,8 @@
 import unittest
-from unittest.mock import Mock, MagicMock, call
+from unittest.mock import MagicMock, Mock, call
+
 from superagi.models.vector_db_indices import VectordbIndices
+
 
 class TestVectordbIndices(unittest.TestCase):
     def setUp(self):
@@ -25,15 +27,16 @@ class TestVectordbIndices(unittest.TestCase):
         self.mock_session.commit.assert_called_once()
 
     def test_add_vector_index(self):
-        VectordbIndices.add_vector_index(self.mock_session, 'test', 1, 100, 'active')
+        VectordbIndices.add_vector_index(self.mock_session, "test", 1, 100, "active")
         self.mock_session.add.assert_called_once()
         self.mock_session.commit.assert_called_once()
 
     def test_update_vector_index_state(self):
-        VectordbIndices.update_vector_index_state(self.mock_session, 1, 'inactive')
+        VectordbIndices.update_vector_index_state(self.mock_session, 1, "inactive")
         self.mock_session.query.assert_called_with(VectordbIndices)
         self.filter_mock.first.assert_called_once()
         self.mock_session.commit.assert_called_once()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

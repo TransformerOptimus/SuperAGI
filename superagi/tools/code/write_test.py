@@ -1,5 +1,5 @@
 import re
-from typing import Type, Optional, List
+from typing import List, Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -20,7 +20,7 @@ class WriteTestSchema(BaseModel):
     )
     test_file_name: str = Field(
         ...,
-        description="Name of the file to write. Only include the file name. Don't include path."
+        description="Name of the file to write. Only include the file name. Don't include path.",
     )
 
 
@@ -36,6 +36,7 @@ class WriteTestTool(BaseTool):
         goals : The goals.
         resource_manager: Manages the file resources
     """
+
     llm: Optional[BaseLlm] = None
     agent_id: int = None
     name = "WriteTestTool"
@@ -65,25 +66,35 @@ class WriteTestTool(BaseTool):
             Generated unit tests or error message.
         """
         prompt = PromptReader.read_tools_prompt(__file__, "write_test.txt")
-        prompt = prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals))
+        prompt = prompt.replace(
+            "{goals}", AgentPromptBuilder.add_list_items_to_string(self.goals)
+        )
         prompt = prompt.replace("{test_description}", test_description)
 
         spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
         if spec_response != "":
-            prompt = prompt.replace("{spec}",
-                                    "Please generate unit tests based on the following specification description:\n" + spec_response)
+            prompt = prompt.replace(
+                "{spec}",
+                "Please generate unit tests based on the following specification description:\n"
+                + spec_response,
+            )
         else:
             spec_response = self.tool_response_manager.get_last_response()
             if spec_response != "":
-                prompt = prompt.replace("{spec}",
-                                        "Please generate unit tests based on the following specification description:\n" + spec_response)
+                prompt = prompt.replace(
+                    "{spec}",
+                    "Please generate unit tests based on the following specification description:\n"
+                    + spec_response,
+                )
 
         messages = [{"role": "system", "content": prompt}]
         logger.info(prompt)
 
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         token_limit = TokenCounter.token_limit(self.llm.get_model())
-        result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        result = self.llm.chat_completion(
+            messages, max_tokens=(token_limit - total_tokens - 100)
+        )
 
         regex = r"(\S+?)\n```\S*\n(.+?)```"
         matches = re.finditer(regex, result["content"], re.DOTALL)
@@ -106,6 +117,10 @@ class WriteTestTool(BaseTool):
         # Save the tests to a file
         # save_result = self.resource_manager.write_file(test_file_name, code_content)
         if not result["content"].startswith("Error"):
-            return result["content"] + " \n Tests generated and saved successfully in " + test_file_name
+            return (
+                result["content"]
+                + " \n Tests generated and saved successfully in "
+                + test_file_name
+            )
         else:
             return save_result

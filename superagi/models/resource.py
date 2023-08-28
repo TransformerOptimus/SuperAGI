@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, Text
+from sqlalchemy import Column, Integer, String, Text
+
 from superagi.models.base_model import DBBaseModel
-from sqlalchemy.orm import sessionmaker
 
 
 class Resource(DBBaseModel):
@@ -19,7 +19,7 @@ class Resource(DBBaseModel):
         agent_execution_id (Integer) : The ID of the agent execution corresponding to resource
     """
 
-    __tablename__ = 'resources'
+    __tablename__ = "resources"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -58,11 +58,16 @@ class Resource(DBBaseModel):
 
         if storage_type not in valid_types:
             raise InvalidResourceType("Invalid resource type")
-    
+
     @classmethod
     def find_by_run_ids(cls, session, run_ids: list):
-        db_resources_arr=session.query(Resource).filter(Resource.agent_execution_id.in_(run_ids)).all()
+        db_resources_arr = (
+            session.query(Resource)
+            .filter(Resource.agent_execution_id.in_(run_ids))
+            .all()
+        )
         return db_resources_arr
-    
+
+
 class InvalidResourceType(Exception):
     """Custom exception for invalid resource type"""

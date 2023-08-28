@@ -1,16 +1,17 @@
-
-import pinecone
 from typing import Optional
-from pinecone import UnauthorizedException
+
+
+from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_embeddings.pinecone import Pinecone
 from superagi.vector_embeddings.qdrant import Qdrant
 from superagi.vector_embeddings.weaviate import Weaviate
-from superagi.types.vector_store_types import VectorStoreType
+
 
 class VectorEmbeddingFactory:
-
     @classmethod
-    def build_vector_storage(cls, vector_store: VectorStoreType, chunk_json: Optional[dict] = None):
+    def build_vector_storage(
+        cls, vector_store: VectorStoreType, chunk_json: Optional[dict] = None
+    ):
         """
         Get the vector embeddings from final chunks.
         Args:
@@ -31,9 +32,9 @@ class VectorEmbeddingFactory:
                 uuid.append(final_chunks[i]["id"])
                 embeds.append(final_chunks[i]["embeds"])
                 data = {
-                    'text': final_chunks[i]['text'],
-                    'chunk': final_chunks[i]['chunk'],
-                    'knowledge_name': final_chunks[i]['knowledge_name']
+                    "text": final_chunks[i]["text"],
+                    "chunk": final_chunks[i]["chunk"],
+                    "knowledge_name": final_chunks[i]["knowledge_name"],
                 }
                 metadata.append(data)
 
@@ -42,6 +43,6 @@ class VectorEmbeddingFactory:
 
         if vector_store == VectorStoreType.QDRANT:
             return Qdrant(uuid, embeds, metadata)
-        
+
         if vector_store == VectorStoreType.WEAVIATE:
             return Weaviate(uuid, embeds, metadata)

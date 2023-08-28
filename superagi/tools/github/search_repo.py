@@ -1,6 +1,7 @@
 from typing import Type
 
 from pydantic import BaseModel, Field
+
 from superagi.helper.github_helper import GithubHelper
 from superagi.tools.base_tool import BaseTool
 
@@ -33,13 +34,18 @@ class GithubRepoSearchTool(BaseTool):
         description : The description.
         args_schema : The args schema.
     """
+
     name = "GithubRepo Search"
-    description = (
-        "Search for a file inside a Github repository"
-    )
+    description = "Search for a file inside a Github repository"
     args_schema: Type[GithubSearchRepoSchema] = GithubSearchRepoSchema
 
-    def _execute(self, repository_owner: str, repository_name: str, file_name: str, folder_path=None) -> str:
+    def _execute(
+        self,
+        repository_owner: str,
+        repository_name: str,
+        file_name: str,
+        folder_path=None,
+    ) -> str:
         """
         Execute the search file tool.
 
@@ -56,7 +62,9 @@ class GithubRepoSearchTool(BaseTool):
         github_username = self.get_tool_config("GITHUB_USERNAME")
         github_repo_search = GithubHelper(github_access_token, github_username)
         try:
-            content = github_repo_search.get_content_in_file(repository_owner, repository_name, file_name, folder_path)
+            content = github_repo_search.get_content_in_file(
+                repository_owner, repository_name, file_name, folder_path
+            )
             return content
         except:
             return "File not found"

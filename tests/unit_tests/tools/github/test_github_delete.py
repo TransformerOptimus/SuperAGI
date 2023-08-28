@@ -1,6 +1,9 @@
 from unittest.mock import MagicMock, patch
 
-from superagi.tools.github.delete_file import GithubDeleteFileTool, GithubDeleteFileSchema
+from superagi.tools.github.delete_file import (
+    GithubDeleteFileSchema,
+    GithubDeleteFileTool,
+)
 
 
 def test_github_delete_file_tool():
@@ -13,7 +16,9 @@ def test_github_delete_file_tool():
         mock_github_helper.return_value.create_pull_request.return_value = 201
 
         tool = GithubDeleteFileTool()
-        tool.toolkit_config.get_tool_config = MagicMock(side_effect=["GITHUB_ACCESS_TOKEN", "GITHUB_USERNAME"])
+        tool.toolkit_config.get_tool_config = MagicMock(
+            side_effect=["GITHUB_ACCESS_TOKEN", "GITHUB_USERNAME"]
+        )
 
         args = GithubDeleteFileSchema(
             repository_name="test_repo",
@@ -21,10 +26,12 @@ def test_github_delete_file_tool():
             file_name="test_file.txt",
             folder_path="test_folder",
             commit_message="Delete test_file.txt",
-            repository_owner="test_owner"
+            repository_owner="test_owner",
         )
 
-        result = tool._execute("test_repo", "main", "test_file.txt", "Delete test_file.txt", "test_owner")
+        result = tool._execute(
+            "test_repo", "main", "test_file.txt", "Delete test_file.txt", "test_owner"
+        )
         assert result == "Pull request to Delete test_file.txt has been created"
 
     # Test case: Error while deleting file
@@ -36,7 +43,11 @@ def test_github_delete_file_tool():
         mock_github_helper.return_value.create_pull_request.return_value = 201
 
         tool = GithubDeleteFileTool()
-        tool.toolkit_config.get_tool_config = MagicMock(side_effect=["GITHUB_ACCESS_TOKEN", "GITHUB_USERNAME"])
+        tool.toolkit_config.get_tool_config = MagicMock(
+            side_effect=["GITHUB_ACCESS_TOKEN", "GITHUB_USERNAME"]
+        )
 
-        result = tool._execute("test_repo", "main", "test_file.txt", "Delete test_file.txt", "test_owner")
+        result = tool._execute(
+            "test_repo", "main", "test_file.txt", "Delete test_file.txt", "test_owner"
+        )
         assert result == "Error while deleting file"
