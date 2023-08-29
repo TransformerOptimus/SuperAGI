@@ -20,11 +20,6 @@ spec:
         match:
           path:
             prefix: /celery
-      - component:
-          name: superagi-redis
-        match:
-          path:
-            prefix: /redis
   name: superagi
   region: blr
   services:
