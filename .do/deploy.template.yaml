@@ -49,10 +49,9 @@ spec:
   region: blr
   services:
   - dockerfile_path: DockerfileRedis
-    github: 
+    git:
       branch: digitalocean-deployment
-      deploy_on_push: true
-      repo: TransformerOptimus/SuperAGI
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     internal_ports: 
     - 6379
     instance_count: 1
