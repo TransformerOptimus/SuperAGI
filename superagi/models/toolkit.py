@@ -140,12 +140,12 @@ class Toolkit(DBBaseModel):
         return agent_toolkit_tools
 
     @classmethod
-    def get_tool_and_toolkit_arr(cls, session, agent_config_tools_arr: list):
+    def get_tool_and_toolkit_arr(cls, session, organisation_id :int,agent_config_tools_arr: list):
         from superagi.models.tool import Tool
         toolkits_arr= set()
         tools_arr= set()
         for tool_obj in agent_config_tools_arr:
-            toolkit=session.query(Toolkit).filter(Toolkit.name == tool_obj["name"].strip()).first()
+            toolkit=session.query(Toolkit).filter(Toolkit.name == tool_obj["name"].strip(), Toolkit.organisation_id == organisation_id).first()
             if toolkit is None:
                 raise Exception("One or more of the Tool(s)/Toolkit(s) does not exist.")
             toolkits_arr.add(toolkit.id)
