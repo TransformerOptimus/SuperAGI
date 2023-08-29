@@ -118,11 +118,7 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
             db.session.commit()
             db.session.flush()
             return new_config
-        return config
-
-    # Decrypt the API key
-    if config is not None:
-        return config
+    return config
 
 
 
