@@ -121,17 +121,15 @@ export default function AgentCreate({
 
 
   useEffect(() => {
-    // getOrganisationConfig(organisationId, "model_api_key")
-    //   .then((response) => {
-    //     console.log(response)
-    //     // const apiKey = response.data.value
-    //     // setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error fetching project:', error);
-    //   });
-    if(modelsArray.length>0)
-      setHasAPIkey(true)
+    getOrganisationConfig(organisationId, "model_api_key")
+      .then((response) => {
+        console.log(response.data['api_key'])
+        const apiKey = response.data['api_key']
+        setHasAPIkey(!(apiKey === null));
+      })
+      .catch((error) => {
+        console.error('Error fetching project:', error);
+      });
   }, [organisationId]);
 
   const filterToolsByNames = () => {
