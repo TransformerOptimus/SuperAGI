@@ -1,29 +1,37 @@
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.llms.replicate import Replicate
+from superagi.llms.hugging_face import HuggingFace
+from superagi.models.models_config import ModelsConfig
+from superagi.models.models import Models
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
 
 
-class ModelFactory:
-    def __init__(self):
-        self._creators = {}
+def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
+    print("Fetching model details from database...")
+    engine = connect_db()
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-    def register_format(self, model, creator):
-        self._creators[model] = creator
+    model_instance = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
+    response = session.query(ModelsConfig.provider).filter(ModelsConfig.org_id == organisation_id,
+                                                                   ModelsConfig.id == model_instance.model_provider_id).first()
+    provider_name = response.provider
 
-    def get_model(self, model, **kwargs):
-        creator = self._creators.get(model)
-        if not creator:
-            raise ValueError(model)
-        return creator(**kwargs)
+    session.close()
 
-
-factory = ModelFactory()
-factory.register_format("gpt-4", lambda **kwargs: OpenAi(model="gpt-4", **kwargs))
-factory.register_format("gpt-4-32k", lambda **kwargs: OpenAi(model="gpt-4-32k", **kwargs))
-factory.register_format("gpt-3.5-turbo-16k", lambda **kwargs: OpenAi(model="gpt-3.5-turbo-16k", **kwargs))
-factory.register_format("gpt-3.5-turbo", lambda **kwargs: OpenAi(model="gpt-3.5-turbo", **kwargs))
-factory.register_format("google-palm-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
-factory.register_format("chat-bison-001", lambda **kwargs: GooglePalm(model='models/chat-bison-001', **kwargs))
-
-
-def get_model(api_key, model="gpt-3.5-turbo", **kwargs):
-    return factory.get_model(model, api_key=api_key, **kwargs)
+    if provider_name == 'OpenAI':
+        print("Provider is OpenAI")
+        return OpenAi(model=model_instance.model_name, api_key=api_key, **kwargs)
+    elif provider_name == 'Replicate':
+        print("Provider is Replicate")
+        return Replicate(model=model_instance.model_name, version=model_instance.version, api_key=api_key, **kwargs)
+    elif provider_name == 'Google Palm':
+        print("Provider is Google Palm")
+        return GooglePalm(model=model_instance.model_name, api_key=api_key, **kwargs)
+    elif provider_name == 'Hugging Face':
+        print("Provider is Hugging Face")
+        return HuggingFace(model=model_instance.model_name, end_point=model_instance.end_point, api_key=api_key, **kwargs)
+    else:
+        print('Unknown provider.')

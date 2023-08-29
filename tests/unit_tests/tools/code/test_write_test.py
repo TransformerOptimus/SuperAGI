@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 from superagi.tools.code.write_test import WriteTestTool
+from unittest.mock import MagicMock
 
 
 def test_write_test_tool_init():
@@ -20,6 +21,8 @@ def test_execute(mock_token_counter, mock_agent_prompt_builder, mock_prompt_read
     test_tool.tool_response_manager = Mock()
     test_tool.resource_manager = Mock()
     test_tool.llm = Mock()
+    mock_session = MagicMock(name="session")
+    test_tool.toolkit_config.session = mock_session
 
     test_tool.tool_response_manager.get_last_response.return_value = 'WriteSpecTool response'
     mock_prompt_reader.read_tools_prompt.return_value = 'Prompt template {goals} {test_description} {spec}'
@@ -45,6 +48,6 @@ def test_execute(mock_token_counter, mock_agent_prompt_builder, mock_prompt_read
     test_tool.tool_response_manager.get_last_response.assert_called()
     test_tool.llm.get_model.assert_called()
     mock_token_counter.count_message_tokens.assert_called()
-    mock_token_counter.token_limit.assert_called()
+    mock_token_counter().token_limit.assert_called()
     test_tool.llm.chat_completion.assert_called()
     assert test_tool.resource_manager.write_file.call_count == 2

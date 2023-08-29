@@ -9,7 +9,7 @@ from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
-
+from superagi.models.agent import Agent
 
 class WriteSpecSchema(BaseModel):
     task_description: str = Field(
@@ -64,8 +64,10 @@ class WriteSpecTool(BaseTool):
         prompt = prompt.replace("{task}", task_description)
         messages = [{"role": "system", "content": prompt}]
 
+        organisation = Agent.find_org_by_agent_id(self.toolkit_config.session, agent_id=self.agent_id)
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
+
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
 
         # Save the specification to a file
