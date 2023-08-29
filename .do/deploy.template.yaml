@@ -24,10 +24,9 @@ spec:
   region: blr
   services:
     - dockerfile_path: DockerfileRedis
-      github: 
+      git:
         branch: digitalocean-deployment
-        deploy_on_push: true
-        repo: TransformerOptimus/SuperAGI
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       internal_ports: 
       - 6379
       instance_count: 1
@@ -42,10 +41,9 @@ spec:
         - key: DB_URL
           scope: RUN_TIME
           value: ${super-agi-main.DATABASE_URL}
-      github:
+      git:
         branch: digitalocean-deployment
-        deploy_on_push: true
-        repo: TransformerOptimus/SuperAGI
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       http_port: 8001
       instance_count: 1
       instance_size_slug: basic-xs
@@ -53,10 +51,9 @@ spec:
       source_dir: /
       name: superagi-backend
     - dockerfile_path: ./gui/DockerfileProd
-      github:
+      git:
         branch: main
-        deploy_on_push: true
-        repo: TransformerOptimus/SuperAGI
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       http_port: 3000
       instance_count: 1
       instance_size_slug: basic-xs
@@ -70,10 +67,9 @@ spec:
         - key: DB_URL
           scope: RUN_TIME
           value: ${super-agi-main.DATABASE_URL}
-      github:
+      git:
         branch: digitalocean-deployment
-        deploy_on_push: true
-        repo: TransformerOptimus/SuperAGI
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       http_port: 8001
       instance_count: 1
       instance_size_slug: basic-xs
