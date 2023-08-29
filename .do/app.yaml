@@ -14,11 +14,6 @@ ingress:
     #   match:
     #     path:
     #       prefix: /api
-    - component:
-        name: superagi-celery
-      match:
-        path:
-          prefix: /celery
 name: superagi
 region: blr
 services:
