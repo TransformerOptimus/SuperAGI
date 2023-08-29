@@ -48,15 +48,15 @@ spec:
   name: superagi
   region: blr
   services:
-  - dockerfile_path: DockerfileRedis
-    git:
-      branch: digitalocean-deployment
-      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
-    internal_ports: 
-    - 6379
-    instance_count: 1
-    instance_size_slug: basic-xs
-    name: superagi-redis
+  # - dockerfile_path: DockerfileRedis
+  #   git:
+  #     branch: digitalocean-deployment
+  #     repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+  #   internal_ports: 
+  #   - 6379
+  #   instance_count: 1
+  #   instance_size_slug: basic-xs
+  #   name: superagi-redis
   - dockerfile_path: Dockerfile
     envs:
       - key: REDIS_URL
