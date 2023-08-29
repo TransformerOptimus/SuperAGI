@@ -44,36 +44,68 @@ class AgentIterationStepHandler:
         import time
         start = time.perf_counter()
 
+        start_time1 = time.perf_counter()
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
+        print(f"Execution time of fetch_configuration: {time.perf_counter() - start_time1} seconds")
+        start_time1 = time.perf_counter()
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
+        print(f"Execution time of get_agent_execution_from_id: {time.perf_counter() - start_time1} seconds")
+        start_time1 = time.perf_counter()
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
+        print(f"Execution time of find_by_id: {time.perf_counter() - start_time1} seconds")
+        start_time1 = time.perf_counter()
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
+        print(f"Execution time of AgentExecutionConfiguration: {time.perf_counter() - start_time1} seconds")
 
+        start_time1 = time.perf_counter()
         if not self._handle_wait_for_permission(execution, agent_config, agent_execution_config,
                                                 iteration_workflow_step):
             return
+        print(f"Execution time of _handle_wait_for_permission: {time.perf_counter() - start_time1} seconds")
 
+        start_time1 = time.perf_counter()
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
-        organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
-        iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
+        print(f"Execution time of find_by_id: {time.perf_counter() - start_time1} seconds")
 
+        start_time1 = time.perf_counter()
+        organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
+        print(f"Execution time of find_org_by_agent_id: {time.perf_counter() - start_time1} seconds")
+
+        start_time1 = time.perf_counter()
+        iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
+        print(f"Execution time of find_by_id: {time.perf_counter() - start_time1} seconds")
+
+        start_time1 = time.perf_counter()
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
+        print(f"Execution time of fetch_agent_execution_feeds: {time.perf_counter() - start_time1} seconds")
+
+        start_time1 = time.perf_counter()
         if not agent_feeds:
             self.task_queue.clear_tasks()
+        print(f"Execution time of clear_tasks: {time.perf_counter() - start_time1} seconds")
 
+        start_time1 = time.perf_counter()
         agent_tools = self._build_tools(agent_config, agent_execution_config)
+        print(f"Execution time of _build_tools: {time.perf_counter() - start_time1} seconds")
+
+        start_time1 = time.perf_counter()
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
+        print(f"Execution time of _build_agent_prompt: {time.perf_counter() - start_time1} seconds")
 
+        start_time1 = time.perf_counter()
         messages = AgentLlmMessageBuilder(self.session, self.llm, self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
                                   completion_prompt=iteration_workflow_step.completion_prompt)
+        print(f"Execution time of build_agent_messages: {time.perf_counter() - start_time1} seconds")
 
         logger.debug("Prompt messages:", messages)
+        start_time1 = time.perf_counter()
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
+        print(f"Execution time of count_message_tokens: {time.perf_counter() - start_time1} seconds")
 
         start_time1 = time.perf_counter()
         response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
@@ -83,14 +115,21 @@ class AgentIterationStepHandler:
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
 
+        start_time1 = time.perf_counter()
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
+        print(f"Execution time of update_tokens: {time.perf_counter() - start_time1} seconds")
 
+        start_time1 = time.perf_counter()
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,
                                             agent_execution_id=self.agent_execution_id,
                                             agent_config=agent_config, agent_tools=agent_tools)
+        print(f"Execution time of get_output_handler: {time.perf_counter() - start_time1} seconds")
+
+        start_time1 = time.perf_counter()
         response = output_handler.handle(self.session, assistant_reply)
+        print(f"Execution time of handle: {time.perf_counter() - start_time1} seconds")
 
         if response.status == "COMPLETE":
             execution.status = "COMPLETED"
@@ -108,8 +147,10 @@ class AgentIterationStepHandler:
             execution.permission_id = response.permission_id
             self.session.commit()
         else:
+            start_time1 = time.perf_counter()
             # moving to next step of iteration or workflow
             self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
+            print(f"Execution time of _update_agent_execution_next_step: {time.perf_counter() - start_time1} seconds")
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
@@ -149,8 +190,7 @@ class AgentIterationStepHandler:
         return prompt
 
     def _build_tools(self, agent_config: dict, agent_execution_config: dict):
-        agent_tools = [ThinkingTool()]
-
+        agent_tools = []
         model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
         resource_summary = ResourceSummarizer(session=self.session,

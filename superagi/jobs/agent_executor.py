@@ -51,7 +51,7 @@ class AgentExecutor:
                 logger.error(f"Agent execution stopped. {agent.id}: {agent_execution.status}")
                 return
             t1_stop = perf_counter()
-            logger.info("Time taken to get agent: 2" + str(t1_stop - t1_start))
+            logger.info("Time taken to get agent: 2 :" + str(t1_stop - t1_start))
 
             t1_start = perf_counter()
             organisation = Agent.find_org_by_agent_id(session, agent_id=agent.id)
