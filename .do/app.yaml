@@ -58,6 +58,10 @@ services:
   instance_size_slug: basic-xs
   name: superagi-redis
 - dockerfile_path: Dockerfile
+  envs:
+    - key: REDIS_URL
+      scope: RUN_TIME
+      value: superagi-redis:6379
   github:
     branch: digitalocean-deployment
     deploy_on_push: true
