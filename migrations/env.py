@@ -4,6 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 from urllib.parse import urlparse
+from superagi.models.db import get_db_url
 from superagi.config.config import get_config
 
 # this is the Alembic Config object, which provides
@@ -28,11 +29,6 @@ from superagi.models import *
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-db_host = get_config('DB_HOST','super__postgres')
-db_username = get_config('DB_USERNAME')
-db_password = get_config('DB_PASSWORD')
-db_name = get_config('DB_NAME')
-
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -46,10 +42,7 @@ def run_migrations_offline() -> None:
 
     """
 
-    if db_username is None:
-        db_url = f'postgresql://{db_host}/{db_name}'
-    else:
-        db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
+    db_url = get_db_url()
 
     config.set_main_option("sqlalchemy.url", db_url)
 
@@ -73,21 +66,9 @@ def run_migrations_online() -> None:
 
     """
 
-    db_user = get_config("DB_USERNAME", "")
-    db_pass = get_config("DB_PASSWORD", "")
-    db_host = get_config("DB_HOST", "")
-    db_name = get_config("DB_NAME", "")
-    db_port = get_config("DB_PORT", 5432)
-    db_url = get_config("DB_URL", None)
+    db_url = get_db_url()
 
-    if db_url:
-        db_url = urlparse(db_url)
-        db_url = db_url.scheme + "://" + db_url.netloc + db_url.path
-
-        config.set_main_option('sqlalchemy.url', db_url)
-    else:
-        config.set_main_option('sqlalchemy.url', f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
-
+    config.set_main_option('sqlalchemy.url', db_url)
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
