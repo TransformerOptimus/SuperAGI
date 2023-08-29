@@ -55,7 +55,6 @@ def run_migrations_offline() -> None:
     else:
          db_url = urlparse(db_url)
          db_url = db_url.scheme + "://" + db_url.netloc + db_url.path
-         print(db_url)
 
     config.set_main_option("sqlalchemy.url", db_url)
 
