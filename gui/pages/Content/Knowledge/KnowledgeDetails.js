@@ -94,12 +94,26 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
     <div className="row">
       <div className="col-12" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
         <div className="horizontal_container align_start mb_20">
-          <div className="vertical_containers text_align_left mr_10">
+          <div className="vertical_containers text_align_left mr_10" style={{width:'97%'}}>
             <div className="text_17">{knowledgeName}</div>
             <div className="text_12" >
               {knowledgeDescription}
             </div>
           </div>
+            <div style={{width:'3%'}}>
+                <button className="secondary_button padding_8" style={{ height: '31px'}}
+                        onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+                </button>
+                {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    <ul className="dropdown_container" style={{right: '25px', width: '165px'}}>
+                        {installationType !== 'Marketplace' &&
+                            // <li className="dropdown_item" onClick={viewKnowledge}>View in marketplace</li> :
+                            <li className="dropdown_item" onClick={editKnowledge}>Edit details</li>}
+                        <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
+                    </ul>
+                </div>}
+            </div>
         </div>
         <div className="horizontal_container mb_10" style={{borderBottom: "1px solid rgba(255, 255, 255, 0.08", paddingBottom: "5px"}}>
           <div className={activeTab === 'metrics' ? 'tab_button_small_selected' : 'tab_button_small'}
