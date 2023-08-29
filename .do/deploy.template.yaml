@@ -23,7 +23,7 @@ spec:
       - component:
           name: superagi-redis
         match:
-          patch:
+          path:
             prefix: /redis
   name: superagi
   region: blr
