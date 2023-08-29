@@ -14,6 +14,16 @@ ingress:
       match:
         path:
           prefix: /api
+    - component:
+        name: superagi-celery
+      match:
+        path:
+          prefix: /celery
+    - component:
+        name: superagi-redis
+      match:
+        path:
+          prefix: /redis
 name: superagi
 region: blr
 services:
@@ -44,8 +54,8 @@ services:
     instance_count: 1
     instance_size_slug: basic-xs
     run_command: /app/entrypoint.sh
-    name: superagi-backend
     source_dir: /
+    name: superagi-backend
   - dockerfile_path: ./gui/DockerfileProd
     github:
       branch: main
@@ -54,8 +64,8 @@ services:
     http_port: 3000
     instance_count: 1
     instance_size_slug: basic-xs
-    name: superagi-gui
     source_dir: ./gui
+    name: superagi-gui
   - dockerfile_path: Dockerfile
     envs:
       - key: REDIS_URL

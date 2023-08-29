@@ -15,6 +15,16 @@ spec:
         match:
           path:
             prefix: /api
+      - component:
+          name: superagi-celery
+        match:
+          path:
+            prefic: /celery
+      - component:
+          name: superagi-redis
+        match:
+          patch:
+            prefix: /redis
   name: superagi
   region: blr
   services:
@@ -45,8 +55,8 @@ spec:
       instance_count: 1
       instance_size_slug: basic-xs
       run_command: /app/entrypoint.sh
-      name: superagi-backend
       source_dir: /
+      name: superagi-backend
     - dockerfile_path: ./gui/DockerfileProd
       github:
         branch: main
@@ -55,8 +65,8 @@ spec:
       http_port: 3000
       instance_count: 1
       instance_size_slug: basic-xs
-      name: superagi-gui
       source_dir: ./gui
+      name: superagi-gui
     - dockerfile_path: Dockerfile
       envs:
         - key: REDIS_URL
