@@ -121,14 +121,17 @@ export default function AgentCreate({
 
 
   useEffect(() => {
-    getOrganisationConfig(organisationId, "model_api_key")
-      .then((response) => {
-        const apiKey = response.data.value
-        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-      });
+    // getOrganisationConfig(organisationId, "model_api_key")
+    //   .then((response) => {
+    //     console.log(response)
+    //     // const apiKey = response.data.value
+    //     // setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error fetching project:', error);
+    //   });
+    if(modelsArray.length>0)
+      setHasAPIkey(true)
   }, [organisationId]);
 
   const filterToolsByNames = () => {
@@ -455,7 +458,7 @@ export default function AgentCreate({
 
   const validateAgentData = (isNewAgent) => {
     if (isNewAgent && !hasAPIkey) {
-      toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
+      toast.error("Your API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings", false);
       return false;
     }
