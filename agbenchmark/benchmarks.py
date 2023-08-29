@@ -10,7 +10,7 @@ baseUrl = "http://localhost:3000/api"
 
 def create_superagi_api_key(name="Test API KEY") -> str:
     headers = {"Content-Type": "application/json"}
-    create_api_key = requests.request("POST", f"{baseUrl}/api/api-keys",
+    create_api_key = requests.request("POST", f"{baseUrl}/api-keys",
                                       data=json.dumps({"name": name}), headers=headers)
     if create_api_key.status_code != 200:
         raise Exception("Error creating API key")
@@ -227,12 +227,14 @@ def run_specific_agent(task: str) -> None:
         agent_stream = requests.request(
             "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{agent_execution_id}", headers=headers
         )
+        print(agent_stream.json()['status'])
+        print(time.time() - start_time)
         if agent_stream.json()['status'] == 'COMPLETED':
             break
 
-        if time.time() - start_time > 120:
+        if time.time() - start_time > 150:
             response = requests.request(
-                "PUT", f"{baseUrl}/agentexecutions/update/{response['execution_id']}", headers=headers,
+                "PUT", f"{baseUrl}/v1/agent/{agent_id}/pause", headers=headers,
                 data=json.dumps(pause_payload)
             )
             break

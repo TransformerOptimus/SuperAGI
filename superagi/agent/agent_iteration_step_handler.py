@@ -149,7 +149,7 @@ class AgentIterationStepHandler:
         return prompt
 
     def _build_tools(self, agent_config: dict, agent_execution_config: dict):
-        agent_tools = [ThinkingTool()]
+        agent_tools = []
 
         model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
