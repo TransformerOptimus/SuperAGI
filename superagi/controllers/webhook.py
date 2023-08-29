@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
@@ -17,7 +17,7 @@ class WebHookIn(BaseModel):
     name: str
     url: str
     headers: dict
-    filters: dict
+    filters: list
 
     class Config:
         orm_mode = True
@@ -32,12 +32,13 @@ class WebHookOut(BaseModel):
     is_deleted: bool
     created_at: datetime
     updated_at: datetime
+    filters: list
 
     class Config:
         orm_mode = True
 
 
-# CRUD Operations
+# CRUD Operations`
 @router.post("/add", response_model=WebHookOut, status_code=201)
 def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
                    organisation=Depends(get_user_organisation)):
@@ -57,5 +58,52 @@ def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
     db.session.add(db_webhook)
     db.session.commit()
     db.session.flush()
-
+    print (db_webhook)
     return db_webhook
+
+@router.get("/get", response_model=Optional[WebHookOut])
+def get_all_webhooks(
+    Authorize: AuthJWT = Depends(check_auth),
+    organisation=Depends(get_user_organisation),
+):
+    """
+    Retrieves a single webhook for the authenticated user's organisation.
+
+    Returns:
+        JSONResponse: A JSON response containing the retrieved webhook.
+
+    Raises:
+    """
+    webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.is_deleted == False).first()
+    return webhook
+
+@router.delete("/delete/{webhook_id}", response_model=WebHookOut,  status_code=200)
+def delete_webhook(
+    webhook_id: int,
+    webhook: WebHookIn,
+    Authorize: AuthJWT = Depends(check_auth),
+    organisation=Depends(get_user_organisation),
+):
+    """
+    Soft-deletes a webhook by setting the value of is_deleted to True.
+
+    Args:
+        webhook_id (int): The ID of the webhook to delete.
+
+    Returns:
+        WebHookOut: The deleted webhook.
+
+    Raises:
+        HTTPException (Status Code=404): If the webhook is not found.
+    """
+    webhook_selected = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.id == webhook_id, Webhooks.is_deleted == False).first()
+
+    if webhook_selected is None:
+        raise HTTPException(status_code=404, detail="Webhook not found")
+
+    webhook_selected.url = webhook.url
+    webhook_selected.filters = webhook.filters
+    webhook_selected.headers = webhook.headers
+    db.session.commit()
+
+    return webhook
