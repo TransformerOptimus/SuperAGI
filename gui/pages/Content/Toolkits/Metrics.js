@@ -129,7 +129,7 @@ export default function Metrics({toolName, knowledgeName}) {
                     </table>
                   </div>
                 </div> :
-                  <div className="vertical_container align_center mt_70 w_100 mb_70">
+                  <div className="vertical_container align_center mt_90 w_100 mb_90">
                     <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
                     <span className="text_12 color_white mt_6">No logs to show!</span>
                   </div>}

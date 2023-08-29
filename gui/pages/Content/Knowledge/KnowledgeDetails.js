@@ -96,12 +96,8 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
         <div className="horizontal_container align_start mb_20">
           <div className="vertical_containers text_align_left mr_10">
             <div className="text_17">{knowledgeName}</div>
-            <div className="text_12" style={!showDescription ? {overflow: 'hidden'} : {display: 'block'}}>
-              {`${showDescription ? knowledgeDescription : knowledgeDescription.slice(0, 70)}`}
-              {knowledgeDescription.length > 70 &&
-                <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                      {showDescription ? '...less' : '...more'}
-                  </span>}
+            <div className="text_12" >
+              {knowledgeDescription}
             </div>
           </div>
         </div>
