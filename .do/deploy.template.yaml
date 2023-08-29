@@ -53,7 +53,8 @@ spec:
       branch: digitalocean-deployment
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
-    internal_ports: 6379
+    internal_ports: 
+    - 6379
     instance_count: 1
     instance_size_slug: basic-xs
     name: superagi-redis
