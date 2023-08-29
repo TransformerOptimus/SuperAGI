@@ -87,6 +87,7 @@
 <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/yvmNthyWYCE">Learn here</a>
 </p>
 
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/TransformerOptimus/SuperAGI/tree/digitalocean-deployment)
 
 ## 💡 Features
 

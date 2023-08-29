@@ -23,7 +23,7 @@ services:
         scope: RUN_TIME
         value: ${super-agi-main.DATABASE_URL}
     github:
-      branch: docker-digitalocean
+      branch: digitalocean-deployment
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     http_port: 8001

@@ -24,7 +24,7 @@ spec:
           scope: RUN_TIME
           value: ${super-agi-main.DATABASE_URL}
       git:
-        branch: docker-digitalocean
+        branch: digitalocean-deployment
         repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       http_port: 8001
       instance_count: 1
