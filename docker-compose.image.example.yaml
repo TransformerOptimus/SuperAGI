@@ -1,75 +1,207 @@
-version: '3.8'
+version: "3.8"
 services:
   backend:
     image: "superagidev/superagi:main"
+    restart: unless-stopped
     depends_on:
-      - super__redis
-      - super__postgres
-    networks:
-      - super_network
-    env_file:
-      - config.yaml
-    command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - PINECONE_API_KEY=$PINECONE_API_KEY
+      - PINECONE_ENVIRONMENT=$PINECONE_ENVIRONMENT
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - PALM_API_KEY=$PALM_API_KEY
+      - OPENAI_API_BASE=$OPENAI_API_BASE
+      - MODEL_NAME=$MODEL_NAME
+      - RESOURCES_SUMMARY_MODEL_NAME=$RESOURCES_SUMMARY_MODEL_NAME
+      - MAX_TOOL_TOKEN_LIMIT=$MAX_TOOL_TOKEN_LIMIT
+      - DB_NAME=$DB_NAME
+      - POSTGRES_URL=$POSTGRES_URL
+      - DB_USERNAME=$DB_USERNAME
+      - DB_PASSWORD=$DB_PASSWORD
+      - REDIS_URL=$REDIS_URL
+      - STORAGE_TYPE=$STORAGE_TYPE
+      - TOOLS_DIR=$TOOLS_DIR
+      - RESOURCES_INPUT_ROOT_DIR=$RESOURCES_INPUT_ROOT_DIR
+      - BUCKET_NAME=$BUCKET_NAME
+      - INSTAGRAM_TOOL_BUCKET_NAME=$INSTAGRAM_TOOL_BUCKET_NAME
+      - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - ENV=$ENV
+      - JWT_SECRET_KEY=$JWT_SECRET_KEY
+      - expiry_time_hours=$expiry_time_hours
+      - GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID
+      - GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET
+      - FRONTEND_URL=$FRONTEND_URL
+      - ENCRYPTION_KEY=$ENCRYPTION_KEY
+      - WEAVIATE_USE_EMBEDDED=$WEAVIATE_USE_EMBEDDED
+      - GOOGLE_API_KEY=$GOOGLE_API_KEY
+      - SEARCH_ENGINE_ID=$SEARCH_ENGINE_ID
+      - SERP_API_KEY=$SERP_API_KEY
+      - EMAIL_ADDRESS=$EMAIL_ADDRESS
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD
+      - EMAIL_SMTP_HOST=$EMAIL_SMTP_HOST
+      - EMAIL_SMTP_PORT=$EMAIL_SMTP_PORT
+      - EMAIL_IMAP_SERVER=$EMAIL_IMAP_SERVER
+      - EMAIL_SIGNATURE=$EMAIL_SIGNATURE
+      - EMAIL_DRAFT_MODE_WITH_FOLDER=$EMAIL_DRAFT_MODE_WITH_FOLDER
+      - EMAIL_ATTACHMENT_BASE_PATH=$EMAIL_ATTACHMENT_BASE_PATH
+      - GITHUB_USERNAME=$GITHUB_USERNAME
+      - GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
+      - JIRA_INSTANCE_URL=$JIRA_INSTANCE_URL
+      - JIRA_USERNAME=$JIRA_USERNAME
+      - JIRA_API_TOKEN=$JIRA_API_TOKEN
+      - SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN
+      - STABILITY_API_KEY=$STABILITY_API_KEY
+      - ENGINE_ID=$ENGINE_ID
+      - RESOURCE_VECTOR_STORE=$RESOURCE_VECTOR_STORE
+      - RESOURCE_VECTOR_STORE_INDEX_NAME=$RESOURCE_VECTOR_STORE_INDEX_NAME
+      - REDIS_VECTOR_STORE_URL=$REDIS_VECTOR_STORE_URL
+      - QDRANT_PORT=$QDRANT_PORT
+      - QDRANT_HOST_NAME=$QDRANT_HOST_NAME
+      - CHROMA_HOST_NAME=$CHROMA_HOST_NAME
+      - CHROMA_PORT=$CHROMA_PORT
+    command: ["/app/entrypoint.sh"]
 
   celery:
     image: "superagidev/superagi:main"
+    restart: unless-stopped
     depends_on:
-      - super__redis
-      - super__postgres
-    networks:
-      - super_network
-    env_file:
-      - config.yaml
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - PINECONE_API_KEY=$PINECONE_API_KEY
+      - PINECONE_ENVIRONMENT=$PINECONE_ENVIRONMENT
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - PALM_API_KEY=$PALM_API_KEY
+      - OPENAI_API_BASE=$OPENAI_API_BASE
+      - MODEL_NAME=$MODEL_NAME
+      - RESOURCES_SUMMARY_MODEL_NAME=$RESOURCES_SUMMARY_MODEL_NAME
+      - MAX_TOOL_TOKEN_LIMIT=$MAX_TOOL_TOKEN_LIMIT
+      - DB_NAME=$DB_NAME
+      - POSTGRES_URL=$POSTGRES_URL
+      - DB_USERNAME=$DB_USERNAME
+      - DB_PASSWORD=$DB_PASSWORD
+      - REDIS_URL=$REDIS_URL
+      - STORAGE_TYPE=$STORAGE_TYPE
+      - TOOLS_DIR=$TOOLS_DIR
+      - RESOURCES_INPUT_ROOT_DIR=$RESOURCES_INPUT_ROOT_DIR
+      - BUCKET_NAME=$BUCKET_NAME
+      - INSTAGRAM_TOOL_BUCKET_NAME=$INSTAGRAM_TOOL_BUCKET_NAME
+      - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - ENV=$ENV
+      - JWT_SECRET_KEY=$JWT_SECRET_KEY
+      - expiry_time_hours=$expiry_time_hours
+      - GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID
+      - GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET
+      - FRONTEND_URL=$FRONTEND_URL
+      - ENCRYPTION_KEY=$ENCRYPTION_KEY
+      - WEAVIATE_USE_EMBEDDED=$WEAVIATE_USE_EMBEDDED
+      - GOOGLE_API_KEY=$GOOGLE_API_KEY
+      - SEARCH_ENGINE_ID=$SEARCH_ENGINE_ID
+      - SERP_API_KEY=$SERP_API_KEY
+      - EMAIL_ADDRESS=$EMAIL_ADDRESS
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD
+      - EMAIL_SMTP_HOST=$EMAIL_SMTP_HOST
+      - EMAIL_SMTP_PORT=$EMAIL_SMTP_PORT
+      - EMAIL_IMAP_SERVER=$EMAIL_IMAP_SERVER
+      - EMAIL_SIGNATURE=$EMAIL_SIGNATURE
+      - EMAIL_DRAFT_MODE_WITH_FOLDER=$EMAIL_DRAFT_MODE_WITH_FOLDER
+      - EMAIL_ATTACHMENT_BASE_PATH=$EMAIL_ATTACHMENT_BASE_PATH
+      - GITHUB_USERNAME=$GITHUB_USERNAME
+      - GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
+      - JIRA_INSTANCE_URL=$JIRA_INSTANCE_URL
+      - JIRA_USERNAME=$JIRA_USERNAME
+      - JIRA_API_TOKEN=$JIRA_API_TOKEN
+      - SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN
+      - STABILITY_API_KEY=$STABILITY_API_KEY
+      - ENGINE_ID=$ENGINE_ID
+      - RESOURCE_VECTOR_STORE=$RESOURCE_VECTOR_STORE
+      - RESOURCE_VECTOR_STORE_INDEX_NAME=$RESOURCE_VECTOR_STORE_INDEX_NAME
+      - REDIS_VECTOR_STORE_URL=$REDIS_VECTOR_STORE_URL
+      - QDRANT_PORT=$QDRANT_PORT
+      - QDRANT_HOST_NAME=$QDRANT_HOST_NAME
+      - CHROMA_HOST_NAME=$CHROMA_HOST_NAME
+      - CHROMA_PORT=$CHROMA_PORT
     command: ["/app/entrypoint_celery.sh"]
     volumes:
-      - "./workspace:/app/workspace"
+      - ./workspace:/app/workspace
 
   gui:
     image: "superagidev/superagi-frontend:main"
+    restart: unless-stopped
     environment:
       - NEXT_PUBLIC_API_BASE_URL=/api
-    networks:
-      - super_network
 
-  super__redis:
+  redis:
     image: "redis/redis-stack-server:latest"
-    networks:
-      - super_network
-#    uncomment to expose redis port to host
-#    ports:
-#      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    #    uncomment to expose redis port to host
+    #    ports:
+    #      - "6379:6379"
     volumes:
-      - redis_data:/data
+      - superagi_redis_data:/data
 
-  super__postgres:
+  postgres:
     image: "docker.io/library/postgres:latest"
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=superagi
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=super_agi_main
+      - POSTGRES_USER=$DB_USERNAME
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+      - POSTGRES_DB=$DB_NAME
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "$DB_NAME"]
+      interval: 5s
+      timeout: 60s
+      retries: 10
+      start_period: 10s
     volumes:
       - superagi_postgres_data:/var/lib/postgresql/data/
-    networks:
-      - super_network
-#    uncomment to expose postgres port to host
-#    ports:
-#      - "5432:5432"
+  #    uncomment to expose postgres port to host
+  #    ports:
+  #      - "5432:5432"
+
+  weaviate:
+    image: semitechnologies/weaviate:1.21.1
+    restart: unless-stopped
+    volumes:
+      - superagi_weaviate_data:/var/lib/weaviate
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --scheme
+      - http
+    environment:
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      AUTHENTICATION_APIKEY_ENABLED: true
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: $WEAVIATE_APIKEY
+      AUTHENTICATION_APIKEY_USERS: $WEAVIATE_APIKEY
+      ENABLE_MODULES: text2vec-openai,generative-openai
 
   proxy:
     image: nginx:stable-alpine
+    restart: unless-stopped
     ports:
-      - "3000:80"
-    networks:
-      - super_network
+      - 7896:80
     depends_on:
       - backend
       - gui
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
-networks:
-  super_network:
-    driver: bridge
 volumes:
   superagi_postgres_data:
-  redis_data:
+  superagi_redis_data:
+  superagi_weaviate_data:
