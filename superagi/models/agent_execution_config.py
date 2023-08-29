@@ -84,6 +84,7 @@ class AgentExecutionConfiguration(DBBaseModel):
         parsed_config = {
             "goal": [],
             "instruction": [],
+            "tools": []
         }
         if not agent_configurations:
             return parsed_config
@@ -105,7 +106,7 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         """
 
-        if key == "goal" or key == "instruction":
+        if key == "goal" or key == "instruction" or key == "tools":
             return eval(value)
 
     @classmethod

@@ -10,6 +10,9 @@ import Toolkits from '../Content/./Toolkits/Toolkits';
 import Settings from "./Settings/Settings";
 import styles from './Dashboard.module.css';
 import ApmDashboard from "../Content/APM/ApmDashboard";
+import AddModel from "../Content/Models/AddModel";
+import Models from "../Content/Models/Models";
+import ModelDetails from "../Content/Models/ModelDetails";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {
@@ -18,7 +21,8 @@ import {
   getKnowledge,
   getLastActiveAgent,
   sendGoogleCreds,
-  sendTwitterCreds
+  sendTwitterCreds,
+  fetchModels,
 } from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
@@ -38,9 +42,10 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [knowledge, setKnowledge] = useState(null);
   const tabContainerRef = useRef(null);
   const [toolkitDetails, setToolkitDetails] = useState({});
+  const [models, setModels] = useState([]);
   const [starModal, setStarModal] = useState(false);
   const router = useRouter();
-  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database','Edit_Agent'];
+  const multipleTabContentTypes = ['Create_Agent', 'Add_Toolkit', 'Add_Knowledge', 'Add_Database', 'Add_Model', 'Edit_Agent'];
   const [isApmOpened, setIsApmOpened] = useState(false);
   const [prevView, setPrevView] = useState(null);
 
@@ -99,6 +104,17 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       });
   }
 
+  async function getModels() {
+    try{
+      const response = await fetchModels();
+      console.log(response.data)
+      setModels(response.data)
+
+    } catch(error){
+      console.error('Error fetching models:', error);
+    }
+  }
+
   async function fetchKnowledge() {
     try {
       const response = await getKnowledge();
@@ -125,6 +141,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   useEffect(() => {
     getAgentList();
     getToolkitList();
+    getModels();
   }, [selectedProjectId])
 
   useEffect(() => {
@@ -312,11 +329,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
-        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') &&
+        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
             {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
+            {selectedView === 'models' && <div><Models sendModelData={addTab} models={models} /></div>}
           </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
@@ -366,7 +384,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             </div>
           </div>
         </div> : <div className={styles.main_workspace}
-                      style={(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge') ? {width: '80.5vw'} : {width: '100%'}}>
+                      style={(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') ? {width: '80.5vw'} : {width: '100%'}}>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
             <div className={styles.tabs} ref={tabContainerRef}>
               {tabs.map((tab, index) => (
@@ -449,6 +467,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                      organisationId={organisationId} sendKnowledgeData={addTab}
                                      sendAgentData={addTab} selectedProjectId={selectedProjectId} editAgentId={tab.id}
                                      fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
+                    {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
+                    {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
                   </div>}
                 </div>
               ))}
