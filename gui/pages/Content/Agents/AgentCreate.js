@@ -10,8 +10,8 @@ import {
   getLlmModels,
   updateExecution,
   uploadFile,
-  getAgentDetails, addAgentRun,
-  getAgentWorkflows
+  getAgentDetails, addAgentRun, fetchModels,
+  getAgentWorkflows, validateOrAddModels
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -56,6 +56,7 @@ export default function AgentCreate({
   const [searchValue, setSearchValue] = useState('');
   const [showButton, setShowButton] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
+  const [modelsArray, setModelsArray] = useState(['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -68,8 +69,8 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const [modelsArray, setModelsArray] = useState([]);
-  const [model, setModel] = useState('');
+  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']
+  const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -150,9 +151,9 @@ export default function AgentCreate({
   }, [toolNames]);
 
   useEffect(() => {
-    getLlmModels()
+    fetchModels()
       .then((response) => {
-        const models = response.data || [];
+        const models = response.data.map(model => model.name) || [];
         const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
         setModelsArray(models);
         if (models.length > 0 && !selected_model) {
@@ -160,6 +161,7 @@ export default function AgentCreate({
         } else {
           setModel(selected_model);
         }
+        console.log(response)
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
@@ -350,8 +352,8 @@ export default function AgentCreate({
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
-    if (modelsArray[index] === "google-palm-bison-001") {
-      setAgentWorkflow("Fixed Task Queue")
+    if (modelsArray[index] === "google-palm-bison-001" || modelsArray[index] === "replicate-llama13b-v2-chat") {
+      setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);
   };
@@ -492,7 +494,7 @@ export default function AgentCreate({
     return true;
   }
 
-  const handleAddAgent = () => {
+  const handleAddAgent = async () => {
     if (!validateAgentData(true)) {
       return;
     }
@@ -869,6 +871,11 @@ export default function AgentCreate({
      return false;
   }
 
+  const openModelMarket = () => {
+    openNewTab(-4, "Marketplace", "Marketplace", false);
+    localStorage.setItem('marketplace_tab', 'market_models');
+  }
+
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
       <div className="col-3"></div>
@@ -941,13 +948,28 @@ export default function AgentCreate({
                               alt="expand-icon"/>
               </div>
               <div>
-                {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {modelsArray?.map((model, index) => (
-                    <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
-                         style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {model}
-                    </div>))}
-                </div>}
+                {modelDropdown && (
+                    <div className="custom_select_options" ref={modelRef} style={{width: '100%', maxHeight: '300px'}}>
+                      <div className="model_options">
+                        {modelsArray?.map((model, index) => (
+                            <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
+                                 style={{padding: '12px 14px', maxWidth: '100%'}}>
+                              {model}
+                            </div>
+                        ))}
+                      </div>
+                      <div className="vertical_containers sticky_option">
+                        <div onClick={() => openModelMarket()} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                          <Image width={16} height={16} src="/images/marketplace_logo.png" alt="marketplace_logo" />
+                          <span>Browse models from marketplace</span>
+                        </div>
+                        <div onClick={() => openNewTab(-5, "new model", "Add_Model", false)} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                          <Image width={16} height={16} src="/images/plus.png" alt="plus_image" />
+                          <span>Add new custom model</span>
+                        </div>
+                      </div>
+                    </div>
+                )}
               </div>
             </div>
           </div>

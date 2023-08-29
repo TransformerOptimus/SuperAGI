@@ -12,6 +12,7 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
+from superagi.models.agent import Agent
 from superagi.types.queue_status import QueueStatus
 
 
@@ -22,6 +23,7 @@ class QueueStepHandler:
         self.llm = llm
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
+        self.organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
 
     def _queue_identifier(self, step_tool):
         return step_tool.unique_id + "_" + str(self.agent_execution_id)
@@ -82,11 +84,12 @@ class QueueStepHandler:
         prompt = self._build_queue_input_prompt(step_tool)
         logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        messages = AgentLlmMessageBuilder(self.session, self.llm, self.agent_id, self.agent_execution_id) \
+        print(".........//////////////..........2")
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
+        response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())

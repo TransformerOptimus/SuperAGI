@@ -10,6 +10,7 @@ from superagi.models.agent_execution_feed import AgentExecutionFeed
 def test_build_agent_messages(mock_get_config, mock_token_limit):
     mock_session = Mock()
     llm = Mock()
+    llm_model = Mock()
     agent_id = 1
     agent_execution_id = 1
     prompt = "start"
@@ -20,7 +21,7 @@ def test_build_agent_messages(mock_get_config, mock_token_limit):
     mock_token_limit.return_value = 1000
     mock_get_config.return_value = 600
 
-    builder = AgentLlmMessageBuilder(mock_session, llm, agent_id, agent_execution_id)
+    builder = AgentLlmMessageBuilder(mock_session, llm, llm_model, agent_id, agent_execution_id)
     messages = builder.build_agent_messages(prompt, agent_feeds, history_enabled=True, completion_prompt=completion_prompt)
 
     # Test prompt message
@@ -51,10 +52,11 @@ def test_build_ltm_summary(mock_token_limit, mock_count_text_tokens, mock_build_
                            mock_fetch_value):
     mock_session = Mock()
     llm = Mock()
+    llm_model = Mock()
     agent_id = 1
     agent_execution_id = 1
 
-    builder = AgentLlmMessageBuilder(mock_session, llm, agent_id, agent_execution_id)
+    builder = AgentLlmMessageBuilder(mock_session, llm, llm_model, agent_id, agent_execution_id)
 
     past_messages = [{"role": "user", "content": "Hello"}, {"role": "assistant", "content": "Hi"}]
     output_token_limit = 100
@@ -79,10 +81,11 @@ def test_build_ltm_summary(mock_token_limit, mock_count_text_tokens, mock_build_
 def test_build_prompt_for_ltm_summary(mock_read_agent_prompt):
     mock_session = Mock()
     llm = Mock()
+    llm_model = Mock()
     agent_id = 1
     agent_execution_id = 1
 
-    builder = AgentLlmMessageBuilder(mock_session, llm, agent_id, agent_execution_id)
+    builder = AgentLlmMessageBuilder(mock_session, llm, llm_model, agent_id, agent_execution_id)
 
     past_messages = [{"role": "user", "content": "Hello"}, {"role": "assistant", "content": "Hi"}]
     token_limit = 100
@@ -99,10 +102,11 @@ def test_build_prompt_for_ltm_summary(mock_read_agent_prompt):
 def test_build_prompt_for_recursive_ltm_summary_using_previous_ltm_summary(mock_read_agent_prompt):
     mock_session = Mock()
     llm = Mock()
+    llm_model = Mock()
     agent_id = 1
     agent_execution_id = 1
 
-    builder = AgentLlmMessageBuilder(mock_session, llm, agent_id, agent_execution_id)
+    builder = AgentLlmMessageBuilder(mock_session, llm, llm_model, agent_id, agent_execution_id)
 
     previous_ltm_summary = "Summary"
     past_messages = [{"role": "user", "content": "Hello"}, {"role": "assistant", "content": "Hi"}]

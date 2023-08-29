@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
-import styles from './Market.module.css';
 import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {loadingTextEffect} from "@/utils/utils";
@@ -48,8 +47,8 @@ export default function MarketAgent() {
     <div className={showMarketplace ? 'ml_8' : 'ml_3'}>
       <div className="w_100 overflowY_auto mxh_78vh">
         {!isLoading ? <div>
-          {agentTemplates.length > 0 ? <div className={styles.resources}>{agentTemplates.map((item, index) => (
-            <div className="market_tool cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
+          {agentTemplates.length > 0 ? <div className="marketplaceGrid3">{agentTemplates.map((item, index) => (
+            <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
               <div className="vertical_containers overflow_auto">
                 <div>{item.name}</div>
                 <div className="color_gray lh_16">by SuperAgi&nbsp;<Image width={14} height={14}
