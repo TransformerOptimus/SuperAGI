@@ -1,14 +1,9 @@
 from unittest.mock import Mock, patch
 
 from superagi.tools.jira.search_issues import SearchJiraTool
-from unittest.mock import Mock, patch
 
-from superagi.tools.jira.search_issues import SearchJiraTool
-
-
-@patch("superagi.tools.jira.tool.JiraTool.build_jira_instance")
+@patch("superagi.tools.jira.search_issues.JiraTool.build_jira_instance")
 def test_search_jira_tool(mock_build_jira_instance):
-    # Arrange
     mock_jira_instance = Mock()
     mock_issue_1 = Mock()
     mock_issue_1.key = "TEST-1"
@@ -19,15 +14,13 @@ def test_search_jira_tool(mock_build_jira_instance):
     mock_issue_1.fields.assignee = None
     mock_issue_1.fields.issuelinks = []
     mock_issues = [mock_issue_1]
-    mock_jira_instance.search_issues.return_value = {"issues": mock_issues}
+    mock_jira_instance.search_issues.return_value = mock_issues
     mock_build_jira_instance.return_value = mock_jira_instance
     tool = SearchJiraTool()
     query = 'summary ~ "test"'
 
-    # Act
     result = tool._execute(query)
 
-    # Assert
     mock_jira_instance.search_issues.assert_called_once_with(query)
     assert "Found 1 issues" in result
     assert f"'key': '{mock_issue_1.key}'" in result

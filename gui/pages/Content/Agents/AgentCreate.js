@@ -123,8 +123,9 @@ export default function AgentCreate({
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
       .then((response) => {
-        const apiKey = response.data.value
-        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+        console.log(response.data['api_key'])
+        const apiKey = response.data['api_key']
+        setHasAPIkey(!(apiKey === null));
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
@@ -455,7 +456,7 @@ export default function AgentCreate({
 
   const validateAgentData = (isNewAgent) => {
     if (isNewAgent && !hasAPIkey) {
-      toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
+      toast.error("Your API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings", false);
       return false;
     }
