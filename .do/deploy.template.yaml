@@ -63,10 +63,9 @@ spec:
       - key: REDIS_URL
         scope: RUN_TIME
         value: superagi-redis:6379
-    github:
+    git:
       branch: digitalocean-deployment
-      deploy_on_push: true
-      repo: TransformerOptimus/SuperAGI
+      repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
     http_port: 8001
     instance_count: 1
     instance_size_slug: basic-xs
