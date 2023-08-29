@@ -19,7 +19,7 @@ spec:
           name: superagi-celery
         match:
           path:
-            prefic: /celery
+            prefix: /celery
       - component:
           name: superagi-redis
         match:
