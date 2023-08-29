@@ -154,7 +154,6 @@ class Models(DBBaseModel):
     @classmethod
     def api_key_from_configurations(cls, session, organisation_id):
         try:
-            print("/////////////////////////////hello")
             from superagi.models.models_config import ModelsConfig
             from superagi.models.configuration import Configuration
 
