@@ -61,6 +61,7 @@ services:
   #   instance_size_slug: basic-xs
   #   source_dir: ./gui
   #   name: superagi-gui
+workers:
   - dockerfile_path: Dockerfile
     envs:
       - key: REDIS_URL
@@ -73,9 +74,6 @@ services:
       branch: digitalocean-deployment
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
-    http_port: 8001
-    health_check:
-      http_path: null
     instance_count: 1
     instance_size_slug: basic-xs
     run_command: celery -A superagi.worker worker --beat --loglevel=info
