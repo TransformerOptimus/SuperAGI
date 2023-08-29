@@ -10,11 +10,11 @@ spec:
       version: "12"
   ingress:
     rules:
-      - component:
-          name: superagi-backend
-        match:
-          path:
-            prefix: /api
+      # - component:
+      #     name: superagi-backend
+      #   match:
+      #     path:
+      #       prefix: /api
       - component:
           name: superagi-celery
         match:
