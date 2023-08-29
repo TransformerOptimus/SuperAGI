@@ -39,19 +39,24 @@ class AgentWorkflowSeed:
                                                                     "List all the files",
                                                                     step_type="TRIGGER")
         step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step3",
+                                                                    str(agent_workflow.id) + "_step2",
                                                                     ReadFileTool().name,
                                                                     "Read the resume file of the candidate")
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
+                                                                    str(agent_workflow.id) + "_step3",
                                                                     WriteFileTool().name,
                                                                     "Write a csv file containing the Name, email id, "
                                                                     "contact no")
-        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id, str(agent_workflow.id) +"_step5", WebInteractorTool().name, "GO_TO 'https://linkedin.com'")
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO 'https://linkedin.com'")
+        print("STEP4", step4)
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     WebInteractorTool().name,
                                                                     "Search for the candidate on linkedin")
+        print("STEP5", step5)
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)

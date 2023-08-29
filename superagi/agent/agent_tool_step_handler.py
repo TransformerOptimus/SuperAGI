@@ -55,19 +55,23 @@ class AgentToolStepHandler:
 
         assistant_reply = self._process_input_instruction(agent_config, agent_execution_config, step_tool,
                                                           workflow_step)
+        print("ASSISTANT REPLY", assistant_reply)
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
         tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, [tool_obj],
                                                 output_parser=AgentSchemaToolOutputParser())
         final_response = tool_output_handler.handle(self.session, assistant_reply)
+        print("ASSISTANT REPLY1", final_response)
         step_response = "default"
-        if step_tool.output_instruction:
+        if step_tool.output_instruction or step_tool.tool_name:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
-
+        print("ASSISTANT REPLY4", final_response)
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+        print("ASSISTANT REPLY5", final_response)
         self._handle_next_step(next_step)
+        self.session.flush()
+        print("ASSISTANT REPLY2", final_response)
         if step_tool.tool_name == "WebInteractor":
             return final_response
-        self.session.flush()
 
     def _create_permission_request(self, execution, step_tool: AgentWorkflowStepTool):
         new_agent_execution_permission = AgentExecutionPermission(
