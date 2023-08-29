@@ -1087,6 +1087,7 @@ p {
 .justify_space_between{justify-content: space-between}
 
 .display_flex{display: inline-flex}
+.display_flex_container{display: flex}
 
 .align_center{align-items: center}
 .align_start{align-items: flex-start}

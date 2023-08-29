@@ -363,3 +363,14 @@ export const fetchMarketPlaceModel = () => {
   return api.get(`/models_controller/get/list`)
 }
 
+export const saveWebhook = (webhook) => {
+  return api.post(`/webhook/add`, webhook);
+};
+
+export const getWebhook = () => {
+  return api.get(`/webhook/get`);
+};
+
+export const deleteWebhook = (webhook_id) => {
+  return api.delete(`/webhook/delete/${webhook_id}`);
+};
