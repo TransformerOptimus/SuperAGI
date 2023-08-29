@@ -7,8 +7,8 @@ databases:
     num_nodes: 1
     size: basic-xs
     version: "12"
-ingress:
-  rules:
+# ingress:
+#   rules:
     # - component:
     #     name: superagi-backend
     #   match:

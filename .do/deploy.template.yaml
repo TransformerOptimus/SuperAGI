@@ -8,18 +8,13 @@ spec:
       num_nodes: 1
       size: basic-xs
       version: "12"
-  ingress:
-    rules:
+  # ingress:
+  #   rules:
       # - component:
       #     name: superagi-backend
       #   match:
       #     path:
       #       prefix: /api
-      - component:
-          name: superagi-celery
-        match:
-          path:
-            prefix: /celery
   name: superagi
   region: blr
   services:
