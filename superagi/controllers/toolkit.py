@@ -157,8 +157,7 @@ def install_toolkit_from_marketplace(toolkit_name: str,
                            folder_name=tool['folder_name'], class_name=tool['class_name'], file_name=tool['file_name'],
                            toolkit_id=db_toolkit.id)
     for config in toolkit['configs']:
-        ToolConfig.add_or_update(session=db.session, toolkit_id=db_toolkit.id, key=config['key'], value=config['value'], key_type = config['key_type'], is_secret = config['is_secret'], is_required = config['is_required'])    
-    
+        ToolConfig.add_or_update(session=db.session, toolkit_id=db_toolkit.id, key=config['key'], value=config['value'], key_type = config['key_type'], is_secret = config['is_secret'], is_required = config['is_required'])
     return {"message": "ToolKit installed successfully"}
 
 
@@ -364,4 +363,5 @@ def update_toolkit(toolkit_name: str, organisation: Organisation = Depends(get_u
                            toolkit_id=update_toolkit.id, description=tool["description"])
 
     for tool_config_key in marketplace_toolkit["configs"]:
-        ToolConfig.add_or_update(db.session, toolkit_id=update_toolkit.id, key=tool_config_key["key"], key_type = tool_config_key['key_type'], is_secret = tool_config_key['is_secret'], is_required = tool_config_key['is_required'])
+        ToolConfig.add_or_update(db.session, toolkit_id=update_toolkit.id,
+                                 key=tool_config_key["key"], key_type = tool_config_key['key_type'], is_secret = tool_config_key['is_secret'], is_required = tool_config_key['is_required'])
