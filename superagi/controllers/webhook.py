@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -33,6 +33,20 @@ class WebHookOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     filters: list
+
+    class Config:
+        orm_mode = True
+
+class WebHookEdit(BaseModel):
+    url: str
+    filters: dict
+
+    class Config:
+        orm_mode = True
+
+class WebHookEdit(BaseModel):
+    url: str
+    filters: dict
 
     class Config:
         orm_mode = True
@@ -77,10 +91,10 @@ def get_all_webhooks(
     webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.is_deleted == False).first()
     return webhook
 
-@router.delete("/delete/{webhook_id}", response_model=WebHookOut,  status_code=200)
-def delete_webhook(
+@router.post("/edit/{webhook_id}", response_model=WebHookOut)
+def edit_webhook(
+    updated_webhook: WebHookEdit,
     webhook_id: int,
-    webhook: WebHookIn,
     Authorize: AuthJWT = Depends(check_auth),
     organisation=Depends(get_user_organisation),
 ):
@@ -96,14 +110,13 @@ def delete_webhook(
     Raises:
         HTTPException (Status Code=404): If the webhook is not found.
     """
-    webhook_selected = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.id == webhook_id, Webhooks.is_deleted == False).first()
-
-    if webhook_selected is None:
+    webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.id == webhook_id, Webhooks.is_deleted == False).first()
+    if webhook is None:
         raise HTTPException(status_code=404, detail="Webhook not found")
+    
+    webhook.url = updated_webhook.url
+    webhook.filters = updated_webhook.filters
 
-    webhook_selected.url = webhook.url
-    webhook_selected.filters = webhook.filters
-    webhook_selected.headers = webhook.headers
     db.session.commit()
 
     return webhook
