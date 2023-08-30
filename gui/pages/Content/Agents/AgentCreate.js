@@ -1340,7 +1340,7 @@ export default function AgentCreate({
             <div className="display_flex_container position_relative mr_7">
               <div>
                 {dropdown && (<div className={styles.dropdown_container_agent} onMouseOver={() => setDropdown(true)} onMouseOut={() => setDropdown(false)}>
-                  <ul style={{padding: '0', margin:'0'}}>
+                  <ul className="padding_0 margin_0">
                     <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => updateTemplate()}>Update template</li>
                     {env === 'PROD' && <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => handleAddToMarketplace()}>Publish to Marketplace</li>}
                 </ul>
