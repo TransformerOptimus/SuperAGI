@@ -17,5 +17,5 @@ class ImageGenToolkit(BaseToolkit, ABC):
         return [
             ToolConfiguration(key="STABILITY_API_KEY", key_type=ToolConfigKeyType.STRING, is_required= False, is_secret = True),
             ToolConfiguration(key="ENGINE_ID", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=False),
-            ToolConfiguration(key= "OPENAI API KEY", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=True),
+            ToolConfiguration(key= "OPENAI_API _KEY", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=True),
         ]
