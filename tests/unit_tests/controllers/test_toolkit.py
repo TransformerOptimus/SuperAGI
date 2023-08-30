@@ -87,7 +87,6 @@ def mock_toolkit_details():
             {
                 "key": "config_key_1",
                 "value": "config_value_1",
-                "value": "config_value_1",
                 'key_type': ToolConfigKeyType.STRING,
                 'is_secret': True,
                 'is_required': False
@@ -98,6 +97,7 @@ def mock_toolkit_details():
                 'key_type': ToolConfigKeyType.FILE,
                 'is_secret': True,
                 'is_required': False
+
             }
         ]
     }

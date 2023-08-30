@@ -19,7 +19,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   useEffect(() => {
     const interval = window.setInterval(function () {
       fetchFeeds();
-    }, 10000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [selectedRunId]);
