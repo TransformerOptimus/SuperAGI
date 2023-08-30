@@ -66,7 +66,6 @@ def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
     db.session.add(db_webhook)
     db.session.commit()
     db.session.flush()
-    print (db_webhook)
     return db_webhook
 
 @router.get("/get", response_model=Optional[WebHookOut])
