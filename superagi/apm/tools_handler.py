@@ -135,7 +135,7 @@ class ToolsHandler:
 
         other_tools = self.session.query(
             Event.agent_id,
-            func.array_agg(Event.event_property['tool_name'].astext).label('other_tools')
+            func.array_agg(distinct(Event.event_property['tool_name'].astext)).label('other_tools')
         ).filter(
             Event.org_id == self.organisation_id,
             Event.event_name == 'tool_used',
