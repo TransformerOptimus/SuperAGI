@@ -152,7 +152,7 @@ class Models(DBBaseModel):
         return {"success": "Model Details stored successfully", "model_id": model.id}
 
     @classmethod
-    def fetch_models(cls, session, organisation_id) -> Union[Dict[str, str], List[Dict[str, Union[str, int]]]]:
+    def api_key_from_configurations(cls, session, organisation_id):
         try:
             from superagi.models.models_config import ModelsConfig
             from superagi.models.configuration import Configuration
@@ -166,19 +166,17 @@ class Models(DBBaseModel):
                 if configurations is None:
                     return {"error": "API Key is Missing"}
                 else:
-                    default_models = {"gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184}
                     model_api_key = decrypt_data(configurations.value)
-
                     model_details = ModelsConfig.store_api_key(session, organisation_id, "OpenAI", model_api_key)
-                    model_provider_id = model_details.get('model_provider_id')
-                    models = OpenAi(api_key=model_api_key).get_models()
+        except Exception as e:
+            logging.error(f"Exception has been raised while checking API Key:: {e}")
 
-                    installed_models = [model[0] for model in session.query(Models.model_name).filter(Models.org_id == organisation_id).all()]
 
-                    for model in models:
-                        if model not in installed_models and model in default_models:
-                            result = cls.store_model_details(session, organisation_id, model, model, '',
-                                                             model_provider_id, default_models[model], 'Custom', '')
+    @classmethod
+    def fetch_models(cls, session, organisation_id) -> Union[Dict[str, str], List[Dict[str, Union[str, int]]]]:
+        try:
+            from superagi.models.models_config import ModelsConfig
+            cls.api_key_from_configurations(session, organisation_id)
 
             models = session.query(Models.id, Models.model_name, Models.description, ModelsConfig.provider).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(
