@@ -2,10 +2,8 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
-
-from superagi.config.config import get_config
+from superagi.models.db import get_db_url
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -29,11 +27,6 @@ from superagi.models import *
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-database_url = get_config('POSTGRES_URL')
-db_username = get_config('DB_USERNAME')
-db_password = get_config('DB_PASSWORD')
-db_name = get_config('DB_NAME')
-
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -47,10 +40,7 @@ def run_migrations_offline() -> None:
 
     """
 
-    if db_username is None:
-        db_url = f'postgresql://{database_url}/{db_name}'
-    else:
-        db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
+    db_url = get_db_url()
 
     config.set_main_option("sqlalchemy.url", db_url)
 
@@ -73,6 +63,10 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+
+    db_url = get_db_url()
+
+    config.set_main_option('sqlalchemy.url', db_url)
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
