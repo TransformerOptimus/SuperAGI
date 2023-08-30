@@ -59,6 +59,7 @@ from superagi.models.workflows.iteration_workflow_step import IterationWorkflowS
 from superagi.models.db import get_db_url
 app = FastAPI()
 
+env = get_config('ENV', "DEV")
 db_url = get_db_url()
 
 engine = create_engine(db_url)
