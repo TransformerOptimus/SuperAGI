@@ -1053,6 +1053,7 @@ p {
 .r_0{right: 0}
 
 .w_120p{width: 120px}
+.w_3{width: 3%}
 .w_4{width: 4%}
 .w_6{width: 6%}
 .w_10{width: 10%}
@@ -1066,6 +1067,7 @@ p {
 .w_56{width: 56%}
 .w_60{width: 60%}
 .w_73{width: 73%}
+.w_97{width: 97%}
 .w_100{width: 100%}
 .w_inherit{width: inherit}
 .w_fit_content{width:fit-content}
@@ -1074,6 +1076,7 @@ p {
 .mxw_100{max-width: 100%}
 .mxw_360{max-width: 360px}
 
+.h_31p{height: 31px}
 .h_32p{height: 32px}
 .h_44p{height: 44px}
 .h_100{height: 100%}
@@ -1116,6 +1119,7 @@ p {
 .overflowX_auto{overflow-x: auto}
 
 .gap_4{gap:4px;}
+.gap_5{gap:5px;}
 .gap_6{gap:6px;}
 .gap_8{gap:8px;}
 .gap_16{gap:16px;}
@@ -1124,6 +1128,8 @@ p {
 .border_gray{border: 1px solid rgba(255, 255, 255, 0.08)}
 .border_left_none{border-left: none;}
 .border_top_none{border-top: none;}
+.border_bottom_none{border-bottom: none;}
+.border_bottom_grey{border-bottom: 1px solid rgba(255, 255, 255, 0.08)}
 .border_radius_8{border-radius: 8px;}
 .border_radius_25{border-radius: 25px;}
 
@@ -1149,6 +1155,8 @@ p {
 .padding_16_8{padding: 16px 8px;}
 .padding_12_14{padding: 12px 14px;}
 .padding_0_15{padding: 0px 15px;}
+
+.pd_bottom{padding-bottom: 5px}
 
 .flex_1{flex: 1}
 .flex_wrap{flex-wrap: wrap;}
@@ -1459,6 +1467,7 @@ tr{
 
 .bg_black{background: black}
 .bg_white{background: white}
+.bg_none{background: none}
 
 .container {
     height: 100%;

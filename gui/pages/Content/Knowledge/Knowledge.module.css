@@ -74,3 +74,8 @@
     align-items: center;
     gap: 6px;
 }
+
+.knowledge_options_dropdown{
+    right: 25px;
+    width: 165px;
+}

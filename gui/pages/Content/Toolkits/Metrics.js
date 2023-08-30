@@ -89,7 +89,7 @@ export default function Metrics({toolName, knowledgeName}) {
       <div className="col-12 padding_5 ">
         {!isLoading ?
           <div>
-            <div style={{display: "flex", gap: '5px'}}>
+            <div className="display_flex_container gap_5">
             {metricsData.map((metric, index) => (
               <div className="display_column_container" key={index}>
                 <span className="text_14">{metric.label}</span>
@@ -101,10 +101,10 @@ export default function Metrics({toolName, knowledgeName}) {
             </div>
               <div className="display_column_container mt_5">
                 <span className="text_14">Call Logs</span>
-                {callLogs.length > 0 ? <div className="scrollable_container table_container" style={{background: 'none'}}>
+                {callLogs.length > 0 ? <div className="scrollable_container table_container bg_none">
                   <table className="w_100 margin_0 padding_0">
                     <thead>
-                    <tr className="border_top_none text_align_left" style={{borderBottom: 'none'}}>
+                    <tr className="border_top_none text_align_left border_bottom_none">
                       <th className="table_header w_15">Longest Timestamp</th>
                       <th className="table_header w_15">Agent Name</th>
                       <th className="table_header w_40">Run Name</th>
