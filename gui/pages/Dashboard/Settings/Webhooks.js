@@ -53,7 +53,6 @@ export default function Webhooks() {
     }
     saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}, filters: {status: selectedCheckboxes}})
       .then((response) => {
-        console.log(response)
         setExistingWebhook(true)
         setWebhookId(response.data.id)
         toast.success("Webhook created successfully", {autoClose: 1800});
