@@ -80,6 +80,9 @@ async def web_interactor_next_action(request: Request):
         if action_reference_element is not None:
             action_reference_element = int(action_reference_element)
         response1 = WebActionExecutorResponse(action=response["action"], status=response["status"], action_reference_element= action_reference_element, action_reference_param= response["action_reference_param"], thoughts=response["thoughts"])
+        execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)
+        if(execution.status=="COMPLETED"):
+            response1.status="AGENT_COMPLETED"
         if response["action_reference_element"] is None:
             response1.action_reference_element = 0
         return response1
