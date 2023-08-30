@@ -31,6 +31,10 @@ export default function Webhooks() {
     fetchWebhooks();
   }, []);
 
+  useEffect(() => {
+   console.log(selectedCheckboxes)
+  }, [selectedCheckboxes]);
+
   const handleWebhookChange = (event) => {
     setWebhookUrl(event.target.value);
   };
@@ -43,9 +47,10 @@ export default function Webhooks() {
       toast.error("Enter valid webhook", {autoClose: 1800});
       return;
     }
-
-    saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}})
+    console.log('here')
+    saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
       .then((response) => {
+        console.log(response)
         setExistingWebhook(true)
         setWebhookId(response.data.id)
         toast.success("Webhook created successfully", {autoClose: 1800});
@@ -65,6 +70,7 @@ export default function Webhooks() {
           // setWebhookName(response.data.name)
           setExistingWebhook(true)
           setWebhookId(response.data.id)
+          setSelectedCheckboxes(response.data.filters)
         }
         else{
           setWebhookUrl('')
@@ -79,7 +85,8 @@ export default function Webhooks() {
   }
 
   const deleteExistingWebhook = () => {
-    deleteWebhook(webhookId)
+    setExistingWebhook(false)
+    deleteWebhook(webhookId, {name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
       .then((response) => {
         fetchWebhooks()
         toast.success("Webhook deleted successfully", {autoClose: 1800});
@@ -120,10 +127,11 @@ export default function Webhooks() {
                      onChange={handleWebhookChange}/>
             <br />
             <label className={agentStyles.form_label}>Events to include</label>
-            <div className={styles.checkboxGroup}>
+            <div className={styles.checkboxGroup} >
               {checkboxes.map((checkbox) => (
                 <label key={checkbox.value} className={styles.checkboxLabel}>
                   <input
+                    disabled={existingWebhook ? true : false}
                     className="checkbox"
                     type="checkbox"
                     value={checkbox.value}

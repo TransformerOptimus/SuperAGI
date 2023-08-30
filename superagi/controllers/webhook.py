@@ -17,7 +17,7 @@ class WebHookIn(BaseModel):
     name: str
     url: str
     headers: dict
-    filters: dict
+    filters: list
 
     class Config:
         orm_mode = True
@@ -32,6 +32,14 @@ class WebHookOut(BaseModel):
     is_deleted: bool
     created_at: datetime
     updated_at: datetime
+    filters: list
+
+    class Config:
+        orm_mode = True
+
+class WebHookEdit(BaseModel):
+    url: str
+    filters: dict
 
     class Config:
         orm_mode = True
@@ -44,7 +52,7 @@ class WebHookEdit(BaseModel):
         orm_mode = True
 
 
-# CRUD Operations
+# CRUD Operations`
 @router.post("/add", response_model=WebHookOut, status_code=201)
 def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
                    organisation=Depends(get_user_organisation)):
@@ -64,7 +72,7 @@ def create_webhook(webhook: WebHookIn, Authorize: AuthJWT = Depends(check_auth),
     db.session.add(db_webhook)
     db.session.commit()
     db.session.flush()
-
+    print (db_webhook)
     return db_webhook
 
 @router.get("/get", response_model=Optional[WebHookOut])
@@ -87,6 +95,7 @@ def get_all_webhooks(
 def edit_webhook(
     updated_webhook: WebHookEdit,
     webhook_id: int,
+    webhook: WebHookIn,
     Authorize: AuthJWT = Depends(check_auth),
     organisation=Depends(get_user_organisation),
 ):

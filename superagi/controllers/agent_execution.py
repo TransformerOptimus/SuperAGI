@@ -16,6 +16,7 @@ from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
+from superagi.models.models import Models
 from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
@@ -123,6 +124,8 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     organisation = agent.get_agent_organisation(db.session)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
                                  agent_execution.agent_id, organisation.id if organisation else 0)
+
+    Models.api_key_from_configurations(session=db.session, organisation_id=organisation.id)
 
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
