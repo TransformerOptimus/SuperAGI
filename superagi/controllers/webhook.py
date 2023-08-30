@@ -17,7 +17,7 @@ class WebHookIn(BaseModel):
     name: str
     url: str
     headers: dict
-    filters: list
+    filters: dict
 
     class Config:
         orm_mode = True
@@ -32,13 +32,6 @@ class WebHookOut(BaseModel):
     is_deleted: bool
     created_at: datetime
     updated_at: datetime
-    filters: list
-
-    class Config:
-        orm_mode = True
-
-class WebHookEdit(BaseModel):
-    url: str
     filters: dict
 
     class Config:
@@ -50,6 +43,7 @@ class WebHookEdit(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 
 # CRUD Operations`

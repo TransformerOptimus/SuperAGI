@@ -39,7 +39,7 @@ export default function Settings({organisationId, sendDatabaseData}) {
               <Image width={14} height={14} src="/images/key_white.svg" alt="api-key-icon"/>
               <span>API Keys</span>
             </button>
-            <button onClick={() => switchTab('webhooks')} className={`${styles.tab_button} ${activeTab === 'webhooks' ? styles.settings_tab_button_clicked : styles.settings_tab_button}`}>
+            <button onClick={() => switchTab('webhooks')} className={activeTab === 'webhooks' ? 'tab_button_selected' : 'tab_button'}>
               <Image className={styles.settings_tab_img} width={14} height={14} src="/images/webhook_icon.svg"
                      alt="database-icon"/>&nbsp;Webhooks
             </button>

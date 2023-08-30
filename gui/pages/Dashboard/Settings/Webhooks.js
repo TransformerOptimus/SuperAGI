@@ -3,26 +3,25 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {
-  deleteWebhook,
+  editWebhook,
   getWebhook, saveWebhook,
 } from "@/pages/api/DashboardService";
 import {loadingTextEffect, removeTab} from "@/utils/utils";
-import Image from "next/image";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 export default function Webhooks() {
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [webhookName, setWebhookName] = useState('');
   const [webhookId, setWebhookId] = useState(-1);
   const [isLoading, setIsLoading] = useState(true)
   const [existingWebhook, setExistingWebhook] = useState(false)
+  const [isEdtiting, setIsEdtiting] = useState(false)
   const [loadingText, setLoadingText] = useState("Loading Webhooks");
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
   const checkboxes = [
-    { label: 'Agent is running', value: 'checkbox1' },
-    { label: 'Agent run is paused', value: 'checkbox2' },
-    { label: 'Agent run is completed', value: 'checkbox3' },
-    { label: 'Agent is terminated ', value: 'checkbox4' },
-    { label: 'Agent run max iteration reached', value: 'checkbox5' },
+    { label: 'Agent is running', value: 'RUNNING' },
+    { label: 'Agent run is paused', value: 'PAUSED' },
+    { label: 'Agent run is completed', value: 'COMPLETED' },
+    { label: 'Agent is terminated ', value: 'TERMINATED' },
+    { label: 'Agent run max iteration reached', value: 'MAX ITERATION REACHED' },
   ];
 
 
@@ -31,15 +30,8 @@ export default function Webhooks() {
     fetchWebhooks();
   }, []);
 
-  useEffect(() => {
-   console.log(selectedCheckboxes)
-  }, [selectedCheckboxes]);
-
   const handleWebhookChange = (event) => {
     setWebhookUrl(event.target.value);
-  };
-  const handleWebhookName = (event) => {
-    setWebhookName(event.target.value);
   };
 
   const handleSaveWebhook = () => {
@@ -47,8 +39,19 @@ export default function Webhooks() {
       toast.error("Enter valid webhook", {autoClose: 1800});
       return;
     }
-    console.log('here')
-    saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
+    if(isEdtiting){
+      editWebhook(webhookId, { url: webhookUrl, filters: {status: selectedCheckboxes}})
+          .then((response) => {
+            setIsEdtiting(false)
+            fetchWebhooks()
+            toast.success("Webhook deleted successfully", {autoClose: 1800});
+          })
+          .catch((error) => {
+            console.error('Error fetching webhook', error);
+          });
+      return;
+    }
+    saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}, filters: {status: selectedCheckboxes}})
       .then((response) => {
         console.log(response)
         setExistingWebhook(true)
@@ -67,29 +70,15 @@ export default function Webhooks() {
         setIsLoading(false)
         if(response.data){
           setWebhookUrl(response.data.url)
-          // setWebhookName(response.data.name)
           setExistingWebhook(true)
           setWebhookId(response.data.id)
-          setSelectedCheckboxes(response.data.filters)
+          setSelectedCheckboxes(response.data.filters.status)
         }
         else{
           setWebhookUrl('')
-          // setWebhookName('')
           setExistingWebhook(false)
           setWebhookId(-1)
         }
-      })
-      .catch((error) => {
-        console.error('Error fetching webhook', error);
-      });
-  }
-
-  const deleteExistingWebhook = () => {
-    setExistingWebhook(false)
-    deleteWebhook(webhookId, {name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
-      .then((response) => {
-        fetchWebhooks()
-        toast.success("Webhook deleted successfully", {autoClose: 1800});
       })
       .catch((error) => {
         console.error('Error fetching webhook', error);
@@ -112,16 +101,12 @@ export default function Webhooks() {
           <div className="title_wrapper mb_15">
             <div className={styles.page_title}>Webhooks</div>
             {existingWebhook &&
-              <button className="primary_button" onClick={() => deleteExistingWebhook()} >
-                Delete
+              <button className="primary_button" onClick={() => {setExistingWebhook(false);setIsEdtiting(true)} } >
+                Edit
               </button>}
           </div>
 
           <div>
-            {/*<label className={agentStyles.form_label}>Name</label>*/}
-            {/*<input disabled={existingWebhook ? true : false} placeholder="Enter webhook name" className="input_medium" type="text" value={webhookName}*/}
-            {/*       onChange={handleWebhookName}/>*/}
-            {/*<br />*/}
             <label className={agentStyles.form_label}>Destination URL</label>
               <input disabled={existingWebhook ? true : false} className="input_medium" placeholder="Enter your destination url" type="text" value={webhookUrl}
                      onChange={handleWebhookChange}/>
@@ -149,7 +134,7 @@ export default function Webhooks() {
               Cancel
             </button>
             <button className="primary_button" onClick={handleSaveWebhook}>
-              Create
+              {isEdtiting ? "Update" : "Create"}
             </button>
           </div>}
 
