@@ -7,6 +7,7 @@ from main import app
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
+from superagi.types.key_type import ToolConfigKeyType
 from superagi.models.toolkit import Toolkit
 
 client = TestClient(app)
