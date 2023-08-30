@@ -10,7 +10,6 @@ import {loadingTextEffect, removeTab} from "@/utils/utils";
 import styles from "@/pages/Content/Marketplace/Market.module.css";
 export default function Webhooks() {
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [webhookName, setWebhookName] = useState('');
   const [webhookId, setWebhookId] = useState(-1);
   const [isLoading, setIsLoading] = useState(true)
   const [existingWebhook, setExistingWebhook] = useState(false)
@@ -31,15 +30,8 @@ export default function Webhooks() {
     fetchWebhooks();
   }, []);
 
-  useEffect(() => {
-   console.log(selectedCheckboxes)
-  }, [selectedCheckboxes]);
-
   const handleWebhookChange = (event) => {
     setWebhookUrl(event.target.value);
-  };
-  const handleWebhookName = (event) => {
-    setWebhookName(event.target.value);
   };
 
   const handleSaveWebhook = () => {
@@ -115,10 +107,6 @@ export default function Webhooks() {
           </div>
 
           <div>
-            {/*<label className={agentStyles.form_label}>Name</label>*/}
-            {/*<input disabled={existingWebhook ? true : false} placeholder="Enter webhook name" className="input_medium" type="text" value={webhookName}*/}
-            {/*       onChange={handleWebhookName}/>*/}
-            {/*<br />*/}
             <label className={agentStyles.form_label}>Destination URL</label>
               <input disabled={existingWebhook ? true : false} className="input_medium" placeholder="Enter your destination url" type="text" value={webhookUrl}
                      onChange={handleWebhookChange}/>
