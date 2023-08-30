@@ -38,6 +38,26 @@
         false,
         false,
         false,
+        false,
+        false
+    ],
+    "TestDebugSimpleTypoWithoutGuidance": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ],
+    "TestReturnCode_Modify": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
         false
     ],
     "TestWriteFile": [

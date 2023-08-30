@@ -158,7 +158,9 @@ def run_specific_agent(task: str) -> None:
         ],
         'agent_workflow': 'Goal Based Workflow',
         'instruction': [
-            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .'],
+            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .',
+            'whenever you modify a code, modify the test file as well.'
+            ],
         'constraints': [
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
             "Ensure the tool and args are as per current plan and reasoning",

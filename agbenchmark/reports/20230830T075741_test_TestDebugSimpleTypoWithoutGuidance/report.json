@@ -1,0 +1,40 @@
+{
+    "command": "agbenchmark start --test TestDebugSimpleTypoWithoutGuidance",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/94951c75d8e7c21ef1cfaab848e94ffc3ae351b6",
+    "completion_time": "2023-08-30T07:58:57+00:00",
+    "benchmark_start_time": "2023-08-30T07:57:41+00:00",
+    "metrics": {
+        "run_time": "75.66 seconds",
+        "highest_difficulty": "No successful tests"
+    },
+    "tests": {
+        "TestDebugSimpleTypoWithoutGuidance": {
+            "data_path": "agbenchmark/challenges/code/c2_debug_suite/d2.2_vague/data.json",
+            "is_regression": false,
+            "category": [
+                "code",
+                "iterate"
+            ],
+            "task": "Make test.py run without errors.",
+            "answer": "[0, 1] [2, 5] [0, 3]",
+            "description": "Tests ability for the agent to debug python code with a simple typo in it, using a very broad prompt without guidance",
+            "metrics": {
+                "difficulty": "intermediate",
+                "success": false,
+                "attempted": true,
+                "fail_reason": "assert 1 in []",
+                "success_%": 25.0,
+                "cost": null,
+                "run_time": "75.148 seconds"
+            },
+            "reached_cutoff": true
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}

@@ -1,5 +1,7 @@
 {
     "TestWriteFile": true,
     "TestBasicMemory": true,
-    "TestDebugMultipleTypo": true
+    "TestDebugMultipleTypo": true,
+    "TestDebugSimpleTypoWithoutGuidance": true,
+    "TestReturnCode_Modify": true
 }
