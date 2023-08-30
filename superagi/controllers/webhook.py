@@ -95,7 +95,6 @@ def get_all_webhooks(
 def edit_webhook(
     updated_webhook: WebHookEdit,
     webhook_id: int,
-    webhook: WebHookIn,
     Authorize: AuthJWT = Depends(check_auth),
     organisation=Depends(get_user_organisation),
 ):
