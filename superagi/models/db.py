@@ -50,19 +50,3 @@ def connect_db():
     except Exception as e:
         logger.error(f"Unable to connect to the database:{e}")
     return engine
-
-def get_db_url():
-    db_host = get_config('DB_HOST', 'super__postgres')
-    db_username = get_config('DB_USERNAME')
-    db_password = get_config('DB_PASSWORD')
-    db_name = get_config('DB_NAME')
-    db_url = get_config('DB_URL', None)
-
-    if db_url is None:
-        if db_username is None:
-            db_url = f'postgresql://{db_host}/{db_name}'
-        else:
-            db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
-    else:
-        db_url = urlparse(db_url)
-        db_url = db_url.scheme + "://" + db_url.netloc + db_url.path
