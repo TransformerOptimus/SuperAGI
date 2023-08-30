@@ -333,7 +333,7 @@ export const getWebhook = () => {
 };
 
 export const deleteWebhook = (webhook_id) => {
-  return api.delete(`/webhook/delete/${webhook_id}`);
+  return api.put(`/webhook/delete/${webhook_id}`);
 };
 
 export const storeApiKey = (model_provider, model_api_key) => {

@@ -15,14 +15,15 @@ export default function Webhooks() {
   const [webhookId, setWebhookId] = useState(-1);
   const [isLoading, setIsLoading] = useState(true)
   const [existingWebhook, setExistingWebhook] = useState(false)
+  const [isEdtiting, setIsEdtiting] = useState(false)
   const [loadingText, setLoadingText] = useState("Loading Webhooks");
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
   const checkboxes = [
-    { label: 'Agent is running', value: 'checkbox1' },
-    { label: 'Agent run is paused', value: 'checkbox2' },
-    { label: 'Agent run is completed', value: 'checkbox3' },
-    { label: 'Agent is terminated ', value: 'checkbox4' },
-    { label: 'Agent run max iteration reached', value: 'checkbox5' },
+    { label: 'Agent is running', value: 'RUNNING' },
+    { label: 'Agent run is paused', value: 'PAUSED' },
+    { label: 'Agent run is completed', value: 'COMPLETED' },
+    { label: 'Agent is terminated ', value: 'TERMINATED' },
+    { label: 'Agent run max iteration reached', value: 'MAX ITERATION REACHED' },
   ];
 
 
@@ -47,7 +48,18 @@ export default function Webhooks() {
       toast.error("Enter valid webhook", {autoClose: 1800});
       return;
     }
-    console.log('here')
+    if(isEdtiting){
+      deleteWebhook(webhookId, {name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
+          .then((response) => {
+            setIsEdtiting(false)
+            fetchWebhooks()
+            toast.success("Webhook deleted successfully", {autoClose: 1800});
+          })
+          .catch((error) => {
+            console.error('Error fetching webhook', error);
+          });
+      return;
+    }
     saveWebhook({name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
       .then((response) => {
         console.log(response)
@@ -85,15 +97,18 @@ export default function Webhooks() {
   }
 
   const deleteExistingWebhook = () => {
+
     setExistingWebhook(false)
-    deleteWebhook(webhookId, {name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
-      .then((response) => {
-        fetchWebhooks()
-        toast.success("Webhook deleted successfully", {autoClose: 1800});
-      })
-      .catch((error) => {
-        console.error('Error fetching webhook', error);
-      });
+    setIsEdtiting(true)
+
+    // deleteWebhook(webhookId, {name : "Webhook 1", url: webhookUrl, headers: {}, filters: selectedCheckboxes})
+    //   .then((response) => {
+    //     fetchWebhooks()
+    //     toast.success("Webhook deleted successfully", {autoClose: 1800});
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error fetching webhook', error);
+    //   });
   }
 
   const toggleCheckbox = (value) => {
@@ -113,7 +128,7 @@ export default function Webhooks() {
             <div className={styles.page_title}>Webhooks</div>
             {existingWebhook &&
               <button className="primary_button" onClick={() => deleteExistingWebhook()} >
-                Delete
+                Edit
               </button>}
           </div>
 
@@ -149,7 +164,7 @@ export default function Webhooks() {
               Cancel
             </button>
             <button className="primary_button" onClick={handleSaveWebhook}>
-              Create
+              {isEdtiting ? "Update" : "Create"}
             </button>
           </div>}
 
