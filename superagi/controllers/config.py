@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from superagi.models.models_config import ModelsConfig
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
 from fastapi_sqlalchemy import db
@@ -106,9 +107,8 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
     if not db_organisation:
         raise HTTPException(status_code=404, detail="Organisation not found")
 
-    config = db.session.query(Configuration).filter(Configuration.organisation_id == organisation_id,
-                                                    Configuration.key == key).first()
-    if config is None and key == "model_api_key":
+    config = db.session.query(ModelsConfig).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == 'OpenAI').first()
+    if config is None:
         api_key = get_config("OPENAI_API_KEY") or get_config("PALM_API_KEY")
         if (api_key is not None and api_key != "YOUR_OPEN_API_KEY") or (
                 api_key is not None and api_key != "YOUR_PALM_API_KEY"):
@@ -118,15 +118,8 @@ def get_config_by_organisation_id_and_key(organisation_id: int, key: str,
             db.session.commit()
             db.session.flush()
             return new_config
-        return config
-
-    # Decrypt the API key
-    if config is not None and config.key == "model_api_key":
-        if config.value is not None:
-            decrypted_data = decrypt_data(config.value)
-            config.value = decrypted_data
-
     return config
+
 
 
 @router.get("/get/organisation/{organisation_id}", status_code=201)

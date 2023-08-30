@@ -16,6 +16,7 @@ from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.worker import execute_agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent import Agent
+from superagi.models.models import Models
 from fastapi import APIRouter
 from sqlalchemy import desc
 from superagi.helper.auth import check_auth
