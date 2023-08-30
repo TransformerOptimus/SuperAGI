@@ -24,6 +24,20 @@
         false,
         true,
         true,
+        false,
+        true
+    ],
+    "TestDebugMultipleTypo": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
         false
     ],
     "TestWriteFile": [

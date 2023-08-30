@@ -1,0 +1,38 @@
+{
+    "command": "agbenchmark start --test TestBasicMemory",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/67b81fbee67a5d61354d023030fce6a26f26007d",
+    "completion_time": "2023-08-30T05:17:20+00:00",
+    "benchmark_start_time": "2023-08-30T05:14:48+00:00",
+    "metrics": {
+        "run_time": "150.7 seconds",
+        "highest_difficulty": "basic: 2"
+    },
+    "tests": {
+        "TestBasicMemory": {
+            "data_path": "agbenchmark/challenges/memory/m1_id/data.json",
+            "is_regression": false,
+            "category": [
+                "memory"
+            ],
+            "task": "Follow the instructions in the instructions_1.txt file",
+            "answer": "2314",
+            "description": "Tests ability for the agent to remember information between each action. An id is presented initially and the agent has to remember it after reading 4 other files",
+            "metrics": {
+                "difficulty": "basic",
+                "success": true,
+                "attempted": true,
+                "success_%": 50.0,
+                "cost": null,
+                "run_time": "150.026 seconds"
+            },
+            "reached_cutoff": true
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}

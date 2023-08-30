@@ -39,7 +39,7 @@ class RunCodeTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, file_name: str) -> str:
-        final_path = ResourceHelper.get_agent_read_resource_path(
+        final_path = ResourceHelper.get_agent_output_read_resource_path(
             file_name, agent=Agent.get_agent_from_id(session=self.toolkit_config.session, agent_id=self.agent_id),
             agent_execution=AgentExecution.
             get_agent_execution_from_id(session=self.toolkit_config.session,agent_execution_id=self.agent_execution_id))

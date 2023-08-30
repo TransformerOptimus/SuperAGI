@@ -1,4 +1,5 @@
 {
     "TestWriteFile": true,
-    "TestBasicMemory": true
+    "TestBasicMemory": true,
+    "TestDebugMultipleTypo": true
 }
