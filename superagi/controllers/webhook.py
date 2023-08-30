@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -32,6 +32,13 @@ class WebHookOut(BaseModel):
     is_deleted: bool
     created_at: datetime
     updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class WebHookEdit(BaseModel):
+    url: str
+    filters: dict
 
     class Config:
         orm_mode = True
@@ -76,8 +83,9 @@ def get_all_webhooks(
     webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.is_deleted == False).first()
     return webhook
 
-@router.delete("/delete/{webhook_id}", response_model=WebHookOut)
-def delete_webhook(
+@router.post("/edit/{webhook_id}", response_model=WebHookOut)
+def edit_webhook(
+    updated_webhook: WebHookEdit,
     webhook_id: int,
     Authorize: AuthJWT = Depends(check_auth),
     organisation=Depends(get_user_organisation),
@@ -95,11 +103,12 @@ def delete_webhook(
         HTTPException (Status Code=404): If the webhook is not found.
     """
     webhook = db.session.query(Webhooks).filter(Webhooks.org_id == organisation.id, Webhooks.id == webhook_id, Webhooks.is_deleted == False).first()
-
     if webhook is None:
         raise HTTPException(status_code=404, detail="Webhook not found")
+    
+    webhook.url = updated_webhook.url
+    webhook.filters = updated_webhook.filters
 
-    webhook.is_deleted = True
     db.session.commit()
 
     return webhook
