@@ -1,0 +1,39 @@
+{
+    "command": "agbenchmark start --test TestAdaptSimpleTypoWithGuidance",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/09d3895ec7891bb63fce6c5d6bbaf02779dad213",
+    "completion_time": "2023-08-30T12:39:43+00:00",
+    "benchmark_start_time": "2023-08-30T12:38:26+00:00",
+    "metrics": {
+        "run_time": "75.94 seconds",
+        "highest_difficulty": "No successful tests"
+    },
+    "tests": {
+        "TestAdaptSimpleTypoWithGuidance": {
+            "data_path": "agbenchmark/challenges/adapatability/a1_debug/data.json",
+            "is_regression": false,
+            "category": [
+                "adaptability"
+            ],
+            "task": "1- Run code.py.\n2- Read test.py.\n3- Modify test.py.\nRepeat step 1, 2 and 3 until code.py runs without errors.\n",
+            "answer": "Same as the original DebugWithGuidance test - [0, 1] [2, 5] [0, 3]",
+            "description": "A version of the debug challenge where the wrong files to test and change are given. The llm must figure the challenges out",
+            "metrics": {
+                "difficulty": "intermediate",
+                "success": false,
+                "attempted": true,
+                "fail_reason": "assert 1 in []",
+                "success_%": 0.0,
+                "cost": null,
+                "run_time": "75.131 seconds"
+            },
+            "reached_cutoff": true
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}

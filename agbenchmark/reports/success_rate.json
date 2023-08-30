@@ -1,4 +1,9 @@
 {
+    "TestAdaptSimpleTypoWithGuidance": [
+        false,
+        false,
+        false
+    ],
     "TestBasicMemory": [
         false,
         false,
@@ -51,7 +56,16 @@
         false,
         false
     ],
+    "TestFunctionCodeGeneration": [
+        true,
+        false,
+        true,
+        false
+    ],
     "TestReturnCode_Modify": [
+        false,
+        false,
+        false,
         false,
         false,
         false,

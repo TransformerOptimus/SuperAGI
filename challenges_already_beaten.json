@@ -3,5 +3,7 @@
     "TestBasicMemory": true,
     "TestDebugMultipleTypo": true,
     "TestDebugSimpleTypoWithoutGuidance": true,
-    "TestReturnCode_Modify": true
+    "TestReturnCode_Modify": true,
+    "TestFunctionCodeGeneration": true,
+    "TestAdaptSimpleTypoWithGuidance": true
 }
