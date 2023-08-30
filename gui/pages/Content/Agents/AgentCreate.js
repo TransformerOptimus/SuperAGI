@@ -10,8 +10,8 @@ import {
   getLlmModels,
   updateExecution,
   uploadFile,
-  getAgentDetails, addAgentRun,
-  getAgentWorkflows, publishTemplateToMarketplace, fetchModels
+  getAgentDetails, addAgentRun, fetchModels,
+  getAgentWorkflows, validateOrAddModels, publishTemplateToMarketplace
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -56,7 +56,7 @@ export default function AgentCreate({
   const [searchValue, setSearchValue] = useState('');
   const [showButton, setShowButton] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
-  const [modelsArray, setModelsArray] = useState([]);
+  const [modelsArray, setModelsArray] = useState(['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -69,7 +69,7 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001', 'replicate-llama13b-v2-chat']
+  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']
   const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
@@ -126,8 +126,8 @@ export default function AgentCreate({
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
       .then((response) => {
-        const apiKey = response.data.value
-        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+        const apiKey = response.data['api_key']
+        setHasAPIkey(!(apiKey === null));
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
@@ -457,7 +457,7 @@ export default function AgentCreate({
 
   const validateAgentData = (isNewAgent) => {
     if (isNewAgent && !hasAPIkey) {
-      toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
+      toast.error("Your API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings", false);
       return false;
     }
@@ -496,7 +496,7 @@ export default function AgentCreate({
     return true;
   }
 
-  const handleAddAgent = () => {
+  const handleAddAgent = async () => {
     if (!validateAgentData(true)) {
       return;
     }

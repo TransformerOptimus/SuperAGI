@@ -57,7 +57,7 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
                              api_key: str = Security(validate_api_key), organisation:Organisation = Depends(get_organisation_from_api_key)):
     project=Project.find_by_org_id(db.session, organisation.id)
     try:
-        tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
+        tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,organisation.id,agent_with_config.tools)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -177,7 +177,7 @@ def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot update")
     
     try:
-        tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,agent_with_config.tools)
+        tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,organisation.id,agent_with_config.tools)
     except Exception as e:
         raise HTTPException(status_code=404,detail=str(e))
 

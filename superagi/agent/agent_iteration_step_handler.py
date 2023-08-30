@@ -34,7 +34,6 @@ from superagi.apm.call_log_helper import CallLogHelper
 class AgentIterationStepHandler:
     """ Handles iteration workflow steps in the agent workflow."""
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
-        print(session, llm, agent_execution_id, agent_id, memory)
         self.session = session
         self.llm = llm
         self.agent_execution_id = agent_execution_id
