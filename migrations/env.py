@@ -47,7 +47,8 @@ def run_migrations_offline() -> None:
 
     """
 
-    if db_url is None:
+    database_url = db_url
+    if database_url is None:
         if db_username is None:
             db_url = f'postgresql://{db_host}/{db_name}'
         else:
