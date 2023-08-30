@@ -24,3 +24,4 @@ Only return the code and not any other line
 To start, first analyze the existing code. Check for any function with missing logic inside it and fill the function. 
 Make sure, that not a single function is empty or contains just comments, there should be function logic inside it
 Return fully completed functions by filling the placeholders
+whenever a code is modified, write the test code file for it.

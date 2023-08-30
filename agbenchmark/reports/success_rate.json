@@ -58,6 +58,10 @@
         false,
         false,
         false,
+        false,
+        false,
+        false,
+        false,
         false
     ],
     "TestWriteFile": [
