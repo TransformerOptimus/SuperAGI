@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, NamedTuple, List
 import re
 import ast
-import json5
+import json
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
 
@@ -43,7 +43,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
                 args=args,
             )
         except BaseException as e:
-            logger.info(f"AgentSchemaOutputParser: Error parsing JSON respons {e}")
+            logger.info(f"AgentSchemaOutputParser: Error parsing JSON response {e}")
             raise e
 
 
@@ -66,5 +66,5 @@ class AgentSchemaToolOutputParser(BaseOutputParser):
                 args=args,
             )
         except BaseException as e:
-            logger.info(f"AgentSchemaToolOutputParser: Error parsing JSON respons {e}")
+            logger.info(f"AgentSchemaToolOutputParser: Error parsing JSON response {e}")
             raise e

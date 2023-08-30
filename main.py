@@ -35,6 +35,7 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.models_controller import router as models_controller_router
 from superagi.controllers.knowledges import router as knowledges_router
 from superagi.controllers.knowledge_configs import router as knowledge_configs_router
 from superagi.controllers.vector_dbs import router as vector_dbs_router
@@ -47,6 +48,8 @@ from superagi.helper.tool_helper import register_toolkits, register_marketplace_
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.llms.replicate import Replicate
+from superagi.llms.hugging_face import HuggingFace
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
@@ -117,6 +120,7 @@ app.include_router(agent_workflow_router, prefix="/api/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/api/twitter")
 app.include_router(agent_execution_config, prefix="/api/agent_executions_configs")
 app.include_router(analytics_router, prefix="/api/analytics")
+app.include_router(models_controller_router, prefix="/api/models_controller")
 app.include_router(google_oauth_router, prefix="/api/google")
 app.include_router(knowledges_router, prefix="/api/knowledges")
 app.include_router(knowledge_configs_router, prefix="/api/knowledge_configs")
@@ -353,6 +357,10 @@ async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJW
         valid_api_key = OpenAi(api_key=api_key).verify_access_key()
     elif source == "Google Palm":
         valid_api_key = GooglePalm(api_key=api_key).verify_access_key()
+    elif source == "Replicate":
+        valid_api_key = Replicate(api_key=api_key).verify_access_key()
+    elif source == "Hugging Face":
+         valid_api_key = HuggingFace(api_key=api_key).verify_access_key()
     if valid_api_key:
         return {"message": "Valid API Key", "status": "success"}
     else:
