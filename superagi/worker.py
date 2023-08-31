@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import sys
 
 from sqlalchemy.orm import sessionmaker
 
@@ -38,10 +39,9 @@ app.conf.beat_schedule = beat_schedule
 
 @event.listens_for(AgentExecution.status, "set")
 def agent_status_change(target, val,old_val,initiator):
-    if not get_config("IS_TESTING",False):
+    if not hasattr(sys, '_called_from_test'):
         webhook_callback.delay(target.id,val,old_val)
-    
-    
+       
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
