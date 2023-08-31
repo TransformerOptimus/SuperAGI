@@ -242,6 +242,8 @@ class AgentWorkflowStep(DBBaseModel):
             if str(matching_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"
             return AgentWorkflowStep.find_by_unique_id(session, matching_steps[0]["step_id"])
+        if str(step_response) == "[COMPLETE]":
+            return "COMPLETE"
 
         logger.info(f"Could not find next step for step_id: {current_agent_step_id} and step_response: {step_response}")
         default_steps = [step for step in next_steps if str(step["step_response"]).lower() == "default"]

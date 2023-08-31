@@ -93,7 +93,7 @@ class AgentToolStepHandler:
 
     def _handle_next_step(self, next_step):
         print("ASSISTANT NEXT STEP", next_step)
-        if "COMPLETE" in str(next_step) :
+        if str(next_step) == "COMPLETE":
             agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
             agent_execution.current_agent_step_id = -1
             agent_execution.status = "COMPLETED"
