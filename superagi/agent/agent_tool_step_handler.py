@@ -64,7 +64,7 @@ class AgentToolStepHandler:
         step_response = "default"
         if step_tool.output_instruction or step_tool.tool_name:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
-        print("ASSISTANT REPLY4", final_response)
+        print("ASSISTANT REPLY4", step_response)
         next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
         print("ASSISTANT REPLY5", final_response)
         self._handle_next_step(next_step)
@@ -89,7 +89,8 @@ class AgentToolStepHandler:
         self.session.commit()
 
     def _handle_next_step(self, next_step):
-        if str(next_step) == "COMPLETE":
+        print("ASSISTANT NEXT STEP", next_step)
+        if "COMPLETE" in str(next_step) :
             agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
             agent_execution.current_agent_step_id = -1
             agent_execution.status = "COMPLETED"
