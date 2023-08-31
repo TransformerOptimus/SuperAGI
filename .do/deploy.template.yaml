@@ -16,7 +16,6 @@ spec:
           path:
             prefix: /api
   name: superagi
-  region: blr
   services:
     - dockerfile_path: DockerfileRedis
       git:

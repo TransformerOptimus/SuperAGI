@@ -15,11 +15,10 @@ ingress:
         path:
           prefix: /api
 name: superagi
-region: blr
 services:
   - dockerfile_path: DockerfileRedis
     github: 
-      branch: main
+      branch: digitalocean-deployment
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     internal_ports: 
@@ -37,7 +36,7 @@ services:
         scope: RUN_TIME
         value: ${super-agi-main.DATABASE_URL}
     github:
-      branch: main
+      branch: digitalocean-deployment
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     http_port: 8001
@@ -66,7 +65,7 @@ workers:
         scope: RUN_TIME
         value: ${super-agi-main.DATABASE_URL}
     github:
-      branch: main
+      branch: digitalocean-deployment
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     instance_count: 1
