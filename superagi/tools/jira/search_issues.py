@@ -48,18 +48,18 @@ class SearchJiraTool(JiraTool):
         )
         return parsed_issues_str
 
-    def parse_issues(self, issues: Dict) -> List[dict]:
+    def parse_issues(self, issues: List) -> List[dict]:
         """
         Parse the issues returned by the Jira API.
 
         Args:
-            issues : Dictionary of issues returned by the Jira API.
+            issues : List of issues returned by the Jira API.
 
         Returns:
             List of parsed issues.
         """
         parsed = []
-        for issue in issues["issues"]:
+        for issue in issues:
             key = issue.key
             summary = issue.fields.summary
             created = issue.fields.created[0:10]
@@ -72,13 +72,13 @@ class SearchJiraTool(JiraTool):
             rel_issues = {}
             for related_issue in issue.fields.issuelinks:
                 if "inwardIssue" in related_issue.keys():
-                    rel_type = related_issue["type"]["inward"]
-                    rel_key = related_issue["inwardIssue"]["key"]
-                    rel_summary = related_issue["inwardIssue"]["fields"]["summary"]
+                    rel_type = related_issue.type.inward
+                    rel_key = related_issue.inwardIssue.key
+                    rel_summary = related_issue.inwardIssue.fields.summary
                 if "outwardIssue" in related_issue.keys():
-                    rel_type = related_issue["type"]["outward"]
-                    rel_key = related_issue["outwardIssue"]["key"]
-                    rel_summary = related_issue["outwardIssue"]["fields"]["summary"]
+                    rel_type = related_issue.type.outward
+                    rel_key = related_issue.outwardIssue.key
+                    rel_summary = related_issue.outwardIssue.fields.summary
                 rel_issues = {"type": rel_type, "key": rel_key, "summary": rel_summary}
             parsed.append(
                 {

@@ -9,16 +9,18 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.types.common import BaseMessage
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
+from superagi.models.agent import Agent
 
 
 class AgentLlmMessageBuilder:
     """Agent message builder for LLM agent."""
-    def __init__(self, session, llm, agent_id: int, agent_execution_id: int):
+    def __init__(self, session, llm, llm_model: str, agent_id: int, agent_execution_id: int):
         self.session = session
         self.llm = llm
-        self.llm_model = llm.get_model()
+        self.llm_model = llm_model
         self.agent_id = agent_id
         self.agent_execution_id = agent_execution_id
+        self.organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
 
     def build_agent_messages(self, prompt: str, agent_feeds: list, history_enabled=False,
                              completion_prompt: str = None):
@@ -30,17 +32,16 @@ class AgentLlmMessageBuilder:
             history_enabled (bool): Whether to use history or not.
             completion_prompt (str): The completion prompt to be used for generating the agent messages.
         """
-        token_limit = TokenCounter.token_limit(self.llm_model)
+        token_limit = TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm_model)
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]
-
         if history_enabled:
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm_model)
             full_message_history = [{'role': agent_feed.role, 'content': agent_feed.feed, 'chat_id': agent_feed.id}
-                                    for agent_feed in agent_feeds]
+                                                for agent_feed in agent_feeds]
             past_messages, current_messages = self._split_history(full_message_history,
-                                                  ((token_limit - base_token_limit - max_output_token_limit) // 4) * 3)
+                                                              ((token_limit - base_token_limit - max_output_token_limit) // 4) * 3)
             if past_messages:
                 ltm_summary = self._build_ltm_summary(past_messages=past_messages,
                                                                    output_token_limit=(token_limit - base_token_limit - max_output_token_limit) // 4)
@@ -95,7 +96,7 @@ class AgentLlmMessageBuilder:
 
         ltm_summary_base_token_limit = 10
         if ((TokenCounter.count_text_tokens(ltm_prompt) + ltm_summary_base_token_limit + output_token_limit)
-            - TokenCounter.token_limit()) > 0:
+            - TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm_model)) > 0:
             last_agent_feed_ltm_summary_id = AgentExecutionConfiguration.fetch_value(self.session,
                                                        self.agent_execution_id, "last_agent_feed_ltm_summary_id")
             last_agent_feed_ltm_summary_id = int(last_agent_feed_ltm_summary_id.value)

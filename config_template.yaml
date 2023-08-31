@@ -4,6 +4,8 @@ PINECONE_ENVIRONMENT: YOUR_PINECONE_ENVIRONMENT
 
 OPENAI_API_KEY: YOUR_OPEN_API_KEY
 PALM_API_KEY: YOUR_PALM_API_KEY
+REPLICATE_API_TOKEN: YOUR_REPLICATE_API_TOKEN
+HUGGING_API_TOKEN: YOUR_HUGGING_FACE_API_TOKEN
 
 # For locally hosted LLMs comment out the next line and uncomment the one after
 # to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
