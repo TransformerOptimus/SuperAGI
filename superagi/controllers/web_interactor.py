@@ -67,6 +67,12 @@ async def web_interactor_next_action(request: Request):
         #     response1.action_reference_element = 0
         return response1
     else:
+        print("*****else response",response)
+        response = json.loads(response)
+        response = WebActionExecutorResponse(action=response["action"], status=response["status"],
+                                             action_reference_element=response["action_reference_element"],
+                                             action_reference_param=response["action_reference_param"],
+                                             thoughts=response["thoughts"])
         print("THIS IS THE ENDPOINT RESPONSE", response, type(response))
         if response.status == "COMPLETED":
             execution.status = "COMPLETED"

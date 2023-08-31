@@ -60,7 +60,7 @@ class AgentWorkflowSeed:
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
                                                                     WebInteractorTool().name,
-                                                                    "Send a linkedin connect request")
+                                                                    "Invite candidate by sending connection request")
         print("STEP6", step6)
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
