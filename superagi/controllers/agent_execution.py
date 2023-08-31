@@ -130,7 +130,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                    'agent_execution_name':db_agent_execution.name},
                                                    agent_execution.agent_id, 
                                                    organisation.id if organisation else 0)
-    if agent_execution_knowledge:
+    if agent_execution_knowledge.value != 'None':
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
             EventHandler(session=db.session).create_event('knowledge_picked', 
@@ -158,6 +158,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     Raises:
         HTTPException (Status Code=404): If the agent is not found.
     """
+
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code = 404, detail = "Agent not found")
@@ -205,7 +206,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
                                                     agent_execution.agent_id, 
                                                     organisation.id if organisation else 0)
     agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_execution.agent_id)
-    if agent_execution_knowledge:
+    if agent_execution_knowledge.value != 'None':
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
             EventHandler(session=db.session).create_event('knowledge_picked', 
