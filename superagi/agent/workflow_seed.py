@@ -60,7 +60,7 @@ class AgentWorkflowSeed:
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
                                                                     WebInteractorTool().name,
-                                                                    "CLICK on the connect button")
+                                                                    "Send a linkedin connect request")
         print("STEP6", step6)
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
@@ -68,6 +68,29 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
         AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "COMPLETE")
+        session.commit()
+
+    @classmethod
+    def build_twitter_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Twitter Web Workflow",
+                                                              "Twitter Web Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO 'https://twitter.com/home'",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "Tweet about autonomous AI agents by typing texts in the tweet box")
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "Click the post button ")
+        # print("STEP6", step6)
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1, "COMPLETE")
         session.commit()
 
     @classmethod

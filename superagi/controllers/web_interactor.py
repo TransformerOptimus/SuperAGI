@@ -28,6 +28,7 @@ async def web_interactor_next_action(request: Request):
     # last_action_status = action_obj.last_action_status
     body = await request.form()
     # iterate over the body to get the form data
+    print("bodyyyyyyyy",body)
     items = body.getlist(' name')
     dom_content = ""
     agent_execution_id = ""
@@ -83,8 +84,8 @@ async def web_interactor_next_action(request: Request):
         execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)
         if(execution.status=="COMPLETED"):
             response1.status="AGENT_COMPLETED"
-        if response["action_reference_element"] is None:
-            response1.action_reference_element = 0
+        # if response["action_reference_element"] is None:
+        #     response1.action_reference_element = 0
         return response1
     else:
         print("THIS IS THE ENDPOINT RESPONSE", response, type(response))
