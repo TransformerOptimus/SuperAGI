@@ -32,7 +32,7 @@ db_host = get_config('DB_HOST', 'super__postgres')
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
-db_url = get_config('DB_URL', None)
+database_url = get_config('DB_URL', None)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -47,8 +47,8 @@ def run_migrations_offline() -> None:
 
     """
 
-    database_url = db_url
-    if database_url is None:
+    db_url = database_url
+    if db_url is None:
         if db_username is None:
             db_url = f'postgresql://{db_host}/{db_name}'
         else:
