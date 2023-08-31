@@ -20,7 +20,7 @@ spec:
   services:
     - dockerfile_path: DockerfileRedis
       git:
-        branch: digitalocean-deployment
+        branch: main
         repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       internal_ports: 
       - 6379
@@ -37,7 +37,7 @@ spec:
           scope: RUN_TIME
           value: ${super-agi-main.DATABASE_URL}
       git:
-        branch: digitalocean-deployment
+        branch: main
         repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       http_port: 8001
       instance_count: 1
@@ -64,7 +64,7 @@ spec:
           scope: RUN_TIME
           value: ${super-agi-main.DATABASE_URL}
       git:
-        branch: digitalocean-deployment
+        branch: main
         repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
       instance_count: 1
       instance_size_slug: basic-xs
