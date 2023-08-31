@@ -88,6 +88,12 @@ class ReadFileTool(BaseTool):
                 content.append(soup.get_text())
 
             content = "\n".join(content)
+        elif final_path.lower().endswith('.py'):
+            with open(final_path, 'r') as file:
+                content = file.read()
+            file.close()
+            return content
+
         else:
             elements = partition(final_path)
             content = "\n\n".join([str(el) for el in elements])

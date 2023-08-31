@@ -1,0 +1,40 @@
+{
+    "command": "agbenchmark start --test TestReturnCode_Simple",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/de933b7c3c67ecb4f768bc693383fa0eaa4888f2",
+    "completion_time": "2023-08-31T06:18:15+00:00",
+    "benchmark_start_time": "2023-08-31T06:15:02+00:00",
+    "metrics": {
+        "run_time": "192.58 seconds",
+        "highest_difficulty": "No successful tests"
+    },
+    "tests": {
+        "TestReturnCode_Simple": {
+            "data_path": "agbenchmark/challenges/code/c1_writing_suite_1/1_return/data.json",
+            "is_regression": false,
+            "category": [
+                "code",
+                "iterate"
+            ],
+            "task": "Return the multiplied number in the function multiply_int in code.py. You can make sure you have correctly done this by running test.py",
+            "answer": "Just a simple multiple by 2 function. Num is 4 so answer is 8",
+            "description": "Simple test if a simple code instruction can be executed",
+            "metrics": {
+                "difficulty": "basic",
+                "success": false,
+                "attempted": true,
+                "fail_reason": "assert 1 in [0.0]",
+                "success_%": 0.0,
+                "cost": null,
+                "run_time": "192.034 seconds"
+            },
+            "reached_cutoff": false
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}

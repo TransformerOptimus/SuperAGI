@@ -1,0 +1,38 @@
+{
+    "command": "agbenchmark start --test TestRememberMultipleIdsWithNoise",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/de933b7c3c67ecb4f768bc693383fa0eaa4888f2",
+    "completion_time": "2023-08-31T12:44:08+00:00",
+    "benchmark_start_time": "2023-08-31T12:42:06+00:00",
+    "metrics": {
+        "run_time": "120.86 seconds",
+        "highest_difficulty": "intermediate: 4"
+    },
+    "tests": {
+        "TestRememberMultipleIdsWithNoise": {
+            "data_path": "agbenchmark/challenges/memory/m3_noise/data.json",
+            "is_regression": false,
+            "category": [
+                "memory"
+            ],
+            "task": "Follow the instructions in the instructions_1.txt file",
+            "answer": "3145\n3791\n9317\n9471",
+            "description": "Tests ability for the agent to remember information between each action. Multiple ids are presented in different files and the last file instructs the agent to write these ids into another file. Some noise is also added to the files to test the agent's ability to filter out noise.",
+            "metrics": {
+                "difficulty": "intermediate",
+                "success": true,
+                "attempted": true,
+                "success_%": 50.0,
+                "cost": null,
+                "run_time": "120.019 seconds"
+            },
+            "reached_cutoff": true
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}

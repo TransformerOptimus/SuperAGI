@@ -159,7 +159,7 @@ def run_specific_agent(task: str) -> None:
         'agent_workflow': 'Goal Based Workflow',
         'instruction': [
             'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .',
-            'whenever you modify a code, modify the test file as well.'
+            'do not modify the test.py file unless told to do so.'
             ],
         'constraints': [
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -234,7 +234,7 @@ def run_specific_agent(task: str) -> None:
         if agent_stream.json()['status'] == 'COMPLETED':
             break
 
-        if time.time() - start_time > 150:
+        if time.time() - start_time > 300:
             response = requests.request(
                 "PUT", f"{baseUrl}/v1/agent/{agent_id}/pause", headers=headers,
                 data=json.dumps(pause_payload)

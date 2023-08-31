@@ -5,5 +5,11 @@
     "TestDebugSimpleTypoWithoutGuidance": true,
     "TestReturnCode_Modify": true,
     "TestFunctionCodeGeneration": true,
-    "TestAdaptSimpleTypoWithGuidance": true
+    "TestAdaptSimpleTypoWithGuidance": true,
+    "TestPasswordGenerator_Easy": true,
+    "TestReturnCode_Simple": true,
+    "TestReturnCode_Tests": true,
+    "TestReturnCode_Write": true,
+    "TestRememberMultipleIdsWithNoise": true,
+    "TestReadFile": true
 }

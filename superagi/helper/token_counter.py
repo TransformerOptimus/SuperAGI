@@ -45,6 +45,8 @@ class TokenCounter:
         Returns:
             int: The number of tokens in the messages.
         """
+        import time
+        start_time1 = time.perf_counter()
         try:
             default_tokens_per_message = 4
             model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3,
@@ -66,15 +68,23 @@ class TokenCounter:
                 " See https://github.com/openai/openai-python/blob/main/chatml.md for"
                 " information on how messages are converted to tokens."
             )
+        print(f"Execution time in count_message_tokens to perform try except and if else: {time.perf_counter() - start_time1} seconds")
 
+        start_time2 = time.perf_counter()
         num_tokens = 0
         for message in messages:
             if isinstance(message, str):
                 message = {'content': message}
             num_tokens += tokens_per_message
+            n1 = num_tokens
             num_tokens += len(encoding.encode(message['content']))
+            n2 = num_tokens
+            print(f"Execution time in count_message_tokens no. of tokens: {n2 - n1}")
+
 
         num_tokens += 3
+        print(f"Execution time in count_message_tokens to get num_tokens: {time.perf_counter() - start_time2} seconds")
+
         return num_tokens
 
     @staticmethod
