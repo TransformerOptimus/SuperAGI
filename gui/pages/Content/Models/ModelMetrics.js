@@ -69,7 +69,7 @@ export default function ModelMetrics(modelDetails) {
                                     <tbody>
                                     {modelRunData.map((data, index) => (
                                         <tr key={index}>
-                                            <td className="table_data w_20">{data.created_at}</td>
+                                            <td className="table_data w_20">{data.created_at.slice(0, 19).replace('T', ' ')}</td>
                                             <td className="table_data w_20">{data.agent_name}</td>
                                             <td className="table_data w_20">{data.agent_execution_name}</td>
                                             <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
