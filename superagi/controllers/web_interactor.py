@@ -26,36 +26,15 @@ async def web_interactor_next_action(request: Request):
     # agent_execution_id = action_obj.agent_execution_id
     # dom_content = action_obj.dom_content
     # last_action_status = action_obj.last_action_status
-    body = await request.form()
-    # iterate over the body to get the form data
+    body = await request.json()
+    # # iterate over the body to get the form data
     print("bodyyyyyyyy",body)
-    items = body.getlist(' name')
-    dom_content = ""
-    agent_execution_id = ""
-    last_action_status = ""
-    last_action = ""
-    page_url = ""
-    print("ITEMSSSSS", items)
-    for item in items:
-        if item[1:12] == "dom_content":
-            dom_content = item[17:]
-        elif item[1:19] == "agent_execution_id":
-            agent_execution_id = item[24:]
-        elif item[1:19] == "last_action_status":
-            last_action_status = item[24:]
-        elif item[1:12] == "last_action":
-            last_action = item[17:]
-        elif item[1:9] == "page_url":
-            page_url = item[14:]
-        elif item[1:19] == "last_action_status":
-            last_action_status = item[24:]
-    dom_content = dom_content.split("------WebKitFormBoundary")[0]
-    last_action = last_action.split("------WebKitFormBoundary")[0]
-    page_url = page_url.split("------WebKitFormBoundary")[0]
-    agent_execution_id = agent_execution_id.split('\n')[0]
-    last_action_status = last_action_status.split('\n')[0]
-    print("dom content", dom_content)
-
+    # items = body.getlist(' name')
+    dom_content = body["dom_content"]
+    agent_execution_id = body["agent_execution_id"]
+    last_action_status = body["last_action_status"]
+    last_action = body["last_action"]
+    page_url = body["page_url"]
     execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)
 
     if execution is None or execution.status == "COMPLETED":
