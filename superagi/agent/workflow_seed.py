@@ -60,14 +60,20 @@ class AgentWorkflowSeed:
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
                                                                     WebInteractorTool().name,
-                                                                    "Invite candidate by sending connection request")
+                                                                    "Invite candidate to connect by clicking on the connect button")
         print("STEP6", step6)
+        step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step7",
+                                                                    WebInteractorTool().name,
+                                                                    "Click the button with the label Send now to send the connection request")
+        print("STEP7", step7)
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step7.id, -1, "COMPLETE")
         session.commit()
 
     @classmethod
