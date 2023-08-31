@@ -2,11 +2,12 @@ from unittest.mock import patch, call
 
 import pytest
 from fastapi.testclient import TestClient
-from superagi.types.key_type import ToolConfigKeyType
+
 from main import app
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
+from superagi.types.key_type import ToolConfigKeyType
 from superagi.models.toolkit import Toolkit
 
 client = TestClient(app)
@@ -87,7 +88,6 @@ def mock_toolkit_details():
             {
                 "key": "config_key_1",
                 "value": "config_value_1",
-                "value": "config_value_1",
                 'key_type': ToolConfigKeyType.STRING,
                 'is_secret': True,
                 'is_required': False
@@ -98,6 +98,7 @@ def mock_toolkit_details():
                 'key_type': ToolConfigKeyType.FILE,
                 'is_secret': True,
                 'is_required': False
+
             }
         ]
     }

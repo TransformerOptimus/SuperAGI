@@ -3,6 +3,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.models import Models
+from superagi.llms.openai import OpenAi
 from superagi.helper.encyption_helper import encrypt_data, decrypt_data
 from fastapi import HTTPException
 import logging
@@ -76,14 +77,32 @@ class ModelsConfig(DBBaseModel):
                                                                  ModelsConfig.provider == model_provider)).first()
         if existing_entry:
             existing_entry.api_key = encrypt_data(model_api_key)
+            session.commit()
+            session.flush()
+            if model_provider == 'OpenAI':
+                cls.storeGptModels(session, organisation_id, existing_entry.id, model_api_key)
+            result = {'message': 'The API key was successfully updated'}
         else:
             new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider,
                                      api_key=encrypt_data(model_api_key))
             session.add(new_entry)
+            session.commit()
+            session.flush()
+            if model_provider == 'OpenAI':
+                cls.storeGptModels(session, organisation_id, new_entry.id, model_api_key)
+            result = {'message': 'The API key was successfully stored', 'model_provider_id': new_entry.id}
 
-        session.commit()
+        return result
 
-        return {'message': 'The API key was successfully stored'}
+    @classmethod
+    def storeGptModels(cls, session, organisation_id, model_provider_id, model_api_key):
+        default_models = {"gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184}
+        models = OpenAi(api_key=model_api_key).get_models()
+        installed_models = [model[0] for model in session.query(Models.model_name).filter(Models.org_id == organisation_id).all()]
+        for model in models:
+            if model not in installed_models and model in default_models:
+                result = Models.store_model_details(session, organisation_id, model, model, '',
+                                                 model_provider_id, default_models[model], 'Custom', '')
 
     @classmethod
     def fetch_api_keys(cls, session, organisation_id):

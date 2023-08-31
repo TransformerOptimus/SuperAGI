@@ -112,3 +112,15 @@ def test_fetch_model_by_id(mock_session):
     # Call the method
     model = ModelsConfig.fetch_model_by_id(mock_session, organisation_id, model_provider_id)
     assert model == {"provider": "some_provider"}
+
+def test_fetch_model_by_id_marketplace(mock_session):
+    # Arrange
+    model_provider_id = 1
+    # Mock model
+    mock_model = MagicMock()
+    mock_model.provider = 'some_provider'
+    mock_session.query.return_value.filter.return_value.first.return_value = mock_model
+
+    # Call the method
+    model = ModelsConfig.fetch_model_by_id_marketplace(mock_session, model_provider_id)
+    assert model == {"provider": "some_provider"}
