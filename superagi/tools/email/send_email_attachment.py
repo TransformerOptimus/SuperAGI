@@ -116,7 +116,7 @@ class SendEmailAttachmentTool(BaseTool):
             send_to_draft = True
         else:
             send_to_draft = False
-        if message["To"] == "example@example.com" or send_to_draft:
+        if send_to_draft:
             draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER')
             imap_server = self.get_tool_config('EMAIL_IMAP_SERVER')
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password, imap_server)
@@ -127,6 +127,10 @@ class SendEmailAttachmentTool(BaseTool):
                 str(message).encode("UTF-8")
             )
             return f"Email went to {draft_folder}"
+        
+        if message["To"] == "example@example.com":
+            return "Error: Email Not Sent. Enter an Email Address."
+        
         else:
             smtp_host = self.get_tool_config('EMAIL_SMTP_HOST')
             smtp_port = self.get_tool_config('EMAIL_SMTP_PORT')

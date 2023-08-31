@@ -25,7 +25,8 @@ const toolkitData = {
   'Instagram Toolkit': '/images/instagram.png',
   'Knowledge Search Toolkit': '/images/knowledeg_logo.png',
   'Notion Toolkit': '/images/notion_logo.png',
-  'ApolloToolkit': '/images/apollo_logo.png'
+  'ApolloToolkit': '/images/apollo_logo.png',
+  'Google Analytics Toolkit': '/images/google_analytics_logo.png'
 };
 
 export const getUserTimezone = () => {
@@ -460,4 +461,24 @@ export const preventDefault = (e) => {
 
 export const excludedToolkits = () => {
   return ["Thinking Toolkit", "Human Input Toolkit", "Resource Toolkit"];
+}
+
+export const getFormattedDate = (data) => {
+  let date = new Date(data);
+  const year = date.getFullYear();
+  const day = date.getDate();
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = months[date.getMonth()];
+  return `${day} ${month} ${year}`;
+}
+
+export const modelIcon = (model) => {
+  const icons = {
+    'Hugging Face': '/images/huggingface_logo.svg',
+    'Google Palm': '/images/google_palm_logo.svg',
+    'Replicate': '/images/replicate_logo.svg',
+    'OpenAI': '/images/openai_logo.svg',
+  }
+
+  return icons[model];
 }

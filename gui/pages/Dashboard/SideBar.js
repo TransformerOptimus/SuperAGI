@@ -11,6 +11,7 @@ export default function SideBar({onSelectEvent, env}) {
         { name: 'toolkits', icon: '/images/tools_light.svg' },
         { name: 'apm', icon: '/images/apm.svg' },
         { name: 'knowledge', icon: '/images/knowledge.svg' },
+        { name: 'models', icon: '/images/models.svg'},
     ];
 
     const handleClick = (value) => {

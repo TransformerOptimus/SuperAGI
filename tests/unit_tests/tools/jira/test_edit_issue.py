@@ -26,6 +26,6 @@ def test_edit_issue_tool(mock_build_jira_instance):
     result = tool._execute(key, fields)
 
     # Assert
-    mock_jira_instance.search_issues.assert_called_once_with("key=")
+    mock_jira_instance.search_issues.assert_called_once_with(f"key={key}")
     mock_issue.update.assert_called_once_with(fields=fields)
     assert result == f"Issue '{mock_issue.key}' created successfully!"

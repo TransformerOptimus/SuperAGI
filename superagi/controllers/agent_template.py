@@ -192,8 +192,9 @@ def edit_agent_template(agent_template_id: int,
     db.session.flush()
 
 
-@router.post("/save_agent_as_template/agent_execution_id/{agent_execution_id}")
+@router.post("/save_agent_as_template/agent_id/{agent_id}/agent_execution_id/{agent_execution_id}")
 def save_agent_as_template(agent_execution_id: str,
+                           agent_id: str,
                            organisation=Depends(get_user_organisation)):
     """
     Save an agent as a template.
@@ -209,43 +210,49 @@ def save_agent_as_template(agent_execution_id: str,
     Raises:
         HTTPException (status_code=404): If the agent or agent execution configurations are not found.
     """
+
     if agent_execution_id == 'undefined':
         raise HTTPException(status_code = 404, detail = "Agent Execution Id undefined")
-
-    agent_executions = AgentExecution.get_agent_execution_from_id(db.session, agent_execution_id)
-    if agent_executions is None:
-        raise HTTPException(status_code = 404, detail = "Agent Execution not found")
-    agent_id = agent_executions.agent_id
+    if agent_id == 'undefined':
+        raise HTTPException(status_code = 404, detail = "Agent Id undefined")
 
     agent = db.session.query(Agent).filter(Agent.id == agent_id).first()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    agent_execution_configurations = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
-    if not agent_execution_configurations:
-        raise HTTPException(status_code=404, detail="Agent configurations not found")
+    configs = None
 
+    if agent_execution_id == "-1":
+        configs = db.session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+        if not configs:
+            raise HTTPException(status_code=404, detail="Agent configurations not found")    
+    else:
+        configs = db.session.query(AgentExecutionConfiguration).filter(AgentExecutionConfiguration.agent_execution_id == agent_execution_id).all()
+        if not configs:
+            raise HTTPException(status_code=404, detail="Agent execution configurations not found")
+
+    if configs is None:
+        raise HTTPException(status_code=404, detail="Configurations not found")
+    
     agent_template = AgentTemplate(name=agent.name, description=agent.description,
                                    agent_workflow_id=agent.agent_workflow_id,
                                    organisation_id=organisation.id)
     db.session.add(agent_template)
     db.session.commit()
-    main_keys = AgentTemplate.main_keys()
 
-    for agent_execution_configuration in agent_execution_configurations:
-        config_value = agent_execution_configuration.value
-        if agent_execution_configuration.key not in main_keys:
-            continue
-        if agent_execution_configuration.key == "tools":
-            config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_execution_configuration.value)))
-        agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_execution_configuration.key,
-                                                    value=config_value)
-        db.session.add(agent_template_config)
-
+    for config in configs:
+            config_value = config.value
+            if config.key not in AgentTemplate.main_keys():
+                continue
+            if config.key == "tools":
+                config_value = str(Tool.convert_tool_ids_to_names(db, eval(config.value)))
+            agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=config.key,
+                                                        value=config_value)
+            db.session.add(agent_template_config)       
+        
     db.session.commit()
     db.session.flush()
     return agent_template.to_dict()
-
 
 @router.get("/list")
 def list_agent_templates(template_source="local", search_str="", page=0, organisation=Depends(get_user_organisation)):
@@ -261,7 +268,6 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
         Returns:
             list: A list of agent templates.
     """
-
     output_json = []
     if template_source == "local":
         templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id).all()
@@ -274,8 +280,9 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
         local_templates_hash = {}
         for local_template in local_templates:
             local_templates_hash[local_template.marketplace_template_id] = True
+        print(local_templates_hash)
         templates = AgentTemplate.fetch_marketplace_list(search_str, page)
-
+        print(templates)
         for template in templates:
             template["is_installed"] = local_templates_hash.get(template["id"], False)
             template["organisation_id"] = organisation.id

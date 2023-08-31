@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {addTool} from "@/pages/api/DashboardService";
-import styles1 from '../Agents/Agents.module.css'
 import {removeTab, setLocalStorageValue} from "@/utils/utils";
 import {ToastContainer, toast} from "react-toastify";
 

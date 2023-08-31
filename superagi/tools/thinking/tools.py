@@ -33,6 +33,7 @@ class ThinkingTool(BaseTool):
     )
     args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
+    agent_execution_id:int=None
     permission_required: bool = False
     tool_response_manager: Optional[ToolResponseQueryManager] = None
 
@@ -56,6 +57,9 @@ class ThinkingTool(BaseTool):
             prompt = prompt.replace("{task_description}", task_description)
             last_tool_response = self.tool_response_manager.get_last_response()
             prompt = prompt.replace("{last_tool_response}", last_tool_response)
+            metadata = {"agent_execution_id":self.agent_execution_id}
+            relevant_tool_response = self.tool_response_manager.get_relevant_response(query=task_description,metadata=metadata)
+            prompt = prompt.replace("{relevant_tool_response}",relevant_tool_response)
             messages = [{"role": "system", "content": prompt}]
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             return result["content"]

@@ -11,7 +11,7 @@ from celery import Celery
 from superagi.config.config import get_config
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
 from superagi.models.configuration import Configuration
-
+from superagi.models.agent import Agent
 from superagi.models.db import connect_db
 from superagi.types.model_source_types import ModelSourceType
 
@@ -71,8 +71,10 @@ def summarize_resource(agent_id: int, resource_id: int):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
-    model_source = Configuration.fetch_value_by_agent_id(session, agent_id, "model_source") or "OpenAi"
-    if ModelSourceType.GooglePalm.value in model_source:
+    agent_config = Agent.fetch_configuration(session, agent_id)
+    organisation = Agent.find_org_by_agent_id(session, agent_id)
+    model_source = Configuration.fetch_configurations(session, organisation.id, "model_source", agent_config["model"]) or "OpenAi"
+    if ModelSourceType.GooglePalm.value in model_source or ModelSourceType.Replicate.value in model_source:
         return
 
     resource = session.query(Resource).filter(Resource.id == resource_id).first()

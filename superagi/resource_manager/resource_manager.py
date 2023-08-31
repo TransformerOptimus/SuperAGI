@@ -79,7 +79,7 @@ class ResourceManager:
         :param mode_api_key: The mode api key to use when creating embedding to the vector store.
         """
         from llama_index import VectorStoreIndex, StorageContext
-        if ModelSourceType.GooglePalm.value in model_source:
+        if ModelSourceType.GooglePalm.value in model_source or ModelSourceType.Replicate.value in model_source:
             logger.info("Resource embedding not supported for Google Palm..")
             return
         import openai
