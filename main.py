@@ -69,8 +69,13 @@ if db_username is None:
 else:
     db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
 
-engine = create_engine(db_url)
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(db_url,
+                       pool_size=20,  # Maximum number of database connections in the pool
+                       max_overflow=50,  # Maximum number of connections that can be created beyond the pool_size
+                       pool_timeout=30,  # Timeout value in seconds for acquiring a connection from the pool
+                       pool_recycle=1800,  # Recycle connections after this number of seconds (optional)
+                       pool_pre_ping=False,  # Enable connection health checks (optional)
+                       )
 
 # app.add_middleware(DBSessionMiddleware, db_url=f'postgresql://{db_username}:{db_password}@localhost/{db_name}')
 app.add_middleware(DBSessionMiddleware, db_url=db_url)
