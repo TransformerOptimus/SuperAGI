@@ -50,27 +50,27 @@ export default function ToolkitTemplate({template, env}) {
     if(installed === "Update"){
       updateMarketplaceToolTemplate(template.name)
           .then((response) => {
-            toast.success("Template Updated", {autoClose: 1800});
+            toast.success("Toolkit Updated", {autoClose: 1800});
             setInstalled('Installed');
           })
           .catch((error) => {
-            console.error('Error installing template:', error);
+            console.error('Error installing Toolkit:', error);
           });
       return;
     }
 
     if (template && template.is_installed) {
-      toast.error("Template is already installed", {autoClose: 1800});
+      toast.error("Toolkit is already installed", {autoClose: 1800});
       return;
     }
 
     installToolkitTemplate(template.name)
       .then((response) => {
-        toast.success("Template installed", {autoClose: 1800});
+        toast.success("Toolkit installed", {autoClose: 1800});
         setInstalled('Installed');
       })
       .catch((error) => {
-        console.error('Error installing template:', error);
+        console.error('Error installing Toolkit', error);
       });
   }
 

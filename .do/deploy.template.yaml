@@ -1,0 +1,73 @@
+spec:
+  alerts:
+    - rule: DEPLOYMENT_FAILED
+    - rule: DOMAIN_FAILED
+  databases:
+    - engine: PG
+      name: super-agi-main
+      num_nodes: 1
+      size: basic-xs
+      version: "12"
+  ingress:
+    rules:
+      - component:
+          name: superagi-backend
+        match:
+          path:
+            prefix: /api
+  name: superagi
+  services:
+    - dockerfile_path: DockerfileRedis
+      git:
+        branch: main
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+      internal_ports: 
+      - 6379
+      instance_count: 1
+      instance_size_slug: basic-xs
+      source_dir: /
+      name: superagi-redis
+    - dockerfile_path: Dockerfile
+      envs:
+        - key: REDIS_URL
+          scope: RUN_TIME
+          value: superagi-redis:6379
+        - key: DB_URL
+          scope: RUN_TIME
+          value: ${super-agi-main.DATABASE_URL}
+      git:
+        branch: main
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+      http_port: 8001
+      instance_count: 1
+      instance_size_slug: basic-xs
+      run_command: /app/entrypoint.sh
+      source_dir: /
+      name: superagi-backend
+    - dockerfile_path: ./gui/DockerfileProd
+      git:
+        branch: main
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+      http_port: 3000
+      instance_count: 1
+      instance_size_slug: basic-xs
+      source_dir: ./gui
+      name: superagi-gui
+  workers:
+    - dockerfile_path: Dockerfile
+      envs:
+        - key: REDIS_URL
+          scope: RUN_TIME
+          value: superagi-redis:6379
+        - key: DB_URL
+          scope: RUN_TIME
+          value: ${super-agi-main.DATABASE_URL}
+      git:
+        branch: main
+        repo_clone_url: https://github.com/TransformerOptimus/SuperAGI.git
+      instance_count: 1
+      instance_size_slug: basic-xs
+      run_command: celery -A superagi.worker worker --beat --loglevel=info
+      source_dir: /
+      name: superagi-celery
+    
