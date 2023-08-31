@@ -7,7 +7,7 @@ import {ToastContainer, toast} from 'react-toastify';
 
 export default function ModelForm({internalId, getModels, sendModelData}){
     const models = [{'provider':'OpenAI','link':'https://platform.openai.com/account/api-keys'},
-        {'provider':'Replicate','link':'https://huggingface.co/settings/tokens'},
+        {'provider':'Replicate','link':'https://replicate.com/account/api-tokens'},
         {'provider':'Hugging Face','link':'https://huggingface.co/settings/tokens'},
         {'provider':'Google Palm','link':'https://developers.generativeai.google/products/palm'}];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
