@@ -37,7 +37,7 @@ class CallLogHelper:
                 func.sum(CallLogs.tokens_consumed),
                 func.count(CallLogs.id),
                 func.count(distinct(CallLogs.agent_id))
-            ).filter(CallLogs.model == model).first()
+            ).filter(CallLogs.model == model, CallLogs.org_id == self.organisation_id).first()
 
             if result is None:
                 return None
@@ -51,7 +51,7 @@ class CallLogHelper:
             }
 
             # Fetch all runs for this model
-            runs = self.session.query(CallLogs).filter(CallLogs.model == model).all()
+            runs = self.session.query(CallLogs).filter(CallLogs.model == model, CallLogs.org_id == self.organisation_id).all()
             for run in runs:
                 # Get agent's name using agent_id as a foreign key
                 agent = self.session.query(Agent).filter(Agent.id == run.agent_id).first()
