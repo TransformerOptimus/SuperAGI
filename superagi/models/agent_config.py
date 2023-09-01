@@ -79,6 +79,7 @@ class AgentConfiguration(DBBaseModel):
             
         # Fetch agent configurations
         agent_configs = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+
         for agent_config in agent_configs:
             if agent_config.key in updated_details_dict:
                 agent_config.value = str(updated_details_dict[agent_config.key])
@@ -115,3 +116,12 @@ class AgentConfiguration(DBBaseModel):
 #         if selected_model_source == ModelSourceType.Replicate:
 #             return get_config("REPLICATE_API_TOKEN")
 #         return get_config("OPENAI_API_KEY")
+
+    @classmethod
+    def get_agent_config_by_key_and_agent_id(cls, session, key: str, agent_id: int):
+        agent_config = session.query(AgentConfiguration).filter(
+            AgentConfiguration.agent_id == agent_id,
+            AgentConfiguration.key == key
+        ).first()
+
+        return agent_config
