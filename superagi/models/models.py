@@ -6,8 +6,10 @@ from superagi.llms.openai import OpenAi
 from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
 
-# marketplace_url = "https://app.superagi.com/api"
-marketplace_url = "http://localhost:8001"
+marketplace_url = "https://app.superagi.com/api"
+# marketplace_url = "http://localhost:8001"
+
+
 class Models(DBBaseModel):
     """
     Represents a Model record in the database
