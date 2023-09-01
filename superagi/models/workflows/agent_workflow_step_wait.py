@@ -5,9 +5,9 @@ from sqlalchemy import Column, Integer, String, DateTime
 from superagi.models.base_model import DBBaseModel
 
 
-class WaitBlockStep(DBBaseModel):
+class AgentWorkflowStepWait(DBBaseModel):
     """
-    Step for a wait block
+    Step for a Agent Workflow to wait
 
     Attributes:
         id (int): The unique identifier of the wait block step.
@@ -17,11 +17,12 @@ class WaitBlockStep(DBBaseModel):
         wait_begin_time (DateTime): The start time of the wait block.
     """
 
-    __tablename__ = 'wait_block_steps'
+    __tablename__ = 'agent_workflow_step_waits'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
+    unique_id = Column(String)
     delay = Column(Integer)
     wait_begin_time = Column(DateTime)
 
@@ -60,3 +61,7 @@ class WaitBlockStep(DBBaseModel):
         """
 
         return json.dumps(self.to_dict())
+
+    @classmethod
+    def find_by_id(cls, session, step_id: int):
+        return session.query(AgentWorkflowStepWait).filter(AgentWorkflowStepWait.id == step_id).first()

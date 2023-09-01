@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import superagi.worker
 from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandler
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
+from superagi.agent.agent_wait_step_handler import AgentWaitStepHandler
 from superagi.apm.event_handler import EventHandler
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -91,6 +92,11 @@ class AgentExecutor:
                                                                        agent_execution_id=agent_execution_id, memory=memory)
                     print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
                     iteration_step_handler.execute_step()
+                elif agent_workflow_step.action_type == "WAIT_STEP":
+                    (AgentWaitStepHandler(session=session, agent_id=agent.id,
+                                          agent_execution_id=agent_execution_id)
+                     .execute_step())
+
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
