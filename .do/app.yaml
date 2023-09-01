@@ -18,7 +18,7 @@ name: superagi
 services:
   - dockerfile_path: DockerfileRedis
     github: 
-      branch: digitalocean-deployment
+      branch: dev
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     internal_ports: 
@@ -36,7 +36,7 @@ services:
         scope: RUN_TIME
         value: ${super-agi-main.DATABASE_URL}
     github:
-      branch: digitalocean-deployment
+      branch: dev
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     http_port: 8001
@@ -47,7 +47,7 @@ services:
     name: superagi-backend
   - dockerfile_path: ./gui/DockerfileProd
     github:
-      branch: main
+      branch: dev
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     http_port: 3000
@@ -65,7 +65,7 @@ workers:
         scope: RUN_TIME
         value: ${super-agi-main.DATABASE_URL}
     github:
-      branch: digitalocean-deployment
+      branch: dev
       deploy_on_push: true
       repo: TransformerOptimus/SuperAGI
     instance_count: 1
