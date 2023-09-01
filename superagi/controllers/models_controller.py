@@ -4,6 +4,7 @@ from superagi.helper.models_helper import ModelsHelper
 from superagi.apm.call_log_helper import CallLogHelper
 from superagi.models.models import Models
 from superagi.models.models_config import ModelsConfig
+from superagi.config.config import get_config
 from fastapi_sqlalchemy import db
 import logging
 from pydantic import BaseModel
@@ -121,7 +122,7 @@ def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation
 
 @router.get("/marketplace/list/{page}", status_code=200)
 def get_marketplace_knowledge_list(page: int = 0):
-    organisation_id = 2
+    organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
     page_size = 16
 
     query = db.session.query(Models).filter(Models.org_id == organisation_id)
