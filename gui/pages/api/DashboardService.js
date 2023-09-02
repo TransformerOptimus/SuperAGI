@@ -324,6 +324,18 @@ export const deleteApiKey = (apiId) => {
   return api.delete(`/api-keys/${apiId}`);
 };
 
+export const saveWebhook = (webhook) => {
+  return api.post(`/webhook/add`, webhook);
+};
+
+export const getWebhook = () => {
+  return api.get(`/webhook/get`);
+};
+
+export const editWebhook = (webhook_id, webook_data) => {
+  return api.post(`/webhook/edit/${webhook_id}`, webook_data);
+};
+
 export const publishToMarketplace = (executionId) => {
   return api.post(`/agent_templates/publish_template/agent_execution_id/${executionId}`);
 };

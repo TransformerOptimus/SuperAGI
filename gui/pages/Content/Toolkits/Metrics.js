@@ -105,7 +105,7 @@ export default function Metrics({toolName, knowledgeName}) {
                   <table className="w_100 margin_0 padding_0">
                     <thead>
                     <tr className="border_top_none text_align_left border_bottom_none">
-                      <th className="table_header w_15">Longest Timestamp</th>
+                      <th className="table_header w_15">Log Timestamp</th>
                       <th className="table_header w_15">Agent Name</th>
                       <th className="table_header w_40">Run Name</th>
                       <th className="table_header w_15">Model</th>

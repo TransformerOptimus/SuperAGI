@@ -529,3 +529,24 @@
 .settings_tab_img{
     margin-top: -1px;
 }
+
+.checkboxGroup {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    height: 15vh;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    width: 15vw;
+    cursor:pointer
+}
+
+.checkboxText {
+    font-weight: 400;
+    font-size: 12px;
+    color: #FFF;
+    margin-left:5px;
+}
