@@ -87,12 +87,12 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+    db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_agent_step_id=start_step.id,
                                         iteration_workflow_step_id=iteration_step_id)
-    
+
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction
@@ -119,7 +119,14 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
-    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
+
+    #update status from CREATED to RUNNING
+    agent_execution_id = db_agent_execution.id
+    updated_db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+    updated_db_agent_execution.status = "RUNNING"
+    db.session.commit()
+
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=updated_db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
@@ -130,7 +137,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                    'agent_execution_name':db_agent_execution.name},
                                                    agent_execution.agent_id, 
                                                    organisation.id if organisation else 0)
-    if agent_execution_knowledge:
+    if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
             EventHandler(session=db.session).create_event('knowledge_picked', 
@@ -138,7 +145,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                         agent_execution.agent_id, 
                                                         organisation.id if organisation else 0)
     
-    if db_agent_execution.status == "RUNNING":
+    if updated_db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
@@ -170,7 +177,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+    db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_agent_step_id=start_step.id,
@@ -194,8 +201,14 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
+
+    #update status from CREATED to RUNNING
+    agent_execution_id = db_agent_execution.id
+    updated_db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
+    updated_db_agent_execution.status = "RUNNING"
+    db.session.commit()
     
-    AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = db_agent_execution,
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = updated_db_agent_execution,
                                                                      agent_execution_configs = agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
@@ -205,7 +218,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
                                                     agent_execution.agent_id, 
                                                     organisation.id if organisation else 0)
     agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_execution.agent_id)
-    if agent_execution_knowledge:
+    if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
             EventHandler(session=db.session).create_event('knowledge_picked', 
@@ -213,7 +226,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
                                                         agent_execution.agent_id, 
                                                         organisation.id if organisation else 0)
 
-    if db_agent_execution.status == "RUNNING":
+    if updated_db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
