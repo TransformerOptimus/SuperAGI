@@ -117,17 +117,30 @@ class KnowledgeHandler:
             event_agent_created, event_knowledge_picked.c.agent_id == event_agent_created.c.agent_id
         ).all()
 
-        user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= self.session,key= 'user_timezone', agent_id= Event.agent_id)
-        if user_timezone.value is None:
-            user_timezone.value = 'GMT'
 
-        return [{
-            'agent_id': row.agent_id,
-            'created_at': row.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),
-            'event_name': row.event_name,
-            'tokens_consumed': row.tokens_consumed,
-            'calls': row.calls,
-            'agent_execution_name': row.agent_execution_name,
-            'agent_name': row.agent_name,
-            'model': row.model
-        } for row in result]
+        results = []
+        
+        for row in result:
+            try:
+                user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session=self.session, key='user_timezone', agent_id=row.agent_id)
+                if user_timezone and user_timezone.value != 'None':
+                    tz = pytz.timezone(user_timezone.value)
+                else:
+                    tz = pytz.timezone('GMT')       
+            except AttributeError:
+                tz = pytz.timezone('GMT')
+            
+            actual_time = row.created_at.astimezone(tz).strftime("%d %B %Y %H:%M")
+            row_dict = {
+                'agent_id': row.agent_id,
+                'created_at': actual_time,
+                'event_name': row.event_name,
+                'tokens_consumed': row.tokens_consumed,
+                'calls': row.calls,
+                'agent_execution_name': row.agent_execution_name,
+                'agent_name': row.agent_name,
+                'model': row.model,
+            }
+            results.append(row_dict)
+            
+        return results
