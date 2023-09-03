@@ -1,0 +1,39 @@
+{
+    "command": "agbenchmark start --test TestRememberMultipleIds",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/54a943fd2705e8681d2fd9b1b38a4c46888d14e8",
+    "completion_time": "2023-09-03T06:51:04+00:00",
+    "benchmark_start_time": "2023-09-03T06:49:30+00:00",
+    "metrics": {
+        "run_time": "92.35 seconds",
+        "highest_difficulty": "No successful tests"
+    },
+    "tests": {
+        "TestRememberMultipleIds": {
+            "data_path": "agbenchmark/challenges/deprecated/memory/m2_multiple/data.json",
+            "is_regression": false,
+            "category": [
+                "memory"
+            ],
+            "task": "Follow the instructions in the instructions_1.txt file",
+            "answer": "3145\n3791\n9317\n9471",
+            "description": "Tests ability for the agent to remember information between each action. Multiple ids are presented in different files and the last file instructs the agent to write these ids into another file.",
+            "metrics": {
+                "difficulty": "novice",
+                "success": false,
+                "attempted": true,
+                "fail_reason": "assert 1 in []",
+                "success_%": 10.0,
+                "cost": null,
+                "run_time": "91.61 seconds"
+            },
+            "reached_cutoff": false
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}
