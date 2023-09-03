@@ -138,9 +138,13 @@ def run_specific_agent(task: str) -> None:
             "name": "Web Scrapper Toolkit",
             "tools": ["WebScraperTool"]
         },
+        # {
+        #     "name": "DuckDuckGo Search Toolkit",
+        #     "tools": ["DuckDuckGoSearch"]
+        # },
         {
-            "name": "DuckDuckGo Search Toolkit",
-            "tools": ["DuckDuckGoSearch"]
+            "name": "Google Search Toolkit",
+            "tools": ["GoogleSearch"]
         },
         {
             "name": "CodingToolkit",
@@ -151,15 +155,15 @@ def run_specific_agent(task: str) -> None:
     headers = {"Content-Type": "application/json", "X-API-Key": superagi_api_key}
 
     payload = {
-        'name': 'agent',
+        'name': f"{task}",
         'description': 'AI assistant to solve complex problems',
         'goal': [
             f"{task}"
         ],
         'agent_workflow': 'Goal Based Workflow',
         'instruction': [
-            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .',
-            'do not modify the test.py file unless told to do so.'
+            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .'
+            'Avoid redundancy, such as unnecessary immediate verification of actions.'
             ],
         'constraints': [
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -182,6 +186,9 @@ def run_specific_agent(task: str) -> None:
 
     response = requests.post(url=f"{baseUrl}/v1/agent/{agent_id}/run", headers=headers, json={})
     agent_execution_id = response.json()['run_id']
+
+    # toolkit_name = response.json()['Google Search Toolkit']
+    googleresponse = requests.post(url=f"{baseUrl}/tool_configs/add/Google Search Toolkit", headers=headers, json=[{"key":"SEARCH_ENGINE_ID","value": config_data.get("SEARCH_ENGINE_ID")},{"key":"GOOGLE_API_KEY","value":config_data.get("GOOGLE_API_KEY")}])
 
     stop_time = time.perf_counter()
     print('time to agent start', stop_time - start1_time)

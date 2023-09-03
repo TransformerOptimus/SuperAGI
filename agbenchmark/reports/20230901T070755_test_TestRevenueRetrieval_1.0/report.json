@@ -1,0 +1,40 @@
+{
+    "command": "agbenchmark start --test TestRevenueRetrieval_1.0",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/0bee49fedb583fa0e34f4ce4a0e3ccf0567fceb0",
+    "completion_time": "2023-09-01T07:08:56+00:00",
+    "benchmark_start_time": "2023-09-01T07:07:55+00:00",
+    "metrics": {
+        "run_time": "60.74 seconds",
+        "highest_difficulty": "No successful tests"
+    },
+    "tests": {
+        "TestRevenueRetrieval_1.0": {
+            "data_path": "agbenchmark/challenges/retrieval/r2_search_suite_1/1_tesla_revenue/data.json",
+            "is_regression": false,
+            "category": [
+                "retrieval",
+                "retrieval"
+            ],
+            "task": "Write tesla's exact revenue in 2022 into a .txt file. Use the US notation, with a precision rounded to the nearest million dollars (for instance, $31,578 billion).",
+            "answer": "It was $81.462 billion in 2022.",
+            "description": "A no guardrails search for info",
+            "metrics": {
+                "difficulty": "novice",
+                "success": false,
+                "attempted": true,
+                "fail_reason": "assert 1 in [0.0]",
+                "success_%": 25.0,
+                "cost": null,
+                "run_time": "60.11 seconds"
+            },
+            "reached_cutoff": true
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}

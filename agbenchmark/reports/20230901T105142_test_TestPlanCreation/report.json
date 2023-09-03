@@ -1,0 +1,38 @@
+{
+    "command": "agbenchmark start --test TestPlanCreation",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/0bee49fedb583fa0e34f4ce4a0e3ccf0567fceb0",
+    "completion_time": "2023-09-01T10:53:43+00:00",
+    "benchmark_start_time": "2023-09-01T10:51:42+00:00",
+    "metrics": {
+        "run_time": "120.62 seconds",
+        "highest_difficulty": "basic: 2"
+    },
+    "tests": {
+        "TestPlanCreation": {
+            "data_path": "agbenchmark/challenges/deprecated/content_gen/2_plan/data.json",
+            "is_regression": false,
+            "category": [
+                "content_gen"
+            ],
+            "task": "As an agent powered by a large language model, create a plan for yourself based on the task of booking a flight to Toronto. Output this plan into a .txt file.",
+            "answer": "1. Search for flights to Toronto.\n2. Select the cheapest flight.\n3. Book the flight.\n4. Pay for the flight.\n5. Confirm the flight.",
+            "description": "Tests ability to generate content based on the content of 2 files.",
+            "metrics": {
+                "difficulty": "basic",
+                "success": true,
+                "attempted": true,
+                "success_%": 66.67,
+                "cost": null,
+                "run_time": "120.014 seconds"
+            },
+            "reached_cutoff": true
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/output/"
+        }
+    }
+}
