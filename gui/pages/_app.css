@@ -1084,6 +1084,7 @@ p {
 .h_auto{height: auto}
 .h_60vh{height: 60vh}
 .h_75vh{height: 75vh}
+.h_calc92{height: calc(100vh - 92px)}
 
 .mxh_78vh{max-height: 78vh}
 
