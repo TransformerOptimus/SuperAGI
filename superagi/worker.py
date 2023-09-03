@@ -4,7 +4,6 @@ import sys
 from sqlalchemy.orm import sessionmaker
 
 from superagi.helper.tool_helper import handle_tools_import
-from superagi.jobs.agent_wait_step_executor import AgentWorkflowStepWaitExecutor
 from superagi.lib.logger import logger
 
 from datetime import timedelta
@@ -50,8 +49,9 @@ def agent_status_change(target, val,old_val,initiator):
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def execute_wait_step():
     """Check if wait time of wait workflow step is over and can be resumed."""
-
+    from superagi.jobs.agent_wait_step_executor import AgentWorkflowStepWaitExecutor
     AgentWorkflowStepWaitExecutor().execute_waiting_workflows()
+
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
