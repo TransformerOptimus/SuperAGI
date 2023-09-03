@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_wait import AgentWorkflowStepWait
@@ -17,3 +19,8 @@ class AgentWaitStepHandler:
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
         step_wait = AgentWorkflowStepWait.find_by_id(self.session, workflow_step.action_reference_id)
+        if step_wait is not None:
+            step_wait.wait_begin_time = datetime.now()
+            step_wait.status = "WAITING"
+            execution.status = "WAITING_STEP"
+            self.session.commit()

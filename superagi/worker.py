@@ -4,6 +4,7 @@ import sys
 from sqlalchemy.orm import sessionmaker
 
 from superagi.helper.tool_helper import handle_tools_import
+from superagi.jobs.agent_wait_step_executor import AgentWorkflowStepWaitExecutor
 from superagi.lib.logger import logger
 
 from datetime import timedelta
@@ -34,6 +35,10 @@ beat_schedule = {
         'task': 'initialize-schedule-agent',
         'schedule': timedelta(minutes=5),
     },
+    'wait-step-check-task': {
+        'task': 'wait-step-check-task',
+        'schedule': timedelta(minutes=5),
+    },
 }
 app.conf.beat_schedule = beat_schedule
 
@@ -43,9 +48,15 @@ def agent_status_change(target, val,old_val,initiator):
         webhook_callback.delay(target.id,val,old_val)
        
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
+def execute_wait_step():
+    """Check if wait time of wait workflow step is over and can be resumed."""
+
+    AgentWorkflowStepWaitExecutor().execute_waiting_workflows()
+
+@app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
-    
+
     schedule_helper = AgentScheduleHelper()
     schedule_helper.update_next_scheduled_time()
     schedule_helper.run_scheduled_agents()

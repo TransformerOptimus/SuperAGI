@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import superagi.worker
 from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandler
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
-from superagi.agent.agent_wait_step_handler import AgentWaitStepHandler
+from superagi.agent.agent_workflow_step_wait_handler import AgentWaitStepHandler
 from superagi.apm.event_handler import EventHandler
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm

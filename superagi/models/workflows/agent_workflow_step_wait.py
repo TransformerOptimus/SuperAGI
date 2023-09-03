@@ -25,6 +25,7 @@ class AgentWorkflowStepWait(DBBaseModel):
     unique_id = Column(String)
     delay = Column(Integer)
     wait_begin_time = Column(DateTime)
+    status = Column(String) # 'PENDING', 'WAITING', 'COMPLETED'
 
     def __repr__(self):
         """
@@ -65,3 +66,7 @@ class AgentWorkflowStepWait(DBBaseModel):
     @classmethod
     def find_by_id(cls, session, step_id: int):
         return session.query(AgentWorkflowStepWait).filter(AgentWorkflowStepWait.id == step_id).first()
+
+    @classmethod
+    def find_or_create_wait_workflow_step(cls):
+        pass
