@@ -161,6 +161,7 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "YES")
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step3.id, "NO")
 
+    
 
     @classmethod
     def build_goal_based_agent(cls, session):
@@ -250,3 +251,4 @@ class IterationWorkflowSeed:
         output = AgentPromptTemplate.analyse_task()
         IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "ab1",
                                                   output["prompt"], str(output["variables"]), "TRIGGER", "tools")
+

@@ -13,7 +13,7 @@ class AgentWorkflowStepWait(DBBaseModel):
         id (int): The unique identifier of the wait block step.
         name (str): The name of the wait block step.
         description (str): The description of the wait block step.
-        delay (int): The delay time in milliseconds.
+        delay (int): The delay time in seconds.
         wait_begin_time (DateTime): The start time of the wait block.
     """
 
@@ -23,7 +23,7 @@ class AgentWorkflowStepWait(DBBaseModel):
     name = Column(String)
     description = Column(String)
     unique_id = Column(String)
-    delay = Column(Integer)
+    delay = Column(Integer)  # Delay is stored in seconds
     wait_begin_time = Column(DateTime)
     status = Column(String)  # 'PENDING', 'WAITING', 'COMPLETED'
 
@@ -76,10 +76,12 @@ class AgentWorkflowStepWait(DBBaseModel):
                 unique_id=unique_id,
                 name=unique_id,
                 delay=delay,
-                description=description
+                description=description,
+                status='PENDING'
             )
             session.add(wait)
         else:
             wait.delay = delay
             wait.description = description
+            wait.status = 'PENDING'
         session.commit()
