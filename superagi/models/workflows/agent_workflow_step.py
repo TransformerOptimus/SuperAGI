@@ -160,7 +160,7 @@ class AgentWorkflowStep(DBBaseModel):
 
         step_wait = AgentWorkflowStepWait.find_or_create_wait(session=session, step_unique_id=unique_id,
                                                               description=wait_description, delay=delay)
-
+        print("____________________________Wait Step: ", step_wait)
         if workflow_step is None:
             workflow_step = AgentWorkflowStep(unique_id=unique_id, step_type=step_type,
                                               agent_workflow_id=agent_workflow_id)
@@ -172,6 +172,7 @@ class AgentWorkflowStep(DBBaseModel):
         workflow_step.action_type = "WAIT_STEP"
         workflow_step.next_steps = []
         session.commit()
+        return workflow_step
 
     @classmethod
     def find_or_create_iteration_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,

@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.db import connect_db
+from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_wait import AgentWorkflowStepWait
 from superagi.worker import execute_agent
 
@@ -20,19 +21,27 @@ class AgentWorkflowStepWaitExecutor:
         waiting_agent_executions = session.query(AgentExecution).filter(
             AgentExecution.status == 'WAITING_STEP',
         ).all()
+        print("_________________________Waiting Block Execute_________________________")
+        print(waiting_agent_executions)
         for agent_execution in waiting_agent_executions:
-            workflow_step = agent_execution.current_agent_step
+            workflow_step = session.query(AgentWorkflowStep).filter(AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
+            # workflow_step = agent_execution.current_agent_step_id
+            print("Workflow Step: ", workflow_step)
             step_wait = AgentWorkflowStepWait.find_by_id(session, workflow_step.action_reference_id)
+            print("step_wait: ", step_wait)
             if step_wait is not None:
+                print("step_wait.wait_begin_time: ", step_wait.wait_begin_time)
                 if step_wait.wait_begin_time is not None:
                     wait_time = step_wait.delay
                     if wait_time is None:
                         wait_time = 0
+                    print("wait_time: ", wait_time)
                     if (datetime.now() - step_wait.wait_begin_time).total_seconds() > wait_time:
+                        print("change status to running")
                         agent_execution.status = "RUNNING"
                         # step_wait.wait_begin_time = None
                         step_wait.status = "COMPLETED"
                         session.commit()
                         execute_agent.delay(agent_execution.id, datetime.now())
-        session.close()
+        # session.close()
 

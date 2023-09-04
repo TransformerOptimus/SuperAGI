@@ -7,22 +7,20 @@ from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandle
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
 from superagi.agent.agent_workflow_step_wait_handler import AgentWaitStepHandler
 from superagi.apm.event_handler import EventHandler
+from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.hugging_face import HuggingFace
-from superagi.llms.replicate import Replicate
 from superagi.llms.llm_model_factory import get_model
+from superagi.llms.replicate import Replicate
 from superagi.models.agent import Agent
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.db import connect_db
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
-from superagi.types.model_source_types import ModelSourceType
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
-from superagi.vector_store.redis import Redis
-from superagi.config.config import get_config
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -77,25 +75,8 @@ class AgentExecutor:
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             try:
-                if agent_workflow_step.action_type == "TOOL":
-                    tool_step_handler = AgentToolStepHandler(session,
-                                                             llm=get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id)
-                                                             , agent_id=agent.id, agent_execution_id=agent_execution_id,
-                                                             memory=memory)
-                    tool_step_handler.execute_step()
-                elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
-                    iteration_step_handler = AgentIterationStepHandler(session,
-                                                                  llm=get_model(model=agent_config["model"],
-                                                                                api_key=model_api_key,
-                                                                                organisation_id=organisation.id)
-                                                                       , agent_id=agent.id,
-                                                                       agent_execution_id=agent_execution_id, memory=memory)
-                    print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
-                    iteration_step_handler.execute_step()
-                elif agent_workflow_step.action_type == "WAIT_STEP":
-                    (AgentWaitStepHandler(session=session, agent_id=agent.id,
-                                          agent_execution_id=agent_execution_id)
-                     .execute_step())
+                self.__execute_workflow_step(agent, agent_config, agent_execution_id, agent_workflow_step, memory,
+                                             model_api_key, organisation, session)
 
             except Exception as e:
                 logger.info("Exception in executing the step: {}".format(e))
@@ -112,6 +93,29 @@ class AgentExecutor:
         finally:
             session.close()
             engine.dispose()
+
+    def __execute_workflow_step(self, agent, agent_config, agent_execution_id, agent_workflow_step, memory,
+                                model_api_key, organisation, session):
+        if agent_workflow_step.action_type == "TOOL":
+            tool_step_handler = AgentToolStepHandler(session,
+                                                     llm=get_model(model=agent_config["model"], api_key=model_api_key,
+                                                                   organisation_id=organisation.id)
+                                                     , agent_id=agent.id, agent_execution_id=agent_execution_id,
+                                                     memory=memory)
+            tool_step_handler.execute_step()
+        elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
+            iteration_step_handler = AgentIterationStepHandler(session,
+                                                               llm=get_model(model=agent_config["model"],
+                                                                             api_key=model_api_key,
+                                                                             organisation_id=organisation.id)
+                                                               , agent_id=agent.id,
+                                                               agent_execution_id=agent_execution_id, memory=memory)
+            print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
+            iteration_step_handler.execute_step()
+        elif agent_workflow_step.action_type == "WAIT_STEP":
+            (AgentWaitStepHandler(session=session, agent_id=agent.id,
+                                  agent_execution_id=agent_execution_id)
+             .execute_step())
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):

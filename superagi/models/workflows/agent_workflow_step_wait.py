@@ -85,3 +85,6 @@ class AgentWorkflowStepWait(DBBaseModel):
             wait.description = description
             wait.status = 'PENDING'
         session.commit()
+        session.flush()
+        print(f"Wait: {wait}")
+        return wait
