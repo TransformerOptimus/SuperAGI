@@ -44,7 +44,7 @@ export default function Webhooks() {
           .then((response) => {
             setIsEdtiting(false)
             fetchWebhooks()
-            toast.success("Webhook deleted successfully", {autoClose: 1800});
+            toast.success("Webhook edited successfully", {autoClose: 1800});
           })
           .catch((error) => {
             console.error('Error fetching webhook', error);
