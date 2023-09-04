@@ -58,6 +58,8 @@
         false,
         false,
         false,
+        false,
+        false,
         false
     ],
     "TestAgentProtocol_ExecuteAgentTaskStep": [
@@ -512,6 +514,10 @@
         false,
         false,
         false,
+        false,
+        false,
+        true,
+        false,
         false
     ],
     "TestReturnCode_Tests": [
@@ -560,7 +566,10 @@
         false,
         false,
         false,
-        false
+        false,
+        false,
+        false,
+        true
     ],
     "TestRevenueRetrieval_1.0": [
         false,

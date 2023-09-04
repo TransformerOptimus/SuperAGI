@@ -200,7 +200,7 @@ def run_specific_agent(task: str) -> None:
     print(response.json(), 'response')
     response = response.json()
 
-    output_path = f"workspace/output/"
+    output_path = f"workspace/input/"
     input_path = f"workspace/input/"
     config["workspace"]["output"] = output_path
     config["workspace"]["input"] = input_path
