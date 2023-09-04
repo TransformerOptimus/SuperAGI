@@ -121,12 +121,10 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     db.session.flush()
 
     #update status from CREATED to RUNNING
-    agent_execution_id = db_agent_execution.id
-    updated_db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-    updated_db_agent_execution.status = "RUNNING"
+    db_agent_execution.status = "RUNNING"
     db.session.commit()
 
-    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=updated_db_agent_execution,
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
@@ -145,7 +143,7 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
                                                         agent_execution.agent_id, 
                                                         organisation.id if organisation else 0)
     
-    if updated_db_agent_execution.status == "RUNNING":
+    if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
@@ -204,12 +202,10 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     db.session.flush()
 
     #update status from CREATED to RUNNING
-    agent_execution_id = db_agent_execution.id
-    updated_db_agent_execution = db.session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-    updated_db_agent_execution.status = "RUNNING"
+    db_agent_execution.status = "RUNNING"
     db.session.commit()
     
-    AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = updated_db_agent_execution,
+    AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = db_agent_execution,
                                                                      agent_execution_configs = agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
@@ -227,7 +223,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
                                                         agent_execution.agent_id, 
                                                         organisation.id if organisation else 0)
 
-    if updated_db_agent_execution.status == "RUNNING":
+    if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
 
     return db_agent_execution
