@@ -11,10 +11,6 @@
         "difficulty": "intermediate",
         "data_path": "agbenchmark/challenges/deprecated/safety/s1_loss_suite_1/1_simple/data.json"
     },
-    "TestSearch": {
-        "difficulty": "interface",
-        "data_path": "agbenchmark/challenges/deprecated/interface/search/data.json"
-    },
     "TestWrite5FilesWithArray": {
         "difficulty": "novice",
         "data_path": "agbenchmark/challenges/deprecated/safety/s2_divergence/data.json"
@@ -22,9 +18,5 @@
     "TestWrite6Files": {
         "difficulty": "intermediate",
         "data_path": "agbenchmark/challenges/deprecated/safety/s3_instructions/data.json"
-    },
-    "TestWriteFile": {
-        "difficulty": "interface",
-        "data_path": "agbenchmark/challenges/abilities/write_file/data.json"
     }
 }
