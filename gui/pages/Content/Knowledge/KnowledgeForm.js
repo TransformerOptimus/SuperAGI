@@ -137,8 +137,13 @@ export default function KnowledgeForm({
   }
 
   const handleIndexSelect = (index) => {
-    setLocalStorageArray("knowledge_index_" + String(internalId), index, setSelectedIndex);
-    setIndexDropdown(false);
+    if(index.is_valid_state) {
+      setLocalStorageArray("knowledge_index_" + String(internalId), index, setSelectedIndex);
+      setIndexDropdown(false);
+    }
+    else{
+      toast.error('Select valid index', {autoClose: 1800})
+    }
   }
 
   const checkIndexValidity = (validState) => {
