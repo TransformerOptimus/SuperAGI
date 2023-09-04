@@ -607,6 +607,7 @@
         false,
         true,
         false,
+        false,
         false
     ],
     "TestRevenueRetrieval_1.1": [
@@ -631,7 +632,8 @@
         false,
         false,
         false,
-        false
+        false,
+        true
     ],
     "TestRevenueRetrieval_1.2": [
         false,
