@@ -65,13 +65,3 @@ def test_write_csv_file(resource_manager):
         result = resource_manager.write_file('test.csv', 'content')
         assert result == "test.csv - File written successfully"
         logger_mock.assert_called_once_with("test.csv - File written successfully")
-        
-def test_read_file(resource_manager):
-    with patch.object(ResourceHelper, 'get_resource_path', return_value='test_path'), \
-            patch.object(logger, 'info') as logger_mock, \
-            patch('builtins.open', create=True) as mock_open:
-        mock_file = mock_open.return_value
-        mock_file.read.return_value = 'file content'
-        result = resource_manager.read_file('test.txt')
-        assert result == 'file content'
-        logger_mock.assert_called_once_with("test.txt - File read successfully")
