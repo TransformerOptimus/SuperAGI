@@ -9,7 +9,7 @@ from superagi.lib.logger import logger
 from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
-from superagi.exceptions.file_errors import UnsupportedFileTypeError, FileNotCreatedError
+from superagi.exceptions.file_exceptions import UnsupportedFileTypeError, FileNotCreatedError
 
 import pdfkit
 from htmldocx import HtmlToDocx
