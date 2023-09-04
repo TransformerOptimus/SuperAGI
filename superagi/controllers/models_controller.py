@@ -122,7 +122,9 @@ def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation
 
 @router.get("/marketplace/list/{page}", status_code=200)
 def get_marketplace_knowledge_list(page: int = 0):
-    organisation_id = int(get_config("MARKETPLACE_ORGANISATION_ID"))
+    organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
+    if organisation_id is not None:
+        organisation_id = int(organisation_id)
     page_size = 16
 
     query = db.session.query(Models).filter(Models.org_id == organisation_id)
