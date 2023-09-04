@@ -149,7 +149,7 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
               </div>
             </div>
           </div>
-          <div className="horizontal_container mb_10 border_bottom_grey pd_bottom">
+          <div className="horizontal_container mb_10 border_bottom_grey pd_bottom_5">
             <div className="w_50 display_flex_container">
             <div className={activeTab === 'metrics' ? 'tab_button_small_selected' : 'tab_button_small'}
                  onClick={() => setLocalStorageValue('toolkit_tab_' + String(internalId), 'metrics', setActiveTab)}>
