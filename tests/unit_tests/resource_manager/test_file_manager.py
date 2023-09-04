@@ -55,7 +55,17 @@ def test_write_docx_file(resource_manager):
         result = resource_manager.write_file('test.docx', 'content')
         assert result == "test.docx - File written successfully"
         logger_mock.assert_called_once_with("test.docx - File written successfully")
-
+        
+def test_write_csv_file(resource_manager):
+    with patch.object(ResourceHelper, 'get_resource_path', return_value='test_path'), \
+            patch.object(ResourceHelper, 'make_written_file_resource',
+                         return_value=Resource(name='test.csv', storage_type='S3')), \
+            patch.object(S3Helper, 'upload_file'), \
+            patch.object(logger, 'info') as logger_mock:
+        result = resource_manager.write_file('test.csv', 'content')
+        assert result == "test.csv - File written successfully"
+        logger_mock.assert_called_once_with("test.csv - File written successfully")
+        
 def test_read_file(resource_manager):
     with patch.object(ResourceHelper, 'get_resource_path', return_value='test_path'), \
             patch.object(logger, 'info') as logger_mock, \
