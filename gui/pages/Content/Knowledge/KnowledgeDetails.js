@@ -115,7 +115,7 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
                 </div>}
             </div>
         </div>
-        <div className="horizontal_container mb_10 border_bottom_grey pd_bottom">
+        <div className="horizontal_container mb_10 border_bottom_grey pd_bottom_5">
           <div className={activeTab === 'metrics' ? 'tab_button_small_selected' : 'tab_button_small'}
                onClick={() => setActiveTab('metrics')}>
             <div className="text_12 color_white padding_8">Metrics</div>
