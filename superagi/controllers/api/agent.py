@@ -117,14 +117,14 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
     db_schedule=AgentSchedule.find_by_agent_id(db.session, agent_id)
     if db_schedule is not None:
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot run")
-    start_step_id = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
+    start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
     db_agent_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "CREATED")
 
     if db_agent_execution is None:
         db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
                                             agent_id=agent_id, name=agent_execution.name, num_of_calls=0,
                                             num_of_tokens=0,
-                                            current_step_id=start_step_id)
+                                            current_agent_step_id=start_step.id)
         db.session.add(db_agent_execution)
     else:
         db_agent_execution.status = "RUNNING"
@@ -269,7 +269,8 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
     
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "RUNNING")
 
-    if len(db_execution_arr) != len(execution_state_change_input.run_ids):
+    if db_execution_arr is not None and execution_state_change_input.run_ids is not None \
+            and len(db_execution_arr) != len(execution_state_change_input.run_ids):
         raise HTTPException(status_code=404, detail="One or more run id(s) not found")
 
     for ind_execution in db_execution_arr:
@@ -298,7 +299,8 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
     
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "PAUSED")
 
-    if len(db_execution_arr) != len(execution_state_change_input.run_ids):
+    if db_execution_arr is not None and execution_state_change_input.run_ids is not None\
+            and len(db_execution_arr) != len(execution_state_change_input.run_ids):
         raise HTTPException(status_code=404, detail="One or more run id(s) not found")
 
     for ind_execution in db_execution_arr:
@@ -312,7 +314,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
         "result":"success"
     }
 
-@router.post("/resources/output",status_code=201)
+@router.post("/resources/output",status_code=200)
 def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate_api_key),organisation:Organisation = Depends(get_organisation_from_api_key)):
     if get_config('STORAGE_TYPE') != "S3":
         raise HTTPException(status_code=400,detail="This endpoint only works when S3 is configured")
