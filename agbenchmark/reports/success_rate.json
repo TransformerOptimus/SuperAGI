@@ -757,6 +757,7 @@
         true,
         true,
         true,
+        true,
         true
     ],
     "TestWritingCLI_FileOrganizer": [
