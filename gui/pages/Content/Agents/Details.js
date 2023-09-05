@@ -80,18 +80,18 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
         style={{display: 'flex', marginBottom: '5px', alignItems: 'center', justifyContent: 'flex-start', gap: '7.5%'}}>
         <div>
           <div className={styles.agent_info_box}>
+            <div><Image width={12} height={12} src="/images/runs_made.svg" alt="runs-icon"/></div>
+            <div style={info_text_secondary}>Total Runs</div>
+          </div>
+          <div className={styles.feed_title} style={{fontSize: '20px', marginLeft: '0'}}>{runCount || 0}</div>
+        </div>
+        <div>
+          <div className={styles.agent_info_box}>
             <div><Image width={12} height={12} src="/images/calls_made.svg" alt="calls-icon"/></div>
             <div style={info_text_secondary}>Total Calls</div>
           </div>
           <div className={styles.feed_title}
                style={{fontSize: '20px', marginLeft: '0'}}>{formatNumber(agentDetails?.calls || 0)}</div>
-        </div>
-        <div>
-          <div className={styles.agent_info_box}>
-            <div><Image width={12} height={12} src="/images/runs_made.svg" alt="runs-icon"/></div>
-            <div style={info_text_secondary}>Total Runs</div>
-          </div>
-          <div className={styles.feed_title} style={{fontSize: '20px', marginLeft: '0'}}>{runCount || 0}</div>
         </div>
         <div>
           <div className={styles.agent_info_box}>

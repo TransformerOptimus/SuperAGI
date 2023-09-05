@@ -1113,6 +1113,7 @@ p {
 
 .cursor_pointer{cursor: pointer}
 .cursor_default{cursor: default}
+.cursor_not_allowed{cursor: not-allowed}
 
 .overflow_auto{overflow: auto}
 .overflowY_scroll{overflow-y: scroll}
@@ -1158,7 +1159,7 @@ p {
 .padding_12_14{padding: 12px 14px;}
 .padding_0_15{padding: 0px 15px;}
 
-.pd_bottom{padding-bottom: 5px}
+.pd_bottom_5{padding-bottom: 5px}
 
 .flex_1{flex: 1}
 .flex_wrap{flex-wrap: wrap;}
