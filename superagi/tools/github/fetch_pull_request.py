@@ -8,7 +8,6 @@ from superagi.tools.base_tool import BaseTool
 
 
 class GithubFetchPullRequestSchema(BaseModel):
-    # """Input for CopyFileTool."""
     repository_name: str = Field(
         ...,
         description="Repository name in which file hase to be added",
@@ -31,6 +30,8 @@ class GithubFetchPullRequest(BaseTool):
         name : The name.
         description : The description.
         args_schema : The args schema.
+        agent_id: The agent id.
+        agent_execution_id: The agent execution id.
     """
     llm: Optional[BaseLlm] = None
     name: str = "Github Fetch Pull Requests"

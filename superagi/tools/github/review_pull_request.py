@@ -1,19 +1,18 @@
+import ast
 from typing import Type, Optional
-import json, ast
+
 from pydantic import BaseModel, Field
 
 from superagi.helper.github_helper import GithubHelper
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
-from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 from superagi.models.agent import Agent
 from superagi.tools.base_tool import BaseTool
 
 
 class GithubReviewPullRequestSchema(BaseModel):
-    # """Input for CopyFileTool."""
     repository_name: str = Field(
         ...,
         description="Repository name in which file hase to be added",
@@ -30,7 +29,7 @@ class GithubReviewPullRequestSchema(BaseModel):
 
 class GithubReviewPullRequest(BaseTool):
     """
-    Add File tool
+    Reviews the githun pull request and adds comments inline
 
     Attributes:
         name : The name.
@@ -118,7 +117,6 @@ class GithubReviewPullRequest(BaseTool):
     def get_exact_line_number(self, diff_content, file_path, line_number):
         last_content = diff_content[diff_content.index(file_path):]
         last_content = last_content[last_content.index('@@'):]
-        print(last_content)
         return self.find_position_in_diff(last_content, line_number)
 
     def find_position_in_diff(self, diff_content, target_line):
