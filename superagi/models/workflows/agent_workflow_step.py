@@ -154,13 +154,12 @@ class AgentWorkflowStep(DBBaseModel):
     def find_or_create_wait_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
                                           wait_description: str, delay: int, step_type="NORMAL"):
         """ Find or create a wait workflow step"""
-
+        logger.info("Finding or creating wait step")
         workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.agent_workflow_id == agent_workflow_id, AgentWorkflowStep.unique_id == unique_id).first()
 
         step_wait = AgentWorkflowStepWait.find_or_create_wait(session=session, step_unique_id=unique_id,
                                                               description=wait_description, delay=delay)
-        print("____________________________Wait Step: ", step_wait)
         if workflow_step is None:
             workflow_step = AgentWorkflowStep(unique_id=unique_id, step_type=step_type,
                                               agent_workflow_id=agent_workflow_id)
