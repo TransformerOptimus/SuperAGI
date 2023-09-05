@@ -164,34 +164,48 @@ class AgentWorkflowSeed:
     @classmethod
     def build_test_wait_workflow(cls,session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "TestWaitWorkflow", "This is description for Test Wait Workflow")
+        # step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step1",
+        #                                                             ReadEmailTool().name,
+        #                                                             "Read the most recent email from the inbox",
+        #                                                             "Check if the email is from abhijeet@contlo.com",
+        #                                                             step_type="TRIGGER")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
                                                                     ReadEmailTool().name,
                                                                     "Read the most recent email from the inbox",
-                                                                    "Check if the email is from adarshdeepmurari@gmail.com",
+                                                                    # "Check if the email is from abhijeet@contlo.com",
                                                                     step_type="TRIGGER")
 
-        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step2",
-                                                                    SendEmailTool().name,
-                                                                    "Write a relevant reply to the email")
+        # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step2",
+        #                                                             SendEmailTool().name,
+        #                                                             "Write a relevant reply to the email")
 
         step3 = AgentWorkflowStep.find_or_create_wait_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     "Test Waiting Block", 3 * 60)
 
-        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
-                                                                    ReadEmailTool().name,
-                                                                    "Read the most recent email from the inbox",
-                                                                    "Check if the email is from adarshdeepmurari@gmail.com")
+        # step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step4",
+        #                                                             ReadEmailTool().name,
+        #                                                             "Read the most recent email from the inbox",
+        #                                                             "Check if the email is from abhijeet@contlo.com")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WriteFileTool().name,
+                                                                    "Write a poem on nature")
 
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id,"YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step1.id, "NO")
-        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step4.id, "NO")
+        # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id,"YES")
+        # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step1.id, "NO")
+        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id, "YES")
+        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step4.id, "NO")
+
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
 
     @classmethod
     def build_goal_based_agent(cls, session):
