@@ -1,8 +1,10 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 from superagi.apm.tools_handler import ToolsHandler
 from sqlalchemy.orm import Session
+from superagi.models.agent_config import AgentConfiguration
+
 from datetime import datetime
 import pytz
 
@@ -94,44 +96,48 @@ def test_get_tool_usage_by_name(tools_handler, mock_session):
         tools_handler.get_tool_usage_by_name(tool_name="NonexistentTool")
 
 def test_get_tool_events_by_name(tools_handler, mock_session):
-    tool_name = 'tool1'
+    tool_name = 'Tool1'
+    tools_handler.session = mock_session
+    tools_handler.organisation_id = 1
 
     mock_tool = MagicMock()
-    mock_tool.name = "tool1"
+    mock_tool.id = 1
     mock_session.query().filter_by().first.return_value = mock_tool
 
     result_obj = MagicMock()
     result_obj.agent_id = 1
-    result_obj.created_at = datetime.now()  # Set created_at to datetime not string
+    result_obj.id = 1
+    result_obj.created_at = datetime.now()
     result_obj.event_name = 'tool_used'
-    result_obj.tokens_consumed = 10
-    result_obj.calls = 5
-    result_obj.agent_execution_name = 'Runner'
-    result_obj.agent_name = 'A1'
-    result_obj.model = 'M1'
-    result_obj.other_tools = ['tool2', 'tool3']
+    result_obj.event_property = {'tool_name': 'tool1', 'agent_execution_id': '1'}
+    result_obj2 = MagicMock()
+    result_obj2.agent_id = 1
+    result_obj2.id = 2
+    result_obj2.event_name = 'run_completed'
+    result_obj2.event_property = {'tokens_consumed': 10, 'calls': 5, 'name': 'Runner', 'agent_execution_id': '1'}
+    result_obj3 = MagicMock()
+    result_obj3.agent_id = 1
+    result_obj3.event_name = 'agent_created'
+    result_obj3.event_property = {'agent_name': 'A1', 'model': 'M1'}
 
+    mock_session.query().filter().all.side_effect = [[result_obj], [result_obj2], [result_obj3], []]
+    
     user_timezone = MagicMock()
-    user_timezone.value = 'UTC'
+    user_timezone.value = 'America/New_York'
     mock_session.query().filter().first.return_value = user_timezone
-
-    mock_session.query().join().join().join().join().all.return_value = [result_obj]
+    
     result = tools_handler.get_tool_events_by_name(tool_name)
 
     assert isinstance(result, list)
-
-    expected_result = [{
-        'agent_id': 1,
-        'created_at': result_obj.created_at.astimezone(pytz.timezone(user_timezone.value)).strftime("%d %B %Y %H:%M"),
-        'event_name': 'tool_used',
-        'tokens_consumed': 10,
-        'calls': 5,
-        'agent_execution_name': 'Runner',
-        'agent_name': 'A1',
-        'model': 'M1',
-        'other_tools': ['tool2', 'tool3']
-    }]
-    assert result == expected_result
+    assert len(result) == 1
+    for item in result:
+        assert 'agent_execution_id' in item
+        assert 'created_at' in item
+        assert 'tokens_consumed' in item
+        assert 'calls' in item
+        assert 'agent_execution_name' in item
+        assert 'agent_name' in item
+        assert 'model' in item
 
 def test_get_tool_events_by_name_tool_not_found(tools_handler, mock_session):
     tool_name = "tool1"

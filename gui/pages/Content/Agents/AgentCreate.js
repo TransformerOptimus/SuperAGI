@@ -1177,7 +1177,7 @@ export default function AgentCreate({
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
-                  <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
+                  <div className={`${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentDropdown(!edit ? !agentDropdown : false)}}
                        style={{width: '100%'}}>
                     {agentWorkflow}<Image width={20} height={21}
                                       src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
