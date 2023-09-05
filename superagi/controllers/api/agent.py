@@ -157,7 +157,8 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
             EventHandler(session=db.session).create_event('knowledge_picked', 
-                                                        {'knowledge_name': knowledge_name},
+                                                        {'knowledge_name': knowledge_name, 
+                                                         'agent_execution_id': db_agent_execution.id},
                                                         agent_id,
                                                         organisation.id if organisation else 0
                                                         )

@@ -67,7 +67,8 @@ class ScheduledAgentExecutor:
             knowledge_name = Knowledges.get_knowledge_from_id(session, int(agent_execution_knowledge.value)).name
             if knowledge_name is not None:
                 EventHandler(session=session).create_event('knowledge_picked', 
-                                                        {'knowledge_name': knowledge_name},
+                                                        {'knowledge_name': knowledge_name, 
+                                                         'agent_execution_id': db_agent_execution.id},
                                                         agent_id, 
                                                         organisation.id if organisation else 0)
         session.commit()

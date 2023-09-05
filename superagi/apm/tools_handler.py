@@ -89,6 +89,115 @@ class ToolsHandler:
 
         return tool_data
     
+    # def get_tool_events_by_name(self, tool_name: str) -> List[Dict[str, Union[str, int, List[str]]]]:
+    #     is_tool_name_valid = self.session.query(Tool).filter_by(name=tool_name).first()
+
+    #     if not is_tool_name_valid:
+    #         raise HTTPException(status_code=404, detail="Tool not found")
+
+    #     formatted_tool_name = tool_name.lower().replace(" ", "")
+
+    #     event_run_created_ids = self.session.query(
+    #         Event.id,
+    #         Event.agent_id,
+    #         label('agent_execution_id', 
+    #             Event.event_property['agent_execution_id'].astext),
+    #         Event.created_at
+    #     ).filter(
+    #         Event.org_id == self.organisation_id,
+    #         Event.event_name == 'run_created'
+    #     ).all()
+
+    #     results = []
+
+    #     for event in event_run_created_ids:
+    #         min_id = event.id
+
+    #         next_event = self.session.query(Event).filter(
+    #             Event.org_id == self.organisation_id,
+    #             Event.event_name == 'run_created', 
+    #             Event.agent_id == event.agent_id, 
+    #             Event.id > event.id
+    #         ).order_by(Event.id).first()
+
+    #         max_id = next_event.id if next_event else float('inf')
+
+    #         event_run = self.session.query(
+    #             Event.agent_id,
+    #             label('tokens_consumed', func.sum(Event.event_property['tokens_consumed'].astext.cast(Integer))),
+    #             label('calls', func.sum(Event.event_property['calls'].astext.cast(Integer))),
+    #             label('name', func.max(Event.event_property['name'].astext))
+    #         ).filter(
+    #             Event.org_id == self.organisation_id,
+    #             or_(Event.event_name == 'run_completed', Event.event_name == 'run_iteration_limit_crossed'),
+    #             Event.agent_id == event.agent_id, 
+    #             Event.id.between(min_id, max_id)
+    #         ).group_by(Event.agent_id).first()
+
+    #         matching_tool = self.session.query(
+    #             Event.agent_id
+    #         ).filter(
+    #             Event.org_id == self.organisation_id,
+    #             Event.event_name == 'tool_used',
+    #             Event.event_property['tool_name'].astext == formatted_tool_name,
+    #             Event.agent_id == event.agent_id, 
+    #             Event.id.between(min_id, max_id)
+    #         ).first()
+
+    #         if event_run is None or matching_tool is None:
+    #             continue
+
+    #         other_tools = self.session.query(
+    #             func.array_agg(distinct(Event.event_property['tool_name'].astext)).label('other_tools')
+    #         ).filter(
+    #             Event.org_id == self.organisation_id,
+    #             Event.event_name == 'tool_used',
+    #             Event.event_property['tool_name'].astext != formatted_tool_name,
+    #             Event.agent_id == event.agent_id, 
+    #             Event.id.between(min_id, max_id)
+    #         ).first()
+
+    #         event_agent_created = self.session.query(
+    #             Event.agent_id,
+    #             label('agent_name', 
+    #                 func.max(Event.event_property['agent_name'].astext)),
+    #             label('model', 
+    #                 func.max(Event.event_property['model'].astext))
+    #         ).filter(
+    #             Event.org_id == self.organisation_id,
+    #             Event.event_name == 'agent_created', 
+    #             Event.agent_id == event.agent_id
+    #         ).group_by(Event.agent_id).first()
+
+    #         try:
+    #             user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session=self.session, key='user_timezone', agent_id=event.agent_id)
+    #             if user_timezone and user_timezone.value != 'None':
+    #                 tz = pytz.timezone(user_timezone.value)
+    #             else:
+    #                 tz = pytz.timezone('GMT')       
+    #         except AttributeError:
+    #             tz = pytz.timezone('GMT')
+
+            
+    #         actual_time = event.created_at.astimezone(tz).strftime("%d %B %Y %H:%M")
+    #         result_dict = {
+    #             'agent_id': event.agent_id,
+    #             'created_at': actual_time,
+    #             'agent_execution_id': event.agent_execution_id,
+    #             'tokens_consumed': event_run.tokens_consumed,
+    #             'calls': event_run.calls,
+    #             'agent_execution_name': event_run.name,
+    #             'other_tools': other_tools.other_tools if other_tools else None,
+    #             'agent_name': event_agent_created.agent_name,
+    #             'model': event_agent_created.model
+    #         }
+
+    #         results.append(result_dict)
+
+    #     results = sorted(results, key=lambda x: datetime.strptime(x['created_at'], '%d %B %Y %H:%M'), reverse=True)
+
+    #     return results
+
     def get_tool_events_by_name(self, tool_name: str) -> List[Dict[str, Union[str, int, List[str]]]]:
         is_tool_name_valid = self.session.query(Tool).filter_by(name=tool_name).first()
 
@@ -97,80 +206,33 @@ class ToolsHandler:
 
         formatted_tool_name = tool_name.lower().replace(" ", "")
 
-        event_run_created_ids = self.session.query(
-            Event.id,
-            Event.agent_id,
-            label('agent_execution_id', 
-                Event.event_property['agent_execution_id'].astext),
-            Event.created_at
-        ).filter(
+        tool_events = self.session.query(Event).filter(
             Event.org_id == self.organisation_id,
-            Event.event_name == 'run_created'
+            Event.event_name == 'tool_used',
+            Event.event_property['tool_name'].astext == formatted_tool_name
+        ).all()
+
+        tool_events = [te for te in tool_events if 'agent_execution_id' in te.event_property]
+
+        event_runs = self.session.query(Event).filter(
+            Event.org_id == self.organisation_id,
+            or_(Event.event_name == 'run_completed', Event.event_name == 'run_iteration_limit_crossed')
+        ).all()
+
+        agent_created_events = self.session.query(Event).filter(
+            Event.org_id == self.organisation_id,
+            Event.event_name == 'agent_created'
         ).all()
 
         results = []
 
-        for event in event_run_created_ids:
-            min_id = event.id
+        for tool_event in tool_events:
+            agent_execution_id = tool_event.event_property['agent_execution_id']
 
-            next_event = self.session.query(Event).filter(
-                Event.org_id == self.organisation_id,
-                Event.event_name == 'run_created', 
-                Event.agent_id == event.agent_id, 
-                Event.id > event.id
-            ).order_by(Event.id).first()
-
-            max_id = next_event.id if next_event else float('inf')
-
-            event_run = self.session.query(
-                Event.agent_id,
-                label('tokens_consumed', func.sum(Event.event_property['tokens_consumed'].astext.cast(Integer))),
-                label('calls', func.sum(Event.event_property['calls'].astext.cast(Integer))),
-                label('name', func.max(Event.event_property['name'].astext))
-            ).filter(
-                Event.org_id == self.organisation_id,
-                or_(Event.event_name == 'run_completed', Event.event_name == 'run_iteration_limit_crossed'),
-                Event.agent_id == event.agent_id, 
-                Event.id.between(min_id, max_id)
-            ).group_by(Event.agent_id).first()
-
-            matching_tool = self.session.query(
-                Event.agent_id
-            ).filter(
-                Event.org_id == self.organisation_id,
-                Event.event_name == 'tool_used',
-                Event.event_property['tool_name'].astext == formatted_tool_name,
-                Event.agent_id == event.agent_id, 
-                Event.id.between(min_id, max_id)
-            ).first()
-
-            if event_run is None or matching_tool is None:
-                continue
-
-            other_tools = self.session.query(
-                func.array_agg(distinct(Event.event_property['tool_name'].astext)).label('other_tools')
-            ).filter(
-                Event.org_id == self.organisation_id,
-                Event.event_name == 'tool_used',
-                Event.event_property['tool_name'].astext != formatted_tool_name,
-                Event.agent_id == event.agent_id, 
-                Event.id.between(min_id, max_id)
-            ).first()
-
-            event_agent_created = self.session.query(
-                Event.agent_id,
-                label('agent_name', 
-                    func.max(Event.event_property['agent_name'].astext)),
-                label('model', 
-                    func.max(Event.event_property['model'].astext))
-            ).filter(
-                Event.org_id == self.organisation_id,
-                Event.event_name == 'agent_created', 
-                Event.agent_id == event.agent_id
-            ).group_by(Event.agent_id).first()
-
+            event_run = next((er for er in event_runs if er.agent_id == tool_event.agent_id and er.event_property['agent_execution_id'] == agent_execution_id), None)
+            agent_created_event = next((ace for ace in agent_created_events if ace.agent_id == tool_event.agent_id), None)
             try:
-                user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session=self.session, key='user_timezone', agent_id=event.agent_id)
+                user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session=self.session, key='user_timezone', agent_id=tool_event.agent_id)
                 if user_timezone and user_timezone.value != 'None':
                     tz = pytz.timezone(user_timezone.value)
                 else:
@@ -178,21 +240,33 @@ class ToolsHandler:
             except AttributeError:
                 tz = pytz.timezone('GMT')
 
-            
-            actual_time = event.created_at.astimezone(tz).strftime("%d %B %Y %H:%M")
-            result_dict = {
-                'agent_id': event.agent_id,
-                'created_at': actual_time,
-                'agent_execution_id': event.agent_execution_id,
-                'tokens_consumed': event_run.tokens_consumed,
-                'calls': event_run.calls,
-                'agent_execution_name': event_run.name,
-                'other_tools': other_tools.other_tools if other_tools else None,
-                'agent_name': event_agent_created.agent_name,
-                'model': event_agent_created.model
-            }
+            if event_run and agent_created_event:
+                actual_time = tool_event.created_at.astimezone(tz).strftime("%d %B %Y %H:%M")
+                other_tools_events = self.session.query(
+                    Event
+                ).filter(
+                    Event.org_id == self.organisation_id,
+                    Event.event_name == 'tool_used',
+                    Event.event_property['tool_name'].astext != formatted_tool_name,
+                    Event.agent_id == tool_event.agent_id, 
+                    Event.id.between(tool_event.id, event_run.id)
+                ).all()
 
-            results.append(result_dict)
+                other_tools = [ote.event_property['tool_name'] for ote in other_tools_events]
+
+                result_dict = {
+                    'created_at': actual_time,
+                    'agent_execution_id': agent_execution_id,
+                    'tokens_consumed': event_run.event_property['tokens_consumed'],
+                    'calls': event_run.event_property['calls'],
+                    'agent_execution_name': event_run.event_property['name'],
+                    'other_tools': other_tools,
+                    'agent_name': agent_created_event.event_property['agent_name'],
+                    'model': agent_created_event.event_property['model']
+                }
+
+                if agent_execution_id not in [i['agent_execution_id'] for i in results]:
+                    results.append(result_dict)
 
         results = sorted(results, key=lambda x: datetime.strptime(x['created_at'], '%d %B %Y %H:%M'), reverse=True)
 
