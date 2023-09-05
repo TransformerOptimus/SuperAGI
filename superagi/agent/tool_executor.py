@@ -9,10 +9,11 @@ class ToolExecutor:
     """Executes the tool with the given args."""
     FINISH = "finish"
 
-    def __init__(self, organisation_id: int, agent_id: int, tools: list):
+    def __init__(self, organisation_id: int, agent_id: int, tools: list, agent_execution_id: int):
         self.organisation_id = organisation_id
         self.agent_id = agent_id
         self.tools = tools
+        self.agent_execution_id = agent_execution_id
 
     def execute(self, session, tool_name, tool_args):
         """Executes the tool with the given args.
@@ -31,7 +32,7 @@ class ToolExecutor:
             status = "SUCCESS"
             tool = tools[tool_name]
             retry = False
-            EventHandler(session=session).create_event('tool_used', {'tool_name': tool_name}, self.agent_id,
+            EventHandler(session=session).create_event('tool_used', {'tool_name': tool_name, 'agent_execution_id': self.agent_execution_id}, self.agent_id,
                                                        self.organisation_id),
             try:
                 parsed_args = self.clean_tool_args(tool_args)

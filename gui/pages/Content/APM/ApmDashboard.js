@@ -250,25 +250,19 @@ export default function ApmDashboard() {
                   <thead>
                   <tr style={{borderTop: 'none'}}>
                     <th className="table_header w_20">Agent Name</th>
-                    <th className="table_header text_align_right w_10">Model <img width={14} height={14} src="/images/arrow_downward.svg"
-                                                                                                    alt="arrow_down"/>
+                    <th className="table_header text_align_right w_10">Model
                     </th>
-                    <th className="table_header text_align_right w_12">Tokens Consumed <img width={14} height={14} src="/images/arrow_downward.svg"
-                                                                                                              alt="arrow_down"/>
+                    <th className="table_header text_align_right w_12">Tokens Consumed
                     </th>
-                    <th className="table_header text_align_right w_6">Runs <img width={14} height={14} src="/images/arrow_downward.svg"
-                                                                                                  alt="arrow_down"/>
+                    <th className="table_header text_align_right w_6">Runs
                     </th>
-                    <th className="table_header text_align_right w_12">Avg tokens per run <img
-                      width={14} height={14} src="/images/arrow_downward.svg" alt="arrow_down"/></th>
-                    <th className="table_header text_align_right w_20">Tools <img width={14} height={14} src="/images/arrow_downward.svg"
-                                                                                                    alt="arrow_down"/>
+                    <th className="table_header text_align_right w_12">Avg tokens per run
                     </th>
-                    <th className="table_header text_align_right w_10">Calls <img width={14} height={14} src="/images/arrow_downward.svg"
-                                                                                                    alt="arrow_down"/>
+                    <th className="table_header text_align_right w_20">Tools
                     </th>
-                    <th className="table_header text_align_right w_10">Avg Run Time <img width={14} height={14} src="/images/arrow_downward.svg"
-                                                                                                           alt="arrow_down"/>
+                    <th className="table_header text_align_right w_10">Calls
+                    </th>
+                    <th className="table_header text_align_right w_10">Avg Run Time
                     </th>
                   </tr>
                   </thead>

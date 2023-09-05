@@ -324,6 +324,21 @@ export const deleteApiKey = (apiId) => {
   return api.delete(`/api-keys/${apiId}`);
 };
 
+export const saveWebhook = (webhook) => {
+  return api.post(`/webhook/add`, webhook);
+};
+
+export const getWebhook = () => {
+  return api.get(`/webhook/get`);
+};
+
+export const editWebhook = (webhook_id, webook_data) => {
+  return api.post(`/webhook/edit/${webhook_id}`, webook_data);
+};
+
+export const publishToMarketplace = (executionId) => {
+  return api.post(`/agent_templates/publish_template/agent_execution_id/${executionId}`);
+};
 
 export const storeApiKey = (model_provider, model_api_key) => {
   return api.post(`/models_controller/store_api_keys`, {model_provider, model_api_key});
@@ -363,3 +378,21 @@ export const fetchMarketPlaceModel = () => {
   return api.get(`/models_controller/get/list`)
 }
 
+export const getToolMetrics = (toolName) => {
+  return api.get(`analytics/tools/${toolName}/usage`)
+}
+
+export const getToolLogs = (toolName) => {
+  return api.get(`analytics/tools/${toolName}/logs`)
+}
+
+export const publishTemplateToMarketplace = (agentData) => {
+  return api.post(`/agent_templates/publish_template`, agentData);
+};
+export const getKnowledgeMetrics = (knowledgeName) => {
+  return api.get(`analytics/knowledge/${knowledgeName}/usage`)
+}
+
+export const getKnowledgeLogs = (knowledgeName) => {
+  return api.get(`analytics/knowledge/${knowledgeName}/logs`)
+}
