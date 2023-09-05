@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, Text, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Boolean
 from superagi.models.base_model import DBBaseModel
-from superagi.models.agent_execution import AgentExecution
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 
 class ApiKey(DBBaseModel):
     """
