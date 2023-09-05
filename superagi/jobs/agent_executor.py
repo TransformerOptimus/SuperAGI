@@ -96,8 +96,7 @@ class AgentExecutor:
 
     def __execute_workflow_step(self, agent, agent_config, agent_execution_id, agent_workflow_step, memory,
                                 model_api_key, organisation, session):
-        print("_____________________Inside WorkFlow Step Handler_______________________")
-        print(agent_workflow_step.action_type)
+        logger.info("Executing Workflow step : ",agent_workflow_step.action_type)
         if agent_workflow_step.action_type == "TOOL":
             tool_step_handler = AgentToolStepHandler(session,
                                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,

@@ -220,12 +220,11 @@ async def startup_event():
     AgentWorkflowSeed.build_fixed_task_based_agent(session)
     AgentWorkflowSeed.build_sales_workflow(session)
     AgentWorkflowSeed.build_recruitment_workflow(session)
-    # AgentWorkflowSeed.build_coding_workflow(session)
-    AgentWorkflowSeed.build_test_wait_workflow(session)
+    AgentWorkflowSeed.build_coding_workflow(session)
 
     # NOTE: remove old workflows. Need to remove this changes later
     workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
-     "Dynamic Task Workflow", "Fixed Task Workflow","TestWaitWorkflow"]
+     "Dynamic Task Workflow", "Fixed Task Workflow"]
     workflows = session.query(AgentWorkflow).filter(AgentWorkflow.name.not_in(workflows))
     for workflow in workflows:
         session.delete(workflow)
