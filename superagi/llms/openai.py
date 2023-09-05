@@ -1,10 +1,13 @@
+from fastapi import Depends
 import openai
 from openai import APIError, InvalidRequestError
 from openai.error import RateLimitError, AuthenticationError
 
 from superagi.config.config import get_config
+from superagi.helper.auth import get_user_organisation
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.websockets.websockets import manager
 
 
 class OpenAi(BaseLlm):
@@ -50,7 +53,7 @@ class OpenAi(BaseLlm):
         """
         return self.model
 
-    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
+    def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), organisation=Depends(get_user_organisation)):
         """
         Call the OpenAI chat completion API.
 
@@ -61,6 +64,7 @@ class OpenAi(BaseLlm):
         Returns:
             dict: The response.
         """
+        org_id = organisation.id
         try:
             # openai.api_key = get_config("OPENAI_API_KEY")
             response = openai.ChatCompletion.create(
@@ -77,15 +81,19 @@ class OpenAi(BaseLlm):
             return {"response": response, "content": content}
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)
+            manager.queues[org_id].put("OpenAi AuthenticationError")
             return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys.."}
         except RateLimitError as api_error:
             logger.info("OpenAi RateLimitError:", api_error)
+            manager.queues[org_id].put("OpenAi RateLimitError")
             return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded.."}
         except InvalidRequestError as invalid_request_error:
             logger.info("OpenAi InvalidRequestError:", invalid_request_error)
+            manager.queues[org_id].put("OpenAi InvalidRequestError")
             return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error.."}
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)
+            manager.queues[org_id].put("OpenAi Exception")
             return {"error": "ERROR_OPENAI", "message": "Open ai exception"}
 
     def verify_access_key(self):
