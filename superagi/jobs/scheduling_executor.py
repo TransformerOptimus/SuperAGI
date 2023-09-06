@@ -1,7 +1,9 @@
+import ast
 from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy.orm import sessionmaker
+from superagi.models.tool import Tool
 
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.worker import execute_agent
@@ -40,13 +42,17 @@ class ScheduledAgentExecutor:
         iteration_step_id = IterationWorkflow.fetch_trigger_step_id(session,
                                                                     start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
-        db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+        db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
                                             agent_id=agent_id, name=name, num_of_calls=0,
                                             num_of_tokens=0,
                                             current_agent_step_id=start_step.id,
                                             iteration_workflow_step_id=iteration_step_id)
 
         session.add(db_agent_execution)
+        session.commit()
+
+        #update status from CREATED to RUNNING
+        db_agent_execution.status = "RUNNING"
         session.commit()
 
         agent_execution_id = db_agent_execution.id
@@ -56,19 +62,20 @@ class ScheduledAgentExecutor:
             session.add(agent_execution_config)
         organisation = agent.get_agent_organisation(session)
         model = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'model').first()[0]
-        # if knowledge_id:
-        EventHandler(session=session).create_event('run_created', 
+
+        EventHandler(session=session).create_event('run_created',
                                                    {'agent_execution_id': db_agent_execution.id,
                                                     'agent_execution_name':db_agent_execution.name},
                                                     agent_id,
                                                     organisation.id if organisation else 0)
         agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= session, key= 'knowledge', agent_id= agent_id)
-        if agent_execution_knowledge:
+        if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
             knowledge_name = Knowledges.get_knowledge_from_id(session, int(agent_execution_knowledge.value)).name
             if knowledge_name is not None:
-                EventHandler(session=session).create_event('knowledge_picked', 
-                                                        {'knowledge_name': knowledge_name},
-                                                        agent_id, 
+                EventHandler(session=session).create_event('knowledge_picked',
+                                                        {'knowledge_name': knowledge_name,
+                                                         'agent_execution_id': db_agent_execution.id},
+                                                        agent_id,
                                                         organisation.id if organisation else 0)
         session.commit()
 

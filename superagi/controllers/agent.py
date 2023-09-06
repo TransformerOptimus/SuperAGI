@@ -142,7 +142,8 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
     if agent_with_config.knowledge:
         knowledge_name = db.session.query(Knowledges.name).filter(Knowledges.id == agent_with_config.knowledge).first()[0]
         EventHandler(session=db.session).create_event('knowledge_picked', 
-                                                      {'knowledge_name': knowledge_name},
+                                                      {'knowledge_name': knowledge_name, 
+                                                        'agent_execution_id': execution.id},
                                                       db_agent.id, 
                                                       organisation.id if organisation else 0)
     

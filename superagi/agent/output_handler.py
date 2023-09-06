@@ -100,7 +100,7 @@ class ToolOutputHandler:
         action = self.output_parser.parse(assistant_reply)
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
         organisation = agent.get_agent_organisation(session)
-        tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools)
+        tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools, agent_execution_id=self.agent_execution_id)
         return tool_executor.execute(session, action.name, action.args)
 
     def _check_permission_in_restricted_mode(self, session, assistant_reply: str):

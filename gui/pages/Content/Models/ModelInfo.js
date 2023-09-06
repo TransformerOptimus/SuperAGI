@@ -8,7 +8,7 @@ export default function ModelInfo(modelDetails){
             <hr className="horizontal_line padding_0" />
             <div className="row">
                 <div className="col-3" />
-                <div className="col-6 vertical_containers">
+                <div className="col-6 col-6-scrollable vertical_containers">
                     <span>Installation Type</span>
                     <div className="horizontal_container mt_8 color_white gap_4">
                         {modelData === 'Marketplace' && <Image width={16} height={16} src="/images/marketplace_logo.png" alt="marketplace_logo" />}
