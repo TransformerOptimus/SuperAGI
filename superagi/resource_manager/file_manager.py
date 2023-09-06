@@ -84,6 +84,9 @@ class FileManager:
             raise FileNotCreatedError(file_name=file_name) from err
         
     def write_pdf_file(self, file_name: str ,file_path: str, content):
+        '''
+        Converts HTML content to a PDF file
+        '''
         # Saving the HTML file
         html_file_path = f"{file_path[:-4]}.html"
         self.write_txt_file(file_name=html_file_path.split('/')[-1], file_path=html_file_path, content=content)
@@ -108,6 +111,9 @@ class FileManager:
             raise FileNotCreatedError(file_name=file_name) from err
             
     def write_docx_file(self, file_name: str ,file_path: str, content):
+        '''
+        Converts HTML content to a DOCX file
+        '''
         # Saving the HTML file
         html_file_path = f"{file_path[:-4]}.html"
         self.write_txt_file(file_name=html_file_path.split('/')[-1], file_path=html_file_path, content=content)

@@ -7,6 +7,18 @@ from superagi.lib.logger import logger
 
 from superagi.resource_manager.file_manager import FileManager
 
+HTML_CONTENT = """<!DOCTYPE html>
+<html>
+<head>
+    <title>Dummy HTML Page</title>
+</head>
+<body>
+    <h1>This is a dummy HTML page</h1>
+    <p>Content</p>
+</body>
+</html>
+"""
+
 @pytest.fixture
 def resource_manager():
     session_mock = Mock()
@@ -42,7 +54,7 @@ def test_write_pdf_file(resource_manager):
                          return_value=Resource(name='test.pdf', storage_type='S3')), \
             patch.object(S3Helper, 'upload_file'), \
             patch.object(logger, 'info') as logger_mock:
-        result = resource_manager.write_file('test.pdf', 'content')
+        result = resource_manager.write_file('test.pdf', HTML_CONTENT)
         assert result == "test.pdf - File written successfully"
         logger_mock.assert_called_once_with("test.pdf - File written successfully")
         
@@ -52,7 +64,7 @@ def test_write_docx_file(resource_manager):
                          return_value=Resource(name='test.docx', storage_type='S3')), \
             patch.object(S3Helper, 'upload_file'), \
             patch.object(logger, 'info') as logger_mock:
-        result = resource_manager.write_file('test.docx', 'content')
+        result = resource_manager.write_file('test.docx', HTML_CONTENT)
         assert result == "test.docx - File written successfully"
         logger_mock.assert_called_once_with("test.docx - File written successfully")
         
