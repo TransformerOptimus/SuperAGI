@@ -1,0 +1,38 @@
+{
+    "command": "agbenchmark start --test TestSearch",
+    "benchmark_git_commit_sha": null,
+    "agent_git_commit_sha": "https://github.com/sayan1101/SuperAGI/tree/189fb99eaa9b6eef74935bc62270239f2a1c3641",
+    "completion_time": "2023-09-05T18:58:42+00:00",
+    "benchmark_start_time": "2023-09-05T18:57:23+00:00",
+    "metrics": {
+        "run_time": "79.0 seconds",
+        "highest_difficulty": "interface: 1"
+    },
+    "tests": {
+        "TestSearch": {
+            "data_path": "agbenchmark/challenges/deprecated/interface/search/data.json",
+            "is_regression": false,
+            "category": [
+                "interface"
+            ],
+            "task": "Open 'https://silennaihin.com/random/plain.html' and paste all of the text on the page in a .txt file",
+            "answer": "This is a Heading\nThis is a paragraph.",
+            "description": "Tests if an llm can search",
+            "metrics": {
+                "difficulty": "interface",
+                "success": true,
+                "attempted": true,
+                "success_%": 50.0,
+                "cost": null,
+                "run_time": "78.414 seconds"
+            },
+            "reached_cutoff": false
+        }
+    },
+    "config": {
+        "workspace": {
+            "input": "workspace/input/",
+            "output": "workspace/input/"
+        }
+    }
+}

@@ -134,10 +134,10 @@ def run_specific_agent(task: str) -> None:
             "name": "File Toolkit",
             "tools": ["Read File", "Write File"]
         },
-        {
-            "name": "Web Scrapper Toolkit",
-            "tools": ["WebScraperTool"]
-        },
+        # {
+        #     "name": "Web Scrapper Toolkit",
+        #     "tools": ["WebScraperTool"]
+        # },
         # {
         #     "name": "DuckDuckGo Search Toolkit",
         #     "tools": ["DuckDuckGoSearch"]
@@ -147,8 +147,12 @@ def run_specific_agent(task: str) -> None:
             "tools": ["GoogleSearch"]
         },
         {
+            "name": "Web Scrapper Toolkit",
+            "tools": ["WebScraperTool"]
+        },
+        {
             "name": "CodingToolkit",
-            "tools": ["CodingTool", "RunCodeTool"]
+            "tools": ["RunCodeTool"]
         }
     ]
 
@@ -162,10 +166,12 @@ def run_specific_agent(task: str) -> None:
         ],
         'agent_workflow': 'Goal Based Workflow',
         'instruction': [
-            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .'
-            'Avoid redundancy, such as unnecessary immediate verification of actions.'
+            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .',
+            'Avoid redundancy, such as unnecessary immediate verification of actions.',
+            'DO NOT modify the test.py file'
             ],
         'constraints': [
+            "DO NOT modify the test.py file",
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
             "Ensure the tool and args are as per current plan and reasoning",
             "Exclusively use the tools listed under 'TOOLS'",
@@ -200,7 +206,7 @@ def run_specific_agent(task: str) -> None:
     print(response.json(), 'response')
     response = response.json()
 
-    output_path = f"workspace/output/"
+    output_path = f"workspace/input/"
     input_path = f"workspace/input/"
     config["workspace"]["output"] = output_path
     config["workspace"]["input"] = input_path
