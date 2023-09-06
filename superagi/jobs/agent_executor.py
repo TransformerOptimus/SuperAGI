@@ -60,7 +60,8 @@ class AgentExecutor:
                 return
 
             try:
-                model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
+                model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id,
+                                                                    agent_config["model"])
                 model_api_key = model_config['api_key']
                 model_llm_source = model_config['provider']
             except Exception as e:
@@ -70,9 +71,10 @@ class AgentExecutor:
             try:
                 memory = None
                 if "OpenAI" in model_llm_source:
-                    vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB","Redis"))
+                    vector_store_type = VectorStoreType.get_vector_store_type(get_config("LTM_DB", "Redis"))
                     memory = VectorFactory.get_vector_storage(vector_store_type, "super-agent-index1",
-                                                              AgentExecutor.get_embedding(model_llm_source, model_api_key))
+                                                              AgentExecutor.get_embedding(model_llm_source,
+                                                                                          model_api_key))
             except Exception as e:
                 logger.info(f"Unable to setup the connection...{e}")
                 memory = None
@@ -101,7 +103,7 @@ class AgentExecutor:
 
     def __execute_workflow_step(self, agent, agent_config, agent_execution_id, agent_workflow_step, memory,
                                 model_api_key, organisation, session):
-        logger.info("Executing Workflow step : ",agent_workflow_step.action_type)
+        logger.info("Executing Workflow step : ", agent_workflow_step.action_type)
         if agent_workflow_step.action_type == AgentWorkflowStepAction.TOOL.value:
             tool_step_handler = AgentToolStepHandler(session,
                                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,
@@ -163,18 +165,14 @@ class AgentExecutor:
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             step_wait = AgentWorkflowStepWait.find_by_id(session, workflow_step.action_reference_id)
             if step_wait is not None:
-                if step_wait.wait_begin_time is not None:
-                    wait_time = step_wait.delay
-                    if wait_time is None:
-                        wait_time = 0
-                    if ((datetime.now() - step_wait.wait_begin_time).total_seconds() > wait_time
-                            and step_wait.status == AgentWorkflowStepWaitStatus.WAITING.value):
-                        agent_execution.status = AgentExecutionStatus.RUNNING.value
-                        # step_wait.wait_begin_time = None
-                        step_wait.status = AgentWorkflowStepWaitStatus.COMPLETED.value
-                        session.commit()
-                        session.flush()
-                        AgentWaitStepHandler(session=session, agent_id=agent_execution.agent_id,
-                                             agent_execution_id=agent_execution.id).handle_next_step()
-                        execute_agent.delay(agent_execution.id, datetime.now())
+                wait_time = step_wait.delay if not None else 0
+                if ((datetime.now() - step_wait.wait_begin_time).total_seconds() > wait_time
+                        and step_wait.status == AgentWorkflowStepWaitStatus.WAITING.value):
+                    agent_execution.status = AgentExecutionStatus.RUNNING.value
+                    step_wait.status = AgentWorkflowStepWaitStatus.COMPLETED.value
+                    session.commit()
+                    session.flush()
+                    AgentWaitStepHandler(session=session, agent_id=agent_execution.agent_id,
+                                         agent_execution_id=agent_execution.id).handle_next_step()
+                    execute_agent.delay(agent_execution.id, datetime.now())
         session.close()
