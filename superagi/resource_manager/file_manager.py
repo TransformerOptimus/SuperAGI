@@ -189,4 +189,4 @@ class FileManager:
         
         if file_type not in file_type_handlers:
             raise UnsupportedFileTypeError(file_name=file_name, supported_types=list(file_type_handlers))
-        
+        return file_type_handlers[file_type](file_name, file_path, content)
