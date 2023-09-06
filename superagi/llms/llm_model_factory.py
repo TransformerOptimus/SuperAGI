@@ -35,3 +35,15 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
         return HuggingFace(model=model_instance.model_name, end_point=model_instance.end_point, api_key=api_key, **kwargs)
     else:
         print('Unknown provider.')
+
+def build_model_with_api_key(provider_name, api_key):
+    if provider_name.lower() == 'openai':
+        return OpenAi(api_key=api_key)
+    elif provider_name.lower() == 'replicate':
+        return Replicate(api_key=api_key)
+    elif provider_name.lower() == 'google palm':
+        return GooglePalm(api_key=api_key)
+    elif provider_name.lower() == 'hugging face':
+        return HuggingFace(api_key=api_key)
+    else:
+        print('Unknown provider.')
