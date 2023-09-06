@@ -9,7 +9,8 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
 from superagi.helper.s3_helper import S3Helper
-
+from datetime import timedelta, datetime
+import json
 
 class GithubHelper:
     def __init__(self, github_access_token, github_username):
@@ -238,6 +239,7 @@ class GithubHelper:
             logger.info('Failed to upload file content:', file_response.json()['message'])
         return file_response.status_code
 
+
     def create_pull_request(self, repository_owner, repository_name, head_branch, base_branch, headers):
         """
         Creates a pull request in the given repository.
@@ -335,3 +337,135 @@ class GithubHelper:
             with open(final_path, "r") as file:
                 attachment_data = file.read().decode('utf-8')
         return attachment_data
+
+
+    def get_pull_request_content(self, repository_owner, repository_name, pull_request_number):
+        """
+        Gets the content of a specific pull request from a GitHub repository.
+
+        Args:
+            repository_owner (str): Owner of the repository.
+            repository_name (str): Name of the repository.
+            pull_request_number (int): pull request id.
+            headers (dict): Dictionary containing the headers, usually including the Authorization token.
+
+        Returns:
+            dict: Dictionary containing the pull request content or None if not found.
+        """
+        pull_request_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/pulls/{pull_request_number}'
+        headers = {
+            "Authorization": f"token {self.github_access_token}" if self.github_access_token else None,
+            "Content-Type": "application/vnd.github+json",
+            "Accept": "application/vnd.github.v3.diff",
+        }
+
+        response = requests.get(pull_request_url, headers=headers)
+
+        if response.status_code == 200:
+            logger.info('Successfully fetched pull request content.')
+            return response.text
+        elif response.status_code == 404:
+            logger.warning('Pull request not found.')
+        else:
+            logger.warning('Failed to fetch pull request content: ', response.text)
+
+        return None
+
+    def get_latest_commit_id_of_pull_request(self, repository_owner, repository_name, pull_request_number):
+        """
+        Gets the latest commit id of a specific pull request from a GitHub repository.
+        :param repository_owner: owner
+        :param repository_name: repository name
+        :param pull_request_number: pull request id
+
+        :return:
+        latest commit id of the pull request
+        """
+        url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/pulls/{pull_request_number}/commits'
+        headers = {
+            "Authorization": f"token {self.github_access_token}" if self.github_access_token else None,
+            "Content-Type": "application/json",
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            commits = response.json()
+            latest_commit = commits[-1]  # Assuming the last commit is the latest
+            return latest_commit.get('sha')
+        else:
+            logger.warning(f'Failed to fetch commits for pull request: {response.json()["message"]}')
+            return None
+
+
+    def add_line_comment_to_pull_request(self, repository_owner, repository_name, pull_request_number,
+                                         commit_id, file_path, position, comment_body):
+        """
+        Adds a line comment to a specific pull request from a GitHub repository.
+
+        :param repository_owner: owner
+        :param repository_name: repository name
+        :param pull_request_number: pull request id
+        :param commit_id: commit id
+        :param file_path: file path
+        :param position: position
+        :param comment_body: comment body
+
+        :return:
+        dict: Dictionary containing the comment content or None if not found.
+        """
+        comments_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/pulls/{pull_request_number}/comments'
+        headers = {
+            "Authorization": f"token {self.github_access_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        data = {
+            "commit_id": commit_id,
+            "path": file_path,
+            "position": position,
+            "body": comment_body
+        }
+        response = requests.post(comments_url, headers=headers, json=data)
+        if response.status_code == 201:
+            logger.info('Successfully added line comment to pull request.')
+            return response.json()
+        else:
+            logger.warning(f'Failed to add line comment: {response.json()["message"]}')
+            return None
+
+    def get_pull_requests_created_in_last_x_seconds(self, repository_owner, repository_name, x_seconds):
+        """
+        Gets the pull requests created in the last x seconds.
+
+        Args:
+            repository_owner (str): Owner of the repository
+            repository_name (str): Repository name
+            x_seconds (int): The number of seconds in the past to look for PRs
+
+        Returns:
+            list: List of pull request objects that were created in the last x seconds
+        """
+        # Calculate the time x seconds ago
+        time_x_seconds_ago = datetime.utcnow() - timedelta(seconds=x_seconds)
+
+        # Convert to the ISO8601 format GitHub expects, remove milliseconds
+        time_x_seconds_ago_str = time_x_seconds_ago.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        # Search query
+        query = f'repo:{repository_owner}/{repository_name} type:pr created:>{time_x_seconds_ago_str}'
+
+        url = f'https://api.github.com/search/issues?q={query}'
+        headers = {
+            "Authorization": f"token {self.github_access_token}",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            pull_request_urls = []
+            for pull_request in response.json()['items']:
+                pull_request_urls.append(pull_request['html_url'])
+            return pull_request_urls
+        else:
+            logger.warning(f'Failed to fetch PRs: {response.json()["message"]}')
+            return []
