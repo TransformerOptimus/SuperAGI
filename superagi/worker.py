@@ -50,9 +50,9 @@ def agent_status_change(target, val,old_val,initiator):
 def execute_waiting_workflows():
     """Check if wait time of wait workflow step is over and can be resumed."""
 
-    from superagi.jobs.agent_wait_step_executor import AgentWorkflowStepWaitExecutor
-    logger.info("Executing waiting workflows")
-    AgentWorkflowStepWaitExecutor().execute_waiting_workflows()
+    from superagi.jobs.agent_executor import AgentExecutor
+    logger.info("Executing waiting workflows job")
+    AgentExecutor().execute_waiting_workflows()
 
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
