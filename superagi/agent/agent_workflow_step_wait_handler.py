@@ -1,10 +1,11 @@
 from datetime import datetime
 
+from superagi.agent.types.agent_execution_status import AgentExecutionStatus
 from superagi.lib.logger import logger
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.agent_workflow_step_wait import AgentWorkflowStepWait
-
+from superagi.agent.types.wait_step_status import AgentWorkflowStepWaitStatus
 
 class AgentWaitStepHandler:
     """Handle Agent Wait Step in the agent workflow."""
@@ -23,8 +24,9 @@ class AgentWaitStepHandler:
         step_wait = AgentWorkflowStepWait.find_by_id(self.session, workflow_step.action_reference_id)
         if step_wait is not None:
             step_wait.wait_begin_time = datetime.now()
-            step_wait.status = "WAITING"
-            execution.status = "WAIT_STEP"
+            step_wait.status = AgentWorkflowStepWaitStatus.WAITING.value
+            execution.status = AgentExecutionStatus.WAIT_STEP.value
+
             self.session.commit()
 
     def handle_next_step(self):

@@ -6,6 +6,7 @@ import superagi.worker
 from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandler
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
 from superagi.agent.agent_workflow_step_wait_handler import AgentWaitStepHandler
+from superagi.agent.types.wait_step_status import AgentWorkflowStepWaitStatus
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
@@ -23,6 +24,8 @@ from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.worker import execute_agent
+from superagi.agent.types.agent_workflow_step_action_types import AgentWorkflowStepAction
+from superagi.agent.types.agent_execution_status import AgentExecutionStatus
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -47,7 +50,7 @@ class AgentExecutor:
             agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
             agent_config = Agent.fetch_configuration(session, agent.id)
             if agent.is_deleted or (
-                    agent_execution.status != "RUNNING" and agent_execution.status != "WAITING_FOR_PERMISSION"):
+                    agent_execution.status != AgentExecutionStatus.RUNNING.value and agent_execution.status != AgentExecutionStatus.WAITING_FOR_PERMISSION.value):
                 logger.error(f"Agent execution stopped. {agent.id}: {agent_execution.status}")
                 return
 
@@ -99,14 +102,14 @@ class AgentExecutor:
     def __execute_workflow_step(self, agent, agent_config, agent_execution_id, agent_workflow_step, memory,
                                 model_api_key, organisation, session):
         logger.info("Executing Workflow step : ",agent_workflow_step.action_type)
-        if agent_workflow_step.action_type == "TOOL":
+        if agent_workflow_step.action_type == AgentWorkflowStepAction.TOOL.value:
             tool_step_handler = AgentToolStepHandler(session,
                                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,
                                                                    organisation_id=organisation.id)
                                                      , agent_id=agent.id, agent_execution_id=agent_execution_id,
                                                      memory=memory)
             tool_step_handler.execute_step()
-        elif agent_workflow_step.action_type == "ITERATION_WORKFLOW":
+        elif agent_workflow_step.action_type == AgentWorkflowStepAction.ITERATION_WORKFLOW.value:
             iteration_step_handler = AgentIterationStepHandler(session,
                                                                llm=get_model(model=agent_config["model"],
                                                                              api_key=model_api_key,
@@ -115,7 +118,7 @@ class AgentExecutor:
                                                                agent_execution_id=agent_execution_id, memory=memory)
             print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
             iteration_step_handler.execute_step()
-        elif agent_workflow_step.action_type == "WAIT_STEP":
+        elif agent_workflow_step.action_type == AgentWorkflowStepAction.WAIT_STEP.value:
             (AgentWaitStepHandler(session=session, agent_id=agent.id,
                                   agent_execution_id=agent_execution_id)
              .execute_step())
@@ -135,7 +138,7 @@ class AgentExecutor:
     def _check_for_max_iterations(self, session, organisation_id, agent_config, agent_execution_id):
         db_agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
         if agent_config["max_iterations"] <= db_agent_execution.num_of_calls:
-            db_agent_execution.status = "ITERATION_LIMIT_EXCEEDED"
+            db_agent_execution.status = AgentExecutionStatus.ITERATION_LIMIT_EXCEEDED.value
 
             EventHandler(session=session).create_event('run_iteration_limit_crossed',
                                                        {'agent_execution_id': db_agent_execution.id,
@@ -153,7 +156,7 @@ class AgentExecutor:
 
         session = Session()
         waiting_agent_executions = session.query(AgentExecution).filter(
-            AgentExecution.status == 'WAIT_STEP',
+            AgentExecution.status == AgentExecutionStatus.WAIT_STEP.value,
         ).all()
         for agent_execution in waiting_agent_executions:
             workflow_step = session.query(AgentWorkflowStep).filter(
@@ -165,10 +168,10 @@ class AgentExecutor:
                     if wait_time is None:
                         wait_time = 0
                     if ((datetime.now() - step_wait.wait_begin_time).total_seconds() > wait_time
-                            and step_wait.status == "WAITING"):
-                        agent_execution.status = "RUNNING"
+                            and step_wait.status == AgentWorkflowStepWaitStatus.WAITING.value):
+                        agent_execution.status = AgentExecutionStatus.RUNNING.value
                         # step_wait.wait_begin_time = None
-                        step_wait.status = "COMPLETED"
+                        step_wait.status = AgentWorkflowStepWaitStatus.COMPLETED.value
                         session.commit()
                         session.flush()
                         AgentWaitStepHandler(session=session, agent_id=agent_execution.agent_id,
