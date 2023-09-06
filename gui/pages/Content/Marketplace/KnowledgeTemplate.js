@@ -90,7 +90,7 @@ export default function KnowledgeTemplate({template, env}) {
 
   const handleInstallClick = (index) => {
     const indexId = index.id
-    if(index.is_valid_state){
+    if(!index.is_valid_state){
       toast.error("Select valid index", {autoClose : 1800})
       return
     }

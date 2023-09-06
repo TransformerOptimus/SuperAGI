@@ -164,6 +164,7 @@ export default function AgentCreate({
         } else {
           setModel(selected_model);
         }
+        console.log(response)
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
