@@ -24,7 +24,7 @@ class GithubFetchPullRequestSchema(BaseModel):
 
 class GithubFetchPullRequest(BaseTool):
     """
-    Add File tool
+    Fetch pull request tool
 
     Attributes:
         name : The name.
