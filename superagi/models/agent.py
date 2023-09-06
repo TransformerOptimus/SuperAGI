@@ -299,3 +299,18 @@ class Agent(DBBaseModel):
         db_agent = session.query(Agent).filter(Agent.id == agent_id,
                                                or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
         return db_agent
+
+    @classmethod
+    def get_all_agents_by_project_id(cls,session, project_id: int):
+        """
+        Finds all agents for the given project.
+
+        Args:
+            session: The database session.
+            project_id: The project id.
+
+        Returns:
+            List[Agent]: The list of agents.
+        """
+        agents = session.query(Agent).filter(Agent.project_id == project_id).all()
+        return agents

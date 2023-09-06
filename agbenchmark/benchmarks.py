@@ -158,8 +158,12 @@ def run_specific_agent(task: str) -> None:
 
     headers = {"Content-Type": "application/json", "X-API-Key": superagi_api_key}
 
+    _ = requests.request(
+        "POST", f"{baseUrl}/v1/agent/pause-all", headers=headers, data={}
+    )
+
     payload = {
-        'name': f"{task}",
+        'name': f"{task[:20]}",
         'description': 'AI assistant to solve complex problems',
         'goal': [
             f"{task}"

@@ -57,7 +57,7 @@ class GoogleSearchTool(BaseTool):
         results = []
         i = 0
         for webpage in webpages:
-            results.append({"title": snippets[i+1], "body": webpage, "links": links[i]})
+            results.append({"title": snippets[i], "body": webpage, "links": links[i]})
             i += 1
             if TokenCounter.count_text_tokens(json.dumps(results)) > 3000:
                 break
