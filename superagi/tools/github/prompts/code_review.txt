@@ -15,7 +15,7 @@ Instructions:
 1. Do not comment on existing lines and deleted lines.
 2. Ignore the lines start with '-'.
 3. Only consider lines starting with '+' for review.
-3. Do not comment on frontend and graphql code.
+4. Do not comment on frontend and graphql code.
 
 Respond with only valid JSON conforming to the following schema:
 {

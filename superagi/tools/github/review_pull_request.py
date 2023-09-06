@@ -29,7 +29,7 @@ class GithubReviewPullRequestSchema(BaseModel):
 
 class GithubReviewPullRequest(BaseTool):
     """
-    Reviews the githun pull request and adds comments inline
+    Reviews the github pull request and adds comments inline
 
     Attributes:
         name : The name.

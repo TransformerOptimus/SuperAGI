@@ -39,7 +39,6 @@ def test_split_pull_request_content_into_multiple_parts():
     ("file_path_3\n@@ -1,3 +1,4 @@\n+ line1\n+ line2\n- line3", "file_path_3", 2, 3)
 ])
 def test_get_exact_line_number(diff_content, file_path, line_number, expected):
-    print(file_path)
     tool = GithubReviewPullRequest()
 
     # Calling the method to be tested

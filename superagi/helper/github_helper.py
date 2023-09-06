@@ -372,6 +372,15 @@ class GithubHelper:
         return None
 
     def get_latest_commit_id_of_pull_request(self, repository_owner, repository_name, pull_request_number):
+        """
+        Gets the latest commit id of a specific pull request from a GitHub repository.
+        :param repository_owner: owner
+        :param repository_name: repository name
+        :param pull_request_number: pull request id
+
+        :return:
+        latest commit id of the pull request
+        """
         url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/pulls/{pull_request_number}/commits'
         headers = {
             "Authorization": f"token {self.github_access_token}" if self.github_access_token else None,
@@ -389,6 +398,20 @@ class GithubHelper:
 
     def add_line_comment_to_pull_request(self, repository_owner, repository_name, pull_request_number,
                                          commit_id, file_path, position, comment_body):
+        """
+        Adds a line comment to a specific pull request from a GitHub repository.
+
+        :param repository_owner: owner
+        :param repository_name: repository name
+        :param pull_request_number: pull request id
+        :param commit_id: commit id
+        :param file_path: file path
+        :param position: position
+        :param comment_body: comment body
+
+        :return:
+        dict: Dictionary containing the comment content or None if not found.
+        """
         comments_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/pulls/{pull_request_number}/comments'
         headers = {
             "Authorization": f"token {self.github_access_token}",
