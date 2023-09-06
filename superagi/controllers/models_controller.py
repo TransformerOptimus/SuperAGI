@@ -101,7 +101,7 @@ async def fetch_data(request: ModelName, organisation=Depends(get_user_organisat
 
 
 @router.get("/get/list", status_code=200)
-def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation)):
+def get_models_list(page: int = 0, organisation=Depends(get_user_organisation)):
     """
     Get Marketplace Model list.
 
@@ -120,7 +120,7 @@ def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation
 
 
 @router.get("/marketplace/list/{page}", status_code=200)
-def get_marketplace_knowledge_list(page: int = 0):
+def get_marketplace_models_list(page: int = 0):
     organisation_id = 2
     page_size = 16
 

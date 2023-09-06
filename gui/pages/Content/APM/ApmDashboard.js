@@ -127,291 +127,291 @@ export default function ApmDashboard() {
   }
 
   return (
-    <div className={style.apm_dashboard_container}>
-      <div id="apm_dashboard" className={style.apm_dashboard}>
-        <div className="horizontal_space_between w_100 align_center padding_0_8">
-          <span className="text_14 mt_6 ml_6">Agent Performance Monitoring</span>
-          {/*<button onClick={onClickLayoutChange} className="primary_button">Reset</button>*/}
-        </div>
-        <ResponsiveGridLayout
-          className="layout"
-          layouts={{lg: layout}}
-          onLayoutChange={onLayoutChange}
-          breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
-          cols={{lg: 12, md: 12, sm: 12, xs: 12, xxs: 12}}>
-          <div key="total_agents" className="display_column_container">
-            <span className="text_14 mb_8">Total Agents</span>
-            <div
-              className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(agentDetails.total_agents)}</div>
+      <div className={style.apm_dashboard_container}>
+        <div id="apm_dashboard" className={style.apm_dashboard}>
+          <div className="horizontal_space_between w_100 align_center padding_0_8">
+            <span className="text_14 mt_6 ml_6">Agent Performance Monitoring</span>
+            {/*<button onClick={onClickLayoutChange} className="primary_button">Reset</button>*/}
           </div>
-          <div key="total_tokens" className="display_column_container">
-            <span className="text_14 mb_8">Total tokens consumed</span>
-            <div
-              className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(tokenDetails.total_tokens)}</div>
-          </div>
-          <div key="total_runs" className="display_column_container">
-            <span className="text_14 mb_8">Total runs</span>
-            <div
-              className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(runDetails.total_runs)}</div>
-          </div>
+          <ResponsiveGridLayout
+              className="layout"
+              layouts={{lg: layout}}
+              onLayoutChange={onLayoutChange}
+              breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
+              cols={{lg: 12, md: 12, sm: 12, xs: 12, xxs: 12}}>
+            <div key="total_agents" className="display_column_container">
+              <span className="text_14 mb_8">Total Agents</span>
+              <div
+                  className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(agentDetails.total_agents)}</div>
+            </div>
+            <div key="total_tokens" className="display_column_container">
+              <span className="text_14 mb_8">Total tokens consumed</span>
+              <div
+                  className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(tokenDetails.total_tokens)}</div>
+            </div>
+            <div key="total_runs" className="display_column_container">
+              <span className="text_14 mb_8">Total runs</span>
+              <div
+                  className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24 mt_24">{formatNumber(runDetails.total_runs)}</div>
+            </div>
 
-          <div key="models_by_agents" className="display_column_container">
-            <span className="text_14 mb_8">Number of Agents per model</span>
-            {agentDetails.model_metrics && agentDetails.model_metrics.length > 0
-              ? <><BarGraph data={agentDetails.model_metrics} type="value" color="#3C7EFF"/>
-                <div className="horizontal_container mt_10">
-                  <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
-                  <span className="bar_label_text">Models</span>
-                </div>
-              </>
-              : <div className="vertical_container align_center mt_80 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Agents Found</span>
-              </div>}
-          </div>
+            <div key="models_by_agents" className="display_column_container">
+              <span className="text_14 mb_8">Number of Agents per model</span>
+              {agentDetails.model_metrics && agentDetails.model_metrics.length > 0
+                  ? <><BarGraph data={agentDetails.model_metrics} type="value" color="#3C7EFF"/>
+                    <div className="horizontal_container mt_10">
+                      <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
+                      <span className="bar_label_text">Models</span>
+                    </div>
+                  </>
+                  : <div className="vertical_container align_center mt_80 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Agents Found</span>
+                  </div>}
+            </div>
 
-          <div key="runs_by_model" className="display_column_container">
-            <span className="text_14 mb_8">Number of Runs per Model</span>
-            {runDetails.model_metrics && runDetails.model_metrics.length > 0
-              ? <><BarGraph data={runDetails.model_metrics} type="value" color="#3C7EFF"/>
-                <div className="horizontal_container mt_10">
-                  <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
-                  <span className="bar_label_text">Models</span>
-                </div>
-              </>
-              : <div className="vertical_container align_center mt_80 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Agents Found</span>
-              </div>}
-          </div>
+            <div key="runs_by_model" className="display_column_container">
+              <span className="text_14 mb_8">Number of Runs per Model</span>
+              {runDetails.model_metrics && runDetails.model_metrics.length > 0
+                  ? <><BarGraph data={runDetails.model_metrics} type="value" color="#3C7EFF"/>
+                    <div className="horizontal_container mt_10">
+                      <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
+                      <span className="bar_label_text">Models</span>
+                    </div>
+                  </>
+                  : <div className="vertical_container align_center mt_80 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Agents Found</span>
+                  </div>}
+            </div>
 
-          <div key="tokens_by_model" className="display_column_container">
-            <span className="text_14 mb_8">Total Tokens consumed by models</span>
-            {tokenDetails.model_metrics && tokenDetails.model_metrics.length > 0
-              ? <><BarGraph data={tokenDetails.model_metrics} type="value" color="#3C7EFF"/>
-                <div className="horizontal_container mt_10">
-                  <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
-                  <span className="bar_label_text">Models</span>
-                </div>
-              </>
-              : <div className="vertical_container align_center mt_80 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Agents Found</span>
-              </div>}
-          </div>
+            <div key="tokens_by_model" className="display_column_container">
+              <span className="text_14 mb_8">Total Tokens consumed by models</span>
+              {tokenDetails.model_metrics && tokenDetails.model_metrics.length > 0
+                  ? <><BarGraph data={tokenDetails.model_metrics} type="value" color="#3C7EFF"/>
+                    <div className="horizontal_container mt_10">
+                      <span className="bar_label_dot" style={{backgroundColor: '#3C7EFF'}}></span>
+                      <span className="bar_label_text">Models</span>
+                    </div>
+                  </>
+                  : <div className="vertical_container align_center mt_80 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Agents Found</span>
+                  </div>}
+            </div>
 
-          <div key="most_used_tools" className="display_column_container">
-            <span className="text_14 mb_8">Most used tools</span>
-            {toolsUsed.length === 0 ?
-              <div className="vertical_container align_center mt_70 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Used Tools Found</span>
-              </div> : <div className="scrollable_container">
-                <table className="table_css margin_0 padding_0">
-                  <thead>
-                  <tr style={{borderTop: 'none'}}>
-                    <th className="table_header w_56">Tool</th>
-                    <th className="table_header text_align_right w_22">Agents</th>
-                    <th className="table_header text_align_right w_22">Calls</th>
-                  </tr>
-                  </thead>
-                </table>
-
-                <div className="overflow_auto w_100">
-                  <table className="table_css margin_0">
-                    <tbody>
-                    {toolsUsed.map((tool, index) => (
-                      <tr key={index}>
-                        <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
-                          <Image className="image_class bg_black" width={20} height={20}
-                                 src={returnToolkitIcon(tool.toolkit)} alt="tool-icon"/>
-                          <span>{tool.tool_name}</span>
-                        </td>
-                        <td className="table_data text_align_right w_22">{tool.unique_agents}</td>
-                        <td className="table_data text_align_right w_22">{tool.total_usage}</td>
+            <div key="most_used_tools" className="display_column_container">
+              <span className="text_14 mb_8">Most used tools</span>
+              {toolsUsed.length === 0 ?
+                  <div className="vertical_container align_center mt_70 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Used Tools Found</span>
+                  </div> : <div className="scrollable_container">
+                    <table className="table_css margin_0 padding_0">
+                      <thead>
+                      <tr style={{borderTop: 'none'}}>
+                        <th className="table_header w_56">Tool</th>
+                        <th className="table_header text_align_right w_22">Agents</th>
+                        <th className="table_header text_align_right w_22">Calls</th>
                       </tr>
-                    ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>}
-          </div>
+                      </thead>
+                    </table>
 
-          <div key="agent_details" className="display_column_container">
-            <span className="text_14 mb_8">Agent Overview</span>
-            {allAgents.length === 0 ?
-              <div className="vertical_container align_center mt_50 w_100">
-                <img src="/images/no_permissions.svg" width={300} height={120} alt="No Data"/>
-                <span
-                  className="text_12 color_white mt_6">{selectedAgent === 'Select an Agent' ? 'Please Select an Agent' :
-                  <React.Fragment>No Runs found for <b>{selectedAgent}</b></React.Fragment>}</span>
-              </div> : <div className="scrollable_container mt_16">
-                <table className="table_css margin_0 padding_0">
-                  <thead>
-                  <tr style={{borderTop: 'none'}}>
-                    <th className="table_header w_20">Agent Name</th>
-                    <th className="table_header text_align_right w_10">Model
-                    </th>
-                    <th className="table_header text_align_right w_12">Tokens Consumed
-                    </th>
-                    <th className="table_header text_align_right w_6">Runs
-                    </th>
-                    <th className="table_header text_align_right w_12">Avg tokens per run
-                    </th>
-                    <th className="table_header text_align_right w_20">Tools
-                    </th>
-                    <th className="table_header text_align_right w_10">Calls
-                    </th>
-                    <th className="table_header text_align_right w_10">Avg Run Time
-                    </th>
-                  </tr>
-                  </thead>
-                </table>
+                    <div className="overflow_auto w_100">
+                      <table className="table_css margin_0">
+                        <tbody>
+                        {toolsUsed.map((tool, index) => (
+                            <tr key={index}>
+                              <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                                <Image className="image_class bg_black" width={20} height={20}
+                                       src={returnToolkitIcon(tool.toolkit)} alt="tool-icon"/>
+                                <span>{tool.tool_name}</span>
+                              </td>
+                              <td className="table_data text_align_right w_22">{tool.unique_agents}</td>
+                              <td className="table_data text_align_right w_22">{tool.total_usage}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>}
+            </div>
 
-                <div className="overflow_auto w_100">
-                  <table className="table_css margin_0">
-                    <tbody>
-                    {allAgents.map((run, i) => (
-                      <tr key={i}>
-                        <td className="table_data w_20">{run.name}</td>
-                        <td className="table_data text_align_right w_10">{run.model_name}</td>
-                        <td className="table_data text_align_right w_12">{formatNumber(run.total_tokens)}</td>
-                        <td className="table_data text_align_right w_6">{run.runs_completed}</td>
-                        <td className="table_data text_align_right w_12">
-                          {run.runs_completed ? (run.total_tokens / run.runs_completed).toFixed(1) : '-'}
-                        </td>
-                        <td className="table_data text_align_right" style={{width: '20%'}}>
-                          {run.tools_used && run.tools_used.slice(0, 3).map((tool, index) => (
-                              <div key={index} className="tools_used">{tool}</div>
-                          ))}
-                          {run.tools_used && run.tools_used.length > 3 &&
-                              <div style={{display:'inline-flex'}}>
-                                {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip">
-                                  {run.tools_used.slice(3).map((tool,index) =>
-                                      <div className="tools_used" key={index}>{tool}</div>
-                                  )}
-                                </div>}
-                                <div className="tools_used cursor_pointer" onMouseEnter={() => setToolTipState(true,i)} onMouseLeave={() => setToolTipState(false,i)}>
-                                  +{run.tools_used.length - 3}
-                                </div>
-                              </div>
-                          }
-                        </td>
-                        <td className="table_data text_align_right w_10">{run.total_calls}</td>
-                        <td className="table_data text_align_right w_10">
-                          {run.avg_run_time === 0 ? '-' : `${parseFloat((run.avg_run_time / 60).toFixed(1))} mins`}
-                        </td>
-                      </tr>))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>}
-          </div>
-          <div key="active_runs" className="display_column_container">
-            <span className="text_14 mb_8">Active Runs</span>
-            <div className="scrollable_container gap_8">
-              {activeRuns.length === 0 ?
-                <div className="vertical_container align_center mt_24">
-                  <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                  <span className="text_12 color_white mt_6">No active runs found</span>
-                </div> : activeRuns.map((run, index) => (
-                  <div key={index} className="active_runs">
-                    <span className="text_14">{run.name}</span>
-                    <div style={{display: 'inline-flex', alignItems: 'center'}}>
+            <div key="agent_details" className="display_column_container">
+              <span className="text_14 mb_8">Agent Overview</span>
+              {allAgents.length === 0 ?
+                  <div className="vertical_container align_center mt_50 w_100">
+                    <img src="/images/no_permissions.svg" width={300} height={120} alt="No Data"/>
+                    <span
+                        className="text_12 color_white mt_6">{selectedAgent === 'Select an Agent' ? 'Please Select an Agent' :
+                        <React.Fragment>No Runs found for <b>{selectedAgent}</b></React.Fragment>}</span>
+                  </div> : <div className="scrollable_container mt_16">
+                    <table className="table_css margin_0 padding_0">
+                      <thead>
+                      <tr style={{borderTop: 'none'}}>
+                        <th className="table_header w_20">Agent Name</th>
+                        <th className="table_header text_align_right w_10">Model
+                        </th>
+                        <th className="table_header text_align_right w_12">Tokens Consumed
+                        </th>
+                        <th className="table_header text_align_right w_6">Runs
+                        </th>
+                        <th className="table_header text_align_right w_12">Avg tokens per run
+                        </th>
+                        <th className="table_header text_align_right w_20">Tools
+                        </th>
+                        <th className="table_header text_align_right w_10">Calls
+                        </th>
+                        <th className="table_header text_align_right w_10">Avg Run Time
+                        </th>
+                      </tr>
+                      </thead>
+                    </table>
+
+                    <div className="overflow_auto w_100">
+                      <table className="table_css margin_0">
+                        <tbody>
+                        {allAgents.map((run, i) => (
+                            <tr key={i}>
+                              <td className="table_data w_20">{run.name}</td>
+                              <td className="table_data text_align_right w_10">{run.model_name}</td>
+                              <td className="table_data text_align_right w_12">{formatNumber(run.total_tokens)}</td>
+                              <td className="table_data text_align_right w_6">{run.runs_completed}</td>
+                              <td className="table_data text_align_right w_12">
+                                {run.runs_completed ? (run.total_tokens / run.runs_completed).toFixed(1) : '-'}
+                              </td>
+                              <td className="table_data text_align_right" style={{width: '20%'}}>
+                                {run.tools_used && run.tools_used.slice(0, 3).map((tool, index) => (
+                                    <div key={index} className="tools_used">{tool}</div>
+                                ))}
+                                {run.tools_used && run.tools_used.length > 3 &&
+                                    <div style={{display:'inline-flex'}}>
+                                      {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip">
+                                        {run.tools_used.slice(3).map((tool,index) =>
+                                            <div className="tools_used" key={index}>{tool}</div>
+                                        )}
+                                      </div>}
+                                      <div className="tools_used cursor_pointer" onMouseEnter={() => setToolTipState(true,i)} onMouseLeave={() => setToolTipState(false,i)}>
+                                        +{run.tools_used.length - 3}
+                                      </div>
+                                    </div>
+                                }
+                              </td>
+                              <td className="table_data text_align_right w_10">{run.total_calls}</td>
+                              <td className="table_data text_align_right w_10">
+                                {run.avg_run_time === 0 ? '-' : `${parseFloat((run.avg_run_time / 60).toFixed(1))} mins`}
+                              </td>
+                            </tr>))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>}
+            </div>
+            <div key="active_runs" className="display_column_container">
+              <span className="text_14 mb_8">Active Runs</span>
+              <div className="scrollable_container gap_8">
+                {activeRuns.length === 0 ?
+                    <div className="vertical_container align_center mt_24">
+                      <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                      <span className="text_12 color_white mt_6">No active runs found</span>
+                    </div> : activeRuns.map((run, index) => (
+                        <div key={index} className="active_runs">
+                          <span className="text_14">{run.name}</span>
+                          <div style={{display: 'inline-flex', alignItems: 'center'}}>
                       <span className="text_12 mt_6">{run.agent_name} ·  <Image width={12} height={12} src="/images/schedule.svg" alt="schedule-icon"/>
                         {formatTime(run.created_at)}</span>
+                          </div>
+                        </div>
+                    ))}
+              </div>
+            </div>
+            <div key="total_tokens_consumed" className="display_column_container">
+              <div className="horizontal_space_between w_100">
+                <span className="text_14 mb_8">Tokens Consumed by Runs</span>
+                <div style={{position: 'relative', display: 'flex', flexDirection: 'column'}}>
+                  {allAgents.length > 0 && <div>
+                    <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown2(!dropdown2)}>{selectedAgent}<img width={18} height={16}
+                                                                                                                              src="/images/expand_more.svg"/></div>
+                    {dropdown2 &&
+                        <div className="custom_select_options padding_8 position_absolute r_0">
+                          {allAgents.map((agent, index) => (
+                              <div key={index} className="custom_select_option padding_8" onClick={() => handleSelectedAgent(agent.agent_id, agent.name)}>{agent.name}</div>))}
+                        </div>}
+                  </div>}
+                </div>
+              </div>
+              {selectedAgentRun.length > 0
+                  ? <><BarGraph data={selectedAgentRun} type="tokens_consumed" color="#3DFF7F"/>
+                    <div className="horizontal_container mt_10">
+                      <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
+                      <span className="bar_label_text">Runs</span>
                     </div>
-                  </div>
-                ))}
+                  </>
+                  : <div className="vertical_container align_center mt_80 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Runs Found</span>
+                  </div>}
             </div>
-          </div>
-          <div key="total_tokens_consumed" className="display_column_container">
-            <div className="horizontal_space_between w_100">
-              <span className="text_14 mb_8">Tokens Consumed by Runs</span>
-              <div style={{position: 'relative', display: 'flex', flexDirection: 'column'}}>
-                {allAgents.length > 0 && <div>
-                  <div className="text_14 mb_8 cursor_pointer" onClick={() => setDropDown2(!dropdown2)}>{selectedAgent}<img width={18} height={16}
-                                                                                    src="/images/expand_more.svg"/></div>
-                  {dropdown2 &&
-                    <div className="custom_select_options padding_8 position_absolute r_0">
-                      {allAgents.map((agent, index) => (
-                        <div key={index} className="custom_select_option padding_8" onClick={() => handleSelectedAgent(agent.agent_id, agent.name)}>{agent.name}</div>))}
-                    </div>}
-                </div>}
-              </div>
-            </div>
-            {selectedAgentRun.length > 0
-              ? <><BarGraph data={selectedAgentRun} type="tokens_consumed" color="#3DFF7F"/>
-                <div className="horizontal_container mt_10">
-                  <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
-                  <span className="bar_label_text">Runs</span>
-                </div>
-              </>
-              : <div className="vertical_container align_center mt_80 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Runs Found</span>
-              </div>}
-          </div>
 
-          <div key="total_calls_made" className="display_column_container">
-            <div className="horizontal_space_between w_100">
-              <span className="text_14 mb_8">Calls Made by Runs</span>
-              <div className="vertical_containers position_relative">
-                {allAgents.length > 0 && <div>
-                  <div className="text_14 mb_8 cursor_pointer"
-                       onClick={() => setDropDown1(!dropdown1)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg"/>
-                  </div>
-                  {dropdown1 &&
-                    <div className="custom_select_options padding_8 position_absolute r_0">
-                      {allAgents.map((agent, index) => (
-                        <div key={index} className="custom_select_option padding_8" onClick={() => handleSelectedAgent(agent.agent_id, agent.name)}>{agent.name}</div>))}
-                    </div>}
-                </div>}
-              </div>
-            </div>
-            {selectedAgentRun.length > 0
-              ? <><BarGraph data={selectedAgentRun} type="calls" color="#3DFF7F"/>
-                <div className="horizontal_container mt_10">
-                  <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
-                  <span className="bar_label_text">Runs</span>
+            <div key="total_calls_made" className="display_column_container">
+              <div className="horizontal_space_between w_100">
+                <span className="text_14 mb_8">Calls Made by Runs</span>
+                <div className="vertical_containers position_relative">
+                  {allAgents.length > 0 && <div>
+                    <div className="text_14 mb_8 cursor_pointer"
+                         onClick={() => setDropDown1(!dropdown1)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg"/>
+                    </div>
+                    {dropdown1 &&
+                        <div className="custom_select_options padding_8 position_absolute r_0">
+                          {allAgents.map((agent, index) => (
+                              <div key={index} className="custom_select_option padding_8" onClick={() => handleSelectedAgent(agent.agent_id, agent.name)}>{agent.name}</div>))}
+                        </div>}
+                  </div>}
                 </div>
-              </>
-              : <div className="vertical_container align_center mt_80 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Runs Found</span>
-              </div>}
-          </div>
-          <div key="tokens_consumed_per_call" className="display_column_container">
-            <div className="horizontal_space_between w_100">
-              <span className="text_14 mb_8">Average Tokens consumed in all calls per run </span>
-              <div className="vertical_containers position_relative">
-                {allAgents.length > 0 && <div>
-                  <div className="text_14 mb_8 cursor_pointer"
-                       onClick={() => setDropDown3(!dropdown3)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg"/>
-                  </div>
-                  {dropdown3 &&
-                    <div className="custom_select_options padding_8 position_absolute r_0">
-                      {allAgents.map((agent, index) => (
-                        <div key={index} className="custom_select_option padding_8"
-                             onClick={() => handleSelectedAgent(agent.agent_id, agent.name)}>{agent.name}</div>))}
-                    </div>}
-                </div>}
               </div>
+              {selectedAgentRun.length > 0
+                  ? <><BarGraph data={selectedAgentRun} type="calls" color="#3DFF7F"/>
+                    <div className="horizontal_container mt_10">
+                      <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
+                      <span className="bar_label_text">Runs</span>
+                    </div>
+                  </>
+                  : <div className="vertical_container align_center mt_80 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Runs Found</span>
+                  </div>}
             </div>
-            {selectedAgentRun.length > 0
-              ? <><BarGraph data={selectedAgentRun} type="tokens_per_call" color="#3DFF7F"/>
-                <div className="horizontal_container mt_10">
-                  <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
-                  <span className="bar_label_text">Runs</span>
+            <div key="tokens_consumed_per_call" className="display_column_container">
+              <div className="horizontal_space_between w_100">
+                <span className="text_14 mb_8">Average Tokens consumed in all calls per run </span>
+                <div className="vertical_containers position_relative">
+                  {allAgents.length > 0 && <div>
+                    <div className="text_14 mb_8 cursor_pointer"
+                         onClick={() => setDropDown3(!dropdown3)}>{selectedAgent}<img width={18} height={16} src="/images/expand_more.svg"/>
+                    </div>
+                    {dropdown3 &&
+                        <div className="custom_select_options padding_8 position_absolute r_0">
+                          {allAgents.map((agent, index) => (
+                              <div key={index} className="custom_select_option padding_8"
+                                   onClick={() => handleSelectedAgent(agent.agent_id, agent.name)}>{agent.name}</div>))}
+                        </div>}
+                  </div>}
                 </div>
-              </>
-              : <div className="vertical_container align_center mt_80 w_100">
-                <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                <span className="text_12 color_white mt_6">No Runs Found</span>
-              </div>}
-          </div>
-        </ResponsiveGridLayout>
+              </div>
+              {selectedAgentRun.length > 0
+                  ? <><BarGraph data={selectedAgentRun} type="tokens_per_call" color="#3DFF7F"/>
+                    <div className="horizontal_container mt_10">
+                      <span className="bar_label_dot" style={{backgroundColor: '#3DFF7F'}}></span>
+                      <span className="bar_label_text">Runs</span>
+                    </div>
+                  </>
+                  : <div className="vertical_container align_center mt_80 w_100">
+                    <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
+                    <span className="text_12 color_white mt_6">No Runs Found</span>
+                  </div>}
+            </div>
+          </ResponsiveGridLayout>
+        </div>
       </div>
-    </div>
   );
 }
