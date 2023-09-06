@@ -66,4 +66,3 @@ class AgentExecutionFeed(DBBaseModel):
             return agent_feeds
         else:
             return agent_feeds[2:]
-        
