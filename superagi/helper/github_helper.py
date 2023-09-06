@@ -218,12 +218,12 @@ class GithubHelper:
         Returns:
             None
         """
-        body = self._get_file_content(file_name, agent_id, agent_execution_id, session)
+        body = self._get_file_contents(file_name, agent_id, agent_execution_id, session)
         body_bytes = body.encode("ascii")
         base64_bytes = base64.b64encode(body_bytes)
         file_content = base64_bytes.decode("ascii")
         file_path = self.get_file_path(file_name, folder_path)
-        file_url = f'https://api.github.com/repos/{self.github_username}/{repository_name}/contents/{file_path}'
+        file_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}'
         file_params = {
             'message': commit_message,
             'content': file_content,
@@ -328,6 +328,7 @@ class GithubHelper:
                                                                     agent=Agent.get_agent_from_id(session, agent_id),
                                                                     agent_execution=AgentExecution.get_agent_execution_from_id(
                                                                   session, agent_execution_id))
+
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
                 attachment_data = S3Helper().read_from_s3(final_path)
         else:

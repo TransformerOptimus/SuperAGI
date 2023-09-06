@@ -45,7 +45,7 @@ class IterationWorkflowStep(DBBaseModel):
         """
 
         return f"AgentWorkflowStep(id={self.id}, status='{self.next_step_id}', " \
-               f"prompt='{self.prompt}', agent_id={self.agent_id})"
+               f"prompt='{self.prompt}'"
     
     def to_dict(self):
         """

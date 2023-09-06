@@ -6,6 +6,7 @@ from superagi.config.config import get_config
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
 from superagi.models.configuration import Configuration
+from superagi.models.models_config import ModelsConfig
 from superagi.types.model_source_types import ModelSourceType
 from superagi.models.tool import Tool
 from superagi.controllers.types.agent_execution_config import AgentRunIn
@@ -78,6 +79,7 @@ class AgentConfiguration(DBBaseModel):
             
         # Fetch agent configurations
         agent_configs = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
+
         for agent_config in agent_configs:
             if agent_config.key in updated_details_dict:
                 agent_config.value = str(updated_details_dict[agent_config.key])
@@ -100,17 +102,26 @@ class AgentConfiguration(DBBaseModel):
         Returns:
             str: The model API key.
         """
-        config_model_source = Configuration.fetch_value_by_agent_id(session, agent_id,
-                                                                    "model_source") or "OpenAi"
-        selected_model_source = ModelSourceType.get_model_source_from_model(model)
-        if selected_model_source.value == config_model_source:
-            config_value = Configuration.fetch_value_by_agent_id(session, agent_id, "model_api_key")
-            model_api_key = decrypt_data(config_value)
-            return model_api_key
+        config_model = ModelsConfig.fetch_value_by_agent_id(session, agent_id, model)
+        return config_model
+#         selected_model_source = ModelSourceType.get_model_source_from_model(model)
+#         if selected_model_source.value == config_model_source:
+#             config_value = Configuration.fetch_value_by_agent_id(session, agent_id, "model_api_key")
+#             model_api_key = decrypt_data(config_value)
+#             return model_api_key
+#
+#         if selected_model_source == ModelSourceType.GooglePalm:
+#             return get_config("PALM_API_KEY")
+#
+#         if selected_model_source == ModelSourceType.Replicate:
+#             return get_config("REPLICATE_API_TOKEN")
+#         return get_config("OPENAI_API_KEY")
 
-        if selected_model_source == ModelSourceType.GooglePalm:
-            return get_config("PALM_API_KEY")
+    @classmethod
+    def get_agent_config_by_key_and_agent_id(cls, session, key: str, agent_id: int):
+        agent_config = session.query(AgentConfiguration).filter(
+            AgentConfiguration.agent_id == agent_id,
+            AgentConfiguration.key == key
+        ).first()
 
-        if selected_model_source == ModelSourceType.Replicate:
-            return get_config("REPLICATE_API_TOKEN")
-        return get_config("OPENAI_API_KEY")
+        return agent_config

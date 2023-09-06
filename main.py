@@ -33,6 +33,7 @@ from superagi.controllers.toolkit import router as toolkit_router
 from superagi.controllers.user import router as user_router
 from superagi.controllers.agent_execution_config import router as agent_execution_config
 from superagi.controllers.analytics import router as analytics_router
+from superagi.controllers.models_controller import router as models_controller_router
 from superagi.controllers.knowledges import router as knowledges_router
 from superagi.controllers.knowledge_configs import router as knowledge_configs_router
 from superagi.controllers.vector_dbs import router as vector_dbs_router
@@ -45,6 +46,8 @@ from superagi.helper.tool_helper import register_toolkits, register_marketplace_
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
+from superagi.llms.replicate import Replicate
+from superagi.llms.hugging_face import HuggingFace
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
@@ -53,21 +56,32 @@ from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
+from urllib.parse import urlparse
 app = FastAPI()
 
-database_url = get_config('POSTGRES_URL')
+db_host = get_config('DB_HOST', 'super__postgres')
+db_url = get_config('DB_URL', None)
 db_username = get_config('DB_USERNAME')
 db_password = get_config('DB_PASSWORD')
 db_name = get_config('DB_NAME')
 env = get_config('ENV', "DEV")
 
-if db_username is None:
-    db_url = f'postgresql://{database_url}/{db_name}'
+if db_url is None:
+    if db_username is None:
+        db_url = f'postgresql://{db_host}/{db_name}'
+    else:
+        db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
 else:
-    db_url = f'postgresql://{db_username}:{db_password}@{database_url}/{db_name}'
+    db_url = urlparse(db_url)
+    db_url = db_url.scheme + "://" + db_url.netloc + db_url.path
 
-engine = create_engine(db_url)
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(db_url,
+                       pool_size=20,  # Maximum number of database connections in the pool
+                       max_overflow=50,  # Maximum number of connections that can be created beyond the pool_size
+                       pool_timeout=30,  # Timeout value in seconds for acquiring a connection from the pool
+                       pool_recycle=1800,  # Recycle connections after this number of seconds (optional)
+                       pool_pre_ping=False,  # Enable connection health checks (optional)
+                       )
 
 # app.add_middleware(DBSessionMiddleware, db_url=f'postgresql://{db_username}:{db_password}@localhost/{db_name}')
 app.add_middleware(DBSessionMiddleware, db_url=db_url)
@@ -109,6 +123,7 @@ app.include_router(agent_workflow_router, prefix="/agent_workflows")
 app.include_router(twitter_oauth_router, prefix="/twitter")
 app.include_router(agent_execution_config, prefix="/agent_executions_configs")
 app.include_router(analytics_router, prefix="/analytics")
+app.include_router(models_controller_router, prefix="/models_controller")
 app.include_router(google_oauth_router, prefix="/google")
 app.include_router(knowledges_router, prefix="/knowledges")
 app.include_router(knowledge_configs_router, prefix="/knowledge_configs")
@@ -340,6 +355,10 @@ async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJW
         valid_api_key = OpenAi(api_key=api_key).verify_access_key()
     elif source == "Google Palm":
         valid_api_key = GooglePalm(api_key=api_key).verify_access_key()
+    elif source == "Replicate":
+        valid_api_key = Replicate(api_key=api_key).verify_access_key()
+    elif source == "Hugging Face":
+         valid_api_key = HuggingFace(api_key=api_key).verify_access_key()
     if valid_api_key:
         return {"message": "Valid API Key", "status": "success"}
     else:

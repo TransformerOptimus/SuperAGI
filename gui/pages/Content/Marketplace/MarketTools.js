@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
-import styles from './Market.module.css';
 import {fetchToolTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import {loadingTextEffect, excludedToolkits, returnToolkitIcon} from "@/utils/utils";
@@ -50,8 +49,8 @@ export default function MarketTools() {
     <div className={showMarketplace ? 'ml_8' : 'ml_3'}>
       <div className="w_100 overflowY_auto mxh_78vh">
         {!isLoading ? <div>
-          {toolTemplates.length > 0 ? <div className={styles.resources}>{toolTemplates.map((item) => (
-            <div className="market_tool cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
+          {toolTemplates.length > 0 ? <div className="marketplaceGrid3">{toolTemplates.map((item) => (
+            <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
               <div className="horizontal_container overflow_auto">
                 <Image className="tool_icon" width={40} height={40} src={returnToolkitIcon(item.name)} alt="tool-icon"/>
                 <div className="ml_12 mb_8">

@@ -9,12 +9,14 @@
 </p>
 
 <p align="center"><i>Open-source framework to build, manage and run useful Autonomous AI Agents</i></p>
-
+    
 
 <p align="center">
-<a href="https://superagi.com"> <img src="https://superagi.com/wp-content/uploads/2023/07/Website.svg"></a>
+<a href="https://superagi.com"> <img src="https://superagi.com/wp-content/uploads/2023/08/Website.svg"></a>
 <a href="https://app.superagi.com"> <img src="https://superagi.com/wp-content/uploads/2023/07/Cloud.svg"></a>
-<a href="https://marketplace.superagi.com/"> <img src="https://superagi.com/wp-content/uploads/2023/07/Marketplace.svg"></a>
+<a href="https://marketplace.superagi.com/"> <img src="https://superagi.com/wp-content/uploads/2023/08/Marketplace.svg"></a>
+<a href="https://superagi.com/docs/"> <img src="https://superagi.com/wp-content/uploads/2023/08/Docs.svg"></a>
+<a href="https://documenter.getpostman.com/view/28438662/2s9Xy6rqP5"> <img src="https://superagi.com/wp-content/uploads/2023/08/APIs.svg"></a>
 </p>
 
 <p align="center">
@@ -25,15 +27,12 @@
 <a href="https://github.com/TransformerOptimus/SuperAGI/stargazers" target="blank">
 <img src="https://img.shields.io/github/stars/TransformerOptimus/SuperAGI?style=for-the-badge" alt="SuperAGI stars"/>
 </a>
-<a href="https://github.com/TransformerOptimus/SuperAGI/pulls" target="blank">
-<img src="https://img.shields.io/github/issues-pr/TransformerOptimus/SuperAGI?style=for-the-badge" alt="SuperAGI pull-requests"/>
-</a>
 <a href='https://github.com/TransformerOptimus/SuperAGI/releases'>
 <img src='https://img.shields.io/github/release/TransformerOptimus/SuperAGI?&label=Latest&style=for-the-badge'>
 </a>
 
 <a href="https://github.com/TransformerOptimus/SuperAGI/commits" target="blank">
-<img src="https://img.shields.io/github/commits-since/TransformerOptimus/SuperAGI/v0.0.3.svg?style=for-the-badge" alt="SuperAGI Commits"/>
+<img src="https://img.shields.io/github/commits-since/TransformerOptimus/SuperAGI/v0.0.11.svg?style=for-the-badge" alt="SuperAGI Commits"/>
 </a>
 </p>
 
@@ -75,63 +74,68 @@
 
 <hr>
 
-## 📽 Demo Video Showcasing SuperCoder (A SuperAGI agent template)
-
-[Demo Video](https://github.com/Akki-jain/test/assets/92881074/bb18407a-b6b2-4a9f-9419-ec73ffacd2f8)
-
-This video demonstrates how SuperCoder can be used to create simple applications like a personal finance calculator.
+### 📽 Setting Up SuperAGI using Docker Hub
 
 <p align="center">
-<a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/iSPHZ1onQ44">Learn here</a>
+<a href='https://youtu.be/qjJneWjH5v4'><img src="https://superagi.com/wp-content/uploads/2023/08/DockerHub_install-1.png" width=1000px></a>
 </p>
 
 
-## 💡 Features
+<p align="center">
+<a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/yvmNthyWYCE">Learn here</a>
+</p>
 
-- Provision, Spawn & Deploy Autonomous AI Agents
-- Extend Agent Capabilities with Tools
-- Run Concurrent Agents Seamlessly
-- Graphical User Interface 
-- Action Console
-- Multiple Vector DBs
-- Multi-Modal Agents
-- Agent Trajectory Fine-Tuning
-- Performance Telemetry
-- Optimized Token Usage
-- Agent Memory Storage
-- Looping Detection Heuristics 
-- Concurrent Agents
-- Resource Manager
+<br>
+<p align="center">
+<a href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/TransformerOptimus/SuperAGI/tree/main"> <img src="https://www.deploytodo.com/do-btn-blue.svg"></a><br>Deploy SuperAGI to DigitalOcean with one click.
+</p>
 
-## 🛠 Tools
-<a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113609.png height=50px width=50px alt="Slack" valign="middle" title="Slack"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113612.png height=50px width=50px alt="Email"  valign="middle" title="Email"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/07/Group-113647.png height=50px width=50px alt="Twitter" valign="middle" title="Twitter"> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113610.png height=50px width=50px alt="Jira" valign="middle" title="Jira"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113611.png height=50px width=50px alt="File Manager" valign="middle" title="File Manager"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113613.png height=50px width=50px alt="Google Search" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113615.png height=50px width=50px alt="Dall-E" valign="middle" title="Dall-E"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113614.png height=50px width=50px alt="Github" valign="middle" title="Github"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113616.png height=50px width=50px alt="Web Interaction" valign="middle" title="Web Interaction"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113617.png height=50px width=50px alt="Zapier" valign="middle" title="Zapier"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113618.png height=50px width=50px alt="Instagram" valign="middle" title="Instagram"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113619.png height=50px width=50px alt="Trello" valign="middle" title="Trello"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113620.png height=50px width=50px alt="Google Analytics" valign="middle" title="Google Analytics"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113622.png height=50px width=50px alt="Duckduckgo" valign="middle" title="Duckduckgo"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113621.png height=50px width=50px alt="Discord" valign="middle" title="Discord">
+### 💡 Features
+
+- Provision, spawn & deploy autonomous AI agents
+- Tools/Toolkits for extended agent capabilities
+- Concurrent agent runs
+- Schedule agents
+- Action console
+- Multiple vector DBs
+- Agent trajectory fine-tuning
+- Performance monitoring
+- Tool memory
+- Resource manager
+- Knowledge embeddings
+- Agent workflows
+
+### 🛠 Tools
+<a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Twitter.png height=50px width=50px alt="Twitter" valign="middle" title="Twitter"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Coding.png height=50px width=50px alt="Coding Tool" valign="middle" title="Coding Tool"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Insta.png height=50px width=50px alt="Instagram" valign="middle" title="Instagram"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Knowledge_tool.png height=50px width=50px alt="Knowledge Search" valign="middle" title="Knowledge Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113612.png height=50px width=50px alt="Email"  valign="middle" title="Email"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113610.png height=50px width=50px alt="Jira" valign="middle" title="Jira"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113611.png height=50px width=50px alt="File Manager" valign="middle" title="File Manager"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113613.png height=50px width=50px alt="Google Search" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113615.png height=50px width=50px alt="Dall-E" valign="middle" title="Dall-E"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113614.png height=50px width=50px alt="Github" valign="middle" title="Github"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113616.png height=50px width=50px alt="Web Interaction" valign="middle" title="Web Interaction"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113622.png height=50px width=50px alt="Duckduckgo" valign="middle" title="Duckduckgo"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Calendar_tool.png height=50px width=50px alt="Google Calendar" valign="middle" title="Google Calendar"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Search_tool.png height=50px width=50px alt="Google Calendar" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Serp.png height=50px width=50px alt="Serp API" valign="middle" title="Serp API"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Searx.png height=50px width=50px alt="Searx" valign="middle" title="Searx "></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Web_scraper_logo.png height=50px width=50px alt="Web Scraper" valign="middle" title="Web Scraper"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Notion_logo.png height=50px width=50px alt="Notion" valign="middle" title="Notion"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Apollo_logo.png height=50px width=50px alt="Apollo" valign="middle" title="Apollo"></a>
 
 
-## 💻 Screenshots
-
-[//]: # (**CLI View**)
-
-[//]: # (![CLI]&#40;https://superagi.co/wp-content/uploads/2023/05/CLI.png&#41;)
-
-**GUI**
+### 💻 Screenshot
 
 <p align="center">
-  <a href="https://superagi.com//#gh-light-mode-only">
-    <img src="https://superagi.com/wp-content/uploads/2023/05/Light-dashboard.png" alt="SuperAGI logo" />
-  </a>
   <a href="https://superagi.com//#gh-dark-mode-only">
     <img src="https://superagi.com/wp-content/uploads/2023/05/Dark-Dashboard.png" alt="SuperAGI logo" />
   </a>
 </p>
 
 
-## 🛣 Roadmap
-[Click here to checkout the latest roadmap 🔗](https://github.com/users/TransformerOptimus/projects/1)
+### 🛣 Roadmap
+[Click here to checkout the latest roadmap 🔗](https://github.com/users/TransformerOptimus/projects/5/views/1)
+
+### ⚙️ Setting up
+
+1. Download the repo using `git clone https://github.com/TransformerOptimus/SuperAGI.git` in your terminal or directly from github page in zip format.
+
+2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml`, naming it `config.yaml` (take note of the file extension `.yaml`, *not* `.yml`).
+3. Enter your LLM API Key or Auth token in `config.yaml` file.
+4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
+5. Once you have Docker Desktop running, run the command: `docker-compose up --build` in the SuperAGI directory. Open your browser and navigate to `http://localhost:3000` to access SuperAGI.
+
+- If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
 
 <a id="architecture">
 
-## 🌐 Architecture
+### 🌐 Architecture
 </a>
 <details>
 <summary>SuperAGI Architecture</summary>
@@ -164,39 +168,11 @@ This video demonstrates how SuperCoder can be used to create simple applications
 </details>
 
 
-## ⚙️ Setting up
-
-1. Download the repo using `git clone https://github.com/TransformerOptimus/SuperAGI.git` in your terminal or directly from github page in zip format.
-
-2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml`, naming it `config.yaml` (take note of the file extension `.yaml`, *not* `.yml`).
-3. Enter your unique OpenAI API Key, Google key, Custom search engine ID without any quotes or spaces in `config.yaml` file. Follow the links below to get your keys:
-
-|Keys|Accessing the keys|
-|--|--|
-|**OpenAI API Key**| Sign up and create an API key at [OpenAI Developer](https://beta.openai.com/signup/)|
-|**Google API key**| Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the API you need (for example: [Google Custom Search JSON API](https://developers.google.com/custom-search/v1/introduction)).|
-|**Custom search engine ID**| Visit [Google Programmable Search Engine](https://programmablesearchengine.google.com/about/) to create a custom search engine for your application and obtain the search engine ID.|
-
-4. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
-5. Once you have Docker Desktop running, run the command: `docker-compose up --build` in the SuperAGI directory. Open your browser and navigate to `http://localhost:3000` to access SuperAGI.
-
-   - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
-
-
-
-## ⚠️ Under Development!
+### ⚠️ Under Development!
 This project is under active development and may still have issues. We appreciate your understanding and patience. If you encounter any problems, please first check the open issues. If your issue is not listed, kindly create a new issue detailing the error or problem you experienced. Thank you for your support!
 
-## 📽 Curated Videos
 
-|-|
-|--|
-|[GitHub Codespaces](https://youtu.be/iSPHZ1onQ44)|
-|[Windows/MacOS/Linux](https://youtu.be/Unj5NLNTkLY)|
-[GUI Walkthrough](https://youtu.be/7FXESG6BOgw)|
-[Research Usecase](https://youtu.be/LfZ6T8XP-Q0)|
-
-## 👩‍💻 Contributors
+### 👩‍💻 Contributors
 [![TransformerOptimus](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133493246?v=4&w=50&h=50&mask=circle)](https://github.com/TransformerOptimus) [![Cptsnowcrasher](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133322218?v=4&w=50&h=50&mask=circle)](https://github.com/Cptsnowcrasher) [![vectorcrow](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/133646556?v=4&w=50&h=50&mask=circle)](https://github.com/vectorcrow) [![Akki-jain](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/92881074?v=4&w=50&h=50&mask=circle)](https://github.com/Akki-jain) [![Autocop-Agent](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/129729746?v=4&w=50&h=50&mask=circle)](https://github.com/Autocop-Agent)[![COLONAYUSH](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/60507126?v=4&w=50&h=50&mask=circle)](https://github.com/COLONAYUSH)[![luciferlinx101](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/129729795?v=4&w=50&h=50&mask=circle)](https://github.com/luciferlinx101)[![mukundans89](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/101278493?v=4&w=50&h=50&mask=circle)](https://github.com/mukundans89)[![Fluder-Paradyne](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/121793617?v=4&w=50&h=50&mask=circle)](https://github.com/Fluder-Paradyne)[![nborthy](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/101320057?v=4&w=50&h=50&mask=circle)](https://github.com/nborthy)[![nihirr](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/122777244?v=4&w=50&h=50&mask=circle)](https://github.com/nihirr)[![Tarraann](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/97586318?v=4&w=50&h=50&mask=circle)](https://github.com/Tarraann)[![neelayan7](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/43145646?v=4&w=50&h=50&mask=circle)](https://github.com/neelayan7)[![Arkajit-Datta](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/61142632?v=4&w=50&h=50&mask=circle)](https://github.com/Arkajit-Datta)[![guangchen811](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/103159823?v=4&w=50&h=50&mask=circle)](https://github.com/guangchen811)[![juanfpo96](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/14787156?v=4&w=50&h=50&mask=circle)](https://github.com/juanfpo96)[![iskandarreza](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/32027019?v=4&w=50&h=50&mask=circle)](https://github.com/iskandarreza)[![jpenalbae](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/8380459?v=4&w=50&h=50&mask=circle)](https://github.com/jpenalbae)[![pallasite99](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/26508636?v=4&w=50&h=50&mask=circle)](https://github.com/pallasite99)[![xutpuu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/11964505?v=4&w=50&h=50&mask=circle)](https://github.com/xutpuu)[![alexkreidler](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/11166947?v=4&w=50&h=50&mask=circle)](https://github.com/alexkreidler)[![hanhyalex123](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/100895608?v=4&w=50&h=50&mask=circle)](https://github.com/hanhyalex123)[![ps4vs](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/91535358?v=4&w=50&h=50&mask=circle)](https://github.com/ps4vs)[![eltociear](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/22633385?v=4&w=50&h=50&mask=circle)](https://github.com/eltociear)
 [![shaiss](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/113060?v=4&w=50&h=50&mask=circle)](https://github.com/shaiss)
 [![AdityaRajSingh1992](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/105219157?v=4&w=50&h=50&mask=circle)](https://github.com/AdityaRajSingh1992)
@@ -214,6 +190,14 @@ This project is under active development and may still have issues. We appreciat
 [![JPDucky](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/34105363?v=4&w=50&h=50&mask=circle)](https://github.com/JPDucky)
 [![Vibhusha22](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/128478691?v=4&w=50&h=50&mask=circle)](https://github.com/Vibhusha22)
 [![ai-akuma](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/7444521?v=4&w=50&h=50&mask=circle)](https://github.com/ai-akuma)
+[![rounak610](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/81288115?v=4&w=50&h=50&mask=circle)](https://github.com/rounak610)
+[![AdarshJha619](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/53672264?v=4&w=50&h=50&mask=circle)](https://github.com/AdarshJha619)
+[![ResoluteStoic](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/105219157?v=4&w=50&h=50&mask=circle)](https://github.com/ResoluteStoic)
+[![JohnHunt999](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/137149331?v=4&w=50&h=50&mask=circle)](https://github.com/JohnHunt999)
+[![Maverick-F35](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/138012351?v=4&w=50&h=50&mask=circle)](https://github.com/Maverick-F359)
+[![jorgectf](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/46056498?v=4&w=50&h=50&mask=circle)](https://github.com/jorgectf)
+[![AdityaSharma13064](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/138581531?v=4&w=50&h=50&mask=circle)](https://github.com/AdityaSharma13064)
+[![lalitlj](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/138583454?v=4&w=50&h=50&mask=circle)](https://github.com/lalitlj)
 
   
 <p align="center"><a href="https://github.com/TransformerOptimus/SuperAGI#"><img src="https://superagi.com/wp-content/uploads/2023/05/backToTopButton.png" alt="Back to top" height="29"/></a></p>

@@ -77,18 +77,21 @@ class ToolOutputHandler:
             None
         """
         if self.memory is not None:
-            data = json.loads(assistant_reply)
-            task_description = data['thoughts']['text']
-            final_tool_response = tool_response_result
-            prompt = task_description + final_tool_response
-            text_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=10)
-            chunk_response = text_splitter.split_text(prompt)
-            metadata = {"agent_execution_id": self.agent_execution_id}
-            metadatas = []
-            for _ in chunk_response:
-                metadatas.append(metadata)
+            try:
+                data = json.loads(assistant_reply)
+                task_description = data['thoughts']['text']
+                final_tool_response = tool_response_result
+                prompt = task_description + final_tool_response
+                text_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=10)
+                chunk_response = text_splitter.split_text(prompt)
+                metadata = {"agent_execution_id": self.agent_execution_id}
+                metadatas = []
+                for _ in chunk_response:
+                    metadatas.append(metadata)
 
-            self.memory.add_texts(chunk_response, metadatas)
+                self.memory.add_texts(chunk_response, metadatas)
+            except Exception as exception:
+                logger.error(f"Exception: {exception}")
         
      
 
@@ -97,7 +100,7 @@ class ToolOutputHandler:
         action = self.output_parser.parse(assistant_reply)
         agent = session.query(Agent).filter(Agent.id == self.agent_config["agent_id"]).first()
         organisation = agent.get_agent_organisation(session)
-        tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools)
+        tool_executor = ToolExecutor(organisation_id=organisation.id, agent_id=agent.id, tools=self.tools, agent_execution_id=self.agent_execution_id)
         return tool_executor.execute(session, action.name, action.args)
 
     def _check_permission_in_restricted_mode(self, session, assistant_reply: str):
