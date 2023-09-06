@@ -134,32 +134,44 @@ def run_specific_agent(task: str) -> None:
             "name": "File Toolkit",
             "tools": ["Read File", "Write File"]
         },
+        # {
+        #     "name": "Web Scrapper Toolkit",
+        #     "tools": ["WebScraperTool"]
+        # },
+        # {
+        #     "name": "DuckDuckGo Search Toolkit",
+        #     "tools": ["DuckDuckGoSearch"]
+        # },
+        {
+            "name": "Google Search Toolkit",
+            "tools": ["GoogleSearch"]
+        },
         {
             "name": "Web Scrapper Toolkit",
             "tools": ["WebScraperTool"]
         },
         {
-            "name": "DuckDuckGo Search Toolkit",
-            "tools": ["DuckDuckGoSearch"]
-        },
-        {
             "name": "CodingToolkit",
-            "tools": ["CodingTool", "RunCodeTool"]
+            "tools": ["RunCodeTool"]
         }
     ]
 
     headers = {"Content-Type": "application/json", "X-API-Key": superagi_api_key}
 
     payload = {
-        'name': 'agent',
+        'name': f"{task}",
         'description': 'AI assistant to solve complex problems',
         'goal': [
             f"{task}"
         ],
         'agent_workflow': 'Goal Based Workflow',
         'instruction': [
-            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .'],
+            'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .',
+            'Avoid redundancy, such as unnecessary immediate verification of actions.',
+            'DO NOT modify the test.py file'
+            ],
         'constraints': [
+            "DO NOT modify the test.py file",
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
             "Ensure the tool and args are as per current plan and reasoning",
             "Exclusively use the tools listed under 'TOOLS'",
@@ -181,6 +193,9 @@ def run_specific_agent(task: str) -> None:
     response = requests.post(url=f"{baseUrl}/v1/agent/{agent_id}/run", headers=headers, json={})
     agent_execution_id = response.json()['run_id']
 
+    # toolkit_name = response.json()['Google Search Toolkit']
+    googleresponse = requests.post(url=f"{baseUrl}/tool_configs/add/Google Search Toolkit", headers=headers, json=[{"key":"SEARCH_ENGINE_ID","value": config_data.get("SEARCH_ENGINE_ID")},{"key":"GOOGLE_API_KEY","value":config_data.get("GOOGLE_API_KEY")}])
+
     stop_time = time.perf_counter()
     print('time to agent start', stop_time - start1_time)
 
@@ -191,7 +206,7 @@ def run_specific_agent(task: str) -> None:
     print(response.json(), 'response')
     response = response.json()
 
-    output_path = f"workspace/output/"
+    output_path = f"workspace/input/"
     input_path = f"workspace/input/"
     config["workspace"]["output"] = output_path
     config["workspace"]["input"] = input_path
@@ -227,12 +242,14 @@ def run_specific_agent(task: str) -> None:
         agent_stream = requests.request(
             "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{agent_execution_id}", headers=headers
         )
+        print(agent_stream.json()['status'])
+        print(time.time() - start_time)
         if agent_stream.json()['status'] == 'COMPLETED':
             break
 
-        if time.time() - start_time > 150:
+        if time.time() - start_time > 300:
             response = requests.request(
-                "PUT", f"{baseUrl}/agentexecutions/update/{response['execution_id']}", headers=headers,
+                "PUT", f"{baseUrl}/v1/agent/{agent_id}/pause", headers=headers,
                 data=json.dumps(pause_payload)
             )
             break

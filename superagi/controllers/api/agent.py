@@ -146,7 +146,7 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
                                                                      agent_execution_configs=agent_execution_configs)
     EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
                                  agent_id, organisation.id if organisation else 0)
-
+    print(datetime.now())
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
     return {

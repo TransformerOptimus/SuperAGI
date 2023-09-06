@@ -8,6 +8,8 @@ from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 import numpy as np
+from time import perf_counter
+
 
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 
@@ -30,30 +32,45 @@ class ToolOutputHandler:
             session (Session): The database session.
             assistant_reply (str): The assistant reply.
         """
+        import time
         response = self._check_permission_in_restricted_mode(session, assistant_reply)
         if response.is_permission_required:
             return response
+        logger.info("is_permission_required:" + str(response.is_permission_required))
 
+        
+        start_time = time.perf_counter()
         tool_response = self.handle_tool_response(session, assistant_reply)
+        logger.info("tool_response:" + str(tool_response))
+        print(f'Time taken in handle to get tool_response: {time.perf_counter() - start_time}')
         # print(tool_response)
 
         agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
+        start_time2 = time.perf_counter()
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                   agent_id=self.agent_config["agent_id"],
                                                   feed=assistant_reply,
                                                   role="assistant",
                                                   feed_group_id=agent_execution.current_feed_group_id)
+        print(f'Time taken in handle to get agent_execution_feed: {time.perf_counter() - start_time2}')
+
         session.add(agent_execution_feed)
+        start_time3 = time.perf_counter()
         tool_response_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,
                                                 agent_id=self.agent_config["agent_id"],
                                                 feed=tool_response.result,
                                                 role="system",
                                                 feed_group_id=agent_execution.current_feed_group_id)
+        print(f'Time taken in handle to get tool_response_feed: {time.perf_counter() - start_time3}')
+
         session.add(tool_response_feed)
         session.commit()
+        start_time4 = time.perf_counter()
         if not tool_response.retry:
             tool_response = self._check_for_completion(tool_response)
         # print("Tool Response:", tool_response)
+        print(f'Time taken in tool_response_retry: {time.perf_counter() - start_time4}')
+
         return tool_response
 
     def handle_tool_response(self, session, assistant_reply):
@@ -137,7 +154,10 @@ class ReplaceTaskOutputHandler:
         self.agent_config = agent_config
 
     def handle(self, session, assistant_reply):
+        t1_
+
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
+
         tasks = eval(assistant_reply)
         self.task_queue.clear_tasks()
         for task in reversed(tasks):

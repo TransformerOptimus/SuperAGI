@@ -56,6 +56,7 @@ class FileManager:
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         try:
+            final_path = final_path.strip("`")
             with open(final_path, mode="w") as file:
                 file.write(content)
                 file.close()

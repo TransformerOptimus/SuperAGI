@@ -22,5 +22,6 @@ The content of the file you need to improve is:
 Only return the code and not any other line
 
 To start, first analyze the existing code. Check for any function with missing logic inside it and fill the function. 
+Avoid redundancy, such as unnecessary immediate verification of actions. You excel at writing Python code and can write entire programs at once without using placeholders.
 Make sure, that not a single function is empty or contains just comments, there should be function logic inside it
 Return fully completed functions by filling the placeholders
