@@ -1,7 +1,9 @@
+import ast
 from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy.orm import sessionmaker
+from superagi.models.tool import Tool
 
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.worker import execute_agent
@@ -60,8 +62,8 @@ class ScheduledAgentExecutor:
             session.add(agent_execution_config)
         organisation = agent.get_agent_organisation(session)
         model = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'model').first()[0]
-        
-        EventHandler(session=session).create_event('run_created', 
+
+        EventHandler(session=session).create_event('run_created',
                                                    {'agent_execution_id': db_agent_execution.id,
                                                     'agent_execution_name':db_agent_execution.name},
                                                     agent_id,
@@ -70,10 +72,10 @@ class ScheduledAgentExecutor:
         if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
             knowledge_name = Knowledges.get_knowledge_from_id(session, int(agent_execution_knowledge.value)).name
             if knowledge_name is not None:
-                EventHandler(session=session).create_event('knowledge_picked', 
-                                                        {'knowledge_name': knowledge_name, 
+                EventHandler(session=session).create_event('knowledge_picked',
+                                                        {'knowledge_name': knowledge_name,
                                                          'agent_execution_id': db_agent_execution.id},
-                                                        agent_id, 
+                                                        agent_id,
                                                         organisation.id if organisation else 0)
         session.commit()
 
