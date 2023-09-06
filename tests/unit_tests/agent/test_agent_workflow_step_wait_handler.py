@@ -46,29 +46,6 @@ class TestAgentWaitStepHandler(unittest.TestCase):
         self.assertEqual(agent_execution.status, "WAIT_STEP")
         self.session.commit.assert_called_once()
 
-
-    # def test_handle_next_step(self):
-    #     # Mock the necessary objects and methods
-    #     agent_execution = MagicMock()
-    #     workflow_step = MagicMock()
-    #
-    #     AgentExecution.get_agent_execution_from_id = MagicMock(return_value=agent_execution)
-    #     AgentWorkflowStep.find_by_id = MagicMock(return_value=workflow_step)
-    #     AgentWorkflowStep.fetch_next_step = MagicMock(return_value="COMPLETE")
-    #     AgentExecution.assign_next_step_id = MagicMock()
-    #
-    #     # Call the method to be tested
-    #     self.handler.handle_next_step()
-    #
-    #     # Assert that the expected methods were called with the expected arguments
-    #     AgentExecution.get_agent_execution_from_id.assert_called_once_with(self.session, self.agent_execution_id)
-    #     AgentWorkflowStep.find_by_id.assert_called_once_with(self.session, agent_execution.current_agent_step_id)
-    #     AgentWorkflowStep.fetch_next_step.assert_called_once_with(self.session, workflow_step.id, "default")
-    #
-    #     # Assert that the attributes of agent_execution were modified as expected
-    #     self.assertEqual(agent_execution.current_agent_step_id, -1)
-    #     self.assertEqual(agent_execution.status, "COMPLETED")
-    #     self.session.commit.assert_called_once()
     def test_handle_next_step(self):
         # Mock the necessary objects and methods
         agent_execution = MagicMock()
@@ -87,11 +64,10 @@ class TestAgentWaitStepHandler(unittest.TestCase):
         self.handler.handle_next_step()
 
         # Assert that the expected methods were called with the expected arguments
-        AgentExecution.get_agent_execution_from_id.assert_called_once_with(self.session, self.agent_execution_id)
         AgentWorkflowStep.find_by_id.assert_called_once_with(self.session, 42)  # Ensure it's the correct step ID
         AgentWorkflowStep.fetch_next_step.assert_called_once_with(self.session, workflow_step.id, "default")
 
         # Assert that the attributes of agent_execution were modified as expected
-        # self.assertEqual(agent_execution.current_agent_step_id, -1)
+        self.assertEqual(agent_execution.current_agent_step_id, -1)
         self.assertEqual(agent_execution.status, "COMPLETED")
-        # self.session.commit.assert_called_once()
+        self.session.commit.assert_called_once()
