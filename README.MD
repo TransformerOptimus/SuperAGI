@@ -128,7 +128,14 @@
 
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
+#### 📝 Note: 
 
+You can setup a production-like deployment via docker-compose:
+
+1. Copy docker-compose-prod.yml from the repository
+2. Copy .env.dist from the repository and rename it to .env
+3. Make the required changes in .env file
+4. Run it via `docker-compose -f docker-compose-prod.yml up -d`
 
 <a id="architecture">
 

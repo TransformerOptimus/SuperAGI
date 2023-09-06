@@ -1,0 +1,100 @@
+version: "3.8"
+services:
+  backend:
+    image: "superagidev/superagi:main"
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    command: ["/app/entrypoint.sh"]
+
+  celery:
+    image: "superagidev/superagi:main"
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    command: ["/app/entrypoint_celery.sh"]
+    volumes:
+      - superagi_workspace:/app/workspace
+
+  gui:
+    image: "superagidev/superagi-frontend:main"
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=/api
+
+  redis:
+    image: "redis/redis-stack-server:latest"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    # uncomment to expose redis port to host
+    # ports:
+    #   - "6379:6379"
+    volumes:
+      - superagi_redis_data:/data
+
+  postgres:
+    image: "docker.io/library/postgres:latest"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=$DB_USERNAME
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+      - POSTGRES_DB=$DB_NAME
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "$DB_NAME"]
+      interval: 5s
+      timeout: 60s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - superagi_postgres_data:/var/lib/postgresql/data/
+    # uncomment to expose postgres port to host
+    # ports:
+    #   - "5432:5432"
+
+  # weaviate:
+  #   image: semitechnologies/weaviate:1.21.1
+  #   restart: unless-stopped
+  #   volumes:
+  #     - superagi_weaviate_data:/var/lib/weaviate
+  #   command:
+  #     - --host
+  #     - 0.0.0.0
+  #     - --port
+  #     - "8080"
+  #     - --scheme
+  #     - http
+  #   environment:
+  #     PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+  #     AUTHENTICATION_APIKEY_ENABLED: true
+  #     AUTHENTICATION_APIKEY_ALLOWED_KEYS: $WEAVIATE_APIKEY
+  #     AUTHENTICATION_APIKEY_USERS: $WEAVIATE_APIKEY
+  #     ENABLE_MODULES: text2vec-openai,generative-openai
+
+  proxy:
+    image: superagidev/superagi-proxy
+    restart: unless-stopped
+    ports:
+      - $PROXY_EXTERNAL_PORT:80
+    depends_on:
+      - backend
+      - gui
+
+volumes:
+  superagi_postgres_data:
+  superagi_redis_data:
+  superagi_weaviate_data:
+  superagi_workspace:
