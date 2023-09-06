@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback, useRef} from 'react';
+import React, {useState, useEffect, useCallback, useRef, createRef} from 'react';
 import Image from "next/image";
 import style from "./Apm.module.css";
 import 'react-toastify/dist/ReactToastify.css';
@@ -44,6 +44,21 @@ export default function ApmDashboard() {
   const storedLayout = localStorage.getItem('myLayoutKey');
   const [layout, setLayout] = useState(storedLayout !== null ? JSON.parse(storedLayout) : initialLayout);
   const firstUpdate = useRef(true);
+  const tooltipRefs = useRef([]);
+  const [toolTipPosition, setToolTipPosition] = useState({top: 0, left: 0});
+  const [toolTip, setToolTip] = useState({showToolTip: false, toolTipIndex: null});
+
+  if (tooltipRefs.current.length !== allAgents.length) {
+    tooltipRefs.current = Array(allAgents.length).fill().map((_, i) => tooltipRefs.current[i] || createRef());
+  }
+
+  const handleScroll = () => {
+    if (toolTip.showToolTip) {
+      const tooltipRef = tooltipRefs.current[toolTip.toolTipIndex];
+      const tooltipRect = tooltipRef.getBoundingClientRect();
+      setToolTipPosition({ top: tooltipRect.top + window.pageYOffset, left: tooltipRect.left });
+    }
+  };
 
   const onLayoutChange = (currentLayout) => {
     setLayout(currentLayout);
@@ -75,7 +90,7 @@ export default function ApmDashboard() {
     const fetchData = async () => {
       try {
         const [metricsResponse, agentsResponse, activeRunsResponse, toolsUsageResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns(), getToolsUsage()]);
-        const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001', 'replicate-llama13b-v2-chat'];
+        const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k'];
 
         assignDefaultDataPerModel(metricsResponse.data.agent_details.model_metrics, models);
         assignDefaultDataPerModel(metricsResponse.data.tokens_details.model_metrics, models);
@@ -250,29 +265,22 @@ export default function ApmDashboard() {
                   <thead>
                   <tr style={{borderTop: 'none'}}>
                     <th className="table_header w_20">Agent Name</th>
-                    <th className="table_header text_align_right w_10">Model
-                    </th>
-                    <th className="table_header text_align_right w_12">Tokens Consumed
-                    </th>
-                    <th className="table_header text_align_right w_6">Runs
-                    </th>
-                    <th className="table_header text_align_right w_12">Avg tokens per run
-                    </th>
-                    <th className="table_header text_align_right w_20">Tools
-                    </th>
-                    <th className="table_header text_align_right w_10">Calls
-                    </th>
-                    <th className="table_header text_align_right w_10">Avg Run Time
-                    </th>
+                    <th className="table_header text_align_right w_10">Model</th>
+                    <th className="table_header text_align_right w_12">Tokens Consumed</th>
+                    <th className="table_header text_align_right w_6">Runs</th>
+                    <th className="table_header text_align_right w_12">Avg tokens per run</th>
+                    <th className="table_header text_align_right w_20">Tools</th>
+                    <th className="table_header text_align_right w_10">Calls</th>
+                    <th className="table_header text_align_right w_10">Avg Run Time</th>
                   </tr>
                   </thead>
                 </table>
 
-                <div className="overflow_auto w_100">
+                <div className="overflow_auto w_100" onScroll={handleScroll}>
                   <table className="table_css margin_0">
                     <tbody>
                     {allAgents.map((run, i) => (
-                      <tr key={i}>
+                      <tr key={i} ref={tooltipRefs.current[i]}>
                         <td className="table_data w_20">{run.name}</td>
                         <td className="table_data text_align_right w_10">{run.model_name}</td>
                         <td className="table_data text_align_right w_12">{formatNumber(run.total_tokens)}</td>
@@ -286,12 +294,21 @@ export default function ApmDashboard() {
                           ))}
                           {run.tools_used && run.tools_used.length > 3 &&
                               <div style={{display:'inline-flex'}}>
-                                {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip">
+                                {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip" style={toolTipPosition}>
                                   {run.tools_used.slice(3).map((tool,index) =>
                                       <div className="tools_used" key={index}>{tool}</div>
                                   )}
                                 </div>}
-                                <div className="tools_used cursor_pointer" onMouseEnter={() => setToolTipState(true,i)} onMouseLeave={() => setToolTipState(false,i)}>
+                                <div className="tools_used cursor_pointer"
+                                     onMouseEnter={() => {
+                                       const tooltipRect = tooltipRefs.current[i].getBoundingClientRect();
+                                       setToolTipPosition({ top: tooltipRect.top + window.pageYOffset, left: tooltipRect.left });
+                                       setToolTip({showToolTip:true, toolTipIndex: i});
+                                     }}
+                                     onMouseLeave={() => {
+                                       setToolTipPosition({ top: 0, left: 0 });
+                                       setToolTip({showToolTip:false, toolTipIndex: null});
+                                     }}>
                                   +{run.tools_used.length - 3}
                                 </div>
                               </div>
