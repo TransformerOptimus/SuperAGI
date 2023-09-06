@@ -82,7 +82,7 @@ def test_fetch_data_success(mock_get_db):
         assert response.status_code == 200
 
 @patch('superagi.controllers.models_controller.db')
-def test_get_marketplace_knowledge_list_success(mock_get_db):
+def test_get_marketplace_models_list_success(mock_get_db):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
         patch('superagi.helper.auth.db') as mock_auth_db, \
         patch('superagi.controllers.models_controller.requests.get') as mock_get:
@@ -95,7 +95,7 @@ def test_get_marketplace_knowledge_list_success(mock_get_db):
         assert response.status_code == 200
 
 @patch('superagi.controllers.models_controller.db')
-def test_get_marketplace_knowledge_list_success(mock_get_db):
+def test_get_marketplace_models_list_success(mock_get_db):
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
         patch('superagi.helper.auth.db') as mock_auth_db:
         response = client.get("/models_controller/marketplace/list/0")
