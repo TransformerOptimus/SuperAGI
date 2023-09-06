@@ -126,6 +126,7 @@ export default function AgentCreate({
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
       .then((response) => {
+        console.log(response.data['api_key'])
         const apiKey = response.data['api_key']
         setHasAPIkey(!(apiKey === null));
       })
@@ -164,6 +165,7 @@ export default function AgentCreate({
         } else {
           setModel(selected_model);
         }
+        console.log(response)
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
