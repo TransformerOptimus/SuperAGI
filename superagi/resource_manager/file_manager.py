@@ -72,14 +72,13 @@ class FileManager:
         logger.info(f"{file_name} - File written successfully")
         return f"{file_name} - File written successfully"
         
-    def write_csv_file(self, file_name: str, final_path: str, csv_data) -> str:
+    def write_csv_file(self, file_name: str, file_path: str, csv_data) -> str:
         try:
-            with open(final_path, mode="w", newline="") as file:
+            with open(file_path, mode="w", newline="") as file:
                 writer = csv.writer(file, lineterminator="\n")
                 writer.writerows(csv_data)
-            self.write_to_s3(file_name, final_path)
-            logger.info(f"{file_name} - File written successfully")
-            return f"{file_name} - File written successfully"
+            self.write_to_s3(file_name, file_path)
+            return file_path
         except Exception as err:
             raise FileNotCreatedError(file_name=file_name) from err
         
