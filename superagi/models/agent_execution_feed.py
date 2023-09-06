@@ -52,7 +52,7 @@ class AgentExecutionFeed(DBBaseModel):
             if agent_execution_feed.feed.startswith("Tool"):
                 return agent_execution_feed.feed
         return ""
-    
+
     @classmethod
     def fetch_agent_execution_feeds(cls, session, agent_execution_id: int):
         agent_execution = AgentExecution.find_by_id(session, agent_execution_id)
