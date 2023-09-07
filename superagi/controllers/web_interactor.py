@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import requests
 from fastapi import APIRouter, Request
 from fastapi_sqlalchemy import db
 
@@ -16,9 +17,9 @@ router = APIRouter()
 import execjs
 # Define the JavaScript code as a string
 
-js_file_path = '/dom_extractor.js'
+js_file_path = './dom_extractor.js'
 # Read the JavaScript code from the file
-f = open(str(Path(__file__).parent) + js_file_path, "r")
+f = open(js_file_path, "r")
 js_code = f.read()
 # print(f.read())
 # with open(js_file_path, 'r') as js_file:
@@ -74,7 +75,18 @@ async def web_interactor_next_action(request: Request):
     # print(db_agent_workflow_step_tool, "db_agent_workflow_step_tool")
 
     goal = db_agent_workflow_step_tool.input_instruction
-    dom_content = context.call("dom_extractor", body["dom_content"],goal)
+    url = "http://web_interactor:7000/transformed_html"
+    request_body = {
+        "dom_content": body["dom_content"],
+        "goal": goal
+    }
+    response = requests.post( url, json=request_body)
+    print("asdkjasdhfkjsdfhsgdfjhgsjdf",response.json())
+    response = response.json()
+    transformed_html = response["transformed_dom"]
+    dom_content = ""
+    if len(transformed_html) != 0:
+        dom_content = transformed_html
     if execution is None or execution.status == "COMPLETED":
         return {"status": "COMPLETED"}
     AgentExecutionConfiguration().add_or_update_agent_execution_config(db.session, execution,
