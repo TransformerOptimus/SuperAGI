@@ -70,14 +70,14 @@ export default function ModelMetrics(modelDetails) {
                                     {modelRunData.map((data, index) => (
                                         <tr key={index}>
                                             <td className="table_data w_20">{formatDateTime(data.created_at)}</td>
-                                            <td className="table_data w_20">{data.agent_name}</td>
-                                            <td className="table_data w_20">{data.agent_execution_name}</td>
-                                            <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                                            <td className="table_data w_20 br_left_grey">{data.agent_name}</td>
+                                            <td className="table_data w_20 br_left_grey">{data.agent_execution_name}</td>
+                                            <td className="table_data w_20 br_left_grey horizontal_container">
                                                 {data.tool_used && <Image className="image_class bg_black" width={20} height={20}
                                                        src={returnToolkitIcon(data.toolkit_name)} alt="tool-icon"/>}
                                                 <span>{data.tool_used ? data.tool_used : '-NA-'}</span>
                                             </td>
-                                            <td className="table_data text_align_right w_20">{formatNumber(data.tokens_consumed)}</td>
+                                            <td className="table_data text_align_right w_20 br_left_grey">{formatNumber(data.tokens_consumed)}</td>
                                         </tr>
                                     ))}
                                     </tbody>
