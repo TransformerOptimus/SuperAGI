@@ -156,3 +156,5 @@ html2text==2020.1.16
 duckduckgo-search==3.8.3 
 google-generativeai==0.1.0
 unstructured==0.8.1
+ai21==1.2.6
+typing-extensions==4.5.0

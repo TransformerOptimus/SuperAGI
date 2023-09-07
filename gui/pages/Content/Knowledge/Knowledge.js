@@ -37,7 +37,7 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
                         <div style={{marginLeft: '8px'}}>
                           <div className={styles.tool_name}>{item.name}&nbsp;{item.is_marketplace &&
                             <Image width={13} height={13} src="/images/widgets.svg" alt="markteplace-icon"/>}</div>
-                          <div className={styles.tool_publisher}>by {item.contributed_by}</div>
+                          <div className="item_publisher">by {item.contributed_by}</div>
                         </div>
                       </div>
                     </div>
