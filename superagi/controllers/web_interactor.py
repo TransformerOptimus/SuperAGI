@@ -85,6 +85,7 @@ async def web_interactor_next_action(request: Request):
     response = response.json()
     transformed_html = response["transformed_dom"]
     dom_content = ""
+    print("<><><><><><><><>html",len(transformed_html))
     if len(transformed_html) != 0:
         dom_content = transformed_html
     if execution is None or execution.status == "COMPLETED":

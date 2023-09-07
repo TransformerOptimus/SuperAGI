@@ -184,7 +184,37 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1, "COMPLETE")
         session.commit()
 
-
+    @classmethod
+    def build_jira_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Jira web workflow",
+                                                              "Jira web workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO->'https://contlo.atlassian.net/jira/software/projects/SD/boards/25/backlog'")
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "Click on->Create sprint")
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "Click on->Create issue")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "Type 'test' in ->Add a task")
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
+        session.commit()
     @classmethod
     def build_sales_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow",

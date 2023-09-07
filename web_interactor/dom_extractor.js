@@ -117,7 +117,8 @@ try {
         // org_keyword=goal;
         // org_keyword.split('->')[1]
         goal=goal.split('->')[1]
-        // fs.writeFileSync("./hello",goal)
+         fs.writeFileSync("./hello_goal",goal)
+         fs.writeFileSync(`./${goal}`,dom_content)
         recur(relevant_elements[i],ans,index,goal)
     }
 
@@ -126,13 +127,13 @@ try {
     res=""
     if(ans && ans.length > 0)
     for(var i=0;i<ans.length;i++){
-    //    ans[i]={"id":i,"rawAttrs":ans[i].rawAttrs,"rawTagName":ans[i].rawTagName,"textContent":ans[i].textContent.slice(0,40)}
+        ans[i]={"id":ans[i].id,"rawAttrs":ans[i].rawAttrs,"rawTagName":ans[i].rawTagName,"textContent":ans[i].textContent.slice(0,50)}
         // console.log("******parent->")
 //        console.log(ans[i])
-        res+=ans[i].outerHTML+'\n'
+        res+=JSON.stringify((ans[i]))+'\n'
 //        res={...,ans[i]}
     }
-
+        fs.writeFileSync("./hello_res",res)
         return res
     }
     catch(err) {
