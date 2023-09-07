@@ -50,14 +50,11 @@ class CallLogHelper:
                 'runs': []
             }
 
-            # Fetch all runs for this model
             runs = self.session.query(CallLogs).filter(CallLogs.model == model,
                                                        CallLogs.org_id == self.organisation_id).all()
             for run in runs:
-                # Get agent's name using agent_id as a foreign key
                 agent = self.session.query(Agent).filter(Agent.id == run.agent_id).first()
 
-                # Get toolkit's name using tool_used as a linking key
                 toolkit = None
                 tool = self.session.query(Tool).filter(Tool.name == run.tool_used).first()
                 if tool:
@@ -76,7 +73,6 @@ class CallLogHelper:
                     'updated_at': run.updated_at,
                 })
 
-            # Reverse the order of the runs in model_data
             model_data['runs'] = model_data['runs'][::-1]
 
             return model_data
