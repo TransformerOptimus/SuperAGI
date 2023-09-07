@@ -13,5 +13,5 @@ class KnowledgeSearchToolkit(BaseToolkit, ABC):
 
     def get_env_keys(self) -> List[ToolConfiguration]:
         return [
-            ToolConfiguration(key= "OPENAI_API_KEY", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=True)
+            ToolConfiguration(key="OPENAI_API_KEY", key_type=ToolConfigKeyType.STRING, is_required=False, is_secret=True)
         ]

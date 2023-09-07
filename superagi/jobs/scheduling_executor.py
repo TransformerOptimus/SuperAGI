@@ -13,7 +13,7 @@ from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.apm.event_handler import EventHandler
-
+from superagi.models.knowledges import Knowledges
 from superagi.models.db import connect_db
 
 
@@ -42,7 +42,7 @@ class ScheduledAgentExecutor:
         iteration_step_id = IterationWorkflow.fetch_trigger_step_id(session,
                                                                     start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
-        db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+        db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
                                             agent_id=agent_id, name=name, num_of_calls=0,
                                             num_of_tokens=0,
                                             current_agent_step_id=start_step.id,
@@ -51,17 +51,32 @@ class ScheduledAgentExecutor:
         session.add(db_agent_execution)
         session.commit()
 
+        #update status from CREATED to RUNNING
+        db_agent_execution.status = "RUNNING"
+        session.commit()
+
         agent_execution_id = db_agent_execution.id
         agent_configurations = session.query(AgentConfiguration).filter(AgentConfiguration.agent_id == agent_id).all()
         for agent_config in agent_configurations:
             agent_execution_config = AgentExecutionConfiguration(agent_execution_id=agent_execution_id, key=agent_config.key, value=agent_config.value)
             session.add(agent_execution_config)
-
-
         organisation = agent.get_agent_organisation(session)
         model = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'model').first()[0]
-        EventHandler(session=session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name}, agent_id, organisation.id if organisation else 0),
 
+        EventHandler(session=session).create_event('run_created',
+                                                   {'agent_execution_id': db_agent_execution.id,
+                                                    'agent_execution_name':db_agent_execution.name},
+                                                    agent_id,
+                                                    organisation.id if organisation else 0)
+        agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= session, key= 'knowledge', agent_id= agent_id)
+        if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
+            knowledge_name = Knowledges.get_knowledge_from_id(session, int(agent_execution_knowledge.value)).name
+            if knowledge_name is not None:
+                EventHandler(session=session).create_event('knowledge_picked',
+                                                        {'knowledge_name': knowledge_name,
+                                                         'agent_execution_id': db_agent_execution.id},
+                                                        agent_id,
+                                                        organisation.id if organisation else 0)
         session.commit()
 
         if db_agent_execution.status == "RUNNING":

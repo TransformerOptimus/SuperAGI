@@ -88,7 +88,16 @@ export default function KnowledgeTemplate({template, env}) {
     }
   }, []);
 
-  const handleInstallClick = (indexId) => {
+  const handleInstallClick = (index) => {
+    const indexId = index.id
+    if(!index.is_valid_state){
+      toast.error("Select valid index", {autoClose : 1800})
+      return
+    }
+    if (template && template.is_installed) {
+      toast.error("Template is already installed", {autoClose: 1800});
+      return;
+    }
     setInstalled("Installing");
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
@@ -100,11 +109,6 @@ export default function KnowledgeTemplate({template, env}) {
       } else {
         window.location.href = '/';
       }
-      return;
-    }
-
-    if (template && template.is_installed) {
-      toast.error("Template is already installed", {autoClose: 1800});
       return;
     }
 
@@ -201,7 +205,7 @@ export default function KnowledgeTemplate({template, env}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Pinecone</div>
                           {pinconeIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                               onClick={() => handleInstallClick(index.id)} style={{
+                                                               onClick={() => handleInstallClick(index)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',
@@ -223,7 +227,7 @@ export default function KnowledgeTemplate({template, env}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Qdrant</div>
                           {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                              onClick={() => handleInstallClick(index.id)} style={{
+                                                              onClick={() => handleInstallClick(index)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',
@@ -245,7 +249,7 @@ export default function KnowledgeTemplate({template, env}) {
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Weaviate</div>
                           {weaviateIndices.map((index) => (<div key={index.id} className="custom_select_option"
-                                                              onClick={() => handleInstallClick(index.id)} style={{
+                                                              onClick={() => handleInstallClick(index)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
                             display: 'flex',
