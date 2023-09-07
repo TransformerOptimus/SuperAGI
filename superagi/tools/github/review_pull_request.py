@@ -68,7 +68,9 @@ class GithubReviewPullRequest(BaseTool):
             pull_request_arr = pull_request_content.split("diff --git")
             organisation = Agent.find_org_by_agent_id(session=self.toolkit_config.session, agent_id=self.agent_id)
 
-            pull_request_arr_parts = self.split_pull_request_content_into_multiple_parts(pull_request_arr)
+            model_token_limit = TokenCounter(session=self.toolkit_config.session,
+                                       organisation_id=organisation.id).token_limit(self.llm.get_model())
+            pull_request_arr_parts = self.split_pull_request_content_into_multiple_parts(model_token_limit, pull_request_arr)
             for content in pull_request_arr_parts:
                 self.run_code_review(github_helper, content, latest_commit_id, organisation, pull_request_number,
                                      repository_name, repository_owner)
@@ -98,13 +100,14 @@ class GithubReviewPullRequest(BaseTool):
                                                            latest_commit_id, comment["file_path"], line_number,
                                                            comment["comment"])
 
-    def split_pull_request_content_into_multiple_parts(self, pull_request_arr):
+    def split_pull_request_content_into_multiple_parts(self, model_token_limit: int, pull_request_arr):
         pull_request_arr_parts = []
         current_part = ""
         for part in pull_request_arr:
             total_tokens = TokenCounter.count_message_tokens([{"role": "user", "content": current_part}],
                                                              self.llm.get_model())
-            if total_tokens >= 3500:
+            # we are using 60% of the model token limit
+            if total_tokens >= model_token_limit * 0.6:
                 # Add the current part to pull_request_arr_parts and reset current_sum and current_part
                 pull_request_arr_parts.append(current_part)
                 current_part = "diff --git" + part
