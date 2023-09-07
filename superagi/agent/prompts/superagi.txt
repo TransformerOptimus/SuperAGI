@@ -32,24 +32,12 @@ Respond with only valid JSON conforming to the following schema:
                     "type": "string",
                     "description": "thought"
                 },
-                "reasoning": {
-                    "type": "string",
-                    "description": "short reasoning"
-                },
-                "plan": {
-                    "type": "string",
-                    "description": "- short bulleted\n- list that conveys\n- long-term plan"
-                },
                 "criticism": {
                     "type": "string",
                     "description": "constructive self-criticism"
                 },
-                "speak": {
-                    "type": "string",
-                    "description": "thoughts summary to say to user"
-                }
             },
-            "required": ["text", "reasoning", "plan", "criticism", "speak"],
+            "required": ["text", "criticism"],
             "additionalProperties": false
         },
         "tool": {

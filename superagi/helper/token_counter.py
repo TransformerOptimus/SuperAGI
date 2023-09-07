@@ -79,7 +79,7 @@ class TokenCounter:
             n1 = num_tokens
             num_tokens += len(encoding.encode(message['content']))
             n2 = num_tokens
-            print(f"Execution time in count_message_tokens no. of tokens: {n2 - n1}")
+            # print(f"Execution time in count_message_tokens no. of tokens: {n2 - n1}")
 
 
         num_tokens += 3

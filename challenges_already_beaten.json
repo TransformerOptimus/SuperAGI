@@ -40,5 +40,6 @@
     "TestAdaptTeslaRevenue": true,
     "TestRememberMultiplePhrasesWithNoise": true,
     "TestThreeSum": true,
-    "TestProductAdvisor_GamingMonitor": true
+    "TestProductAdvisor_GamingMonitor": true,
+    "TestUrlShortener": true
 }

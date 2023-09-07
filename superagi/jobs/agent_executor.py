@@ -60,7 +60,7 @@ class AgentExecutor:
                 return
 
             t1_stop = perf_counter()
-            logger.info("Time taken to get organisation: 3" + str(t1_stop - t1_start))
+            logger.info("Time taken to get organisation: 3 :    " + str(t1_stop - t1_start))
             model_api_key = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
             model_llm_source = ModelSourceType.get_model_source_from_model(agent_config["model"]).value
             t1_start = perf_counter()
