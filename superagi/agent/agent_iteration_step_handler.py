@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import redis
 from sqlalchemy import asc
 from sqlalchemy.sql.operators import and_
 import logging
@@ -29,7 +30,10 @@ from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.thinking.tools import ThinkingTool
 from superagi.apm.call_log_helper import CallLogHelper
+#from superagi.websockets.websockets import handle_error
 
+rd = redis.Redis(host='super__redis', port=6379, db=0)
+redis_handler = rd.pubsub()
 
 class AgentIterationStepHandler:
     """ Handles iteration workflow steps in the agent workflow."""
@@ -71,7 +75,15 @@ class AgentIterationStepHandler:
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages = messages, model = self.llm.get_model())
+
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+
+        if 'error' in response and response['message'] is not None:
+            logger.info("ENTERDDDDDDDDDDD")
+            #handle_error(self.organisation.id, response['message'], self.agent_execution_id)
+            rd.publish('error_msgs', response['message'])
+            logger.info("MESSAGE SENT TO REDIS")
+
 
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")

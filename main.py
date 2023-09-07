@@ -56,6 +56,7 @@ from superagi.models.user import User
 from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
+from superagi.websockets.websockets import router as websocket_router
 from urllib.parse import urlparse
 app = FastAPI()
 
@@ -133,6 +134,7 @@ app.include_router(marketplace_stats_router, prefix="/marketplace")
 app.include_router(api_key_router, prefix="/api-keys")
 app.include_router(api_agent_router,prefix="/v1/agent")
 app.include_router(web_hook_router,prefix="/webhook")
+app.include_router(websocket_router, prefix="/websocket")
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
