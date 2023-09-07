@@ -1,4 +1,4 @@
-import {formatDistanceToNow} from 'date-fns';
+import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
 import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
@@ -493,3 +493,11 @@ export const modelGetAuth = (modelProvider) => {
 
   return externalLinks[modelProvider]
 }
+
+export const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+  const adjustedDate = addMinutes(addMinutes(date, 5 * 60), 30);
+  const formattedDate = format(adjustedDate, 'd MMM yyyy HH:mm');
+
+  return formattedDate;
+};
