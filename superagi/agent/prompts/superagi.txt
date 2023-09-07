@@ -22,52 +22,25 @@ PERFORMANCE EVALUATION:
 
 Respond with only valid JSON conforming to the following schema:
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-        "thoughts": {
-            "type": "object",
-            "properties": {
-                "text": {
-                    "type": "string",
-                    "description": "thought"
-                },
-                "reasoning": {
-                    "type": "string",
-                    "description": "short reasoning"
-                },
-                "plan": {
-                    "type": "string",
-                    "description": "- short bulleted\n- list that conveys\n- long-term plan"
-                },
-                "criticism": {
-                    "type": "string",
-                    "description": "constructive self-criticism"
-                },
-                "speak": {
-                    "type": "string",
-                    "description": "thoughts summary to say to user"
-                }
-            },
-            "required": ["text", "reasoning", "plan", "criticism", "speak"],
-            "additionalProperties": false
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "tool": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "tool name"
         },
-        "tool": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "tool name"
-                },
-                "args": {
-                    "type": "object",
-                    "description": "tool arguments"
-                }
-            },
-            "required": ["name", "args"],
-            "additionalProperties": false
+        "args": {
+          "type": "object",
+          "description": "tool arguments"
         }
-    },
-    "required": ["thoughts", "tool"],
-    "additionalProperties": false
+      },
+      "required": ["name", "args"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["tool"],
+  "additionalProperties": false
 }

@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends ,Security
 
@@ -326,3 +327,15 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
         raise HTTPException(status_code=401,detail="Invalid S3 credentials")
     return response_obj
 
+@router.post("/pause-all",status_code=200)
+def pause_all_runs(
+        api_key: str = Security(validate_api_key),
+        organisation: Organisation = Depends(get_organisation_from_api_key)
+):
+    project_id = Project.find_by_org_id(db.session, organisation.id).id
+    agents = Agent.get_all_agents_by_project_id(db.session, project_id)
+    for agent in agents:
+        db_execution_arr = AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, None, "RUNNING")
+        for ind_execution in db_execution_arr:
+            ind_execution.status = "PAUSED"
+    db.session.commit()
