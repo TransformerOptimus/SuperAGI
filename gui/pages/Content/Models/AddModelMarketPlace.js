@@ -4,7 +4,7 @@ import {openNewTab, modelIcon, modelGetAuth} from "@/utils/utils";
 import {fetchApiKey, storeModel} from "@/pages/api/DashboardService";
 import {toast} from "react-toastify";
 
-export default function AddModelMarketPlace({ template, ifInstalled }){
+export default function AddModelMarketPlace({ template, ifInstalled, getModels, sendModelData }){
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
     const [modelVersion, setModelVersion] = useState('');
     const [modelEndpoint, setModelEndpoint] = useState('');
@@ -45,16 +45,24 @@ export default function AddModelMarketPlace({ template, ifInstalled }){
     const storeModelDetails = () => {
         storeModel(templateData.model_name, templateData.description, modelEndpoint, providerId, modelTokenLimit, "Marketplace", modelVersion).then((response) =>{
             setIsLoading(false)
-            if (response.data.error) {
-                toast.error(response.data.error,{autoClose: 1800});
-            } else if (response.data.success) {
-                toast.success(response.data.success,{autoClose: 1800});
-                ifInstalled()
+            let data = response.data
+            if (data.error) {
+                toast.error(data.error,{autoClose: 1800});
+            } else if (data.success) {
+                toast.success(data.success,{autoClose: 1800});
+                getModels()
+                console.log(data)
+                handleModelSuccess({id: data.model_id, name: templateData.model_name})
             }
         }).catch((error) => {
             console.log("SORRY, There was an error storing the model details" + error);
             setIsLoading(false)
         });
+    }
+
+    const handleModelSuccess = (model) => {
+        model.contentType = 'Model'
+        sendModelData(model)
     }
 
     return(

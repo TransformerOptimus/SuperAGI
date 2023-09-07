@@ -3,7 +3,7 @@ import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {getFormattedDate, modelIcon} from "@/utils/utils";
 import AddModelMarketPlace from "./AddModelMarketPlace";
-export default function ModelTemplate({env, template}){
+export default function ModelTemplate({env, template, getModels, sendModelData}){
     const [isInstalled, setIsInstalled] = useState(false);
 
     function handleBackClick() {
@@ -41,7 +41,7 @@ export default function ModelTemplate({env, template}){
                 </div>
                 <div className="col_9 display_column_container padding_16 color_white" dangerouslySetInnerHTML={{ __html: template.model_features }} />
             </div> ):(
-                <AddModelMarketPlace template={template} ifInstalled={handleBackClick} />
+                <AddModelMarketPlace template={template} ifInstalled={handleBackClick} getModels={getModels} sendModelData={sendModelData}/>
                 )}
         </div>
     )
