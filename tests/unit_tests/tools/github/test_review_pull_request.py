@@ -25,7 +25,7 @@ def test_split_pull_request_content_into_multiple_parts():
     pull_request_arr = ["part1", "part2", "part3"]
 
     # Calling the method to be tested
-    result = tool.split_pull_request_content_into_multiple_parts(pull_request_arr)
+    result = tool.split_pull_request_content_into_multiple_parts(4000,pull_request_arr)
 
     # Validate the result (this depends on what you expect the output to be)
     # For instance, if you expect the result to be a list of all parts concatenated with 'diff --git'
