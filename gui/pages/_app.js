@@ -25,6 +25,8 @@ import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
+import mixpanel from 'mixpanel-browser';
+
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -193,7 +195,9 @@ export default function App() {
          console.error('Error fetching github client id make sure to set it in the config file');
       }
       else {
-        window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
+          mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: true, track_pageview: true, persistence: 'localStorage' });
+          mixpanel.identify(github_client_id)
+          window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
       }
   }
 
