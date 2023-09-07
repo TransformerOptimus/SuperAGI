@@ -51,10 +51,10 @@ def test_update_tokens(mock_session):
     )
 
     # Mock the query response
-    mock_session_new.query.return_value.filter.return_value.first.return_value = mock_execution
+    mock_session.query.return_value.filter.return_value.first.return_value = mock_execution
 
     # Call the method
-    AgentExecution.update_tokens(mock_session_new, 1, 50)
+    AgentExecution.update_tokens(mock_session, 1, 50)
 
     # Check that the attributes were updated
     assert mock_execution.num_of_calls == 2
