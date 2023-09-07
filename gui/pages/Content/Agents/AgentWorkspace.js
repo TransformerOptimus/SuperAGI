@@ -291,6 +291,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         data = data.filter((run) => run.status !== 'TERMINATED');
         setAgentExecutions(data);
         setSelectedRun(currentRun ? currentRun : data[0]);
+        console.log(data)
       })
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
@@ -398,7 +399,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("PAUSED")
                 }}>Pause</li>}
-                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') &&
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'ERROR_PAUSED') &&
                   <li className="dropdown_item" onClick={() => {
                     updateRunStatus("RUNNING")
                   }}>Resume</li>}

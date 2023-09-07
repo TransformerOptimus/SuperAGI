@@ -16,6 +16,7 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
+from superagi.lib.logger import logger
 
 import re
 # from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
@@ -166,7 +167,16 @@ def get_agent_execution_feed(agent_execution_id: int,
     # # parse json
     final_feeds = []
     for feed in feeds:
-        if feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
+        if feed.error_message:
+            if (agent_execution.last_shown_error_id is None) or (feed.id > agent_execution.last_shown_error_id):
+                #error occured
+                final_feeds.clear()
+                final_feeds.append(feed.error_message)
+                agent_execution.last_shown_error_id = feed.id
+                agent_execution.status = "ERROR_PAUSED"
+                db.session.commit()
+                break
+        elif feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
             final_feeds.append(parse_feed(feed))
 
     # get all permissions
@@ -186,6 +196,8 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
         } for permission in execution_permissions
     ]
+    logger.info(final_feeds)
+    logger.info(agent_execution_id)
     return {
         "status": agent_execution.status,
         "feeds": final_feeds,
