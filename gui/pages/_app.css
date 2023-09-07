@@ -970,6 +970,14 @@ p {
     line-height: normal;
 }
 
+.text_20 {
+    color: #FFF;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
 .text_20_bold{
     color: #FFF;
     font-size: 20px;
