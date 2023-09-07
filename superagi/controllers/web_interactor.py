@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from fastapi import APIRouter, Request
 from fastapi_sqlalchemy import db
@@ -7,10 +8,30 @@ from superagi.agent.common_types import WebActionExecutorResponse
 from superagi.jobs.agent_executor import AgentExecutor
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
+from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
+from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
 
 router = APIRouter()
 
+import execjs
+# Define the JavaScript code as a string
 
+js_file_path = '/dom_extractor.js'
+# Read the JavaScript code from the file
+f = open(str(Path(__file__).parent) + js_file_path, "r")
+js_code = f.read()
+# print(f.read())
+# with open(js_file_path, 'r') as js_file:
+#     js_code = js_file.read()
+#     js_file.close()
+# Create an ExecJS context
+
+
+
+# Call the JavaScript function and get the result
+
+# Print the result
+# print("Result from JavaScript:", result)
 @router.get('/execution')
 def get_web_pending_execution():
     """Get Web Pending Executions"""
@@ -23,6 +44,7 @@ def get_web_pending_execution():
 
 @router.post('/get_next_action')
 async def web_interactor_next_action(request: Request):
+    context = execjs.compile(js_code)
     # agent_execution_id = action_obj.agent_execution_id
     # dom_content = action_obj.dom_content
     # last_action_status = action_obj.last_action_status
@@ -30,13 +52,29 @@ async def web_interactor_next_action(request: Request):
     # # iterate over the body to get the form data
     print("bodyyyyyyyy",body)
     # items = body.getlist(' name')
-    dom_content = body["dom_content"]
+
     agent_execution_id = body["agent_execution_id"]
     last_action_status = body["last_action_status"]
     last_action = body["last_action"]
     page_url = body["page_url"]
     execution = AgentExecution().get_agent_execution_from_id(db.session, agent_execution_id)
 
+    curr_agent_step_id = execution.current_agent_step_id
+    print(curr_agent_step_id, "curr_agent_step_id")
+
+    db_agent_workflow_step = db.session.query(AgentWorkflowStep).filter(
+        AgentWorkflowStep.id == curr_agent_step_id).first()
+    # print(db_agent_workflow_step, "db_agent_workflow_step")
+
+    action_ref_id = db_agent_workflow_step.action_reference_id
+    print(action_ref_id, "action_ref_id")
+
+    db_agent_workflow_step_tool = db.session.query(AgentWorkflowStepTool).filter(
+        AgentWorkflowStepTool.id == action_ref_id).first()
+    # print(db_agent_workflow_step_tool, "db_agent_workflow_step_tool")
+
+    goal = db_agent_workflow_step_tool.input_instruction
+    dom_content = context.call("dom_extractor", body["dom_content"],goal)
     if execution is None or execution.status == "COMPLETED":
         return {"status": "COMPLETED"}
     AgentExecutionConfiguration().add_or_update_agent_execution_config(db.session, execution,
