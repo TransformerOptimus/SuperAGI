@@ -482,3 +482,14 @@ export const modelIcon = (model) => {
 
   return icons[model];
 }
+
+export const modelGetAuth = (modelProvider) => {
+  const externalLinks = {
+    'Replicate': 'https://replicate.com/account/api-tokens',
+    'Hugging Face': 'https://huggingface.co/settings/tokens',
+    'OpenAI': 'https://platform.openai.com/account/api-keys',
+    'Google Palm': 'https://developers.generativeai.google/products/palm',
+  }
+
+  return externalLinks[modelProvider]
+}
