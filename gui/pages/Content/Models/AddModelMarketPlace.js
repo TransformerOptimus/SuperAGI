@@ -4,7 +4,7 @@ import {openNewTab, modelIcon, modelGetAuth} from "@/utils/utils";
 import {fetchApiKey, storeModel} from "@/pages/api/DashboardService";
 import {toast} from "react-toastify";
 
-export default function AddModelMarketPlace({ template, ifInstalled, getModels, sendModelData }){
+export default function AddModelMarketPlace({ template, getModels, sendModelData }){
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
     const [modelVersion, setModelVersion] = useState('');
     const [modelEndpoint, setModelEndpoint] = useState('');

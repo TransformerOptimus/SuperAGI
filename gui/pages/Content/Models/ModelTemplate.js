@@ -41,7 +41,7 @@ export default function ModelTemplate({env, template, getModels, sendModelData})
                 </div>
                 <div className="col_9 display_column_container padding_16 color_white" dangerouslySetInnerHTML={{ __html: template.model_features }} />
             </div> ):(
-                <AddModelMarketPlace template={template} ifInstalled={handleBackClick} getModels={getModels} sendModelData={sendModelData}/>
+                <AddModelMarketPlace template={template} getModels={getModels} sendModelData={sendModelData}/>
                 )}
         </div>
     )
