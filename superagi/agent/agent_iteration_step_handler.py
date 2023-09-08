@@ -77,6 +77,7 @@ class AgentIterationStepHandler:
             agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=response['message'], feed_group_id=execution.current_feed_group_id)
             self.session.add(agent_feed)
             self.session.commit()
+            
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
 

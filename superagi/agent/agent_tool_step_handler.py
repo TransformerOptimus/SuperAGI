@@ -105,6 +105,12 @@ class AgentToolStepHandler:
         # print(messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+
+        execution = self.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
+        if 'error' in response and response['message'] is not None:
+            agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=response['message'], feed_group_id=execution.current_feed_group_id)
+            self.session.add(agent_feed)
+            self.session.commit()
         # ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
@@ -137,6 +143,12 @@ class AgentToolStepHandler:
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages,
                                             TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+        execution = self.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
+        if 'error' in response and response['message'] is not None:
+            agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=response['message'], feed_group_id=execution.current_feed_group_id)
+            self.session.add(agent_feed)
+            self.session.commit()
+            
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"ToolWorkflowStepHandler: Failed to get output response from llm")
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())

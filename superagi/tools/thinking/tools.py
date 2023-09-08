@@ -6,8 +6,11 @@ from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.helper.prompt_reader import PromptReader
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
+from fastapi_sqlalchemy import db
 
 
 class ThinkingSchema(BaseModel):
@@ -34,6 +37,7 @@ class ThinkingTool(BaseTool):
     args_schema: Type[ThinkingSchema] = ThinkingSchema
     goals: List[str] = []
     agent_execution_id:int=None
+    agent_id:int = None
     permission_required: bool = False
     tool_response_manager: Optional[ToolResponseQueryManager] = None
 
@@ -62,6 +66,11 @@ class ThinkingTool(BaseTool):
             prompt = prompt.replace("{relevant_tool_response}",relevant_tool_response)
             messages = [{"role": "system", "content": prompt}]
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+            execution = db.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
+            if 'error' in result and result['message'] is not None:
+                agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
+                db.session.add(agent_feed)
+                db.session.commit()
             return result["content"]
         except Exception as e:
             logger.error(e)
