@@ -2,6 +2,7 @@ from enum import Enum
 
 class ModelsTypes(Enum):
     MARKETPLACE = "Marketplace"
+    CUSTOM = "Custom"
 
     @classmethod
     def get_models_types(cls, model_type):
