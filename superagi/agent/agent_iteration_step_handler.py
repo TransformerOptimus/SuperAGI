@@ -11,6 +11,7 @@ from superagi.agent.task_queue import TaskQueue
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
+from superagi.helper.error_handling import OpenAIErrorHandling
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
@@ -74,9 +75,7 @@ class AgentIterationStepHandler:
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 
         if 'error' in response and response['message'] is not None:
-            agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=response['message'], feed_group_id=execution.current_feed_group_id)
-            self.session.add(agent_feed)
-            self.session.commit()
+            OpenAIErrorHandling.handle_error(self.session, self.agent_id, self.agent_execution_id, response['message'])
             
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")

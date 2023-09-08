@@ -4,6 +4,7 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.helper.error_handling import OpenAIErrorHandling
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
@@ -91,10 +92,7 @@ class WriteTestTool(BaseTool):
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
         
         if 'error' in result and result['message'] is not None:
-            execution = self.toolkit_config.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
-            agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
-            self.toolkit_config.session.add(agent_feed)
-            self.toolkit_config.session.commit()
+            OpenAIErrorHandling.handle_error(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
 
         regex = r"(\S+?)\n```\S*\n(.+?)```"
         matches = re.finditer(regex, result["content"], re.DOTALL)

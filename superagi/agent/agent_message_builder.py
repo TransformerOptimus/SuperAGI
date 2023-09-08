@@ -3,6 +3,7 @@ from typing import Tuple, List
 from sqlalchemy import asc
 
 from superagi.config.config import get_config
+from superagi.helper.error_handling import OpenAIErrorHandling
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.models.agent_execution import AgentExecution
@@ -120,10 +121,7 @@ class AgentLlmMessageBuilder:
         ltm_summary = self.llm.chat_completion(msgs)
 
         if 'error' in ltm_summary and ltm_summary['message'] is not None:
-            execution = self.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
-            agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=ltm_summary['message'], feed_group_id=execution.current_feed_group_id)
-            self.session.add(agent_feed)
-            self.session.commit()
+            OpenAIErrorHandling.handle_error(self.session, self.agent_id, self.agent_execution_id, ltm_summary['message'])
 
         execution = AgentExecution(id=self.agent_execution_id)
         agent_execution_configs = {"ltm_summary": ltm_summary["content"]}
