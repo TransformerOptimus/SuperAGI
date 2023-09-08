@@ -40,7 +40,7 @@ def create_api_key(name: Annotated[str, Body(embed=True)], Authorize: AuthJWT = 
 
 
 @router.get("/validate")
-def get_api_key(api_key: str = Depends(validate_api_key)):
+def validate_api_key(api_key: str = Depends(validate_api_key)):
     return {"success": True}
 
 
