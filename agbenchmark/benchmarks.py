@@ -172,6 +172,8 @@ def run_specific_agent(task: str) -> None:
         'instruction': [
             'Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .',
             'Avoid redundancy, such as unnecessary immediate verification of actions.',
+            'DO NOT modify the test.py file',
+            'If file/funtion names are given strictly follow them'
             ],
         'constraints': [
             "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
