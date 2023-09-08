@@ -468,7 +468,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
             <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
-                          setFetchedData={setFetchedData} agent={agent}/>
+                          setFetchedData={setFetchedData} agent={agent} selectedRunStatus={selectedRun?.status || null}/>
           </div>}
           {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}

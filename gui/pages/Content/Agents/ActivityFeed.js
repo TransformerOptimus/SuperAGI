@@ -6,7 +6,7 @@ import {loadingTextEffect, formatTimeDifference} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {ClipLoader} from 'react-spinners';
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent}) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -18,11 +18,13 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   useEffect(() => {
     const interval = window.setInterval(function () {
-      fetchFeeds();
+      if (selectedRunStatus === "RUNNING") {
+        fetchFeeds();
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [selectedRunId]);
+  }, [selectedRunId, selectedRunStatus]);
 
   function fetchDateTime() {
     getDateTime(agent.id)
