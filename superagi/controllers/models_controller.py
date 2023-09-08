@@ -116,7 +116,7 @@ def get_knowledge_list(page: int = 0, organisation=Depends(get_user_organisation
     if page < 0:
         page = 0
     marketplace_models = Models.fetch_marketplace_list(page)
-    marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation)
+    marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation.id)
     return marketplace_models_with_install
 
 
@@ -132,3 +132,26 @@ def get_marketplace_knowledge_list(page: int = 0):
         models = query.all()
     models = query.offset(page * page_size).limit(page_size).all()
     return models
+
+
+@router.get("/get/models_details", status_code=200)
+def get_models_details(page: int = 0):
+    """
+        Get Marketplace Model list.
+
+        Args:
+            page (int, optional): The page number for pagination. Defaults to None.
+
+        Returns:
+            dict: The response containing the marketplace list.
+
+        """
+    organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
+    if organisation_id is not None:
+        organisation_id = int(organisation_id)
+
+    if page < 0:
+        page = 0
+    marketplace_models = Models.fetch_marketplace_list(page)
+    marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation_id)
+    return marketplace_models_with_install
