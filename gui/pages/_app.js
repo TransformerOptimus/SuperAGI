@@ -25,6 +25,8 @@ import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
+import mixpanel from 'mixpanel-browser';
+
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -101,7 +103,8 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (window.location.href.toLowerCase().includes('marketplace')) {
+    mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: true, track_pageview: true, persistence: 'localStorage' });
+      if (window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);
     } else {
       installFromMarketplace();
@@ -132,6 +135,7 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
+              mixpanel.identify(response.data.name)
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
