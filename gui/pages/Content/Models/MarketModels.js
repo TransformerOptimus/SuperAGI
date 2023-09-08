@@ -4,6 +4,7 @@ import Image from "next/image";
 import {loadingTextEffect, modelIcon, returnToolkitIcon} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {fetchMarketPlaceModel} from "@/pages/api/DashboardService";
+import axios from "axios";
 
 export default function MarketModels(){
     const [showMarketplace, setShowMarketplace] = useState(false);
@@ -13,13 +14,20 @@ export default function MarketModels(){
 
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
-    },[]);
 
-    useEffect(() => {
-        fetchMarketPlaceModel().then((response) => {
-            console.log(response.data)
-            setModelTemplates(response.data)
-        })
+        if (window.location.href.toLowerCase().includes('marketplace')) {
+            axios.get('https://app.superagi.com/api/models_controller/marketplace/list/0')
+                .then((response) => {
+                    console.log(response.data)
+                    setModelTemplates(response.data)
+                })
+        }
+        else {
+            fetchMarketPlaceModel().then((response) => {
+                console.log(response.data)
+                setModelTemplates(response.data)
+            })
+        }
     },[])
 
     function handleTemplateClick(item) {
