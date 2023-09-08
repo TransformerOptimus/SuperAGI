@@ -39,7 +39,7 @@ class GoogleSearchWrap:
         """
         all_snippets = []
         links = []
-        for page in range(1, self.num_pages * self.num_results, self.num_results):
+        for page in range(2, self.num_pages * self.num_results, self.num_results):
             url = "https://www.googleapis.com/customsearch/v1"
             params = {
                 "key": self.api_key,
@@ -88,7 +88,7 @@ class GoogleSearchWrap:
 
         if links:
             for i in range(0, self.num_extracts):
-                time.sleep(3)
+                time.sleep(2)
                 content = ""
                 # content = self.extractor.extract_with_3k(links[i])
                 # attempts = 0

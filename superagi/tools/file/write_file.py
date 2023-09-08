@@ -52,6 +52,4 @@ class WriteFileTool(BaseTool):
         output = ""
         for file_name, content in zip(file_names, contents):
             output += self.resource_manager.write_file(file_name, content)
-        print(datetime.now())
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         return output

@@ -47,9 +47,9 @@ class GoogleSearchTool(BaseTool):
         """
         api_key = self.get_tool_config("GOOGLE_API_KEY")
         search_engine_id = self.get_tool_config("SEARCH_ENGINE_ID")
-        num_results = 10
+        num_results = 5
         num_pages = 1
-        num_extracts = 3
+        num_extracts = 2
 
         google_search = GoogleSearchWrap(api_key, search_engine_id, num_results, num_pages, num_extracts)
         snippets, webpages, links = google_search.get_result(query)
@@ -57,7 +57,7 @@ class GoogleSearchTool(BaseTool):
         results = []
         i = 0
         for webpage in webpages:
-            results.append({"title": snippets[i+1], "body": webpage, "links": links[i]})
+            results.append({"title": snippets[i], "body": webpage, "links": links[i]})
             i += 1
             if TokenCounter.count_text_tokens(json.dumps(results)) > 3000:
                 break
@@ -87,5 +87,8 @@ class GoogleSearchTool(BaseTool):
         summarize_prompt = summarize_prompt.replace("{query}", query)
 
         messages = [{"role": "system", "content": summarize_prompt}]
+        temp = self.llm.get_model
+        self.llm.get_model = 'gpt-3.5-turbo'
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+        self.llm.get_model = temp
         return result["content"]
