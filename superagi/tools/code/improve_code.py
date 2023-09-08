@@ -13,7 +13,6 @@ from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
-from fastapi_sqlalchemy import db
 
 
 class ImproveCodeSchema(BaseModel):
@@ -75,11 +74,11 @@ class ImproveCodeTool(BaseTool):
 
                 # Use LLM to generate improved code
                 result = self.llm.chat_completion([{'role': 'system', 'content': prompt}])
-                execution = db.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
                 if result is not None and 'error' in result and result['message'] is not None:
+                    execution = self.toolkit_config.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
                     agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
-                    db.session.add(agent_feed)
-                    db.session.commit()
+                    self.toolkit_config.session.add(agent_feed)
+                    self.toolkit_config.session.commit()
 
                 # Extract the response first
                 response = result.get('response')

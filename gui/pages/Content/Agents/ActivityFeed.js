@@ -165,6 +165,13 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                   <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
                 </div>
               </div>}
+              {runStatus === 'ERROR_PAUSED' &&
+              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+                <div style={{display: 'flex'}}>
+                  <div style={{fontSize: '20px'}}>❌</div>
+                  <div className={styles.feed_title}><i>Invalid Request!</i></div>
+                </div>
+              </div>}
           </div>
         }
         {feeds.length < 1 && !agent?.is_running && !agent?.is_scheduled &&

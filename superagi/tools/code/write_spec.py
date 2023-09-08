@@ -12,7 +12,6 @@ from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.models.agent import Agent
-from fastapi_sqlalchemy import db
 
 class WriteSpecSchema(BaseModel):
     task_description: str = Field(
@@ -73,11 +72,12 @@ class WriteSpecTool(BaseTool):
         token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
 
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
-        execution = db.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
+        
         if 'error' in result and result['message'] is not None:
+            execution = self.toolkit_config.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
             agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
-            db.session.add(agent_feed)
-            db.session.commit()
+            self.toolkit_config.session.add(agent_feed)
+            self.toolkit_config.session.commit()
 
         # Save the specification to a file
         write_result = self.resource_manager.write_file(spec_file_name, result["content"])

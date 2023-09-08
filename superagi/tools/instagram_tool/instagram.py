@@ -18,7 +18,6 @@ from superagi.models.agent import Agent
 from superagi.models.agent_execution import AgentExecution
 from superagi.helper.s3_helper import S3Helper
 from superagi.types.storage_types import StorageType
-from fastapi_sqlalchemy import db
 
 class InstagramSchema(BaseModel):
     photo_description: str = Field(
@@ -116,11 +115,11 @@ class InstagramTool(BaseTool):
 
         messages = [{"role": "system", "content": caption_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
-        execution = db.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
         if 'error' in result and result['message'] is not None:
+            execution = self.toolkit_config.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
             agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
-            db.session.add(agent_feed)
-            db.session.commit()
+            self.toolkit_config.session.add(agent_feed)
+            self.toolkit_config.session.commit()
         caption=result["content"]
         
         encoded_caption=urllib. parse. quote(caption)     

@@ -171,15 +171,13 @@ def get_agent_execution_feed(agent_execution_id: int,
     for feed in feeds:
         if feed.error_message:
             if (agent_execution.last_shown_error_id is None) or (feed.id > agent_execution.last_shown_error_id):
-                #error occured
-                final_feeds.clear()
+                #new error occured
                 dict = {"error": feed.error_message}
                 final_feeds.append(dict)
                 agent_execution.last_shown_error_id = feed.id
                 agent_execution.status = "ERROR_PAUSED"
                 db.session.commit()
-                break
-        elif feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
+        if feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
             final_feeds.append(parse_feed(feed))
 
     # get all permissions
