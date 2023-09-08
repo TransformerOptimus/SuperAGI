@@ -1,8 +1,11 @@
 from typing import Type, Optional
 from pydantic import BaseModel, Field
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.searx.search_scraper import search_results
+from fastapi_sqlalchemy import db
 
 
 class SearxSearchSchema(BaseModel):
@@ -22,6 +25,8 @@ class SearxSearchTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     name = "SearxSearch"
+    agent_id:int =None
+    agent_execution_id:int =None
     description = (
         "A tool for performing a Searx search and extracting snippets and webpages."
         "Input should be a search query."
@@ -67,4 +72,9 @@ class SearxSearchTool(BaseTool):
 
         messages = [{"role": "system", "content": summarize_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+        execution = db.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
+        if 'error' in result and result['message'] is not None:
+            agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
+            db.session.add(agent_feed)
+            db.session.commit()
         return result["content"]

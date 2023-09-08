@@ -1,7 +1,9 @@
+import asyncio
 from datetime import datetime
+import time
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 from fastapi import HTTPException, Depends
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -145,7 +147,7 @@ def update_agent_execution_feed(agent_execution_feed_id: int,
 
 @router.get("/get/execution/{agent_execution_id}")
 def get_agent_execution_feed(agent_execution_id: int,
-                             Authorize: AuthJWT = Depends(check_auth)):
+                                         Authorize: AuthJWT = Depends(check_auth)):
     """
     Get agent execution feed with other execution details.
 
@@ -171,7 +173,8 @@ def get_agent_execution_feed(agent_execution_id: int,
             if (agent_execution.last_shown_error_id is None) or (feed.id > agent_execution.last_shown_error_id):
                 #error occured
                 final_feeds.clear()
-                final_feeds.append(feed.error_message)
+                dict = {"error": feed.error_message}
+                final_feeds.append(dict)
                 agent_execution.last_shown_error_id = feed.id
                 agent_execution.status = "ERROR_PAUSED"
                 db.session.commit()
@@ -197,7 +200,6 @@ def get_agent_execution_feed(agent_execution_id: int,
         } for permission in execution_permissions
     ]
     logger.info(final_feeds)
-    logger.info(agent_execution_id)
     return {
         "status": agent_execution.status,
         "feeds": final_feeds,

@@ -8,9 +8,12 @@ from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
+from fastapi_sqlalchemy import db
 
 
 class ImproveCodeSchema(BaseModel):
@@ -29,6 +32,7 @@ class ImproveCodeTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     agent_id: int = None
+    agent_execution_id: int = None
     name = "ImproveCodeTool"
     description = (
         "This tool improves the generated code."
@@ -71,6 +75,11 @@ class ImproveCodeTool(BaseTool):
 
                 # Use LLM to generate improved code
                 result = self.llm.chat_completion([{'role': 'system', 'content': prompt}])
+                execution = db.session.query(AgentExecution).filter(AgentExecution.id == self.agent_execution_id).first()
+                if result is not None and 'error' in result and result['message'] is not None:
+                    agent_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id, agent_id=self.agent_id, role="system", feed="", error_message=result['message'], feed_group_id=execution.current_feed_group_id)
+                    db.session.add(agent_feed)
+                    db.session.commit()
 
                 # Extract the response first
                 response = result.get('response')
