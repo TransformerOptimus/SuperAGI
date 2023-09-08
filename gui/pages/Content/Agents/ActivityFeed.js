@@ -15,6 +15,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     const interval = window.setInterval(function () {
@@ -82,6 +83,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         .then((response) => {
           const data = response.data;
           setFeeds(data.feeds);
+          setErrorMsg(data.errors)
           setRunStatus(data.status);
           setFetchedData(data.permissions);
           EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
@@ -169,7 +171,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
                 <div style={{display: 'flex'}}>
                   <div style={{fontSize: '20px'}}>❌</div>
-                  <div className={styles.feed_title}><i>Invalid Request!</i></div>
+                  <div className={styles.feed_title}><i>{errorMsg}</i></div>
                 </div>
               </div>}
           </div>

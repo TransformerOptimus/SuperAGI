@@ -168,15 +168,17 @@ def get_agent_execution_feed(agent_execution_id: int,
         asc(AgentExecutionFeed.created_at)).all()
     # # parse json
     final_feeds = []
+    error = ""
     for feed in feeds:
         if feed.error_message:
             if (agent_execution.last_shown_error_id is None) or (feed.id > agent_execution.last_shown_error_id):
                 #new error occured
-                dict = {"error": feed.error_message}
-                final_feeds.append(dict)
+                error = feed.error_message
                 agent_execution.last_shown_error_id = feed.id
                 agent_execution.status = "ERROR_PAUSED"
                 db.session.commit()
+            if feed.id == agent_execution.last_shown_error_id and agent_execution.status == "ERROR_PAUSED":
+                error = feed.error_message
         if feed.feed != "" and re.search(r"The current time and date is\s(\w{3}\s\w{3}\s\s?\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4})",feed.feed) == None :
             final_feeds.append(parse_feed(feed))
 
@@ -201,7 +203,8 @@ def get_agent_execution_feed(agent_execution_id: int,
     return {
         "status": agent_execution.status,
         "feeds": final_feeds,
-        "permissions": permissions
+        "permissions": permissions,
+        "errors": error
     }
 
 
