@@ -153,5 +153,5 @@ def get_models_details(page: int = 0):
     if page < 0:
         page = 0
     marketplace_models = Models.fetch_marketplace_list(page)
-    marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation_id)
+    marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation_id, "marketplace")
     return marketplace_models_with_install
