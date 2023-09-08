@@ -16,7 +16,7 @@ export default function MarketModels(){
         loadingTextEffect('Loading Models', setLoadingText, 500);
 
         if (window.location.href.toLowerCase().includes('marketplace')) {
-            axios.get('https://app.superagi.com/api/models_controller/marketplace/list/0')
+            axios.get('https://app.superagi.com/api/models_controller/get/models_details')
                 .then((response) => {
                     console.log(response.data)
                     setModelTemplates(response.data)
