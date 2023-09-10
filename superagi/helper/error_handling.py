@@ -1,7 +1,6 @@
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 
-
 class OpenAIErrorHandling:
 
     def handle_error(session, agent_id, agent_execution_id, error_message):
