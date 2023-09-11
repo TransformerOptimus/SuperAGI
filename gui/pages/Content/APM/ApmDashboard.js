@@ -8,6 +8,7 @@ import {BarGraph} from "./BarGraph.js";
 import {WidthProvider, Responsive} from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import { Tooltip } from 'react-tippy';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -96,6 +97,10 @@ export default function ApmDashboard() {
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    console.log(toolsUsed)
+  }, [toolsUsed]);
 
   const handleSelectedAgent = useCallback((index, name) => {
     setDropDown1(false)
@@ -279,14 +284,23 @@ export default function ApmDashboard() {
                           ))}
                           {run.tools_used && run.tools_used.length > 3 &&
                               <div style={{display:'inline-flex'}}>
-                                {(showToolTip && toolTipIndex === i) && <div className="tools_used_tooltip">
-                                  {run.tools_used.slice(3).map((tool,index) =>
-                                      <div className="tools_used" key={index}>{tool}</div>
-                                  )}
-                                </div>}
-                                <div className="tools_used cursor_pointer" onMouseEnter={() => setToolTipState(true,i)} onMouseLeave={() => setToolTipState(false,i)}>
-                                  +{run.tools_used.length - 3}
-                                </div>
+                                <Tooltip
+                                    position="bottom"
+                                    trigger="mouseenter"
+                                    arrow={true}
+                                    duration={200}
+                                    html={
+                                      <>
+                                        {run.tools_used.slice(3).map((tool,index) =>
+                                            <div className="tools_used" key={index}>{tool}</div>
+                                        )}
+                                      </>
+                                    }
+                                >
+                                  <div className="tools_used cursor_pointer">
+                                    +{run.tools_used.length - 3}
+                                  </div>
+                                </Tooltip>
                               </div>
                           }
                         </td>
