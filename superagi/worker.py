@@ -86,7 +86,7 @@ def summarize_resource(agent_id: int, resource_id: int):
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
-    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id)
+    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id, model=agent_config["model"])
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)
     session.close()
