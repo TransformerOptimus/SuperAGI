@@ -89,7 +89,17 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
                                name="New Run", current_agent_step_id=start_step.id, iteration_workflow_step_id=iteration_step_id)
     agent_execution_configs = {
         "goal": agent_with_config.goal,
-        "instruction": agent_with_config.instruction
+        "instruction": agent_with_config.instruction,
+        "constraints": agent_with_config.constraints,
+        "exit": agent_with_config.exit,
+        "tools": agent_with_config.tools,
+        "iteration_interval": agent_with_config.iteration_interval,
+        "model": agent_with_config.model,
+        "permission_type": agent_with_config.permission_type,
+        "LTM_DB": agent_with_config.LTM_DB,
+        "max_iterations": agent_with_config.max_iterations,
+        "user_timezone": agent_with_config.user_timezone,
+        "knowledge": agent_with_config.knowledge
     }
     db.session.add(execution)
     db.session.commit()
