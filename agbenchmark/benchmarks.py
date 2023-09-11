@@ -202,7 +202,7 @@ def run_specific_agent(task: str) -> None:
     agent_execution_id = response.json()['run_id']
 
     # toolkit_name = response.json()['Google Search Toolkit']
-    googleresponse = requests.post(url=f"{baseUrl}/tool_configs/add/Google Search Toolkit", headers=headers, json=[{"key":"SEARCH_ENGINE_ID","value": config_data.get("SEARCH_ENGINE_ID")},{"key":"GOOGLE_API_KEY","value":config_data.get("GOOGLE_API_KEY")}])
+    google_response = requests.post(url=f"{baseUrl}/tool_configs/add/Google Search Toolkit", headers=headers, json=[{"key":"SEARCH_ENGINE_ID","value": config_data.get("SEARCH_ENGINE_ID")},{"key":"GOOGLE_API_KEY","value":config_data.get("GOOGLE_API_KEY")}])
 
     stop_time = time.perf_counter()
     print('time to agent start', stop_time - start1_time)
@@ -211,7 +211,6 @@ def run_specific_agent(task: str) -> None:
         config = json.load(f)
 
     # Update the output workspace path depending on agentexecution and agentid
-    print(response.json(), 'response')
     response = response.json()
 
     output_path = f"workspace/input/"
@@ -231,7 +230,6 @@ def run_specific_agent(task: str) -> None:
                                                                                          "NewRun_" + str(
                                                                                              agent_execution_id))
 
-    print(config, 'configerino')
     # config["workspace"]["output"] = os.path.join(
     #     "workspace","output", f"{response['id']}", f"{response['execution_id']}")
     #
@@ -250,7 +248,6 @@ def run_specific_agent(task: str) -> None:
         agent_stream = requests.request(
             "GET", f"{baseUrl}/agentexecutionfeeds/get/execution/{agent_execution_id}", headers=headers
         )
-        print(agent_stream.json()['status'])
         print(time.time() - start_time)
         if agent_stream.json()['status'] == 'COMPLETED':
             break
