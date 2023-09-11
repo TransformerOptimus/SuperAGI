@@ -43,7 +43,7 @@ class ToolOutputHandler:
             return response
 
         tool_response = self.handle_tool_response(session, assistant_reply)
-        # print(tool_response)
+        print("_____________________________"+tool_response)
 
         agent_execution = AgentExecution.find_by_id(session, self.agent_execution_id)
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=self.agent_execution_id,

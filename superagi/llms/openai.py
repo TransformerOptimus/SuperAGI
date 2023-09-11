@@ -74,6 +74,7 @@ class OpenAi(BaseLlm):
                 presence_penalty=self.presence_penalty
             )
             content = response.choices[0].message["content"]
+            print("#######################"+content)
             return {"response": response, "content": content}
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)

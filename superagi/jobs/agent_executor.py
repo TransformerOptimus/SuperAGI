@@ -22,6 +22,7 @@ from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.vector_store.redis import Redis
 from superagi.config.config import get_config
+from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -45,6 +46,7 @@ class AgentExecutor:
 
             agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
             agent_config = Agent.fetch_configuration(session, agent.id)
+            print("****************",agent_config,"*************")
             if agent.is_deleted or (
                     agent_execution.status != "RUNNING" and agent_execution.status != "WAITING_FOR_PERMISSION"):
                 logger.error(f"Agent execution stopped. {agent.id}: {agent_execution.status}")
@@ -75,6 +77,7 @@ class AgentExecutor:
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
+            print(agent_execution)
             try:
                 if agent_workflow_step.action_type == "TOOL":
                     tool_step_handler = AgentToolStepHandler(session,
@@ -97,10 +100,18 @@ class AgentExecutor:
                 return
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
-            if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
-                logger.info("Agent Execution is completed or waiting for permission")
-                session.close()
-                return
+            print(agent_execution.__dict__) 
+            # if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
+            #     logger.info("Agent Execution is completed or waiting for permission")
+            #     session.close()
+            #     return
+            if agent_execution.status == "COMPLETED":
+                  response= TrajectoryFinetuning.Trajectory_finetuning(session, agent_execution_id)
+                  print(response,"+++++")
+                  logger.info("Agent Execution is completed")
+                  session.close()
+                  return
+
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)
             # superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
         finally:
