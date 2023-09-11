@@ -79,6 +79,7 @@ class TokenCounter:
             num_tokens += len(encoding.encode(message['content']))
 
         num_tokens += 3
+        print("tokens",num_tokens)
         return num_tokens
 
     @staticmethod
