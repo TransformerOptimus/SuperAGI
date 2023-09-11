@@ -227,8 +227,8 @@ export default function ApmDashboard() {
                                  src={returnToolkitIcon(tool.toolkit)} alt="tool-icon"/>
                           <span>{tool.tool_name}</span>
                         </td>
-                        <td className="table_data text_align_right w_22">{tool.unique_agents}</td>
-                        <td className="table_data text_align_right w_22">{tool.total_usage}</td>
+                        <td className="table_data text_align_right w_22 br_left_grey">{tool.unique_agents}</td>
+                        <td className="table_data text_align_right w_22 br_left_grey">{tool.total_usage}</td>
                       </tr>
                     ))}
                     </tbody>
@@ -250,20 +250,13 @@ export default function ApmDashboard() {
                   <thead>
                   <tr style={{borderTop: 'none'}}>
                     <th className="table_header w_20">Agent Name</th>
-                    <th className="table_header text_align_right w_10">Model
-                    </th>
-                    <th className="table_header text_align_right w_12">Tokens Consumed
-                    </th>
-                    <th className="table_header text_align_right w_6">Runs
-                    </th>
-                    <th className="table_header text_align_right w_12">Avg tokens per run
-                    </th>
-                    <th className="table_header text_align_right w_20">Tools
-                    </th>
-                    <th className="table_header text_align_right w_10">Calls
-                    </th>
-                    <th className="table_header text_align_right w_10">Avg Run Time
-                    </th>
+                    <th className="table_header text_align_right w_10">Model</th>
+                    <th className="table_header text_align_right w_12">Tokens Consumed</th>
+                    <th className="table_header text_align_right w_6">Runs</th>
+                    <th className="table_header text_align_right w_12">Avg tokens per run</th>
+                    <th className="table_header text_align_right w_20">Tools</th>
+                    <th className="table_header text_align_right w_10">Calls</th>
+                    <th className="table_header text_align_right w_10">Avg Run Time</th>
                   </tr>
                   </thead>
                 </table>
@@ -274,13 +267,13 @@ export default function ApmDashboard() {
                     {allAgents.map((run, i) => (
                       <tr key={i}>
                         <td className="table_data w_20">{run.name}</td>
-                        <td className="table_data text_align_right w_10">{run.model_name}</td>
-                        <td className="table_data text_align_right w_12">{formatNumber(run.total_tokens)}</td>
-                        <td className="table_data text_align_right w_6">{run.runs_completed}</td>
-                        <td className="table_data text_align_right w_12">
+                        <td className="table_data text_align_right w_10 br_left_grey">{run.model_name}</td>
+                        <td className="table_data text_align_right w_12 br_left_grey">{formatNumber(run.total_tokens)}</td>
+                        <td className="table_data text_align_right w_6 br_left_grey">{run.runs_completed}</td>
+                        <td className="table_data text_align_right w_12 br_left_grey">
                           {run.runs_completed ? (run.total_tokens / run.runs_completed).toFixed(1) : '-'}
                         </td>
-                        <td className="table_data text_align_right" style={{width: '20%'}}>
+                        <td className="table_data text_align_right br_left_grey" style={{width: '20%'}}>
                           {run.tools_used && run.tools_used.slice(0, 3).map((tool, index) => (
                               <div key={index} className="tools_used">{tool}</div>
                           ))}
@@ -297,8 +290,8 @@ export default function ApmDashboard() {
                               </div>
                           }
                         </td>
-                        <td className="table_data text_align_right w_10">{run.total_calls}</td>
-                        <td className="table_data text_align_right w_10">
+                        <td className="table_data text_align_right w_10 br_left_grey">{run.total_calls}</td>
+                        <td className="table_data text_align_right w_10 br_left_grey">
                           {run.avg_run_time === 0 ? '-' : `${parseFloat((run.avg_run_time / 60).toFixed(1))} mins`}
                         </td>
                       </tr>))}

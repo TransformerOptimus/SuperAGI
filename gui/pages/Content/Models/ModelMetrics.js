@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {fetchModelData} from "@/pages/api/DashboardService";
-import {formatNumber, returnToolkitIcon} from "@/utils/utils";
+import {formatDateTime, formatNumber, returnToolkitIcon} from "@/utils/utils";
 import Image from "next/image";
 
 export default function ModelMetrics(modelDetails) {
@@ -69,15 +69,15 @@ export default function ModelMetrics(modelDetails) {
                                     <tbody>
                                     {modelRunData.map((data, index) => (
                                         <tr key={index}>
-                                            <td className="table_data w_20">{data.created_at.slice(0, 19).replace('T', ' ')}</td>
-                                            <td className="table_data w_20">{data.agent_name}</td>
-                                            <td className="table_data w_20">{data.agent_execution_name}</td>
-                                            <td className="table_data" style={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                                            <td className="table_data w_20">{formatDateTime(data.created_at)}</td>
+                                            <td className="table_data w_20 br_left_grey">{data.agent_name}</td>
+                                            <td className="table_data w_20 br_left_grey">{data.agent_execution_name}</td>
+                                            <td className="table_data w_20 br_left_grey horizontal_container">
                                                 {data.tool_used && <Image className="image_class bg_black" width={20} height={20}
                                                        src={returnToolkitIcon(data.toolkit_name)} alt="tool-icon"/>}
                                                 <span>{data.tool_used ? data.tool_used : '-NA-'}</span>
                                             </td>
-                                            <td className="table_data text_align_right w_20">{formatNumber(data.tokens_consumed)}</td>
+                                            <td className="table_data text_align_right w_20 br_left_grey">{formatNumber(data.tokens_consumed)}</td>
                                         </tr>
                                     ))}
                                     </tbody>

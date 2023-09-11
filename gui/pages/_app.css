@@ -1130,8 +1130,7 @@ p {
 .gap_16{gap:16px;}
 .gap_20{gap:20px;}
 
-.border_gray{border: 1px solid rgba(255, 255, 255, 0.08)}
-.border_left_none{border-left: none;}
+.br_left_grey{border-left: 1px solid rgba(255, 255, 255, 0.08)}
 .border_top_none{border-top: none;}
 .border_bottom_none{border-bottom: none;}
 .border_bottom_grey{border-bottom: 1px solid rgba(255, 255, 255, 0.08)}
