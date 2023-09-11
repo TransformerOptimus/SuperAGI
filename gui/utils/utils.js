@@ -483,17 +483,25 @@ export const modelIcon = (model) => {
   return icons[model];
 }
 
+
 export const parseTextWithLinks = (text) => {
-  // Regular expression to match URLs
-  const urlPattern = /https?:\/\/([^\s]+)/g;
+  // Regular expression to match URLs with or without http(s)
+  const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])|(\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z0-9-]{2,6}))\b/gi;
 
   // Splitting the text by URLs
   const parts = text.split(urlPattern);
 
   // Replacing each URL in the original text with JSX
   for (let i = 0; i < parts.length; i++) {
-    if (urlPattern.test(parts[i])) {
-      parts[i] = <a href={parts[i]} key={i} target="_blank" rel="noopener noreferrer">{parts[i]}</a>;
+    let part = parts[i];
+    if (urlPattern.test(part)) {
+      let url = part;
+      // If URL does not start with http(s):// or ftp:// or file://, then prepend it with http://
+      if (!/^(\b(https?|ftp|file):\/\/)/i.test(part)) {
+        url = 'http://' + part;
+      }
+
+      parts[i] = <a href={url} key={i} target="_blank" rel="noopener noreferrer">{part}</a>;
     }
   }
 
