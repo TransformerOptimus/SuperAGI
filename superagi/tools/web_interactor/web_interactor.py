@@ -104,8 +104,9 @@ class WebInteractorTool(BaseTool):
             history_var = history_var + feed + "\n"
         output_obj = self.get_element_from_llm(current_page_url, goal, dom_content, history_var)
         cnt=0
-        while(self.llm_response_validator(output_obj)==False):
+        while(cnt<=5 and self.llm_response_validator(output_obj)==False):
             output_obj = self.get_element_from_llm(current_page_url, goal, dom_content, history_var)
+            cnt+=1
         print("<><><><><><><>output obj" ,type(output_obj),output_obj)
 
         return output_obj
