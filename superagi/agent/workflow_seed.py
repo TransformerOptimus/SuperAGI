@@ -50,12 +50,16 @@ class AgentWorkflowSeed:
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
                                                                     WebInteractorTool().name,
-                                                                    "GO_TO 'https://linkedin.com'")
+                                                                    "GO_TO -> 'https://linkedin.com'")
         print("STEP4", step4)
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     WebInteractorTool().name,
-                                                                    "TYPE name of the candidate in element with id=0 to search for the candidate on linkedin")
+                                                                    "TYPE name of candidate in ->Search")
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK ->button Message")
         # print("STEP5", step5)
         # step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
         #                                                             str(agent_workflow.id) + "_step6",
@@ -71,9 +75,9 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
         # AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "COMPLETE")
         session.commit()
 
     @classmethod
@@ -88,17 +92,21 @@ class AgentWorkflowSeed:
         step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step2",
                                                                     WebInteractorTool().name,
-                                                                    "Use the GO_TO action to navidate to 'https://app.slack.com/client/', DONT USE GOOGLE SEARCH")
+                                                                    "GO TO -> 'https://app.slack.com/client/'")
         # print("STEP4", step4)
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     WebInteractorTool().name,
-                                                                    "Open chat with 'Nihir Agarwal'")
+                                                                    "Click on -> 'Nihir Agarwal'")
         # print("STEP5", step5)
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
                                                                     WebInteractorTool().name,
-                                                                    "TYPE in 'label=Message Nihir Agarwal' - 'HI THIS MESSAGE HAS BEEN SENT BY SUPERAGI PLUGIN'")
+                                                                    "TYPE 'HI THIS MESSAGE HAS BEEN SENT BY SUPERAGI PLUGIN' in -> Message Nihir Agarwal")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on-> Send now")
         # print("STEP6", step6)
         # step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
         #                                                             str(agent_workflow.id) + "_step7",
@@ -108,13 +116,83 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
         # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
         # AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
 
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
         session.commit()
 
+    @classmethod
+    def build_calendar_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Google calendar Web Workflow",
+                                                              "Google calendar Web Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO TO -> 'https://calendar.google.com/'")
+        # print("STEP4", step4)
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "Click on the button-> 'Create'")
+        # print("STEP5", step5)
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "Click on the button-> 'Event'")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "TYPE 'test_meet' in -> Add title")
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on -> Add guests")
+        step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step7",
+                                                                    WebInteractorTool().name,
+                                                                    "TYPE 'nihir@contlo.com' in -> Add guests")
+        step8 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step8",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->input Add guests")
+        step9 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step9",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->nihir")
+
+        step10 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step10",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on -> Save")
+        step11 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                     str(agent_workflow.id) + "_step11",
+                                                                     WebInteractorTool().name,
+                                                                     "CLICK on -> Do not send")
+        # print("STEP6", step6)
+        # step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step7",
+        #                                                             WebInteractorTool().name,
+        #                                                             "Click the button with the label Send now to send the connection request")
+        # print("STEP7", step7)
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step7.id, step8.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step8.id, step9.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step9.id, step10.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step10.id, step11.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step11.id, -1, "COMPLETE")
+        session.commit()
     @classmethod
     def build_twitter_web_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Twitter Web Workflow",
@@ -140,12 +218,12 @@ class AgentWorkflowSeed:
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     WebInteractorTool().name,
-                                                                    "TYPE the content in the element with id=2")
+                                                                    "TYPE the content in the element->'Tweet text'")
         # print("STEP5", step5)
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
                                                                     WebInteractorTool().name,
-                                                                    "CLICK on the post button")
+                                                                    "CLICK on ->span Post")
         # print("STEP6", step6)
         # step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
         #                                                             str(agent_workflow.id) + "_step7",
@@ -162,6 +240,90 @@ class AgentWorkflowSeed:
         session.commit()
 
     @classmethod
+    def build_mail_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Mail Web Workflow",
+                                                              "Mail Web Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO 'https://mail.google.com/mail'")
+        # print("STEP4", step4)
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on ->Compose")
+        # print("STEP5", step5)
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "TYPE 'Hi this mail was sent by superAGI' in the element ->textbox Message Body")
+
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                     "TYPE 'nihir@contlo.com' -> input listbox")
+        # print("STEP6", step6)
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    WebInteractorTool().name,
+                                                                    "Click on the button->Send enter")
+        # print("STEP7", step7)
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, -1, "COMPLETE")
+        session.commit()
+    @classmethod
+    def build_youtube_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Youtube Web Workflow",
+                                                              "Youtube Web Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO 'https://www.youtube.com/'")
+        # print("STEP4", step4)
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "TYPE 'SuperAGI' in -> search input")
+        # print("STEP5", step5)
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on -> Search button")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on -> Subscribe to SuperAGI")
+        # print("STEP6", step6)
+        # step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step7",
+        #                                                             WebInteractorTool().name,
+        #                                                             "Click the button with the label Send now to send the connection request")
+        # print("STEP7", step7)
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
+        session.commit()
+
+    @classmethod
     def build_linked_accept_req_web_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Linkedin accept req Web Workflow",
                                                               "Linkedin accept req Web Workflow")
@@ -173,15 +335,20 @@ class AgentWorkflowSeed:
         step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step2",
                                                                     WebInteractorTool().name,
-                                                                    "GO_TO 'https://www.linkedin.com/mynetwork/'")
+                                                                    "GO_TO 'https://www.linkedin.com/'")
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     WebInteractorTool().name,
-                                                                    "Accept Invitation" )
+                                                                    "CLICK on->My Network" )
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->Accept invitation")
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
         session.commit()
 
     @classmethod
@@ -200,15 +367,15 @@ class AgentWorkflowSeed:
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     WebInteractorTool().name,
-                                                                    "Click on->Create sprint")
+                                                                    "CLICK on->Create sprint")
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
                                                                     WebInteractorTool().name,
-                                                                    "Click on->Create issue")
+                                                                    "CLICK on->Create issue")
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     WebInteractorTool().name,
-                                                                    "Type 'test' in ->Add a task")
+                                                                    "TYPE 'test' in ->Add a task")
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)

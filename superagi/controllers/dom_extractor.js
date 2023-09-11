@@ -5,8 +5,8 @@ const { parse }=require("node-html-parser");
 //    jira_type_issue,calendar_dom_content,calendar_event_dom_content,calendar_event_box_dom_content,hubspot_dom_content,hubspot_create_company_dom_content}=require('./dom')
 
 // org_keyword="Click on the button ->Create company"
-org_keyword="Type 'Plugin meet' in the textbox ->domain-input"
-keyword=org_keyword.split('->')[1]
+//org_keyword="Type 'Plugin meet' in the textbox ->domain-input"
+//keyword=org_keyword.split('->')[1]
 // keyword="create campaign"
 
 var cnt=0
@@ -117,5 +117,3 @@ function dom_extractor(dom_content,goal){
     }
     return res
 }
-
-dom_extractor()

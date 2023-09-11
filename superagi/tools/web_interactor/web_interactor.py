@@ -103,11 +103,23 @@ class WebInteractorTool(BaseTool):
             feed = feed_obj.feed
             history_var = history_var + feed + "\n"
         output_obj = self.get_element_from_llm(current_page_url, goal, dom_content, history_var)
+        cnt=0
+        while(self.llm_response_validator(output_obj)==False):
+            output_obj = self.get_element_from_llm(current_page_url, goal, dom_content, history_var)
+        print("<><><><><><><>output obj" ,type(output_obj),output_obj)
 
-        # print("************output obj" ,output_obj)
         return output_obj
         # return {"action":"done"}
 
+    def llm_response_validator(self,output_obj:str):
+        output_obj_json=json.loads(output_obj)
+        keys_to_check=["action","action_reference_element","action_reference_param"]
+        if "action" in output_obj_json and "action"=="GO_TO":
+            return True
+        if all(key in output_obj_json for key in keys_to_check):
+            return True
+        else:
+            return False
     def get_element_from_llm(self, curr_page_url: str, goal: str, DOM: str, history: str):
         DOM_element_prompt = """
             History: {history}
@@ -117,7 +129,7 @@ class WebInteractorTool(BaseTool):
             CLICK: This action is performed when the  given task requires you to click on an element in the DOM
             TYPE: This action is performed when the given task requires you to write text into textboxes, textareas etc.
             GO_TO: This action is performed when the given a task that requires you to go to some other webpage. Basically to change address of current page
-            TYPESUBMIT: This action is performed when the given task requires you to write text into textboxes, textareas etc. and then submit the form
+
 
             You also need to give the action_reference_element for the action which means you need to provide the integer id which is given in the dom_content.
             Similarly, in case of TYPE AND GO_TO actions, you will have to give the respective action_reference_param which can be used.

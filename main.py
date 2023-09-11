@@ -229,10 +229,13 @@ async def startup_event():
     AgentWorkflowSeed.build_twitter_web_workflow(session)
     AgentWorkflowSeed.build_slack_web_workflow(session)
     AgentWorkflowSeed.build_jira_web_workflow(session)
+    AgentWorkflowSeed.build_calendar_web_workflow(session)
+    AgentWorkflowSeed.build_youtube_web_workflow(session)
+    AgentWorkflowSeed.build_mail_web_workflow(session)
     # NOTE: remove old workflows. Need to remove this changes later
     workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
-                 "Dynamic Task Workflow","Jira web workflow",
-                 "Fixed Task Workflow", "Recruitment Web Workflow", "Linkedin accept req Web Workflow","Twitter Web Workflow","Slack Web Workflow"]
+                 "Dynamic Task Workflow","Jira web workflow","Youtube Web Workflow","Mail Web Workflow",
+                 "Fixed Task Workflow", "Recruitment Web Workflow", "Linkedin accept req Web Workflow","Twitter Web Workflow","Slack Web Workflow","Google calendar Web Workflow"]
     workflows = session.query(AgentWorkflow).filter(AgentWorkflow.name.not_in(workflows))
     for workflow in workflows:
         session.delete(workflow)

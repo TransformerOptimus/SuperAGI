@@ -34,7 +34,7 @@ function recur(root,ans,index,goal){
     //     ans.push(root)
 
     // }
-    if(root && root.childNodes && root.childNodes.length > 0)
+
     for(var i=0;i<root.childNodes.length;i++){
         // if(root.childNodes[i].rawAttrs){
         //     // console.log("child",root.childNodes[i].outerHTML)
@@ -62,7 +62,7 @@ function recur(root,ans,index,goal){
 
     // console.log("******root->",root.rawAttrs,new_root_idx_arr)
     // console.log("new_root_idx_arr",new_root_idx_arr)
-    if(new_root_idx_arr && new_root_idx_arr.length > 0)
+//    if(new_root_idx_arr && new_root_idx_arr.length > 0)
     for(var j=0;j<new_root_idx_arr.length;j++){
         // console.log("new root",root.childNodes[new_root_idx_arr[j]])
         if(root.childNodes[map[new_root_idx_arr[j]]]  && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='iframe' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='script' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='picture' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='style' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='code' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='img' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='use'){
@@ -104,28 +104,28 @@ try {
 
     var relevant_elements=[]
     // console.log("first>>>>>>>>>>>>>>")
-    if(root && root.childNodes && root.childNodes.length > 0)
+//    if(root && root.childNodes && root.childNodes.length > 0)
     for(var i=0;i<root.childNodes.length;i++){
         if( root.childNodes[i].rawTagName!='script'){
             relevant_elements.push(root.childNodes[i])
         }
     }
     console.log("second>>>>>>>>>>>>>>")
-    if(relevant_elements && relevant_elements.length > 0)
+//    if(relevant_elements && relevant_elements.length > 0)
     for(var i=0;i<relevant_elements.length;i++){
         // console.log("root ele",relevant_elements[i])
         // org_keyword=goal;
         // org_keyword.split('->')[1]
         goal=goal.split('->')[1]
-         fs.writeFileSync("./hello_goal",goal)
-         fs.writeFileSync(`./${goal}`,dom_content)
+
         recur(relevant_elements[i],ans,index,goal)
     }
 
-
+//    fs.writeFileSync("./hello_goal",goal)
+//    fs.writeFileSync(`./${goal}`,dom_content)
 //    console.log("ans",ans.length)
     res=""
-    if(ans && ans.length > 0)
+//    if(ans && ans.length > 0)
     for(var i=0;i<ans.length;i++){
         ans[i]={"id":ans[i].id,"rawAttrs":ans[i].rawAttrs,"rawTagName":ans[i].rawTagName,"textContent":ans[i].textContent.slice(0,50)}
         // console.log("******parent->")
@@ -133,7 +133,7 @@ try {
         res+=JSON.stringify((ans[i]))+'\n'
 //        res={...,ans[i]}
     }
-        fs.writeFileSync("./hello_res",res)
+//        fs.writeFileSync("./hello_res",res)
         return res
     }
     catch(err) {
