@@ -50,13 +50,11 @@ class CallLogHelper:
                 'runs': []
             }
 
-            # Fetch all runs for this model
-            runs = self.session.query(CallLogs).filter(CallLogs.model == model, CallLogs.org_id == self.organisation_id).all()
+            runs = self.session.query(CallLogs).filter(CallLogs.model == model,
+                                                       CallLogs.org_id == self.organisation_id).all()
             for run in runs:
-                # Get agent's name using agent_id as a foreign key
                 agent = self.session.query(Agent).filter(Agent.id == run.agent_id).first()
 
-                # Get toolkit's name using tool_used as a linking key
                 toolkit = None
                 tool = self.session.query(Tool).filter(Tool.name == run.tool_used).first()
                 if tool:
@@ -66,14 +64,16 @@ class CallLogHelper:
                     'id': run.id,
                     'agent_execution_name': run.agent_execution_name,
                     'agent_id': run.agent_id,
-                    'agent_name': agent.name if agent is not None else None, # add agent_name to dictionary
+                    'agent_name': agent.name if agent is not None else None,
                     'tokens_consumed': run.tokens_consumed,
                     'tool_used': run.tool_used,
-                    'toolkit_name': toolkit.name if toolkit is not None else None, # add toolkit_name to dictionary
+                    'toolkit_name': toolkit.name if toolkit is not None else None,
                     'org_id': run.org_id,
                     'created_at': run.created_at,
                     'updated_at': run.updated_at,
                 })
+
+            model_data['runs'] = model_data['runs'][::-1]
 
             return model_data
 

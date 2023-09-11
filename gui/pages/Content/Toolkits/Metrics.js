@@ -118,11 +118,11 @@ export default function Metrics({toolName, knowledgeName}) {
                       <tbody>
                       {callLogs.map((item, index) => (
                         <tr key={index} className="text_align_left">
-                          <td className="table_data w_15 border_gray border_left_none">{item.created_at}</td>
-                          <td className="table_data w_15 border_gray">{item.agent_name}</td>
-                          <td className="table_data w_40 border_gray">{item.agent_execution_name}</td>
-                          <td className="table_data w_15 border_gray">{item.model}</td>
-                          <td className="table_data w_15 border_gray">{item.tokens_consumed}</td>
+                          <td className="table_data w_15">{item.created_at}</td>
+                          <td className="table_data w_15 br_left_grey">{item.agent_name}</td>
+                          <td className="table_data w_40 br_left_grey">{item.agent_execution_name}</td>
+                          <td className="table_data w_15 br_left_grey">{item.model}</td>
+                          <td className="table_data w_15 br_left_grey">{item.tokens_consumed}</td>
                         </tr>
                       ))}
                       </tbody>
