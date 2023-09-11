@@ -92,8 +92,8 @@ class ToolOutputHandler:
                 self.memory.add_texts(chunk_response, metadatas)
             except Exception as exception:
                 logger.error(f"Exception: {exception}")
-
-
+        
+     
 
     def handle_tool_response(self, session, assistant_reply):
         """Only handle processing of tool response"""
