@@ -1,8 +1,8 @@
 from datetime import datetime
-
+import json
 from sqlalchemy import asc
 from sqlalchemy.sql.operators import and_
-
+import logging
 import superagi
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
@@ -28,6 +28,7 @@ from superagi.models.workflows.iteration_workflow_step import IterationWorkflowS
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.thinking.tools import ThinkingTool
+from superagi.apm.call_log_helper import CallLogHelper
 
 
 class AgentIterationStepHandler:
@@ -38,99 +39,60 @@ class AgentIterationStepHandler:
         self.agent_execution_id = agent_execution_id
         self.agent_id = agent_id
         self.memory = memory
+        self.organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
         self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
-        import time
-        start = time.perf_counter()
-
-        start_time1 = time.perf_counter()
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
-        print(f"Execution time of fetch_configuration: {time.perf_counter() - start_time1} seconds")
-        start_time1 = time.perf_counter()
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
-        print(f"Execution time of get_agent_execution_from_id: {time.perf_counter() - start_time1} seconds")
-        start_time1 = time.perf_counter()
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
-        print(f"Execution time of find_by_id: {time.perf_counter() - start_time1} seconds")
-        start_time1 = time.perf_counter()
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-        print(f"Execution time of AgentExecutionConfiguration: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
         if not self._handle_wait_for_permission(execution, agent_config, agent_execution_config,
                                                 iteration_workflow_step):
             return
-        print(f"Execution time of _handle_wait_for_permission: {time.perf_counter() - start_time1} seconds")
 
-        start_time1 = time.perf_counter()
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
-        print(f"Execution time of find_by_id: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
         organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
-        print(f"Execution time of find_org_by_agent_id: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
         iteration_workflow = IterationWorkflow.find_by_id(self.session, workflow_step.action_reference_id)
-        print(f"Execution time of find_by_id: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        print(f"Execution time of fetch_agent_execution_feeds: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
         if not agent_feeds:
             self.task_queue.clear_tasks()
-        print(f"Execution time of clear_tasks: {time.perf_counter() - start_time1} seconds")
 
-        start_time1 = time.perf_counter()
         agent_tools = self._build_tools(agent_config, agent_execution_config)
-        print(f"Execution time of _build_tools: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
-        print(f"Execution time of _build_agent_prompt: {time.perf_counter() - start_time1} seconds")
 
-        start_time1 = time.perf_counter()
-        messages = AgentLlmMessageBuilder(self.session, self.llm, self.agent_id, self.agent_execution_id) \
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
                                   completion_prompt=iteration_workflow_step.completion_prompt)
-        print(f"Execution time of build_agent_messages: {time.perf_counter() - start_time1} seconds")
 
         logger.debug("Prompt messages:", messages)
-        start_time1 = time.perf_counter()
-        current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        print(f"Execution time of count_message_tokens: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
-        response = self.llm.chat_completion(messages, TokenCounter.token_limit(self.llm.get_model()) - current_tokens)
-        stop_time1 = time.perf_counter()
-        print(f"Execution time of chat_completion: {stop_time1 - start_time1} seconds")
+        current_tokens = TokenCounter.count_message_tokens(messages = messages, model = self.llm.get_model())
+        response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
 
-        start_time1 = time.perf_counter()
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
-        print(f"Execution time of update_tokens: {time.perf_counter() - start_time1} seconds")
+        try:
+            content = json.loads(response['content'])
+            tool = content.get('tool', {})
+            tool_name = tool.get('name', '') if tool else ''
+        except json.JSONDecodeError:
+            print("Decoding JSON has failed")
+            tool_name = ''
 
-        start_time1 = time.perf_counter()
+        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
+
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,
                                             agent_execution_id=self.agent_execution_id,
-                                            agent_config=agent_config, agent_tools=agent_tools)
-        print(f"Execution time of get_output_handler: {time.perf_counter() - start_time1} seconds")
-
-        start_time1 = time.perf_counter()
+                                            agent_config=agent_config,memory=self.memory, agent_tools=agent_tools)
         response = output_handler.handle(self.session, assistant_reply)
-        print(f"Execution time of handle: {time.perf_counter() - start_time1} seconds")
-
         if response.status == "COMPLETE":
             execution.status = "COMPLETED"
             self.session.commit()
@@ -147,16 +109,11 @@ class AgentIterationStepHandler:
             execution.permission_id = response.permission_id
             self.session.commit()
         else:
-            start_time1 = time.perf_counter()
             # moving to next step of iteration or workflow
             self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
-            print(f"Execution time of _update_agent_execution_next_step: {time.perf_counter() - start_time1} seconds")
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
-
-        end = time.perf_counter()
-        print(f"Execution time of execute_step: {end - start} seconds")
 
     def _update_agent_execution_next_step(self, execution, next_step_id, step_response: str = "default"):
         if next_step_id == -1:
@@ -178,33 +135,31 @@ class AgentIterationStepHandler:
                                                            agent_execution_config["instruction"],
                                                            agent_config["constraints"], agent_tools,
                                                            (not iteration_workflow.has_task_queue))
-
         if iteration_workflow.has_task_queue:
             response = self.task_queue.get_last_task_details()
             last_task, last_task_result = (response["task"], response["response"]) if response is not None else ("", "")
             current_task = self.task_queue.get_first_task() or ""
-            token_limit = TokenCounter.token_limit() - max_token_limit
+            token_limit = TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit() - max_token_limit
             prompt = AgentPromptBuilder.replace_task_based_variables(prompt, current_task, last_task, last_task_result,
                                                                      self.task_queue.get_tasks(),
                                                                      self.task_queue.get_completed_tasks(), token_limit)
         return prompt
 
     def _build_tools(self, agent_config: dict, agent_execution_config: dict):
-        agent_tools = []
-        model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
+        agent_tools = [ThinkingTool()]
+
+        config_data = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])
+        model_api_key = config_data['api_key']
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
-        resource_summary = ResourceSummarizer(session=self.session,
-                                              agent_id=self.agent_id).fetch_or_create_agent_resource_summary(
-            default_summary=agent_config.get("resource_summary"))
+        resource_summary = ResourceSummarizer(session=self.session, agent_id=self.agent_id, model=agent_config['model']).fetch_or_create_agent_resource_summary(default_summary=agent_config.get("resource_summary"))
         if resource_summary is not None:
             agent_tools.append(QueryResourceTool())
         user_tools = self.session.query(Tool).filter(
-            and_(Tool.id.in_(agent_config["tools"]), Tool.file_name is not None)).all()
+            and_(Tool.id.in_(agent_execution_config["tools"]), Tool.file_name is not None)).all()
         for tool in user_tools:
             agent_tools.append(tool_builder.build_tool(tool))
-
         agent_tools = [tool_builder.set_default_params_tool(tool, agent_config, agent_execution_config,
-                                                            model_api_key, resource_summary) for tool in agent_tools]
+                                                            model_api_key, resource_summary,self.memory) for tool in agent_tools]
         return agent_tools
 
     def _handle_wait_for_permission(self, agent_execution, agent_config: dict, agent_execution_config: dict,
@@ -230,7 +185,7 @@ class AgentIterationStepHandler:
             return False
         if agent_execution_permission.status == "APPROVED":
             agent_tools = self._build_tools(agent_config, agent_execution_config)
-            tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, agent_tools)
+            tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, agent_tools,self.memory)
             tool_result = tool_output_handler.handle_tool_response(self.session,
                                                                    agent_execution_permission.assistant_reply)
             result = tool_result.result

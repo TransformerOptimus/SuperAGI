@@ -120,8 +120,8 @@ export const fetchAgentTemplateListLocal = () => {
   return api.get('/agent_templates/list?template_source=local');
 };
 
-export const saveAgentAsTemplate = (executionId) => {
-  return api.post(`/agent_templates/save_agent_as_template/agent_execution_id/${executionId}`);
+export const saveAgentAsTemplate = (agentId, executionId) => {
+  return api.post(`/agent_templates/save_agent_as_template/agent_id/${agentId}/agent_execution_id/${executionId}`);
 };
 
 export const fetchAgentTemplateConfig = (templateId) => {
@@ -228,6 +228,10 @@ export const getToolsUsage = () => {
   return api.get(`analytics/tools/used`);
 };
 
+export const modelInfo = (model) => {
+  return api.get(`analytics/model_details/${model}`)
+}
+
 export const getLlmModels = () => {
   return api.get(`organisations/llm_models`);
 };
@@ -320,3 +324,75 @@ export const deleteApiKey = (apiId) => {
   return api.delete(`/api-keys/${apiId}`);
 };
 
+export const saveWebhook = (webhook) => {
+  return api.post(`/webhook/add`, webhook);
+};
+
+export const getWebhook = () => {
+  return api.get(`/webhook/get`);
+};
+
+export const editWebhook = (webhook_id, webook_data) => {
+  return api.post(`/webhook/edit/${webhook_id}`, webook_data);
+};
+
+export const publishToMarketplace = (executionId) => {
+  return api.post(`/agent_templates/publish_template/agent_execution_id/${executionId}`);
+};
+
+export const storeApiKey = (model_provider, model_api_key) => {
+  return api.post(`/models_controller/store_api_keys`, {model_provider, model_api_key});
+}
+
+export const fetchApiKeys = () => {
+  return api.get(`/models_controller/get_api_keys`);
+}
+
+export const fetchApiKey = (model_provider) => {
+  return api.get(`/models_controller/get_api_key?model_provider=${model_provider}`);
+}
+
+export const verifyEndPoint = (model_api_key, end_point, model_provider) => {
+  return api.get(`/models_controller/verify_end_point`, {
+    params: { model_api_key, end_point, model_provider }
+  });
+}
+
+export const storeModel = (model_name, description, end_point, model_provider_id, token_limit, type, version) => {
+  return api.post(`/models_controller/store_model`,{model_name, description, end_point, model_provider_id, token_limit, type, version});
+}
+
+export const fetchModels = () => {
+  return api.get(`/models_controller/fetch_models`);
+}
+
+export const fetchModel = (model_id) => {
+  return api.get(`/models_controller/fetch_model/${model_id}`);
+}
+
+export const fetchModelData = (model) => {
+  return api.post(`/models_controller/fetch_model_data`, { model: model })
+}
+
+export const fetchMarketPlaceModel = () => {
+  return api.get(`/models_controller/get/list`)
+}
+
+export const getToolMetrics = (toolName) => {
+  return api.get(`analytics/tools/${toolName}/usage`)
+}
+
+export const getToolLogs = (toolName) => {
+  return api.get(`analytics/tools/${toolName}/logs`)
+}
+
+export const publishTemplateToMarketplace = (agentData) => {
+  return api.post(`/agent_templates/publish_template`, agentData);
+};
+export const getKnowledgeMetrics = (knowledgeName) => {
+  return api.get(`analytics/knowledge/${knowledgeName}/usage`)
+}
+
+export const getKnowledgeLogs = (knowledgeName) => {
+  return api.get(`analytics/knowledge/${knowledgeName}/logs`)
+}

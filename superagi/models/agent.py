@@ -279,7 +279,7 @@ class Agent(DBBaseModel):
         return session.query(Agent).filter(Agent.id == agent_id).first()
 
     @classmethod
-    def find_org_by_agent_id(cls, session, agent_id: int):
+    def find_org_by_agent_id(cls, session: object, agent_id: int):
         """
         Finds the organization for the given agent.
 
@@ -290,6 +290,7 @@ class Agent(DBBaseModel):
         Returns:
             Organisation: The found organization.
         """
+        assert session, "Session cannot be None"
         agent = session.query(Agent).filter_by(id=agent_id).first()
         project = session.query(Project).filter(Project.id == agent.project_id).first()
         return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()

@@ -10,8 +10,8 @@ import {
   getLlmModels,
   updateExecution,
   uploadFile,
-  getAgentDetails, addAgentRun,
-  getAgentWorkflows
+  getAgentDetails, addAgentRun, fetchModels,
+  getAgentWorkflows, validateOrAddModels, publishTemplateToMarketplace
 } from "@/pages/api/DashboardService";
 import {
   formatBytes,
@@ -56,6 +56,7 @@ export default function AgentCreate({
   const [searchValue, setSearchValue] = useState('');
   const [showButton, setShowButton] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
+  const [modelsArray, setModelsArray] = useState(['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']);
 
   const constraintsArray = [
     "If you are unsure how you previously did something or want to recall past events, thinking about similar events will help you remember.",
@@ -68,8 +69,8 @@ export default function AgentCreate({
   const [goals, setGoals] = useState(['Describe the agent goals here']);
   const [instructions, setInstructions] = useState(['']);
 
-  const [modelsArray, setModelsArray] = useState([]);
-  const [model, setModel] = useState('');
+  const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']
+  const [model, setModel] = useState(models[1]);
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
@@ -118,12 +119,16 @@ export default function AgentCreate({
   const [editModal, setEditModal] = useState(false)
   const [editButtonClicked, setEditButtonClicked] = useState(false);
 
+  const [dropdown, setDropdown] = useState(false);
+  const [publishModal, setPublishModal] = useState(false);
+
 
   useEffect(() => {
     getOrganisationConfig(organisationId, "model_api_key")
       .then((response) => {
-        const apiKey = response.data.value
-        setHasAPIkey(!(apiKey === null || apiKey.replace(/\s/g, '') === ''));
+        console.log(response.data['api_key'])
+        const apiKey = response.data['api_key']
+        setHasAPIkey(!(apiKey === null));
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
@@ -150,9 +155,9 @@ export default function AgentCreate({
   }, [toolNames]);
 
   useEffect(() => {
-    getLlmModels()
+    fetchModels()
       .then((response) => {
-        const models = response.data || [];
+        const models = response.data.map(model => model.name) || [];
         const selected_model = localStorage.getItem("agent_model_" + String(internalId)) || '';
         setModelsArray(models);
         if (models.length > 0 && !selected_model) {
@@ -160,6 +165,7 @@ export default function AgentCreate({
         } else {
           setModel(selected_model);
         }
+        console.log(response)
       })
       .catch((error) => {
         console.error('Error fetching models:', error);
@@ -350,8 +356,8 @@ export default function AgentCreate({
 
   const handleModelSelect = (index) => {
     setLocalStorageValue("agent_model_" + String(internalId), modelsArray[index], setModel);
-    if (modelsArray[index] === "google-palm-bison-001") {
-      setAgentWorkflow("Fixed Task Queue")
+    if (modelsArray[index] === "google-palm-bison-001" || modelsArray[index] === "replicate-llama13b-v2-chat") {
+      setAgentType("Fixed Task Queue")
     }
     setModelDropdown(false);
   };
@@ -453,7 +459,7 @@ export default function AgentCreate({
 
   const validateAgentData = (isNewAgent) => {
     if (isNewAgent && !hasAPIkey) {
-      toast.error("Your OpenAI/Palm API key is empty!", {autoClose: 1800});
+      toast.error("Your API key is empty!", {autoClose: 1800});
       openNewTab(-3, "Settings", "Settings", false);
       return false;
     }
@@ -492,37 +498,14 @@ export default function AgentCreate({
     return true;
   }
 
-  const handleAddAgent = () => {
+  const handleAddAgent = async () => {
     if (!validateAgentData(true)) {
       return;
     }
 
     setCreateClickable(false);
 
-    let permission_type = permission;
-    if (permission.includes("RESTRICTED")) {
-      permission_type = "RESTRICTED";
-    }
-
-    const agentData = {
-      "name": agentName,
-      "project_id": selectedProjectId,
-      "description": agentDescription,
-      "goal": goals,
-      "instruction": instructions,
-      "agent_workflow": agentWorkflow,
-      "constraints": constraints,
-      "toolkits": [],
-      "tools": selectedTools,
-      "exit": exitCriterion,
-      "iteration_interval": stepTime,
-      "model": model,
-      "max_iterations": maxIterations,
-      "permission_type": permission_type,
-      "LTM_DB": longTermMemory ? database : null,
-      "user_timezone": getUserTimezone(),
-      "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
-    };
+    const agentData = setAgentData()
 
     const scheduleAgentData = {
       "agent_config": agentData,
@@ -561,7 +544,34 @@ export default function AgentCreate({
             });
       }
   };
+  const setAgentData= () => {
+    let permission_type = permission;
+    if (permission.includes("RESTRICTED")) {
+      permission_type = "RESTRICTED";
+    }
 
+    const agentData = {
+      "name": agentName,
+      "project_id": selectedProjectId,
+      "description": agentDescription,
+      "goal": goals,
+      "instruction": instructions,
+      "agent_workflow": agentWorkflow,
+      "constraints": constraints,
+      "toolkits": [],
+      "tools": selectedTools,
+      "exit": exitCriterion,
+      "iteration_interval": stepTime,
+      "model": model,
+      "max_iterations": maxIterations,
+      "permission_type": permission_type,
+      "LTM_DB": longTermMemory ? database : null,
+      "user_timezone": getUserTimezone(),
+      "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
+    };
+
+    return agentData
+  }
   const uploadResources = (agentId, name, executionId) => {
     if (addResources && input.length > 0) {
       const uploadPromises = input.map(fileData => {
@@ -869,6 +879,25 @@ export default function AgentCreate({
      return false;
   }
 
+  const openModelMarket = () => {
+    openNewTab(-4, "Marketplace", "Marketplace", false);
+    localStorage.setItem('marketplace_tab', 'market_models');
+  }
+
+  const handleAddToMarketplace = () => {
+    const agentData = setAgentData()
+    agentData.agent_template_id = template.id
+    publishTemplateToMarketplace(agentData)
+      .then((response) => {
+        setDropdown(false)
+        setPublishModal(true)
+      })
+      .catch((error) => {
+        toast.error("Error Publishing to marketplace")
+        console.error('Error Publishing to marketplace:', error);
+      });
+  }
+
   return (<>
     <div className="row" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)'}}>
       <div className="col-3"></div>
@@ -941,13 +970,28 @@ export default function AgentCreate({
                               alt="expand-icon"/>
               </div>
               <div>
-                {modelDropdown && <div className="custom_select_options" ref={modelRef} style={{width: '100%'}}>
-                  {modelsArray?.map((model, index) => (
-                    <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
-                         style={{padding: '12px 14px', maxWidth: '100%'}}>
-                      {model}
-                    </div>))}
-                </div>}
+                {modelDropdown && (
+                    <div className="custom_select_options" ref={modelRef} style={{width: '100%', maxHeight: '300px'}}>
+                      <div className="model_options">
+                        {modelsArray?.map((model, index) => (
+                            <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)}
+                                 style={{padding: '12px 14px', maxWidth: '100%'}}>
+                              {model}
+                            </div>
+                        ))}
+                      </div>
+                      <div className="vertical_containers sticky_option">
+                        <div onClick={() => openModelMarket()} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                          <Image width={16} height={16} src="/images/marketplace_logo.png" alt="marketplace_logo" />
+                          <span>Browse models from marketplace</span>
+                        </div>
+                        <div onClick={() => openNewTab(-5, "new model", "Add_Model", false)} className="custom_select_option horizontal_container mxw_100 padding_12_14 gap_6 bt_white">
+                          <Image width={16} height={16} src="/images/plus.png" alt="plus_image" />
+                          <span>Add new custom model</span>
+                        </div>
+                      </div>
+                    </div>
+                )}
               </div>
             </div>
           </div>
@@ -1135,7 +1179,7 @@ export default function AgentCreate({
               <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
-                  <div className="custom_select_container" onClick={() => setAgentDropdown(!agentDropdown)}
+                  <div className={`${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentDropdown(!edit ? !agentDropdown : false)}}
                        style={{width: '100%'}}>
                     {agentWorkflow}<Image width={20} height={21}
                                       src={!agentDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
@@ -1295,17 +1339,24 @@ export default function AgentCreate({
           }
 
           <div style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
+            <div className="display_flex_container position_relative mr_7">
+              <div>
+                {dropdown && (<div className={styles.dropdown_container_agent} onMouseOver={() => setDropdown(true)} onMouseOut={() => setDropdown(false)}>
+                  <ul className="padding_0 margin_0">
+                    <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => updateTemplate()}>Update template</li>
+                    {env === 'PROD' && <li className={`${styles.dropdown_item_agent} ${"dropdown_item"}`} onClick={() => handleAddToMarketplace()}>Publish to Marketplace</li>}
+                </ul>
+                </div>)}
+              </div>
+              {showButton && <div>
+                  <button className="secondary_button padding_8" onClick={() => setDropdown(true)}>
+                    <Image width={20} height={20} src="/images/three_dots.svg" alt="run-icon"/>
+                  </button>
+                </div>}
+              </div>
             <button style={{marginRight: '7px'}} className="secondary_button"
                     onClick={() => removeTab(-1, "new agent", "Create_Agent", internalId)}>Cancel
             </button>
-            {showButton && (
-              <button style={{marginRight: '7px'}} className="secondary_button"
-                      onClick={() => {
-                        updateTemplate()
-                      }}>
-                Update Template
-              </button>
-            )}
             {!edit ? <div style={{display: 'flex', position: 'relative'}}>
               {createDropdown && (<div className="create_agent_dropdown_options" onClick={() => {
                 setCreateModal(true);
@@ -1346,6 +1397,23 @@ export default function AgentCreate({
               </div>
             </div>
           </div>)}
+
+          {publishModal && <div className="modal" onClick={() => {setPublishModal(false)}}>
+            <div className="modal-content w_35" onClick={preventDefault}>
+              <div className={styles.detail_name}>Template submitted successfully!</div>
+              <div>
+                <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
+                  <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
+                    #agent-templates-submission
+                  </a> channel.</label>
+              </div>
+              <div className={styles.modal_buttons}>
+                <button className="primary_button" onClick={() => {setPublishModal(false)}}>
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>}
 
         </div>
       </div>

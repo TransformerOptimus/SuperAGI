@@ -4,11 +4,17 @@ import tiktoken
 
 from superagi.types.common import BaseMessage
 from superagi.lib.logger import logger
+from superagi.models.models import Models
+from sqlalchemy.orm import Session
 
 
 class TokenCounter:
-    @staticmethod
-    def token_limit(model: str = "gpt-3.5-turbo-0301") -> int:
+
+    def __init__(self, session:Session=None, organisation_id: int=None):
+        self.session = session
+        self.organisation_id = organisation_id
+
+    def token_limit(self, model: str = "gpt-3.5-turbo-0301") -> int:
         """
         Function to return the token limit for a given model.
 
@@ -22,9 +28,7 @@ class TokenCounter:
             int: The token limit.
         """
         try:
-            model_token_limit_dict = {"gpt-3.5-turbo-0301": 4032, "gpt-4-0314": 8092, "gpt-3.5-turbo": 4032,
-                                      "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184, "gpt-4-32k": 32768,
-                                      "gpt-4-32k-0314": 32768, "models/chat-bison-001": 8092}
+            model_token_limit_dict = (Models.fetch_model_tokens(self.session, self.organisation_id))
             return model_token_limit_dict[model]
         except KeyError:
             logger.warning("Warning: model not found. Using cl100k_base encoding.")
@@ -45,8 +49,6 @@ class TokenCounter:
         Returns:
             int: The number of tokens in the messages.
         """
-        import time
-        start_time1 = time.perf_counter()
         try:
             default_tokens_per_message = 4
             model_token_per_message_dict = {"gpt-3.5-turbo-0301": 4, "gpt-4-0314": 3, "gpt-3.5-turbo": 4, "gpt-4": 3,
@@ -68,23 +70,15 @@ class TokenCounter:
                 " See https://github.com/openai/openai-python/blob/main/chatml.md for"
                 " information on how messages are converted to tokens."
             )
-        print(f"Execution time in count_message_tokens to perform try except and if else: {time.perf_counter() - start_time1} seconds")
 
-        start_time2 = time.perf_counter()
         num_tokens = 0
         for message in messages:
             if isinstance(message, str):
                 message = {'content': message}
             num_tokens += tokens_per_message
-            n1 = num_tokens
             num_tokens += len(encoding.encode(message['content']))
-            n2 = num_tokens
-            # print(f"Execution time in count_message_tokens no. of tokens: {n2 - n1}")
-
 
         num_tokens += 3
-        print(f"Execution time in count_message_tokens to get num_tokens: {time.perf_counter() - start_time2} seconds")
-
         return num_tokens
 
     @staticmethod

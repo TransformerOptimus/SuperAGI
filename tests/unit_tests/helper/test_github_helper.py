@@ -155,7 +155,47 @@ class TestGithubHelper(unittest.TestCase):
             headers={'header': 'value'}
         )
 
-    # ... more tests for other methods
+    @patch('requests.get')
+    def test_get_pull_request_content_success(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.text = "some_content"
+
+        github_api = GithubHelper('access_token', 'username')
+        result = github_api.get_pull_request_content("owner", "repo", 1)
+
+        self.assertEqual(result, "some_content")
+
+    @patch('requests.get')
+    def test_get_pull_request_content_not_found(self, mock_get):
+        mock_get.return_value.status_code = 404
+
+        github_api = GithubHelper('access_token', 'username')
+        result = github_api.get_pull_request_content("owner", "repo", 1)
+
+        self.assertIsNone(result)
+
+    @patch('requests.get')
+    def test_get_latest_commit_id_of_pull_request(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = [{"sha": "123"}, {"sha": "456"}]
+
+        github_api = GithubHelper('access_token', 'username')
+        result = github_api.get_latest_commit_id_of_pull_request("owner", "repo", 1)
+
+        self.assertEqual(result, "456")
+
+    @patch('requests.post')
+    def test_add_line_comment_to_pull_request(self, mock_post):
+        mock_post.return_value.status_code = 201
+        mock_post.return_value.json.return_value = {"id": 1, "body": "comment"}
+
+        github_api = GithubHelper('access_token', 'username')
+        result = github_api.add_line_comment_to_pull_request("owner", "repo", 1, "commit_id", "file_path", 1, "comment")
+
+        self.assertEqual(result, {"id": 1, "body": "comment"})
+
+
+# ... more tests for other methods
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import sys
 
 from sqlalchemy.orm import sessionmaker
 
@@ -11,7 +12,7 @@ from celery import Celery
 from superagi.config.config import get_config
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
 from superagi.models.configuration import Configuration
-
+from superagi.models.agent import Agent
 from superagi.models.db import connect_db
 from superagi.types.model_source_types import ModelSourceType
 
@@ -36,12 +37,11 @@ beat_schedule = {
 }
 app.conf.beat_schedule = beat_schedule
 
-# @event.listens_for(AgentExecution.status, "set")
-# def agent_status_change(target, val,old_val,initiator):
-#     if not get_config("IN_TESTING",False):
-#         webhook_callback.delay(target.id,val,old_val)
-    
-    
+@event.listens_for(AgentExecution.status, "set")
+def agent_status_change(target, val,old_val,initiator):
+    if not hasattr(sys, '_called_from_test'):
+        webhook_callback.delay(target.id,val,old_val)
+       
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
@@ -71,8 +71,10 @@ def summarize_resource(agent_id: int, resource_id: int):
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
-    model_source = Configuration.fetch_value_by_agent_id(session, agent_id, "model_source") or "OpenAi"
-    if ModelSourceType.GooglePalm.value in model_source:
+    agent_config = Agent.fetch_configuration(session, agent_id)
+    organisation = Agent.find_org_by_agent_id(session, agent_id)
+    model_source = Configuration.fetch_configurations(session, organisation.id, "model_source", agent_config["model"]) or "OpenAi"
+    if ModelSourceType.GooglePalm.value in model_source or ModelSourceType.Replicate.value in model_source:
         return
 
     resource = session.query(Resource).filter(Resource.id == resource_id).first()
@@ -84,7 +86,7 @@ def summarize_resource(agent_id: int, resource_id: int):
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
-    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id)
+    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id, model=agent_config["model"])
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)
     session.close()

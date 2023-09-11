@@ -49,8 +49,8 @@ export default function MarketKnowledge() {
     <div className={showMarketplace ? 'ml_8' : 'ml_3'}>
       <div className="w_100 overflowY_auto mxh_78vh">
         {!isLoading ? <div>
-          {knowledgeTemplates.length > 0 ? <div className={styles.resources}>{knowledgeTemplates.map((item, index) => (
-            <div className={styles.market_tool} key={item.id} style={{cursor: 'pointer', display: 'block'}}
+          {knowledgeTemplates.length > 0 ? <div className="marketplaceGrid3">{knowledgeTemplates.map((item, index) => (
+            <div className="market_containers cursor_pointer" key={item.id} style={{cursor: 'pointer', display: 'block'}}
                  onClick={() => handleTemplateClick(item)}>
               <div style={{display: 'inline', overflow: 'auto'}}>
                 <div className="horizontal_space_between">
