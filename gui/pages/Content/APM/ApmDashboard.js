@@ -290,7 +290,7 @@ export default function ApmDashboard() {
                                     arrow={true}
                                     html={
                                       <>
-                                        <div className="bg_black br_8 padding_6">
+                                        <div className="bg_primary br_8 padding_5">
                                         {run.tools_used.slice(3).map((tool,index) =>
                                             <div className="tools_used" key={index}>{tool}</div>
                                         )}

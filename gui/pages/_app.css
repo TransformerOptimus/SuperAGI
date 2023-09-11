@@ -1380,19 +1380,6 @@ tr{
     margin: 2px;
 }
 
-.tools_used_tooltip{
-    position: absolute;
-    transform: translateX(-50%);
-    padding: 6px;
-    color: #fff;
-    font-size: 12px;
-    white-space: pre;
-    z-index: 100;
-    border-radius: 8px;
-    background: #2E293F;
-    margin-top: -40px;
-}
-
 .image_class{
     background: #FFFFFF80;
     border-radius: 20px;
@@ -1473,9 +1460,10 @@ tr{
     }
 }
 
-.bg_black{background: black}
-.bg_white{background: white}
-.bg_none{background: none}
+.bg_black{background: black;}
+.bg_white{background: white;}
+.bg_none{background: none;}
+.bg_primary{background: #2E293F;}
 
 .container {
     height: 100%;
