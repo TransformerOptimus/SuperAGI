@@ -149,7 +149,8 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
               </div>
             </div>
           </div>
-          <div className="horizontal_container mb_10 border_bottom_grey pd_bottom">
+          <div className="horizontal_container mb_10 border_bottom_grey pd_bottom_5">
+            <div className="w_50 display_flex_container">
             <div className={activeTab === 'metrics' ? 'tab_button_small_selected' : 'tab_button_small'}
                  onClick={() => setLocalStorageValue('toolkit_tab_' + String(internalId), 'metrics', setActiveTab)}>
               <div className="text_12 color_white padding_8">Metrics</div>
@@ -162,10 +163,10 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
                  onClick={() => setLocalStorageValue('toolkit_tab_' + String(internalId), 'tools_included', setActiveTab)}>
               <div className="text_12 color_white padding_8">Tools Included</div>
             </div>
-            {!loading && activeTab === 'metrics' && <div className="display_flex_container w_73 justify_end">
-              <div className="dropdown_container_search w_20">
-                <div className="custom_select_container" onClick={() => setToolDropdown(!toolDropdown)}
-                     style={{width: '100%'}}>
+            </div>
+            {!loading && activeTab === 'metrics' && <div className="display_flex_container w_50 justify_end">
+              <div className="dropdown_container_search ">
+                <div className="custom_select_container w_180p" onClick={() => setToolDropdown(!toolDropdown)}>
                   {currTool}<Image width={20} height={21}
                                         src={!toolDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
                                         alt="expand-icon"/>

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import styles from './Agents.module.css';
 import Image from "next/image";
 import {formatNumber} from "@/utils/utils";
@@ -11,6 +11,10 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
   const [filteredInstructions, setFilteredInstructions] = useState([]);
   const [scheduleText, setScheduleText] = useState('');
   const [agentDetails, setAgentDetails] = useState(null)
+  const goalBoxRef = useRef(null);
+  const instructionBoxRef = useRef(null);
+  const constrainBoxRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState([false, false, false]);
   const info_text = {
     marginLeft: '7px',
   };
@@ -22,6 +26,22 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
     lineHeight: '13px',
     fontSize: '11px'
   };
+
+  useEffect(() => {
+    const newOverflowing = [...isOverflowing];
+
+    if (goalBoxRef.current) {
+      newOverflowing[0] = goalBoxRef.current.scrollHeight > goalBoxRef.current.clientHeight;
+    }
+    if (instructionBoxRef.current) {
+      newOverflowing[1] = instructionBoxRef.current.scrollHeight > instructionBoxRef.current.clientHeight;
+    }
+    if (constrainBoxRef.current) {
+      newOverflowing[2] = constrainBoxRef.current.scrollHeight > constrainBoxRef.current.clientHeight;
+    }
+
+    setIsOverflowing(newOverflowing);
+  }, [agentDetails?.goal, filteredInstructions, agentDetails?.constraints]);
 
   const openToolkitTab = (toolId) => {
     EventBus.emit('openToolkitTab', {toolId: toolId});
@@ -80,18 +100,18 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
         style={{display: 'flex', marginBottom: '5px', alignItems: 'center', justifyContent: 'flex-start', gap: '7.5%'}}>
         <div>
           <div className={styles.agent_info_box}>
+            <div><Image width={12} height={12} src="/images/runs_made.svg" alt="runs-icon"/></div>
+            <div style={info_text_secondary}>Total Runs</div>
+          </div>
+          <div className={styles.feed_title} style={{fontSize: '20px', marginLeft: '0'}}>{runCount || 0}</div>
+        </div>
+        <div>
+          <div className={styles.agent_info_box}>
             <div><Image width={12} height={12} src="/images/calls_made.svg" alt="calls-icon"/></div>
             <div style={info_text_secondary}>Total Calls</div>
           </div>
           <div className={styles.feed_title}
                style={{fontSize: '20px', marginLeft: '0'}}>{formatNumber(agentDetails?.calls || 0)}</div>
-        </div>
-        <div>
-          <div className={styles.agent_info_box}>
-            <div><Image width={12} height={12} src="/images/runs_made.svg" alt="runs-icon"/></div>
-            <div style={info_text_secondary}>Total Runs</div>
-          </div>
-          <div className={styles.feed_title} style={{fontSize: '20px', marginLeft: '0'}}>{runCount || 0}</div>
         </div>
         <div>
           <div className={styles.agent_info_box}>
@@ -108,15 +128,15 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
         <div style={info_text}>{agentDetails?.goal?.length || 0} Goals</div>
       </div>
       {agentDetails?.goal && agentDetails?.goal?.length > 0 && <div>
-        <div className={styles.large_text_box} style={!showGoals ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
+        <div ref={goalBoxRef} className={styles.large_text_box} style={!showGoals ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
           {agentDetails?.goal?.map((goal, index) => (<div key={index} style={{marginTop: '0'}}>
             <div>{index + 1}. {goal || ''}</div>
             {index !== agentDetails?.goal?.length - 1 && <br/>}
           </div>))}
         </div>
-        <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>
+        {isOverflowing[0] && <div className={styles.show_more_button} onClick={() => setShowGoals(!showGoals)}>
           {showGoals ? 'Show Less' : 'Show More'}
-        </div>
+        </div>}
       </div>}
       {filteredInstructions && filteredInstructions.length > 0 && <div>
         <div className={styles.separator}></div>
@@ -125,15 +145,15 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
           <div style={info_text}>{filteredInstructions.length || 0} Instructions</div>
         </div>
         <div>
-          <div className={styles.large_text_box}
+          <div className={styles.large_text_box} ref={instructionBoxRef}
                style={!showInstructions ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
             {filteredInstructions.map((instruction, index) => (<div key={index} style={{marginTop: '0'}}>
               <div>{index + 1}. {instruction || ''}</div>
               {index !== filteredInstructions.length - 1 && <br/>}
             </div>))}
           </div>
-          <div className={styles.show_more_button}
-               onClick={() => setShowInstructions(!showInstructions)}>{showInstructions ? 'Show Less' : 'Show More'}</div>
+          {isOverflowing[1] && <div className={styles.show_more_button}
+               onClick={() => setShowInstructions(!showInstructions)}>{showInstructions ? 'Show Less' : 'Show More'}</div>}
         </div>
       </div>}
       {agentDetails && <div>{agentDetails.tools && agentDetails.tools.length > 0 && <div>
@@ -156,15 +176,15 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
           <div><Image width={15} height={15} src="/images/close_fullscreen.svg" alt="constraint-icon"/></div>
           <div style={info_text}>{agentDetails?.constraints.length || 0} Constraints</div>
         </div>
-        <div className={styles.large_text_box}
+        <div className={styles.large_text_box} ref={constrainBoxRef}
              style={!showConstraints ? {overflow: 'hidden', display: '-webkit-box'} : {}}>
           {agentDetails?.constraints?.map((constraint, index) => (<div key={index} style={{marginTop: '0'}}>
             <div>{index + 1}. {constraint || ''}</div>
             {index !== agentDetails.constraints.length - 1 && <br/>}
           </div>))}
         </div>
-        <div className={styles.show_more_button}
-             onClick={() => setShowConstraints(!showConstraints)}>{showConstraints ? 'Show Less' : 'Show More'}</div>
+        {isOverflowing[2] && <div className={styles.show_more_button}
+             onClick={() => setShowConstraints(!showConstraints)}>{showConstraints ? 'Show Less' : 'Show More'}</div>}
       </div>}</div>}
       <div className={styles.separator}></div>
       <div className={styles.agent_info_box}>

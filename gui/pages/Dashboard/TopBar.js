@@ -38,7 +38,11 @@ export default function TopBar({selectedProject, userName, env}) {
       </div>
       <div className="top_right">
         <div className="horizontal_container gap_20">
-          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://discord.gg/ypfYJWV6", "_blank")}>
+          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://superagi.com/docs", "_blank")}>
+            <Image width={20} height={20} src="/images/docs_icon.svg" alt="docs-icon" />
+            <p className="top_bar_font">Docs</p>
+          </div>
+          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://discord.com/invite/dXbRe5BHJC", "_blank")}>
             <Image width={20} height={20} src="/images/discord.svg" alt="discord-icon" />
             <p className="top_bar_font">Get Help</p>
           </div>

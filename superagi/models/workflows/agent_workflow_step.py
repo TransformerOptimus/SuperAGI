@@ -1,12 +1,12 @@
 import json
 
-from sqlalchemy import Column, Integer, String, Text, Boolean
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 
 from superagi.lib.logger import logger
-from superagi.models import db
 from superagi.models.base_model import DBBaseModel
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
+from superagi.models.workflows.agent_workflow_step_wait import AgentWorkflowStepWait
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 
@@ -30,9 +30,9 @@ class AgentWorkflowStep(DBBaseModel):
     agent_workflow_id = Column(Integer)
     unique_id = Column(String)
     step_type = Column(String)  # TRIGGER, NORMAL
-    action_type = Column(String)  # TOOL, ITERATION_WORKFLOW, LLM
+    action_type = Column(String)  # TOOL, ITERATION_WORKFLOW, LLM, WAIT_STEP
     action_reference_id = Column(Integer)  # id of the action
-    next_steps = Column(JSONB) # edge_ref_id, response, step_id
+    next_steps = Column(JSONB)  # edge_ref_id, response, step_id
 
     def __repr__(self):
         """
@@ -45,7 +45,7 @@ class AgentWorkflowStep(DBBaseModel):
         return f"AgentWorkflowStep(id={self.id}, status='{self.agent_workflow_id}', " \
                f"prompt='{self.unique_id}', agent_id={self.step_type}, action_type={self.action_type}, " \
                f"action_reference_id={self.action_reference_id}, next_steps={self.next_steps})"
-    
+
     def to_dict(self):
         """
         Converts the AgentWorkflowStep object to a dictionary.
@@ -151,6 +151,29 @@ class AgentWorkflowStep(DBBaseModel):
         return workflow_step
 
     @classmethod
+    def find_or_create_wait_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
+                                          wait_description: str, delay: int, step_type="NORMAL"):
+        """ Find or create a wait workflow step"""
+        logger.info("Finding or creating wait step")
+        workflow_step = session.query(AgentWorkflowStep).filter(
+            AgentWorkflowStep.agent_workflow_id == agent_workflow_id, AgentWorkflowStep.unique_id == unique_id).first()
+
+        step_wait = AgentWorkflowStepWait.find_or_create_wait(session=session, step_unique_id=unique_id,
+                                                              description=wait_description, delay=delay)
+        if workflow_step is None:
+            workflow_step = AgentWorkflowStep(unique_id=unique_id, step_type=step_type,
+                                              agent_workflow_id=agent_workflow_id)
+            session.add(workflow_step)
+            session.commit()
+        workflow_step.step_type = step_type
+        workflow_step.agent_workflow_id = agent_workflow_id
+        workflow_step.action_reference_id = step_wait.id
+        workflow_step.action_type = "WAIT_STEP"
+        workflow_step.next_steps = []
+        session.commit()
+        return workflow_step
+
+    @classmethod
     def find_or_create_iteration_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
                                                iteration_workflow_name: str, step_type="NORMAL"):
         """ Find or create a iteration workflow step
@@ -184,7 +207,8 @@ class AgentWorkflowStep(DBBaseModel):
         return workflow_step
 
     @classmethod
-    def add_next_workflow_step(cls, session, current_agent_step_id: int, next_step_id: int, step_response: str = "default"):
+    def add_next_workflow_step(cls, session, current_agent_step_id: int, next_step_id: int,
+                               step_response: str = "default"):
         """ Add Next workflow steps in the next_steps column
 
         Args:
@@ -251,7 +275,3 @@ class AgentWorkflowStep(DBBaseModel):
                 return "COMPLETE"
             return AgentWorkflowStep.find_by_unique_id(session, default_steps[0]["step_id"])
         return None
-
-
-
-

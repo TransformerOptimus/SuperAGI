@@ -45,6 +45,7 @@ from superagi.controllers.webhook import router as web_hook_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
+from superagi.llms.llm_model_factory import build_model_with_api_key
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
@@ -75,8 +76,13 @@ else:
     db_url = urlparse(db_url)
     db_url = db_url.scheme + "://" + db_url.netloc + db_url.path
 
-engine = create_engine(db_url)
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(db_url,
+                       pool_size=20,  # Maximum number of database connections in the pool
+                       max_overflow=50,  # Maximum number of connections that can be created beyond the pool_size
+                       pool_timeout=30,  # Timeout value in seconds for acquiring a connection from the pool
+                       pool_recycle=1800,  # Recycle connections after this number of seconds (optional)
+                       pool_pre_ping=False,  # Enable connection health checks (optional)
+                       )
 
 # app.add_middleware(DBSessionMiddleware, db_url=f'postgresql://{db_username}:{db_password}@localhost/{db_name}')
 app.add_middleware(DBSessionMiddleware, db_url=db_url)
@@ -345,15 +351,8 @@ async def validate_llm_api_key(request: ValidateAPIKeyRequest, Authorize: AuthJW
     """API to validate LLM API Key"""
     source = request.model_source
     api_key = request.model_api_key
-    valid_api_key = False
-    if source == "OpenAi":
-        valid_api_key = OpenAi(api_key=api_key).verify_access_key()
-    elif source == "Google Palm":
-        valid_api_key = GooglePalm(api_key=api_key).verify_access_key()
-    elif source == "Replicate":
-        valid_api_key = Replicate(api_key=api_key).verify_access_key()
-    elif source == "Hugging Face":
-         valid_api_key = HuggingFace(api_key=api_key).verify_access_key()
+    model = build_model_with_api_key(source, api_key)
+    valid_api_key = model.verify_access_key() if model is not None else False
     if valid_api_key:
         return {"message": "Valid API Key", "status": "success"}
     else:
