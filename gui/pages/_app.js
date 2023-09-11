@@ -22,7 +22,7 @@ import {
 } from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl, loadingTextEffect} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect, getUserClick} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
 import mixpanel from 'mixpanel-browser';
@@ -103,7 +103,6 @@ export default function App() {
   }
 
   useEffect(() => {
-    mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: true, track_pageview: true, persistence: 'localStorage' });
       if (window.location.href.toLowerCase().includes('marketplace')) {
       setShowMarketplace(true);
     } else {
@@ -118,6 +117,7 @@ export default function App() {
         setEnv(env);
 
         if (typeof window !== 'undefined') {
+          mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: false, track_pageview: true, persistence: 'localStorage' });
           localStorage.setItem('applicationEnvironment', env);
         }
 
@@ -135,7 +135,8 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
-              mixpanel.identify(response.data.name)
+              mixpanel.identify(response.data.email)
+              getUserClick('Signed In', {})
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {

@@ -18,7 +18,13 @@ import {
   openNewTab,
   removeTab,
   setLocalStorageValue,
-  setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, preventDefault, excludedToolkits
+  setLocalStorageArray,
+  returnResourceIcon,
+  getUserTimezone,
+  createInternalId,
+  preventDefault,
+  excludedToolkits,
+  getUserClick
 } from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import styles from "@/pages/Content/Agents/Agents.module.css";
@@ -1365,7 +1371,7 @@ export default function AgentCreate({
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
                 <button disabled={!createClickable} className="primary_button" style={{paddingRight: '5px'}}
-                        onClick={handleAddAgent}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
+                        onClick={() => {handleAddAgent(); getUserClick('Agent Created Succesfully', {})}}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
                 <button onClick={() => setCreateDropdown(!createDropdown)}
                         style={{border: 'none', backgroundColor: 'white'}}>
                   <Image width={20} height={21}

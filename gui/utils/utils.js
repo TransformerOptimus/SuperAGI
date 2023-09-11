@@ -4,6 +4,7 @@ import {baseUrl} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
+import mixpanel from 'mixpanel-browser'
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
@@ -481,4 +482,11 @@ export const modelIcon = (model) => {
   }
 
   return icons[model];
+}
+
+export const getUserClick = (event, props) => {
+  const env = localStorage.getItem('applicationEnvironment');
+  if(env === 'PROD'){
+    mixpanel.track(event, props)
+  }
 }

@@ -4,7 +4,7 @@ import styles from './Dashboard.module.css';
 import {useRouter} from 'next/router';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {refreshUrl, openNewTab} from "@/utils/utils";
+import {refreshUrl, openNewTab, getUserClick} from "@/utils/utils";
 
 export default function TopBar({selectedProject, userName, env}) {
   const [dropdown, setDropdown] = useState(false);
@@ -54,7 +54,7 @@ export default function TopBar({selectedProject, userName, env}) {
 
         <div className="horizontal_bar mr_22 ml_22" />
 
-        <Image onClick={() => openNewTab(-3, "Settings", "Settings", false)} className="top_right_icon" width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/>
+        <Image onClick={() => {openNewTab(-3, "Settings", "Settings", false); getUserClick('Settings Viewed', {})}} className="top_right_icon" width={16} height={16} src="/images/settings.svg" alt="dropdown-icon"/>
         <div className="top_right_icon" onMouseEnter={() => setDropdown(true)}
              onMouseLeave={() => setDropdown(false)}>
           <Image width={20} height={20} src="/images/profile_pic.png" alt="dropdown-icon"/>
