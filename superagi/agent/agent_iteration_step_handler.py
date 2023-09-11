@@ -78,15 +78,15 @@ class AgentIterationStepHandler:
 
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response['content'], self.llm.get_model())
         AgentExecution.update_tokens(self.session, self.agent_execution_id, total_tokens)
-        try:
-            content = json.loads(response['content'])
-            tool = content.get('tool', {})
-            tool_name = tool.get('name', '') if tool else ''
-        except json.JSONDecodeError:
-            print("Decoding JSON has failed")
-            tool_name = ''
-
-        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
+        # try:
+        #     content = json.loads(response['content'])
+        #     tool = content.get('tool', {})
+        #     tool_name = tool.get('name', '') if tool else ''
+        # except json.JSONDecodeError:
+        #     print("Decoding JSON has failed")
+        #     tool_name = ''
+        #
+        # CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
 
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,
