@@ -285,15 +285,16 @@ export default function ApmDashboard() {
                           {run.tools_used && run.tools_used.length > 3 &&
                               <div style={{display:'inline-flex'}}>
                                 <Tooltip
-                                    position="bottom"
+                                    position="top-start"
                                     trigger="mouseenter"
                                     arrow={true}
-                                    duration={200}
                                     html={
                                       <>
+                                        <div className="bg_black br_8 padding_6">
                                         {run.tools_used.slice(3).map((tool,index) =>
                                             <div className="tools_used" key={index}>{tool}</div>
                                         )}
+                                        </div>
                                       </>
                                     }
                                 >
