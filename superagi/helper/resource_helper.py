@@ -116,8 +116,7 @@ class ResourceHelper:
         """Get root dir of the resource.
         """
         root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
-        print(root_dir)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
         if root_dir is not None:
             root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
             root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"

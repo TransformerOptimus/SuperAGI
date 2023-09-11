@@ -56,8 +56,6 @@ class GoogleSerpTool(BaseTool):
         return summary
 
     def summarise_result(self, query, snippets):
-        import time
-        start = time.perf_counter()
         summarize_prompt = """Summarize the following text `{snippets}`
             Write a concise or as descriptive as necessary and attempt to
             answer the query: `{query}` as best as possible. Use markdown formatting for
@@ -68,6 +66,4 @@ class GoogleSerpTool(BaseTool):
 
         messages = [{"role": "system", "content": summarize_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
-        end = time.perf_counter()
-        print(f"Time taken to summarize: {end - start:0.4f} seconds")
         return result["content"]
