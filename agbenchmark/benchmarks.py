@@ -142,9 +142,13 @@ def run_specific_agent(task: str) -> None:
         #     "name": "DuckDuckGo Search Toolkit",
         #     "tools": ["DuckDuckGoSearch"]
         # },
+        # {
+        #     "name": "Google Search Toolkit",
+        #     "tools": ["GoogleSearch"]
+        # },
         {
-            "name": "Google Search Toolkit",
-            "tools": ["GoogleSearch"]
+            "name": "Google SERP Toolkit",
+            "tools": ["GoogleSerp"]
         },
         {
             "name": "Web Scrapper Toolkit",
