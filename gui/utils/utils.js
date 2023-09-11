@@ -482,3 +482,20 @@ export const modelIcon = (model) => {
 
   return icons[model];
 }
+
+export const parseTextWithLinks = (text) => {
+  // Regular expression to match URLs
+  const urlPattern = /https?:\/\/([^\s]+)/g;
+
+  // Splitting the text by URLs
+  const parts = text.split(urlPattern);
+
+  // Replacing each URL in the original text with JSX
+  for (let i = 0; i < parts.length; i++) {
+    if (urlPattern.test(parts[i])) {
+      parts[i] = <a href={parts[i]} key={i} target="_blank" rel="noopener noreferrer">{parts[i]}</a>;
+    }
+  }
+
+  return parts;
+}
