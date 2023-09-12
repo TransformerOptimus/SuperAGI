@@ -11,6 +11,7 @@ from superagi.helper.auth import check_auth
 from superagi.helper.encyption_helper import decrypt_data
 from superagi.helper.tool_helper import register_toolkits
 from superagi.llms.google_palm import GooglePalm
+from superagi.llms.llm_model_factory import build_model_with_api_key
 from superagi.llms.openai import OpenAi
 from superagi.models.configuration import Configuration
 from superagi.models.organisation import Organisation
@@ -170,11 +171,8 @@ def get_llm_models(organisation=Depends(get_user_organisation)):
                             detail="Organisation not found")
 
     decrypted_api_key = decrypt_data(model_api_key.value)
-    models = []
-    if model_source.value == "OpenAi":
-        models = OpenAi(api_key=decrypted_api_key).get_models()
-    elif model_source.value == "Google Palm":
-        models = GooglePalm(api_key=decrypted_api_key).get_models()
+    model = build_model_with_api_key(model_source.value, decrypted_api_key)
+    models = model.get_models() if model is not None else []
 
     return models
 

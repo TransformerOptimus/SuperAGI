@@ -45,7 +45,7 @@ class KnowledgeSearchTool(BaseTool):
         vector_db = Vectordbs.get_vector_db_from_id(session, vector_db_index.vector_db_id)
         db_creds = VectordbConfigs.get_vector_db_config_from_db_id(session, vector_db.id)
         model_api_key = self.get_tool_config('OPENAI_API_KEY')
-        model_source = "OpenAI"
+        model_source = 'OpenAI'
         embedding_model = AgentExecutor.get_embedding(model_source, model_api_key)
         try:
             if vector_db_index.state == "Custom":

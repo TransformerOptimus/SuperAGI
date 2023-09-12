@@ -5,8 +5,9 @@ import styles from "@/pages/Content/Toolkits/Tool.module.css";
 import Image from "next/image";
 import KnowledgeForm from "@/pages/Content/Knowledge/KnowledgeForm";
 import {deleteCustomKnowledge, deleteMarketplaceKnowledge, getKnowledgeDetails} from "@/pages/api/DashboardService";
-import {removeTab} from "@/utils/utils";
+import {removeTab, returnToolkitIcon, setLocalStorageValue} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
+import Metrics from "@/pages/Content/Toolkits/Metrics";
 
 export default function KnowledgeDetails({internalId, knowledgeId}) {
   const [showDescription, setShowDescription] = useState(false);
@@ -24,6 +25,8 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
   const [chunkOverlap, setChunkOverlap] = useState('');
   const [dimension, setDimension] = useState('');
   const [vectorDBIndex, setVectorDBIndex] = useState('');
+  const [activeTab, setActiveTab] = useState('metrics');
+
 
   const uninstallKnowledge = () => {
     setDropdown(false);
@@ -89,8 +92,45 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
 
   return (<>
     <div className="row">
-      <div className="col-3"></div>
-      <div className="col-6" style={{overflowY: 'scroll', height: 'calc(100vh - 92px)', padding: '25px 20px'}}>
+      <div className="col-12 col-6-scrollable">
+        <div className="horizontal_container align_start mb_20">
+          <div className="vertical_containers text_align_left mr_10 w_97">
+            <div className="text_17">{knowledgeName}</div>
+            <div className="text_12" >
+              {knowledgeDescription}
+            </div>
+          </div>
+            <div className="w_3">
+                <button className="secondary_button padding_8 h_31p"
+                        onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
+                </button>
+                {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+                    <ul className={`${"dropdown_container"} ${styles1.knowledge_options_dropdown}`}>
+                        {installationType !== 'Marketplace' &&
+                            // <li className="dropdown_item" onClick={viewKnowledge}>View in marketplace</li> :
+                            <li className="dropdown_item" onClick={editKnowledge}>Edit details</li>}
+                        <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
+                    </ul>
+                </div>}
+            </div>
+        </div>
+        <div className="horizontal_container mb_10 border_bottom_grey pd_bottom_5">
+          <div className={activeTab === 'metrics' ? 'tab_button_small_selected' : 'tab_button_small'}
+               onClick={() => setActiveTab('metrics')}>
+            <div className="text_12 color_white padding_8">Metrics</div>
+          </div>
+          <div className={activeTab === 'configuration' ? 'tab_button_small_selected' : 'tab_button_small'}
+               onClick={() => setActiveTab('configuration')}>
+            <div className="text_12 color_white padding_8">Configuration</div>
+          </div>
+        </div>
+        {activeTab === 'metrics' && <div>
+          <Metrics knowledgeName={knowledgeName} />
+        </div>}
+        { activeTab === "configuration" && <div className="row">
+          <div className="col-3" />
+          <div className="col-6">
         {isEditing ?
           <KnowledgeForm internalId={internalId}
                          knowledgeId={knowledgeId}
@@ -105,39 +145,8 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
                          sendKnowledgeData={null}
           /> :
           <div>
-            <div className={styles.tools_container}>
-              <div className={styles1.knowledge_wrapper} style={{width: '95%'}}>
-                <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                  <div style={{textAlign: 'left', paddingRight: '10px', width: '95%'}}>
-                    <div style={{fontSize: '17px', marginTop: '-3px'}}>{knowledgeName}</div>
-                    <div className={styles.toolkit_description}
-                         style={!showDescription ? {overflow: 'hidden'} : {display: 'block'}}>
-                      {`${showDescription ? knowledgeDescription : knowledgeDescription.slice(0, 70)}`}
-                      {knowledgeDescription.length > 70 &&
-                        <span className={styles.show_more_button} onClick={() => setShowDescription(!showDescription)}>
-                        {showDescription ? '...less' : '...more'}
-                    </span>}
-                    </div>
-                  </div>
-                </div>
-                <div style={{width: '5%'}}>
-                  <button className="secondary_button" style={{padding: '8px', height: '31px'}}
-                          onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-                    <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
-                  </button>
-                  {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-                    <ul className="dropdown_container" style={{marginTop: '0', marginLeft: '-10px', width: '165px'}}>
-                      {installationType !== 'Marketplace' &&
-                        // <li className="dropdown_item" onClick={viewKnowledge}>View in marketplace</li> :
-                        <li className="dropdown_item" onClick={editKnowledge}>Edit details</li>}
-                      <li className="dropdown_item" onClick={uninstallKnowledge}>Uninstall knowledge</li>
-                    </ul>
-                  </div>}
-                </div>
-              </div>
-            </div>
-            {installationType === 'Marketplace' && <div className={styles1.knowledge_wrapper} style={{width: '100%'}}>
-              <div style={{width: '50%'}}>
+            {installationType === 'Marketplace' && <div className={`${styles1.knowledge_wrapper} ${"col-6"} ${"w_100"}`}>
+              <div className="w_50">
                 <div className={styles1.knowledge_info_box}>
                   <label className={styles1.knowledge_label}>Installation Type</label>
                   <div className={styles1.knowledge_info}>{installationType}</div>
@@ -201,8 +210,10 @@ export default function KnowledgeDetails({internalId, knowledgeId}) {
               </div>
             </div>}
           </div>}
+          </div>
+          <div className="col-3" />
+        </div>}
       </div>
-      <div className="col-3"></div>
     </div>
     <ToastContainer/>
   </>);

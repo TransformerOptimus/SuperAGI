@@ -82,8 +82,8 @@ class AgentIterationStepHandler:
             content = json.loads(response['content'])
             tool = content.get('tool', {})
             tool_name = tool.get('name', '') if tool else ''
-        except json.JSONDecodeError:
-            print("Decoding JSON has failed")
+        except Exception as e:
+            logger.error(f"Decoding JSON has failed {e}")
             tool_name = ''
 
         CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])

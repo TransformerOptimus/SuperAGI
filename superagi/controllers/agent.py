@@ -132,17 +132,26 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
 
     agent = db.session.query(Agent).filter(Agent.id == db_agent.id,  ).first()
     organisation = agent.get_agent_organisation(db.session)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': execution.id,
-                                                                  'agent_execution_name':  execution.name}, db_agent.id,
-                                                 
-                                                  organisation.id if organisation else 0),
-    EventHandler(session=db.session).create_event('agent_created', {'agent_name': agent_with_config.name,
-                                                                   
-                                                                    'model': agent_with_config.model}, db_agent.id,
-                                                 
-                                                  organisation.id if organisation else 0)
+    
+    EventHandler(session=db.session).create_event('run_created', 
+                                                  {'agent_execution_id': execution.id,
+                                                   'agent_execution_name':  execution.name},
+                                                    db_agent.id,
+                                                    organisation.id if organisation else 0),
 
-    # execute_agent.delay(execution.id, datetime.now())
+    if agent_with_config.knowledge:
+        knowledge_name = db.session.query(Knowledges.name).filter(Knowledges.id == agent_with_config.knowledge).first()[0]
+        EventHandler(session=db.session).create_event('knowledge_picked', 
+                                                      {'knowledge_name': knowledge_name, 
+                                                        'agent_execution_id': execution.id},
+                                                      db_agent.id, 
+                                                      organisation.id if organisation else 0)
+    
+    EventHandler(session=db.session).create_event('agent_created', 
+                                                  {'agent_name': agent_with_config.name,
+                                                   'model': agent_with_config.model}, 
+                                                  db_agent.id,
+                                                  organisation.id if organisation else 0)
 
     db.session.commit()
 
