@@ -8,7 +8,7 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
       <div className="container">
         <p className="text_14 mt_8 mb_12 ml_8">Toolkits</p>
         {toolkits && toolkits.length > 0 ? (
-          <div className="vertical_selection_scroll">
+          <div className={`${env === "PROD" ? 'h_calc_add40' : 'h_80vh'} ${"overflowY_scroll"}`}>
           {toolkits.map((tool, index) =>
               tool.name !== null && !excludedToolkits().includes(tool.name) && (
                 <div key={index} className="item_box mb_10" onClick={() => sendToolkitData(tool)}>

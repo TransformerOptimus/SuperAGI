@@ -85,6 +85,10 @@
 <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/yvmNthyWYCE">Learn here</a>
 </p>
 
+<br>
+<p align="center">
+<a href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/TransformerOptimus/SuperAGI/tree/main"> <img src="https://www.deploytodo.com/do-btn-blue.svg"></a><br>Deploy SuperAGI to DigitalOcean with one click.
+</p>
 
 ### 💡 Features
 
@@ -127,7 +131,6 @@
 5. Once you have Docker Desktop running, run the command: `docker-compose up --build` in the SuperAGI directory. Open your browser and navigate to `http://localhost:3000` to access SuperAGI.
 
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
-
 
 
 <a id="architecture">

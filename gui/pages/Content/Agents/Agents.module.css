@@ -461,3 +461,28 @@
 .button_margin{
     margin-top: -10px;
 }
+
+.dropdown_separator{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-left:-5px;
+    width: 180px
+}
+
+.dropdown_container_agent{
+    bottom: 40px;
+    z-index: 9999;
+    padding: 0px;
+    width: fit-content;
+    height: fit-content;
+    margin-right: 40px;
+    background: #3B3B49;
+    border-radius: 8px;
+    position: absolute;
+    box-shadow: 0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22);
+}
+
+.dropdown_item_agent{
+    height:30px;
+    paddingTop: 2px;
+    paddingBottom: 2px;
+}

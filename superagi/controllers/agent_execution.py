@@ -24,6 +24,7 @@ from superagi.controllers.types.agent_schedule import AgentScheduleInput
 from superagi.apm.event_handler import EventHandler
 from superagi.controllers.tool import ToolOut
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.knowledges import Knowledges
 
 router = APIRouter()
 
@@ -86,12 +87,12 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+    db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_agent_step_id=start_step.id,
                                         iteration_workflow_step_id=iteration_step_id)
-    
+
     agent_execution_configs = {
         "goal": agent_execution.goal,
         "instruction": agent_execution.instruction
@@ -118,15 +119,31 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
+
+    #update status from CREATED to RUNNING
+    db_agent_execution.status = "RUNNING"
+    db.session.commit()
+
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
-                                 agent_execution.agent_id, organisation.id if organisation else 0)
+    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_execution.agent_id)
 
+    EventHandler(session=db.session).create_event('run_created',
+                                                  {'agent_execution_id': db_agent_execution.id,
+                                                   'agent_execution_name':db_agent_execution.name},
+                                                   agent_execution.agent_id,
+                                                   organisation.id if organisation else 0)
+    if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
+        knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
+        if knowledge_name is not None:
+            EventHandler(session=db.session).create_event('knowledge_picked',
+                                                        {'knowledge_name': knowledge_name,
+                                                         'agent_execution_id': db_agent_execution.id},
+                                                        agent_execution.agent_id,
+                                                        organisation.id if organisation else 0)
     Models.api_key_from_configurations(session=db.session, organisation_id=organisation.id)
-
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())
 
@@ -147,6 +164,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     Raises:
         HTTPException (Status Code=404): If the agent is not found.
     """
+
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
         raise HTTPException(status_code = 404, detail = "Agent not found")
@@ -159,7 +177,7 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
 
-    db_agent_execution = AgentExecution(status="RUNNING", last_execution_time=datetime.now(),
+    db_agent_execution = AgentExecution(status="CREATED", last_execution_time=datetime.now(),
                                         agent_id=agent_execution.agent_id, name=agent_execution.name, num_of_calls=0,
                                         num_of_tokens=0,
                                         current_agent_step_id=start_step.id,
@@ -183,13 +201,29 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
     db.session.add(db_agent_execution)
     db.session.commit()
     db.session.flush()
-    
+
+    #update status from CREATED to RUNNING
+    db_agent_execution.status = "RUNNING"
+    db.session.commit()
+
     AgentExecutionConfiguration.add_or_update_agent_execution_config(session = db.session, execution = db_agent_execution,
                                                                      agent_execution_configs = agent_execution_configs)
 
     organisation = agent.get_agent_organisation(db.session)
-    EventHandler(session=db.session).create_event('run_created', {'agent_execution_id': db_agent_execution.id,'agent_execution_name':db_agent_execution.name},
-                                 agent_execution.agent_id, organisation.id if organisation else 0)
+    EventHandler(session=db.session).create_event('run_created',
+                                                  {'agent_execution_id': db_agent_execution.id,
+                                                    'agent_execution_name':db_agent_execution.name},
+                                                    agent_execution.agent_id,
+                                                    organisation.id if organisation else 0)
+    agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_execution.agent_id)
+    if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
+        knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
+        if knowledge_name is not None:
+            EventHandler(session=db.session).create_event('knowledge_picked',
+                                                        {'knowledge_name': knowledge_name,
+                                                         'agent_execution_id': db_agent_execution.id},
+                                                        agent_execution.agent_id,
+                                                        organisation.id if organisation else 0)
 
     if db_agent_execution.status == "RUNNING":
       execute_agent.delay(db_agent_execution.id, datetime.now())

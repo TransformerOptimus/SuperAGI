@@ -19,7 +19,7 @@ def mock_tools():
 
 @pytest.fixture
 def executor(mock_tools):
-    return ToolExecutor(organisation_id=1, agent_id=1, tools=mock_tools)
+    return ToolExecutor(organisation_id=1, agent_id=1, tools=mock_tools, agent_execution_id=1)
 
 def test_tool_executor_finish(executor):
     res = executor.execute(None, 'finish', {})
@@ -29,7 +29,7 @@ def test_tool_executor_finish(executor):
 @patch('superagi.agent.tool_executor.EventHandler')
 def test_tool_executor_success(mock_event_handler, executor, mock_tools):
     for i, tool in enumerate(mock_tools):
-        res = executor.execute(None, f'tool{i}', {})
+        res = executor.execute(None, f'tool{i}', {'agent_execution_id': 1})
         assert res.status == 'SUCCESS'
         assert res.result == f'Tool {tool.name} returned: {tool.name}'
         assert res.retry == False
