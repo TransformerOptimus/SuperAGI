@@ -19,10 +19,10 @@ class ToolsHandler:
 
     def get_tool_and_toolkit(self):
         tools_and_toolkits = self.session.query(
-            Tool.name.label('tool_name'), Toolkit.name.label('toolkit_name')).join(
+            func.lower(Tool.name).label('tool_name'), Toolkit.name.label('toolkit_name')).join(
             Toolkit, Tool.toolkit_id == Toolkit.id).all()
 
-        return {item.tool_name: item.toolkit_name for item in tools_and_toolkits}
+        return {item.tool_name.lower(): item.toolkit_name for item in tools_and_toolkits}
 
     def calculate_tool_usage(self) -> List[Dict[str, int]]:
         tool_usage = []
@@ -55,8 +55,10 @@ class ToolsHandler:
             'tool_name': row.tool_name,
             'unique_agents': row.unique_agents,
             'total_usage': row.total_usage,
-            'toolkit': tool_and_toolkit.get(row.tool_name, None)
+            'toolkit': tool_and_toolkit.get(row.tool_name.lower(), None)
         } for row in result]
+
+        tool_usage.sort(key=lambda tool: tool['total_usage'], reverse=True)
 
         return tool_usage
     

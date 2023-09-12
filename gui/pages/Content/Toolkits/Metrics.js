@@ -101,7 +101,7 @@ export default function Metrics({toolName, knowledgeName}) {
             </div>
               <div className="display_column_container mt_5">
                 <span className="text_14">Call Logs</span>
-                {callLogs.length > 0 ? <div className="scrollable_container pd_bottom_5 border_radius_8 bg_none">
+                {callLogs.length > 0 ? <div className="scrollable_container pd_bottom_5 br_8 bg_none">
                   <table className="w_100 margin_0 padding_0">
                     <thead>
                     <tr className="border_top_none text_align_left border_bottom_none">
