@@ -147,5 +147,7 @@ class S3Helper:
                 logger.info(response['Contents'])
                 file_list = [obj['Key'] for obj in response['Contents']]
                 return file_list
+            else:
+                raise Exception(f"No contents in S3 response")
         except:
             raise Exception(f"Error listing files from s3")
