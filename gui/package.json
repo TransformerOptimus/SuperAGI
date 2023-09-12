@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node server.js",
     "build": "next build",
-    "start": "next start",
+    "start": "node server.js",
     "lint": "next lint",
     "export": "next export"
   },
@@ -18,6 +18,7 @@
     "echarts-for-react": "^3.0.2",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
+    "express": "^4.18.2",
     "jszip": "^3.10.1",
     "mitt": "^3.0.0",
     "moment": "^2.29.4",
