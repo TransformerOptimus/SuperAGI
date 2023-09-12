@@ -238,3 +238,4 @@ def test_pause_all_agents(mock_api_key_get):
         assert db_mock.session.execute.called
         assert db_mock.session.commit.called
         assert response.json() == {'result': 'success'}
+        assert response.status_code == 200
