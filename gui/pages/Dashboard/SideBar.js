@@ -15,7 +15,7 @@ export default function SideBar({onSelectEvent, env}) {
     ];
 
     const handleClick = (value) => {
-        getUserClick(value, {'sidebar': true})
+        getUserClick(value + "SIDEBAR ICON", {})
         setSelection(value);
         onSelectEvent(value);
         if (value === 'apm') {

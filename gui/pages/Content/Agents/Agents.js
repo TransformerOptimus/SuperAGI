@@ -15,7 +15,7 @@ export default function Agents({sendAgentData, agents}) {
               name: "new agent",
               contentType: "Create_Agent",
               internalId: createInternalId()
-            }); getUserClick('Agent Created', {'Click Position': 'Sidebar'})
+            }); getUserClick('Agent Create Clicked', {'Click Position': 'Sidebar'})
           }}>
             + Create Agent
           </button>

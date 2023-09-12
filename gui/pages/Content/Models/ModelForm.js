@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, openNewTab, createInternalId} from "@/utils/utils";
+import {removeTab, openNewTab, createInternalId, getUserClick} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
@@ -96,6 +96,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
             if (data.error) {
                 toast.error(data.error,{autoClose: 1800});
             } else if (data.success) {
+                getUserClick("Model Added Succesfully", {})
                 toast.success(data.success,{autoClose: 1800});
                 getModels()
                 handleModelSuccess({id: data.model_id, name: modelName})
