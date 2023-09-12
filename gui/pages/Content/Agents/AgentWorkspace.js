@@ -621,7 +621,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             {!publishModalState ? <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
               <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
                 #agent-templates-submission
-              </a> channel.</label> : <label className={styles.form_label}>Before publishing your agent to the marketplace, you need to run it at least once. To do this, click the 'New Run' button (on the agent screen). Once the agent has run successfully, you can proceed to try publishing your template.</label>}
+              </a> channel.</label> : <label className={styles.form_label}>Before publishing your agent to the marketplace, you need to run it at least once. To do this, click the New Run button (on the agent screen). Once the agent has run successfully, you can proceed to try publishing your template.</label>}
           </div>
           <div className={styles.modal_buttons}>
             <button className="primary_button" onClick={() => {setPublishModal(false)}}>
