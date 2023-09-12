@@ -2,7 +2,7 @@ import ast
 from typing import Type, Optional
 
 from pydantic import BaseModel, Field
-from superagi.helper.error_handling import OpenAIErrorHandling
+from superagi.helper.error_handling import ErrorHandling
 
 from superagi.helper.github_helper import GithubHelper
 from superagi.helper.json_cleaner import JsonCleaner
@@ -92,7 +92,7 @@ class GithubReviewPullRequest(BaseTool):
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
         
         if 'error' in result and result['message'] is not None:
-            OpenAIErrorHandling.handle_error(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
+            ErrorHandling.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
         response = result["content"]
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])

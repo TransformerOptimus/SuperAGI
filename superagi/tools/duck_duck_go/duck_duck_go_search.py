@@ -2,7 +2,7 @@ import json
 import requests
 from typing import Type, Optional,Union
 import time
-from superagi.helper.error_handling import OpenAIErrorHandling
+from superagi.helper.error_handling import ErrorHandling
 from superagi.lib.logger import logger
 from pydantic import BaseModel, Field
 from duckduckgo_search import DDGS
@@ -176,5 +176,5 @@ class DuckDuckGoSearchTool(BaseTool):
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
         
         if 'error' in result and result['message'] is not None:
-            OpenAIErrorHandling.handle_error(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
+            ErrorHandling.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
         return result["content"]

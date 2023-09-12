@@ -4,7 +4,7 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.helper.error_handling import OpenAIErrorHandling
+from superagi.helper.error_handling import ErrorHandling
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
@@ -77,7 +77,7 @@ class ImproveCodeTool(BaseTool):
                 result = self.llm.chat_completion([{'role': 'system', 'content': prompt}])
                 
                 if result is not None and 'error' in result and result['message'] is not None:
-                   OpenAIErrorHandling.handle_error(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
+                   ErrorHandling.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
 
                 # Extract the response first
                 response = result.get('response')
