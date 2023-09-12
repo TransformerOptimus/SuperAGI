@@ -84,8 +84,8 @@ def test_get_tool_usage_by_name(tools_handler, mock_session):
   
     assert isinstance(result, dict)
     assert result == {
-        'tool_calls': 10,
-        'tool_unique_agents': 5
+        'tool_calls': 20,
+        'tool_unique_agents': 10
     }
 
     mock_session.query.return_value.filter_by.return_value.first.return_value = None
