@@ -291,7 +291,6 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         data = data.filter((run) => run.status !== 'TERMINATED');
         setAgentExecutions(data);
         setSelectedRun(currentRun ? currentRun : data[0]);
-        console.log(data)
       })
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
