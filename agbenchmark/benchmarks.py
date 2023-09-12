@@ -5,6 +5,8 @@ import time
 
 import requests
 
+from superagi.lib.logger import logger
+
 baseUrl = "http://localhost:3000/api"
 
 
@@ -44,7 +46,7 @@ def setup(config_data: dict) -> str:
                     headers=headers,
                 )
                 if organisation.status_code != 200:
-                    print("Error creating organization")
+                    logger.info("Error creating organization")
                     sys.exit(1)
 
             org_id = organisation.json()["id"]
@@ -65,7 +67,7 @@ def setup(config_data: dict) -> str:
                     headers=headers,
                 )
                 if user.status_code != 201:
-                    print("Error creating user")
+                    logger.info("Error creating user")
                     sys.exit(1)
 
             # check if project exists
@@ -84,7 +86,7 @@ def setup(config_data: dict) -> str:
                     headers=headers,
                 )
                 if project.status_code != 200:
-                    print("Error creating project")
+                    logger.info("Error creating project")
                     sys.exit(1)
 
             superagi_api_key = create_superagi_api_key()
@@ -92,7 +94,7 @@ def setup(config_data: dict) -> str:
     openai_key = config_data.get("OPENAI_API_KEY", os.getenv("OPENAI_API_KEY"))
 
     if openai_key is None:
-        print("No OpenAI key found")
+        logger.info("No OpenAI key found")
         sys.exit(1)
     # add openai key
     json_data = {
@@ -105,7 +107,7 @@ def setup(config_data: dict) -> str:
     )
 
     if response.status_code != 200:
-        print("No valid OpenAI key found")
+        logger.info("No valid OpenAI key found")
         sys.exit(1)
 
     # add openai key
@@ -121,7 +123,7 @@ def setup(config_data: dict) -> str:
     )
 
     if response.status_code != 200:
-        print("No valid OpenAI key found")
+        logger.info("No valid OpenAI key found")
         sys.exit(1)
 
     return superagi_api_key
@@ -147,8 +149,6 @@ def run_specific_agent(task: str) -> None:
     if os.path.exists("config.yaml"):
         with open("config.yaml", "r") as file:
             config_data = yaml.safe_load(file)
-
-    print(f"time to read config.yaml {time.perf_counter() - start1_time}")
 
     superagi_api_key = setup(config_data)
 
@@ -183,8 +183,6 @@ def run_specific_agent(task: str) -> None:
         "POST", f"{baseUrl}/v1/agent/pause-all", headers=headers, data={}
     )
 
-    print(f"time to pause {time.perf_counter() - start1_time}")
-
     payload = {
         "name": f"{task[:20]}",
         "description": "AI assistant to solve complex problems",
@@ -216,7 +214,7 @@ def run_specific_agent(task: str) -> None:
 
     agent_id = response.json()["agent_id"]
 
-    print(f"time to create agent {time.perf_counter() - start1_time}")
+    logger.info(f"time to create agent {time.perf_counter() - start1_time}")
 
     response = requests.post(
         url=f"{baseUrl}/v1/agent/{agent_id}/run", headers=headers, json={}
@@ -234,7 +232,7 @@ def run_specific_agent(task: str) -> None:
     )
 
     stop_time = time.perf_counter()
-    print("time to agent start", stop_time - start1_time)
+    logger.info("time to agent start", stop_time - start1_time)
 
     with open("agbenchmark/config.json", "r") as f:
         config = json.load(f)
@@ -280,7 +278,7 @@ def run_specific_agent(task: str) -> None:
             f"{baseUrl}/agentexecutionfeeds/get/execution/{agent_execution_id}",
             headers=headers,
         )
-        print(time.time() - start_time)
+        logger.info(time.time() - start_time)
         if agent_stream.json()["status"] == "COMPLETED":
             break
 
@@ -299,7 +297,7 @@ def run_specific_agent(task: str) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py <task>")
+        logger.info("Usage: python script.py <task>")
         sys.exit(1)
     task = sys.argv[1]
     run_specific_agent(task)

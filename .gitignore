@@ -22,3 +22,4 @@ superagi/tools/external_tools/
 tests/unit_tests/resource_manager/test_path
 /tools.json
 /agbenchmark/reports
+challenges_already_beaten.json
