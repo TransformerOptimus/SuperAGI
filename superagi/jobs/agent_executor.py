@@ -101,8 +101,10 @@ class AgentExecutor:
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return
-            superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)
-            # superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            if agent_config['iteration_interval'] == 0:
+                superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
+            else:
+                superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)
         finally:
             session.close()
             engine.dispose()

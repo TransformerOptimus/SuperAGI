@@ -85,26 +85,16 @@ def setup(config_data: dict) -> str:
 
     # add openai key
     json_data = {
-        'key': 'model_api_key',
-        'value': openai_key,
+        'model_provider': 'OpenAI',
+        'model_api_key': openai_key,
     }
 
-    response = requests.post(
-        f'{baseUrl}/configs/add/organisation/{org_id}',
-        headers=headers,
-        json=json_data,
-    )
+    response = requests.post('http://localhost:3000/api/models_controller/store_api_keys', headers=headers,
+                             json=json_data)
 
-    json_data = {
-        'key': 'model_source',
-        'value': 'OpenAi',
-    }
-
-    response = requests.post(
-        f'{baseUrl}/configs/add/organisation/{org_id}',
-        headers=headers,
-        json=json_data,
-    )
+    if response.status_code != 200:
+        print("No valid OpenAI key found")
+        sys.exit(1)
 
     return superagi_api_key
 
@@ -128,6 +118,9 @@ def run_specific_agent(task: str) -> None:
     if os.path.exists("config.yaml"):
         with open("config.yaml", "r") as file:
             config_data = yaml.safe_load(file)
+
+    print(f'time to read config.yaml {time.perf_counter() - start1_time}')
+
     superagi_api_key = setup(config_data)
     tools = [
         {
@@ -166,6 +159,8 @@ def run_specific_agent(task: str) -> None:
         "POST", f"{baseUrl}/v1/agent/pause-all", headers=headers, data={}
     )
 
+    print(f'time to pause {time.perf_counter() - start1_time}')
+
     payload = {
         'name': f"{task[:20]}",
         'description': 'AI assistant to solve complex problems',
@@ -187,7 +182,7 @@ def run_specific_agent(task: str) -> None:
         ],
         'tools': tools,
         'exit': 'No exit criterion',
-        'iteration_interval': 500,
+        'iteration_interval': 0,
         'model': 'gpt-4',
         'max_iterations': 25,
     }
@@ -197,6 +192,8 @@ def run_specific_agent(task: str) -> None:
     )
 
     agent_id = response.json()['agent_id']
+
+    print(f'time to create agent {time.perf_counter() - start1_time}')
 
     response = requests.post(url=f"{baseUrl}/v1/agent/{agent_id}/run", headers=headers, json={})
     agent_execution_id = response.json()['run_id']
