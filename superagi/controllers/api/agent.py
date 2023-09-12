@@ -379,3 +379,7 @@ def pause_all_runs(
     db.session.execute(stmt)
 
     db.session.commit()
+
+    return {
+        "result": "success"
+    }
