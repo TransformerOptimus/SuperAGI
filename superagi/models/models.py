@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, and_
 from sqlalchemy.sql import func
 from typing import List, Dict, Union
 from superagi.models.base_model import DBBaseModel
-from superagi.llms.openai import OpenAi
+from superagi.controllers.types.models_types import ModelsTypes
 from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
 
@@ -64,9 +64,9 @@ class Models(DBBaseModel):
             return []
 
     @classmethod
-    def get_model_install_details(cls, session, marketplace_models, organisation):
+    def get_model_install_details(cls, session, marketplace_models, organisation_id, type=ModelsTypes.CUSTOM.value):
         from superagi.models.models_config import ModelsConfig
-        installed_models = session.query(Models).filter(Models.org_id == organisation.id).all()
+        installed_models = session.query(Models).filter(Models.org_id == organisation_id).all()
         model_counts_dict = dict(
             session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all()
         )
@@ -74,7 +74,10 @@ class Models(DBBaseModel):
 
         for model in marketplace_models:
             try:
-                model["is_installed"] = installed_models_dict.get(model["model_name"], False)
+                if type == ModelsTypes.MARKETPLACE.value:
+                    model["is_installed"] = False
+                else:
+                    model["is_installed"] = installed_models_dict.get(model["model_name"], False)
                 model["installs"] = model_counts_dict.get(model["model_name"], 0)
                 model["provider"] = session.query(ModelsConfig).filter(
                     ModelsConfig.id == model["model_provider_id"]).first().provider

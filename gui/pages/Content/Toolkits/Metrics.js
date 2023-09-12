@@ -101,7 +101,7 @@ export default function Metrics({toolName, knowledgeName}) {
             </div>
               <div className="display_column_container mt_5">
                 <span className="text_14">Call Logs</span>
-                {callLogs.length > 0 ? <div className="scrollable_container pd_bottom_5 border_radius_8 bg_none">
+                {callLogs.length > 0 ? <div className="scrollable_container pd_bottom_5 br_8 bg_none">
                   <table className="w_100 margin_0 padding_0">
                     <thead>
                     <tr className="border_top_none text_align_left border_bottom_none">
@@ -118,11 +118,11 @@ export default function Metrics({toolName, knowledgeName}) {
                       <tbody>
                       {callLogs.map((item, index) => (
                         <tr key={index} className="text_align_left">
-                          <td className="table_data w_15 border_gray border_left_none">{item.created_at}</td>
-                          <td className="table_data w_15 border_gray">{item.agent_name}</td>
-                          <td className="table_data w_40 border_gray">{item.agent_execution_name}</td>
-                          <td className="table_data w_15 border_gray">{item.model}</td>
-                          <td className="table_data w_15 border_gray">{item.tokens_consumed}</td>
+                          <td className="table_data w_15">{item.created_at}</td>
+                          <td className="table_data w_15 br_left_grey">{item.agent_name}</td>
+                          <td className="table_data w_40 br_left_grey">{item.agent_execution_name}</td>
+                          <td className="table_data w_15 br_left_grey">{item.model}</td>
+                          <td className="table_data w_15 br_left_grey">{item.tokens_consumed}</td>
                         </tr>
                       ))}
                       </tbody>
