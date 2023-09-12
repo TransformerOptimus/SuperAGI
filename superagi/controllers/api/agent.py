@@ -3,6 +3,7 @@ from fastapi import HTTPException, Depends ,Security
 
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
+from sqlalchemy import update
 
 from superagi.worker import execute_agent
 from superagi.helper.auth import validate_api_key,get_organisation_from_api_key
@@ -368,9 +369,13 @@ def pause_all_runs(
         organisation: Organisation = Depends(get_organisation_from_api_key)
 ):
     project_id = Project.find_by_org_id(db.session, organisation.id).id
-    agents = Agent.get_all_agents_by_project_id(db.session, project_id)
-    for agent in agents:
-        db_execution_arr = AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, None, "RUNNING")
-        for ind_execution in db_execution_arr:
-            ind_execution.status = "PAUSED"
+
+    # Create subquery that selects id of Agents for the specific project
+    sq = db.session.query(Agent.id).filter(Agent.project_id == project_id)
+
+    # Update AgentExecution status where agent_id is in the subquery
+    stmt = update(AgentExecution).where(AgentExecution.agent_id.in_(sq), AgentExecution.status == "RUNNING") \
+        .values(status="PAUSED")
+    db.session.execute(stmt)
+
     db.session.commit()
