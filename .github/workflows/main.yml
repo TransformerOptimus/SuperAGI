@@ -30,6 +30,7 @@ jobs:
       run: |
         sudo apt-get -yqq install curl
         pip install agbenchmark
+        pip install PyYAML
 
     - name: Check directory
       run: |
