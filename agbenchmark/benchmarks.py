@@ -146,10 +146,17 @@ class Agent:
             "model": "gpt-4",
             "max_iterations": 25,
         }
+
+        # pause all agents
+        create_endpoint("/v1/agent/pause-all", "POST", data=json.dumps({}), headers=headers)
+
+        # create agent
         response = create_endpoint(
             "/v1/agent", "POST", data=json.dumps(payload), headers=headers
         )
         self.agent_id = response["agent_id"]
+
+        # run agent
         response = create_endpoint(
             f"/v1/agent/{self.agent_id}/run",
             "POST",
@@ -188,7 +195,7 @@ class Agent:
                 f"/agentexecutionfeeds/get/execution/{agent_execution_id}",
                 headers=headers,
             )
-            if agent_stream["status"] == "COMPLETED":
+            if agent_stream["status"] != "RUNNING":
                 break
 
             time.sleep(5)
