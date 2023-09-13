@@ -175,12 +175,12 @@ class AgentExecution(DBBaseModel):
     @classmethod
     def get_all_executions_by_status_and_agent_id(cls, session, agent_id, execution_state_change_input, current_status: str):
         db_execution_arr = []
-        if  execution_state_change_input.run_ids is not None:
+        if  execution_state_change_input and execution_state_change_input.run_ids is not None:
             db_execution_arr = session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id, AgentExecution.status == current_status,AgentExecution.id.in_(execution_state_change_input.run_ids)).all()
         else:
             db_execution_arr = session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id, AgentExecution.status == current_status).all()
         return db_execution_arr
-    
+
     @classmethod
     def get_all_executions_by_filter_config(cls, session, agent_id: int, filter_config):
         db_execution_query = session.query(AgentExecution).filter(AgentExecution.agent_id == agent_id)

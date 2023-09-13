@@ -218,3 +218,24 @@ def test_create_run_project_not_matching_org(mock_agent_execution, mock_api_key_
 
         assert response.status_code == 404
         assert response.text == '{"detail":"Agent not found"}'
+
+
+def test_pause_all_agents(mock_api_key_get):
+    with patch('superagi.helper.auth.get_organisation_from_api_key') as mock_get_user_org, \
+            patch('superagi.helper.auth.validate_api_key') as mock_validate_api_key, \
+            patch('superagi.helper.auth.db') as mock_auth_db, \
+            patch('superagi.controllers.api.agent.db') as db_mock:
+        mock_session = create_autospec(Session)
+        mock_project = Project(id=1, organisation_id=2)
+        db_mock.Project.find_by_id.return_value = mock_project
+
+        response = client.post(
+            "/v1/agent/pause-all",
+            headers={"X-API-Key": mock_api_key_get},
+        )
+
+        assert db_mock.session.query.called
+        assert db_mock.session.execute.called
+        assert db_mock.session.commit.called
+        assert response.json() == {'result': 'success'}
+        assert response.status_code == 200

@@ -97,6 +97,9 @@ class WebpageExtractor:
             "User-Agent": random.choice(USER_AGENTS)
         }
 
+        if not url.startswith("http"):
+            url = "http://" + url
+
         try:
             response = requests.get(url, headers=headers, timeout=10)
             if response.status_code == 200:

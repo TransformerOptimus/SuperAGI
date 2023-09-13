@@ -10,4 +10,4 @@ python superagi/tool_manager.py
 alembic upgrade head
 
 # Start the app
-exec uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+exec uvicorn main:app --host 0.0.0.0 --port 8001 --reload --reload-exclude /app/workspace

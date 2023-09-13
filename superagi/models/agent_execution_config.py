@@ -41,30 +41,31 @@ class AgentExecutionConfiguration(DBBaseModel):
 
     @classmethod
     def add_or_update_agent_execution_config(cls, session, execution, agent_execution_configs):
-        agent_execution_configurations = [
-            AgentExecutionConfiguration(agent_execution_id=execution.id, key=key, value=str(value))
-            for key, value in agent_execution_configs.items()
-        ]
-        for agent_execution in agent_execution_configurations:
-            agent_execution_config = (
-                session.query(AgentExecutionConfiguration)
-                .filter(
-                    AgentExecutionConfiguration.agent_execution_id == execution.id,
-                    AgentExecutionConfiguration.key == agent_execution.key
-                )
-                .first()
-            )
+        agent_keys = list(agent_execution_configs.keys())
 
-            if agent_execution_config:
-                agent_execution_config.value = str(agent_execution.value)
+        existing_configs = (
+            session.query(AgentExecutionConfiguration)
+            .filter(
+                AgentExecutionConfiguration.agent_execution_id == execution.id,
+                AgentExecutionConfiguration.key.in_(agent_keys)
+            )
+            .all()
+        )
+
+        existing_keys = {config.key: config for config in existing_configs}
+
+        for key, value in agent_execution_configs.items():
+            if key in existing_keys:
+                existing_keys[key].value = str(value)
             else:
-                agent_execution_config = AgentExecutionConfiguration(
+                config = AgentExecutionConfiguration(
                     agent_execution_id=execution.id,
-                    key=agent_execution.key,
-                    value=str(agent_execution.value)
+                    key=key,
+                    value=str(value)
                 )
-                session.add(agent_execution_config)
-            session.commit()
+                session.add(config)
+
+        session.commit()
 
     @classmethod
     def fetch_configuration(cls, session, execution_id):
