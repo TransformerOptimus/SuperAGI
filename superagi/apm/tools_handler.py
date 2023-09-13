@@ -68,7 +68,6 @@ class ToolsHandler:
 
         if not is_tool_name_valid:
             raise HTTPException(status_code=404, detail="Tool not found")
-        formatted_tool_name = tool_name.lower().replace(" ", "")
 
         tool_name_event = self.session.query(
             Event.event_property['tool_name'].cast(String).label('tool_name'), 
@@ -82,18 +81,6 @@ class ToolsHandler:
             Event.event_property['tool_name'].cast(String)
         ).first()
 
-        formatted_tool_name_event = self.session.query(
-            Event.event_property['tool_name'].cast(String).label('tool_name'), 
-            func.count(Event.id).label('tool_calls'),
-            func.count(distinct(Event.agent_id)).label('tool_unique_agents')
-        ).filter(
-            Event.event_name == 'tool_used',
-            Event.org_id == self.organisation_id,
-            Event.event_property['tool_name'].astext == formatted_tool_name
-        ).group_by(
-            Event.event_property['tool_name'].cast(String)
-        ).first()
-
         tool_data = {}
         tool_calls = 0
         tool_unique_agents = 0
@@ -101,10 +88,6 @@ class ToolsHandler:
         if tool_name_event:
             tool_calls += tool_name_event.tool_calls
             tool_unique_agents += tool_name_event.tool_unique_agents
-
-        if formatted_tool_name_event:
-            tool_calls += formatted_tool_name_event.tool_calls
-            tool_unique_agents += formatted_tool_name_event.tool_unique_agents
 
         tool_data = {
             'tool_calls': tool_calls,
@@ -120,15 +103,10 @@ class ToolsHandler:
         if not is_tool_name_valid:
             raise HTTPException(status_code=404, detail="Tool not found")
 
-        formatted_tool_name = tool_name.lower().replace(" ", "")
-
         tool_events = self.session.query(Event).filter(
             Event.org_id == self.organisation_id,
             Event.event_name == 'tool_used',
-            or_(
-                Event.event_property['tool_name'].astext == formatted_tool_name,
-                Event.event_property['tool_name'].astext == tool_name
-            )
+            Event.event_property['tool_name'].astext == tool_name
         ).all()
 
         tool_events = [te for te in tool_events if 'agent_execution_id' in te.event_property]
@@ -176,10 +154,7 @@ class ToolsHandler:
                 ).filter(
                     Event.org_id == self.organisation_id,
                     Event.event_name == 'tool_used',
-                    and_(
-                        Event.event_property['tool_name'].astext != tool_name,
-                        Event.event_property['tool_name'].astext != formatted_tool_name
-                    ),
+                    Event.event_property['tool_name'].astext != tool_name,
                     Event.agent_id == tool_event.agent_id, 
                     Event.id.between(tool_event.id, event_run.id)
                 ).all()

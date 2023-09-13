@@ -44,10 +44,7 @@ class KnowledgeHandler:
                 'knowledge_calls': self.session.query(
                     EventAlias
                 ).filter(
-                    or_(
-                        EventAlias.event_property['tool_name'].astext == 'knowledgesearch',
-                        EventAlias.event_property['tool_name'].astext == 'Knowledge Search'
-                    ),
+                    EventAlias.event_property['tool_name'].astext == 'Knowledge Search',
                     EventAlias.event_name == 'tool_used',
                     EventAlias.org_id == self.organisation_id,
                     EventAlias.agent_id.in_(self.session.query(Event.agent_id).filter(
