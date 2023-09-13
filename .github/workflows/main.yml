@@ -23,7 +23,11 @@ jobs:
       run: |
         sudo apt-get -yqq install curl
         pip install agbenchmark
-
+    - name: check dir
+      run: |
+        pwd
+        ls
+    
     - name: Replace Placeholder
       run: |
         cp config_template.yaml config.yaml
