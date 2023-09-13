@@ -6,6 +6,7 @@ on:
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
+    environment: Production
 
     steps:
     - name: Set up Python 3.10
