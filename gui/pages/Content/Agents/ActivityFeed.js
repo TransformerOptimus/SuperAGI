@@ -142,7 +142,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 </div>}
               </div>
             </div>))}
-            {runStatus === 'WAITING' &&
+            {runStatus === 'WAIT_STEP' &&
                 <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
                   <div style={{display: 'flex'}}>
                     <div style={{fontSize: '20px'}}>⏳</div>
