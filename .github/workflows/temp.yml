@@ -5,7 +5,6 @@ on:
 
 jobs:
   build-and-run:
-    secrets: inherit
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +20,10 @@ jobs:
       run: |
         pwd
         ls
+               
+    - name: print secrets     
+      run: echo ${{ secrets.CALLING_WORKFLOW_SECRET }}
+
 
     - name: Replace Placeholder
       run: |
