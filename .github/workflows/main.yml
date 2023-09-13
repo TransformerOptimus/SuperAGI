@@ -6,28 +6,35 @@ on:
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-        
+
     - name: Checkout Source Code
       uses: actions/checkout@v2
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
     - name: Install Dependencies
       run: |
         sudo apt-get -yqq install curl
         pip install agbenchmark
-    - name: check dir
+
+    - name: Check directory
       run: |
         pwd
         ls
-    
+
     - name: Replace Placeholder
       run: |
         cp config_template.yaml config.yaml
