@@ -28,3 +28,4 @@ jobs:
         echo "hello"
         echo $SUPER_SECRET
         echo "world"
+        echo $OPENAI_API_KEY
