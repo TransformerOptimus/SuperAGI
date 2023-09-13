@@ -44,4 +44,8 @@ jobs:
         while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:3000/api/configs/get/env)" != "200" ]]; do sleep 5; done
 
     - name: Run agbenchmark
-      run: agbenchmark start
+      run: |
+        cat config.yaml
+        python --version
+        agbenchmark start --mock
+        agbenchmark start
