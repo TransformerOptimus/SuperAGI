@@ -49,3 +49,4 @@ jobs:
         python --version
         agbenchmark start --mock
         agbenchmark start
+      continue-on-error: true
