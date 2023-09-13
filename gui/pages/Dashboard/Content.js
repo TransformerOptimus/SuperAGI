@@ -450,7 +450,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <DatabaseDetails internalId={tab.internalId || index} databaseId={tab.id}/>}
                     {tab.contentType === 'Settings' &&
                       <Settings organisationId={organisationId} sendDatabaseData={addTab}/>}
-                    {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView} getModels={getModels} sendModelData={addTab} />}
+                    {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
                     {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
                     {tab.contentType === 'Add_Knowledge' &&
                       <AddKnowledge internalId={tab.internalId || index} sendKnowledgeData={addTab}/>}

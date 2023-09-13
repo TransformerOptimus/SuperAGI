@@ -4,7 +4,6 @@ import Image from "next/image";
 import {loadingTextEffect, modelIcon, returnToolkitIcon} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {fetchMarketPlaceModel} from "@/pages/api/DashboardService";
-import axios from "axios";
 
 export default function MarketModels(){
     const [showMarketplace, setShowMarketplace] = useState(false);
@@ -14,26 +13,14 @@ export default function MarketModels(){
 
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
-
-        if (window.location.href.toLowerCase().includes('marketplace')) {
-            axios.get('https://app.superagi.com/api/models_controller/get/models_details')
-                .then((response) => {
-                    setModelTemplates(response.data)
-                })
-        }
-        else {
-            fetchMarketPlaceModel().then((response) => {
-                setModelTemplates(response.data)
-            })
-        }
-    },[])
+    },[]);
 
     useEffect(() => {
-        if(modelTemplates.length > 0)
-            setIsLoading(true)
-        else
-            setIsLoading(false)
-    }, [modelTemplates])
+        fetchMarketPlaceModel().then((response) => {
+            console.log(response.data)
+            setModelTemplates(response.data)
+        })
+    },[])
 
     function handleTemplateClick(item) {
         const contentType = 'model_template';
@@ -43,7 +30,7 @@ export default function MarketModels(){
     return(
         <div id="market_models" className={showMarketplace ? 'ml_8' : 'ml_3'}>
             <div className="w_100 overflowY_auto mxh_78vh">
-                {isLoading ? <div>
+                {!isLoading ? <div>
                     {modelTemplates.length > 0 ? <div className="marketplaceGrid">{modelTemplates.map((item) => (
                         <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
                             <div>{item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[1] : item.model_name}</div>
