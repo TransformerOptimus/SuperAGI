@@ -99,6 +99,7 @@ class AgentExecutionConfiguration(DBBaseModel):
             return parsed_config
         for item in agent_configurations:
             parsed_config[item.key] = cls.eval_agent_config(item.key, item.value)
+        print("_____________________parsed content",parsed_config)
         return parsed_config
     
     @classmethod

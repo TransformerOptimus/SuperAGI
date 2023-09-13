@@ -37,7 +37,7 @@ Session = sessionmaker(bind=engine)
 class AgentExecutor:
 
     def execute_next_step(self, agent_execution_id):
-        from superagi.jobs.trajectory_finetuning import TrajectoryFinetuning
+        from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
         global engine
         # try:
         engine.dispose()
@@ -91,12 +91,16 @@ class AgentExecutor:
                 logger.info("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
-        
+            ans=TrajectoryFinetuning(session=session,llm=get_model(model=agent_config["model"], api_key=model_api_key,
+                                                                   organisation_id=organisation.id)
+                                                     ,agent_execution_id=agent_execution_id).Trajectory_finetuning()
+            print("1.___________________response",ans)
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
                 ans=TrajectoryFinetuning(session=session,llm=get_model(model=agent_config["model"], api_key=model_api_key,
                                                                    organisation_id=organisation.id)
                                                      ,agent_execution_id=agent_execution_id).Trajectory_finetuning()
+                print("2.___________________response",ans)
                 logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return
