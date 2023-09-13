@@ -38,6 +38,7 @@ jobs:
 
     - name: Replace Placeholder
       run: |
+        mkdir workspace
         mkdir workspace/input
         cp config_template.yaml config.yaml
         sed -i 's|YOUR_OPEN_API_KEY|'"${{ secrets.OPENAI_API_KEY }}"'|g' config.yaml
