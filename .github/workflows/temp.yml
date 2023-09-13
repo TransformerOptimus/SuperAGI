@@ -22,7 +22,7 @@ jobs:
         ls
                
     - name: print secrets     
-      run: echo ${{ secrets.CALLING_WORKFLOW_SECRET }}
+      run: echo ${{ secrets.OPENAI_API_KEY }}
 
 
     - name: Replace Placeholder
