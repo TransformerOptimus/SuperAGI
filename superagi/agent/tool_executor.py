@@ -32,7 +32,7 @@ class ToolExecutor:
             status = "SUCCESS"
             tool = tools[tool_name]
             retry = False
-            EventHandler(session=session).create_event('tool_used', {'tool_name': tool_name, 'agent_execution_id': self.agent_execution_id}, self.agent_id,
+            EventHandler(session=session).create_event('tool_used', {'tool_name': tool.name, 'agent_execution_id': self.agent_execution_id}, self.agent_id,
                                                        self.organisation_id),
             try:
                 parsed_args = self.clean_tool_args(tool_args)
