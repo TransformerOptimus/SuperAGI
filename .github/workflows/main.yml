@@ -41,7 +41,7 @@ jobs:
         cp config_template.yaml config.yaml
         sed -i 's|YOUR_OPEN_API_KEY|'"${{ secrets.OPENAI_API_KEY }}"'|g' config.yaml
         sed -i 's|workspace/input/{agent_id}|workspace/input|g' config.yaml
-        sed -i 's|workspace/output/{agent_id}/{agent_execution_id}|workspace/output|g' config.yaml
+        sed -i 's|workspace/output/{agent_id}/{agent_execution_id}|workspace/input|g' config.yaml
         sed -i 's|YOUR_SERPER_API_KEY|'"${{ secrets.SERPER_API_KEY }}"'|g' config.yaml
 
     - name: Docker Compose Build and Run
@@ -55,6 +55,8 @@ jobs:
       run: |
         cat config.yaml
         python --version
+        agbenchmark start --test TestReadFile --mock
+        agbenchmark start --test TestReadFile
         agbenchmark start --mock
         agbenchmark start
       continue-on-error: true
