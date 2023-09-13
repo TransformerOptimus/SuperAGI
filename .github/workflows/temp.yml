@@ -1,4 +1,4 @@
-name: Run Command Workflow
+name: Test ENV
 
 on: 
   workflow_dispatch:
@@ -16,11 +16,6 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v2
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get -yqq install curl
-        pip install agbenchmark
-
     - name: Check directory
       run: |
         pwd
@@ -34,3 +29,4 @@ jobs:
         sed -i 's|workspace/output/{agent_id}/{agent_execution_id}|workspace/output|g' config.yaml
         sed -i 's|YOUR_SERPER_API_KEY|'"${{ secrets.SERPER_API_KEY }}"'|g' config.yaml
         sed -i 's/OPENAI_API_KEY:.*/OPENAI_API_KEY: "'"${{ secrets.OPENAI_API_KEY }}"'"/' config.yaml
+        cat config.yaml
