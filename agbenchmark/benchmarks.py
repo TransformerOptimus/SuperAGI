@@ -15,7 +15,6 @@ def create_endpoint(
     response = requests.request(
         method, f"{baseUrl}{endpoint}", data=data, headers=headers
     )
-    logger.info(response.json())
     if response.status_code not in [200, 201] and exit_on_error:
         logger.info(f"Error connecting to API endpoint: {baseUrl}{endpoint}")
         sys.exit(1)
@@ -104,8 +103,6 @@ class SuperAgiKey:
             ),
             headers=self.headers,
         )
-        with open("config.yaml", "w") as file:
-            yaml.dump(self.config_data, file)
 
         return self.api_key
 
