@@ -101,16 +101,14 @@ class AgentExecutor:
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             print(agent_execution.__dict__) 
-            # if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
-            #     logger.info("Agent Execution is completed or waiting for permission")
-            #     session.close()
-            #     return
-            if agent_execution.status == "COMPLETED":
-                  response= TrajectoryFinetuning.Trajectory_finetuning(session, agent_execution_id)
-                  print(response,"+++++")
-                  logger.info("Agent Execution is completed")
-                  session.close()
-                  return
+            if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
+                ans=TrajectoryFinetuning(session=session,llm=get_model(model=agent_config["model"], api_key=model_api_key,
+                                                                   organisation_id=organisation.id)
+                                                     ,agent_execution_id=agent_execution_id).Trajectory_finetuning()
+                logger.info("Agent Execution is completed or waiting for permission")
+                session.close()
+                return
+             
 
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)
             # superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())

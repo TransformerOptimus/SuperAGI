@@ -86,6 +86,15 @@ class AgentExecutionConfiguration(DBBaseModel):
             "instruction": [],
             "tools": []
         }
+        for item in agent_configurations:
+            key = item.key
+            value = item.value
+
+        # Check if the key corresponds to one of the parameters we want to store
+            if key == "goal":
+                parsed_config["goal"].append(value)
+            elif key == "instruction":
+                parsed_config["instruction"].append(value)
         if not agent_configurations:
             return parsed_config
         for item in agent_configurations:
