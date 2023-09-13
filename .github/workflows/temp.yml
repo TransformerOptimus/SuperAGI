@@ -28,14 +28,3 @@ jobs:
         echo "hello"
         echo $SUPER_SECRET
         echo "world"
-
-
-    - name: Replace Placeholder
-      run: |
-        cp config_template.yaml config.yaml
-        sed -i 's|YOUR_OPEN_API_KEY|'"${{ secrets.OPENAI_API_KEY }}"'|g' config.yaml
-        sed -i 's|workspace/input/{agent_id}|workspace/input|g' config.yaml
-        sed -i 's|workspace/output/{agent_id}/{agent_execution_id}|workspace/output|g' config.yaml
-        sed -i 's|YOUR_SERPER_API_KEY|'"${{ secrets.SERPER_API_KEY }}"'|g' config.yaml
-        sed -i 's/OPENAI_API_KEY:.*/OPENAI_API_KEY: "'"${{ .OPENAI_API_KEY }}"'"/' config.yaml
-        cat config.yaml
