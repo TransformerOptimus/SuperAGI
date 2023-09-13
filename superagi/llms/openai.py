@@ -1,6 +1,7 @@
 import openai
 from openai import APIError, InvalidRequestError
 from openai.error import RateLimitError, AuthenticationError
+from local_llms import generate_response
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
@@ -61,32 +62,37 @@ class OpenAi(BaseLlm):
         Returns:
             dict: The response.
         """
+        # try:
+        #     # openai.api_key = get_config("OPENAI_API_KEY")
+        #     response = openai.ChatCompletion.create(
+        #         n=self.number_of_results,
+        #         model=self.model,
+        #         messages=messages,
+        #         temperature=self.temperature,
+        #         max_tokens=max_tokens,
+        #         top_p=self.top_p,
+        #         frequency_penalty=self.frequency_penalty,
+        #         presence_penalty=self.presence_penalty
+        #     )
+        #     content = response.choices[0].message["content"]
+        #     return {"response": response, "content": content}
+        # except AuthenticationError as auth_error:
+        #     logger.info("OpenAi AuthenticationError:", auth_error)
+        #     return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys: "+str(auth_error)}
+        # except RateLimitError as api_error:
+        #     logger.info("OpenAi RateLimitError:", api_error)
+        #     return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded: "+str(api_error)}
+        # except InvalidRequestError as invalid_request_error:
+        #     logger.info("OpenAi InvalidRequestError:", invalid_request_error)
+        #     return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error: "+str(invalid_request_error)}
+        # except Exception as exception:
+        #     logger.info("OpenAi Exception:", exception)
+        #     return {"error": "ERROR_OPENAI", "message": "Open ai exception: "+str(exception)}
         try:
-            # openai.api_key = get_config("OPENAI_API_KEY")
-            response = openai.ChatCompletion.create(
-                n=self.number_of_results,
-                model=self.model,
-                messages=messages,
-                temperature=self.temperature,
-                max_tokens=max_tokens,
-                top_p=self.top_p,
-                frequency_penalty=self.frequency_penalty,
-                presence_penalty=self.presence_penalty
-            )
-            content = response.choices[0].message["content"]
-            return {"response": response, "content": content}
-        except AuthenticationError as auth_error:
-            logger.info("OpenAi AuthenticationError:", auth_error)
-            return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys: "+str(auth_error)}
-        except RateLimitError as api_error:
-            logger.info("OpenAi RateLimitError:", api_error)
-            return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded: "+str(api_error)}
-        except InvalidRequestError as invalid_request_error:
-            logger.info("OpenAi InvalidRequestError:", invalid_request_error)
-            return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error: "+str(invalid_request_error)}
-        except Exception as exception:
-            logger.info("OpenAi Exception:", exception)
-            return {"error": "ERROR_OPENAI", "message": "Open ai exception: "+str(exception)}
+            response = generate_response(messages)
+            logger.info(response)
+        except Exception as e:
+            logger.info(e)
 
     def verify_access_key(self):
         """

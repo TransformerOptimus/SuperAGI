@@ -67,3 +67,11 @@ def inference(payload: LocalLLM):
         message=payload.input_message,
     )
     return generated_text
+
+def generate_response(input_message):
+    generated_text = completion(
+        model=model,
+        tokenizer=tokenizer,
+        message=input_message,
+    )
+    return generated_text
