@@ -70,6 +70,7 @@ jobs:
     - name: Run agbenchmark
       env:
         PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         agbenchmark start || true
       continue-on-error: true
