@@ -62,6 +62,7 @@ jobs:
 
     - name: Run agbenchmark
       run: |
+        export PYTHONDONTWRITEBYTECODE='88'
         agbenchmark start --mock || true
         agbenchmark start || true
       continue-on-error: true
