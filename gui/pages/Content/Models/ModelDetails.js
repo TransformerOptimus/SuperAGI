@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import Image from "next/image";
 import ModelMetrics from "./ModelMetrics";
 import ModelInfo from "./ModelInfo";
+import ModelReadMe from "./ModelReadMe";
 import {fetchModel} from "@/pages/api/DashboardService";
 import {loadingTextEffect} from "@/utils/utils";
 
@@ -26,6 +27,10 @@ export default function ModelDetails({modelId, modelName}){
         fetchModelDetails().then().catch();
     },[])
 
+    const goToTab = (tab) => {
+        setSelectedOption(tab)
+    }
+
     return(
         <div id="model_details" className="col-12 padding_5 overflowY_auto h_calc92">
             {!isLoading && <div className="vertical_containers padding_16_8">
@@ -36,10 +41,13 @@ export default function ModelDetails({modelId, modelName}){
                             onClick={() => setSelectedOption('metrics')}>Metrics</button>
                     <button className={selectedOption === 'details' ? 'tab_button_selected' : 'tab_button'}
                             onClick={() => setSelectedOption('details')}>Details</button>
+                    <button className={selectedOption === 'readme' ? 'tab_button_selected' : 'tab_button'}
+                            onClick={() => setSelectedOption('readme')}>ReadMe</button>
                 </div>
             </div>}
             {selectedOption === 'metrics' && !isLoading && <ModelMetrics modelDetails={modelDetails} />}
-            {selectedOption === 'details' && !isLoading &&  <ModelInfo modelDetails={modelDetails} />}
+            {selectedOption === 'details' && !isLoading &&  <ModelInfo modelDetails={modelDetails} goToTab={goToTab} />}
+            {selectedOption === 'readme' && !isLoading && <ModelReadMe modelDetails={modelDetails} /> }
             {isLoading && <div className="loading_container h_75vh"><div className="signInInfo loading_text">{loadingText}</div></div>}
         </div>
     )
