@@ -67,6 +67,14 @@ jobs:
         agbenchmark start --mock || true
       continue-on-error: true
 
+    - name: Run basic Memory
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --test TestBasicMemory || true
+      continue-on-error: true
+
+
     - name: Run agbenchmark
       env:
         PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
