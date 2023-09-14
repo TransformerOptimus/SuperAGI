@@ -2,11 +2,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import {getExecutionFeeds, getDateTime} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {loadingTextEffect, formatTimeDifference, convertWaitingPeriod, updateDateBasedOnValue} from "@/utils/utils";
+import {loadingTextEffect, formatTimeDifference, convertWaitingPeriod, updateDateBasedOnValue, parseTextWithLinks} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {ClipLoader} from 'react-spinners';
 
-export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent}) {
+export default function ActivityFeed({selectedRunId, selectedView, setFetchedData, agent, selectedRunStatus}) {
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
@@ -17,14 +17,17 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [isLoading, setIsLoading] = useState(true);
   const [waitingPeriod, setWaitingPeriod] = useState(null);
   const [waitingPeriodOver, setWaitingPeriodOver] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     const interval = window.setInterval(function () {
-      fetchFeeds();
+      if (selectedRunStatus === "RUNNING") {
+        fetchFeeds();
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [selectedRunId]);
+  }, [selectedRunId, selectedRunStatus]);
 
   function fetchDateTime() {
     getDateTime(agent.id)
@@ -86,6 +89,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
         .then((response) => {
           const data = response.data;
           setFeeds(data.feeds);
+          setErrorMsg(data.errors)
           setRunStatus(data.status);
           setFetchedData(data.permissions);
           setWaitingPeriod(data.waiting_period ? data.waiting_period : null)
@@ -175,6 +179,13 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 <div style={{display: 'flex'}}>
                   <div className="fs_20">⚠️</div>
                   <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
+                </div>
+              </div>}
+              {runStatus === 'ERROR_PAUSED' &&
+              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+                <div style={{display: 'flex'}}>
+                  <div style={{fontSize: '20px'}}>❗</div>
+                  <div className={styles.feed_title}>{parseTextWithLinks(errorMsg)}</div>
                 </div>
               </div>}
           </div>
