@@ -1,4 +1,3 @@
-
 import os
 from typing import Type, Optional
 import ebooklib
@@ -7,6 +6,7 @@ from bs4 import BeautifulSoup
 
 from pydantic import BaseModel, Field
 from ebooklib import epub
+from superagi.helper.validate_csv import correct_csv_encoding
 
 from superagi.helper.resource_helper import ResourceHelper
 from superagi.helper.s3_helper import S3Helper
@@ -17,6 +17,7 @@ from superagi.models.agent import Agent
 from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
 from unstructured.partition.auto import partition
+from superagi.lib.logger import logger
 
 class ReadFileSchema(BaseModel):
     """Input for CopyFileTool."""
@@ -89,6 +90,8 @@ class ReadFileTool(BaseTool):
 
             content = "\n".join(content)
         else:
+            if final_path.endswith('.csv'):
+                correct_csv_encoding(final_path)
             elements = partition(final_path)
             content = "\n\n".join([str(el) for el in elements])
 
@@ -96,5 +99,3 @@ class ReadFileTool(BaseTool):
             os.remove(temporary_file_path)
    
         return content
-    
-

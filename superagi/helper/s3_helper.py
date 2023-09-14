@@ -139,12 +139,14 @@ class S3Helper:
         return response_obj
 
     def list_files_from_s3(self, file_path):
-        file_path = "resources" + file_path
-        logger.info(f"Listing files from s3 with prefix: {file_path}")
-        response = self.s3.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix=file_path)
-
-        if 'Contents' in response:
-            file_list = [obj['Key'] for obj in response['Contents']]
-            return file_list
-
-        raise Exception(f"Error listing files from s3")
+        try:
+            file_path = "resources" + file_path
+            logger.info(f"Listing files from s3 with prefix: {file_path}")
+            response = self.s3.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix=file_path)
+            if 'Contents' in response:
+                file_list = [obj['Key'] for obj in response['Contents']]
+                return file_list
+            else:
+                raise Exception(f"No contents in S3 response")
+        except:
+            raise Exception(f"Error listing files from s3")
