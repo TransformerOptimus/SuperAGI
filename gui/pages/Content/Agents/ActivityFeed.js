@@ -146,7 +146,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
                   <div style={{display: 'flex'}}>
                     <div style={{fontSize: '20px'}}>⏳</div>
-                    <div className={styles.feed_title}><i>Waiting</i></div>
+                    <div className={styles.feed_title}>Waiting Block Initiated. The Agent will wait for {} and continue on dd Month yyyy hh:mm</div>
                   </div>
                 </div>}
             {runStatus === 'RUNNING' &&

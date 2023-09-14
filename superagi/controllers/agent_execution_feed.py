@@ -186,6 +186,8 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
         } for permission in execution_permissions
     ]
+    print("////////////////////////////")
+    print(agent_execution.status)
     return {
         "status": agent_execution.status,
         "feeds": final_feeds,
