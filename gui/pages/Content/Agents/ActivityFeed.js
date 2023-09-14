@@ -150,30 +150,30 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               </div>
             </div>))}
             {runStatus === 'WAIT_STEP' &&
-                <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+                <div className="history_box padding_20 cursor_default bg_secondary">
                   <div style={{display: 'flex'}}>
-                    <div style={{fontSize: '20px'}}>⏳</div>
+                    <div className="fs_20 lh_18">⏳</div>
                     <div className={styles.feed_title}>Waiting Block Initiated. The Agent will wait for {convertWaitingPeriod(waitingPeriod) || null} and continue on {waitingPeriodOver || 'soon'}</div>
                   </div>
                 </div>}
             {runStatus === 'RUNNING' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>🧠</div>
+                  <div className="fs_20">🧠</div>
                   <div className={styles.feed_title}><i>{loadingText}</i></div>
                 </div>
               </div>}
             {runStatus === 'COMPLETED' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>🏁</div>
+                  <div className="fs_20">🏁</div>
                   <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
                 </div>
               </div>}
             {runStatus === 'ITERATION_LIMIT_EXCEEDED' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>⚠️</div>
+                  <div className="fs_20">⚠️</div>
                   <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
                 </div>
               </div>}
