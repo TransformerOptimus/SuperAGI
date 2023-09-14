@@ -208,10 +208,10 @@ def main():
     with open("config.yaml", "r") as file:
         config_data = yaml.safe_load(file)
 
-    shutil.rmtree('../workspace/input')
+    shutil.rmtree('workspace/input')
     
     # creating the folder again
-    os.mkdir('../workspace/input')
+    os.mkdir('workspace/input')
     
     superagi_api_key = SuperAgiKey(config_data).setup()
     agent = Agent(superagi_api_key)
