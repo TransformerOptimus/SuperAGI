@@ -22,7 +22,7 @@ from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.vector_factory import VectorFactory
 from superagi.vector_store.redis import Redis
 from superagi.config.config import get_config
-
+import time
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
@@ -37,6 +37,7 @@ class AgentExecutor:
         engine.dispose()
         session = Session()
         try:
+            start1 = time.perf_counter()
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             '''Avoiding running old agent executions'''
             if agent_execution and agent_execution.created_at < datetime.utcnow() - timedelta(days=1):
@@ -55,6 +56,8 @@ class AgentExecutor:
                 logger.error(f"Agent execution stopped. Max iteration exceeded. {agent.id}: {agent_execution.status}")
                 return
 
+            start2 = time.perf_counter()
+            logger.info(f"Time taken to fetch agent config: {start2 - start1}")
             try:
                 model_config = AgentConfiguration.get_model_api_key(session, agent_execution.agent_id, agent_config["model"])
                 model_api_key = model_config['api_key']
@@ -62,6 +65,10 @@ class AgentExecutor:
             except Exception as e:
                 logger.info(f"Unable to get model config...{e}")
                 return
+            
+            logger.info(f"Time taken to fetch model config: {time.perf_counter() - start2}")
+
+            start1 = time.perf_counter()
 
             try:
                 memory = None
@@ -72,6 +79,10 @@ class AgentExecutor:
             except Exception as e:
                 logger.info(f"Unable to setup the connection...{e}")
                 memory = None
+
+            logger.info(f"Time taken to setup the connection: {time.perf_counter() - start1}")
+
+            start1 = time.perf_counter()
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
@@ -95,6 +106,8 @@ class AgentExecutor:
                 logger.info("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
+            
+            logger.info(f"Time taken to execute the step: {time.perf_counter() - start1}")
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
@@ -102,6 +115,7 @@ class AgentExecutor:
                 session.close()
                 return
             if agent_config['iteration_interval'] == 0:
+                logger.info("Time taken Iteration interval is 0")
                 superagi.worker.execute_agent.delay(agent_execution_id, datetime.now())
             else:
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)

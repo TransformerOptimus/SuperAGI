@@ -4,6 +4,7 @@ from sqlalchemy import asc
 from sqlalchemy.sql.operators import and_
 import logging
 import superagi
+import time
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_handler import ToolOutputHandler, get_output_handler
@@ -43,6 +44,8 @@ class AgentIterationStepHandler:
         self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
+
+        start1 = time.perf_counter()
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
@@ -58,12 +61,24 @@ class AgentIterationStepHandler:
         if not agent_feeds:
             self.task_queue.clear_tasks()
 
+        logger.info(f"Time taken to fetch agent config: {time.perf_counter() - start1}")
+
+        start1 = time.perf_counter()
+
         agent_tools = self._build_tools(agent_config, agent_execution_config)
+
+        logger.info(f"Time taken to build tools: {time.perf_counter() - start1}")
+
+        start1 = time.perf_counter()
         prompt = self._build_agent_prompt(iteration_workflow=iteration_workflow,
                                           agent_config=agent_config,
                                           agent_execution_config=agent_execution_config,
                                           prompt=iteration_workflow_step.prompt,
                                           agent_tools=agent_tools)
+        
+        logger.info(f"Time taken to build prompt: {time.perf_counter() - start1}")
+
+        start1 = time.perf_counter()
 
         messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
@@ -71,7 +86,16 @@ class AgentIterationStepHandler:
 
         logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages = messages, model = self.llm.get_model())
+
+        logger.info(f"Time taken to build messages: {time.perf_counter() - start1}")
+
+        start1 = time.perf_counter()
+
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+
+        logger.info(f"Time taken to get response: {time.perf_counter() - start1}")
+
+        start1 = time.perf_counter()
 
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
@@ -114,6 +138,7 @@ class AgentIterationStepHandler:
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
+        logger.info(f"Time taken to handle output: {time.perf_counter() - start1}")
 
     def _update_agent_execution_next_step(self, execution, next_step_id, step_response: str = "default"):
         if next_step_id == -1:
