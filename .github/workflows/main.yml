@@ -61,8 +61,9 @@ jobs:
         while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:3000/api/configs/get/env)" != "200" ]]; do sleep 5; done
 
     - name: Run agbenchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
       run: |
-        export PYTHONDONTWRITEBYTECODE='88'
         agbenchmark start --mock || true
         agbenchmark start || true
       continue-on-error: true
