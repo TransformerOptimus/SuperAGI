@@ -194,8 +194,7 @@ def get_agent_execution_feed(agent_execution_id: int,
 
     if agent_execution.status == AgentWorkflowStepAction.WAIT_STEP.value:
         workflow_step = AgentWorkflowStep.find_by_id(db.session, agent_execution.current_agent_step_id)
-        step_wait = AgentWorkflowStepWait.find_by_id(db.session, workflow_step.action_reference_id)
-        waiting_period = step_wait.delay
+        waiting_period = (AgentWorkflowStepWait.find_by_id(db.session, workflow_step.action_reference_id)).delay
 
     return {
         "status": agent_execution.status,
