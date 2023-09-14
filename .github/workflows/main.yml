@@ -32,6 +32,14 @@ jobs:
         pip install agbenchmark
         pip install PyYAML
 
+    - name: Remove existing content from agbenchmark/challenges
+      run: |
+        rm -rf $(python -c "import site; print(site.getsitepackages()[0])")/agbenchmark/challenges/*
+        git clone https://github.com/Significant-Gravitas/Auto-GPT-Benchmarks.git temp_repo
+        cp -r temp_repo/agbenchmark/challenges/* $(python -c "import site; print(site.getsitepackages()[0])")/agbenchmark/challenges/
+        rm -rf $(python -c "import site; print(site.getsitepackages()[0])")/agbenchmark/challenges/verticals/code/6_battleship
+        rm -rf temp_repo
+
     - name: Check directory
       run: |
         pwd
