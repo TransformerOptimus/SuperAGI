@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import {getExecutionFeeds, getDateTime} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {loadingTextEffect, formatTimeDifference, convertWaitingPeriod, updateDateBasedOnValue, parseTextWithLinks} from "@/utils/utils";
+import {loadingTextEffect, formatTimeDifference, convertWaitingPeriod, updateDateBasedOnValue} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {ClipLoader} from 'react-spinners';
 
@@ -182,9 +182,9 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 </div>
               </div>}
               {runStatus === 'ERROR_PAUSED' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>❗</div>
+                  <div className="fs_20">❗</div>
                   <div className={styles.feed_title}>{parseTextWithLinks(errorMsg)}</div>
                 </div>
               </div>}
