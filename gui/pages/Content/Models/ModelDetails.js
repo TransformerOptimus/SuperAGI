@@ -36,7 +36,7 @@ export default function ModelDetails({modelId, modelName}){
             {!isLoading && <div className="vertical_containers padding_16_8">
                 <span className="text_16">{ modelDetails.name ? (modelDetails.name.split('/')[1] || modelDetails.name) : ""}</span>
                 <span className="text_12 color_gray mt_8 lh_18">{modelDetails.description}</span>
-                <div className="horizontal_container gap_4 mt_16 mb_2">
+                <div className="horizontal_container gap_4 mt_16 pb_8 bb_white">
                     <button className={selectedOption === 'metrics' ? 'tab_button_selected' : 'tab_button'}
                             onClick={() => setSelectedOption('metrics')}>Metrics</button>
                     <button className={selectedOption === 'details' ? 'tab_button_selected' : 'tab_button'}
