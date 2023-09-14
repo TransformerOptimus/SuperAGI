@@ -42,6 +42,7 @@ from superagi.controllers.marketplace_stats import router as marketplace_stats_r
 from superagi.controllers.api_key import router as api_key_router
 from superagi.controllers.api.agent import router as api_agent_router
 from superagi.controllers.webhook import router as web_hook_router
+from superagi.controllers.user_activity import router as user_activity_router
 from superagi.helper.tool_helper import register_toolkits, register_marketplace_toolkits
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
@@ -134,6 +135,7 @@ app.include_router(marketplace_stats_router, prefix="/marketplace")
 app.include_router(api_key_router, prefix="/api-keys")
 app.include_router(api_agent_router,prefix="/v1/agent")
 app.include_router(web_hook_router,prefix="/webhook")
+app.include_router(user_activity_router,prefix="/user_activity")
 
 # in production you can use Settings management
 # from pydantic to get secret key from .env
