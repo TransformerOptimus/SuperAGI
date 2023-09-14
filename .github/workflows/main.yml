@@ -56,10 +56,6 @@ jobs:
 
     - name: Run agbenchmark
       run: |
-        cat config.yaml
-        python --version
-        agbenchmark start --test TestReadFile --mock || true
-        agbenchmark start --test TestReadFile || true
         agbenchmark start --mock || true
         agbenchmark start || true
       continue-on-error: true
