@@ -37,6 +37,7 @@ class AgentExecution(DBBaseModel):
     permission_id = Column(Integer)
     iteration_workflow_step_id = Column(Integer)
     current_feed_group_id = Column(String)
+    last_shown_error_id = Column(Integer)
 
     def __repr__(self):
         """
