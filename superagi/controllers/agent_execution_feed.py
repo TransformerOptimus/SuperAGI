@@ -19,6 +19,9 @@ from superagi.helper.feed_parser import parse_feed
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.lib.logger import logger
+from superagi.agent.types.agent_workflow_step_action_types import AgentWorkflowStepAction
+from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
+from superagi.models.workflows.agent_workflow_step_wait import AgentWorkflowStepWait
 
 import re
 # from superagi.types.db import AgentExecutionFeedOut, AgentExecutionFeedIn
@@ -196,13 +199,21 @@ def get_agent_execution_feed(agent_execution_id: int,
                 "tool_name": permission.tool_name,
                 "question": permission.question,
                 "user_feedback": permission.user_feedback,
-                "time_difference":get_time_difference(permission.created_at,str(datetime.now()))
+                "time_difference": get_time_difference(permission.created_at, str(datetime.now()))
         } for permission in execution_permissions
     ]
+
+    waiting_period = None
+
+    if agent_execution.status == AgentWorkflowStepAction.WAIT_STEP.value:
+        workflow_step = AgentWorkflowStep.find_by_id(db.session, agent_execution.current_agent_step_id)
+        waiting_period = (AgentWorkflowStepWait.find_by_id(db.session, workflow_step.action_reference_id)).delay
+
     return {
         "status": agent_execution.status,
         "feeds": final_feeds,
         "permissions": permissions,
+        "waiting_period": waiting_period,
         "errors": error
     }
 

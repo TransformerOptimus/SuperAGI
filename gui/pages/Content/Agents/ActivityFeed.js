@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './Agents.module.css';
 import {getExecutionFeeds, getDateTime} from "@/pages/api/DashboardService";
 import Image from "next/image";
-import {loadingTextEffect, formatTimeDifference, parseTextWithLinks} from "@/utils/utils";
+import {loadingTextEffect, formatTimeDifference, convertWaitingPeriod, updateDateBasedOnValue} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import {ClipLoader} from 'react-spinners';
 
@@ -15,6 +15,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [scheduleDate, setScheduleDate] = useState(null);
   const [scheduleTime, setScheduleTime] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [waitingPeriod, setWaitingPeriod] = useState(null);
+  const [waitingPeriodOver, setWaitingPeriodOver] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -76,6 +78,10 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     EventBus.emit('reFetchAgents', {});
   }, [runStatus])
 
+  useEffect(() => {
+    setWaitingPeriodOver(updateDateBasedOnValue(convertWaitingPeriod(waitingPeriod)))
+  }, [waitingPeriod]);
+
   function fetchFeeds() {
     if (selectedRunId !== null) {
       setIsLoading(true);
@@ -86,6 +92,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           setErrorMsg(data.errors)
           setRunStatus(data.status);
           setFetchedData(data.permissions);
+          setWaitingPeriod(data.waiting_period ? data.waiting_period : null)
           EventBus.emit('resetRunStatus', {executionId: selectedRunId, status: data.status});
           setIsLoading(false); //add this line
         })
@@ -146,31 +153,38 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 </div>}
               </div>
             </div>))}
+            {runStatus === 'WAIT_STEP' &&
+                <div className="history_box padding_20 cursor_default bg_secondary">
+                  <div style={{display: 'flex'}}>
+                    <div className="fs_20 lh_24">⏳</div>
+                    <div className={styles.feed_title}>Waiting Block Initiated. The Agent will wait for {convertWaitingPeriod(waitingPeriod) || null} and continue on {waitingPeriodOver || 'soon'}</div>
+                  </div>
+                </div>}
             {runStatus === 'RUNNING' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>🧠</div>
+                  <div className="fs_20">🧠</div>
                   <div className={styles.feed_title}><i>{loadingText}</i></div>
                 </div>
               </div>}
             {runStatus === 'COMPLETED' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>🏁</div>
+                  <div className="fs_20">🏁</div>
                   <div className={styles.feed_title}><i>All goals completed successfully!</i></div>
                 </div>
               </div>}
             {runStatus === 'ITERATION_LIMIT_EXCEEDED' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>⚠️</div>
+                  <div className="fs_20">⚠️</div>
                   <div className={styles.feed_title}><i>Stopped: Maximum iterations exceeded!</i></div>
                 </div>
               </div>}
               {runStatus === 'ERROR_PAUSED' &&
-              <div className={styles.history_box} style={{background: '#272335', padding: '20px', cursor: 'default'}}>
+              <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
-                  <div style={{fontSize: '20px'}}>❗</div>
+                  <div className="fs_20">❗</div>
                   <div className={styles.feed_title}>{parseTextWithLinks(errorMsg)}</div>
                 </div>
               </div>}
