@@ -31,3 +31,7 @@ jobs:
         echo "world"
         echo $OPENAI_API_KEY
         echo ${{ secrets.OPENAI_API_KEY }}
+
+    - name: internet speed test
+      run: |
+        curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python -
