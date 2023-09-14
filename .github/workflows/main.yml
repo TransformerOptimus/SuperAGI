@@ -66,3 +66,15 @@ jobs:
         agbenchmark start --mock || true
         agbenchmark start || true
       continue-on-error: true
+
+    - name: Get celery logs
+      run: |
+        docker compose logs celery
+    
+    - name: Get backend logs
+      run: |
+        docker compose logs backend
+    
+    - name: Get execution times
+      run: |
+        docker compose logs celery | grep "Task execute_agent"
