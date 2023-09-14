@@ -156,7 +156,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
             {runStatus === 'WAIT_STEP' &&
                 <div className="history_box padding_20 cursor_default bg_secondary">
                   <div style={{display: 'flex'}}>
-                    <div className="fs_20 lh_18">⏳</div>
+                    <div className="fs_20 lh_24">⏳</div>
                     <div className={styles.feed_title}>Waiting Block Initiated. The Agent will wait for {convertWaitingPeriod(waitingPeriod) || null} and continue on {waitingPeriodOver || 'soon'}</div>
                   </div>
                 </div>}
