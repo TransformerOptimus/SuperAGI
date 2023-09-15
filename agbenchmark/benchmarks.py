@@ -129,7 +129,7 @@ class Agent:
             "goal": [f"{task}"],
             "agent_workflow": "Goal Based Workflow",
             "instruction": [
-                "Please fulfill the goals you are given to the best of your ability. Sometimes complete instruction could be given in a file .",
+                "Please fulfill the goals you are given to the best of your ability. when instructions are not clear look for instruction files to read",
                 "Avoid redundancy, such as unnecessary immediate verification of actions.",
                 "DO NOT modify the test.py file",
                 "If file/funtion names are given strictly follow them",
