@@ -91,11 +91,9 @@ class ReadFileTool(BaseTool):
 
             content = "\n".join(content)
         else:
-            logger.info(final_path)
             if final_path.endswith('.csv'):
                 correct_csv_encoding(final_path)
             elements = partition(final_path)
-            logger.info(elements)
             content = "\n\n".join([str(el) for el in elements])
 
         if temporary_file_path is not None:

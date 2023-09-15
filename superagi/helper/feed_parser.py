@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from superagi.helper.time_helper import get_time_difference
+from superagi.lib.logger import logger
 
 
 def parse_feed(feed):
@@ -48,5 +49,9 @@ def parse_feed(feed):
             final_output = feed.feed.split("TOOLS:")[0]
         return {"role": "system", "feed": final_output, "updated_at": feed.updated_at,
                 "time_difference": feed.time_difference}
-
+    
+    if feed.role == "user":
+        return {"role": "user", "feed": feed.feed, "updated_at": feed.updated_at,
+                "time_difference": feed.time_difference}
+    
     return feed
