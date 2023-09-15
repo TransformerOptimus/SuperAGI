@@ -8,7 +8,7 @@
 
 </p>
 
-<p align="center"><i>Open-source framework to build, manage and run useful Autonomous AI Agents</i></p>
+<p align="center"><i>Open-source framework to build, manage and run useful Autonomous AI Agents BY VANSH</i></p>
     
 
 <p align="center">
