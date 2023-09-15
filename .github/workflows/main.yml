@@ -74,6 +74,26 @@ jobs:
         agbenchmark start --test TestBasicMemory || true
       continue-on-error: true
 
+    - name: Run interface benchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --category=interface || true
+      continue-on-error: true
+
+    - name: Run memory benchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --category=memory || true
+      continue-on-error: true
+
+    - name: Run code benchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --category=code || true
+      continue-on-error: true
 
     - name: Run agbenchmark
       env:
