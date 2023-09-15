@@ -20,6 +20,14 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+    
     - name: Cache dependencies
       uses: actions/cache@v2
       with:
@@ -54,7 +62,15 @@ jobs:
         sed -i 's|YOUR_SERPER_API_KEY|'"${{ secrets.SERPER_API_KEY }}"'|g' config.yaml
 
     - name: Docker Compose Build and Run
-      run: docker-compose up -d --build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: false
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache
+
+    - name: Start Docker Compose
+      run: docker-compose up -d
 
     - name: Wait for Docker service to start
       run: |
