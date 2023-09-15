@@ -185,7 +185,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
                   <div className="fs_20">❗</div>
-                  <div className={styles.feed_title}>{parseTextWithLinks(errorMsg)}</div>
+                  <div className={styles.feed_title}>{errorMsg}</div>
                 </div>
               </div>}
           </div>
