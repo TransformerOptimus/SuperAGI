@@ -136,7 +136,9 @@ def update_first_login_source(source: str, Authorize: AuthJWT = Depends(check_au
     """ Update first login source of the user """
     user = get_current_user(Authorize)
     # valid_sources = ['google', 'github', 'email']
-    if user.first_login_source is None:
+    if user.first_login_source is None or user.first_login_source == '':
         user.first_login_source = source
     db.session.commit()
+    db.session.flush()
+    logger.info("User : ",user)
     return user
