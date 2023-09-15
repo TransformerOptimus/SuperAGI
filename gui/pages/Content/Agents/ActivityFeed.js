@@ -20,7 +20,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   useEffect(() => {
     const interval = window.setInterval(function () {
-      if (selectedRunStatus === "RUNNING") {
+      if (selectedRunStatus !== "ERROR_PAUSED") {
         fetchFeeds();
       }
     }, 5000);
@@ -83,6 +83,8 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
       getExecutionFeeds(selectedRunId)
         .then((response) => {
           const data = response.data;
+          console.log(data)
+          console.log(data.status)
           setFeeds(data.feeds);
           setErrorMsg(data.errors)
           setRunStatus(data.status);
