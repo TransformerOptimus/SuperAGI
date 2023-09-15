@@ -23,6 +23,7 @@ class Models(DBBaseModel):
         token_limit (Integer): The maximum number of tokens for a model.
         type (Strng): The place it is added from.
         version (String): The version of the replicate model.
+        state (String): Is the model INSTALLED or UNINSTALLED.
         org_id (Integer): The ID of the organisation.
         model_features (String): The Features of the Model.
     """
@@ -37,6 +38,7 @@ class Models(DBBaseModel):
     token_limit = Column(Integer, nullable=False)
     type = Column(String, nullable=False)
     version = Column(String, nullable=False)
+    state = Column(String, nullable=False, default='INSTALLED')
     org_id = Column(Integer, nullable=False)
     model_features = Column(String, nullable=False)
 
@@ -49,6 +51,7 @@ class Models(DBBaseModel):
                f"token_limit={self.token_limit}, " \
                f"type={self.type}, " \
                f"version={self.version}, " \
+               f"state={self.state}, " \
                f"org_id={self.org_id}, " \
                f"model_features={self.model_features})"
 
