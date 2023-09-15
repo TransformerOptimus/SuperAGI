@@ -8,6 +8,7 @@ import "react-resizable/css/styles.css";
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
+import Script from "next/script";
 import {
   getOrganisation,
   getProject,
@@ -25,6 +26,8 @@ import querystring from 'querystring';
 import {refreshUrl, loadingTextEffect} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
+import ReactGA from 'react-ga';
+// import * as dataLayer from "echarts/types/src/component/dataZoom/history";
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -116,6 +119,7 @@ export default function App() {
 
         if (typeof window !== 'undefined') {
           localStorage.setItem('applicationEnvironment', env);
+          // ReactGA.initialize('G-V4XRSXPRKQ',{ debug: true })
         }
 
         if (response.data.env === 'PROD') {
@@ -182,6 +186,11 @@ export default function App() {
   };
 
   async function signInUser() {
+    // ReactGA.event({
+    //   category: 'Button',
+    //   action: 'Click',
+    //   label: 'My Button',
+    // });
     let github_client_id = githubClientId();
 
       // If `github_client_id` does not exist, make the API call
@@ -224,6 +233,14 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
               rel="stylesheet"/>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-V4XRSXPRKQ"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          {/*function gtag(){dataLayer.push(arguments)}*/}
+          gtag('js', new Date());
+
+          gtag('config', 'G-V4XRSXPRKQ');
+        </script>
       </Head>
       {showMarketplace && <div className="projectStyle"><MarketplacePublic env={env}/></div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? (<div className="projectStyle">
