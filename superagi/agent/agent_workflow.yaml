@@ -1,0 +1,77 @@
+steps:
+  - name: "step1" # can be any name not necessarily step1 but first will be considered as TRIGGER internally
+    trigger_step: true # For triggering the workflow
+    type: "TOOL" # TOOL BLOCK
+    tool: "ListFileTool" # Will be available as completion or drop down in frontend for all tool types
+    instruction: "Read files from the resource manager"
+    next: "step2" # For linking to next flow step
+
+  - name: "step2"
+    type: "LOOP" # LOOP BLOCK
+    next: # For conditional branching
+      next_step: "step3"
+      exit_step: "step6"
+
+  - name: "step3"
+    type: "TOOL" # TOOL BLOCK
+    tool: "ReadFileTool"
+    instruction: "Read the resume from above input"
+    next: "step4"
+
+  - name: "step4"
+    type: "TOOL" # TOOL BLOCK
+    tool: "ReadFileTool"
+    instruction: "Read the job description from file mentioned in High-Level GOAL"
+    next: "step5"
+
+  - name: "step5"
+    type: "CONDITION" # CONDITION BLOCK
+    instruction: "Check if the resume matches the job description in goal" # Can be optional
+    next:
+      - output: "NO" # Can be any conditional string not necessarily YES/NO
+        step: "step2"
+      - output: "YES"
+        step: "step6"
+
+  - name: "step6"
+    type: "WAIT FOR PERMISSION" # PERMISSION BLOCK
+    instruction: "Check if the resume matches the job description in goal"
+    next:
+      - output: "NO"
+        step: "step2"
+      - output: "YES"
+        step: "step5"
+
+
+  - name: "step7"
+    type: "TOOL" # TOOL BLOCK
+    tool: "SendEmailTool"
+    instruction: "Write a custom Email the candidates for job profile based on their experience"
+    next:
+      - "step8"
+
+  - name: "step8"
+    type: "WAIT" # WAIT BLOCK
+    duration: 10*60 # In seconds
+    instruction: "Waiting before writing a final ending note."
+    next:
+      - "step9"
+
+  - name: "step9"
+    type: "TOOL" # TOOL BLOCK
+    tool: "WriteFileTool"
+    instruction: "Write an ending note of work done"
+    terminal_step: true
+
+# Exceptions, validation and assumptions
+# -------------------------
+# All steps except the loop end and terminal step must have next
+# tool step : if it is a tool step it must have tool, instruction and next
+# loop step : if it is a loop step it must have next containing next_step and exit_step
+#             if exit step is not provided it will be considered as terminal step and workflow will terminate once loop is completed
+# condition step : if it is a condition step it must have next containing output and step
+#                  if output is not provided it will be considered as terminal step and workflow will terminate once condition is completed
+# wait step: if it is a wait step it must have duration and next
+#            if next is not provided it will be considered as terminal step and workflow will terminate once wait is completed
+# wait for permission step: if it is a wait for permission step it must have next, output can be only YES and NO as action console just support them
+

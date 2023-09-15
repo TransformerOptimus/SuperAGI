@@ -1,4 +1,7 @@
 {
-  "tools": {
-  }
+    "tools": {
+        "duck_duck_go": "https://github.com/TransformerOptimus/SuperAGI-Tools/tree/main/duck_duck_go",
+        "google_analytics": "https://github.com/TransformerOptimus/SuperAGI-Tools/tree/main/google_analytics",
+        "notion": "https://github.com/TransformerOptimus/SuperAGI-Tools/tree/main/notion"
+    }
 }
