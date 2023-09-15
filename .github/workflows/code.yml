@@ -1,0 +1,120 @@
+name: Run Code benchmark
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Checkout Source Code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get -yqq install curl
+        pip install agbenchmark
+        pip install PyYAML
+
+    - name: Remove existing content from agbenchmark/challenges
+      run: |
+        rm -rf $(python -c "import site; print(site.getsitepackages()[0])")/agbenchmark/challenges/*
+        git clone https://github.com/Significant-Gravitas/Auto-GPT-Benchmarks.git temp_repo
+        cp -r temp_repo/agbenchmark/challenges/* $(python -c "import site; print(site.getsitepackages()[0])")/agbenchmark/challenges/
+        rm -rf $(python -c "import site; print(site.getsitepackages()[0])")/agbenchmark/challenges/verticals/code/6_battleship
+        rm -rf temp_repo
+
+    - name: Check directory
+      run: |
+        pwd
+        ls
+
+    - name: Replace Placeholder
+      run: |
+        cp config_template.yaml config.yaml
+        sed -i 's|YOUR_OPEN_API_KEY|'"${{ secrets.OPENAI_API_KEY }}"'|g' config.yaml
+        sed -i 's|workspace/input/{agent_id}|workspace/input|g' config.yaml
+        sed -i 's|workspace/output/{agent_id}/{agent_execution_id}|workspace/input|g' config.yaml
+        sed -i 's|YOUR_SERPER_API_KEY|'"${{ secrets.SERPER_API_KEY }}"'|g' config.yaml
+
+    - name: Docker Compose Build and Run
+      run: docker-compose up -d --build
+
+    - name: Wait for Docker service to start
+      run: |
+        while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:3000/api/configs/get/env)" != "200" ]]; do sleep 5; done
+
+    - name: Run agbenchmark Mock
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --mock || true
+      continue-on-error: true
+
+    - name: Run TestReturnCode_Simple
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --test TestReturnCode_Simple
+      continue-on-error: true
+
+    - name: Temp celery logs
+      run: |
+        docker compose logs celery
+      continue-on-error: true
+
+    - name: Run basic Memory
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --test TestBasicMemory || true
+      continue-on-error: true
+
+    - name: Run interface benchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --category=interface || true
+      continue-on-error: true
+
+    - name: Run memory benchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --category=memory || true
+      continue-on-error: true
+
+    - name: Run code benchmark
+      env:
+        PYTHONDONTWRITEBYTECODE: "DUMMY STRING"
+      run: |
+        agbenchmark start --category=code || true
+      continue-on-error: true
+
+    - name: Get celery logs
+      run: |
+        docker compose logs celery
+    
+    - name: Get backend logs
+      run: |
+        docker compose logs backend
+    
+    - name: Get execution times
+      run: |
+        docker compose logs celery | grep "Task execute_agent"
