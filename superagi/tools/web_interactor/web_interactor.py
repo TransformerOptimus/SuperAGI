@@ -123,7 +123,6 @@ class WebInteractorTool(BaseTool):
             return False
     def get_element_from_llm(self, curr_page_url: str, goal: str, DOM: str, history: str):
         DOM_element_prompt = """
-            History: {history}
             You are a Web Interactor assistant. You have to analyze and understand the given DOM of a web URL. Based on the given goal, you have to give the action to be done. You can perform the following actions: 'click', 'type', 'go to'; so the action must be given according to the available actions and the given DOM.
 
             goal: `{goal}`
@@ -156,8 +155,15 @@ class WebInteractorTool(BaseTool):
         DOM_element_prompt = DOM_element_prompt.replace("{goal}", str(goal))
         DOM_element_prompt = DOM_element_prompt.replace("{curr_page_url}", curr_page_url)
         DOM_element_prompt = DOM_element_prompt.replace("{DOM}", DOM)
-        DOM_element_prompt= DOM_element_prompt.replace("{history}", history)
+        # DOM_element_prompt= DOM_element_prompt.replace("{history}", history)
 
         messages = [{"role": "system", "content": DOM_element_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
         return result["content"]
+        # messages = [
+        #     {"role": "system",
+        #      "content": 'You are an assistant capable of providing responses in a given schema: { "action": "", "action_reference_element": "", "action_reference_param": "", "thoughts": ""}.'},
+        #     {"role": "user", "content": "<The prompt that user inputs>"}
+        # ]
+        # result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+        # return result["content"]

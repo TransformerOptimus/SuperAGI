@@ -240,6 +240,43 @@ class AgentWorkflowSeed:
         session.commit()
 
     @classmethod
+    def build_aws_create_bucket_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "AWS Create bucket Web Workflow",
+                                                              "AWS Create bucket Web Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO 'https://s3.console.aws.amazon.com/s3/buckets?region=ap-south-1'")
+        # print("STEP4", step4)
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on ->Create bucket")
+        # print("STEP5", step5)
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "TYPE 'plugintestbuckettesttest' in ->input myawsbucket")
+
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->CreateBucketButton")
+        # print("STEP7", step7)
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        # AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
+        session.commit()
+    @classmethod
     def build_mail_web_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Mail Web Workflow",
                                                               "Mail Web Workflow")
@@ -266,7 +303,7 @@ class AgentWorkflowSeed:
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     WebInteractorTool().name,
-                                                                     "TYPE 'nihir@contlo.com' -> input listbox")
+                                                                     "TYPE 'aryan.singh@contlo.com' -> input listbox")
         # print("STEP6", step6)
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
@@ -382,26 +419,94 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
         session.commit()
+
+    @classmethod
+    def build_hubspot_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Hubspot web workflow",
+                                                              "Hubspot web workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO->'https://app.hubspot.com/contacts/43589493/objects/0-2/views/all/list'")
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->Create company")
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "TYPE 'https://gokwik.co/' ->input domain-input")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->dialog-create-company-button")
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
+        session.commit()
+
+    @classmethod
+    def build_contlo_campaigns_web_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Contlo web workflow",
+                                                              "Contlo web workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List all the files",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO->'https://marketing.contlo.com/home#/campaigns'")
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->Create Campaign")
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->Create Email")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->Select Segments/Lists")
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->test")
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, -1, "COMPLETE")
+        session.commit()
     @classmethod
     def build_sales_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow",
                                                               "Sales Engagement Workflow")
-        # step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step1",
-        #                                                             ApolloSearchTool().name,
-        #                                                             "Search for leads based on the given goals",
-        #                                                             step_type="TRIGGER")
-        #
-        # step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-        #                                                             str(agent_workflow.id) + "_step2",
-        #                                                             WriteFileTool().name,
-        #                                                             "Write the leads to a csv file")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ApolloSearchTool().name,
+                                                                    "Search for leads from north america with 20-50 employees and working in computer software industry and the role of the lead should be sales manager",
+                                                                    step_type="TRIGGER")
+
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    WriteFileTool().name,
+                                                                    "Write the leads to a csv file")
 
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     ReadFileTool().name,
                                                                     "Read the leads from the file generated in the previous run",
-                                                                    step_type="TRIGGER")
+                                                                    )
 
         # task queue ends when the elements gets over
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
@@ -409,37 +514,45 @@ class AgentWorkflowSeed:
                                                                     "TASK_QUEUE",
                                                                     "Break the above response array of items",
                                                                     completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
-
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
-                                                                    GoogleSearchTool().name,
-                                                                    "Search about the company in which the lead is working")
-
+                                                                    ListFileTool().name,
+                                                                    "Read the email of the lead",
+                                                                    )
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
-                                                                    "WAIT_FOR_PERMISSION",
-                                                                    "Email will be based on this content. Do you want send the email?")
-
+                                                                    WebInteractorTool().name,
+                                                                    "GO_TO->'https://app.hubspot.com/contacts/43589493/objects/0-1/views/all/list'")
+        #
         step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step7",
-                                                                    GoogleSearchTool().name,
-                                                                    "Search about the company given in the high-end goal only")
-
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->Create contact")
+        #
         step8 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step8",
-                                                                    SendEmailTool().name,
-                                                                    "Customize the Email according to the company information in the mail")
+                                                                    WebInteractorTool().name,
+                                                                    'TYPE email of the lead in ->input email-input')
+        step9 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step9",
+                                                                    WebInteractorTool().name,
+                                                                    "CLICK on->dialog-create-contact-button")
+        #
+        # step8 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step8",
+        #                                                             SendEmailTool().name,
+        #                                                             "Customize the Email according to the company information in the mail")
 
-        # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
-        # AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step5.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
         AgentWorkflowStep.add_next_workflow_step(session, step7.id, step8.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step8.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step8.id, step9.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step9.id, step4.id)
         session.commit()
 
     @classmethod

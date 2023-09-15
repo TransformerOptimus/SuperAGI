@@ -62,7 +62,7 @@ function recur(root,ans,index){
     // console.log("new_root_idx_arr",new_root_idx_arr)
     for(var j=0;j<new_root_idx_arr.length;j++){
         // console.log("new root",root.childNodes[new_root_idx_arr[j]])
-        if(root.childNodes[map[new_root_idx_arr[j]]]  && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='iframe' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='script' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='picture' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='style' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='code' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='img' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='use'){
+        if(root.childNodes[map[new_root_idx_arr[j]]] && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='script' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='picture' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='style' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='code' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='img' && root.childNodes[map[new_root_idx_arr[j]]].rawTagName!='use'){
             // console.log("*****",root)
             // console.log("reached",root)
             // parents[r]

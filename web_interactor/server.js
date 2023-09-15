@@ -13,12 +13,14 @@ app.get('/health', (req, res) => {
 
 
 app.post("/transformed_html", (req, res) => {
-    console.log(req)
+//    console.log(req)
     const body = req.body;
-    console.log(body)
+//    console.log(body)
     const {dom_content, goal} = body;
-    fs.writeFileSync("./goal",goal)
-    fs.writeFileSync('./dom',dom_content)
+    if(goal=="TYPE 'https://gokwik.co/'->domain-input"){
+        fs.writeFileSync("./goal",goal)
+        fs.writeFileSync('./dom',dom_content)
+    }
     const transformed_html = dom_extractor(dom_content, goal);
     res.send({transformed_dom: transformed_html});
 });
