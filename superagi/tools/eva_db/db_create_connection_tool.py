@@ -70,7 +70,7 @@ class DbCreateConnectionTool(BaseTool):
         Returns:
             The response of create connection query
         """
-        print("####^^^^####")
+        # print("####^^^^####")
         cursor = evadb.connect().cursor()
         db_connection_name = db_engine + '__' + database_name
         create_db_query = """
@@ -85,11 +85,5 @@ class DbCreateConnectionTool(BaseTool):
         hostname = host, port = port, db_name = database_name, password = "dbpass")
         print("create_db_query", create_db_query)
         ret = cursor.query(create_db_query).execute()
-        print(ret)
         cursor.close()
-        return """
-            Sucessfully created the desired connection to underlying databse engine with name {connection}.
-            This connection can now be used to query requested database.""".format(connection = db_connection_name)
-        
-        # return "Error occurred while executing create connection query"        
-        
+        return "Sucessfully created the desired connection to underlying databse engine with name {connection}. This connection can now be used to query requested database.".format(connection = db_connection_name)

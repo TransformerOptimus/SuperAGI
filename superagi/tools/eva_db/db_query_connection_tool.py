@@ -53,8 +53,7 @@ class DbQueryConnectionTool(BaseTool):
         Returns:
             Response of executed query.
         """
-        print("####^^^^###")
-        print(db_connection, query)
+        # print("####^^^^###")
         db_query = """
             USE {db_connection} {{
                 {query}
@@ -65,8 +64,7 @@ class DbQueryConnectionTool(BaseTool):
         cursor = evadb.connect().cursor()
         ret = cursor.query(db_query).execute()
         print(ret)
-        return ("Successfully executed the provided query", "result: " + ret)
-
         cursor.close()
-        
+
+        return ("Successfully executed the provided query", "result: " + ret)
         
