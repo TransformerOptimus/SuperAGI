@@ -912,6 +912,9 @@ p {
 .br_6{border-radius: 6px}
 .br_8{border-radius: 8px}
 
+.fs_10{font-size: 10px}
+.fs_20{font-size: 20px}
+
 .text_9{
     color: #FFF;
     font-family: Inter;
@@ -1148,6 +1151,7 @@ p {
 .lh_16{line-height: 16px;}
 .lh_17{line-height: 17px;}
 .lh_18{line-height: 18px;}
+.lh_24{line-height: 24px;}
 
 .padding_0{padding: 0;}
 .padding_5{padding: 5px;}
@@ -1156,6 +1160,7 @@ p {
 .padding_10{padding: 10px;}
 .padding_12{padding: 12px;}
 .padding_16{padding: 16px;}
+.padding_20{padding: 20px;}
 
 .padding_8_6{padding: 8px 6px;}
 .padding_2_8{padding: 2px 8px;}
@@ -1464,6 +1469,7 @@ tr{
 .bg_white{background: white;}
 .bg_none{background: none;}
 .bg_primary{background: #2E293F;}
+.bg_secondary{background: #272335;}
 
 .container {
     height: 100%;
@@ -1779,7 +1785,6 @@ tr{
 
 .history_box, .history_box_selected {
     width: 100%;
-    padding: 10px;
     color: white;
     font-style: normal;
     font-weight: 400;
@@ -1882,3 +1887,5 @@ tr{
     background-color: green;
     border-radius: 6px;
 }
+
+

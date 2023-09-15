@@ -35,7 +35,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
       </div>
 
       <div className="detail_body mb_20">
-        {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={selectedRunId === run.id ? 'history_box_selected' : 'history_box'}>
+        {runs && runs.map((run) => (<div key={run.id} onClick={() => setSelectedRun(run)} className={selectedRunId === run.id ? 'history_box_selected padding_10' : 'history_box padding_10'}>
           <div className="horizontal_container mb_14">
             {run.status === 'RUNNING' && <Image className="mix_blend_mode mr_7" width={14} height={14} src="/images/loading.gif" alt="loading-icon"/>}
             <div className="text_ellipsis">{run.name}</div>

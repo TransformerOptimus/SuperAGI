@@ -276,7 +276,7 @@ export default function ApmDashboard() {
                         <td className="table_data text_align_right w_12 br_left_grey">{formatNumber(run.total_tokens)}</td>
                         <td className="table_data text_align_right w_6 br_left_grey">{run.runs_completed}</td>
                         <td className="table_data text_align_right w_12 br_left_grey">
-                          {run.runs_completed ? (run.total_tokens / run.runs_completed).toFixed(1) : '-'}
+                          {run.runs_completed ? formatNumber((run.total_tokens / run.runs_completed).toFixed(1)) : '-'}
                         </td>
                         <td className="table_data text_align_right br_left_grey" style={{width: '20%'}}>
                           {run.tools_used && run.tools_used.slice(0, 3).map((tool, index) => (

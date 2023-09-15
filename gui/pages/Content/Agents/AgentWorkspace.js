@@ -398,14 +398,14 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("PAUSED")
                 }}>Pause</li>}
-                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') &&
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'ERROR_PAUSED') &&
                   <li className="dropdown_item" onClick={() => {
                     updateRunStatus("RUNNING")
                   }}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
                 }}>Delete Run</li>}
-                {agentExecutions && selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'RUNNING' || agentExecutions.length > 1) && <div className={styles.dropdown_separator}/>}
+                {agentExecutions && selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'RUNNING' || agentExecutions.length > 1 || selectedRun.status === 'ERROR_PAUSED') && <div className={styles.dropdown_separator}/>}
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {agent && env === 'PROD' &&
                   <li className="dropdown_item" onClick={() => {
@@ -467,7 +467,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
             <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
-                          setFetchedData={setFetchedData} agent={agent}/>
+                          setFetchedData={setFetchedData} agent={agent} selectedRunStatus={selectedRun?.status || null}/>
           </div>}
           {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
