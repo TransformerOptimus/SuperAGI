@@ -1,9 +1,11 @@
-import mixpanel
+from mixpanel import Mixpanel
 from superagi.config.config import get_config
+from fastapi import APIRouter
 
 router = APIRouter()
 
-mp = Mixpanel(get_config("MIXPANEL_KEY"))
+mp = Mixpanel("66422baf1e14332d36273c6addcf22f7")
+mp.track('page_view',{})
 
 @router.post("/get_activity/{event_name}", status_code=200)
 def get_user_activity(event_name, event_properties: dict):
