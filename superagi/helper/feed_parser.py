@@ -41,7 +41,8 @@ def parse_feed(feed):
             return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at,
                     "time_difference": feed.time_difference}
         except Exception:
-            return feed
+            return {"role": "assistant", "feed": feed.feed, "updated_at": feed.updated_at,
+                "time_difference": feed.time_difference}
 
     if feed.role == "system":
         final_output = feed.feed
