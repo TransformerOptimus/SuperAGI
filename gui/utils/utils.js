@@ -1,6 +1,6 @@
 import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
-import {baseUrl} from "@/pages/api/apiConfig";
+import {baseUrl, analyticsMeasurementId, analyticsApiSecret} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
@@ -561,8 +561,8 @@ export const getUTMParametersFromURL = () => {
 }
 
 export const sendGAEvent = async (client, eventName, params) => {
-  const measurement_id = `G-MS9F7DXRNQ`;
-  const api_secret = `gGkDqrf1TuW8nOxlG8xDcg`;
+  const measurement_id = analyticsMeasurementId;
+  const api_secret = analyticsApiSecret;
   await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
     method: "POST",
     body: JSON.stringify({
