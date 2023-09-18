@@ -27,31 +27,29 @@ def test_calculate_tool_usage(tools_handler, mock_session):
 
     tool_used_subquery.c.tool_name = 'Tool1'
     tool_used_subquery.c.agent_id = 1
-
     agent_count_subquery.c.tool_name = 'Tool1'
     agent_count_subquery.c.unique_agents = 1
-
     total_usage_subquery.c.tool_name = 'Tool1'
     total_usage_subquery.c.total_usage = 5
 
-    tools_handler.get_tool_and_toolkit = MagicMock()
-    tools_handler.get_tool_and_toolkit.return_value = {'Tool1': 'Toolkit1'}
-
-    mock_session.query().filter_by().subquery.return_value = tool_used_subquery
-    mock_session.query().group_by().subquery.return_value = agent_count_subquery
-    mock_session.query().group_by().subquery.return_value = total_usage_subquery
+    mock_session.query.return_value.filter_by.return_value.subquery.return_value = tool_used_subquery
+    mock_session.query.return_value.group_by.return_value.subquery.side_effect = [agent_count_subquery, total_usage_subquery]
 
     result_obj = MagicMock()
     result_obj.tool_name = 'Tool1'
     result_obj.unique_agents = 1
     result_obj.total_usage = 5
-    mock_session.query().join().all.return_value = [result_obj]
+
+    mock_session.query.return_value.join.return_value.all.return_value = [result_obj]
+
+    tools_handler.get_tool_and_toolkit = MagicMock(return_value={'tool1': 'Toolkit1'})
 
     result = tools_handler.calculate_tool_usage()
 
     assert isinstance(result, list)
 
     expected_output = [{'tool_name': 'Tool1', 'unique_agents': 1, 'total_usage': 5, 'toolkit': 'Toolkit1'}]
+
     assert result == expected_output
 
 def test_get_tool_and_toolkit(tools_handler, mock_session):

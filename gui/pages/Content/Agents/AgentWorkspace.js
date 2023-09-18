@@ -399,14 +399,14 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("PAUSED")
                 }}>Pause</li>}
-                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') &&
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'ERROR_PAUSED') &&
                   <li className="dropdown_item" onClick={() => {
                     updateRunStatus("RUNNING")
                   }}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
                 }}>Delete Run</li>}
-                {agentExecutions && selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'RUNNING' || agentExecutions.length > 1) && <div className={styles.dropdown_separator}/>}
+                {agentExecutions && selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'RUNNING' || agentExecutions.length > 1 || selectedRun.status === 'ERROR_PAUSED') && <div className={styles.dropdown_separator}/>}
                 <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
                 {agent && env === 'PROD' &&
                   <li className="dropdown_item" onClick={() => {
@@ -468,7 +468,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
             <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
-                          setFetchedData={setFetchedData} agent={agent}/>
+                          setFetchedData={setFetchedData} agent={agent} selectedRunStatus={selectedRun?.status || null}/>
           </div>}
           {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
@@ -622,7 +622,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             {!publishModalState ? <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
               <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
                 #agent-templates-submission
-              </a> channel.</label> : <label className={styles.form_label}>Before publishing your agent to the marketplace, you need to run it at least once. To do this, click the 'New Run' button (on the agent screen). Once the agent has run successfully, you can proceed to try publishing your template.</label>}
+              </a> channel.</label> : <label className={styles.form_label}>Before publishing your agent to the marketplace, you need to run it at least once. To do this, click the New Run button (on the agent screen). Once the agent has run successfully, you can proceed to try publishing your template.</label>}
           </div>
           <div className={styles.modal_buttons}>
             <button className="primary_button" onClick={() => {setPublishModal(false)}}>

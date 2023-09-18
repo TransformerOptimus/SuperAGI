@@ -40,7 +40,6 @@ export default function Model({organisationId}) {
       }
       validateLLMApiKey(model.source, model.api_key)
           .then((response) => {
-            console.log(response)
             if (response.data.status === "success") {
               storeKey(model.source, model.api_key)
             }

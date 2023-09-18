@@ -24,6 +24,7 @@ class User(DBBaseModel):
     email = Column(String, unique=True)
     password = Column(String)
     organisation_id = Column(Integer)
+    first_login_source = Column(String)
 
     def __repr__(self):
         """
@@ -34,4 +35,4 @@ class User(DBBaseModel):
         """
 
         return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}'," \
-               f"organisation_id={self.organisation_id})"
+               f"organisation_id={self.organisation_id}, first_login_source={self.first_login_source})"

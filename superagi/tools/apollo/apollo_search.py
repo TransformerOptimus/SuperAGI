@@ -73,7 +73,7 @@ class ApolloSearchTool(BaseTool):
                                                  num_of_employees, person_location, organization_domains)
         logger.info(people_data)
         people_list = []
-        if 'people' in people_data and len(people_data['people']) > 0:
+        if people_data and 'people' in people_data and len(people_data['people']) > 0:
             for person in people_data['people']:
                 people_list.append({'first_name': person['first_name'],
                                     'last_name': person['last_name'],
@@ -130,3 +130,4 @@ class ApolloSearchTool(BaseTool):
             return response.json()
         else:
             return None
+

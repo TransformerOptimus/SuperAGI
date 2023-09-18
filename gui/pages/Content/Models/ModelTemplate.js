@@ -3,11 +3,24 @@ import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {getFormattedDate, modelIcon} from "@/utils/utils";
 import AddModelMarketPlace from "./AddModelMarketPlace";
-export default function ModelTemplate({env, template}){
+export default function ModelTemplate({env, template, getModels, sendModelData}){
     const [isInstalled, setIsInstalled] = useState(false);
 
     function handleBackClick() {
         EventBus.emit('goToMarketplace', {});
+    }
+
+    function handleInstallClick() {
+        if (window.location.href.toLowerCase().includes('marketplace')) {
+            if (env === 'PROD') {
+                window.open(`https://app.superagi.com/`, '_self');
+            } else {
+                window.location.href = '/';
+            }
+        }
+        else {
+            setIsInstalled(true)
+        }
     }
 
     return (
@@ -20,7 +33,7 @@ export default function ModelTemplate({env, template}){
                 <div className="col_3 display_column_container padding_16">
                     <span className="text_20 color_white">{template.model_name}</span>
                     <span className="text_12 color_gray mt_4">by {template.model_name.includes('/') ? template.model_name.split('/')[0] : template.provider}</span>
-                    <button className="primary_button w_100 mt_16" disabled={template.is_installed} onClick={() => setIsInstalled(true)}>
+                    <button className="primary_button w_100 mt_16" disabled={template.is_installed} onClick={() => handleInstallClick()}>
                         <Image width={16} height={16} src={template.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
                         <span className="ml_8">{template.is_installed ? 'Installed' : 'Install'}</span>
                     </button>
@@ -39,9 +52,9 @@ export default function ModelTemplate({env, template}){
                     <span className="text_12 color_gray">Updated At</span>
                     <span className="text_12 color_white mt_8">{getFormattedDate(template.updated_at)}</span>
                 </div>
-                <div className="col_9 display_column_container padding_16 color_white" dangerouslySetInnerHTML={{ __html: template.model_features }} />
+                <div className="col_9 display_column_container padding_16 color_white text_12 lh_18" dangerouslySetInnerHTML={{ __html: template.model_features }} />
             </div> ):(
-                <AddModelMarketPlace template={template} />
+                <AddModelMarketPlace template={template} getModels={getModels} sendModelData={sendModelData}/>
                 )}
         </div>
     )

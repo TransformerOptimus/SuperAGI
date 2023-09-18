@@ -34,6 +34,10 @@ beat_schedule = {
         'task': 'initialize-schedule-agent',
         'schedule': timedelta(minutes=5),
     },
+    'execute_waiting_workflows': {
+        'task': 'execute_waiting_workflows',
+        'schedule': timedelta(minutes=2),
+    },
 }
 app.conf.beat_schedule = beat_schedule
 
@@ -42,10 +46,19 @@ def agent_status_change(target, val,old_val,initiator):
     if not hasattr(sys, '_called_from_test'):
         webhook_callback.delay(target.id,val,old_val)
        
+@app.task(name="execute_waiting_workflows", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
+def execute_waiting_workflows():
+    """Check if wait time of wait workflow step is over and can be resumed."""
+
+    from superagi.jobs.agent_executor import AgentExecutor
+    logger.info("Executing waiting workflows job")
+    AgentExecutor().execute_waiting_workflows()
+
+
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
-    
+
     schedule_helper = AgentScheduleHelper()
     schedule_helper.update_next_scheduled_time()
     schedule_helper.run_scheduled_agents()
@@ -86,7 +99,7 @@ def summarize_resource(agent_id: int, resource_id: int):
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
     logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
-    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id)
+    resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id, model=agent_config["model"])
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)
     session.close()
