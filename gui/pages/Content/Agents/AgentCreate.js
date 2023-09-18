@@ -11,21 +11,9 @@ import {
   updateExecution,
   uploadFile,
   getAgentDetails, addAgentRun, fetchModels,
-  getAgentWorkflows, validateOrAddModels, publishTemplateToMarketplace
+  getAgentWorkflows, publishTemplateToMarketplace
 } from "@/pages/api/DashboardService";
-import {
-  formatBytes,
-  openNewTab,
-  removeTab,
-  setLocalStorageValue,
-  setLocalStorageArray,
-  returnResourceIcon,
-  getUserTimezone,
-  createInternalId,
-  preventDefault,
-  excludedToolkits,
-  getUserClick
-} from "@/utils/utils";
+import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, preventDefault, excludedToolkits, getUserClick} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import styles1 from "@/pages/Content/Knowledge/Knowledge.module.css";
