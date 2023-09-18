@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {setLocalStorageValue, convertToGMT, preventDefault} from "@/utils/utils";
+import {setLocalStorageValue, convertToGMT, preventDefault, getUserClick} from "@/utils/utils";
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import styles1 from "@/pages/Content/Agents/react-datetime.css";
 import Image from "next/image";
@@ -151,6 +151,7 @@ export default function AgentSchedule({
         "expiry_date": expiryType === 'Specific Date' ? expiryDate : null,
       }
       EventBus.emit('handleAgentScheduling', scheduleData);
+      getUserClick('Agent Scheduled', {'Type': 'New Agent'})
     } else {
       if (type === "schedule_agent") {
         const requestData = {
@@ -166,6 +167,7 @@ export default function AgentSchedule({
             const {schedule_id} = response.data;
             toast.success('Scheduled successfully!', {autoClose: 1800});
             setCreateModal();
+            getUserClick('Agent Scheduled', {'Type': 'Existing Agent'})
             EventBus.emit('reFetchAgents', {});
             setTimeout(() => {
                 EventBus.emit('refreshDate', {});

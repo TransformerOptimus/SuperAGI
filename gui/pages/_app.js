@@ -117,7 +117,8 @@ export default function App() {
         setEnv(env);
 
         if (typeof window !== 'undefined') {
-          mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: false, track_pageview: true, persistence: 'localStorage' });
+          if(response.data.env === 'PROD')
+            mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: false, track_pageview: true, persistence: 'localStorage' });
           localStorage.setItem('applicationEnvironment', env);
         }
 
@@ -126,6 +127,7 @@ export default function App() {
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
+          let first_login = parsedParams.first_time_login || false
 
           if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
@@ -136,7 +138,10 @@ export default function App() {
             .then((response) => {
               setUserName(response.data.name || '');
               mixpanel.identify(response.data.email)
-              getUserClick('Signed In', {})
+              if(first_login)
+                getUserClick('New Sign Up', {})
+              else
+                getUserClick('User Logged In', {})
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {

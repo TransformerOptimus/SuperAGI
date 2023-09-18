@@ -16,7 +16,7 @@ export default function TopBar({selectedProject, userName, env}) {
     if (typeof window === 'undefined') {
       return;
     }
-
+    getUserClick('Logged Out',{})
     localStorage.removeItem('accessToken');
     refreshUrl();
     router.reload();
@@ -38,7 +38,7 @@ export default function TopBar({selectedProject, userName, env}) {
       </div>
       <div className="top_right">
         <div className="horizontal_container gap_20">
-          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => window.open("https://superagi.com/docs", "_blank")}>
+          <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => {window.open("https://superagi.com/docs", "_blank"); getUserClick('SuperAGI Docs Visited', {})}}>
             <Image width={20} height={20} src="/images/docs_icon.svg" alt="docs-icon" />
             <p className="top_bar_font">Docs</p>
           </div>

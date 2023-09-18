@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import styles1 from '@/pages/Content/Knowledge/Knowledge.module.css'
-import {removeTab, setLocalStorageValue, setLocalStorageArray, createInternalId} from "@/utils/utils";
+import {removeTab, setLocalStorageValue, setLocalStorageArray, createInternalId, getUserClick} from "@/utils/utils";
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import Image from "next/image";
 import {ToastContainer, toast} from "react-toastify";
@@ -101,6 +101,7 @@ export default function KnowledgeForm({
           internalId: createInternalId()
         });
         EventBus.emit('reFetchKnowledge', {});
+        getUserClick('Knowledge Added Successfully', {})
       })
       .catch((error) => {
         toast.error("Unable to add knowledge", {autoClose: 1800});
