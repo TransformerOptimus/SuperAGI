@@ -182,18 +182,6 @@ export default function App() {
   };
 
   async function signInUser() {
-    const measurement_id = `G-XN8D01S5N7`;
-    const api_secret = `QeDgmALjR3yH9FRF0koazw`;
-    await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
-      method: "POST",
-      body: JSON.stringify({
-        client_id: 'Naman',
-        events: [{
-          name: 'tutorial_begin',
-          params: {},
-        }]
-      })
-    });
     let github_client_id = githubClientId();
 
       // If `github_client_id` does not exist, make the API call
