@@ -543,3 +543,19 @@ export const convertWaitingPeriod = (waitingPeriod) => {
 //     minute: 'numeric'
 //   });
 // }
+
+export const getUTMParametersFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+
+  const utmParams = {
+    utm_source: params.get('utm_source') || '',
+    utm_medium: params.get('utm_medium') || '',
+    utm_campaign: params.get('utm_campaign') || '',
+  };
+
+  if (!utmParams.utm_source && !utmParams.utm_medium && !utmParams.utm_campaign) {
+    return null;
+  }
+
+  return utmParams;
+}
