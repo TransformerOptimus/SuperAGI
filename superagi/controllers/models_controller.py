@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
 from superagi.apm.call_log_helper import CallLogHelper
+from superagi.models.readme_content import ReadmeContent
 from superagi.models.models import Models
 from superagi.models.models_config import ModelsConfig
 from superagi.config.config import get_config
@@ -110,6 +111,15 @@ async def delete_model(request: ModelName, organisation=Depends(get_user_organis
         return Models.delete_model(db.session, organisation.id, request.model)
     except Exception as e:
         logging.error(f"Error Deleting Model: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/fetch_model_readme/{model_id}", status_code=200)
+async def model_readme(model_id: int, organisation=Depends(get_user_organisation)):
+    try:
+        return ReadmeContent.fetch_model_readme(db.session, organisation.id, model_id)
+    except Exception as e:
+        logging.error(f"Error Fetching the Model Readme: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

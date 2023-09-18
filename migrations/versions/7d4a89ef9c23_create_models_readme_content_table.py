@@ -22,6 +22,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('content', sa.String(), nullable=False),
     sa.Column('model_id', sa.Integer(), nullable=False),
+    sa.Column('code_language', sa.String(), nullable=False),
     sa.Column('org_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
