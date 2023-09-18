@@ -1894,3 +1894,26 @@ tr{
 }
 
 
+
+
+/*----------------------------------------------------------------------------------*/
+
+.public_sans {
+    font-family: Public Sans, sans-serif;
+    font-style: normal;
+    line-height: 16px;
+}
+.text_18 {font-size: 18px;}
+.code_box {
+    display: flex;
+    padding: 16px 8px;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.04);
+    font-family: Space Mono, monospace;
+    line-height: 16px;
+    font-style: normal;
+}
+
