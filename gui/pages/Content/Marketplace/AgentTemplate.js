@@ -8,7 +8,7 @@ import styles2 from "./Market.module.css"
 import {fetchAgentTemplateConfig, installAgentTemplate} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import axios from 'axios';
-import {loadingTextEffect} from "@/utils/utils";
+import {getUserClick, loadingTextEffect} from "@/utils/utils";
 
 export default function AgentTemplate({template, env}) {
   const [tools, setTools] = useState([])
@@ -60,6 +60,7 @@ export default function AgentTemplate({template, env}) {
 
   function handleInstallClick() {
     setIsInstalled(true)
+    getUserClick("Agent Template Installed",{"Agent Template Name": template.name})
     if (window.location.href.toLowerCase().includes('marketplace')) {
       localStorage.setItem('agent_to_install', template.id);
       if (env === 'PROD') {

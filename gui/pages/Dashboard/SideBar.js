@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
-import {openNewTab} from "@/utils/utils";
+import {getUserClick, openNewTab} from "@/utils/utils";
 
 export default function SideBar({onSelectEvent, env}) {
     const [sectionSelected, setSelection] = useState('');
@@ -15,6 +15,7 @@ export default function SideBar({onSelectEvent, env}) {
     ];
 
     const handleClick = (value) => {
+        getUserClick(value + "SIDEBAR ICON", {})
         setSelection(value);
         onSelectEvent(value);
         if (value === 'apm') {

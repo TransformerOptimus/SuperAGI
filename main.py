@@ -307,14 +307,14 @@ def github_auth_handler(code: str = Query(...), Authorize: AuthJWT = Depends()):
             db_user: User = db.session.query(User).filter(User.email == user_email).first()
             if db_user is not None:
                 jwt_token = create_access_token(user_email, Authorize)
-                redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+                redirect_url_success = f"{frontend_url}?access_token={jwt_token}&first_time_login={False}"
                 return RedirectResponse(url=redirect_url_success)
 
             user = User(name=user_data["name"], email=user_email)
             db.session.add(user)
             db.session.commit()
             jwt_token = create_access_token(user_email, Authorize)
-            redirect_url_success = f"{frontend_url}?access_token={jwt_token}"
+            redirect_url_success = f"{frontend_url}?access_token={jwt_token}&first_time_login={True}"
             return RedirectResponse(url=redirect_url_success)
         else:
             redirect_url_failure = "https://superagi.com/"

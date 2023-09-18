@@ -2,7 +2,7 @@ import React from 'react';
 import Image from "next/image";
 import styles from '../Toolkits/Tool.module.css';
 import styles1 from '../Agents/Agents.module.css'
-import {createInternalId} from "@/utils/utils";
+import {createInternalId, getUserClick} from "@/utils/utils";
 
 export default function Knowledge({sendKnowledgeData, knowledge}) {
   return (
@@ -10,12 +10,12 @@ export default function Knowledge({sendKnowledgeData, knowledge}) {
       <div className="container">
         <p className="text_14 mt_8 mb_12 ml_8">Knowledges</p>
         <div className="w_100 mb_10">
-          <button className="secondary_button w_100" onClick={() => sendKnowledgeData({
+          <button className="secondary_button w_100" onClick={() => {sendKnowledgeData({
             id: -6,
             name: "new knowledge",
             contentType: "Add_Knowledge",
             internalId: createInternalId()
-          })}>
+          }); getUserClick('Knowledge Added', {})}}>
             + Add Knowledge
           </button>
         </div>
