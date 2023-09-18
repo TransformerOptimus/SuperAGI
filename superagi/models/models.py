@@ -3,6 +3,7 @@ from sqlalchemy.sql import func
 from typing import List, Dict, Union
 from superagi.models.base_model import DBBaseModel
 from superagi.controllers.types.models_types import ModelsTypes
+from superagi.controllers.types.is_installed import IsInstalled
 from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
 
@@ -38,7 +39,7 @@ class Models(DBBaseModel):
     token_limit = Column(Integer, nullable=False)
     type = Column(String, nullable=False)
     version = Column(String, nullable=False)
-    state = Column(String, nullable=False, default='INSTALLED')
+    state = Column(String, nullable=False, default=IsInstalled.INSTALLED.value)
     org_id = Column(Integer, nullable=False)
     model_features = Column(String, nullable=False)
 
@@ -73,8 +74,7 @@ class Models(DBBaseModel):
         model_counts_dict = dict(
             session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all()
         )
-        print("////////////////////////////////////")
-        print(model_counts_dict)
+
         installed_models_dict = {model.model_name: True for model in installed_models}
 
         for model in marketplace_models:
@@ -84,7 +84,7 @@ class Models(DBBaseModel):
                 else:
                     user_model = session.query(Models).filter(Models.model_name == model["model_name"],
                                                               Models.org_id == organisation_id).first()
-                    if user_model.state == 'INSTALLED':
+                    if user_model.state == IsInstalled.INSTALLED.value:
                         model["is_installed"] = True
                     else:
                         model["is_installed"] = False
@@ -130,7 +130,7 @@ class Models(DBBaseModel):
         # Check if model_name already exists in the database
         existing_model = session.query(Models).filter(Models.model_name == model_name,
                                                       Models.org_id == organisation_id).first()
-        if existing_model and existing_model.state == 'INSTALLED':
+        if existing_model and existing_model.state == IsInstalled.INSTALLED.value:
             return {"error": "Model Name already exists"}
         elif existing_model:
             existing_model.description = description
@@ -139,7 +139,7 @@ class Models(DBBaseModel):
             existing_model.model_provider_id = model_provider_id
             existing_model.type = type
             existing_model.version = version
-            existing_model.state = 'INSTALLED'
+            existing_model.state = IsInstalled.INSTALLED.value
             session.commit()
             return {"success": "Model Details updated successfully", "model_id": existing_model.id}
 
@@ -207,7 +207,7 @@ class Models(DBBaseModel):
 
             models = session.query(Models.id, Models.model_name, Models.description, ModelsConfig.provider).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(
-                Models.org_id == organisation_id, Models.state == 'INSTALLED').all()
+                Models.org_id == organisation_id, Models.state == IsInstalled.INSTALLED.value).all()
 
             result = []
             for model in models:
@@ -260,9 +260,9 @@ class Models(DBBaseModel):
             model = (session.query(Models).filter(Models.model_name == model_name, Models.org_id == organisation_id)
                      .first())
             if model:
-                model.state = 'UNINSTALLED'
+                model.state = IsInstalled.UNINSTALLED.value
                 session.commit()
-                return {"success": "Model state changed to UNINSTALLED successfully"}
+                return {"success": "Model has been Successfully Uninstalled"}
             else:
                 return {"error": "Model not found"}
         except Exception as e:
