@@ -559,3 +559,18 @@ export const getUTMParametersFromURL = () => {
 
   return utmParams;
 }
+
+export const sendGAEvent = async (client, eventName, params) => {
+  const measurement_id = `G-MS9F7DXRNQ`;
+  const api_secret = `gGkDqrf1TuW8nOxlG8xDcg`;
+  await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
+    method: "POST",
+    body: JSON.stringify({
+      client_id: client,
+      events: [{
+        name: eventName,
+        params: params
+      }]
+    })
+  });
+}
