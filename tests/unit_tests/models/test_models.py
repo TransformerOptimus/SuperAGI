@@ -236,4 +236,23 @@ def test_fetch_model_details(mock_models_config, mock_session):
         "model_provider": "example_provider"
     }
 
+@patch('superagi.models.models.Models')
+def test_delete_model_when_model_exists(mock_session):
+    # Arrange
+    mock_existing_model = MagicMock()
+    mock_session.query.return_value.filter.return_value.first.return_value = mock_existing_model
+    mock_session.commit = MagicMock()
+
+    # Act
+    response = Models.delete_model(
+        mock_session,
+        organisation_id=1,
+        model_name="example_model",
+    )
+
+    # Assert
+    assert response == {"success": "Model has been Successfully Uninstalled"}
+    assert mock_existing_model.state == IsInstalled.UNINSTALLED.value
+    mock_session.commit.assert_called_once()
+
 

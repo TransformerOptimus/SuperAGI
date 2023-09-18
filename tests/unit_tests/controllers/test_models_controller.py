@@ -100,3 +100,14 @@ def test_get_marketplace_models_list_success(mock_get_db):
         patch('superagi.helper.auth.db') as mock_auth_db:
         response = client.get("/models_controller/marketplace/list/0")
         assert response.status_code == 200
+
+
+@patch('superagi.controllers.models_controller.db')
+def test_delete_model(mock_get_db):
+    request = {
+        "model": "model_name"
+    }
+    with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
+        patch('superagi.helper.auth.db') as mock_auth_db:
+        response = client.post("/models_controller/delete_model", json=request)
+        assert response.status_code == 200
