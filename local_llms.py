@@ -60,14 +60,6 @@ def completion(
         return tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
 
-def inference(payload: LocalLLM):
-    generated_text = completion(
-        model=model,
-        tokenizer=tokenizer,
-        message=payload.input_message,
-    )
-    return generated_text
-
 def generate_response(input_message):
     generated_text = completion(
         model=model,
