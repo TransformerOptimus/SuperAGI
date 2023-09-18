@@ -54,7 +54,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const apmTab = tabs.find(tab => tab.contentType === 'APM');
       setIsApmOpened(!!apmTab);
       setPrevView(selectedView);
-      getUserClick('APM CLOSED',{})
+      getUserClick('APM Closed',{})
     }
   }, [selectedView, tabs, prevView]);
 
