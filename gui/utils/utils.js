@@ -1,6 +1,6 @@
 import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
-import {baseUrl} from "@/pages/api/apiConfig";
+import {baseUrl, mixpanelId} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
@@ -563,7 +563,7 @@ export const getUTMParametersFromURL = () => {
 
 export const getUserClick = (event, props) => {
   const env = localStorage.getItem('applicationEnvironment');
-  if(env === 'PROD'){
+  if(env === 'PROD' && mixpanelId()){
     mixpanel.track(event, props)
   }
 }

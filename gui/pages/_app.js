@@ -16,7 +16,7 @@ import {
   addUser,
   installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate, getFirstSignup
 } from "@/pages/api/DashboardService";
-import {githubClientId} from "@/pages/api/apiConfig";
+import {githubClientId, mixpanelId} from "@/pages/api/apiConfig";
 import {
   getGithubClientId
 } from "@/pages/api/DashboardService";
@@ -112,8 +112,8 @@ export default function App() {
         setEnv(env);
 
         if (typeof window !== 'undefined') {
-          if(response.data.env === 'PROD')
-            mixpanel.init("66422baf1e14332d36273c6addcf22f7", { debug: false, track_pageview: true, persistence: 'localStorage' });
+          if(response.data.env === 'PROD' && mixpanelId())
+            mixpanel.init(mixpanelId(), { debug: false, track_pageview: true, persistence: 'localStorage' });
           localStorage.setItem('applicationEnvironment', env);
         }
 
@@ -136,7 +136,8 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
-              mixpanel.identify(response.data.email)
+              if(mixpanelId())
+                mixpanel.identify(response.data.email)
               if(first_login)
                 getUserClick('New Sign Up', {})
               else
