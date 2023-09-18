@@ -3,6 +3,8 @@ import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
 import {getFormattedDate, modelIcon} from "@/utils/utils";
 import AddModelMarketPlace from "./AddModelMarketPlace";
+import {deleteModel} from "@/pages/api/DashboardService";
+
 export default function ModelTemplate({env, template, getModels, sendModelData}){
     const [isInstalled, setIsInstalled] = useState(false);
 
@@ -23,6 +25,16 @@ export default function ModelTemplate({env, template, getModels, sendModelData})
         }
     }
 
+    async function uninstallModel(model_name) {
+        console.log(model_name)
+        const response = await deleteModel(model_name);
+        if(response) {
+            console.log(response)
+        }
+    }
+
+    console.log(template)
+
     return (
         <div id="model_template">
             <div className="back_button mt_16 mb_16" onClick={() => isInstalled ? setIsInstalled(false) : handleBackClick()}>
@@ -33,10 +45,13 @@ export default function ModelTemplate({env, template, getModels, sendModelData})
                 <div className="col_3 display_column_container padding_16">
                     <span className="text_20 color_white">{template.model_name}</span>
                     <span className="text_12 color_gray mt_4">by {template.model_name.includes('/') ? template.model_name.split('/')[0] : template.provider}</span>
-                    <button className="primary_button w_100 mt_16" disabled={template.is_installed} onClick={() => handleInstallClick()}>
-                        <Image width={16} height={16} src={template.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
-                        <span className="ml_8">{template.is_installed ? 'Installed' : 'Install'}</span>
-                    </button>
+                    <div className="w_100 mt_16">
+                        <button className="primary_button w_100" disabled={template.is_installed} onClick={() => handleInstallClick()}>
+                            <Image width={16} height={16} src={template.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
+                            <span className="ml_8">{template.is_installed ? 'Installed' : 'Install'}</span>
+                        </button>
+                        <button onClick={() => uninstallModel(template.model_name)}>UNINSTALL</button>
+                    </div>
 
                     <hr className="horizontal_line" />
                     <span className="text_12 color_white lh_18">{template.description}</span>

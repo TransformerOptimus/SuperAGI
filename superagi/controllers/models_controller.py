@@ -27,8 +27,10 @@ class StoreModelRequest(BaseModel):
     type: str
     version: str
 
+
 class ModelName (BaseModel):
     model: str
+
 
 @router.post("/store_api_keys", status_code=200)
 async def store_api_keys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
@@ -102,6 +104,15 @@ async def fetch_data(request: ModelName, organisation=Depends(get_user_organisat
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.post("/delete_model", status_code=200)
+async def delete_model(request: ModelName, organisation=Depends(get_user_organisation)):
+    try:
+        return Models.delete_model(db.session, organisation.id, request.model)
+    except Exception as e:
+        logging.error(f"Error Deleting Model: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @router.get("/get/list", status_code=200)
 def get_models_list(page: int = 0, organisation=Depends(get_user_organisation)):
     """
@@ -123,9 +134,9 @@ def get_models_list(page: int = 0, organisation=Depends(get_user_organisation)):
 
 @router.get("/marketplace/list/{page}", status_code=200)
 def get_marketplace_models_list(page: int = 0):
-    organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
-    if organisation_id is not None:
-        organisation_id = int(organisation_id)
+    organisation_id = 2
+    # if organisation_id is not None:
+    #     organisation_id = int(organisation_id)
     page_size = 16
 
     query = db.session.query(Models).filter(Models.org_id == organisation_id)
