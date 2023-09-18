@@ -175,6 +175,11 @@ class AgentExecutor:
             step_wait = AgentWorkflowStepWait.find_by_id(session, workflow_step.action_reference_id)
             if step_wait is not None:
                 wait_time = step_wait.delay if not None else 0
+                logger.info(f"Agent Execution ID: {agent_execution.id}")
+                logger.info(f"Wait time: {wait_time}")
+                logger.info(f"Wait begin time: {step_wait.wait_begin_time}")
+                logger.info(f"Current time: {datetime.now()}")
+                logger.info(f"Wait Difference : {(datetime.now() - step_wait.wait_begin_time).total_seconds()}")
                 if ((datetime.now() - step_wait.wait_begin_time).total_seconds() > wait_time
                         and step_wait.status == AgentWorkflowStepWaitStatus.WAITING.value):
                     agent_execution.status = AgentExecutionStatus.RUNNING.value

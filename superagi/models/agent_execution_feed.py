@@ -27,6 +27,7 @@ class AgentExecutionFeed(DBBaseModel):
     role = Column(String)
     extra_info = Column(String)
     feed_group_id = Column(String)
+    error_message = Column(String)
 
     def __repr__(self):
         """
