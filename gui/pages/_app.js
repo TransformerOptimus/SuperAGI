@@ -8,26 +8,25 @@ import "react-resizable/css/styles.css";
 import './_app.css'
 import Head from 'next/head';
 import Image from "next/image";
-import Script from "next/script";
 import {
   getOrganisation,
   getProject,
   validateAccessToken,
   checkEnvironment,
   addUser,
-  installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate
+  installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate, getFirstSignup
 } from "@/pages/api/DashboardService";
-import {githubClientId} from "@/pages/api/apiConfig";
+import {githubClientId, mixpanelId} from "@/pages/api/apiConfig";
 import {
   getGithubClientId
 } from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl, loadingTextEffect} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
-import ReactGA from 'react-ga';
-// import * as dataLayer from "echarts/types/src/component/dataZoom/history";
+import mixpanel from 'mixpanel-browser';
+
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -104,12 +103,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true);
-    } else {
-      installFromMarketplace();
-    }
-
+    handleMarketplace()
     loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
 
     checkEnvironment()
@@ -118,8 +112,9 @@ export default function App() {
         setEnv(env);
 
         if (typeof window !== 'undefined') {
+          if(response.data.env === 'PROD' && mixpanelId())
+            mixpanel.init(mixpanelId(), { debug: false, track_pageview: true, persistence: 'localStorage' });
           localStorage.setItem('applicationEnvironment', env);
-          // ReactGA.initialize('G-V4XRSXPRKQ',{ debug: true })
         }
 
         if (response.data.env === 'PROD') {
@@ -127,6 +122,12 @@ export default function App() {
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
+          let first_login = parsedParams.first_time_login || false
+
+          const utmParams = getUTMParametersFromURL();
+          if (utmParams)
+            sessionStorage.setItem('utm_source', utmParams.utm_source);
+          const signupSource = sessionStorage.getItem('utm_source');
 
           if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
@@ -136,26 +137,23 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
+              if(mixpanelId())
+                mixpanel.identify(response.data.email)
+              if(first_login)
+                getUserClick('New Sign Up', {})
+              else
+                getUserClick('User Logged In', {})
+
+              if(signupSource) {
+                handleSignUpSource(signupSource)
+              }
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
               console.error('Error validating access token:', error);
             });
         } else {
-          const userData = {
-            "name": "SuperAGI User",
-            "email": "super6@agi.com",
-            "password": "pass@123",
-          }
-
-          addUser(userData)
-            .then((response) => {
-              setUserName(response.data.name);
-              fetchOrganisation(response.data.id);
-            })
-            .catch((error) => {
-              console.error('Error adding user:', error);
-            });
+          handleLocalEnviroment()
         }
       })
       .catch((error) => {
@@ -186,11 +184,6 @@ export default function App() {
   };
 
   async function signInUser() {
-    // ReactGA.event({
-    //   category: 'Button',
-    //   action: 'Click',
-    //   label: 'My Button',
-    // });
     let github_client_id = githubClientId();
 
       // If `github_client_id` does not exist, make the API call
@@ -205,6 +198,40 @@ export default function App() {
         window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
       }
   }
+
+  const handleLocalEnviroment = () => {
+    const userData = {
+      "name": "SuperAGI User",
+      "email": "super6@agi.com",
+      "password": "pass@123",
+    }
+
+    addUser(userData)
+        .then((response) => {
+          setUserName(response.data.name);
+          fetchOrganisation(response.data.id);
+        })
+        .catch((error) => {
+          console.error('Error adding user:', error);
+        });
+  };
+  const handleSignUpSource = (signup) => {
+    getFirstSignup(signup)
+        .then((response) => {
+          sessionStorage.removeItem('utm_source');
+        })
+        .catch((error) => {
+          console.error('Error validating source:', error);
+        })
+  };
+
+  const handleMarketplace = () => {
+    if (window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true);
+    } else {
+      installFromMarketplace();
+    }
+  };
 
   useEffect(() => {
     const clearLocalStorage = () => {
@@ -233,14 +260,6 @@ export default function App() {
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
               rel="stylesheet"/>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-V4XRSXPRKQ"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          {/*function gtag(){dataLayer.push(arguments)}*/}
-          gtag('js', new Date());
-
-          gtag('config', 'G-V4XRSXPRKQ');
-        </script>
       </Head>
       {showMarketplace && <div className="projectStyle"><MarketplacePublic env={env}/></div>}
       {applicationState === 'AUTHENTICATED' && !showMarketplace ? (<div className="projectStyle">

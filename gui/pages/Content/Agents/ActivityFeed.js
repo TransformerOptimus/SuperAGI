@@ -16,12 +16,11 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [scheduleTime, setScheduleTime] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [waitingPeriod, setWaitingPeriod] = useState(null);
-  const [waitingPeriodOver, setWaitingPeriodOver] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     const interval = window.setInterval(function () {
-      if (selectedRunStatus === "RUNNING") {
+      if (selectedRunStatus !== "ERROR_PAUSED") {
         fetchFeeds();
       }
     }, 5000);
@@ -77,10 +76,6 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   useEffect(() => {
     EventBus.emit('reFetchAgents', {});
   }, [runStatus])
-
-  useEffect(() => {
-    setWaitingPeriodOver(updateDateBasedOnValue(convertWaitingPeriod(waitingPeriod)))
-  }, [waitingPeriod]);
 
   function fetchFeeds() {
     if (selectedRunId !== null) {
@@ -157,7 +152,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
                 <div className="history_box padding_20 cursor_default bg_secondary">
                   <div style={{display: 'flex'}}>
                     <div className="fs_20 lh_24">⏳</div>
-                    <div className={styles.feed_title}>Waiting Block Initiated. The Agent will wait for {convertWaitingPeriod(waitingPeriod) || null} and continue on {waitingPeriodOver || 'soon'}</div>
+                    <div className={styles.feed_title}>Waiting Block Initiated. The Agent will wait for {convertWaitingPeriod(waitingPeriod) || null}</div>
                   </div>
                 </div>}
             {runStatus === 'RUNNING' &&
@@ -185,7 +180,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
               <div className="history_box padding_20 cursor_default bg_secondary">
                 <div style={{display: 'flex'}}>
                   <div className="fs_20">❗</div>
-                  <div className={styles.feed_title}>{parseTextWithLinks(errorMsg)}</div>
+                  <div className={styles.feed_title}>{errorMsg}</div>
                 </div>
               </div>}
           </div>

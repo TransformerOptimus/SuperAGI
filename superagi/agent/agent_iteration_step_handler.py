@@ -90,7 +90,8 @@ class AgentIterationStepHandler:
             print("Decoding JSON has failed")
             tool_name = ''
 
-        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
+        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,
+                                                                                             agent_config['agent_id'], total_tokens, tool_name, agent_config['model'])
 
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,
