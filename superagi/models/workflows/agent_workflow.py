@@ -107,7 +107,11 @@ class AgentWorkflow(DBBaseModel):
     @classmethod
     def find_or_create_by_name(cls, session, name: str, description: str):
         """Create or find an agent workflow by name."""
+        print("Session : ",session)
+        print("Name : ",name)
+        print("Description : ",description)
         agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
+        print("Agent Workflow : ",agent_workflow)
         if agent_workflow is None:
             agent_workflow = AgentWorkflow(name=name, description=description)
             session.add(agent_workflow)

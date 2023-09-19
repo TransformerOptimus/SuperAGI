@@ -145,7 +145,7 @@ class AgentWorkflowStep(DBBaseModel):
         workflow_step.agent_workflow_id = agent_workflow_id
         workflow_step.action_reference_id = step_tool.id
         workflow_step.action_type = "TOOL"
-        workflow_step.next_steps = []
+        workflow_step.next_steps = [] if workflow_step.next_steps is None else workflow_step.next_steps
         workflow_step.completion_prompt = completion_prompt
         session.commit()
         return workflow_step

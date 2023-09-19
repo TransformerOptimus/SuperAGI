@@ -55,13 +55,23 @@ class AgentToolStepHandler:
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
             self._create_permission_request(execution, step_tool)
             return
-
+        print("____________AGENT_TOOL_STEP_HANDLER_____________")
+        print(step_tool.tool_name)
+        print(workflow_step)
         assistant_reply = self._process_input_instruction(agent_config, agent_execution_config, step_tool,
-                                                          workflow_step)
+                                                       workflow_step)
+        print("_____________ASSISTANT_REPLY_____________")
+        print(assistant_reply)
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
+        print("_____________TOOL_OBJ_____________")
+        print(tool_obj)
         tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, [tool_obj],self.memory,
                                                 output_parser=AgentSchemaToolOutputParser())
+        print("_____________TOOL_OUTPUT_HANDLER_____________")
+        print(tool_output_handler)
         final_response = tool_output_handler.handle(self.session, assistant_reply)
+        print("_____________FINAL_RESPONSE_____________")
+        print(final_response)
         step_response = "default"
         if step_tool.output_instruction:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
@@ -95,7 +105,10 @@ class AgentToolStepHandler:
         self.session.commit()
 
     def _process_input_instruction(self, agent_config, agent_execution_config, step_tool, workflow_step):
+        print("_____________PROCESS_INPUT_INSTRUCTION_____________")
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
+        print("_____________TOOL_OBJ_____________")
+        print(tool_obj)
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
         logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
@@ -115,7 +128,9 @@ class AgentToolStepHandler:
 
     def _build_tool_obj(self, agent_config, agent_execution_config, tool_name: str):
         model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])['api_key']
+        print("model_api_key : ",model_api_key)
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
+        print("tool builder : ",tool_builder)
         resource_summary = ""
         if tool_name == "QueryResourceTool":
             resource_summary = ResourceSummarizer(session=self.session,
@@ -124,10 +139,18 @@ class AgentToolStepHandler:
                 default_summary=agent_config.get("resource_summary"))
 
         organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
+        print("organisation : ",organisation)
+        print("tool_name : ",tool_name)
+        print("Toolkit : ",Toolkit.id)
         tool = self.session.query(Tool).join(Toolkit, and_(Tool.toolkit_id == Toolkit.id, Toolkit.organisation_id == organisation.id, Tool.name == tool_name)).first()
+        # tool = self.session.query(Tool).filter( Toolkit.organisation_id == organisation.id, Tool.name == tool_name).first()
+
+        print("Tool : ",tool)
         tool_obj = tool_builder.build_tool(tool)
+        print("Tool Obj1 : ",tool_obj)
         tool_obj = tool_builder.set_default_params_tool(tool_obj, agent_config, agent_execution_config, model_api_key,
                                                         resource_summary,self.memory)
+        print("Tool Obj2 : ",tool_obj)
         return tool_obj
 
     def _process_output_instruction(self, final_response: str, step_tool: AgentWorkflowStepTool,
