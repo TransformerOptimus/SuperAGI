@@ -1,9 +1,10 @@
 import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
-import {baseUrl, analyticsMeasurementId, analyticsApiSecret} from "@/pages/api/apiConfig";
+import {baseUrl, analyticsMeasurementId, analyticsApiSecret, mixpanelId} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
+import mixpanel from 'mixpanel-browser'
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
@@ -558,6 +559,13 @@ export const getUTMParametersFromURL = () => {
   }
 
   return utmParams;
+}
+
+export const getUserClick = (event, props) => {
+  const env = localStorage.getItem('applicationEnvironment');
+  if(env === 'PROD' && mixpanelId()){
+    mixpanel.track(event, props)
+  }
 }
 
 export const sendGAEvent = async (client, eventName, params) => {
