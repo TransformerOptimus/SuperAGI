@@ -101,7 +101,7 @@ class AgentLlmMessageBuilder:
                                                        self.agent_execution_id, "last_agent_feed_ltm_summary_id")
             last_agent_feed_ltm_summary_id = (
                 int(last_agent_feed_ltm_summary_id.value)
-                if last_agent_feed_ltm_summary_id is not None
+                if last_agent_feed_ltm_summary_id is not None and last_agent_feed_ltm_summary_id.value is not None
                 else 0
             )
             past_messages = self.session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed,
