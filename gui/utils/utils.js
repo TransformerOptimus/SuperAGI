@@ -1,9 +1,10 @@
 import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
-import {baseUrl} from "@/pages/api/apiConfig";
+import {baseUrl, mixpanelId} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
+import mixpanel from 'mixpanel-browser'
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
@@ -543,3 +544,26 @@ export const convertWaitingPeriod = (waitingPeriod) => {
 //     minute: 'numeric'
 //   });
 // }
+
+export const getUTMParametersFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+
+  const utmParams = {
+    utm_source: params.get('utm_source') || '',
+    utm_medium: params.get('utm_medium') || '',
+    utm_campaign: params.get('utm_campaign') || '',
+  };
+
+  if (!utmParams.utm_source && !utmParams.utm_medium && !utmParams.utm_campaign) {
+    return null;
+  }
+
+  return utmParams;
+}
+
+export const getUserClick = (event, props) => {
+  const env = localStorage.getItem('applicationEnvironment');
+  if(env === 'PROD' && mixpanelId()){
+    mixpanel.track(event, props)
+  }
+}

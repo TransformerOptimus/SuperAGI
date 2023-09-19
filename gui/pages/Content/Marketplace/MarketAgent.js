@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import {fetchAgentTemplateList} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {loadingTextEffect} from "@/utils/utils";
+import {loadingTextEffect, getUserClick} from "@/utils/utils";
 import axios from 'axios';
 
 export default function MarketAgent() {
@@ -39,6 +39,7 @@ export default function MarketAgent() {
   }, []);
 
   function handleTemplateClick(item) {
+    getUserClick("Marketplace Agent Template Viewed", {"Agent Template Name": item.name})
     const contentType = 'agent_template';
     EventBus.emit('openTemplateDetails', {item, contentType});
   }

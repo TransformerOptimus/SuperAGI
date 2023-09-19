@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+const MIXPANEL_AUTH_ID = process.env.MIXPANEL_AUTH_ID
 
 export const baseUrl = () => {
   return API_BASE_URL;
@@ -9,6 +10,10 @@ export const baseUrl = () => {
 
 export const githubClientId = () => {
   return GITHUB_CLIENT_ID;
+};
+
+export const mixpanelId = () => {
+  return MIXPANEL_AUTH_ID;
 };
 
 const api = axios.create({
