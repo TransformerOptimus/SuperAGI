@@ -569,8 +569,8 @@ export const getUserClick = (event, props) => {
 }
 
 export const sendGAEvent = async (client, eventName, params) => {
-  const measurement_id = analyticsMeasurementId;
-  const api_secret = analyticsApiSecret;
+  const measurement_id = analyticsMeasurementId();
+  const api_secret = analyticsApiSecret();
   await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
     method: "POST",
     body: JSON.stringify({

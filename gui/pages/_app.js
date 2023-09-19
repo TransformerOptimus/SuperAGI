@@ -133,7 +133,6 @@ export default function App() {
           const signupSource = sessionStorage.getItem('utm_source');
           const signupMedium = sessionStorage.getItem('utm_medium');
           const singupCampaign = sessionStorage.getItem('campaign');
-          console.log(signupSource + '/////' + signupMedium + '////' + singupCampaign)
 
           if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
