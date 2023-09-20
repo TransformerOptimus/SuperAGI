@@ -74,7 +74,7 @@ class DbCreateConnectionTool(BaseTool):
         cursor = evadb.connect().cursor()
         db_connection_name = db_engine + '__' + database_name
         create_db_query = """
-            CREATE DATABASE {connection_name} WITH ENGINE = '{db_engine}', PARAMETERS = {{
+            CREATE DATABASE IF NOT EXISTS {connection_name} WITH ENGINE = '{db_engine}', PARAMETERS = {{
                 "user": "{username}",
                 "host": "{hostname}",
                 "port": "{port}",
@@ -82,8 +82,9 @@ class DbCreateConnectionTool(BaseTool):
                 "password": "{password}"
             }};
         """.format(connection_name = db_connection_name, db_engine = db_engine, username = username, 
-        hostname = host, port = port, db_name = database_name, password = "dbpass")
+        hostname = host, port = port, db_name = database_name, password = "ada@Gatech")
         print("create_db_query", create_db_query)
-        ret = cursor.query(create_db_query).execute()
+        #cursor.query(f"DROP DATABASE IF EXISTS {db_connection_name}").df()
+        ret = cursor.query(create_db_query).df()
         cursor.close()
         return "Sucessfully created the desired connection to underlying databse engine with name {connection}. This connection can now be used to query requested database.".format(connection = db_connection_name)

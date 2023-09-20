@@ -62,9 +62,9 @@ class DbQueryConnectionTool(BaseTool):
 
         print("FINAL_QUERY: ", db_query)
         cursor = evadb.connect().cursor()
-        ret = cursor.query(db_query).execute()
+        ret = cursor.query(db_query).df()
         print(ret)
         cursor.close()
 
-        return ("Successfully executed the provided query", "result: " + ret)
+        return ("Successfully executed the provided query", "result: " + ret.to_string())
         
