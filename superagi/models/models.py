@@ -79,8 +79,6 @@ class Models(DBBaseModel):
                 else:
                     model["is_installed"] = installed_models_dict.get(model["model_name"], False)
                 model["installs"] = model_counts_dict.get(model["model_name"], 0)
-                model["provider"] = session.query(ModelsConfig).filter(
-                    ModelsConfig.id == model["model_provider_id"]).first().provider
             except TypeError as e:
                 logging.error("Error Occurred: %s", e)
 
