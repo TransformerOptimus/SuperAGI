@@ -24,6 +24,7 @@ class OobaBooga(BaseLlm):
         top_k: int = 4,
         typical_p: int = 1,
         repetition_penalty: float = 1.0,
+        prompt_truncation_length: int = int(get_config("OOBA_TRUNCATION_LENGTH", "4096")),
         do_sample: bool = True,
         instruct: bool = True,
     ):
@@ -38,6 +39,7 @@ class OobaBooga(BaseLlm):
         self.repetition_penalty = repetition_penalty
         self.do_sample = do_sample
         self.instruct = instruct
+        self.prompt_truncation_length = prompt_truncation_length
 
         assert not self.api_key, "API keys are not yet supported"
         assert self.instruct, "Non-instruct is not yet supported"
@@ -88,6 +90,7 @@ class OobaBooga(BaseLlm):
             max_new_tokens=max_tokens,
             top_k=self.top_k,
             top_p=self.top_p,
+            truncation_length=self.prompt_truncation_length,
         )
         chat_response = client.instruct(
             prompt,

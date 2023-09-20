@@ -125,3 +125,4 @@ ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 
 # Ooba Booga Text Generation WebUI API
 OOBA_URL: "http://localhost:5000"
+OOBA_TRUNCATION_LENGTH: 4096
