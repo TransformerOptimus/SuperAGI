@@ -9,7 +9,7 @@ export default function ModelDetails({modelId, modelName}){
     const [modelDetails, setModelDetails] = useState([])
     const [selectedOption, setSelectedOption] = useState('metrics')
     const [isLoading, setIsLoading] = useState(true)
-    const [loadingText, setLoadingText] = useState("Loading Models");
+    const [loadingText, setLoadingText] = useState("Loading Models")
 
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
