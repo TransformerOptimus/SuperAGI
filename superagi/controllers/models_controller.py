@@ -131,8 +131,16 @@ def get_marketplace_knowledge_list(page: int = 0):
     query = db.session.query(Models).filter(Models.org_id == organisation_id)
     if page < 0:
         models = query.all()
-    models = query.offset(page * page_size).limit(page_size).all()
-    return models
+    else:
+        models = query.offset(page * page_size).limit(page_size).all()
+
+    models_list = []
+    for model in models:
+        model_dict = model.__dict__
+        model_dict["provider"] = db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider
+        models_list.append(model_dict)
+
+    return models_list
 
 
 @router.get("/get/models_details", status_code=200)
