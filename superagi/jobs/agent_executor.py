@@ -7,6 +7,7 @@ from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandle
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
 from superagi.agent.agent_workflow_step_wait_handler import AgentWaitStepHandler
 from superagi.agent.types.wait_step_status import AgentWorkflowStepWaitStatus
+from superagi.agent.workflow.steps.condition_step import AgentConditionStepHandler
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
@@ -104,7 +105,9 @@ class AgentExecutor:
     def __execute_workflow_step(self, agent, agent_config, agent_execution_id, agent_workflow_step, memory,
                                 model_api_key, organisation, session):
         logger.info("Executing Workflow step : ", agent_workflow_step.action_type)
+        #TODO Can be romoved by using polymorphism
         if agent_workflow_step.action_type == AgentWorkflowStepAction.TOOL.value:
+            print("______________________________STEP : TOOL")
             tool_step_handler = AgentToolStepHandler(session,
                                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,
                                                                    organisation_id=organisation.id)
@@ -121,9 +124,24 @@ class AgentExecutor:
             print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
             iteration_step_handler.execute_step()
         elif agent_workflow_step.action_type == AgentWorkflowStepAction.WAIT_STEP.value:
+            print("______________________________STEP : WAIT")
             (AgentWaitStepHandler(session=session, agent_id=agent.id,
                                   agent_execution_id=agent_execution_id)
              .execute_step())
+        elif agent_workflow_step.action_type == AgentWorkflowStepAction.CONDITION.value:
+            print("______________________________STEP : CONDITION")
+            AgentConditionStepHandler(session=session, agent_id=agent.id,
+                                      agent_execution_id=agent_execution_id,
+                                      llm=get_model(model=agent_config["model"],
+                                                    api_key=model_api_key,
+                                                    organisation_id=organisation.id)).execute_step()
+
+    #     TODO: Add Code for CONDITION step in workflow
+    #     TODO: Add Code for LOOP step as a separate workflow step
+    #     TODO: Add Code for WAIT_FOR_PERMISSION step as a separate workflow step
+    #     TODO: Handle this switch case in a better way using runtime polymorphism on execute following step interface
+    #     TODO: Think and handle validation of workflow steps in a better way using pydantic if possible else using interface method
+    #     TODO: interface step can have execute,validate method
 
     @classmethod
     def get_embedding(cls, model_source, model_api_key):

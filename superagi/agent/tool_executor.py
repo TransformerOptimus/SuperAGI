@@ -1,6 +1,6 @@
 from pydantic import ValidationError
 
-from superagi.agent.common_types import ToolExecutorResponse
+from superagi.agent.types.common_types import ToolExecutorResponse
 from superagi.apm.event_handler import EventHandler
 from superagi.lib.logger import logger
 
@@ -28,7 +28,9 @@ class ToolExecutor:
         if tool_name == ToolExecutor.FINISH or tool_name == "":
             logger.info("\nTask Finished :) \n")
             return ToolExecutorResponse(status="COMPLETE", result="")
+        print("All tools, ", tools.keys())
         if tool_name in tools.keys():
+            print("Tool name : " , tool_name)
             status = "SUCCESS"
             tool = tools[tool_name]
             retry = False

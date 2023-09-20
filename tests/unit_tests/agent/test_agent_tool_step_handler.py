@@ -4,7 +4,7 @@ from unittest.mock import Mock, create_autospec, patch
 import pytest
 
 from superagi.agent.agent_tool_step_handler import AgentToolStepHandler
-from superagi.agent.common_types import ToolExecutorResponse
+from superagi.agent.types.common_types import ToolExecutorResponse
 from superagi.agent.output_handler import ToolOutputHandler
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.helper.token_counter import TokenCounter

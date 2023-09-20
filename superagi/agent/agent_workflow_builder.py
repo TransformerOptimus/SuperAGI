@@ -209,15 +209,17 @@ class AgentWorkflowBuilder:
     def build_step(self, step):
         """Build agent workflow step."""
         # TODO: Add support for iteration workflow step, conditional workflow step
+
+        agent_workflow_step = None
         if step["type"] == "TOOL":
-            return AgentWorkflowStep.find_or_create_tool_workflow_step(session=self.session,
+            agent_workflow_step = AgentWorkflowStep.find_or_create_tool_workflow_step(session=self.session,
                                                                        agent_workflow_id=self.agent_workflow.id,
                                                                        unique_id=str(self.agent_workflow.id) + "_" +
                                                                                  step["name"],
                                                                        tool_name=step["tool"],
                                                                        input_instruction=step["instruction"])
         elif step["type"] == "LOOP":
-            return AgentWorkflowStep.find_or_create_tool_workflow_step(session=self.session,
+            agent_workflow_step = AgentWorkflowStep.find_or_create_tool_workflow_step(session=self.session,
                                                                        agent_workflow_id=self.agent_workflow.id,
                                                                        unique_id=str(self.agent_workflow.id) + "_" +
                                                                                  step["name"],
@@ -225,19 +227,32 @@ class AgentWorkflowBuilder:
                                                                        input_instruction="Break the above response array of items",
                                                                        completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
         elif step["type"] == "WAIT_FOR_PERMISSION":
-            return AgentWorkflowStep.find_or_create_tool_workflow_step(session=self.session,
+            agent_workflow_step = AgentWorkflowStep.find_or_create_tool_workflow_step(session=self.session,
                                                                        agent_workflow_id=self.agent_workflow.id,
                                                                        unique_id=str(self.agent_workflow.id) + "_" +
                                                                                  step["name"],
                                                                        tool_name="WAIT_FOR_PERMISSION",
                                                                        input_instruction=step["instruction"])
         elif step["type"] == "WAIT":
-            return AgentWorkflowStep.find_or_create_wait_workflow_step(session=self.session,
+            agent_workflow_step = AgentWorkflowStep.find_or_create_wait_workflow_step(session=self.session,
                                                                        agent_workflow_id=self.agent_workflow.id,
                                                                        unique_id=str(self.agent_workflow.id) + "_" +
                                                                                  step["name"],
                                                                        delay=step["duration"],
                                                                        wait_description=step["instruction"])
+        elif step["type"] == "CONDITION":
+            agent_workflow_step = AgentWorkflowStep.find_or_create_condition_workflow_step(session=self.session,
+                                                                        agent_workflow_id=self.agent_workflow.id,
+                                                                        unique_id=str(self.agent_workflow.id) + "_" +
+                                                                                    step["name"],
+                                                                        instruction=step["instruction"])
+
+
+
+        if agent_workflow_step["trigger_step"] is True:
+            agent_workflow_step.step_type = "TRIGGER"
+
+        return agent_workflow_step
 
 
 # def parse_workflow_yaml(workflow_yaml):
@@ -334,8 +349,8 @@ if __name__ == "__main__":
     Session = sessionmaker(bind=engine)
     session = Session()
     print("Session : ", session)
-    agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Test-Yaml-Workflow",
-                                                          "Testing Yaml to workflow")
+    agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Test-Yaml-Workflow-Sales",
+                                                          "Testing Sales Yaml to workflow")
     print("Agent Workflow here: ", agent_workflow)
     AgentWorkflowBuilder(session, agent_workflow).build_workflow_from_yaml(test_yaml["steps"])
     # session.close()

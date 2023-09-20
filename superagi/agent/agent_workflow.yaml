@@ -73,69 +73,69 @@
 #            if next is not provided it will be considered as terminal step and workflow will terminate once wait is completed
 # wait for permission step: if it is a wait for permission step it must have next, output can be only YES and NO as action console just support them
 
-#Sales Engagement Workflow
-steps:
-  - name: "step1" # can be any name not necessarily step1 but first will be considered as TRIGGER internally
-    trigger_step: true # For triggering the workflow
-    type: "TOOL" # TOOL BLOCK
-    tool: "List File" # Will be available as completion or drop down in frontend for all tool types
-    instruction: "list the files"
-    next: "step2" # For linking to next flow step
+##Sales Engagement Workflow
+#steps:
+#  - name: "step1" # can be any name not necessarily step1 but first will be considered as TRIGGER internally
+#    trigger_step: true # For triggering the workflow
+#    type: "TOOL" # TOOL BLOCK
+#    tool: "List File" # Will be available as completion or drop down in frontend for all tool types
+#    instruction: "list the files"
+#    next: "step2" # For linking to next flow step
+#
+#  - name: "step2"
+#    type: "TOOL" # TOOL BLOCK
+#    tool: "Read File"
+#    instruction: "Read the leads from the file"
+#    next: "step3"
+#
+#  - name: "step3"
+#    type: "LOOP" # LOOP BLOCK
+#    next: # For conditional branching
+#      next_step: "step4"
+#      exit_step: "step10"
+#
+#  - name: "step4"
+#    type: "TOOL" # TOOL BLOCK
+#    tool: "SearxSearch"
+#    instruction: "Search about the company in which the lead is working"
+#    next: "step5"
+#
+#  - name: "step5"
+#    type: "WAIT_FOR_PERMISSION"
+#    instruction: "Email will be based on this content. Do you want send the email"
+#    next:
+#      - output: "NO"
+#        step: "step4"
+#      - output: "YES"
+#        step: "step6"
+#
+#  - name: "step6"
+#    type: "TOOL"
+#    tool: "SearxSearch"
+#    instruction: "Search about the company given in the high-end goal only"
+#    next: "step7"
+#
+#  - name: "step7"
+#    type: "TOOL"
+#    tool: "Send Email"
+#    instruction: "Customize the Email according to the company information in the mail"
+#    next: "step8"
+#
+#  - name: "step8"
+#    type: "WAIT" # WAIT BLOCK
+#    duration: 120 # In seconds
+#    instruction: "Wait for 2 minutes"
+#    next: "step9"
+#
+#  - name: "step9"
+#    type: "TOOL"
+#    tool: "Read Email"
+#    instruction: "Read the email from adarshdeepmurari@gmail.com"
+#    next: "step3"
+#
+#  - name: "step10"
+#    type: "TOOL"
+#    tool: "Write File"
+#    instruction: "Write a summary about the work done so far in a file named workflow_summary.txt"
 
-  - name: "step2"
-    type: "TOOL" # TOOL BLOCK
-    tool: "Read File"
-    instruction: "Read the leads from the file"
-    next: "step3"
-
-  - name: "step3"
-    type: "LOOP" # LOOP BLOCK
-    next: # For conditional branching
-      next_step: "step4"
-      exit_step: "step10"
-
-  - name: "step4"
-    type: "TOOL" # TOOL BLOCK
-    tool: "SearxSearch"
-    instruction: "Search about the company in which the lead is working"
-    next: "step5"
-
-  - name: "step5"
-    type: "WAIT_FOR_PERMISSION"
-    instruction: "Email will be based on this content. Do you want send the email"
-    next:
-      - output: "NO"
-        step: "step4"
-      - output: "YES"
-        step: "step6"
-
-  - name: "step6"
-    type: "TOOL"
-    tool: "SearxSearch"
-    instruction: "Search about the company given in the high-end goal only"
-    next: "step7"
-
-  - name: "step7"
-    type: "TOOL"
-    tool: "Send Email"
-    instruction: "Customize the Email according to the company information in the mail"
-    next: "step8"
-
-  - name: "step8"
-    type: "WAIT" # WAIT BLOCK
-    duration: 120 # In seconds
-    instruction: "Wait for 2 minutes"
-    next: "step9"
-
-  - name: "step9"
-    type: "TOOL"
-    tool: "Read Email"
-    instruction: "Read the email from adarshdeepmurari@gmail.com"
-    next: "step3"
-
-  - name: "step10"
-    type: "TOOL"
-    tool: "Write File"
-    instruction: "Write a summary about the work done so far in a file named workflow_summary.txt"
-
-
+#Recruitment Workflow

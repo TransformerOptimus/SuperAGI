@@ -7,6 +7,8 @@ from superagi.agent.output_handler import ToolOutputHandler
 from superagi.agent.output_parser import AgentSchemaToolOutputParser
 from superagi.agent.queue_step_handler import QueueStepHandler
 from superagi.agent.tool_builder import ToolBuilder
+from superagi.agent.types.agent_workflow_step_action_types import AgentWorkflowStepAction
+from superagi.agent.workflow.steps.condition_step import AgentConditionStepHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
@@ -19,13 +21,16 @@ from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.models.tool import Tool
 from superagi.models.toolkit import Toolkit
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
+from superagi.models.workflows.agent_workflow_step_condition import AgentWorkflowStepCondition
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.base_tool import BaseTool
 from sqlalchemy import and_
 
+
 class AgentToolStepHandler:
     """Handles the tools steps in the agent workflow"""
+
     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
         self.session = session
         self.llm = llm
@@ -45,27 +50,31 @@ class AgentToolStepHandler:
 
         if not self._handle_wait_for_permission(execution, workflow_step):
             return
-
+        # TODO : Handle task queue as LOOP step
         if step_tool.tool_name == "TASK_QUEUE":
-            step_response = QueueStepHandler(self.session, self.llm, self.agent_id, self.agent_execution_id).execute_step()
+            print("______________LOOP STEP____________________")
+            step_response = QueueStepHandler(self.session, self.llm, self.agent_id,
+                                             self.agent_execution_id).execute_step()
             next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
             self._handle_next_step(next_step)
             return
-
+        # TODO : Handle WAIT_FOR_PERMISSION as an independent step
         if step_tool.tool_name == "WAIT_FOR_PERMISSION":
+            print("________________WAIT FOR PERMISSION_____________")
             self._create_permission_request(execution, step_tool)
             return
         print("____________AGENT_TOOL_STEP_HANDLER_____________")
         print(step_tool.tool_name)
         print(workflow_step)
         assistant_reply = self._process_input_instruction(agent_config, agent_execution_config, step_tool,
-                                                       workflow_step)
+                                                          workflow_step)
         print("_____________ASSISTANT_REPLY_____________")
         print(assistant_reply)
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
         print("_____________TOOL_OBJ_____________")
         print(tool_obj)
-        tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, [tool_obj],self.memory,
+        # INFO: Tool output handler is get the verdict or result from the tool
+        tool_output_handler = ToolOutputHandler(self.agent_execution_id, agent_config, [tool_obj], self.memory,
                                                 output_parser=AgentSchemaToolOutputParser())
         print("_____________TOOL_OUTPUT_HANDLER_____________")
         print(tool_output_handler)
@@ -73,10 +82,18 @@ class AgentToolStepHandler:
         print("_____________FINAL_RESPONSE_____________")
         print(final_response)
         step_response = "default"
+        # TODO: Here output instruction is processed which needs to be handled as CONDITION step
+        # Following is kept as a backward support for the old workflows
         if step_tool.output_instruction:
             step_response = self._process_output_instruction(final_response.result, step_tool, workflow_step)
 
-        next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, step_response)
+        next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id,
+                                                      step_response)
+        print("TOOL HANDLER - Next Step : ",next_step)
+        if next_step is not "COMPLETE":
+            (AgentConditionStepHandler(self.session, self.agent_id, self.agent_execution_id, self.llm)
+             .update_tool_output(tool_output=final_response.result, next_step=next_step,tool_name=step_tool.tool_name))
+        print("Calling handler ___________")
         self._handle_next_step(next_step)
         self.session.flush()
 
@@ -96,6 +113,8 @@ class AgentToolStepHandler:
         self.session.commit()
 
     def _handle_next_step(self, next_step):
+        print("_____________HANDLE_NEXT_STEP_____________")
+        print("next_step : ", next_step)
         if str(next_step) == "COMPLETE":
             agent_execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
             agent_execution.current_agent_step_id = -1
@@ -112,12 +131,15 @@ class AgentToolStepHandler:
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
         logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
+        messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id,
+                                          self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
         # print(messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+        response = self.llm.chat_completion(messages, TokenCounter(session=self.session,
+                                                                   organisation_id=self.organisation.id).token_limit(
+            self.llm.get_model()) - current_tokens)
         # ModelsHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],response['response'].usage.total_tokens,json.loads(response['content'])['tool']['name'],agent_config['model'])
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
@@ -127,10 +149,11 @@ class AgentToolStepHandler:
         return assistant_reply
 
     def _build_tool_obj(self, agent_config, agent_execution_config, tool_name: str):
-        model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])['api_key']
-        print("model_api_key : ",model_api_key)
+        model_api_key = AgentConfiguration.get_model_api_key(self.session, self.agent_id, agent_config["model"])[
+            'api_key']
+        print("model_api_key : ", model_api_key)
         tool_builder = ToolBuilder(self.session, self.agent_id, self.agent_execution_id)
-        print("tool builder : ",tool_builder)
+        print("tool builder : ", tool_builder)
         resource_summary = ""
         if tool_name == "QueryResourceTool":
             resource_summary = ResourceSummarizer(session=self.session,
@@ -139,18 +162,20 @@ class AgentToolStepHandler:
                 default_summary=agent_config.get("resource_summary"))
 
         organisation = Agent.find_org_by_agent_id(self.session, self.agent_id)
-        print("organisation : ",organisation)
-        print("tool_name : ",tool_name)
-        print("Toolkit : ",Toolkit.id)
-        tool = self.session.query(Tool).join(Toolkit, and_(Tool.toolkit_id == Toolkit.id, Toolkit.organisation_id == organisation.id, Tool.name == tool_name)).first()
+        print("organisation : ", organisation)
+        print("tool_name : ", tool_name)
+        print("Toolkit : ", Toolkit.id)
+        tool = self.session.query(Tool).join(Toolkit, and_(Tool.toolkit_id == Toolkit.id,
+                                                           Toolkit.organisation_id == organisation.id,
+                                                           Tool.name == tool_name)).first()
         # tool = self.session.query(Tool).filter( Toolkit.organisation_id == organisation.id, Tool.name == tool_name).first()
 
-        print("Tool : ",tool)
+        print("Tool : ", tool)
         tool_obj = tool_builder.build_tool(tool)
-        print("Tool Obj1 : ",tool_obj)
+        print("Tool Obj1 : ", tool_obj)
         tool_obj = tool_builder.set_default_params_tool(tool_obj, agent_config, agent_execution_config, model_api_key,
-                                                        resource_summary,self.memory)
-        print("Tool Obj2 : ",tool_obj)
+                                                        resource_summary, self.memory)
+        print("Tool Obj2 : ", tool_obj)
         return tool_obj
 
     def _process_output_instruction(self, final_response: str, step_tool: AgentWorkflowStepTool,
@@ -159,7 +184,9 @@ class AgentToolStepHandler:
         messages = [{"role": "system", "content": prompt}]
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages,
-                                            TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+                                            TokenCounter(session=self.session,
+                                                         organisation_id=self.organisation.id).token_limit(
+                                                self.llm.get_model()) - current_tokens)
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"ToolWorkflowStepHandler: Failed to get output response from llm")
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
@@ -218,7 +245,6 @@ class AgentToolStepHandler:
         else:
             next_step = AgentWorkflowStep.fetch_next_step(self.session, workflow_step.id, "NO")
             result = f"{' User has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
-
 
             agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                       agent_id=agent_execution_permission.agent_id,

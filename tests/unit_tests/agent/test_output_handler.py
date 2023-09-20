@@ -1,15 +1,9 @@
-import pytest
 from unittest.mock import Mock, patch, MagicMock
 
-from superagi.agent.common_types import ToolExecutorResponse
-from superagi.agent.output_handler import ToolOutputHandler, TaskOutputHandler, ReplaceTaskOutputHandler
+from superagi.agent.output_handler import TaskOutputHandler, ReplaceTaskOutputHandler
 from superagi.agent.output_parser import AgentSchemaOutputParser, AgentGPTAction
 from superagi.agent.task_queue import TaskQueue
-from superagi.agent.tool_executor import ToolExecutor
 from superagi.helper.json_cleaner import JsonCleaner
-from superagi.models.agent import Agent
-from superagi.models.agent_execution_permission import AgentExecutionPermission
-import numpy as np
 from superagi.agent.output_handler import ToolOutputHandler
 
 

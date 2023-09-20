@@ -3,8 +3,10 @@ import json
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 
+from superagi.agent.types.agent_workflow_step_action_types import AgentWorkflowStepAction
 from superagi.lib.logger import logger
 from superagi.models.base_model import DBBaseModel
+from superagi.models.workflows.agent_workflow_step_condition import AgentWorkflowStepCondition
 from superagi.models.workflows.agent_workflow_step_tool import AgentWorkflowStepTool
 from superagi.models.workflows.agent_workflow_step_wait import AgentWorkflowStepWait
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
@@ -111,7 +113,15 @@ class AgentWorkflowStep(DBBaseModel):
     def find_or_create_tool_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
                                           tool_name: str, input_instruction: str,
                                           output_instruction: str = "", step_type="NORMAL",
-                                          history_enabled: bool = True, completion_prompt: str = None):
+                                          history_enabled: bool = True, completion_prompt: str = "Respond with only "
+                                                                                                 "valid JSON "
+                                                                                                 "conforming to the "
+                                                                                                 "given json schema. "
+                                                                                                 "Response should "
+                                                                                                 "contain tool name "
+                                                                                                 "and tool arguments "
+                                                                                                 "to achieve the "
+                                                                                                 "given instruction."):
         """ Find or create a tool workflow step
 
         Args:
@@ -130,8 +140,8 @@ class AgentWorkflowStep(DBBaseModel):
         """
         workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.agent_workflow_id == agent_workflow_id, AgentWorkflowStep.unique_id == unique_id).first()
-        if completion_prompt is None:
-            completion_prompt = f"Respond with only valid JSON conforming to the given json schema. Response should contain tool name and tool arguments to achieve the given instruction."
+        # if completion_prompt is None:
+        #     completion_prompt = f"Respond with only valid JSON conforming to the given json schema. Response should contain tool name and tool arguments to achieve the given instruction."
         step_tool = AgentWorkflowStepTool.find_or_create_tool(session, unique_id, tool_name,
                                                               input_instruction, output_instruction,
                                                               history_enabled, completion_prompt)
@@ -144,7 +154,7 @@ class AgentWorkflowStep(DBBaseModel):
         workflow_step.step_type = step_type
         workflow_step.agent_workflow_id = agent_workflow_id
         workflow_step.action_reference_id = step_tool.id
-        workflow_step.action_type = "TOOL"
+        workflow_step.action_type = AgentWorkflowStepAction.TOOL.value
         workflow_step.next_steps = [] if workflow_step.next_steps is None else workflow_step.next_steps
         workflow_step.completion_prompt = completion_prompt
         session.commit()
@@ -168,10 +178,45 @@ class AgentWorkflowStep(DBBaseModel):
         workflow_step.step_type = step_type
         workflow_step.agent_workflow_id = agent_workflow_id
         workflow_step.action_reference_id = step_wait.id
-        workflow_step.action_type = "WAIT_STEP"
+        workflow_step.action_type = AgentWorkflowStepAction.WAIT_STEP.value
         workflow_step.next_steps = []
         session.commit()
         return workflow_step
+
+    @classmethod
+    def find_or_create_condition_workflow_step(cls,session,agent_workflow_id: int, unique_id: str,
+                                               instruction: str, step_type="NORMAL"):
+        """ Find or create a condition workflow step
+
+        Args:
+            session: db session
+            agent_workflow_id: id of the agent workflow
+            unique_id: unique id of the step
+            instruction: instruction of the condition
+            step_type: type of the step
+
+        Returns:
+            AgentWorkflowStep.
+        """
+        # if
+        workflow_step = session.query(AgentWorkflowStep).filter(
+            AgentWorkflowStep.agent_workflow_id == agent_workflow_id, AgentWorkflowStep.unique_id == unique_id).first()
+        print("___________workflow_step", workflow_step)
+        step_condition = AgentWorkflowStepCondition.find_or_create(session, unique_id, instruction)
+        print("___________step_condition", step_condition)
+        if workflow_step is None:
+            workflow_step = AgentWorkflowStep(unique_id=unique_id, step_type=step_type,
+                                              agent_workflow_id=agent_workflow_id)
+            session.add(workflow_step)
+            session.commit()
+        workflow_step.step_type = step_type
+        workflow_step.agent_workflow_id = agent_workflow_id
+        workflow_step.action_reference_id = step_condition.id
+        workflow_step.action_type = AgentWorkflowStepAction.CONDITION.value
+        workflow_step.next_steps = [] if workflow_step.next_steps is None else workflow_step.next_steps
+        session.commit()
+        return workflow_step
+
 
     @classmethod
     def find_or_create_iteration_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
@@ -259,9 +304,11 @@ class AgentWorkflowStep(DBBaseModel):
             step_response: response of the current step
         """
         current_step = AgentWorkflowStep.find_by_id(session, current_agent_step_id)
+        print("CURRENT STEP : _____________", current_step)
         next_steps = current_step.next_steps
+        print("Next Steps : _____________", next_steps)
         matching_steps = [step for step in next_steps if str(step["step_response"]).lower() == step_response.lower()]
-
+        print("Matching Steps : ________________", matching_steps)
         if matching_steps:
             if str(matching_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"
@@ -269,9 +316,10 @@ class AgentWorkflowStep(DBBaseModel):
 
         logger.info(f"Could not find next step for step_id: {current_agent_step_id} and step_response: {step_response}")
         default_steps = [step for step in next_steps if str(step["step_response"]).lower() == "default"]
-
+        print("default_steps : ________________", default_steps)
         if default_steps:
             if str(default_steps[0]["step_id"]) == "-1":
                 return "COMPLETE"
             return AgentWorkflowStep.find_by_unique_id(session, default_steps[0]["step_id"])
         return None
+
