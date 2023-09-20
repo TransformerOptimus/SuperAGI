@@ -18,12 +18,12 @@ class OobaBooga(BaseLlm):
         model: str | None = None,
         url: str = get_config("OOBA_URL"),
         api_key: str | None = None,
-        temperature: float = 0.6,
+        temperature: float = 0.05,
         max_tokens: int = DEFAULT_MAX_MODEL_TOKEN_LIMIT,
-        top_p: float = 0.9,
-        top_k: int = 20,
+        top_p: float = 0.5,
+        top_k: int = 4,
         typical_p: int = 1,
-        repitition_penalty: float = 1.1,
+        repetition_penalty: float = 1.0,
         do_sample: bool = True,
         instruct: bool = True,
     ):
@@ -35,7 +35,7 @@ class OobaBooga(BaseLlm):
         self.top_p = top_p
         self.top_k = top_k
         self.typical_p = typical_p
-        self.repitition_penalty = repitition_penalty
+        self.repetition_penalty = repetition_penalty
         self.do_sample = do_sample
         self.instruct = instruct
 
@@ -83,10 +83,11 @@ class OobaBooga(BaseLlm):
         prompt = LlamaInstructPrompt(prompt=user_prompt, system_prompt=system_prompt)
         parameters = Parameters(
             guidance_scale=1.4,
-            temperature=0.05,
-            repetition_penalty=1.02,
+            temperature=self.temperature,
+            repetition_penalty=self.repetition_penalty,
             max_new_tokens=max_tokens,
-            top_k=4,
+            top_k=self.top_k,
+            top_p=self.top_p,
         )
         chat_response = client.instruct(
             prompt,
