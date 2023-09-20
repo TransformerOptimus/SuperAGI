@@ -92,7 +92,7 @@ class AgentExecutor:
                     print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
                     iteration_step_handler.execute_step()
             except Exception as e:
-                logger.info("Exception in executing the step: {}".format(e))
+                logger.exception("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
 
