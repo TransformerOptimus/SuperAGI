@@ -33,6 +33,9 @@ import AddTool from "@/pages/Content/Toolkits/AddTool";
 import {createInternalId, resetLocalStorage, preventDefault, getUserClick} from "@/utils/utils";
 import AddDatabase from "@/pages/Dashboard/Settings/AddDatabase";
 import DatabaseDetails from "@/pages/Dashboard/Settings/DatabaseDetails";
+import AgentWorkflows from "@/pages/Content/AgentWorkflow/AgentWorkflows";
+import MarketAgent from "@/pages/Content/Marketplace/MarketAgent";
+import AgentWorkflowWorkspace from "@/pages/Content/AgentWorkflow/AgentWorkflowWorkspace";
 
 export default function Content({env, selectedView, selectedProjectId, organisationId}) {
   const [tabs, setTabs] = useState([]);
@@ -40,6 +43,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [agents, setAgents] = useState(null);
   const [toolkits, setToolkits] = useState(null);
   const [knowledge, setKnowledge] = useState(null);
+  const [workflows, setWorkflows] = useState(null);
   const tabContainerRef = useRef(null);
   const [toolkitDetails, setToolkitDetails] = useState({});
   const [models, setModels] = useState([]);
@@ -330,12 +334,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
   return (<>
       <div style={{display: 'flex', height: '100%'}}>
-        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') &&
+        {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models' || selectedView === 'workflows') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
             {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
             {selectedView === 'models' && <div><Models sendModelData={addTab} models={models} /></div>}
+            {selectedView === 'workflows' && <div><AgentWorkflows sendWorkflowData={addTab} workflows={workflows} /></div>}
           </div>}
 
         {tabs.length <= 0 ? <div className={styles.main_workspace} style={selectedView === '' ? {
@@ -416,6 +421,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                     {tab.contentType === 'APM' &&
                       <div className={styles.tab_active}><Image width={13} height={13} src="/images/apm.svg"
                                                                 alt="apm-icon"/></div>}
+                    {tab.contentType === 'Agent_Workflow' &&
+                        <div className={styles.tab_active}><Image width={13} height={13} src="/images/workflow_light.svg"
+                                                                  alt="workflow-icon"/></div>}
                     <div style={{marginLeft: '8px'}}><span className={styles.tab_text}>{tab.name}</span></div>
                   </div>
                   <div onClick={(e) => {
@@ -470,6 +478,8 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                      fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
                     {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
+                    {tab.contentType === 'Agent_Workflow' && <AgentWorkflowWorkspace />}
+
                   </div>}
                 </div>
               ))}

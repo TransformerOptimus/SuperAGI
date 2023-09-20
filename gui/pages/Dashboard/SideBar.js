@@ -8,6 +8,7 @@ export default function SideBar({onSelectEvent, env}) {
 
     const sections = [
         { name: 'agents', icon: '/images/agents_light.svg' },
+        { name: 'workflows', icon: '/images/workflow_light.svg' },
         { name: 'toolkits', icon: '/images/tools_light.svg' },
         { name: 'apm', icon: '/images/apm.svg' },
         { name: 'knowledge', icon: '/images/knowledge.svg' },
