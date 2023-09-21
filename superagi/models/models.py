@@ -65,7 +65,8 @@ class Models(DBBaseModel):
 
     @classmethod
     def get_model_install_details(cls, session, marketplace_models, organisation_id, type=ModelsTypes.CUSTOM.value):
-        from superagi.models.models_config import ModelsConfig
+        print("///////////////////////3")
+        print(marketplace_models)
         installed_models = session.query(Models).filter(Models.org_id == organisation_id).all()
         model_counts_dict = dict(
             session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all()
