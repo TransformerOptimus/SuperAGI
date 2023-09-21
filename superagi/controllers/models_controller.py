@@ -135,10 +135,21 @@ def get_marketplace_knowledge_list(page: int = 0):
         models = query.offset(page * page_size).limit(page_size).all()
 
     models_list = []
-    for model in models:
-        model_dict = model.__dict__
-        model_dict["provider"] = db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider
-        models_list.append(model_dict)
+    try:
+        print("///////////////////1")
+        print(models)
+        for model in models:
+            model_dict = model.__dict__
+            print(model_dict)
+            print("///////////////////2")
+            print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first())
+            print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider)
+            model_dict["provider"] = db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider
+            models_list.append(model_dict)
+    except Exception as e:
+        print(f"Exception at 'marketplace/list/page': {e}")
+
+    return models_list
 
 
 @router.get("/get/models_details", status_code=200)
