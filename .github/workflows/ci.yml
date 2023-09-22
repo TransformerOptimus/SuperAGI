@@ -31,8 +31,8 @@ jobs:
         python-version: "3.9"
 
     - name: Cache Python dependencies
-        uses: actions/cache@v2
-        with:
+      uses: actions/cache@v2
+      with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
@@ -85,8 +85,8 @@ jobs:
           python-version: "3.9"
 
       - name: Cache dependencies
-          uses: actions/cache@v2
-          with:
+        uses: actions/cache@v2
+        with:
             path: ~/.cache/pip
             key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
