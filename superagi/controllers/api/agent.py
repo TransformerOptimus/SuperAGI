@@ -80,7 +80,7 @@ def create_agent_with_config(agent_with_config: AgentConfigExtInput,
         return {
             "agent_id": db_agent.id
         }
-
+    
     start_step = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
     iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
                                                                 start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
@@ -155,19 +155,19 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
     if agent_execution_configs != {}:
         AgentExecutionConfiguration.add_or_update_agent_execution_config(session=db.session, execution=db_agent_execution,
                                                                      agent_execution_configs=agent_execution_configs)
-    EventHandler(session=db.session).create_event('run_created',
+    EventHandler(session=db.session).create_event('run_created', 
                                                   {'agent_execution_id': db_agent_execution.id,
                                                    'agent_execution_name':db_agent_execution.name
                                                    },
-                                                   agent_id,
+                                                   agent_id, 
                                                    organisation.id if organisation else 0)
-
+    
     agent_execution_knowledge = AgentConfiguration.get_agent_config_by_key_and_agent_id(session= db.session, key= 'knowledge', agent_id= agent_id)
     if agent_execution_knowledge and agent_execution_knowledge.value != 'None':
         knowledge_name = Knowledges.get_knowledge_from_id(db.session, int(agent_execution_knowledge.value)).name
         if knowledge_name is not None:
-            EventHandler(session=db.session).create_event('knowledge_picked',
-                                                        {'knowledge_name': knowledge_name,
+            EventHandler(session=db.session).create_event('knowledge_picked', 
+                                                        {'knowledge_name': knowledge_name, 
                                                          'agent_execution_id': db_agent_execution.id},
                                                         agent_id,
                                                         organisation.id if organisation else 0
@@ -182,26 +182,26 @@ def create_run(agent_id:int,agent_execution: AgentExecutionIn,api_key: str = Sec
 @router.put("/{agent_id}",status_code=200)
 def update_agent(agent_id: int, agent_with_config: AgentConfigUpdateExtInput,api_key: str = Security(validate_api_key),
                                         organisation:Organisation = Depends(get_organisation_from_api_key)):
-
+    
     db_agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not db_agent:
         raise HTTPException(status_code=404, detail="agent not found")
-
+    
     project=Project.find_by_id(db.session, db_agent.project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
-
+    
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
 
     # db_execution=AgentExecution.get_execution_by_agent_id_and_status(db.session, agent_id, "RUNNING")
     # if db_execution is not None:
     #     raise HTTPException(status_code=409, detail="Agent is already running,please pause and then update")
-
+     
     db_schedule=AgentSchedule.find_by_agent_id(db.session, agent_id)
     if db_schedule is not None:
         raise HTTPException(status_code=409, detail="Agent is already scheduled,cannot update")
-
+    
     try:
         tools_arr=Toolkit.get_tool_and_toolkit_arr(db.session,organisation.id,agent_with_config.tools)
     except Exception as e:
@@ -258,17 +258,17 @@ def get_agent_runs(agent_id:int,filter_config:RunFilterConfigIn,api_key: str = S
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    
     project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    
     db_execution_arr=[]
     if filter_config.run_status_filter is not None:
         filter_config.run_status_filter=filter_config.run_status_filter.upper()
 
     db_execution_arr=AgentExecution.get_all_executions_by_filter_config(db.session, agent.id, filter_config)
-
+    
     response_arr=[]
     for ind_execution in db_execution_arr:
         response_arr.append({"run_id":ind_execution.id, "status":ind_execution.status})
@@ -281,18 +281,18 @@ def pause_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCha
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    
     project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
-
-    #Checking if the run_ids whose output files are requested belong to the organisation
+    
+    #Checking if the run_ids whose output files are requested belong to the organisation 
     if execution_state_change_input.run_ids is not None:
         try:
             AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
         except Exception as e:
             raise HTTPException(status_code=404, detail="One or more run id(s) not found")
-
+    
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "RUNNING")
 
     if db_execution_arr is not None and execution_state_change_input.run_ids is not None \
@@ -312,17 +312,17 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
     agent= Agent.get_active_agent_by_id(db.session, agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    
     project=Project.find_by_id(db.session, agent.project_id)
     if project.organisation_id!=organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
-
+    
     if execution_state_change_input.run_ids is not None:
         try:
             AgentExecution.validate_run_ids(db.session,execution_state_change_input.run_ids,organisation.id)
         except Exception as e:
             raise HTTPException(status_code=404, detail="One or more run id(s) not found")
-
+    
     db_execution_arr=AgentExecution.get_all_executions_by_status_and_agent_id(db.session, agent.id, execution_state_change_input, "PAUSED")
 
     if db_execution_arr is not None and execution_state_change_input.run_ids is not None\
@@ -332,7 +332,7 @@ def resume_agent_runs(agent_id:int,execution_state_change_input:ExecutionStateCh
     for ind_execution in db_execution_arr:
         ind_execution.status="RUNNING"
         execute_agent.delay(ind_execution.id, datetime.now())
-
+        
     db.session.commit()
     db.session.flush()
 
@@ -345,15 +345,15 @@ def get_run_resources(run_id_config:RunIDConfig,api_key: str = Security(validate
     if get_config('STORAGE_TYPE') != "S3":
         raise HTTPException(status_code=400,detail="This endpoint only works when S3 is configured")
     run_ids_arr=run_id_config.run_ids
-    if len(run_ids_arr)==0:
+    if len(run_ids_arr)==0:  
         raise HTTPException(status_code=404,
                             detail=f"No execution_id found")
-    #Checking if the run_ids whose output files are requested belong to the organisation
+    #Checking if the run_ids whose output files are requested belong to the organisation 
     try:
         AgentExecution.validate_run_ids(db.session, run_ids_arr, organisation.id)
     except Exception as e:
         raise HTTPException(status_code=404, detail="One or more run id(s) not found")
-
+    
     db_resources_arr=Resource.find_by_run_ids(db.session, run_ids_arr)
 
     try:
