@@ -49,6 +49,7 @@ from superagi.llms.llm_model_factory import build_model_with_api_key
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
+from superagi.local_llms import install_local_llms
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
@@ -238,6 +239,9 @@ async def startup_event():
     # AgentWorkflowSeed.doc_search_and_code(session)
     # AgentWorkflowSeed.build_research_email_workflow(session)
     replace_old_iteration_workflows(session)
+    
+    if env == "DEV":
+        install_local_llms(session)
 
     if env != "PROD":
         register_toolkit_for_all_organisation()

@@ -122,3 +122,7 @@ ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 ## To use Qdrant for vector store
 #QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
 #QDRANT_PORT: YOUR_QDRANT_PORT
+
+# Ooba Booga Text Generation WebUI API
+OOBA_URL: "http://localhost:5000"
+OOBA_TRUNCATION_LENGTH: 4096

@@ -1,14 +1,17 @@
-from datetime import datetime
 import json
+import logging
+from datetime import datetime
+
 from sqlalchemy import asc
 from sqlalchemy.sql.operators import and_
-import logging
+
 import superagi
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
 from superagi.agent.output_handler import ToolOutputHandler, get_output_handler
 from superagi.agent.task_queue import TaskQueue
 from superagi.agent.tool_builder import ToolBuilder
+from superagi.apm.call_log_helper import CallLogHelper
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
 from superagi.helper.token_counter import TokenCounter
@@ -28,7 +31,6 @@ from superagi.models.workflows.iteration_workflow_step import IterationWorkflowS
 from superagi.resource_manager.resource_summary import ResourceSummarizer
 from superagi.tools.resource.query_resource import QueryResourceTool
 from superagi.tools.thinking.tools import ThinkingTool
-from superagi.apm.call_log_helper import CallLogHelper
 
 
 class AgentIterationStepHandler:
@@ -83,6 +85,7 @@ class AgentIterationStepHandler:
             tool = content.get('tool', {})
             tool_name = tool.get('name', '') if tool else ''
         except Exception as e:
+            logger.error(f"Could not decode: {response['content']}")
             logger.error(f"Decoding JSON has failed {e}")
             tool_name = ''
 

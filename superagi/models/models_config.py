@@ -1,12 +1,15 @@
+import logging
+
+from fastapi import HTTPException
 from sqlalchemy import Column, Integer, String, and_, distinct
+
+from superagi.helper.encyption_helper import decrypt_data, encrypt_data
+from superagi.llms.openai import OpenAi
 from superagi.models.base_model import DBBaseModel
+from superagi.models.models import Models
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
-from superagi.models.models import Models
-from superagi.llms.openai import OpenAi
-from superagi.helper.encyption_helper import encrypt_data, decrypt_data
-from fastapi import HTTPException
-import logging
+
 
 class ModelsConfig(DBBaseModel):
     """
@@ -69,7 +72,11 @@ class ModelsConfig(DBBaseModel):
         if not config:
             return None
 
-        return {"provider": config.provider, "api_key": decrypt_data(config.api_key)} if config else None
+        if config.api_key:
+            api_key = decrypt_data(config.api_key)
+        else:
+            api_key = ""
+        return {"provider": config.provider, "api_key": api_key} if config else None
 
     @classmethod
     def store_api_key(cls, session, organisation_id, model_provider, model_api_key):
