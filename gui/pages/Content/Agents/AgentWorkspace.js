@@ -171,7 +171,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         fetchAgentDetails(agentId, selectedRun?.id);
         EventBus.emit('reFetchAgents', {});
         toast.success("New run created", {autoClose: 1800});
-        getUserClick('Agent New Run Created Successfully',{})
+        getUserClick('Agent New Run Created Successfully',{'IsReRun' : true})
       })
       .catch((error) => {
         console.error('Error creating execution:', error);
