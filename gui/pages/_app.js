@@ -16,15 +16,17 @@ import {
   addUser,
   installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate, getFirstSignup
 } from "@/pages/api/DashboardService";
-import {githubClientId} from "@/pages/api/apiConfig";
+import {githubClientId, mixpanelId} from "@/pages/api/apiConfig";
 import {
   getGithubClientId
 } from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
+import mixpanel from 'mixpanel-browser';
+
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -110,6 +112,8 @@ export default function App() {
         setEnv(env);
 
         if (typeof window !== 'undefined') {
+          if(response.data.env === 'PROD' && mixpanelId())
+            mixpanel.init(mixpanelId(), { debug: false, track_pageview: true, persistence: 'localStorage' });
           localStorage.setItem('applicationEnvironment', env);
         }
 
@@ -118,6 +122,7 @@ export default function App() {
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
+          let first_login = parsedParams.first_time_login || false
 
           const utmParams = getUTMParametersFromURL();
           if (utmParams)
@@ -131,6 +136,13 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
+              if(mixpanelId())
+                mixpanel.identify(response.data.email)
+              if(first_login)
+                getUserClick('New Sign Up', {})
+              else
+                getUserClick('User Logged In', {})
+
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }

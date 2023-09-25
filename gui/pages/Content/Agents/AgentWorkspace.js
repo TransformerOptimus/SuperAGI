@@ -9,7 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
-import {createInternalId, preventDefault} from "@/utils/utils";
+import {createInternalId, getUserClick, preventDefault} from "@/utils/utils";
 import {
   getAgentDetails,
   getAgentExecutions,
@@ -171,6 +171,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         fetchAgentDetails(agentId, selectedRun?.id);
         EventBus.emit('reFetchAgents', {});
         toast.success("New run created", {autoClose: 1800});
+        getUserClick('Agent New Run Created Successfully',{'IsReRun' : true})
       })
       .catch((error) => {
         console.error('Error creating execution:', error);
