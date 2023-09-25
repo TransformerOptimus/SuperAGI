@@ -54,7 +54,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const apmTab = tabs.find(tab => tab.contentType === 'APM');
       setIsApmOpened(!!apmTab);
       setPrevView(selectedView);
-      getUserClick('APM Closed',{})
     }
   }, [selectedView, tabs, prevView]);
 
@@ -168,6 +167,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
       updatedTabs.splice(index, 1);
     }
+
+    if(contentType === "APM")
+      getUserClick('APM Closed',{})
 
     resetLocalStorage(contentType, internalId);
     setTabs(updatedTabs);
