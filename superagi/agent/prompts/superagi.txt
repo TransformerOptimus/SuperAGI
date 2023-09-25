@@ -13,6 +13,9 @@ CONSTRAINTS:
 TOOLS:
 {tools}
 
+FINETUNED RESPONSE:
+{ft_response}
+
 PERFORMANCE EVALUATION:
 1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
 2. Use instruction to decide the flow of execution and decide the next steps for achieving the task.

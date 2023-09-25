@@ -5,23 +5,41 @@ from pydantic.types import List
 
 from superagi.helper.token_counter import TokenCounter
 from superagi.tools.base_tool import BaseTool
+from sqlalchemy.orm import sessionmaker
+from superagi.models.db import connect_db
+from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_execution import AgentExecution
+from superagi.llms.llm_model_factory import get_model
+from superagi.models.agent import Agent
+from superagi.types.vector_store_types import VectorStoreType
+from superagi.llms.llm_model_factory import get_model
 
 FINISH_NAME = "finish"
 
-
+engine = connect_db()
+Session = sessionmaker(bind=engine)
 class AgentPromptBuilder:
-    """Agent prompt builder for LLM agent."""
+     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
+        self.session = session
+        self.llm = llm
+        self.agent_execution_id = agent_execution_id
+        self.agent_id = agent_id
+        self.memory = memory
+        self.organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
+         
+    
+     """Agent prompt builder for LLM agent."""
 
-    @staticmethod
-    def add_list_items_to_string(items: List[str]) -> str:
+     @staticmethod
+     def add_list_items_to_string(items: List[str]) -> str:
         list_string = ""
         for i, item in enumerate(items):
             list_string += f"{i + 1}. {item}\n"
         return list_string
 
 
-    @classmethod
-    def add_tools_to_prompt(cls, tools: List[BaseTool], add_finish: bool = True) -> str:
+     @classmethod
+     def add_tools_to_prompt(cls, tools: List[BaseTool], add_finish: bool = True) -> str:
         """Add tools to the prompt.
 
         Args:
@@ -50,20 +68,20 @@ class AgentPromptBuilder:
 
         return final_string
 
-    @classmethod
-    def _generate_tool_string(cls, tool: BaseTool) -> str:
+     @classmethod
+     def _generate_tool_string(cls, tool: BaseTool) -> str:
         output = f"\"{tool.name}\": {tool.description}"
         # print(tool.args)
         output += f", args json schema: {json.dumps(tool.args)}"
         return output
     
-    @classmethod
-    def clean_prompt(cls, prompt):
+     @classmethod
+     def clean_prompt(cls, prompt):
         prompt = re.sub('[ \t]+', ' ', prompt)
         return prompt.strip()
 
-    @classmethod
-    def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
+     @classmethod
+     def replace_main_variables(self, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
                                tools: List[BaseTool], add_finish_tool: bool = True):
         """Replace the main variables in the super agi prompt.
 
@@ -75,11 +93,34 @@ class AgentPromptBuilder:
             tools (List[BaseTool]): The list of tools.
             add_finish_tool (bool): Whether to add finish tool or not.
         """
+        global engine
+        
+        engine.dispose()
+        session = Session() 
+        agent_config = Agent.fetch_configuration(session, agent.id)
+        model_config = AgentConfiguration.get_model_api_key(session, self.agent_execution.agent_id,
+                                                                    agent_config["model"])
+        model_api_key = model_config['api_key']
+        agent = session.query(Agent).filter(Agent.id == self.agent_execution.agent_id).first()
+        
+        
+         
+        organisation = Agent.find_org_by_agent_id(session, agent_id=agent.id)
+        from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
+        finetune=TrajectoryFinetuning(session=session,
+                                     llm=get_model(model=agent_config["model"], api_key=model_api_key,organisation_id=organisation.id),
+                                     agent_execution_id=self.agent_execution_id,
+                                     organisation_id=organisation.id,
+                                     memory=self.memory
+                                     ).Trajectory_finetuning()
+        print("______________finetune varialbe:",finetune)
+
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
             task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
             super_agi_prompt = super_agi_prompt.replace("{instructions}", "INSTRUCTION: " + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
             super_agi_prompt = super_agi_prompt.replace("{task_instructions}", task_str + '\n' +  AgentPromptBuilder.add_list_items_to_string(instructions))
+            super_agi_prompt = super_agi_prompt.replace("{ft_response}", "INSTRUCTION: "  + '\n' +  AgentPromptBuilder.add_list_items_to_string(finetune))
         else:
             super_agi_prompt = super_agi_prompt.replace("{instructions}", '')
         super_agi_prompt = super_agi_prompt.replace("{task_instructions}", "")
@@ -90,10 +131,11 @@ class AgentPromptBuilder:
         # logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
+        print("_____________ the SUPERAGI prompt is:",super_agi_prompt)
         return super_agi_prompt
 
-    @classmethod
-    def replace_task_based_variables(cls, super_agi_prompt: str, current_task: str, last_task: str,
+     @classmethod
+     def replace_task_based_variables(cls, super_agi_prompt: str, current_task: str, last_task: str,
                                      last_task_result: str, pending_tasks: List[str], completed_tasks: list, token_limit: int):
         """Replace the task based variables in the super agi prompt.
 
