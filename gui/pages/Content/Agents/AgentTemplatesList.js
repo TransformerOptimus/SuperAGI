@@ -3,7 +3,7 @@ import Image from "next/image";
 import styles from '../Marketplace/Market.module.css';
 import {fetchAgentTemplateListLocal} from "@/pages/api/DashboardService";
 import AgentCreate from "@/pages/Content/Agents/AgentCreate";
-import {setLocalStorageValue, openNewTab} from "@/utils/utils";
+import {setLocalStorageValue, openNewTab, getUserClick} from "@/utils/utils";
 
 export default function AgentTemplatesList({
                                              sendAgentData,
@@ -41,15 +41,18 @@ export default function AgentTemplatesList({
   }, [internalId])
 
   function redirectToCreateAgent() {
+    getUserClick('Agent Creating From Scratch', {})
     setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
   }
 
   function openMarketplace() {
+    getUserClick('Going To Marketplace to see Agent Templates', {})
     openNewTab(-4, "Marketplace", "Marketplace", false);
     localStorage.setItem('marketplace_tab', 'market_agents');
   }
 
   function handleTemplateClick(item) {
+    getUserClick('Agent Creating Using Template', {'Template Name': item.name})
     setSendTemplate(item);
     setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
   }

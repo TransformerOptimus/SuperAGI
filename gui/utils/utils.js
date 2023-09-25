@@ -1,9 +1,10 @@
 import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
-import {baseUrl} from "@/pages/api/apiConfig";
+import {baseUrl, mixpanelId} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
+import mixpanel from 'mixpanel-browser'
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
@@ -501,3 +502,68 @@ export const formatDateTime = (dateTimeString) => {
 
   return formattedDate;
 };
+
+export const convertWaitingPeriod = (waitingPeriod) => {
+  let convertedValue = waitingPeriod;
+  let unit = 'seconds';
+
+  if (convertedValue >= 60 && convertedValue < 3600) {
+    convertedValue = Math.floor(convertedValue / 60);
+    unit = 'minutes';
+  } else if (convertedValue >= 3600 && convertedValue < 86400) {
+    convertedValue = Math.floor(convertedValue / 3600);
+    unit = 'hours';
+  } else if (convertedValue >= 86400 && convertedValue < 604800) {
+    convertedValue = Math.floor(convertedValue / 86400);
+    unit = 'days';
+  } else if (convertedValue >= 604800) {
+    convertedValue = Math.floor(convertedValue / 604800);
+    unit = 'weeks';
+  }
+
+  return convertedValue + ' ' + unit;
+}
+
+// export const updateDateBasedOnValue = (convertedValue, inputDate = new Date()) => {
+//   const [value, unit] = convertedValue.split(' ');
+//   const unitConversion = {
+//     'seconds': 1000,
+//     'minutes': 1000 * 60,
+//     'hours': 1000 * 60 * 60,
+//     'days': 1000 * 60 * 60 * 24,
+//     'weeks': 1000 * 60 * 60 * 24 * 7
+//   };
+//
+//   const updatedDate = new Date(inputDate.getTime() + parseInt(value, 10) * unitConversion[unit]);
+//
+//   return updatedDate.toLocaleString('en-US', {
+//     day: 'numeric',
+//     month: 'long',
+//     year: 'numeric',
+//     hour: 'numeric',
+//     minute: 'numeric'
+//   });
+// }
+
+export const getUTMParametersFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+
+  const utmParams = {
+    utm_source: params.get('utm_source') || '',
+    utm_medium: params.get('utm_medium') || '',
+    utm_campaign: params.get('utm_campaign') || '',
+  };
+
+  if (!utmParams.utm_source && !utmParams.utm_medium && !utmParams.utm_campaign) {
+    return null;
+  }
+
+  return utmParams;
+}
+
+export const getUserClick = (event, props) => {
+  const env = localStorage.getItem('applicationEnvironment');
+  if(env === 'PROD' && mixpanelId()){
+    mixpanel.track(event, props)
+  }
+}

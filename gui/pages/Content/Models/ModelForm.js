@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, openNewTab, createInternalId, modelGetAuth} from "@/utils/utils";
+import {removeTab, openNewTab, createInternalId, modelGetAuth, getUserClick} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
@@ -66,8 +66,10 @@ export default function ModelForm({internalId, getModels, sendModelData}){
             {
                 const modelProviderId = response.data[0].id
                 verifyEndPoint(response.data[0].api_key, modelEndpoint, selectedModel).then((response) =>{
-                    if(response.data.success)
+                    if(response.data.success) {
                         storeModelDetails(modelProviderId)
+                        getUserClick("Model Added Successfully",{'type': selectedModel})
+                    }
                     else {
                         toast.error("The Endpoint is not Valid",{autoClose: 1800});
                         setIsLoading(false);
@@ -134,7 +136,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                 <div className="vertical_containers">
                     <span className="text_12 color_white lh_16">The <b>{selectedModel}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{selectedModel}</b> dashboard. </span>
                     <div className="horizontal_container mt_16">
-                        <button className="primary_button_small" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Add auth token</button>
+                        <button className="primary_button_small" onClick={() => {openNewTab(-3, "Settings", "Settings", false); getUserClick('Get Auth Token CLicked',{})}}>Add auth token</button>
                         <button className="secondary_button_small ml_8"
                                 onClick={() => window.open(modelGetAuth(selectedModel), "_blank")}>Get auth token<Image src="/images/open_in_new.svg" alt="deploy_icon" width={12} height={12} className="ml_4" /></button>
                     </div>

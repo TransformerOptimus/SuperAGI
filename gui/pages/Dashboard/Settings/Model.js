@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {storeApiKey, fetchApiKeys, validateLLMApiKey, fetchApiKey} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {removeTab} from "@/utils/utils";
+import {getUserClick, removeTab} from "@/utils/utils";
 import Image from "next/image";
 
 export default function Model({organisationId}) {
@@ -40,7 +40,6 @@ export default function Model({organisationId}) {
       }
       validateLLMApiKey(model.source, model.api_key)
           .then((response) => {
-            console.log(response)
             if (response.data.status === "success") {
               storeKey(model.source, model.api_key)
             }
@@ -55,8 +54,10 @@ export default function Model({organisationId}) {
     if(model_provider === 'OpenAi')
       model_provider = 'OpenAI'
     storeApiKey(model_provider,api_key).then((response) => {
-      if(response.status === 200)
+      if(response.status === 200) {
+        getUserClick('API Key Updated', {'Model': model_provider})
         toast.success(`Successfully Stored the API Key of ${model_provider}`, {autoClose: 1800})
+      }
       else
         toast.error("Error", {autoClose: 1800})
     })
