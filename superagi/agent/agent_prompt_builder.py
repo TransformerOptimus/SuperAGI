@@ -19,13 +19,13 @@ FINISH_NAME = "finish"
 engine = connect_db()
 Session = sessionmaker(bind=engine)
 class AgentPromptBuilder:
-     def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
-        self.session = session
-        self.llm = llm
-        self.agent_execution_id = agent_execution_id
-        self.agent_id = agent_id
-        self.memory = memory
-        self.organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
+    #  def __init__(self, session, llm, agent_id: int, agent_execution_id: int, memory=None):
+    #     self.session = session
+    #     self.llm = llm
+    #     self.agent_execution_id = agent_execution_id
+    #     self.agent_id = agent_id
+    #     self.memory = memory
+    #     self.organisation = Agent.find_org_by_agent_id(self.session, agent_id=self.agent_id)
          
     
      """Agent prompt builder for LLM agent."""
@@ -81,8 +81,8 @@ class AgentPromptBuilder:
         return prompt.strip()
 
      @classmethod
-     def replace_main_variables(self, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
-                               tools: List[BaseTool], add_finish_tool: bool = True):
+     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],
+                               tools: List[BaseTool],session,organisation,agent_config,model_api_key,memory,agent_execution_id, add_finish_tool: bool = True):
         """Replace the main variables in the super agi prompt.
 
         Args:
@@ -93,25 +93,25 @@ class AgentPromptBuilder:
             tools (List[BaseTool]): The list of tools.
             add_finish_tool (bool): Whether to add finish tool or not.
         """
-        global engine
+        # global engine
         
-        engine.dispose()
-        session = Session() 
-        agent_config = Agent.fetch_configuration(session, agent.id)
-        model_config = AgentConfiguration.get_model_api_key(session, self.agent_execution.agent_id,
-                                                                    agent_config["model"])
-        model_api_key = model_config['api_key']
-        agent = session.query(Agent).filter(Agent.id == self.agent_execution.agent_id).first()
+        # engine.dispose()
+        # session = Session() 
+        # agent_config = Agent.fetch_configuration(session, agent.id)
+        # model_config = AgentConfiguration.get_model_api_key(session, self.agent_execution.agent_id,
+        #                                                             agent_config["model"])
+        # model_api_key = model_config['api_key']
+        # agent = session.query(Agent).filter(Agent.id == self.agent_execution.agent_id).first()
         
         
          
-        organisation = Agent.find_org_by_agent_id(session, agent_id=agent.id)
+        # organisation = Agent.find_org_by_agent_id(session, agent_id=agent.id)
         from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
         finetune=TrajectoryFinetuning(session=session,
                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,organisation_id=organisation.id),
-                                     agent_execution_id=self.agent_execution_id,
+                                     agent_execution_id=agent_execution_id,
                                      organisation_id=organisation.id,
-                                     memory=self.memory
+                                     memory=memory
                                      ).Trajectory_finetuning()
         print("______________finetune varialbe:",finetune)
 

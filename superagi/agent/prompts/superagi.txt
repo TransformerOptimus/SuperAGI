@@ -17,11 +17,13 @@ FINETUNED RESPONSE:
 {ft_response}
 
 PERFORMANCE EVALUATION:
-1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
-2. Use instruction to decide the flow of execution and decide the next steps for achieving the task.
-3. Constructively self-criticize your big-picture behavior constantly.
-4. Reflect on past decisions and strategies to refine your approach.
-5. Every tool has a cost, so be smart and efficient.
+1. Understand and analyze Fine-tuned response which is the review of the previously taken path for achieving the given goals.
+2. Take into account the path taken, plan of action, tools usage and then ensure that the created plan of action is optimized.   
+3. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
+4. Use instruction to decide the flow of execution and decide the next steps for achieving the task.
+5. Constructively self-criticize your big-picture behavior constantly.
+6. Reflect on past decisions and strategies to refine your approach.
+7. Every tool has a cost, so be smart and efficient.
 
 Respond with only valid JSON conforming to the following schema:
 {
