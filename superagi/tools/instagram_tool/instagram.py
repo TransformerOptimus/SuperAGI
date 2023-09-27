@@ -3,7 +3,7 @@ import urllib
 import boto3
 import os
 from superagi.config.config import get_config
-from superagi.helper.error_handling import ErrorHandling
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.resource_helper import ResourceHelper
 from typing import Type, Optional
 from pydantic import BaseModel, Field
@@ -117,7 +117,7 @@ class InstagramTool(BaseTool):
         messages = [{"role": "system", "content": caption_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
         if 'error' in result and result['message'] is not None:
-            ErrorHandling.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
         caption=result["content"]
         
         encoded_caption=urllib. parse. quote(caption)     
