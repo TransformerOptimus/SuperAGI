@@ -3,7 +3,7 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
-from superagi.helper.error_handling import ErrorHandling
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
@@ -68,7 +68,7 @@ class ThinkingTool(BaseTool):
             result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
             
             if 'error' in result and result['message'] is not None:
-                ErrorHandling.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
+                ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
             return result["content"]
         except Exception as e:
             logger.error(e)
