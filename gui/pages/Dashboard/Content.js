@@ -478,7 +478,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                      fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
                     {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
-                    {tab.contentType === 'Agent_Workflow' && <AgentWorkflowWorkspace />}
+                    {tab.contentType === 'Agent_Workflow' && <AgentWorkflowWorkspace tools={toolkits} />}
 
                   </div>}
                 </div>

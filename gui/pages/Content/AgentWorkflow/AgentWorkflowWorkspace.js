@@ -1,18 +1,29 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import Image from "next/image";
 import {loadingTextEffect} from "@/utils/utils";
 import WorkflowDiagram from "@/pages/Content/AgentWorkflow/WorkflowDiagram";
 import CodeEditor from "@/pages/Content/AgentWorkflow/CodeEditor";
 import {EventBus} from "@/utils/eventBus";
+import styles from "@/pages/Content/Agents/Agents.module.css";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 
-export default function AgentWorkflowWorkspace({modelId, modelName}){
+
+
+export default function AgentWorkflowWorkspace({tools, modelName}){
     const [modelDetails, setModelDetails] = useState([])
     const [selectedOption, setSelectedOption] = useState('metrics')
     const [isLoading, setIsLoading] = useState(true)
     const [loadingText, setLoadingText] = useState("Loading Models");
     const [yamlContent, setYamlContent] = useState(``);
+    const [timeDropdown, setTimeDropdown] = useState(false);
+    // const timeRef = useRef(null);
+    const timeUnit =''
+    const [isToggled, setIsToggled] = useState(false);
 
+    const handleToggle = () => {
+        setIsToggled(!isToggled);
+    };
 
     const parseYamlContent  = () => {
         EventBus.emit('sendCodeContent', {});
@@ -43,7 +54,8 @@ export default function AgentWorkflowWorkspace({modelId, modelName}){
                       fontSize: '14px',
                       padding:'8px',
                       height:'4.5vh', borderTopLeftRadius: '8px', borderTopRightRadius: '8px'
-                  }}>Code</div>
+                  }}><span>Code</span>
+                  </div>
                   <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh',}}>
                       <CodeEditor getCode={getCode} />
                   </div>
@@ -57,8 +69,10 @@ export default function AgentWorkflowWorkspace({modelId, modelName}){
                       borderTopLeftRadius: '8px', borderTopRightRadius: '8px'
                   }}>Preview</div>
                   <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
-                      {yamlContent && <WorkflowDiagram yamlContent={yamlContent} />}
-                  </div></div>
+                      {yamlContent &&
+                          <WorkflowDiagram yamlContent={yamlContent} />}
+                  </div>
+              </div>
           </div>
         </div>
     )

@@ -29,7 +29,7 @@ export default function AgentWorkflows({sendWorkflowData}) {
             <div className="container">
                 <p className="text_14 mt_8 mb_12 ml_8">Agent Workflows</p>
                 <div className="w_100 mb_10">
-                    <button className="secondary_button w_100" style={{fontSize: '13px'}} onClick={() => {
+                    <button className="secondary_button w_100" onClick={() => {
                        setCreateWorflow(true); getUserClick('Agent Workflow Create Clicked', {})
                     }}>
                         + Create Workflow

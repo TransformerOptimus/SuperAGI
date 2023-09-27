@@ -4,8 +4,9 @@ import 'ace-builds/src-noconflict/mode-yaml';
 import 'ace-builds/src-noconflict/theme-twilight';
 import {EventBus} from "@/utils/eventBus";
 
-const YamlEditor = ({ getCode }) => {
+const YamlEditor = ({ getCode, code }) => {
     const [yamlContent, setYamlContent] = useState('');
+
 
     const handleYamlChange = (newContent) => {
         setYamlContent(newContent);
@@ -19,6 +20,11 @@ const YamlEditor = ({ getCode }) => {
             EventBus.off('sendCodeContent', sendData);
         };
     });
+    useEffect(() => {
+       if(code){
+           setYamlContent(code);
+       }
+    },[code]);
 
     const handleYamlParse = () => {
         try {
@@ -44,11 +50,14 @@ const YamlEditor = ({ getCode }) => {
                 setOptions={{
                     enableBasicAutocompletion: true,
                     enableLiveAutocompletion: true,
+                    readOnly: !!code,
+                    wrapEnabled: true,
                 }}
                 style={{
                     borderBottomLeftRadius: '8px',
                     borderBottomRightRadius: '8px',
                 }}
+
             />
 
         </div>

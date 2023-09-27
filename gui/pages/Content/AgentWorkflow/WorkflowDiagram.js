@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import yaml from 'js-yaml';
 import mermaid from 'mermaid';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
+
 
 export default function WorkflowDiagram({yamlContent}) {
 
@@ -22,7 +25,7 @@ export default function WorkflowDiagram({yamlContent}) {
     }, []);
 
     function convertYamlToMermaid(yamlContent) {
-        if (yamlContent) {
+        if (yamlContent && yamlContent !== '') {
             const parsedData = yaml.load(yamlContent);
             const steps = parsedData.steps;
 
@@ -34,6 +37,10 @@ export default function WorkflowDiagram({yamlContent}) {
 
                 if (step.type === 'LOOP') {
                     label = '<div style="border: 1px solid #777 !important; background: #444 !important; padding: 8px ">LOOP</div>';
+                }
+
+                if (step.type === 'IF' || step.type === 'CONDITION') {
+                    label = step.instruction ? `<div style="border: 1px solid #777 !important; background: #444 !important; padding: 8px ">${step.instruction}</div>` : '';
                 }
 
                 const sanitizedStepName = step.name.replace(/\s+/g, '');
@@ -68,15 +75,27 @@ export default function WorkflowDiagram({yamlContent}) {
             return mermaidString;
         }
     }
+    function handleDragStart(event) {
+        event.dataTransfer.setData('text/plain', mermaidContent);
+    }
 
 
     const mermaidContent = convertYamlToMermaid(yamlContent);
 
     return (
-        <div>
-            <div className="mermaid">
-                {mermaidContent}
-            </div>
+        <div >
+                <div >
+                    <div className="mermaid"  style={{
+                        padding: '20px',
+                        border: '1px dashed #ccc',
+                        cursor: 'grab', // Change cursor style on drag
+                    }}
+                         draggable // Enable drag-and-drop on the div
+                         onDragStart={handleDragStart} // Event handler for drag start
+                    >
+                        {mermaidContent}
+                    </div>
+                </div>
         </div>
     );
 }
