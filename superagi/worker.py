@@ -34,6 +34,10 @@ beat_schedule = {
         'task': 'initialize-schedule-agent',
         'schedule': timedelta(minutes=5),
     },
+    'execute_waiting_workflows': {
+        'task': 'execute_waiting_workflows',
+        'schedule': timedelta(minutes=2),
+    },
 }
 app.conf.beat_schedule = beat_schedule
 
@@ -41,11 +45,19 @@ app.conf.beat_schedule = beat_schedule
 def agent_status_change(target, val,old_val,initiator):
     if not hasattr(sys, '_called_from_test'):
         webhook_callback.delay(target.id,val,old_val)
-       
+
+@app.task(name="execute_waiting_workflows", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
+def execute_waiting_workflows():
+    """Check if wait time of wait workflow step is over and can be resumed."""
+
+    from superagi.jobs.agent_executor import AgentExecutor
+    logger.info("Executing waiting workflows job")
+    AgentExecutor().execute_waiting_workflows()
+
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
 def initialize_schedule_agent_task():
     """Executing agent scheduling in the background."""
-    
+
     schedule_helper = AgentScheduleHelper()
     schedule_helper.update_next_scheduled_time()
     schedule_helper.run_scheduled_agents()

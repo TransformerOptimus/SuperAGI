@@ -144,6 +144,7 @@ class S3Helper:
             logger.info(f"Listing files from s3 with prefix: {file_path}")
             response = self.s3.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix=file_path)
             if 'Contents' in response:
+                logger.info(response['Contents'])
                 file_list = [obj['Key'] for obj in response['Contents']]
                 return file_list
             else:

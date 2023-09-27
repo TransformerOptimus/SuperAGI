@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Image from 'next/image';
 import styles from './Dashboard.module.css';
-import {openNewTab} from "@/utils/utils";
+import {getUserClick, openNewTab} from "@/utils/utils";
 
 export default function SideBar({onSelectEvent, env}) {
     const [sectionSelected, setSelection] = useState('');
@@ -15,6 +15,7 @@ export default function SideBar({onSelectEvent, env}) {
     ];
 
     const handleClick = (value) => {
+        getUserClick(value + "SIDEBAR ICON", {})
         setSelection(value);
         onSelectEvent(value);
         if (value === 'apm') {
@@ -34,7 +35,7 @@ export default function SideBar({onSelectEvent, env}) {
                         <div className={styles.button_icon}>
                             <Image width={17} height={17} src={section.icon} alt={`${section.name}-icon`}/>
                         </div>
-                        <div>{section.name.charAt(0).toUpperCase() + section.name.slice(1)}</div>
+                        {section.name === 'apm' ? <div>APM</div> : <div>{section.name.charAt(0).toUpperCase() + section.name.slice(1)}</div>}
                     </div>
                 </div>
             ))}

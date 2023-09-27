@@ -15,8 +15,7 @@ class ToolResponseQueryManager:
     def get_relevant_response(self, query: str,metadata:dict, top_k: int = 5):
         if self.memory is None:
             return ""
-        documents = self.memory.get_matching_text(query, metadata=metadata,
-                                                  top_k=top_k)
+        documents = self.memory.get_matching_text(query, metadata=metadata)
         relevant_responses = ""
         for document in documents["documents"]:
             relevant_responses += document.text_content

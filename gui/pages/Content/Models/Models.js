@@ -5,6 +5,7 @@ import {createInternalId} from "@/utils/utils";
 export default function Models({sendModelData, models}){
 
     const handleModelSelect = (model) => {
+        getUserClick('Existing Model Clicked', {})
         model.contentType = 'Model'
         sendModelData(model)
     }
@@ -15,7 +16,7 @@ export default function Models({sendModelData, models}){
                 <p className="text_14 mt_8 mb_12 ml_8">Models</p>
                 <div className="w_100 mb_10">
                     <button className="secondary_button w_100"
-                            onClick={() => sendModelData({id: -5, name: "new model", contentType: "Add_Model", internalId: createInternalId()})}>
+                            onClick={() => {sendModelData({id: -5, name: "new model", contentType: "Add_Model", internalId: createInternalId()}); getUserClick('Add Model Clicked',{})}}>
                         + Add Model
                     </button>
                 </div>

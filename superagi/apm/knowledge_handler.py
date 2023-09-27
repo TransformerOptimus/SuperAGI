@@ -7,6 +7,7 @@ from typing import List, Dict, Union, Any
 from sqlalchemy.sql import func
 from sqlalchemy.orm import aliased
 from superagi.models.agent_config import AgentConfiguration
+from superagi.models.agent_execution_config import AgentExecutionConfiguration
 import pytz
 from datetime import datetime
 
@@ -43,7 +44,7 @@ class KnowledgeHandler:
                 'knowledge_calls': self.session.query(
                     EventAlias
                 ).filter(
-                    EventAlias.event_property['tool_name'].astext == 'knowledgesearch',
+                    EventAlias.event_property['tool_name'].astext == 'Knowledge Search',
                     EventAlias.event_name == 'tool_used',
                     EventAlias.org_id == self.organisation_id,
                     EventAlias.agent_id.in_(self.session.query(Event.agent_id).filter(
@@ -89,6 +90,16 @@ class KnowledgeHandler:
 
             event_run = next((er for er in event_runs if er.agent_id == knowledge_event.agent_id and er.event_property['agent_execution_id'] == agent_execution_id), None)
             agent_created_event = next((ace for ace in agent_created_events if ace.agent_id == knowledge_event.agent_id), None)
+
+            model_query = self.session.query(AgentExecutionConfiguration).filter(
+                AgentExecutionConfiguration.agent_execution_id == agent_execution_id, 
+                AgentExecutionConfiguration.key == 'model'
+            ).first()
+
+            if model_query and model_query.value != 'None':
+                model_value = model_query.value
+            else:
+                model_value = None
             try:
                 user_timezone = AgentConfiguration.get_agent_config_by_key_and_agent_id(session=self.session, key='user_timezone', agent_id=knowledge_event.agent_id)
                 if user_timezone and user_timezone.value != 'None':
@@ -108,7 +119,7 @@ class KnowledgeHandler:
                     'calls': event_run.event_property['calls'],
                     'agent_execution_name': event_run.event_property['name'],
                     'agent_name': agent_created_event.event_property['agent_name'],
-                    'model': agent_created_event.event_property['model']
+                    'model': model_value if model_value else agent_created_event.event_property['model']
                 }
                 if agent_execution_id not in [i['agent_execution_id'] for i in results]:
                     results.append(result_dict)

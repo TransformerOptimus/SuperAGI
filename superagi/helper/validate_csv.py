@@ -11,7 +11,7 @@ def correct_csv_encoding(file_path):
     if encoding != 'utf-8':
         data = []
         with open(file_path, 'r', encoding=encoding) as f:
-            reader = csv.reader(f, delimiter=';', quotechar='"')
+            reader = csv.reader(f, delimiter=',', quotechar='"')
             for row in reader:
                 try:
                     data.append(row)
@@ -20,7 +20,6 @@ def correct_csv_encoding(file_path):
                     continue
 
         df = pd.DataFrame(data)
-        
         df.to_csv(file_path, encoding='utf-8', index=False)
         logger.info("File is converted to utf-8 encoding.")
     else:

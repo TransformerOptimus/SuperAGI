@@ -30,7 +30,7 @@ import {useRouter} from 'next/router';
 import querystring from 'querystring';
 import styles1 from '../Content/Agents/Agents.module.css';
 import AddTool from "@/pages/Content/Toolkits/AddTool";
-import {createInternalId, resetLocalStorage, preventDefault} from "@/utils/utils";
+import {createInternalId, resetLocalStorage, preventDefault, getUserClick} from "@/utils/utils";
 import AddDatabase from "@/pages/Dashboard/Settings/AddDatabase";
 import DatabaseDetails from "@/pages/Dashboard/Settings/DatabaseDetails";
 
@@ -167,6 +167,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
       updatedTabs.splice(index, 1);
     }
+
+    if(contentType === "APM")
+      getUserClick('APM Closed',{})
 
     resetLocalStorage(contentType, internalId);
     setTabs(updatedTabs);
@@ -345,12 +348,12 @@ export default function Content({env, selectedView, selectedProjectId, organisat
             <div>
               <div><Image width={264} height={144} src="/images/watermark.png" alt="empty-state"/></div>
               <div style={{width: '100%', display: 'flex', justifyContent: 'center', marginTop: '30px'}}>
-                <button onClick={() => addTab({
+                <button onClick={() => {addTab({
                   id: -1,
                   name: "new agent",
                   contentType: "Create_Agent",
                   internalId: createInternalId()
-                })} className={styles.empty_state_button}>
+                }); getUserClick('Agent Create Clicked', {'Click Position': 'Content'})}} className={styles.empty_state_button}>
                   Create new agent&nbsp;<Image width={17} height={17} src="/images/arrow_forward_secondary.svg"
                                                alt="forward-arrow"/>
                 </button>
@@ -450,7 +453,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <DatabaseDetails internalId={tab.internalId || index} databaseId={tab.id}/>}
                     {tab.contentType === 'Settings' &&
                       <Settings organisationId={organisationId} sendDatabaseData={addTab}/>}
-                    {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView}/>}
+                    {tab.contentType === 'Marketplace' && <Market env={env} selectedView={selectedView} getModels={getModels} sendModelData={addTab} />}
                     {tab.contentType === 'Add_Toolkit' && <AddTool internalId={tab.internalId || index}/>}
                     {tab.contentType === 'Add_Knowledge' &&
                       <AddKnowledge internalId={tab.internalId || index} sendKnowledgeData={addTab}/>}

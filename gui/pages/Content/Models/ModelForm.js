@@ -6,12 +6,8 @@ import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
 export default function ModelForm({internalId, getModels, sendModelData}){
-    const models = [{'provider':'OpenAI','link':'https://platform.openai.com/account/api-keys'},
-        {'provider':'Replicate','link':'https://replicate.com/account/api-tokens'},
-        {'provider':'Hugging Face','link':'https://huggingface.co/settings/tokens'},
-        {'provider':'Google Palm','link':'https://developers.generativeai.google/products/palm'}];
+    const models = ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
-    const [selectedLink, setSelectedLink] = useState('');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
@@ -44,8 +40,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     },[selectedModel])
 
     const handleModelSelect = async (index) => {
-        setSelectedModel(models[index].provider)
-        setSelectedLink(models[index].link)
+        setSelectedModel(models[index])
         setModelDropdown(false);
     }
 
@@ -128,7 +123,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                     {modelDropdown && <div className="custom_select_options w_100" ref={modelRef}>
                         {models.map((model, index) => (
                             <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding: '12px 14px', maxWidth: '100%'}}>
-                                {model.provider}
+                                {model}
                             </div>))}
                     </div>}
                 </div>
@@ -139,9 +134,9 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                 <div className="vertical_containers">
                     <span className="text_12 color_white lh_16">The <b>{selectedModel}</b> auth token is not added to your settings. In order to start using the model, you need to add the auth token to your settings. You can find the auth token in the <b>{selectedModel}</b> dashboard. </span>
                     <div className="horizontal_container mt_16">
-                        <button className="primary_button_small" onClick={() => openNewTab(-3, "Settings", "Settings", false)}>Add auth token</button>
+                        <button className="primary_button_small" onClick={() => {openNewTab(-3, "Settings", "Settings", false); getUserClick('Get Auth Token CLicked',{})}}>Add auth token</button>
                         <button className="secondary_button_small ml_8"
-                                onClick={() => window.open(selectedLink, "_blank")}>Get auth token<Image src="/images/open_in_new.svg" alt="deploy_icon" width={12} height={12} className="ml_4" /></button>
+                                onClick={() => window.open(modelGetAuth(selectedModel), "_blank")}>Get auth token<Image src="/images/open_in_new.svg" alt="deploy_icon" width={12} height={12} className="ml_4" /></button>
                     </div>
                 </div>
             </div>}

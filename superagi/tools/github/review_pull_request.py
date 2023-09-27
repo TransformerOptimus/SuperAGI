@@ -2,6 +2,7 @@ import ast
 from typing import Type, Optional
 
 from pydantic import BaseModel, Field
+from superagi.helper.error_handler import ErrorHandler
 
 from superagi.helper.github_helper import GithubHelper
 from superagi.helper.json_cleaner import JsonCleaner
@@ -9,6 +10,8 @@ from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
 from superagi.models.agent import Agent
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.tools.base_tool import BaseTool
 
 
@@ -87,6 +90,9 @@ class GithubReviewPullRequest(BaseTool):
         token_limit = TokenCounter(session=self.toolkit_config.session,
                                    organisation_id=organisation.id).token_limit(self.llm.get_model())
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        
+        if 'error' in result and result['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
         response = result["content"]
         if response.startswith("```") and response.endswith("```"):
             response = "```".join(response.split("```")[1:-1])
