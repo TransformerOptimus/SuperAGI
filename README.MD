@@ -140,7 +140,7 @@
 <details>
 <summary>SuperAGI Architecture</summary>
 
-![SuperAGI Architecture](https://superagi.com/wp-content/uploads/2023/06/SuperAGI-Architecture.png)
+![SuperAGI Architecture](https://superagi.com/wp-content/uploads/2023/09/SuperAGI-Architecture.png)
 </details>
 
 <details>
@@ -152,19 +152,19 @@
 <details>
 <summary>Agent Workflow Architecture</summary>
 
-![Agent Workflow Architecture](https://superagi.com/wp-content/uploads/2023/06/Agent-Workflow.png)
+![Agent Workflow Architecture](https://superagi.com/wp-content/uploads/2023/09/Workflow-Architecture.png)
 </details>
 
 <details>
 <summary>Tools Architecture</summary>
 
-![Tools Architecture](https://superagi.com/wp-content/uploads/2023/06/Tool-Architecture.png)
+![Tools Architecture](https://superagi.com/wp-content/uploads/2023/09/Tools-Architecture.png)
 </details>
 
 <details>
 <summary>ER Diagram</summary>
 
-![ER Diagram](https://superagi.com/wp-content/uploads/2023/06/ER-Diagram.png)
+![ER Diagram](https://superagi.com/wp-content/uploads/2023/09/ER-Diagram.png)
 </details>
 
 
@@ -199,5 +199,5 @@ This project is under active development and may still have issues. We appreciat
 [![AdityaSharma13064](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/138581531?v=4&w=50&h=50&mask=circle)](https://github.com/AdityaSharma13064)
 [![lalitlj](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/138583454?v=4&w=50&h=50&mask=circle)](https://github.com/lalitlj)
 
-  
+
 <p align="center"><a href="https://github.com/TransformerOptimus/SuperAGI#"><img src="https://superagi.com/wp-content/uploads/2023/05/backToTopButton.png" alt="Back to top" height="29"/></a></p>

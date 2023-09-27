@@ -524,27 +524,6 @@ export const convertWaitingPeriod = (waitingPeriod) => {
   return convertedValue + ' ' + unit;
 }
 
-// export const updateDateBasedOnValue = (convertedValue, inputDate = new Date()) => {
-//   const [value, unit] = convertedValue.split(' ');
-//   const unitConversion = {
-//     'seconds': 1000,
-//     'minutes': 1000 * 60,
-//     'hours': 1000 * 60 * 60,
-//     'days': 1000 * 60 * 60 * 24,
-//     'weeks': 1000 * 60 * 60 * 24 * 7
-//   };
-//
-//   const updatedDate = new Date(inputDate.getTime() + parseInt(value, 10) * unitConversion[unit]);
-//
-//   return updatedDate.toLocaleString('en-US', {
-//     day: 'numeric',
-//     month: 'long',
-//     year: 'numeric',
-//     hour: 'numeric',
-//     minute: 'numeric'
-//   });
-// }
-
 export const getUTMParametersFromURL = () => {
   const params = new URLSearchParams(window.location.search);
 

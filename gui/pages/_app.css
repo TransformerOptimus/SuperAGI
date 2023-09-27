@@ -978,6 +978,22 @@ p {
     line-height: normal;
 }
 
+.text_20 {
+    color: #FFF;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.text_20 {
+    color: #FFF;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
 .text_20_bold{
     color: #FFF;
     font-size: 20px;
@@ -1145,6 +1161,8 @@ p {
 
 .bt_white{border-top: 1px solid rgba(255, 255, 255, 0.08);}
 
+.bt_white{border-top: 1px solid rgba(255, 255, 255, 0.08);}
+
 .color_white{color:#FFFFFF}
 .color_gray{color:#888888}
 
@@ -1153,7 +1171,7 @@ p {
 .lh_18{line-height: 18px;}
 .lh_24{line-height: 24px;}
 
-.padding_0{padding: 0;}
+.padding_0{padding: 0}
 .padding_5{padding: 5px;}
 .padding_6{padding: 6px;}
 .padding_8{padding: 8px;}
@@ -1470,6 +1488,7 @@ tr{
 .bg_none{background: none;}
 .bg_primary{background: #2E293F;}
 .bg_secondary{background: #272335;}
+.bg_none{background: none}
 
 .container {
     height: 100%;

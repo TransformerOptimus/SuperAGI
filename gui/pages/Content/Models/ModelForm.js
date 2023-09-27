@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, openNewTab, createInternalId, modelGetAuth, getUserClick} from "@/utils/utils";
+import {removeTab, openNewTab, createInternalId} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
@@ -66,11 +66,9 @@ export default function ModelForm({internalId, getModels, sendModelData}){
             {
                 const modelProviderId = response.data[0].id
                 verifyEndPoint(response.data[0].api_key, modelEndpoint, selectedModel).then((response) =>{
-                    if(response.data.success) {
+                    if(response.data.success)
                         storeModelDetails(modelProviderId)
-                        getUserClick("Model Added Successfully",{'type': selectedModel})
-                    }
-                    else {
+                    else{
                         toast.error("The Endpoint is not Valid",{autoClose: 1800});
                         setIsLoading(false);
                     }
