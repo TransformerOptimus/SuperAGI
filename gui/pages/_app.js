@@ -22,7 +22,7 @@ import {
 } from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick, sendGAEvent} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
 import mixpanel from 'mixpanel-browser';
@@ -125,9 +125,14 @@ export default function App() {
           let first_login = parsedParams.first_time_login || false
 
           const utmParams = getUTMParametersFromURL();
-          if (utmParams)
+          if (utmParams) {
             sessionStorage.setItem('utm_source', utmParams.utm_source);
+            sessionStorage.setItem('utm_medium', utmParams.utm_medium);
+            sessionStorage.setItem('campaign', utmParams.utm_campaign);
+          }
           const signupSource = sessionStorage.getItem('utm_source');
+          const signupMedium = sessionStorage.getItem('utm_medium');
+          const singupCampaign = sessionStorage.getItem('campaign');
 
           if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
@@ -136,6 +141,7 @@ export default function App() {
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
+              sendGAEvent(response.data.email, 'Signed Up Successfully', {'utm_source': signupSource || '', 'utm_medium': signupMedium || '', 'campaign': singupCampaign || ''})
               if(mixpanelId())
                 mixpanel.identify(response.data.email)
               if(first_login)
@@ -217,7 +223,6 @@ export default function App() {
   const handleSignUpSource = (signup) => {
     getFirstSignup(signup)
         .then((response) => {
-          sessionStorage.removeItem('utm_source');
         })
         .catch((error) => {
           console.error('Error validating source:', error);
