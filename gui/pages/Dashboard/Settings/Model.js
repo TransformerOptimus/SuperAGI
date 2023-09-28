@@ -13,7 +13,8 @@ export default function Model({organisationId}) {
     {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAi', 'api_key': ''},
     {'name':'Hugging Face auth token','logo':'/images/huggingface_logo.svg','source':'Hugging Face', 'api_key': ''},
     {'name':'Replicate auth token','logo':'/images/replicate_logo.svg','source':'Replicate', 'api_key': ''},
-    {'name':'Google Palm API key','logo':'/images/google_palm_logo.svg','source':'Google Palm', 'api_key': ''}
+    {'name':'Google Palm API key','logo':'/images/google_palm_logo.svg','source':'Google Palm', 'api_key': ''},
+    {'name':'There is no need for api key, i will remove this, when I figuire it how','logo':'/images/google_palm_logo.svg','source':'Custom', 'api_key': ''}
   ]);
   const [updatedModels, setUpdatedModels] = useState([]);
 
@@ -40,6 +41,7 @@ export default function Model({organisationId}) {
       }
       validateLLMApiKey(model.source, model.api_key)
           .then((response) => {
+            console.log(response)
             if (response.data.status === "success") {
               storeKey(model.source, model.api_key)
             }

@@ -2,6 +2,7 @@ from superagi.llms.google_palm import GooglePalm
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
+from superagi.llms.custom_llm import CustomLLM
 from superagi.models.models_config import ModelsConfig
 from superagi.models.models import Models
 from sqlalchemy.orm import sessionmaker
@@ -33,6 +34,9 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
     elif provider_name == 'Hugging Face':
         print("Provider is Hugging Face")
         return HuggingFace(model=model_instance.model_name, end_point=model_instance.end_point, api_key=api_key, **kwargs)
+    elif provider_name == 'Custom':
+        print("Custom provider")
+        return CustomLLM(model=model_instance.model_name, **kwargs)
     else:
         print('Unknown provider.')
 
@@ -45,5 +49,7 @@ def build_model_with_api_key(provider_name, api_key):
         return GooglePalm(api_key=api_key)
     elif provider_name.lower() == 'hugging face':
         return HuggingFace(api_key=api_key)
+    elif provider_name.lower() == 'custom':
+        return CustomLLM(api_key=api_key)
     else:
         print('Unknown provider.')

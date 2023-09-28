@@ -6,6 +6,7 @@ class ModelSourceType(Enum):
     OpenAI = 'OpenAi'
     Replicate = 'Replicate'
     HuggingFace = 'Hugging Face'
+    CustomLLM = 'Custom'
 
     @classmethod
     def get_model_source_type(cls, name):
