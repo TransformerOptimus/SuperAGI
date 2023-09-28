@@ -1,6 +1,6 @@
 import {formatDistanceToNow, format, addMinutes} from 'date-fns';
 import {utcToZonedTime} from 'date-fns-tz';
-import {baseUrl, mixpanelId} from "@/pages/api/apiConfig";
+import {baseUrl, analyticsMeasurementId, analyticsApiSecret, mixpanelId} from "@/pages/api/apiConfig";
 import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
@@ -545,4 +545,19 @@ export const getUserClick = (event, props) => {
   if(env === 'PROD' && mixpanelId()){
     mixpanel.track(event, props)
   }
+}
+
+export const sendGAEvent = async (client, eventName, params) => {
+  const measurement_id = analyticsMeasurementId();
+  const api_secret = analyticsApiSecret();
+  await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
+    method: "POST",
+    body: JSON.stringify({
+      client_id: client,
+      events: [{
+        name: eventName,
+        params: params
+      }]
+    })
+  });
 }
