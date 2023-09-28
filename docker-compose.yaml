@@ -56,6 +56,14 @@ services:
 #    ports:
 #      - "5432:5432"
 
+  gpt4free:
+    build:
+      context: ./customLLM
+    networks:
+      - super_network
+
+
+
   proxy:
     image: nginx:stable-alpine
     ports:

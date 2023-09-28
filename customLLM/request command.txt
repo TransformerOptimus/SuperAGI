@@ -1,0 +1,10 @@
+docker build -t simple_server .
+docker run -p 5000:5000 simple_server
+
+
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d '{"message":"What is docker"}' http://gpt4free:5000
+

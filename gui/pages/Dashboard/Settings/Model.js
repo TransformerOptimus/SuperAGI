@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import agentStyles from "@/pages/Content/Agents/Agents.module.css";
 import {storeApiKey, fetchApiKeys, validateLLMApiKey, fetchApiKey} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
-import {getUserClick, removeTab} from "@/utils/utils";
+import {removeTab} from "@/utils/utils";
 import Image from "next/image";
 
 export default function Model({organisationId}) {
@@ -13,7 +13,8 @@ export default function Model({organisationId}) {
     {'name':'Open AI API key','logo':'/images/openai_logo.svg','source':'OpenAi', 'api_key': ''},
     {'name':'Hugging Face auth token','logo':'/images/huggingface_logo.svg','source':'Hugging Face', 'api_key': ''},
     {'name':'Replicate auth token','logo':'/images/replicate_logo.svg','source':'Replicate', 'api_key': ''},
-    {'name':'Google Palm API key','logo':'/images/google_palm_logo.svg','source':'Google Palm', 'api_key': ''}
+    {'name':'Google Palm API key','logo':'/images/google_palm_logo.svg','source':'Google Palm', 'api_key': ''},
+    {'name':'There is no need for api key, i will remove this, when I figuire it how','logo':'/images/google_palm_logo.svg','source':'Custom', 'api_key': ''}
   ]);
   const [updatedModels, setUpdatedModels] = useState([]);
 
@@ -40,6 +41,7 @@ export default function Model({organisationId}) {
       }
       validateLLMApiKey(model.source, model.api_key)
           .then((response) => {
+            console.log(response)
             if (response.data.status === "success") {
               storeKey(model.source, model.api_key)
             }
@@ -54,10 +56,8 @@ export default function Model({organisationId}) {
     if(model_provider === 'OpenAi')
       model_provider = 'OpenAI'
     storeApiKey(model_provider,api_key).then((response) => {
-      if(response.status === 200) {
-        getUserClick('API Key Updated', {'Model': model_provider})
+      if(response.status === 200)
         toast.success(`Successfully Stored the API Key of ${model_provider}`, {autoClose: 1800})
-      }
       else
         toast.error("Error", {autoClose: 1800})
     })

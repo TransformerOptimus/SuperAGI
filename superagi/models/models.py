@@ -129,7 +129,7 @@ class Models(DBBaseModel):
             return model  # Return error message if model not found
 
         # Check the 'provider' from ModelsConfig table
-        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate']:
+        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate','Custom']:
             return {"error": "End Point is empty or undefined"}
 
         try:
