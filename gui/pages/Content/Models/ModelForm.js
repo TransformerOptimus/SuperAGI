@@ -6,13 +6,8 @@ import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
 export default function ModelForm({internalId, getModels, sendModelData}){
-    const models = [{'provider':'OpenAI','link':'https://platform.openai.com/account/api-keys'},
-        {'provider':'Replicate','link':'https://replicate.com/account/api-tokens'},
-        {'provider':'Hugging Face','link':'https://huggingface.co/settings/tokens'},
-        {'provider':'Google Palm','link':'https://developers.generativeai.google/products/palm'},
-        {'provider':'Custom','link':'https://developers.generativeai.google/products/palm'}];
+    const models = ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm','Custom'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
-    const [selectedLink, setSelectedLink] = useState('');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');
     const [modelTokenLimit, setModelTokenLimit] = useState(4096);
@@ -45,8 +40,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     },[selectedModel])
 
     const handleModelSelect = async (index) => {
-        setSelectedModel(models[index].provider)
-        setSelectedLink(models[index].link)
+        setSelectedModel(models[index])
         setModelDropdown(false);
     }
 
@@ -129,7 +123,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                     {modelDropdown && <div className="custom_select_options w_100" ref={modelRef}>
                         {models.map((model, index) => (
                             <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding: '12px 14px', maxWidth: '100%'}}>
-                                {model.provider}
+                                {model}
                             </div>))}
                     </div>}
                 </div>
