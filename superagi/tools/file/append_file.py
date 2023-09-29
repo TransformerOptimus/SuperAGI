@@ -56,10 +56,9 @@ class AppendFileTool(BaseTool):
         
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
             previous_content = self.get_previous_content(final_path)
-            try:
-                S3Helper().delete_file(final_path)
-            except Exception:
-                return "File not Found"
+            if previous_content is None:
+                return "Append file only supported for .txt Files."
+            S3Helper().delete_file(final_path)
             new_content = previous_content + content
             return self.resource_manager.write_file(file_name, new_content)
 
@@ -75,5 +74,3 @@ class AppendFileTool(BaseTool):
     def get_previous_content(self, final_path):
         if final_path.split('/')[-1].lower().endswith('.txt'):
             return S3Helper().read_from_s3(final_path)
-        else:
-            return "File not supported for Append File Tool."
