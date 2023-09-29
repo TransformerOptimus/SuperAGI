@@ -1,3 +1,4 @@
+import base64
 from typing import Any, Type
 from pydantic import BaseModel, Field
 from superagi.tools.base_tool import BaseTool
@@ -24,8 +25,13 @@ class DeleteCalendarEventTool(BaseTool):
         if event_id == "None":
             return f"Add Event ID to delete an event from Google Calendar"
         else:
+            if len(event_id) % 4 != 0:  
+                event_id += "=" * (4 - (len(event_id) % 4))  
+            decoded_id = base64.b64decode(event_id)
+            eid = decoded_id.decode("utf-8")
+            eid  = eid.split(" ", 1)[0]
             result = service.events().delete(
                 calendarId = "primary",
-                eventId = event_id
+                eventId = eid
             ).execute()
             return f"Event Successfully deleted from your Google Calendar"
