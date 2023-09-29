@@ -74,5 +74,3 @@ class AppendFileTool(BaseTool):
     def get_previous_content(self, final_path):
         if final_path.split('/')[-1].lower().endswith('.txt'):
             return S3Helper().read_from_s3(final_path)
-        else:
-            return None
