@@ -58,6 +58,8 @@ class AppendFileTool(BaseTool):
             previous_content = self.get_previous_content(final_path)
             if previous_content is None:
                 return "Append file only supported for .txt Files."
+            if not previous_content:
+                return "File not Found."
             S3Helper().delete_file(final_path)
             new_content = previous_content + content
             return self.resource_manager.write_file(file_name, new_content)
@@ -73,4 +75,7 @@ class AppendFileTool(BaseTool):
     
     def get_previous_content(self, final_path):
         if final_path.split('/')[-1].lower().endswith('.txt'):
-            return S3Helper().read_from_s3(final_path)
+            try:
+                return S3Helper().read_from_s3(final_path)
+            except Exception:
+                return False
