@@ -23,6 +23,8 @@ class EventDetailsCalendarTool(BaseTool):
         if event_id == "None":
             return f"Add Event ID to fetch details of an event from Google Calendar"
         else:
+            if len(event_id) % 4 != 0:  
+                event_id += "=" * (4 - (len(event_id) % 4))  
             decoded_id = base64.b64decode(event_id)
             eid = decoded_id.decode("utf-8")
             eid  = eid.split(" ", 1)[0]
