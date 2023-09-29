@@ -62,7 +62,6 @@ class AgentExecutionFeed(DBBaseModel):
                     AgentExecutionFeed.feed_group_id == agent_execution.current_feed_group_id) \
             .order_by(asc(AgentExecutionFeed.created_at)) \
             .all()
-        print("___________________agent feed:",agent_feeds)
         # return entire feed if it is not default feed. Default feed has prompt in the first 2 entries.
         if agent_execution.current_feed_group_id != "DEFAULT":
             return agent_feeds

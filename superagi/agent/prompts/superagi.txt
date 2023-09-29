@@ -13,8 +13,9 @@ CONSTRAINTS:
 TOOLS:
 {tools}
 
-FINETUNED RESPONSE:
+COMPREHENSIVE APPROACH TO EXECUTE THE GIVEN GOAL:
 {ft_response}
+USE THE ABOVE FEEDBACK TO CHOOSE THE BEST TOOLSELECTION.
 
 PERFORMANCE EVALUATION:
 1. Understand and analyze Fine-tuned response which is the review of the previously taken path for achieving the given goals.

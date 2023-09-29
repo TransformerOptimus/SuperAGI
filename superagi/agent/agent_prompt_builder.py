@@ -93,19 +93,6 @@ class AgentPromptBuilder:
             tools (List[BaseTool]): The list of tools.
             add_finish_tool (bool): Whether to add finish tool or not.
         """
-        # global engine
-        
-        # engine.dispose()
-        # session = Session() 
-        # agent_config = Agent.fetch_configuration(session, agent.id)
-        # model_config = AgentConfiguration.get_model_api_key(session, self.agent_execution.agent_id,
-        #                                                             agent_config["model"])
-        # model_api_key = model_config['api_key']
-        # agent = session.query(Agent).filter(Agent.id == self.agent_execution.agent_id).first()
-        
-        
-         
-        # organisation = Agent.find_org_by_agent_id(session, agent_id=agent.id)
         from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
         finetune=TrajectoryFinetuning(session=session,
                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,organisation_id=organisation.id),
