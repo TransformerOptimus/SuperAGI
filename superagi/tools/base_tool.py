@@ -4,7 +4,7 @@ from inspect import signature
 from typing import List
 from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 import yaml
-from pydantic import BaseModel, create_model, validate_arguments, Extra
+from pydantic import BaseModel, create_model, validate_arguments
 from superagi.types.key_type import ToolConfigKeyType
 
 
