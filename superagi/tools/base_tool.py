@@ -5,6 +5,8 @@ from typing import List
 from typing import Optional, Type, Callable, Any, Union, Dict, Tuple
 import yaml
 from pydantic import BaseModel, create_model, validate_arguments
+from superagi.models.tool_config import ToolConfig
+from sqlalchemy import Column, Integer, String, Boolean 
 from superagi.types.key_type import ToolConfigKeyType
 
 
