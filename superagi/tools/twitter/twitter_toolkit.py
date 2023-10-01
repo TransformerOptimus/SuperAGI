@@ -1,6 +1,6 @@
 from abc import ABC
 from superagi.tools.base_tool import BaseToolkit, BaseTool, ToolConfiguration
-from typing import Type, List
+from typing import List
 from superagi.tools.twitter.send_tweets import SendTweetsTool
 from superagi.types.key_type import ToolConfigKeyType
 
