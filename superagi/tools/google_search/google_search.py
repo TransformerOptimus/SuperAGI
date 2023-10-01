@@ -7,8 +7,6 @@ from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.google_search import GoogleSearchWrap
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
-from superagi.models.agent_execution import AgentExecution
-from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.tools.base_tool import BaseTool
 
 class GoogleSearchSchema(BaseModel):
