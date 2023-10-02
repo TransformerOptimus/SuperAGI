@@ -10,7 +10,7 @@ import logging
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
-        logging.basicConfig(filename='app.log', level=logging.INFO)
+        logging.basicConfig(filename='/logs/app.log', level=logging.INFO)
         logging.info('New LLM call')
         logging.info('-----------------------------------')
 
@@ -33,6 +33,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 concatenated_message = concatenated_message + message
 
             out = {"response": concatenated_message}
+            logging.info(prompt)
+            logging.info('===================================')
             logging.info(out)
             logging.info('-----------------------------------')
             logging.info('')

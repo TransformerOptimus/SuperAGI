@@ -61,7 +61,8 @@ services:
       context: ./customLLM
     networks:
       - super_network
-
+    volumes:
+        - CustomLLMLog:/logs
 
 
   proxy:
@@ -82,3 +83,4 @@ networks:
 volumes:
   superagi_postgres_data:
   redis_data:
+  CustomLLMLog:
