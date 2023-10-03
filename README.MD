@@ -119,8 +119,11 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
-### 💻 Contribute
-We wholeheartedly welcome contributions in the form of bug reports, feature ideas, or pull requests, and invite you to explore our latest roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1). For contribution guidelines, see [CONTRIBUTING.md](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md)"
+### 💻 Contributing
+We ❤️ our contributors. 
+We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md). Please read and follow it.
+If you'd like to contribute, start by reading our [Contribution Guide](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md)
+To get more idea on where we are heading, checkout our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1)
 
 <a id="architecture">
 
