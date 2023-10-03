@@ -1,3 +1,4 @@
+import yaml
 from sqlalchemy import Column, Integer, String, and_
 from sqlalchemy.sql import func
 from typing import List, Dict, Union
@@ -103,7 +104,7 @@ class Models(DBBaseModel):
             return {"error": "Unexpected Error Occured"}
 
     @classmethod
-    def store_model_details(cls, session, organisation_id, model_name, description, end_point, model_provider_id, token_limit, type, version):
+    def store_model_details(cls, session, organisation_id, model_name, description, end_point, model_provider_id, token_limit, type, version, context_length):
         from superagi.models.models_config import ModelsConfig
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
@@ -129,8 +130,16 @@ class Models(DBBaseModel):
             return model  # Return error message if model not found
 
         # Check the 'provider' from ModelsConfig table
-        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate']:
+        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate','Custom LLM']:
             return {"error": "End Point is empty or undefined"}
+
+        if context_length is not None:
+            with open('config.yaml', 'r') as file:
+                config_data = yaml.safe_load(file)
+                if 'MAX_CONTEXT_LENGTH' in config_data:
+                    config_data['MAX_CONTEXT_LENGTH'] = context_length
+            with open('config.yaml', 'w') as file:
+                yaml.safe_dump(config_data, file)
 
         try:
             model = Models(
@@ -229,3 +238,4 @@ class Models(DBBaseModel):
         except Exception as e:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
+
