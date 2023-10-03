@@ -129,12 +129,12 @@ class AgentWorkflowSeed:
                                                                     "Check if the resume matches High-Level GOAL")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step5",
+                                                                    str(agent_workflow.id) + "_step4",
                                                                     SendEmailTool().name,
                                                                     "Write a custom acceptance Email to the candidates")
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step6",
+                                                                    str(agent_workflow.id) + "_step5",
                                                                     SendEmailTool().name,
                                                                     "Write a custom Reject Email to the candidates")
 
