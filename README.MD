@@ -74,22 +74,6 @@
 
 <hr>
 
-### 📽 SuperAGI Setup using Docker Hub 
-
-<p align="center">
-<a href='https://youtu.be/qjJneWjH5v4'><img src="https://superagi.com/wp-content/uploads/2023/08/DockerHub_install-1.png" width=1000px></a>
-</p>
-
-
-<p align="center">
-<a href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=640182997&machine=basicLinux32gb&location=EastUs"> <img src="https://github.com/codespaces/badge.svg"></a><br>Not sure how to setup? <a href="https://youtu.be/yvmNthyWYCE">Learn here</a>
-</p>
-
-<br>
-<p align="center">
-<a href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/TransformerOptimus/SuperAGI/tree/main"> <img src="https://www.deploytodo.com/do-btn-blue.svg"></a><br>Deploy SuperAGI to DigitalOcean with one click.
-</p>
-
 ### What are we ?
 
 A dev-first open source autonomous AI agent framework enabling developers to build, manage & run useful autonomous agents. You can run concurrent agents seamlessly, extend agent capabilities with tools. The agents efficiently perform a variety of tasks and continually improve their performance with each subsequent run.
@@ -122,7 +106,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
 #### ☁️ SuperAGI cloud
-To quickly start experimenting with agents without the hassle of setting up the system try [Superagi Cloud](https://app.superagi.com/)
+To quickly start experimenting with agents without the hassle of setting up the system,x try [Superagi Cloud](https://app.superagi.com/)
 1. Visit [Superagi Cloud](https://app.superagi.com/) and log in using your github account.
 
 2. In your account settings, go to "Model Providers" and add your API key.
