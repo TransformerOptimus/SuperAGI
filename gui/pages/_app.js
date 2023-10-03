@@ -135,7 +135,6 @@ export default function App() {
           const singupCampaign = sessionStorage.getItem('campaign');
 
           if (typeof window !== 'undefined' && access_token) {
-            Cookies.set('accessToken', access_token, { domain: '.superagi.com', path: '/' });
             localStorage.setItem('accessToken', access_token);
             refreshUrl();
           }
@@ -165,6 +164,7 @@ export default function App() {
       .catch((error) => {
         console.error('Error fetching project:', error);
       });
+
   }, []);
 
   useEffect(() => {
@@ -181,6 +181,7 @@ export default function App() {
 
   useEffect(() => {
     if (selectedProject !== null) {
+      Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);

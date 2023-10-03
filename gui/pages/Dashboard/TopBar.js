@@ -19,7 +19,7 @@ export default function TopBar({selectedProject, userName, env}) {
     }
     getUserClick('Logged Out',{})
     localStorage.removeItem('accessToken');
-    Cookies.remove('accessToken', { domain: '.superagi.com', path: '/' });
+    Cookies.remove('accessToken');
     refreshUrl();
     router.reload();
   };
