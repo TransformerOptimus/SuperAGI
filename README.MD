@@ -74,7 +74,7 @@
 
 <hr>
 
-### What are we ?
+## What are we ?
 
 A dev-first open source autonomous AI agent framework enabling developers to build, manage & run useful autonomous agents. You can run concurrent agents seamlessly, extend agent capabilities with tools. The agents efficiently perform a variety of tasks and continually improve their performance with each subsequent run.
 
