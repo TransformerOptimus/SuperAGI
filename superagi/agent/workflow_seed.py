@@ -128,12 +128,12 @@ class AgentWorkflowSeed:
                                                                     "Read the resume from above input",
                                                                     "Check if the resume matches High-Level GOAL")
 
-        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     SendEmailTool().name,
                                                                     "Write a custom acceptance Email to the candidates")
 
-        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step6",
                                                                     SendEmailTool().name,
                                                                     "Write a custom Reject Email to the candidates")
@@ -141,10 +141,10 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step5.id, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step6.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step5.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step2.id)
         session.commit()
 
     @classmethod
