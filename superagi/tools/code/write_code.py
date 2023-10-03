@@ -4,10 +4,13 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
@@ -34,6 +37,7 @@ class CodingTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     agent_id: int = None
+    agent_execution_id: int = None
     name = "CodingTool"
     description = (
         "You will get instructions for code to write. You will write a very long answer. "
@@ -75,6 +79,9 @@ class CodingTool(BaseTool):
         token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
 
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        
+        if 'error' in result and result['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
 
         # Get all filenames and corresponding code blocks
         regex = r"(\S+?)\n```\S*\n(.+?)```"

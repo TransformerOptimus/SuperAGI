@@ -14,17 +14,19 @@ import {
   validateAccessToken,
   checkEnvironment,
   addUser,
-  installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate
+  installToolkitTemplate, installAgentTemplate, installKnowledgeTemplate, getFirstSignup
 } from "@/pages/api/DashboardService";
-import {githubClientId} from "@/pages/api/apiConfig";
+import {githubClientId, mixpanelId} from "@/pages/api/apiConfig";
 import {
   getGithubClientId
 } from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl, loadingTextEffect} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick, sendGAEvent} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
+import mixpanel from 'mixpanel-browser';
+import Cookies from 'js-cookie';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -101,12 +103,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true);
-    } else {
-      installFromMarketplace();
-    }
-
+    handleMarketplace()
     loadingTextEffect('Initializing SuperAGI', setLoadingText, 500);
 
     checkEnvironment()
@@ -115,6 +112,8 @@ export default function App() {
         setEnv(env);
 
         if (typeof window !== 'undefined') {
+          if(response.data.env === 'PROD' && mixpanelId())
+            mixpanel.init(mixpanelId(), { debug: false, track_pageview: true, persistence: 'localStorage' });
           localStorage.setItem('applicationEnvironment', env);
         }
 
@@ -123,40 +122,50 @@ export default function App() {
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
+          let first_login = parsedParams.first_time_login || false
+
+          const utmParams = getUTMParametersFromURL();
+          if (utmParams) {
+            sessionStorage.setItem('utm_source', utmParams.utm_source);
+            sessionStorage.setItem('utm_medium', utmParams.utm_medium);
+            sessionStorage.setItem('campaign', utmParams.utm_campaign);
+          }
+          const signupSource = sessionStorage.getItem('utm_source');
+          const signupMedium = sessionStorage.getItem('utm_medium');
+          const singupCampaign = sessionStorage.getItem('campaign');
 
           if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
             refreshUrl();
           }
-
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
+              sendGAEvent(response.data.email, 'Signed Up Successfully', {'utm_source': signupSource || '', 'utm_medium': signupMedium || '', 'campaign': singupCampaign || ''})
+              if(mixpanelId())
+                mixpanel.identify(response.data.email)
+              if(first_login)
+                getUserClick('New Sign Up', {})
+              else
+                getUserClick('User Logged In', {})
+
+              if(signupSource) {
+                handleSignUpSource(signupSource)
+              }
+              Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
               console.error('Error validating access token:', error);
             });
         } else {
-          const userData = {
-            "name": "SuperAGI User",
-            "email": "super6@agi.com",
-            "password": "pass@123",
-          }
-
-          addUser(userData)
-            .then((response) => {
-              setUserName(response.data.name);
-              fetchOrganisation(response.data.id);
-            })
-            .catch((error) => {
-              console.error('Error adding user:', error);
-            });
+          handleLocalEnviroment()
         }
       })
       .catch((error) => {
         console.error('Error fetching project:', error);
       });
+
   }, []);
 
   useEffect(() => {
@@ -196,6 +205,39 @@ export default function App() {
         window.open(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${github_client_id}`, '_self')
       }
   }
+
+  const handleLocalEnviroment = () => {
+    const userData = {
+      "name": "SuperAGI User",
+      "email": "super6@agi.com",
+      "password": "pass@123",
+    }
+
+    addUser(userData)
+        .then((response) => {
+          setUserName(response.data.name);
+          fetchOrganisation(response.data.id);
+        })
+        .catch((error) => {
+          console.error('Error adding user:', error);
+        });
+  };
+  const handleSignUpSource = (signup) => {
+    getFirstSignup(signup)
+        .then((response) => {
+        })
+        .catch((error) => {
+          console.error('Error validating source:', error);
+        })
+  };
+
+  const handleMarketplace = () => {
+    if (window.location.href.toLowerCase().includes('marketplace')) {
+      setShowMarketplace(true);
+    } else {
+      installFromMarketplace();
+    }
+  };
 
   useEffect(() => {
     const clearLocalStorage = () => {

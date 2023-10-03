@@ -907,6 +907,14 @@ p {
 
 .fw_500{font-weight: 500;}
 
+.br_4{border-radius: 4px}
+.br_5{border-radius: 5px}
+.br_6{border-radius: 6px}
+.br_8{border-radius: 8px}
+
+.fs_10{font-size: 10px}
+.fs_20{font-size: 20px}
+
 .text_9{
     color: #FFF;
     font-family: Inter;
@@ -957,6 +965,14 @@ p {
 .text_17{
     color: #FFF;
     font-size: 17px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.text_20 {
+    color: #FFF;
+    font-size: 20px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -1138,13 +1154,12 @@ p {
 .gap_16{gap:16px;}
 .gap_20{gap:20px;}
 
-.border_gray{border: 1px solid rgba(255, 255, 255, 0.08)}
-.border_left_none{border-left: none;}
+.br_left_grey{border-left: 1px solid rgba(255, 255, 255, 0.08)}
 .border_top_none{border-top: none;}
 .border_bottom_none{border-bottom: none;}
 .border_bottom_grey{border-bottom: 1px solid rgba(255, 255, 255, 0.08)}
-.border_radius_8{border-radius: 8px;}
-.border_radius_25{border-radius: 25px;}
+
+.bt_white{border-top: 1px solid rgba(255, 255, 255, 0.08);}
 
 .bt_white{border-top: 1px solid rgba(255, 255, 255, 0.08);}
 
@@ -1154,13 +1169,16 @@ p {
 .lh_16{line-height: 16px;}
 .lh_17{line-height: 17px;}
 .lh_18{line-height: 18px;}
+.lh_24{line-height: 24px;}
 
 .padding_0{padding: 0}
 .padding_5{padding: 5px;}
+.padding_6{padding: 6px;}
 .padding_8{padding: 8px;}
 .padding_10{padding: 10px;}
 .padding_12{padding: 12px;}
 .padding_16{padding: 16px;}
+.padding_20{padding: 20px;}
 
 .padding_8_6{padding: 8px 6px;}
 .padding_2_8{padding: 2px 8px;}
@@ -1385,19 +1403,6 @@ tr{
     margin: 2px;
 }
 
-.tools_used_tooltip{
-    position: absolute;
-    transform: translateX(-50%);
-    padding: 6px;
-    color: #fff;
-    font-size: 12px;
-    white-space: pre;
-    z-index: 100;
-    border-radius: 8px;
-    background: #2E293F;
-    margin-top: -40px;
-}
-
 .image_class{
     background: #FFFFFF80;
     border-radius: 20px;
@@ -1478,8 +1483,11 @@ tr{
     }
 }
 
-.bg_black{background: black}
-.bg_white{background: white}
+.bg_black{background: black;}
+.bg_white{background: white;}
+.bg_none{background: none;}
+.bg_primary{background: #2E293F;}
+.bg_secondary{background: #272335;}
 .bg_none{background: none}
 
 .container {
@@ -1796,7 +1804,6 @@ tr{
 
 .history_box, .history_box_selected {
     width: 100%;
-    padding: 10px;
     color: white;
     font-style: normal;
     font-weight: 400;
@@ -1894,3 +1901,10 @@ tr{
     flex-direction: row;
     justify-content: center;
 }
+
+.tooltip-class {
+    background-color: green;
+    border-radius: 6px;
+}
+
+

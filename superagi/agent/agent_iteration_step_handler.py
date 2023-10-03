@@ -11,6 +11,7 @@ from superagi.agent.task_queue import TaskQueue
 from superagi.agent.tool_builder import ToolBuilder
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.models.agent import Agent
@@ -73,6 +74,9 @@ class AgentIterationStepHandler:
         current_tokens = TokenCounter.count_message_tokens(messages = messages, model = self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 
+        if 'error' in response and response['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.session, self.agent_id, self.agent_execution_id, response['message'])
+            
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
 
@@ -82,11 +86,12 @@ class AgentIterationStepHandler:
             content = json.loads(response['content'])
             tool = content.get('tool', {})
             tool_name = tool.get('name', '') if tool else ''
-        except Exception as e:
-            logger.error(f"Decoding JSON has failed {e}")
+        except json.JSONDecodeError:
+            print("Decoding JSON has failed")
             tool_name = ''
 
-        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,agent_config['agent_id'],total_tokens, tool_name,agent_config['model'])
+        CallLogHelper(session=self.session, organisation_id=organisation.id).create_call_log(execution.name,
+                                                                                             agent_config['agent_id'], total_tokens, tool_name, agent_config['model'])
 
         assistant_reply = response['content']
         output_handler = get_output_handler(iteration_workflow_step.output_type,

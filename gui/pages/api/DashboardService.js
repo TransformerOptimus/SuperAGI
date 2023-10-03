@@ -389,6 +389,7 @@ export const getToolLogs = (toolName) => {
 export const publishTemplateToMarketplace = (agentData) => {
   return api.post(`/agent_templates/publish_template`, agentData);
 };
+
 export const getKnowledgeMetrics = (knowledgeName) => {
   return api.get(`analytics/knowledge/${knowledgeName}/usage`)
 }
@@ -396,3 +397,7 @@ export const getKnowledgeMetrics = (knowledgeName) => {
 export const getKnowledgeLogs = (knowledgeName) => {
   return api.get(`analytics/knowledge/${knowledgeName}/logs`)
 }
+
+export const getFirstSignup = (source) => {
+  return api.post(`/users/first_login_source/${source}`,);
+};

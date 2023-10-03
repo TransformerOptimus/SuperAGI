@@ -3,6 +3,7 @@ from typing import Tuple, List
 from sqlalchemy import asc
 
 from superagi.config.config import get_config
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.models.agent_execution import AgentExecution
@@ -121,6 +122,9 @@ class AgentLlmMessageBuilder:
         msgs = [{"role": "system", "content": "You are GPT Prompt writer"},
                 {"role": "assistant", "content": ltm_prompt}]
         ltm_summary = self.llm.chat_completion(msgs)
+
+        if 'error' in ltm_summary and ltm_summary['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.session, self.agent_id, self.agent_execution_id, ltm_summary['message'])
 
         execution = AgentExecution(id=self.agent_execution_id)
         agent_execution_configs = {"ltm_summary": ltm_summary["content"]}

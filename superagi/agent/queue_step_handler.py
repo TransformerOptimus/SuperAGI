@@ -4,6 +4,7 @@ import numpy as np
 
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.task_queue import TaskQueue
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
@@ -90,6 +91,10 @@ class QueueStepHandler:
                                   completion_prompt=step_tool.completion_prompt)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
+        
+        if 'error' in response and response['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.session, self.agent_id, self.agent_execution_id, response['message'])
+            
         if 'content' not in response or response['content'] is None:
             raise RuntimeError(f"Failed to get response from llm")
         total_tokens = current_tokens + TokenCounter.count_message_tokens(response, self.llm.get_model())
