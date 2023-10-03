@@ -26,7 +26,7 @@ import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageV
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
 import mixpanel from 'mixpanel-browser';
-
+import Cookies from 'js-cookie';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -135,6 +135,7 @@ export default function App() {
           const singupCampaign = sessionStorage.getItem('campaign');
 
           if (typeof window !== 'undefined' && access_token) {
+            Cookies.set('accessToken', access_token, { domain: '.superagi.com', path: '/' });
             localStorage.setItem('accessToken', access_token);
             refreshUrl();
           }
