@@ -106,7 +106,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
 #### ☁️ SuperAGI cloud
-To quickly start experimenting with agents without the hassle of setting up the system,x try [Superagi Cloud](https://app.superagi.com/)
+To quickly start experimenting with agents without the hassle of setting up the system, try [Superagi Cloud](https://app.superagi.com/)
 1. Visit [Superagi Cloud](https://app.superagi.com/) and log in using your github account.
 
 2. In your account settings, go to "Model Providers" and add your API key.
