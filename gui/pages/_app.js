@@ -154,7 +154,7 @@ export default function App() {
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }
-              Cookies.set('superagi_access_token', access_token, { domain: '.superagi.com', path: '/' });
+              Cookies.set('accessToken', access_token, { domain: '.superagi.com', path: '/' });
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
