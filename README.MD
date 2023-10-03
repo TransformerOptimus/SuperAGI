@@ -129,6 +129,8 @@ If you'd like to contribute, start by reading our [Contribution Guide](https://g
 
 To get more idea on where we are heading, checkout our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1)
 
+Explore some [good first issues] to start contributing(https://github.com/TransformerOptimus/SuperAGI/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+
 <a id="architecture">
 
 ### 🌐 Architecture
