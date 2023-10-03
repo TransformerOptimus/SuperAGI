@@ -119,6 +119,15 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
+
+### 📖 Need Help?
+
+Explore our comprehensive [documentation](https://superagi.com/docs/) for guidance.
+
+Find video tutorials on our [YouTube Channel](https://www.youtube.com/@_SuperAGI/videos).
+
+Join our vibrant [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
+
 ### 💻 Contributing
 We ❤️ our contributors. 
 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md). Please read and follow it.
@@ -161,14 +170,6 @@ To get more idea on where we are heading, checkout our roadmap [here](https://gi
 ![ER Diagram](https://superagi.com/wp-content/uploads/2023/09/ER-Diagram.png)
 </details>
 
-
-### 📖 Need Help?
-
-Explore our comprehensive [documentation](https://superagi.com/docs/) for guidance.
-
-Find video tutorials on our [YouTube Channel](https://www.youtube.com/@_SuperAGI/videos).
-
-Join our vibrant [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
 
 ### ⚠️ Under Development!
 This project is under active development and may still have issues. We appreciate your understanding and patience. If you encounter any problems, please first check the open issues. If your issue is not listed, kindly create a new issue detailing the error or problem you experienced. Thank you for your support!
