@@ -1099,6 +1099,7 @@ p {
 .mxh_78vh{max-height: 78vh}
 
 .flex_dir_col{flex-direction: column}
+.flex_dir_row{flex-direction: row}
 
 .justify_center{justify-content: center}
 .justify_end{justify-content: flex-end}

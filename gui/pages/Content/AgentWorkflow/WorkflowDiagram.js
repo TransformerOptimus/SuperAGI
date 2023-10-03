@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import yaml from 'js-yaml';
 import mermaid from 'mermaid';
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-
-
 
 export default function WorkflowDiagram({yamlContent}) {
+    const mermaidContent = convertYamlToMermaid(yamlContent);
+    const mermaidContainerRef = useRef(null);
+
 
     useEffect(() => {
         mermaid.initialize({
@@ -24,9 +24,28 @@ export default function WorkflowDiagram({yamlContent}) {
         mermaid.init(undefined, document.querySelectorAll('.mermaid'));
     }, []);
 
+    useEffect(() => {
+        if (mermaidContainerRef.current) {
+            // Clear the container
+            mermaidContainerRef.current.innerHTML = '';
+
+            // Create a new node to contain mermaid content
+            const mermaidNode = document.createElement('div');
+            mermaidNode.className = 'mermaid';
+            mermaidNode.textContent = mermaidContent;
+
+            // Append the new node to the container
+            mermaidContainerRef.current.appendChild(mermaidNode);
+
+            // Reinitialize mermaid
+            mermaid.init(undefined, mermaidNode);
+        }
+    }, [yamlContent]);
+
     function convertYamlToMermaid(yamlContent) {
         if (yamlContent && yamlContent !== '') {
             const parsedData = yaml.load(yamlContent);
+            console.log(parsedData)
             const steps = parsedData.steps;
 
             let mermaidString = 'graph TD\n';
@@ -43,30 +62,31 @@ export default function WorkflowDiagram({yamlContent}) {
                     label = step.instruction ? `<div style="border: 1px solid #777 !important; background: #444 !important; padding: 8px ">${step.instruction}</div>` : '';
                 }
 
-                const sanitizedStepName = step.name.replace(/\s+/g, '');
+                const sanitizedStepName = step.name.split(" ").join("");
                 mermaidString += `${sanitizedStepName}[${label}]\n`;
 
                 // Define next steps based on the 'next' property
                 if (typeof step.next === 'string') {
-                    const sanitizedNextName = step.next.replace(/\s+/g, '');
+                    const sanitizedNextName = step.next.split(" ").join("");
                     mermaidString += `${sanitizedStepName} --> ${sanitizedNextName}\n`;
                     linkIndex++;
                 } else if (typeof step.next === 'object' && Array.isArray(step.next)) {
                     step.next.forEach(nextStep => {
-                        mermaidString += `${step.name} -->|${nextStep.output}| ${nextStep.step}\n`;
-                        // mermaidString += `linkStyle ${linkIndex} stroke:#2E294B,stroke-width:4px;\n`;
+                        const sanitizedOutput = nextStep.output.split(" ").join("");
+                        const sanitizedStep = nextStep.step.split(" ").join("");
+                        mermaidString += `${step.name} -->|${sanitizedOutput}| ${sanitizedStep}\n`;
                         linkIndex++;
                     });
                 } else if (typeof step.next === 'object') {
                     // For conditional branching
                     if (step.next.next_step) {
-                        mermaidString += `${step.name} --> ${step.next.next_step}\n`;
-                        // mermaidString += `linkStyle ${linkIndex} stroke:#2E294B,stroke-width:4px;\n`;
+                        const sanitizedNextStep = step.next.next_step.split(" ").join("");
+                        mermaidString += `${step.name} --> ${sanitizedNextStep}\n`;
                         linkIndex++;
                     }
                     if (step.next.exit_step) {
-                        mermaidString += `${step.name} --> ${step.next.exit_step}\n`;
-                        // mermaidString += `linkStyle ${linkIndex} stroke:#2E294B,stroke-width:4px;\n`;
+                        const sanitizedNextStep = step.next.next_step.split(" ").join("");
+                        mermaidString += `${step.name} --> ${sanitizedNextStep}\n`;
                         linkIndex++;
                     }
                 }
@@ -75,24 +95,12 @@ export default function WorkflowDiagram({yamlContent}) {
             return mermaidString;
         }
     }
-    function handleDragStart(event) {
-        event.dataTransfer.setData('text/plain', mermaidContent);
-    }
-
-
-    const mermaidContent = convertYamlToMermaid(yamlContent);
 
     return (
         <div >
-                <div >
+                <div ref={mermaidContainerRef}>
                     <div className="mermaid"  style={{
-                        padding: '20px',
-                        border: '1px dashed #ccc',
-                        cursor: 'grab', // Change cursor style on drag
-                    }}
-                         draggable // Enable drag-and-drop on the div
-                         onDragStart={handleDragStart} // Event handler for drag start
-                    >
+                        padding: '20px',}}>
                         {mermaidContent}
                     </div>
                 </div>
