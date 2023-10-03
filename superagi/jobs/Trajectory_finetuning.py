@@ -44,7 +44,7 @@ class TrajectoryFinetuning:
                 self.memory.add_texts([response_str],[metadata])
             except Exception as exception:
                 logger.error(f"Exception: {exception}")
-         query = "Get the most relevant and matching response for the completion of the GOALS:`{goals}` and INSTRUCTIONS:`{instructions}` "
+         query = "Get the most relevant and matching steps for the completion of the GOALS:`{goals}` and INSTRUCTIONS:`{instructions}` "
          query = query.replace("{goals}", str(goals))
          query = query.replace("{instructions}", str(instructions))
          if self.memory is None:

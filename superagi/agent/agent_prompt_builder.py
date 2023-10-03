@@ -99,9 +99,7 @@ class AgentPromptBuilder:
                                      agent_execution_id=agent_execution_id,
                                      organisation_id=organisation.id,
                                      memory=memory
-                                     ).Trajectory_finetuning()
-        print("______________finetune varialbe:",finetune)
-
+                                     ).Trajectory_finetuning()       
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
         if len(instructions) > 0 and len(instructions[0]) > 0:
             task_str = "INSTRUCTION(Follow these instruction to decide the flow of execution and decide the next steps for achieving the task):"
