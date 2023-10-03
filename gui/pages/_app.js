@@ -152,6 +152,7 @@ export default function App() {
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }
+              Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
@@ -181,7 +182,6 @@ export default function App() {
 
   useEffect(() => {
     if (selectedProject !== null) {
-      Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
       setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
