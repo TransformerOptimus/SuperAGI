@@ -122,7 +122,9 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 ### 💻 Contributing
 We ❤️ our contributors. 
 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md). Please read and follow it.
+
 If you'd like to contribute, start by reading our [Contribution Guide](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md)
+
 To get more idea on where we are heading, checkout our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1)
 
 <a id="architecture">
