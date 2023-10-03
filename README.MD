@@ -97,25 +97,17 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 
 ### 💡 Features
 
-- Provision, spawn & deploy autonomous AI agents
-- Tools/Toolkits for extended agent capabilities
-- Concurrent agent runs
-- Schedule agents
-- Action console
-- Multiple vector DBs
-- Agent trajectory fine-tuning
-- Performance monitoring
-- Tool memory
-- Resource manager
-- Knowledge embeddings
-- Agent workflows
+- Provision, Spawn & Deploy Autonomous AI Agents - Create production-ready & scalable autonomous agents.
+- Extend Agent Capabilities with Tools - Add various tools/toolkits to your agent workflows.
+- Graphical User Interface - Access your agents through a graphical user interface.
+- Action Console - Interact with agents by giving them input and permissions.
+- Multiple Vector DBs - Connect to multiple Vector DBs to enhance your agent’s performance.
+- Performance Telemetry - Get insights into your agent’s performance and optimize accordingly.
+- Optimized Token Usage - Control token usage to manage costs effectively.
+- Agent Memory Storage - Enable your agents to learn and adapt by storing their memory.
 
 ### 🛠 Tools
 <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Twitter.png height=50px width=50px alt="Twitter" valign="middle" title="Twitter"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Coding.png height=50px width=50px alt="Coding Tool" valign="middle" title="Coding Tool"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Insta.png height=50px width=50px alt="Instagram" valign="middle" title="Instagram"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Knowledge_tool.png height=50px width=50px alt="Knowledge Search" valign="middle" title="Knowledge Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113612.png height=50px width=50px alt="Email"  valign="middle" title="Email"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113610.png height=50px width=50px alt="Jira" valign="middle" title="Jira"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113611.png height=50px width=50px alt="File Manager" valign="middle" title="File Manager"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113613.png height=50px width=50px alt="Google Search" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113615.png height=50px width=50px alt="Dall-E" valign="middle" title="Dall-E"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113614.png height=50px width=50px alt="Github" valign="middle" title="Github"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113616.png height=50px width=50px alt="Web Interaction" valign="middle" title="Web Interaction"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113622.png height=50px width=50px alt="Duckduckgo" valign="middle" title="Duckduckgo"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Calendar_tool.png height=50px width=50px alt="Google Calendar" valign="middle" title="Google Calendar"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Search_tool.png height=50px width=50px alt="Google Calendar" valign="middle" title="Google Search"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Serp.png height=50px width=50px alt="Serp API" valign="middle" title="Serp API"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Searx.png height=50px width=50px alt="Searx" valign="middle" title="Searx "></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Web_scraper_logo.png height=50px width=50px alt="Web Scraper" valign="middle" title="Web Scraper"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Notion_logo.png height=50px width=50px alt="Notion" valign="middle" title="Notion"></a> <a href="#"><img src=https://superagi.com/wp-content/uploads/2023/08/Apollo_logo.png height=50px width=50px alt="Apollo" valign="middle" title="Apollo"></a>
-
-
-### 🛣 Roadmap
-[Click here to checkout the latest roadmap 🔗](https://github.com/users/TransformerOptimus/projects/5/views/1)
 
 ### ⚙️ Setting up
 
@@ -128,8 +120,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 - If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
 
 ### 💻 Contribute
-
-We wholeheartedly welcome contributions in the form of bug reports, feature ideas, or pull requests. For contribution guidelines, see [CONTRIBUTING.md](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md)
+We wholeheartedly welcome contributions in the form of bug reports, feature ideas, or pull requests, and invite you to explore our latest roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1). For contribution guidelines, see [CONTRIBUTING.md](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md)"
 
 <a id="architecture">
 
