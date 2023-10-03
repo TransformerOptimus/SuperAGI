@@ -162,19 +162,13 @@ To get more idea on where we are heading, checkout our roadmap [here](https://gi
 </details>
 
 
-### 📖 Tutorial / Guides
+### 📖 Need Help?
 
-1. [GUI Walkthrough](https://www.youtube.com/watch?v=7FXESG6BOgw)
-2. [Agent Provisioning](https://superagi.com/docs/Core%20Components/Agents/agent_provisioning)
-3. [Toolkits](https://superagi.com/docs/Toolkit/)
-4. [Vector Databases](https://superagi.com/docs/Core%20Components/Vector%20Database/)
+Explore our comprehensive [documentation](https://superagi.com/docs/) for guidance.
 
-For more information, please check out:
+Find video tutorials on our [YouTube Channel](https://www.youtube.com/@_SuperAGI/videos).
 
-1. [Documentation](https://superagi.com/docs/)
-2. [YouTube Channel](https://www.youtube.com/@_SuperAGI/videos)
-
-We're absolutely delighted to answer any questions you may have! Don't hesitate to drop your inquiries or simply say hi and join our lively [Discord community](https://discord.gg/YRUmuRMd)
+Join our vibrant [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
 
 ### ⚠️ Under Development!
 This project is under active development and may still have issues. We appreciate your understanding and patience. If you encounter any problems, please first check the open issues. If your issue is not listed, kindly create a new issue detailing the error or problem you experienced. Thank you for your support!
