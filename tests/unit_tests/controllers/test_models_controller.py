@@ -50,7 +50,8 @@ def test_store_model_success(mock_get_db):
         "model_provider_id": 1,
         "token_limit": 10,
         "type": "mock_type",
-        "version": "mock_version"
+        "version": "mock_version",
+        "context_length":4096
     }
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
         patch('superagi.helper.auth.db') as mock_auth_db:
