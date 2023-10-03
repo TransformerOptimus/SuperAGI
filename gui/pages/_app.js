@@ -26,7 +26,7 @@ import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageV
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
 import mixpanel from 'mixpanel-browser';
-
+import Cookies from 'js-cookie';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -152,6 +152,7 @@ export default function App() {
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }
+              Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
@@ -164,6 +165,7 @@ export default function App() {
       .catch((error) => {
         console.error('Error fetching project:', error);
       });
+
   }, []);
 
   useEffect(() => {

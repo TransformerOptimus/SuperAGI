@@ -5,6 +5,7 @@ import {useRouter} from 'next/router';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {refreshUrl, openNewTab, getUserClick} from "@/utils/utils";
+import Cookies from 'js-cookie';
 
 export default function TopBar({selectedProject, userName, env}) {
   const [dropdown, setDropdown] = useState(false);
@@ -18,6 +19,7 @@ export default function TopBar({selectedProject, userName, env}) {
     }
     getUserClick('Logged Out',{})
     localStorage.removeItem('accessToken');
+    Cookies.remove('accessToken');
     refreshUrl();
     router.reload();
   };
