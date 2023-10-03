@@ -18,6 +18,7 @@
     "echarts-for-react": "^3.0.2",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
+    "js-cookie": "^3.0.5",
     "jszip": "^3.10.1",
     "mitt": "^3.0.0",
     "mixpanel-browser": "^2.47.0",
