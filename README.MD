@@ -74,7 +74,7 @@
 
 <hr>
 
-### 📽 Setting Up SuperAGI using Docker Hub
+### 📽 SuperAGI Setup using Docker Hub 
 
 <p align="center">
 <a href='https://youtu.be/qjJneWjH5v4'><img src="https://superagi.com/wp-content/uploads/2023/08/DockerHub_install-1.png" width=1000px></a>
