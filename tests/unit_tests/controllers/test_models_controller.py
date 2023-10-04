@@ -101,3 +101,16 @@ def test_get_marketplace_models_list_success(mock_get_db):
         patch('superagi.helper.auth.db') as mock_auth_db:
         response = client.get("/models_controller/marketplace/list/0")
         assert response.status_code == 200
+
+@patch('superagi.helper.llm_loader.LLMLoader')
+def test_get_llm(mocked_loader):
+    mocked_model = MagicMock()
+    mocked_grammar = MagicMock()
+    
+    instance = mocked_loader.return_value
+    instance.model = mocked_model
+    instance.grammar = mocked_grammar
+    
+    response = client.get("models_controller/test_local_llm")
+
+    assert response.status_code == 200, "Unexpected response code"
