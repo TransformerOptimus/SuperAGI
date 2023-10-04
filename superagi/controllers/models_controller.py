@@ -181,7 +181,16 @@ def test_local_llm():
         if llm_grammar is None:
             logger.error("Grammar not found.")
             raise HTTPException(status_code=404, detail="Grammar not found.")
-        
+
+        messages = [
+            {"role":"system",
+             "content":"You are an AI assistant. Give response in a proper JSON format"},
+             {"role":"user",
+             "content":"Hi!"}
+        ]
+        response = llm_model.create_chat_completion(messages=messages, grammar=llm_grammar)
+        content = response["choices"][0]["message"]["content"]
+        logger.info(content)
         return "Model loaded successfully."
         
     except Exception as e:
