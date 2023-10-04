@@ -1,6 +1,6 @@
 import React from "react";
 import 'react-toastify/dist/ReactToastify.css';
-import {createInternalId} from "@/utils/utils";
+import {createInternalId, getUserClick} from "@/utils/utils";
 
 export default function Models({sendModelData, models}){
 

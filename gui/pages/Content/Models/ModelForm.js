@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, openNewTab, createInternalId} from "@/utils/utils";
+import {removeTab, openNewTab, createInternalId, getUserClick} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
