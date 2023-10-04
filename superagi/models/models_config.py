@@ -70,7 +70,7 @@ class ModelsConfig(DBBaseModel):
         if not config:
             return None
 
-        if config.provider == 'Custom LLM':
+        if config.provider == 'Local LLM':
             return {"provider": config.provider, "api_key": config.api_key} if config else None
 
         return {"provider": config.provider, "api_key": decrypt_data(config.api_key)} if config else None
@@ -130,7 +130,7 @@ class ModelsConfig(DBBaseModel):
         logger.info(api_key_data)
         if api_key_data is None:
             return []
-        elif api_key_data.provider == 'Custom LLM':
+        elif api_key_data.provider == 'Local LLM':
             api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
                         'api_key': api_key_data.api_key}]
             return api_key

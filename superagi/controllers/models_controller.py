@@ -72,6 +72,8 @@ async def verify_end_point(model_api_key: str = None, end_point: str = None, mod
 @router.post("/store_model", status_code=200)
 async def store_model(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
     try:
+        #context_length = 4096
+        logger.info(request)
         return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version, request.context_length)
     except Exception as e:
         logging.error(f"Error storing the Model Details: {str(e)}")
@@ -172,7 +174,7 @@ def get_models_details(page: int = 0):
 @router.get("/test_local_llm", status_code=200)
 def test_local_llm():
     try:
-        llm_loader = LLMLoader()
+        llm_loader = LLMLoader(context_length=4096)
         llm_model = llm_loader.model
         llm_grammar = llm_loader.grammar
         if llm_model is None:

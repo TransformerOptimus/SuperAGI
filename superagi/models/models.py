@@ -6,6 +6,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.controllers.types.models_types import ModelsTypes
 from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
+from superagi.lib.logger import logger
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
@@ -40,6 +41,7 @@ class Models(DBBaseModel):
     version = Column(String, nullable=False)
     org_id = Column(Integer, nullable=False)
     model_features = Column(String, nullable=False)
+    context_length = Column(Integer, nullable=True)
 
     def __repr__(self):
         """
@@ -130,16 +132,11 @@ class Models(DBBaseModel):
             return model  # Return error message if model not found
 
         # Check the 'provider' from ModelsConfig table
-        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate','Custom LLM']:
+        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate','Local LLM']:
             return {"error": "End Point is empty or undefined"}
 
-        if context_length is not None:
-            with open('config.yaml', 'r') as file:
-                config_data = yaml.safe_load(file)
-                if 'MAX_CONTEXT_LENGTH' in config_data:
-                    config_data['MAX_CONTEXT_LENGTH'] = context_length
-            with open('config.yaml', 'w') as file:
-                yaml.safe_dump(config_data, file)
+        if context_length is None: 
+            context_length = 0
 
         try:
             model = Models(
@@ -151,7 +148,8 @@ class Models(DBBaseModel):
                 type=type,
                 version=version,
                 org_id=organisation_id,
-                model_features=''
+                model_features='',
+                context_length=context_length
             )
             session.add(model)
             session.commit()
