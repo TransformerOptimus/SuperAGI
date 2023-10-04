@@ -180,7 +180,7 @@ def test_local_llm():
             raise HTTPException(status_code=404, detail="Error while loading the model. Please check your model path and try again.")
         if llm_grammar is None:
             logger.error("Grammar not found.")
-            raise HTTPException(status_code=404, detail="")
+            raise HTTPException(status_code=404, detail="Grammar not found.")
         
         return "Model loaded successfully."
         
