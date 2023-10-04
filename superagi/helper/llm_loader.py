@@ -9,19 +9,22 @@ class LLMLoader:
     _model = None
     _grammar = None
 
-    def __new__(cls):
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(LLMLoader, cls).__new__(cls)
         return cls._instance
+
+    def __init__(self, context_length):
+        self.context_length = context_length
 
     @property
     def model(self):
         if self._model is None:
             try:
                 self._model = Llama(
-                    model_path="/app/local_model_path", n_ctx=int(get_config("MAX_CONTEXT_LENGTH")))
+                    model_path="/app/local_model_path", n_ctx=self.context_length)
             except Exception as e:
-                logger.info(e)
+                logger.error(e)
         return self._model
 
     @property
@@ -31,5 +34,5 @@ class LLMLoader:
                 self._grammar = LlamaGrammar.from_file(
                     "superagi/llms/grammar/json.gbnf")
             except Exception as e:
-                logger.info(e)
+                logger.error(e)
         return self._grammar

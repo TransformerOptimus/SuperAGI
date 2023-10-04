@@ -218,9 +218,9 @@ async def startup_event():
             register_marketplace_toolkits(session, marketplace_organisation)
     
     def local_llm_model_config():
-        existing_models_config = session.query(ModelsConfig).filter(ModelsConfig.org_id == default_user.organisation_id, ModelsConfig.provider == 'Custom LLM').first()
+        existing_models_config = session.query(ModelsConfig).filter(ModelsConfig.org_id == default_user.organisation_id, ModelsConfig.provider == 'Local LLM').first()
         if existing_models_config is None:
-            models_config = ModelsConfig(org_id=default_user.organisation_id, provider='Custom LLM', api_key="EMPTY")
+            models_config = ModelsConfig(org_id=default_user.organisation_id, provider='Local LLM', api_key="EMPTY")
             session.add(models_config)
             session.commit()
 

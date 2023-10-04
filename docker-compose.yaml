@@ -3,6 +3,7 @@ services:
   backend:
     volumes:
       - "./:/app"
+      - "/home/ubuntu/local_models/vicuna-13B-v1.5-GGUF/vicuna-13b-v1.5.Q8_0.gguf:/app/local_model_path"
     build: .
     depends_on:
       - super__redis
@@ -14,6 +15,7 @@ services:
     volumes:
       - "./:/app"
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
+      - "/home/ubuntu/local_models/vicuna-13B-v1.5-GGUF/vicuna-13b-v1.5.Q8_0.gguf:/app/local_model_path"
     build: .
     depends_on:
       - super__redis

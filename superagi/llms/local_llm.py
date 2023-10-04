@@ -7,7 +7,7 @@ from superagi.helper.llm_loader import LLMLoader
 class LocalLLM(BaseLlm):
     def __init__(self, temperature=0.6, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), top_p=1,
                  frequency_penalty=0,
-                 presence_penalty=0, number_of_results=1, model=None, api_key='EMPTY'):
+                 presence_penalty=0, number_of_results=1, model=None, api_key='EMPTY', context_length=4096):
         """
         Args:
             model (str): The model.
@@ -26,8 +26,9 @@ class LocalLLM(BaseLlm):
         self.frequency_penalty = frequency_penalty
         self.presence_penalty = presence_penalty
         self.number_of_results = number_of_results
+        self.context_length = context_length
 
-        llm_loader = LLMLoader()
+        llm_loader = LLMLoader(self.context_length)
         self.llm_model = llm_loader.model
         self.llm_grammar = llm_loader.grammar
 
