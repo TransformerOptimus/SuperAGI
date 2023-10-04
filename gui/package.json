@@ -34,5 +34,8 @@
     "react-spinners": "^0.13.8",
     "react-tippy": "^1.4.0",
     "react-toastify": "^9.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "20.8.2"
   }
 }

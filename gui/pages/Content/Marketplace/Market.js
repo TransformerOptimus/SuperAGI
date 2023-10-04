@@ -58,9 +58,9 @@ export default function Market({env, getModels, sendModelData}) {
   ];
 
   const renderTab = (tab) => {
-    if(tab.id === "market_models" && env === "PROD"){
-      return
-    }
+    // if(tab.id === "market_models" && env === "PROD"){
+    //   return
+    // }
     return (
         <button
             key={tab.id}
