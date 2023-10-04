@@ -107,7 +107,7 @@ def test_get_marketplace_models_list_success(mock_get_db):
         response = client.get("/models_controller/marketplace/list/0")
         assert response.status_code == 200
 
-def test_get_llm():
+def test_get_local_llm():
     with(patch.object(LLMLoader, 'model', new_callable=MagicMock)) as mock_model:
         with(patch.object(LLMLoader, 'grammar', new_callable=MagicMock)) as mock_grammar:
 
