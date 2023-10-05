@@ -182,7 +182,11 @@ export default function App() {
 
   useEffect(() => {
     if (selectedProject !== null) {
-      setApplicationState("AUTHENTICATED");
+      const source = Cookies.get('Source')
+      if (source === 'models.superagi')
+        window.open('https://models.superagi.com/', '_self');
+      else
+        setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
 
