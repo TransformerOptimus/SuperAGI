@@ -121,6 +121,8 @@ Find video tutorials on our [YouTube Channel](https://www.youtube.com/@_SuperAGI
 
 Join our vibrant [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
 
+[![Join us on Discord](https://invidget.switchblade.xyz/uJ3XUGsY2R)](https://discord.gg/uJ3XUGsY2R)
+
 ### 💻 Contributing
 We ❤️ our contributors. 
 
