@@ -43,7 +43,7 @@ export default function TopBar({selectedProject, userName, env}) {
     <div className="top_bar">
       <div className="top_left">
         <div className="top_bar_section cursor_default">
-          {env === 'PROD' && <div className="horizontal_container">
+          {env === 'PROD' && false && <div className="horizontal_container">
             <div onClick={() => setShowDropdown(!showDropdown)} className="horizontal_container align-middle cursor-pointer">
               <Image className="mr_8" width={20} height={20} src={selectedImagePath} alt="models-icon" />
               <span className="text_dropdown text_dropdown_18">{selectedOption}</span>
@@ -63,7 +63,7 @@ export default function TopBar({selectedProject, userName, env}) {
             </div>}
           </div>}
         </div>
-        {env === 'PROD' && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
+        {env === 'PROD' && false && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
         <div className="top_bar_section top_bar_input cursor_default">
           <div className="horizontal_container">
             <Image width={14} height={14} src="/images/project.svg" alt="project-icon"/>
