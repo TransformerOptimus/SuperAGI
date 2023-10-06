@@ -89,7 +89,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 - <b>Performance Telemetry</b> - Get insights into your agent’s performance and optimize accordingly.
 - <b>Optimized Token Usage</b> - Control token usage to manage costs effectively.
 - <b>Agent Memory Storage</b> - Enable your agents to learn and adapt by storing their memory.
-- <b>Models</b> - Custom fine tuned models for business specific usecases
+- <b>Models</b> - Custom fine tuned models for business specific usecases.
 - <b>Workflows</b> - Workflows are predefined sequences of ReAct LLM steps that AI agents can autonomously loop and iterate. 
 
 ### 🛠 Tools
