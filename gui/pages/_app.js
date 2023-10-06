@@ -118,6 +118,10 @@ export default function App() {
         }
 
         if (response.data.env === 'PROD') {
+          if(Cookies.get('accessToken') && Cookies.get('accessToken')!==''){
+            setApplicationState("AUTHENTICATED");
+            return;
+          }
           setApplicationState("NOT_AUTHENTICATED");
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
