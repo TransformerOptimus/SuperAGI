@@ -7,13 +7,13 @@ from superagi.helper.prompt_reader import PromptReader
 
 @patch("builtins.open", new_callable=mock_open, read_data="test_prompt")
 def test_get_super_agi_single_prompt(mock_file):
-    expected_result = {"prompt": "test_prompt", "variables": ["goals", "instructions", "constraints", "tools"]}
+    expected_result = {"prompt": "test_prompt", "variables": ["goals", "instructions", "constraints", "tools", "ft_response"]}
     result = AgentPromptTemplate.get_super_agi_single_prompt()
     assert result == expected_result
 
 @patch("builtins.open", new_callable=mock_open, read_data="test_prompt")
 def test_start_task_based(mock_file):
-    expected_result = {"prompt": "test_prompt", "variables": ["goals", "instructions"]}
+    expected_result = {"prompt": "test_prompt", "variables": ["goals", "instructions", "ft_response"]}
     result = AgentPromptTemplate.start_task_based()
     assert result == expected_result
 

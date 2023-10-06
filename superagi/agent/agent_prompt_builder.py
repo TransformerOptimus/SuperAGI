@@ -95,9 +95,9 @@ class AgentPromptBuilder:
         """
         from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
         finetune=TrajectoryFinetuning(session=session,
-                                     llm=get_model(model=agent_config["model"], api_key=model_api_key,organisation_id=organisation.id),
+                                     llm=get_model(model=agent_config["model"], api_key=model_api_key,organisation_id=organisation),
                                      agent_execution_id=agent_execution_id,
-                                     organisation_id=organisation.id,
+                                     organisation_id=organisation,
                                      memory=memory
                                      ).Trajectory_finetuning()       
         super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
