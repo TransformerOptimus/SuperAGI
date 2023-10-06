@@ -93,7 +93,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 - <b>Workflows</b> - Automate tasks with ease using ReAct LLM's predefined steps.
 
 ### 🛠 Toolkits
-Toolkits allow SuperAGI Agents to interact with third-party plugins and external systems.
+Toolkits allow SuperAGI Agents to interact with external systems and third-party plugins.
 
 <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Twitter.png height=50px width=50px alt="Twitter" valign="middle" title="Twitter"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Coding.png height=50px width=50px alt="Coding Tool" valign="middle" title="Coding Tool"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Insta.png height=50px width=50px alt="Instagram" valign="middle" title="Instagram"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Knowledge_tool.png height=50px width=50px alt="Knowledge Search" valign="middle" title="Knowledge Search"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113612.png height=50px width=50px alt="Email"  valign="middle" title="Email"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113610.png height=50px width=50px alt="Jira" valign="middle" title="Jira"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113611.png height=50px width=50px alt="File Manager" valign="middle" title="File Manager"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113613.png height=50px width=50px alt="Google Search" valign="middle" title="Google Search"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113615.png height=50px width=50px alt="Dall-E" valign="middle" title="Dall-E"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113614.png height=50px width=50px alt="Github" valign="middle" title="Github"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113616.png height=50px width=50px alt="Web Interaction" valign="middle" title="Web Interaction"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/05/Group-113622.png height=50px width=50px alt="Duckduckgo" valign="middle" title="Duckduckgo"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Calendar_tool.png height=50px width=50px alt="Google Calendar" valign="middle" title="Google Calendar"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Search_tool.png height=50px width=50px alt="Google Calendar" valign="middle" title="Google Search"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Serp.png height=50px width=50px alt="Serp API" valign="middle" title="Serp API"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Searx.png height=50px width=50px alt="Searx" valign="middle" title="Searx "></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Web_scraper_logo.png height=50px width=50px alt="Web Scraper" valign="middle" title="Web Scraper"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Notion_logo.png height=50px width=50px alt="Notion" valign="middle" title="Notion"></a> <a href="https://marketplace.superagi.com/" target="_blank"><img src=https://superagi.com/wp-content/uploads/2023/08/Apollo_logo.png height=50px width=50px alt="Apollo" valign="middle" title="Apollo"></a>
 
@@ -103,8 +103,8 @@ You can install superAGI using one of the following three approaches.
 
 #### ☁️ SuperAGI cloud
 
-To quickly start experimenting with agents without the hassle of setting up the system, try [Superagi Cloud](https://app.superagi.
-com/)
+To quickly start experimenting with agents without the hassle of setting up the system, try [Superagi Cloud](https://app.superagi.com/)
+
 1. Visit [Superagi Cloud](https://app.superagi.com/) and log in using your github account.
 
 2. In your account settings, go to "Model Providers" and add your API key.
@@ -176,7 +176,7 @@ docker-compose up --build
 ### 📚 Resources
 
 * [Documentation](https://superagi.com/docs/)
-* [YouTube Channel](https://www.youtube.com/@_SuperAGI/videos).
+* [YouTube Channel](https://www.youtube.com/@_SuperAGI/videos)
 
 
 ### 📖 Need Help?
@@ -185,14 +185,16 @@ Join our [Discord community](https://discord.gg/YRUmuRMd) for support and discus
 
 [![Join us on Discord](https://invidget.switchblade.xyz/uJ3XUGsY2R)](https://discord.gg/uJ3XUGsY2R)
 
+If you have questions or encounter issues, please don't hesitate to [create a new issue](https://github.com/TransformerOptimus/SuperAGI/issues/new/choose) to get support.
+
 ### 💻 Contribution
 We ❤️ our contributors. We’re committed to fostering an open, welcoming, and safe environment in the community.
 
-If you'd like to contribute, start by reading our [Contribution Guide](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md)
+If you'd like to contribute, start by reading our [Contribution Guide](https://github.com/TransformerOptimus/SuperAGI/blob/main/CONTRIBUTING.md).
 
-We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md)
+We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md).
 
-To get more idea on where we are heading, checkout our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1)
+To get more idea on where we are heading, checkout our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1).
 
 Explore some [good first issues](https://github.com/TransformerOptimus/SuperAGI/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) to start contributing.
 
