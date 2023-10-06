@@ -63,7 +63,7 @@ export default function TopBar({selectedProject, userName, env}) {
             </div>}
           </div>}
         </div>
-        {env === 'PROD' && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
+        {env === 'PROD' && false && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
         <div className="top_bar_section top_bar_input cursor_default">
           <div className="horizontal_container">
             <Image width={14} height={14} src="/images/project.svg" alt="project-icon"/>
