@@ -113,13 +113,23 @@ You're all set! Start running your agents effortlessly.
 
 #### 🖥️ Local
 
-1. Download the repo using `git clone https://github.com/TransformerOptimus/SuperAGI.git` in your terminal or directly from github page in zip format.
+1. Open your terminal and clone the SuperAGI repository.
+```
+git clone https://github.com/TransformerOptimus/SuperAGI.git 
+```
 
-2. Navigate to the directory using `cd SuperAGI` and create a copy of `config_template.yaml`, naming it `config.yaml` (take note of the file extension `.yaml`, *not* `.yml`).
-3. Ensure that Docker is installed in your system, if not, Install it from [here](https://docs.docker.com/get-docker/). 
-4. Once you have Docker Desktop running, run the command: `docker-compose up --build` in the SuperAGI directory. Open your browser and navigate to `http://localhost:3000` to access SuperAGI.
+2. Navigate to the cloned repository directory using the command:
+```
+cd SuperAGI
+```
+3. Create a copy of config_template.yaml, and name it config.yaml.
 
-- If you wish to change the port it's running on, open the `docker-compose.yml` file and update the `proxy` container port forwarding, for example: `"3000:80"`
+4.Ensure that Docker is installed on your system. You can download and install it from [here](https://docs.docker.com/get-docker/).
+
+5. Once you have Docker Desktop running, run the following command in the in the SuperAGI directory :
+```docker-compose up --build```
+
+6. Open your web browser and navigate to http://localhost:3000 to access SuperAGI.
 
 #### 🌀 Digital Ocean
 
