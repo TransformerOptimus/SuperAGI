@@ -124,7 +124,7 @@ cd SuperAGI
 ```
 3. Create a copy of config_template.yaml, and name it config.yaml.
 
-4.Ensure that Docker is installed on your system. You can download and install it from [here](https://docs.docker.com/get-docker/).
+4. Ensure that Docker is installed on your system. You can download and install it from [here](https://docs.docker.com/get-docker/).
 
 5. Once you have Docker Desktop running, run the following command in the in the SuperAGI directory :
 ```
