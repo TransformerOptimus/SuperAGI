@@ -82,7 +82,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 ### 💡 Features
 
 - <b>Provision, Spawn & Deploy Autonomous AI Agents</b> - Create production-ready & scalable autonomous agents.
-- <b>Extend Agent Capabilities with Tools</b> - Add various tools/toolkits to your agent workflows.
+- <b>Extend Agent Capabilities with Toolkits</b> - Add Toolkits from our marketplace to your agent workflows.
 - <b>Graphical User Interface</b> - Access your agents through a graphical user interface.
 - <b>Action Console</b> - Interact with agents by giving them input and permissions.
 - <b>Multiple Vector DBs</b> - Connect to multiple Vector DBs to enhance your agent’s performance.
