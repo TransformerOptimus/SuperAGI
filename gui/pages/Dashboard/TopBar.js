@@ -43,7 +43,7 @@ export default function TopBar({selectedProject, userName, env}) {
     <div className="top_bar">
       <div className="top_left">
         <div className="top_bar_section cursor_default">
-          {env === 'PROD' && <div className="horizontal_container">
+          {env === 'PROD' && false && <div className="horizontal_container">
             <div onClick={() => setShowDropdown(!showDropdown)} className="horizontal_container align-middle cursor-pointer">
               <Image className="mr_8" width={20} height={20} src={selectedImagePath} alt="models-icon" />
               <span className="text_dropdown text_dropdown_18">{selectedOption}</span>
