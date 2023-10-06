@@ -169,7 +169,7 @@ You're all set! Start running your agents effortlessly.
 
 ### 📖 Need Help?
 
-Join our vibrant [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
+Join our [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
 
 [![Join us on Discord](https://invidget.switchblade.xyz/uJ3XUGsY2R)](https://discord.gg/uJ3XUGsY2R)
 
