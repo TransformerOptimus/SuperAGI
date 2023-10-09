@@ -42,7 +42,8 @@ export default function TopBar({selectedProject, userName, env}) {
   return (
     <div className="top_bar">
       <div className="top_left">
-          {env === 'PROD' && false && <div className="horizontal_container">
+        {env === 'PROD' && false && <div className="top_bar_section cursor_default">
+          <div className="horizontal_container">
             <div onClick={() => setShowDropdown(!showDropdown)} className="horizontal_container align-middle cursor-pointer">
               <Image className="mr_8" width={20} height={20} src={selectedImagePath} alt="models-icon" />
               <span className="text_dropdown text_dropdown_18">{selectedOption}</span>
@@ -60,8 +61,8 @@ export default function TopBar({selectedProject, userName, env}) {
                 </li>
               </ul>
             </div>}
-          </div>}
-        </div>
+          </div>
+        </div>}
         {env === 'PROD' && false && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
         <div className="top_bar_section top_bar_input cursor_default">
           <div className="horizontal_container">
@@ -73,6 +74,7 @@ export default function TopBar({selectedProject, userName, env}) {
           <Image width={14} height={14} src="/images/widgets.svg" alt="widgets-icon"/>
           <div className="top_bar_font" onClick={() => openNewTab(-4, "Marketplace", "Marketplace", false)}>Marketplace</div>
         </div>
+      </div>
       <div className="top_right">
         <div className="horizontal_container gap_20">
           <div className="horizontal_container w_fit_content cursor_pointer gap_4" onClick={() => {window.open("https://superagi.com/docs", "_blank"); getUserClick('SuperAGI Docs Visited', {})}}>
