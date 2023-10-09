@@ -5,7 +5,7 @@ const GITHUB_CLIENT_ID = "06b962774236a4a8448f"
 const API_BASE_URL = 'https://app.superagi.com/api';
 const GOOGLE_ANALYTICS_MEASUREMENT_ID =  process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID;
 const GOOGLE_ANALYTICS_API_SECRET =  process.env.GOOGLE_ANALYTICS_API_SECRET;
-const MIXPANEL_AUTH_ID = process.env.MIXPANEL_AUTH_ID
+const MIXPANEL_AUTH_ID = process.env.NEXT_PUBLIC_MIXPANEL_AUTH_ID
 
 export const baseUrl = () => {
   return API_BASE_URL;
