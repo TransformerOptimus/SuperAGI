@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {removeTab, openNewTab, createInternalId, getUserClick} from "@/utils/utils";
 import Image from "next/image";
-import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
+import {fetchApiKey, storeModel, testModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
@@ -18,7 +18,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     const [tokenError, setTokenError] = useState(false);
     const [lockAddition, setLockAddition] = useState(true);
     const [isLoading, setIsLoading] = useState(false)
-    const [modelStatus, setModelStatus] = useState(false);
+    const [modelStatus, setModelStatus] = useState(null);
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -78,6 +78,18 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                     console.log("Error Message:: " + error)
                 })
             }
+        })
+    }
+
+    const handleModelStatus = () => {
+        testModel().then((response) =>{
+            if(response.data.success)
+                setModelStatus(true)
+            else
+                setModelStatus(false)
+        }).catch((error) => {
+            console.log("Error Message:: " + error)
+            setModelStatus(false)
         })
     }
 
@@ -167,8 +179,21 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                        onChange={(event) => setModelTokenLimit(parseInt(event.target.value, 10))}/>
             </div>
 
+            {modelStatus===false && <div className="horizontal_container align_start error_box mt_24 gap_6">
+                <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
+                <div className="vertical_containers">
+                    <span className="text_12 color_white lh_16">Test model failed</span>
+                </div>
+            </div>}
+
+            {modelStatus===true && <div className="horizontal_container align_start error_box mt_24 gap_6">
+                <div className="vertical_containers">
+                    <span className="text_12 color_white lh_16">Test model successful</span>
+                </div>
+            </div>}
+
             <div className="horizontal_container justify_space_between w_100 mt_24">
-                <button className="secondary_button flex_none">Test Model</button>
+                <button className="secondary_button flex_none" onClick={handleModelStatus}>Test Model</button>
                 <div className="horizontal_container justify_end">
                     <button className="secondary_button mr_7"
                             onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>

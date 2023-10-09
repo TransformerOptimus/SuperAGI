@@ -362,6 +362,10 @@ export const storeModel = (model_name, description, end_point, model_provider_id
   return api.post(`/models_controller/store_model`,{model_name, description, end_point, model_provider_id, token_limit, type, version, context_length});
 }
 
+export const testModel = () => {
+  return api.get(`/models_controller/test_local_llm`);
+}
+
 export const fetchModels = () => {
   return api.get(`/models_controller/fetch_models`);
 }
