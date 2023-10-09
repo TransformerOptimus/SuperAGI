@@ -119,6 +119,7 @@ export default function App() {
 
         if (response.data.env === 'PROD') {
           setApplicationState("NOT_AUTHENTICATED");
+          handleModelsLogout()
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
@@ -240,6 +241,16 @@ export default function App() {
       setShowMarketplace(true);
     } else {
       installFromMarketplace();
+    }
+  };
+
+  const handleModelsLogout = () => {
+    if(Cookies.get('isLoggingOut') === 'YES'){
+      localStorage.removeItem('accessToken');
+      Cookies.set('accessToken', '', { expires: new Date(0), domain: '.superagi.com', path: '/' });
+      Cookies.set('isLoggingOut', '', { expires: new Date(0), domain: '.superagi.com', path: '/' });
+      refreshUrl();
+      router.reload();
     }
   };
 
