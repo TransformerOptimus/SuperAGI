@@ -135,7 +135,10 @@ export default function App() {
           const singupCampaign = sessionStorage.getItem('campaign');
 
           if (typeof window !== 'undefined' && access_token) {
-            localStorage.setItem('accessToken', access_token);
+            // localStorage.setItem('accessToken', access_token);
+            console.log(access_token+'///')
+            Cookies.set('accessToken', access_token);
+            console.log(Cookies.get('accessToken')+'khikhikhhi')
             refreshUrl();
           }
           validateAccessToken()
@@ -152,7 +155,7 @@ export default function App() {
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }
-              Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
+              // Cookies.set('accessToken', localStorage.getItem('accessToken'),{ domain: '.superagi.com', path: '/' });
               fetchOrganisation(response.data.id);
             })
             .catch((error) => {
