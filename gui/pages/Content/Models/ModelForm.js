@@ -17,6 +17,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     const [tokenError, setTokenError] = useState(false);
     const [lockAddition, setLockAddition] = useState(true);
     const [isLoading, setIsLoading] = useState(false)
+    const [modelStatus, setModelStatus] = useState(false);
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -159,12 +160,15 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                        onChange={(event) => setModelTokenLimit(parseInt(event.target.value, 10))}/>
             </div>
 
-            <div className="horizontal_container justify_end mt_24">
-                <button className="secondary_button mr_7"
-                        onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
-                <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading}>
-                    {isLoading ? <><span>Adding Model &nbsp;</span><ClipLoader size={16} color={"#000000"} /></> : 'Add Model'}
-                </button>
+            <div className="horizontal_container justify_space_between w_100 mt_24">
+                <button className="secondary_button flex_none">Test Model</button>
+                <div className="horizontal_container justify_end">
+                    <button className="secondary_button mr_7"
+                            onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
+                    <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading}>
+                        {isLoading ? <><span>Adding Model &nbsp;</span><ClipLoader size={16} color={"#000000"} /></> : 'Add Model'}
+                    </button>
+                </div>
             </div>
             <ToastContainer className="text_16"/>
         </div>
