@@ -6,7 +6,7 @@ import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
 export default function ModelForm({internalId, getModels, sendModelData}){
-    const models = ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm'];
+    const models = ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm', 'Local LLM'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');
@@ -14,6 +14,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     const [modelEndpoint, setModelEndpoint] = useState('');
     const [modelDropdown, setModelDropdown] = useState(false);
     const [modelVersion, setModelVersion] = useState('');
+    const [modelContextLength, setContextLength] = useState(4096);
     const [tokenError, setTokenError] = useState(false);
     const [lockAddition, setLockAddition] = useState(true);
     const [isLoading, setIsLoading] = useState(false)
@@ -86,7 +87,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     }
 
     const storeModelDetails = (modelProviderId) => {
-        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom", modelVersion).then((response) =>{
+        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom", modelVersion, modelContextLength).then((response) =>{
             setIsLoading(false)
             let data = response.data
             if (data.error) {
@@ -152,6 +153,12 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                 <span>Model Version</span>
                 <input className="input_medium mt_8" type="text" placeholder="Enter Model Version"
                        onChange={(event) => setModelVersion(event.target.value)}/>
+            </div>}
+
+            {(selectedModel === 'Local LLM') && <div className="mt_24">
+                <span>Model Context Length</span>
+                <input className="input_medium mt_8" type="number" placeholder="Enter Model Context Length" value={modelContextLength}
+                       onChange={(event) => setContextLength(event.target.value)}/>
             </div>}
 
             <div className="mt_24">
