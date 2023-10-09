@@ -22,7 +22,7 @@ export default function TopBar({selectedProject, userName, env}) {
     }
     getUserClick('Logged Out',{})
     localStorage.removeItem('accessToken');
-    Cookies.remove('accessToken');
+    Cookies.set('accessToken', '', { expires: new Date(0), domain: '.superagi.com', path: '/' });
     refreshUrl();
     router.reload();
   };
@@ -39,31 +39,30 @@ export default function TopBar({selectedProject, userName, env}) {
     setShowDropdown(false)
   }
 
-
   return (
     <div className="top_bar">
       <div className="top_left">
-        {env === 'PROD' && <div className="horizontal_container">
-          <div onClick={() => setShowDropdown(!showDropdown)} className="horizontal_container align-middle cursor-pointer">
-            <Image className="mr_8" width={20} height={20} src={selectedImagePath} alt="models-icon" />
-            <span className="text_dropdown text_dropdown_18">{selectedOption}</span>
-            <Image className="ml_8" width={14} height={14} src="/images/arrow_down.svg" alt="down_arrow" />
-          </div>
-          {showDropdown && <div className="dropdown_container_models mt_130">
-            <ul className="padding_0 margin_0">
-              <li className="dropdown_item text_dropdown_15" onClick={() => handleClick('Models')}>
-                <Image className="mr_8" width={20} height={20} src="/images/models_icon_dropdown.svg" alt="models-icon" />
-                <span className="text_dropdown">Models</span>
-              </li>
-              <li className="dropdown_item text_dropdown_15" onClick={() => handleClick('Agents')}>
-                <Image className="mr_8" width={20} height={20} src="/images/agents_icon_dropdown.svg" alt="agents-icon" />
-                <span className="text_dropdown">Agents</span>
-              </li>
-            </ul>
+          {env === 'PROD' && false && <div className="horizontal_container">
+            <div onClick={() => setShowDropdown(!showDropdown)} className="horizontal_container align-middle cursor-pointer">
+              <Image className="mr_8" width={20} height={20} src={selectedImagePath} alt="models-icon" />
+              <span className="text_dropdown text_dropdown_18">{selectedOption}</span>
+              <Image className="ml_8" width={14} height={14} src="/images/arrow_down.svg" alt="down_arrow" />
+            </div>
+            {showDropdown && <div className="dropdown_container_models mt_130">
+              <ul className="padding_0 margin_0">
+                <li className="dropdown_item text_dropdown_15" onClick={() => handleClick('Models')}>
+                  <Image className="mr_8" width={20} height={20} src="/images/models_icon_dropdown.svg" alt="models-icon" />
+                  <span className="text_dropdown">Models</span>
+                </li>
+                <li className="dropdown_item text_dropdown_15" onClick={() => handleClick('Agents')}>
+                  <Image className="mr_8" width={20} height={20} src="/images/agents_icon_dropdown.svg" alt="agents-icon" />
+                  <span className="text_dropdown">Agents</span>
+                </li>
+              </ul>
+            </div>}
           </div>}
-        </div>}
-      </div>
-      {env === 'PROD' && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
+        </div>
+        {env === 'PROD' && false && <div className="vertical_divider ml_12 mr_20 responsiveness" />}
         <div className="top_bar_section top_bar_input cursor_default">
           <div className="horizontal_container">
             <Image width={14} height={14} src="/images/project.svg" alt="project-icon"/>

@@ -231,6 +231,18 @@ input[type="range"]::-moz-range-track {
     z-index: 10;
 }
 
+.dropdown_container_models {
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 8px;
+    background: #2E293F;
+    box-shadow: -2px 2px 24px rgba(0, 0, 0, 0.4);
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    padding: 8px;
+}
+
 .dropdown_container {
     width: 150px;
     height: auto;
