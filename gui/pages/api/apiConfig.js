@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from "js-cookie";
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
@@ -37,7 +38,8 @@ const api = axios.create({
 
 api.interceptors.request.use(config => {
   if (typeof window !== 'undefined') {
-    const accessToken = localStorage.getItem("accessToken");
+    // const accessToken = localStorage.getItem("accessToken");
+    const accessToken = Cookies.get("accessToken");
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
