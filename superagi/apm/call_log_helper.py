@@ -57,7 +57,7 @@ class CallLogHelper:
             agents = self.session.query(Agent).filter(Agent.id.in_(run_agent_ids)).all()
             agent_id_name_map = {agent.id: agent.name for agent in agents}
             tools_used = [run.tool_used for run in runs]
-            toolkit_ids_allowed = self.session.query(Toolkit.id).filter(Toolkit.org_id == self.organisation_id).all()
+            toolkit_ids_allowed = self.session.query(Toolkit.id).filter(Toolkit.organisation_id == self.organisation_id).all()
             tools = self.session.query(Tool).filter(Tool.id.in_(tools_used), Tool.toolkit_id.in_(toolkit_ids_allowed))\
                 .all()
             tools_name_toolkit_id_map = {tool.name: tool.toolkit_id for tool in tools}
