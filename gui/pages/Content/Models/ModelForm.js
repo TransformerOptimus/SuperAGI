@@ -19,6 +19,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     const [lockAddition, setLockAddition] = useState(true);
     const [isLoading, setIsLoading] = useState(false)
     const [modelStatus, setModelStatus] = useState(null);
+    const [createClickable, setCreateClickable] = useState(true);
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -81,20 +82,22 @@ export default function ModelForm({internalId, getModels, sendModelData}){
         })
     }
 
-    const handleModelStatus = () => {
-        testModel().then((response) =>{
-            if(response.status === 200)
-            {
-                setModelStatus(true)
+    const handleModelStatus = async () => {
+        try {
+            setCreateClickable(false);
+            const response = await testModel();
+            if(response.status === 200) {
+                setModelStatus(true);
+                setCreateClickable(true);
+            } else {
+                setModelStatus(false);
+                setCreateClickable(true);
             }
-            else
-            {
-                setModelStatus(false)
-            }
-        }).catch((error) => {
-            console.log("Error Message:: " + error)
-            setModelStatus(false)
-        })
+        } catch(error) {
+            console.log("Error Message:: " + error);
+            setModelStatus(false);
+            setCreateClickable(true);
+        }
     }
 
     const handleModelSuccess = (model) => {
@@ -198,7 +201,8 @@ export default function ModelForm({internalId, getModels, sendModelData}){
             </div>}
 
             <div className="horizontal_container justify_space_between w_100 mt_24">
-                {selectedModel==='Local LLM' && <button className="secondary_button flex_none" onClick={handleModelStatus}>Test Model</button>}
+                {selectedModel==='Local LLM' && <button className="secondary_button flex_none" disabled={!createClickable} 
+                onClick={() => {handleModelStatus();}}>{createClickable ? 'Test Model' : 'Testing model...'}</button>}
                 <div className="horizontal_container justify_end">
                     <button className="secondary_button mr_7"
                             onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
