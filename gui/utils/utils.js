@@ -5,6 +5,7 @@ import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
 import mixpanel from 'mixpanel-browser'
+import Cookies from "js-cookie";
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
@@ -114,7 +115,8 @@ export const formatBytes = (bytes, decimals = 2) => {
 };
 
 export const downloadFile = (fileId, fileName = null) => {
-  const authToken = localStorage.getItem('accessToken');
+  // const authToken = localStorage.getItem('accessToken');
+  const authToken = Cookies.get("accessToken");
   const url = `${baseUrl()}/resources/get/${fileId}`;
   const env = localStorage.getItem('applicationEnvironment');
 
