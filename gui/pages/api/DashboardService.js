@@ -21,7 +21,7 @@ export const getAgents = (projectId) => {
 };
 
 export const getToolKit = () => {
-  return api.get(`/toolkits/get/local/list`);
+  return api.get(`/toolkits/get/local/filtered_list`);
 };
 
 export const getTools = () => {

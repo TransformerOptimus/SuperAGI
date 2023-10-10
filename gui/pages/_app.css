@@ -1685,6 +1685,41 @@ tr{
     cursor: pointer;
 }
 
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-text {
+    display: none;
+    width: 120px;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 6px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position the tooltip */
+    left: 50%;
+    margin-left: -60px; /* Use half the width to center the tooltip */
+    background-color: #383448;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 11px;
+    line-height: normal;
+    font-weight: 400;
+}
+
+.tooltip-container:hover .tooltip-text {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.flex-row {
+    display: flex;
+    align-items: center;
+}
+
 .top_bar_input{
     border: 1px solid rgba(255, 255, 255, 0.14);
     width: 150px;

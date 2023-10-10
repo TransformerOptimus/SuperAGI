@@ -2,7 +2,7 @@ import React from 'react';
 import Image from "next/image";
 import {createInternalId, returnToolkitIcon, excludedToolkits} from "@/utils/utils";
 
-export default function Toolkits({sendToolkitData, toolkits, env}) {
+export default function Toolkits({sendToolkitData, toolkits, env, not_configured_toolkits}) {
   return (
     <>
       <div className="container">
@@ -18,7 +18,7 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
           </button>
         </div>}
         {toolkits && toolkits.length > 0 ? (
-          <div className={`${env === "PROD" ? 'h_calc_add40' : 'h_80vh'} ${"overflowY_scroll"}`}>
+          <div className={`${env === "PROD" ? 'h_calc_add40' : 'h_80vh'} overflowY_scroll`}>
           {toolkits.map((tool, index) =>
               tool.name !== null && !excludedToolkits().includes(tool.name) && (
                 <div key={index} className="item_box mb_10" onClick={() => sendToolkitData(tool)}>
@@ -30,7 +30,15 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
                              alt="tool-icon"/>
                         <div className="ml_8">
                           <div className="item_name">{tool.name}</div>
-                          <div className="item_publisher">by SuperAGI</div>
+                          <div className="flex-row">
+                            <div className="item_publisher">by SuperAGI</div>
+                              {env === 'DEV' && not_configured_toolkits.some(nc_tool => nc_tool.name === tool.name) &&
+                              <div className="tooltip-container ml_8">
+                                <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
+                                <span className="tooltip-text">Toolkit is not configured. Please configure now.</span>
+                              </div>
+                              }
+                          </div>
                         </div>
                       </div>
                     </div>

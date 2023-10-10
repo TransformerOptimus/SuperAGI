@@ -11,6 +11,7 @@ export default function AgentTemplatesList({
                                              selectedProjectId,
                                              fetchAgents,
                                              toolkits,
+                                             not_configured_toolkits,
                                              organisationId,
                                              internalId,
                                              sendKnowledgeData,
@@ -118,7 +119,7 @@ export default function AgentTemplatesList({
           </div>
         </div> : <AgentCreate sendKnowledgeData={sendKnowledgeData} knowledge={knowledge} internalId={internalId}
                               organisationId={organisationId} sendAgentData={sendAgentData}
-                              selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits}
+                              selectedProjectId={selectedProjectId} fetchAgents={fetchAgents} toolkits={toolkits} not_configured_toolkits={not_configured_toolkits}
                               template={sendTemplate} env={env}/>}
     </div>
   )

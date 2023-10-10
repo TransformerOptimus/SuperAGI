@@ -1,3 +1,4 @@
+from operator import and_
 from typing import Optional
 
 import requests
@@ -309,6 +310,29 @@ def get_installed_toolkit_list(organisation: Organisation = Depends(get_user_org
         toolkit.tools = toolkit_tools
 
     return toolkits
+
+@router.get("/get/local/filtered_list")
+def get_filtered_toolkit_list(organisation: Organisation = Depends(get_user_organisation)):
+    toolkits = db.session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
+    not_configured_toolkits = []
+    configured_toolkits = []
+    for toolkit in toolkits:
+        tool_configs = db.session.query(ToolConfig).filter(
+            and_(ToolConfig.toolkit_id == toolkit.id, 
+                ToolConfig.is_required == True)).all()
+        if any(tool_config.value is None for tool_config in tool_configs):
+            not_configured_toolkits.append(toolkit)
+        else: 
+            configured_toolkits.append(toolkit)
+
+    for toolkit in configured_toolkits:
+        configured_toolkit_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
+        toolkit.tools = configured_toolkit_tools
+    for toolkit in not_configured_toolkits:
+        not_configured_toolkit_tools = db.session.query(Tool).filter(Tool.toolkit_id == toolkit.id).all()
+        toolkit.tools = not_configured_toolkit_tools
+
+    return {"configured_toolkits": configured_toolkits, "not_configured_toolkits": not_configured_toolkits}
 
 
 @router.get("/check_update/{toolkit_name}")

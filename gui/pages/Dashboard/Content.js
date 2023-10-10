@@ -39,6 +39,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   const [selectedTab, setSelectedTab] = useState(null);
   const [agents, setAgents] = useState(null);
   const [toolkits, setToolkits] = useState(null);
+  const [notConfiguredToolkits, setNotConfiguredToolkits] = useState(null);
   const [knowledge, setKnowledge] = useState(null);
   const tabContainerRef = useRef(null);
   const [toolkitDetails, setToolkitDetails] = useState({});
@@ -83,12 +84,23 @@ export default function Content({env, selectedView, selectedProjectId, organisat
   async function fetchToolkits() {
     try {
       const response = await getToolKit();
-      const data = response.data || [];
-      const updatedData = data.map(item => {
+      const { configured_toolkits = [], not_configured_toolkits = [] } = response.data || {};
+  
+      const allToolkits = [...configured_toolkits, ...not_configured_toolkits]
+  
+      const updatedData = allToolkits.map(item => {
         let updatedName = item.name === "Web Scrapper Toolkit" ? "Web Scraper Toolkit" : item.name;
-        return {...item,name: updatedName,  contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
+        return {...item, name: updatedName, contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
       });
+
+      const notConfiguredToolkitsData = not_configured_toolkits.map(item => {
+        let updatedName = item.name === "Web Scrapper Toolkit" ? "Web Scraper Toolkit" : item.name;
+        return {...item, name: updatedName, contentType: "Toolkits", isOpen: false, internalId: createInternalId()};
+      });
+
+      setNotConfiguredToolkits(notConfiguredToolkitsData);
       setToolkits(updatedData);
+
     } catch (error) {
       console.error('Error fetching toolkits:', error);
     }
@@ -335,7 +347,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
         {(selectedView === 'agents' || selectedView === 'toolkits' || selectedView === 'knowledge' || selectedView === 'models') &&
           <div className={styles.item_list} style={{width: '13vw'}}>
             {selectedView === 'agents' && <div><Agents sendAgentData={addTab} agents={agents}/></div>}
-            {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits}/></div>}
+            {selectedView === 'toolkits' && <div><Toolkits env={env} sendToolkitData={addTab} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits}/></div>}
             {selectedView === 'knowledge' && <div><Knowledge sendKnowledgeData={addTab} knowledge={knowledge}/></div>}
             {selectedView === 'models' && <div><Models sendModelData={addTab} models={models} /></div>}
           </div>}
@@ -463,13 +475,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentTemplatesList knowledge={knowledge} internalId={tab.internalId || index}
                                           organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={getAgentList} toolkits={toolkits} env={env} />}
+                                          fetchAgents={getAgentList} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits} env={env} />}
                     {tab.contentType === 'APM' && <ApmDashboard />}
                     {tab.contentType === 'Edit_Agent' &&
                         <AgentCreate knowledge={knowledge} internalId={tab.internalId || index}
                                      organisationId={organisationId} sendKnowledgeData={addTab}
                                      sendAgentData={addTab} selectedProjectId={selectedProjectId} editAgentId={tab.id}
-                                     fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
+                                     fetchAgents={getAgentList} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits} template={null} edit={true} agents={agents}/>}
                     {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
                   </div>}
