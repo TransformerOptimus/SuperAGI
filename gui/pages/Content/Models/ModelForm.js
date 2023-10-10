@@ -5,8 +5,8 @@ import {fetchApiKey, storeModel, testModel, verifyEndPoint} from "@/pages/api/Da
 import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
-export default function ModelForm({internalId, getModels, sendModelData}){
-    const models = ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm', 'Local LLM'];
+export default function ModelForm({internalId, getModels, sendModelData, env}){
+    const models = env === 'DEV' ? ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm', 'Local LLM'] : ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');

@@ -470,7 +470,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                      organisationId={organisationId} sendKnowledgeData={addTab}
                                      sendAgentData={addTab} selectedProjectId={selectedProjectId} editAgentId={tab.id}
                                      fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
-                    {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
+                    {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab} env={env}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
                   </div>}
                 </div>
