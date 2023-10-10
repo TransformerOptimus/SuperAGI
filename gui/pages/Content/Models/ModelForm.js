@@ -83,10 +83,14 @@ export default function ModelForm({internalId, getModels, sendModelData}){
 
     const handleModelStatus = () => {
         testModel().then((response) =>{
-            if(response.data.success)
+            if(response.status === 200)
+            {
                 setModelStatus(true)
+            }
             else
+            {
                 setModelStatus(false)
+            }
         }).catch((error) => {
             console.log("Error Message:: " + error)
             setModelStatus(false)
@@ -186,18 +190,19 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                 </div>
             </div>}
 
-            {modelStatus===true && <div className="horizontal_container align_start error_box mt_24 gap_6">
+            {modelStatus===true && <div className="horizontal_container align_start success_box mt_24 gap_6">
+                <Image width={16} height={16} src="/images/icon_info.svg"/>
                 <div className="vertical_containers">
                     <span className="text_12 color_white lh_16">Test model successful</span>
                 </div>
             </div>}
 
             <div className="horizontal_container justify_space_between w_100 mt_24">
-                <button className="secondary_button flex_none" onClick={handleModelStatus}>Test Model</button>
+                {selectedModel==='Local LLM' && <button className="secondary_button flex_none" onClick={handleModelStatus}>Test Model</button>}
                 <div className="horizontal_container justify_end">
                     <button className="secondary_button mr_7"
                             onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
-                    <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading}>
+                    <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading || (selectedModel==='Local LLM' && !modelStatus)}>
                         {isLoading ? <><span>Adding Model &nbsp;</span><ClipLoader size={16} color={"#000000"} /></> : 'Add Model'}
                     </button>
                 </div>

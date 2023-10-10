@@ -1836,6 +1836,13 @@ tr{
     padding: 12px;
 }
 
+.success_box{
+    border-radius: 8px;
+    padding: 12px;
+    border-left: 4px solid rgba(255, 255, 255, 0.60);
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .horizontal_line {
     margin: 16px 0 16px -16px;
     border: 1px solid #ffffff20;
