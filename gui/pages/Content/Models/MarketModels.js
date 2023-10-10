@@ -12,28 +12,28 @@ export default function MarketModels(){
     const [loadingText, setLoadingText] = useState("Loading Models");
     const [modelTemplates, setModelTemplates] = useState([]);
 
-    useEffect(() => {
-        loadingTextEffect('Loading Models', setLoadingText, 500);
-        setIsLoading(true)
-        if (window.location.href.toLowerCase().includes('marketplace')) {
-            axios.get('https://app.superagi.com/api/models_controller/get/models_details')
-                .then((response) => {
-                    setModelTemplates(response.data)
-                })
-        }
-        else {
-            fetchMarketPlaceModel().then((response) => {
-                setModelTemplates(response.data)
-            })
-        }
-    },[])
+    // useEffect(() => {
+    //     loadingTextEffect('Loading Models', setLoadingText, 500);
+    //     setIsLoading(true)
+    //     if (window.location.href.toLowerCase().includes('marketplace')) {
+    //         axios.get('https://app.superagi.com/api/models_controller/get/models_details')
+    //             .then((response) => {
+    //                 setModelTemplates(response.data)
+    //             })
+    //     }
+    //     else {
+    //         fetchMarketPlaceModel().then((response) => {
+    //             setModelTemplates(response.data)
+    //         })
+    //     }
+    // },[])
 
-    useEffect(() => {
-        if(modelTemplates.length > 0)
-            setIsLoading(true)
-        else
-            setIsLoading(false)
-    }, [modelTemplates])
+    // useEffect(() => {
+    //     if(modelTemplates.length > 0)
+    //         setIsLoading(true)
+    //     else
+    //         setIsLoading(false)
+    // }, [modelTemplates])
 
     function handleTemplateClick(item) {
         const contentType = 'model_template';
@@ -41,10 +41,14 @@ export default function MarketModels(){
     }
 
     useEffect(() => {
+        loadingTextEffect('Loading Models', setLoadingText, 500);
+        setIsLoading(true)
         const iframe = document.getElementById('marketplace_models');
 
         const handleIframeLoad = () => {
-            setIsLoading(false)
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 2000);
         };
 
         if (iframe) {
@@ -62,7 +66,7 @@ export default function MarketModels(){
         <div className="h_calc_sub_60 w_99vw">
             {isLoading ? <iframe
                 id="marketplace_models"
-                src="http://localhost:3001/marketplace"
+                src="https://models.superagi.com/marketplace"
                 width="100%"
                 height="100%"
                 frameBorder="0"
