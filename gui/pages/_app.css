@@ -1107,6 +1107,7 @@ p {
 .w_73{width: 73%}
 .w_97{width: 97%}
 .w_100{width: 100%}
+.w_99vw{width: 99vw}
 .w_inherit{width: inherit}
 .w_fit_content{width:fit-content}
 .w_inherit{width: inherit}
@@ -1124,6 +1125,7 @@ p {
 .h_80vh{height: 80vh}
 .h_calc92{height: calc(100vh - 92px)}
 .h_calc_add40{height: calc(80vh + 40px)}
+.h_calc_sub_60{height: calc(92.5vh - 60px)}
 
 .mxh_78vh{max-height: 78vh}
 

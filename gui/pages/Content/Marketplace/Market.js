@@ -58,6 +58,9 @@ export default function Market({env, getModels, sendModelData}) {
   ];
 
   const renderTab = (tab) => {
+    if(tab.id === 'market_models' && !(window.location.href.toLowerCase().includes('marketplace')))
+      return
+
     return (
         <button
             key={tab.id}
