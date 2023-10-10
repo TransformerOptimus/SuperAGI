@@ -55,12 +55,13 @@ def test_fetch_data_success(call_log_helper, mock_session):
         model='test_model',
         org_id=1
     )]
-    agents = [Agent(name='test_agent')]
-    tools = [Tool(name='test_tool', toolkit_id=1)]
-    toolkits = [Toolkit(name='test_toolkit')]
+    agent = Agent(name='test_agent')
+    tool = Tool(name='test_tool', toolkit_id=1)
+    toolkit = Toolkit(name='test_toolkit')
 
     # setup return values for the mock methods
-    mock_session.query().filter().first.side_effect = [summary_result, runs, agents, toolkits, tools]
+    mock_session.query().filter().first.side_effect = [summary_result, agent, tool, toolkit]
+    mock_session.query().filter().all.return_value = runs
 
     result = call_log_helper.fetch_data('test_model')
 
