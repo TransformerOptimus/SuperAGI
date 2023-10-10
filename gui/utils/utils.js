@@ -5,7 +5,6 @@ import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
 import mixpanel from 'mixpanel-browser'
-import Cookies from "js-cookie";
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
