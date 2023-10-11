@@ -43,7 +43,7 @@ services:
       - redis_data:/data
 
   super__postgres:
-    image: "docker.io/library/postgres:latest"
+    image: "docker.io/library/postgres:15"
     environment:
       - POSTGRES_USER=superagi
       - POSTGRES_PASSWORD=password

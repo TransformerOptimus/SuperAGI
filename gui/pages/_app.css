@@ -1845,6 +1845,15 @@ tr{
     height: 50vh
 }
 
+.configure_text{
+    color: #FFA800;
+    font-family: Public Sans;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
 .loading_text{
     font-size: 16px;
     font-family: 'Source Code Pro';

@@ -320,7 +320,7 @@ def get_filtered_toolkit_list(organisation: Organisation = Depends(get_user_orga
         tool_configs = db.session.query(ToolConfig).filter(
             and_(ToolConfig.toolkit_id == toolkit.id, 
                 ToolConfig.is_required == True)).all()
-        if any(tool_config.value is None for tool_config in tool_configs):
+        if any(tool_config.value is None or decrypt_data(tool_config.value) == "" for tool_config in tool_configs):
             not_configured_toolkits.append(toolkit)
         else: 
             configured_toolkits.append(toolkit)

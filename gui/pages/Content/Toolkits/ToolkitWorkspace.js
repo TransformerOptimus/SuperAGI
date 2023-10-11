@@ -10,6 +10,8 @@ import {
 import styles from './Tool.module.css';
 import {setLocalStorageValue, setLocalStorageArray, returnToolkitIcon, convertToTitleCase} from "@/utils/utils";
 import Metrics from "@/pages/Content/Toolkits/Metrics";
+import {EventBus} from "@/utils/eventBus";
+import {fetchToolkits} from "@/pages/Dashboard/Content";
 
 export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   const [activeTab, setActiveTab] = useState('metrics')
@@ -21,7 +23,6 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
   const [toolDropdown, setToolDropdown] = useState(false);
   const toolRef = useRef(null);
   const [currTool, setCurrTool] = useState(false);
-
 
   let handleKeyChange = (event, index) => {
     const updatedData = [...apiConfigs];
@@ -85,6 +86,8 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
         toast.error('Unable to update Toolkit configuration', {autoClose: 1800});
         console.error('Error updating tool config:', error);
       });
+    
+    fetchToolkits()
   };
 
   const handleAuthenticateClick = async (toolkitName) => {
@@ -132,6 +135,15 @@ export default function ToolkitWorkspace({env, toolkitDetails, internalId}) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const handleOpenConfigurationPage = () => {setActiveTab('configuration');} 
+    EventBus.on('openConfigurationPage', handleOpenConfigurationPage);
+    return () => {
+      EventBus.off('openConfigurationPage', handleOpenConfigurationPage);
+    };
+  });
+
   return (<>
     <div className="row">
       <div className="col-12 col-6-scrollable">

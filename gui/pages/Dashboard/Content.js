@@ -454,7 +454,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                       agents={agents} fetchAgents={getAgentList} sendAgentData={addTab} />}
                     {tab.contentType === 'Toolkits' &&
                       <ToolkitWorkspace env={env} internalId={tab.internalId || index}
-                                        toolkitDetails={toolkitDetails}/>}
+                                        toolkitDetails={toolkitDetails} getToolkitList={getToolkitList}/>}
                     {tab.contentType === 'Knowledge' &&
                       <KnowledgeDetails internalId={tab.internalId || index} knowledgeId={tab.id}/>}
                     {tab.contentType === 'Database' &&
@@ -475,13 +475,13 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                       <AgentTemplatesList knowledge={knowledge} internalId={tab.internalId || index}
                                           organisationId={organisationId} sendKnowledgeData={addTab}
                                           sendAgentData={addTab} selectedProjectId={selectedProjectId}
-                                          fetchAgents={getAgentList} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits} env={env} />}
+                                          fetchAgents={getAgentList} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits} sendToolkitData={addTab} env={env} />}
                     {tab.contentType === 'APM' && <ApmDashboard />}
                     {tab.contentType === 'Edit_Agent' &&
                         <AgentCreate knowledge={knowledge} internalId={tab.internalId || index}
                                      organisationId={organisationId} sendKnowledgeData={addTab}
                                      sendAgentData={addTab} selectedProjectId={selectedProjectId} editAgentId={tab.id}
-                                     fetchAgents={getAgentList} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits} template={null} edit={true} agents={agents}/>}
+                                     fetchAgents={getAgentList} toolkits={toolkits} not_configured_toolkits={notConfiguredToolkits}  sendToolkitData={addTab} template={null} edit={true} agents={agents}/>}
                     {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
                   </div>}
