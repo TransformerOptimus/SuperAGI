@@ -43,35 +43,24 @@ export default function MarketModels(){
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
         setIsLoading(true)
-        const iframe = document.getElementById('marketplace_models');
-
-        const handleIframeLoad = () => {
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 2000);
-        };
-
-        if (iframe) {
-            iframe.onload = handleIframeLoad;
-        }
-
-        return () => {
-            if (iframe) {
-                iframe.onload = null;
-            }
-        };
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 2500);
     }, []);
 
     return(
-        <div className="h_calc_sub_60 w_99vw">
-            {isLoading ? <iframe
-                id="marketplace_models"
-                src="https://models.superagi.com/marketplace"
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                allowFullScreen
-            ></iframe>: <div className="horizontal_container_center h_75vh">
+        <div>
+            <div className={`${"h_calc_sub_60"} ${"w_99vw"} ${isLoading ? 'display_none' : 'display_block'}`}>
+                <iframe
+                    id="marketplace_models"
+                    src="http://localhost:3001/marketplace"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allowFullScreen
+                ></iframe>
+            </div>
+            {isLoading && <div className="horizontal_container_center h_75vh">
                 <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
             </div>}
         </div>

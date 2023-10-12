@@ -1138,6 +1138,8 @@ p {
 
 .display_flex{display: inline-flex}
 .display_flex_container{display: flex}
+.display_none{display: none}
+.display_block{display: block}
 
 .align_center{align-items: center}
 .align_start{align-items: flex-start}
