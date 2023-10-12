@@ -400,3 +400,11 @@ export const getKnowledgeLogs = (knowledgeName) => {
 export const getFirstSignup = (source) => {
   return api.post(`/users/first_login_source/${source}`,);
 };
+
+export const setupBillingSession = () => {
+  return api.post('/billing/checkout_session');
+};
+
+export const createCustomerPortal = () => {
+  return api.post('/billing/create/customer_portal');
+}

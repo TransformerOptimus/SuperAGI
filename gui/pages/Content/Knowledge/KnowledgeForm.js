@@ -4,7 +4,7 @@ import {removeTab, setLocalStorageValue, setLocalStorageArray, createInternalId,
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import Image from "next/image";
 import {ToastContainer, toast} from "react-toastify";
-import {addUpdateKnowledge, getValidIndices} from "@/pages/api/DashboardService";
+import {addUpdateKnowledge, getValidIndices, setupBillingSession, createCustomerPortal} from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 
 export default function KnowledgeForm({
@@ -147,6 +147,32 @@ export default function KnowledgeForm({
     }
   }
 
+  const setupBilling = () => {
+    setupBillingSession()
+    .then((response) => {
+      console.log(response)
+      window.location.href = response.data.url
+      toast.success("Billing session created successfully", {autoClose: 1800});
+    })
+    .catch((error) => {
+      console.error('Error creating billing session:', error);
+      toast.error("Unable to create billing session", {autoClose: 1800});
+    });
+  }
+
+  const customerPortal = () => {
+    createCustomerPortal()
+    .then((response) => {
+      console.log(response)
+      window.location.href = response.data
+      toast.success("Customer Portal created successfully", {autoClose: 1800});  
+    })
+    .catch((error) => {
+      console.error('Error creating customer portal:', error);
+      toast.error("Unable to create customer portal", {autoClose: 1800});
+    });
+  }
+
   const checkIndexValidity = (validState) => {
     let errorMessage = "";
     let isValid = true;
@@ -253,15 +279,15 @@ export default function KnowledgeForm({
         </div>
       </div>
       {isEditing ? <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
-        <button style={{marginRight: '7px'}} className="secondary_button" onClick={() => setIsEditing(false)}>Cancel
+        <button style={{marginRight: '7px'}} className="secondary_button" onClick={customerPortal}>Manage Billing
         </button>
         <button disabled={!addClickable} className="primary_button" onClick={handleUpdateKnowledge}>Update Changes
         </button>
       </div> : <div style={{marginTop: '15px', display: 'flex', justifyContent: 'flex-end'}}>
         <button style={{marginRight: '7px'}} className="secondary_button"
-                onClick={() => removeTab(-6, "new knowledge", "Add_Knowledge", internalId)}>Cancel
+                onClick={customerPortal}>Manage Billing
         </button>
-        <button disabled={!addClickable} className="primary_button" onClick={handleAddKnowledge}>Add knowledge</button>
+        <button disabled={!addClickable} className="primary_button" onClick={setupBilling}>Setup Billing</button>
       </div>}
     </div>
     <ToastContainer/>
