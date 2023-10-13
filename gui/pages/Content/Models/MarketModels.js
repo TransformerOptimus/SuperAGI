@@ -53,7 +53,7 @@ export default function MarketModels(){
             <div className={`${"h_calc_sub_60"} ${"w_99vw"} ${isLoading ? 'display_none' : 'display_block'}`}>
                 <iframe
                     id="marketplace_models"
-                    src="http://localhost:3001/marketplace"
+                    src="https://models.superagi.com/marketplace"
                     width="100%"
                     height="100%"
                     frameBorder="0"
