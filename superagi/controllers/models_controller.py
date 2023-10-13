@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
 from superagi.apm.call_log_helper import CallLogHelper
+from superagi.models.readme_content import ReadmeContent
 from superagi.models.models import Models
 from superagi.models.models_config import ModelsConfig
 from superagi.config.config import get_config
@@ -27,8 +28,10 @@ class StoreModelRequest(BaseModel):
     type: str
     version: str
 
+
 class ModelName (BaseModel):
     model: str
+
 
 @router.post("/store_api_keys", status_code=200)
 async def store_api_keys(request: ValidateAPIKeyRequest, organisation=Depends(get_user_organisation)):
@@ -102,6 +105,24 @@ async def fetch_data(request: ModelName, organisation=Depends(get_user_organisat
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.post("/delete_model", status_code=200)
+async def delete_model(request: ModelName, organisation=Depends(get_user_organisation)):
+    try:
+        return Models.delete_model(db.session, organisation.id, request.model)
+    except Exception as e:
+        logging.error(f"Error Deleting Model: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/fetch_model_readme/{model_id}", status_code=200)
+async def model_readme(model_id: int, organisation=Depends(get_user_organisation)):
+    try:
+        return ReadmeContent.fetch_model_readme(db.session, organisation.id, model_id)
+    except Exception as e:
+        logging.error(f"Error Fetching the Model Readme: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @router.get("/get/list", status_code=200)
 def get_models_list(page: int = 0, organisation=Depends(get_user_organisation)):
     """
@@ -123,9 +144,9 @@ def get_models_list(page: int = 0, organisation=Depends(get_user_organisation)):
 
 @router.get("/marketplace/list/{page}", status_code=200)
 def get_marketplace_models_list(page: int = 0):
-    organisation_id = get_config("MARKETPLACE_ORGANISATION_ID")
-    if organisation_id is not None:
-        organisation_id = int(organisation_id)
+    organisation_id = 2
+    # if organisation_id is not None:
+    #     organisation_id = int(organisation_id)
     page_size = 16
 
     query = db.session.query(Models).filter(Models.org_id == organisation_id)

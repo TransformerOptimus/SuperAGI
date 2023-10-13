@@ -3,11 +3,12 @@ from sqlalchemy.sql import func
 from typing import List, Dict, Union
 from superagi.models.base_model import DBBaseModel
 from superagi.controllers.types.models_types import ModelsTypes
+from superagi.controllers.types.is_installed import IsInstalled
 from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
 
-marketplace_url = "https://app.superagi.com/api"
-# marketplace_url = "http://localhost:8001"
+# marketplace_url = "https://app.superagi.com/api"
+marketplace_url = "http://localhost:8001"
 
 
 class Models(DBBaseModel):
@@ -23,6 +24,7 @@ class Models(DBBaseModel):
         token_limit (Integer): The maximum number of tokens for a model.
         type (Strng): The place it is added from.
         version (String): The version of the replicate model.
+        state (String): Is the model INSTALLED or UNINSTALLED.
         org_id (Integer): The ID of the organisation.
         model_features (String): The Features of the Model.
     """
@@ -37,6 +39,7 @@ class Models(DBBaseModel):
     token_limit = Column(Integer, nullable=False)
     type = Column(String, nullable=False)
     version = Column(String, nullable=False)
+    state = Column(String, nullable=False, default=IsInstalled.INSTALLED.value)
     org_id = Column(Integer, nullable=False)
     model_features = Column(String, nullable=False)
 
@@ -49,6 +52,7 @@ class Models(DBBaseModel):
                f"token_limit={self.token_limit}, " \
                f"type={self.type}, " \
                f"version={self.version}, " \
+               f"state={self.state}, " \
                f"org_id={self.org_id}, " \
                f"model_features={self.model_features})"
 
@@ -70,6 +74,7 @@ class Models(DBBaseModel):
         model_counts_dict = dict(
             session.query(Models.model_name, func.count(Models.org_id)).group_by(Models.model_name).all()
         )
+
         installed_models_dict = {model.model_name: True for model in installed_models}
 
         for model in marketplace_models:
@@ -77,7 +82,12 @@ class Models(DBBaseModel):
                 if type == ModelsTypes.MARKETPLACE.value:
                     model["is_installed"] = False
                 else:
-                    model["is_installed"] = installed_models_dict.get(model["model_name"], False)
+                    user_model = session.query(Models).filter(Models.model_name == model["model_name"],
+                                                              Models.org_id == organisation_id).first()
+                    if user_model.state == IsInstalled.INSTALLED.value:
+                        model["is_installed"] = True
+                    else:
+                        model["is_installed"] = False
                 model["installs"] = model_counts_dict.get(model["model_name"], 0)
             except TypeError as e:
                 logging.error("Error Occurred: %s", e)
@@ -103,7 +113,8 @@ class Models(DBBaseModel):
             return {"error": "Unexpected Error Occured"}
 
     @classmethod
-    def store_model_details(cls, session, organisation_id, model_name, description, end_point, model_provider_id, token_limit, type, version):
+    def store_model_details(cls, session, organisation_id, model_name, description, end_point, model_provider_id,
+                            token_limit, type, version):
         from superagi.models.models_config import ModelsConfig
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
@@ -115,9 +126,20 @@ class Models(DBBaseModel):
             return {"error": "Token Limit is null or undefined or 0"}
 
         # Check if model_name already exists in the database
-        existing_model = session.query(Models).filter(Models.model_name == model_name, Models.org_id == organisation_id).first()
-        if existing_model:
+        existing_model = session.query(Models).filter(Models.model_name == model_name,
+                                                      Models.org_id == organisation_id).first()
+        if existing_model and existing_model.state == IsInstalled.INSTALLED.value:
             return {"error": "Model Name already exists"}
+        elif existing_model:
+            existing_model.description = description
+            existing_model.end_point = end_point
+            existing_model.token_limit = token_limit
+            existing_model.model_provider_id = model_provider_id
+            existing_model.type = type
+            existing_model.version = version
+            existing_model.state = IsInstalled.INSTALLED.value
+            session.commit()
+            return {"success": "Model Details updated successfully", "model_id": existing_model.id}
 
         # Get the provider of the model
         if type == 'Marketplace':
@@ -183,7 +205,7 @@ class Models(DBBaseModel):
 
             models = session.query(Models.id, Models.model_name, Models.description, ModelsConfig.provider).join(
                 ModelsConfig, Models.model_provider_id == ModelsConfig.id).filter(
-                Models.org_id == organisation_id).all()
+                Models.org_id == organisation_id, Models.state == IsInstalled.INSTALLED.value).all()
 
             result = []
             for model in models:
@@ -226,6 +248,21 @@ class Models(DBBaseModel):
             else:
                 return {"error": "Model with the given ID doesn't exist."}
 
+        except Exception as e:
+            logging.error(f"Unexpected Error Occured: {e}")
+            return {"error": "Unexpected Error Occured"}
+
+    @classmethod
+    def delete_model(cls, session, organisation_id, model_name: str):
+        try:
+            model = (session.query(Models).filter(Models.model_name == model_name, Models.org_id == organisation_id)
+                     .first())
+            if model:
+                model.state = IsInstalled.UNINSTALLED.value
+                session.commit()
+                return {"success": "Model has been Successfully Uninstalled"}
+            else:
+                return {"error": "Model not found"}
         except Exception as e:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}

@@ -111,7 +111,7 @@ export default function AddModelMarketPlace({ template, getModels, sendModelData
                     </div>}
 
                     {templateData.provider === 'Hugging Face' && <div className="horizontal_container align_start info_box mt_24 gap_6">
-                        <Image width={16} height={16} src="/images/icon_info.svg" alt="error-icon" />
+                        <Image width={16} height={16} src="/images/icon_info.svg" alt="info-icon" />
                         <div className="vertical_containers">
                             <span className="text_12 color_white lh_16">In order to get the endpoint for this model, you will need to deploy it on your Replicate dashboard. Once you have deployed your model on Hugging Face, you will be able to access the endpoint through the Hugging Face dashboard. The endpoint is a URL that you can use to send requests to your model.</span>
                             <button className="secondary_button_small w_fit_content mt_16"

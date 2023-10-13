@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from superagi.models.models import Models
+from superagi.controllers.types.is_installed import IsInstalled
 
 @pytest.fixture
 def mock_session():
@@ -39,13 +40,14 @@ def test_repr_method_models(mock_session):
     model_type = "example_type"
     version = "v1.0"
     org_id = 1
+    state = "INSTALLED"
     model_features = "example_model_feature"
     mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
     # Act
     model = Models(model_name=model_name, end_point=end_point,
                  model_provider_id=model_provider_id, token_limit=token_limit,
-                 type=model_type, version=version, org_id=org_id, model_features=model_features)
+                 type=model_type, version=version, state=state, org_id=org_id, model_features=model_features)
     model_repr = repr(model)
 
     # Assert
@@ -54,6 +56,7 @@ def test_repr_method_models(mock_session):
                          f"token_limit={token_limit}, " \
                          f"type={model_type}, " \
                          f"version={version}, " \
+                         f"state={state}, " \
                          f"org_id={org_id}, " \
                          f"model_features={model_features})"
 
@@ -119,7 +122,9 @@ def test_fetch_model_tokens(mock_session):
 
 def test_store_model_details_when_model_exists(mock_session):
     # Arrange
-    mock_session.query.return_value.filter.return_value.first.return_value = MagicMock()
+    mock_existing_model = MagicMock()
+    mock_existing_model.state = IsInstalled.INSTALLED.value
+    mock_session.query.return_value.filter.return_value.first.return_value = mock_existing_model
     mock_session.add = MagicMock()
 
     # Act
@@ -230,5 +235,24 @@ def test_fetch_model_details(mock_models_config, mock_session):
         "type": "type1",
         "model_provider": "example_provider"
     }
+
+@patch('superagi.models.models.Models')
+def test_delete_model_when_model_exists(mock_session):
+    # Arrange
+    mock_existing_model = MagicMock()
+    mock_session.query.return_value.filter.return_value.first.return_value = mock_existing_model
+    mock_session.commit = MagicMock()
+
+    # Act
+    response = Models.delete_model(
+        mock_session,
+        organisation_id=1,
+        model_name="example_model",
+    )
+
+    # Assert
+    assert response == {"success": "Model has been Successfully Uninstalled"}
+    assert mock_existing_model.state == IsInstalled.UNINSTALLED.value
+    mock_session.commit.assert_called_once()
 
 

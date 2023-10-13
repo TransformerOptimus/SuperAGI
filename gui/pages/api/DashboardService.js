@@ -378,6 +378,14 @@ export const fetchMarketPlaceModel = () => {
   return api.get(`/models_controller/get/list`)
 }
 
+export const deleteModel = (model_name) => {
+  return api.post(`/models_controller/delete_model`, { model: model_name })
+}
+
+export const fetchModelReadme = (model_id) => {
+  return api.get(`/models_controller/fetch_model_readme/${model_id}`)
+}
+
 export const getToolMetrics = (toolName) => {
   return api.get(`analytics/tools/${toolName}/usage`)
 }
