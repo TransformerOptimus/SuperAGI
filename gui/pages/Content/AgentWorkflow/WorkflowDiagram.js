@@ -91,7 +91,7 @@ export default function WorkflowDiagram({yamlContent}) {
                     }
                 }
             });
-
+            mermaidString += 'linkStyle default stroke-width: 4px;\n';
             return mermaidString;
         }
     }
