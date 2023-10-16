@@ -400,3 +400,19 @@ export const getKnowledgeLogs = (knowledgeName) => {
 export const getFirstSignup = (source) => {
   return api.post(`/users/first_login_source/${source}`,);
 };
+
+export const getWorkflowList = () => {
+  return api.get(`/agent_workflows/list`,);
+};
+
+export const fetchAgentWorkflowDetails = (workflowId) => {
+  return api.get(`/agent_workflows/${workflowId}`,);
+};
+
+export const createAgentWorkflow = (workflow) => {
+  return api.post(`/agent_workflows`,workflow);
+};
+
+export const updateAgentWorkflow = (workflowId, workflow) => {
+  return api.post(`/agent_workflows/code_yaml/${workflowId}`,workflow);
+};

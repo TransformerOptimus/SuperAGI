@@ -22,7 +22,7 @@ import {
   getLastActiveAgent,
   sendGoogleCreds,
   sendTwitterCreds,
-  fetchModels,
+  fetchModels, getWorkflowList,
 } from "@/pages/api/DashboardService";
 import Market from "../Content/Marketplace/Market";
 import AgentTemplatesList from '../Content/Agents/AgentTemplatesList';
@@ -85,6 +85,29 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       });
   }
 
+  function getAgentWorkflowList() {
+    fetchWorkflows()
+        .then((response) => {
+          console.log('Agent Workflows fetched successfully')
+        })
+        .catch((error) => {
+          console.error('Error fetching agent workflows:', error);
+        });
+  }
+
+  async function fetchWorkflows() {
+    try {
+      const response = await getWorkflowList();
+      const data = response.data || [];
+      const updatedData = data.map(item => {
+        return {...item, contentType: "workflows"};
+      });
+      setWorkflows(updatedData);
+    } catch (error) {
+      console.error('Error fetching toolkits:', error);
+    }
+  }
+
   async function fetchToolkits() {
     try {
       const response = await getToolKit();
@@ -95,7 +118,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       });
       setToolkits(updatedData);
     } catch (error) {
-      console.error('Error fetching toolkits:', error);
+      console.error('Error fetching agent workflows:', error);
     }
   }
 
@@ -147,6 +170,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
     getAgentList();
     getToolkitList();
     getModels();
+    getAgentWorkflowList();
   }, [selectedProjectId])
 
   useEffect(() => {
@@ -279,6 +303,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
     EventBus.on('openNewTab', openNewTab);
     EventBus.on('reFetchAgents', getAgentList);
+    EventBus.on('reFetchAgentWorkflows', getAgentWorkflowList);
     EventBus.on('reFetchKnowledge', getKnowledgeList);
     EventBus.on('removeTab', removeTab);
     EventBus.on('openToolkitTab', openToolkitTab);
@@ -288,6 +313,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       EventBus.off('reFetchAgents', getAgentList);
       EventBus.off('reFetchKnowledge', getKnowledgeList);
       EventBus.off('removeTab', removeTab);
+      EventBus.off('reFetchAgentWorkflows', getAgentWorkflowList);
     };
   });
 
@@ -478,7 +504,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                      fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
                     {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
-                    {tab.contentType === 'Agent_Workflow' && <AgentWorkflowWorkspace tools={toolkits} />}
+                    {tab.contentType === 'Agent_Workflow' && <AgentWorkflowWorkspace workflowId={tab.id} tools={toolkits} />}
 
                   </div>}
                 </div>

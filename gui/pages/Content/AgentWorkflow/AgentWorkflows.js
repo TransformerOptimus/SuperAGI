@@ -3,19 +3,31 @@ import Image from "next/image";
 import 'react-toastify/dist/ReactToastify.css';
 import {createInternalId, getUserClick, preventDefault} from "@/utils/utils";
 import styles from "@/pages/Content/Agents/Agents.module.css";
+import {createAgentWorkflow, fetchAgentWorkflowDetails} from "@/pages/api/DashboardService";
+import {EventBus} from "@/utils/eventBus";
+import {toast, ToastContainer} from "react-toastify";
 
-export default function AgentWorkflows({sendWorkflowData}) {
+export default function AgentWorkflows({sendWorkflowData, workflows}) {
     const [createWorkflow, setCreateWorflow] = useState(false);
     const [workflowDescription, setWorkflowDescription] = useState('');
     const [workflowName, setWorkflowName] = useState('');
     const agents = [{name: 'Naman'}, {name: 'Naman2'}]
     const handleAddAgentWorkflow = () => {
-        sendWorkflowData({
-            id: -10,
-            name: workflowName,
-            contentType: "Agent_Workflow",
-            internalId: createInternalId()
-        });
+        createAgentWorkflow({name: workflowName, description: workflowDescription, code_yaml: ""})
+            .then((response) => {
+                EventBus.emit('reFetchAgentWorkflows', {});
+                setCreateWorflow(false)
+                toast.success('Agent Workflow successfully', {autoClose: 1800});
+                // sendWorkflowData({
+                //     id: response.data.id,
+                //     name: workflowName,
+                //     contentType: "Agent_Workflow",
+                //     internalId: createInternalId()
+                // });
+            })
+            .catch((error) => {
+                console.error('Error fetching workflow details:', error);
+            });
     }
     const handleWorkflowNameChange = (event) => {
         setWorkflowName(event.target.value);
@@ -36,16 +48,16 @@ export default function AgentWorkflows({sendWorkflowData}) {
                     </button>
                 </div>
 
-                {agents && agents.length > 0 ? <div className="vertical_selection_scroll w_100">
-                    {agents.map((agent, index) => (
+                {workflows && workflows.length > 0 ? <div className="vertical_selection_scroll w_100">
+                    {workflows.map((workflow, index) => (
                         <div key={index}>
                             <div className="agent_box w_100" onClick={() =>  sendWorkflowData({
-                                id: -14342424,
-                                name: workflowName,
+                                id: workflow.id,
+                                name: workflow.name,
                                 contentType: "Agent_Workflow",
                                 internalId: createInternalId()
                             })}>
-                                <div className="text_ellipsis"><span className="agent_text text_ellipsis">{agent.name}</span></div>
+                                <div className="text_ellipsis"><span className="agent_text text_ellipsis">{workflow.name}</span></div>
                             </div>
                         </div>
                     ))}
@@ -61,7 +73,7 @@ export default function AgentWorkflows({sendWorkflowData}) {
                     </div>
                     <div>
                         <label className={styles.form_label}>Description</label>
-                        <input className="input_medium" type="text" value={workflowDescription} onChange={handleWorkflowDescriptionChange}/>
+                        <textarea className="textarea_medium" rows={3} value={workflowDescription} onChange={handleWorkflowDescriptionChange}/>
                     </div>
                     <div style={{display: 'flex', justifyContent: 'flex-end'}}>
                         <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setCreateWorflow(false)}>
@@ -73,6 +85,7 @@ export default function AgentWorkflows({sendWorkflowData}) {
                     </div>
                 </div>
             </div>)}
+            <ToastContainer/>
         </>
     );
 }

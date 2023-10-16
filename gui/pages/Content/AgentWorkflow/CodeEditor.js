@@ -3,8 +3,9 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-yaml';
 import 'ace-builds/src-noconflict/theme-twilight';
 import {EventBus} from "@/utils/eventBus";
+import {updateAgentWorkflow} from "@/pages/api/DashboardService";
 
-const YamlEditor = ({ getCode, code }) => {
+const YamlEditor = ({ getCode, code, workflowId }) => {
     const [yamlContent, setYamlContent] = useState('');
 
 
@@ -13,7 +14,15 @@ const YamlEditor = ({ getCode, code }) => {
     };
     useEffect(() => {
         const sendData = () => {
-            getCode(yamlContent)
+            // getCode(yamlContent)
+            console.log('agennefndfsd')
+            updateAgentWorkflow(workflowId,  {name:"", description: "", code_yaml: yamlContent})
+                .then((response) => {
+                    EventBus.emit('setCode',{})
+                })
+                .catch((error) => {
+                    console.error('Error fetching workflow details:', error);
+                });
         }
         EventBus.on('sendCodeContent', sendData);
         return () => {
@@ -26,15 +35,15 @@ const YamlEditor = ({ getCode, code }) => {
        }
     },[code]);
 
-    const handleYamlParse = () => {
-        try {
-            const parsedYaml = jsYaml.load(yamlContent);
-            onYamlChange(parsedYaml); // Callback with parsed data
-            alert('YAML parsed successfully.');
-        } catch (error) {
-            alert('Error parsing YAML: ' + error.message);
-        }
-    };
+    // const handleYamlParse = () => {
+    //     try {
+    //         const parsedYaml = jsYaml.load(yamlContent);
+    //         onYamlChange(parsedYaml); // Callback with parsed data
+    //         alert('YAML parsed successfully.');
+    //     } catch (error) {
+    //         alert('Error parsing YAML: ' + error.message);
+    //     }
+    // };
 
     return (
         <div>
@@ -50,7 +59,6 @@ const YamlEditor = ({ getCode, code }) => {
                 setOptions={{
                     enableBasicAutocompletion: true,
                     enableLiveAutocompletion: true,
-                    readOnly: !!code,
                     wrapEnabled: true,
                 }}
                 style={{

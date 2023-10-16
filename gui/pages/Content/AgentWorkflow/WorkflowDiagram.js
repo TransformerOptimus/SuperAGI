@@ -3,7 +3,8 @@ import yaml from 'js-yaml';
 import mermaid from 'mermaid';
 
 export default function WorkflowDiagram({yamlContent}) {
-    const mermaidContent = convertYamlToMermaid(yamlContent);
+    console.log('kdnsdkdsd')
+    const mermaidContent = convertYamlToMermaid("");
     const mermaidContainerRef = useRef(null);
 
 
@@ -24,27 +25,27 @@ export default function WorkflowDiagram({yamlContent}) {
         mermaid.init(undefined, document.querySelectorAll('.mermaid'));
     }, []);
 
-    useEffect(() => {
-        if (mermaidContainerRef.current) {
-            // Clear the container
-            mermaidContainerRef.current.innerHTML = '';
+    // useEffect(() => {
+    //     if (mermaidContainerRef.current) {
+    //         // Clear the container
+    //         mermaidContainerRef.current.innerHTML = '';
+    //
+    //         // Create a new node to contain mermaid content
+    //         const mermaidNode = document.createElement('div');
+    //         mermaidNode.className = 'mermaid';
+    //         mermaidNode.textContent = mermaidContent;
+    //
+    //         // Append the new node to the container
+    //         mermaidContainerRef.current.appendChild(mermaidNode);
+    //
+    //         // Reinitialize mermaid
+    //         mermaid.init(undefined, mermaidNode);
+    //     }
+    // }, [yamlContent]);
 
-            // Create a new node to contain mermaid content
-            const mermaidNode = document.createElement('div');
-            mermaidNode.className = 'mermaid';
-            mermaidNode.textContent = mermaidContent;
-
-            // Append the new node to the container
-            mermaidContainerRef.current.appendChild(mermaidNode);
-
-            // Reinitialize mermaid
-            mermaid.init(undefined, mermaidNode);
-        }
-    }, [yamlContent]);
-
-    function convertYamlToMermaid(yamlContent) {
-        if (yamlContent && yamlContent !== '') {
-            const parsedData = yaml.load(yamlContent);
+    function convertYamlToMermaid(yamlContent1) {
+        if (yamlContent1 && yamlContent1 !== '') {
+            const parsedData = yaml.load(yamlContent1);
             console.log(parsedData)
             const steps = parsedData.steps;
 
