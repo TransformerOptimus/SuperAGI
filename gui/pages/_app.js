@@ -149,9 +149,10 @@ export default function App() {
               if(first_login === 'True') {
                 getUserClick('New Sign Up', {})
               }
-              else
-                if(first_login === 'False')
-                    getUserClick('User Logged In', {})
+              else {
+                if (first_login === 'False')
+                  getUserClick('User Logged In', {})
+              }
 
               if(signupSource) {
                 handleSignUpSource(signupSource)
