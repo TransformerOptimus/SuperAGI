@@ -22,9 +22,9 @@ export default function TopBar({selectedProject, userName, env}) {
     }
     getUserClick('Logged Out',{})
     // localStorage.removeItem('accessToken');
-    Cookies.set('accessToken', '', { expires: new Date(0)});
+    Cookies.set('accessToken', '', { expires: new Date(0),domain: '.superagi.com', path: '/'});
     Cookies.set('Source', 'app.superagi', {domain: '.superagi.com', path: '/'});
-    Cookies.set('mixpanel_initialized', false,);
+    Cookies.set('mixpanel_initialized', 'false', {domain: '.superagi.com', path: '/'});
     refreshUrl();
     router.reload();
   };

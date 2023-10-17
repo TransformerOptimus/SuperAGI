@@ -110,11 +110,10 @@ export default function App() {
       .then((response) => {
         const env = response.data.env;
         setEnv(env);
-        const mixpanelInitialized = Cookies.get('mixpanel_initialized')
+        const mixpanelInitialized = Cookies.get('mixpanel_initialized') === 'true'
         if (typeof window !== 'undefined') {
           if(response.data.env === 'PROD' && mixpanelId()) {
             mixpanel.init(mixpanelId(), {debug: false, track_pageview: !mixpanelInitialized, persistence: 'localStorage'});
-            Cookies.set('mixpanel_initialized', true);
           }
           localStorage.setItem('applicationEnvironment', env);
         }
@@ -124,9 +123,7 @@ export default function App() {
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
-          let first_login = parsedParams.first_time_login || false
-          console.log(parsedParams.first_time_login)
-          console.log(window.location.href)
+          let first_login = parsedParams.first_time_login || ''
 
           const utmParams = getUTMParametersFromURL();
           if (utmParams) {
@@ -140,7 +137,7 @@ export default function App() {
 
           if (typeof window !== 'undefined' && access_token) {
             // localStorage.setItem('accessToken', access_token);
-            Cookies.set('accessToken', access_token);
+            Cookies.set('accessToken', access_token, {domain: '.superagi.com', path: '/'});
             refreshUrl();
           }
           validateAccessToken()
@@ -149,16 +146,18 @@ export default function App() {
               sendGAEvent(response.data.email, 'Signed Up Successfully', {'utm_source': signupSource || '', 'utm_medium': signupMedium || '', 'campaign': singupCampaign || ''})
               if(mixpanelId())
                 mixpanel.identify(response.data.email)
-              if(first_login)
+              if(first_login === 'True') {
                 getUserClick('New Sign Up', {})
+              }
               else
-                if(!mixpanelInitialized)
+                if(first_login === 'False')
                     getUserClick('User Logged In', {})
 
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }
               fetchOrganisation(response.data.id);
+              Cookies.set('mixpanel_initialized', 'true', {domain: '.superagi.com', path: '/'});
             })
             .catch((error) => {
               console.error('Error validating access token:', error);
