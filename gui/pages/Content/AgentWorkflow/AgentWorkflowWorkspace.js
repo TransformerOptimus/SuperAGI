@@ -23,7 +23,7 @@ export default function AgentWorkflowWorkspace({tools, workflowId}){
 
     const parseYamlContent  = () => {
         console.log(yamlContent)
-        EventBus.emit('sendCodeContent',{});
+        EventBus.emit('sendCodeContent',{})
         // updateAgentWorkflow(workflowId,  {name:"", description: "", code_yaml: yamlContent})
         //     .then((response) => {
         //         EventBus.emit('sendCodeContent',{});
@@ -67,7 +67,7 @@ export default function AgentWorkflowWorkspace({tools, workflowId}){
         return () => {
             EventBus.off('setCode', getWorkflowDetails);
         };
-    });
+    }, []);
 
     useEffect(() => {
         console.log(workflowDetails)
@@ -136,8 +136,7 @@ export default function AgentWorkflowWorkspace({tools, workflowId}){
               <div className={styles.diagram_content}>
                   <div className={styles.code_block_topbar}>Preview</div>
                   <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px',overflowX:'scroll', padding:'16px'}}>
-                      {workflowDetails?.agent_workflow_code &&
-                          <WorkflowDiagram />}
+                      {yamlContent &&<WorkflowDiagram yamlContent={yamlContent} />}
                   </div>
               </div>
           </div>

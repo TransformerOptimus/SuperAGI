@@ -556,7 +556,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                   </button>
                 </div>
                 {activeTab === 'Preview' && <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
-                {yamlContent && <WorkflowDiagram yamlContent={yamlContent} />}
+                 <WorkflowDiagram yamlContent={yamlContent} />
               </div>}
                 {activeTab === 'Code' && <div style={{height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
                   <CodeEditor code={`${yamlContent}\n`} />
