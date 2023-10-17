@@ -24,7 +24,11 @@ def connect_db():
     db_password = get_config('DB_PASSWORD')
     db_name = get_config('DB_NAME')
     db_url = get_config('DB_URL', None)
-
+    print(db_url)
+    print(db_host)
+    print(db_username)
+    print(db_password)
+    print(db_name)
     if db_url is None:
         if db_username is None:
             db_url = f'postgresql://{db_host}/{db_name}'
@@ -41,6 +45,11 @@ def connect_db():
                            pool_recycle=1800,  # Recycle connections after this number of seconds (optional)
                            pool_pre_ping=False,  # Enable connection health checks (optional)
                            )
+    db_url = "postgresql://superagi:password@localhost:5432/super_agi_main"
+    # print(db_url)
+    engine = create_engine(db_url)
+    print('engine created')
+    print(engine)
 
     # Test the connection
     try:

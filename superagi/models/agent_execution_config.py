@@ -118,6 +118,10 @@ class AgentExecutionConfiguration(DBBaseModel):
             if key in results_agent_dict and value is not None:
                 results_agent_dict[key] = value
 
+        if agent and agent.agent_workflow_id is not None:
+            agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.id == agent.agent_workflow_id).first()
+            results_agent_dict['agent_workflow_code'] = agent_workflow.code_yaml
+
         # Construct the response
         if 'goal' in results_agent_dict:
             results_agent_dict['goal'] = eval(results_agent_dict['goal'])
@@ -155,6 +159,10 @@ class AgentExecutionConfiguration(DBBaseModel):
     @classmethod
     def build_scheduled_agent_execution_config(cls, session, agent, results_agent, total_calls, total_tokens):
         results_agent_dict = {result.key: result.value for result in results_agent}
+
+        if agent and agent.agent_workflow_id is not None:
+            agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.id == agent.agent_workflow_id).first()
+            results_agent_dict['agent_workflow_code'] = agent_workflow.code_yaml
             
         # Construct the response
         if 'goal' in results_agent_dict:

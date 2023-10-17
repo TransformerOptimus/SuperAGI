@@ -137,6 +137,7 @@ class Agent(DBBaseModel):
         db.session.commit()
 
         agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.agent_workflow)
+        print("______________workflow choosen______________",agent_workflow)
         logger.info("Agent workflow:", str(agent_workflow))
         db_agent.agent_workflow_id = agent_workflow.id
         #
@@ -169,6 +170,7 @@ class Agent(DBBaseModel):
             "max_iterations": agent_with_config.max_iterations,
             "user_timezone": agent_with_config.user_timezone,
             "knowledge": agent_with_config.knowledge,
+            "agent_type": agent_with_config.agent_type
         }
 
         agent_configurations = [

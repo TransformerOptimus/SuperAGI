@@ -1,5 +1,5 @@
 import json
-from superagi.agent.common_types import TaskExecutorResponse, ToolExecutorResponse
+from superagi.agent.types.common_types import TaskExecutorResponse, ToolExecutorResponse
 from superagi.agent.output_parser import AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
 from superagi.agent.tool_executor import ToolExecutor

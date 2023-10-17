@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 from sqlalchemy import Column, Integer, String, Text
 
@@ -21,6 +22,8 @@ class AgentWorkflow(DBBaseModel):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(Text)
+    organisation_id = Column(Integer)
+    code_yaml = Column(Text)
 
     def __repr__(self):
         """
@@ -30,8 +33,10 @@ class AgentWorkflow(DBBaseModel):
             str: String representation of the AgentWorkflow.
         """
 
-        return f"AgentWorkflow(id={self.id}, name='{self.name}', " \
-               f"description='{self.description}')"
+        return f"AgentWorkflow(id='{self.id}', name='{self.name}', " \
+               f"description='{self.description}', " \
+               f"organisation id='{self.organisation_id}', "\
+               f"workflow code='{self.code_yaml}')"
 
     def to_dict(self):
         """
@@ -95,7 +100,7 @@ class AgentWorkflow(DBBaseModel):
 
     @classmethod
     def find_by_id(cls, session, id: int):
-        """Create or find an agent workflow by name."""
+        """Create or find an agent workflow by id."""
         return session.query(AgentWorkflow).filter(AgentWorkflow.id == id).first()
 
 
@@ -105,11 +110,31 @@ class AgentWorkflow(DBBaseModel):
         return session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
 
     @classmethod
-    def find_or_create_by_name(cls, session, name: str, description: str):
+    def find_or_create_by_name(cls, session, name: str, description: str, organisation_id: Optional[int] = None):
         """Create or find an agent workflow by name."""
+        print("Session : ",session)
+        print("Name : ",name)
+        print("Description : ",description)
         agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.name == name).first()
+        print("Agent Workflow : ",agent_workflow)
         if agent_workflow is None:
-            agent_workflow = AgentWorkflow(name=name, description=description)
+            agent_workflow = AgentWorkflow(name=name, description=description, organisation_id=organisation_id)
             session.add(agent_workflow)
             session.commit()
         return agent_workflow
+
+    @classmethod
+    def find_by_organisation_id(cls, session, organisation_id: int):
+        workflows = session.query(AgentWorkflow).filter(AgentWorkflow.organisation_id == organisation_id).all()
+        return workflows
+
+    @classmethod
+    def add_or_update_agent_workflow_code_yaml(cls, session, id: int, agent_workflow_code_yaml: str):
+        agent_workflow = session.query(AgentWorkflow).filter(AgentWorkflow.id == id).first()
+
+        if agent_workflow is not None:
+            agent_workflow.code_yaml = agent_workflow_code_yaml
+            session.commit()
+
+        return agent_workflow
+

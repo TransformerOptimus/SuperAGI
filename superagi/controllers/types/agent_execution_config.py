@@ -27,6 +27,7 @@ class AgentRunIn(BaseModel):
     max_iterations: int
     user_timezone: Optional[str]
     knowledge: Optional[int]
+    agent_type: str
 
     class Config:
         orm_mode = True

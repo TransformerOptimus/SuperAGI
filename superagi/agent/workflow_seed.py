@@ -28,6 +28,87 @@ from superagi.tools.webscaper.tools import WebScraperTool
 
 class AgentWorkflowSeed:
     @classmethod
+    def build_recruitment_workflow1(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Recruitment Workflow1",
+                                                              "Recruitment Workflow1")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ListFileTool().name,
+                                                                    "List the files from the resource manager",
+                                                                    step_type="TRIGGER")
+
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    ReadFileTool().name,
+                                                                    "Read all the files in the resource manager")
+
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WriteFileTool().name,
+                                                                    "Write the Name, Email, CGPA, Past companies and Years of experience from the Resume to a .csv file")
+
+        # task queue ends when the elements gets over
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    "TASK_QUEUE",
+                                                                    "Break the above response array of items",
+                                                                    completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse(). Skip job_description file from list.")
+
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    ReadFileTool().name,
+                                                                    "Read the key points from above input",
+                                                                    "Check if the resume matches the job criteria given in the goal")
+
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    SendEmailTool().name,
+                                                                    "Write a custom Rejection email to the candidate")
+
+        step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step7",
+                                                                    SendEmailTool().name,
+                                                                    "Write a custom Acceptance email to the candidates for job profile based on their experience")
+
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step7.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step7.id, step4.id)
+        session.commit()
+    @classmethod
+    def build_test_condition_workflow(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Test Condition Workflow", "Test Condition Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    ReadFileTool().name,
+                                                                    "Read the file named info.txt",
+                                                                    step_type="TRIGGER")
+        step2 = AgentWorkflowStep.find_or_create_condition_workflow_step(session=session,agent_workflow_id=agent_workflow.id,
+                                                                         unique_id=str(agent_workflow.id) + "_step2",
+                                                                         instruction="Check if the file consists information about nature")
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    WriteFileTool().name,
+                                                                    "Write a poem on nature")
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    WriteFileTool().name,
+                                                                    "Write a poem on cricket")
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step4.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, -1)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1)
+        session.commit()
+
+
+
+    @classmethod
     def build_sales_workflow(cls, session):
         agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Sales Engagement Workflow",
                                                               "Sales Engagement Workflow")
@@ -57,7 +138,7 @@ class AgentWorkflowSeed:
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
-                                                                    GoogleSearchTool().name,
+                                                                    SearxSearchTool().name,
                                                                     "Search about the company in which the lead is working")
 
         step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
@@ -90,10 +171,17 @@ class AgentWorkflowSeed:
                                                                     SendEmailTool().name,
                                                                     "Customize the Email according to the company information in the mail")
 
+        step12 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step12",
+                                                                     WriteFileTool().name,
+                                                                        "Write a summary about the work done so far in a file named workflow_summary.txt")
+
         # AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
+        # AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step12.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step12.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
         AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id, "YES")
@@ -106,13 +194,13 @@ class AgentWorkflowSeed:
         session.commit()
 
     @classmethod
-    def build_recruitment_workflow(cls, session):
-        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Recruitment Workflow",
-                                                              "Recruitment Workflow")
+    def build_recruitment_workflow5(cls, session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Recruitment Workflow5",
+                                                              "Recruitment Workflow5")
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
                                                                     ListFileTool().name,
-                                                                    "Read files from the resource manager",
+                                                                    "List the files from the resource manager",
                                                                     step_type="TRIGGER")
 
         # task queue ends when the elements gets over
@@ -127,11 +215,20 @@ class AgentWorkflowSeed:
                                                                     ReadFileTool().name,
                                                                     "Read the resume from above input")
 
-        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
-                                                                    str(agent_workflow.id) + "_step4",
-                                                                    ReadFileTool().name,
-                                                                    "Read the job description from file mentioned in High-Level GOAL",
-                                                                    "Check if the resume matches the job description in goal")
+        step4 = AgentWorkflowStep.find_or_create_condition_workflow_step(session=session,agent_workflow_id=agent_workflow.id,
+                                                                         unique_id=str(agent_workflow.id) + "_step4",
+                                                                         # instruction="Check if the candidate is of a Video Editor or Graphic Designer"
+                                                                         instruction="Check if the resume matches High-Level GOAL")
+
+
+
+
+
+        # step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+        #                                                             str(agent_workflow.id) + "_step4",
+        #                                                             ReadFileTool().name,
+        #                                                             "Read the job description from file mentioned in High-Level GOAL",
+        #                                                             "Check if the resume matches the job description in goal")
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
@@ -142,10 +239,56 @@ class AgentWorkflowSeed:
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
         AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id,"YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id,"NO")
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
         session.commit()
+
+    @classmethod
+    def build_test_workflow(cls,session):
+        agent_workflow = AgentWorkflow.find_or_create_by_name(session, "Test Workflow", "Test Workflow")
+        step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step1",
+                                                                    WriteFileTool().name,
+                                                                    "write a poem on nature",
+                                                                    step_type="TRIGGER")
+
+        step2 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step2",
+                                                                    ListFileTool().name,
+                                                                    "list the files")
+
+        step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step3",
+                                                                    ReadFileTool().name,
+                                                                    "Read the leads from the file")
+        # task queue ends when the elements gets over
+        step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step4",
+                                                                    "TASK_QUEUE",
+                                                                    "Break the above response array of items",
+                                                                    completion_prompt="Get array of items from the above response. Array should suitable utilization of JSON.parse().")
+        step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step5",
+                                                                    GoogleSearchTool().name,
+                                                                    "Search about the company in which the lead is working")
+        step6 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step6",
+                                                                    WriteFileTool().name
+                                                                    , "Write a summary about the company searched in the above step in file named on company's name")
+        step7 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
+                                                                    str(agent_workflow.id) + "_step7",
+                                                                    WriteFileTool().name,
+                                                                    "Write a summary about the work done so far in a file named workflow_summary.txt")
+
+        AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, -1, "COMPLETE")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step5.id, step6.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step6.id, step7.id)
+        AgentWorkflowStep.add_next_workflow_step(session, step7.id, step4.id)
 
 
     @classmethod
@@ -268,3 +411,4 @@ class IterationWorkflowSeed:
         output = AgentPromptTemplate.analyse_task()
         IterationWorkflowStep.find_or_create_step(session, iteration_workflow.id, "ab1",
                                                   output["prompt"], str(output["variables"]), "TRIGGER", "tools")
+# /Users/abhijeetsinha/abhijeet/Code/SuperAGI/SuperAGI/superagi/agent/prompts/condition_step.txt

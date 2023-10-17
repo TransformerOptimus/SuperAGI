@@ -100,10 +100,12 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
                                                               toolkit_ids=agent_with_config.toolkits)
     agent_with_config.tools.extend(agent_toolkit_tools)
     db_agent = Agent.create_agent_with_config(db, agent_with_config)
-
+    print("Agent is _______________________", db_agent.agent_workflow_id)
     start_step = AgentWorkflow.fetch_trigger_step_id(db.session, db_agent.agent_workflow_id)
-    iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
-                                                                start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+    print("Start step is _______________________", start_step)
+    # iteration_step_id = IterationWorkflow.fetch_trigger_step_id(db.session,
+    #                                                             start_step.action_reference_id).id if start_step.action_type == "ITERATION_WORKFLOW" else -1
+    iteration_step_id = -1
 
     # Creating an execution with RUNNING status
     execution = AgentExecution(status='CREATED', last_execution_time=datetime.now(), agent_id=db_agent.id,
@@ -122,7 +124,8 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
         "LTM_DB": agent_with_config.LTM_DB,
         "max_iterations": agent_with_config.max_iterations,
         "user_timezone": agent_with_config.user_timezone,
-        "knowledge": agent_with_config.knowledge
+        "knowledge": agent_with_config.knowledge,
+        "agent_type": agent_with_config.agent_type
     }
     db.session.add(execution)
     db.session.commit()

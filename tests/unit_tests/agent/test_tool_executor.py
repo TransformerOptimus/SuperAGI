@@ -1,9 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
 
-from pydantic import ValidationError
-
-from superagi.agent.common_types import ToolExecutorResponse
 from superagi.agent.tool_executor import ToolExecutor
 
 class MockTool:

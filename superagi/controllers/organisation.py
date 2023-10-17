@@ -187,6 +187,7 @@ def agent_workflows(organisation=Depends(get_user_organisation)):
     """
 
     agent_workflows = db.session.query(AgentWorkflow).all()
+    print("agent_workflows : ", agent_workflows)
     workflows = [workflow.name for workflow in agent_workflows]
 
     return workflows

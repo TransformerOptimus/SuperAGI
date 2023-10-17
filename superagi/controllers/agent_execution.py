@@ -195,7 +195,8 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
         "LTM_DB": agent_execution.LTM_DB,
         "max_iterations": agent_execution.max_iterations,
         "user_timezone": agent_execution.user_timezone,
-        "knowledge": agent_execution.knowledge
+        "knowledge": agent_execution.knowledge,
+        "agent_type": agent_execution.agent_type
     }
     
     db.session.add(db_agent_execution)
