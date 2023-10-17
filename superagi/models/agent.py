@@ -170,6 +170,7 @@ class Agent(DBBaseModel):
             "max_iterations": agent_with_config.max_iterations,
             "user_timezone": agent_with_config.user_timezone,
             "knowledge": agent_with_config.knowledge,
+            "agent_type": agent_with_config.agent_type
         }
 
         agent_configurations = [

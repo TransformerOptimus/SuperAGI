@@ -124,7 +124,8 @@ def create_agent_with_config(agent_with_config: AgentConfigInput,
         "LTM_DB": agent_with_config.LTM_DB,
         "max_iterations": agent_with_config.max_iterations,
         "user_timezone": agent_with_config.user_timezone,
-        "knowledge": agent_with_config.knowledge
+        "knowledge": agent_with_config.knowledge,
+        "agent_type": agent_with_config.agent_type
     }
     db.session.add(execution)
     db.session.commit()

@@ -31,7 +31,7 @@ class AgentWorkflowBuilder:
         # get parsed workflow yaml as dict
         agent_workflow = workflow_yaml
 
-        AgentWorkflowValidator(self.session).validate_workflow_steps(agent_workflow)
+        # AgentWorkflowValidator(self.session).validate_workflow_steps(agent_workflow)
 
         trigger_workflow_yaml_step = self.find_trigger_step(agent_workflow)
         if trigger_workflow_yaml_step is None:
@@ -135,11 +135,12 @@ class AgentWorkflowBuilder:
             else:
                 # Handling branched steps i.e. condition, wait for permission
                 for next_step_info in next_steps:
+                    print("---------------bdjbjd-----------", next_step_info)
                     next_step_name = next_step_info.get("step")
-                    next_steps = self.get_step_by_name(agent_workflow, next_step_name)
-                    if next_steps:
+                    next_step = self.get_step_by_name(agent_workflow, next_step_name)
+                    if next_step:
                         step_queue.put({
-                            "step_to_be_processed": next_steps,
+                            "step_to_be_processed": next_step,
                             "previous_workflow_step": workflow_step,
                             "previous_workflow_step_output": next_step_info.get("output")
                         })
@@ -249,7 +250,7 @@ class AgentWorkflowBuilder:
 
 
 
-        if agent_workflow_step["trigger_step"] is True:
+        if step.get("trigger_step") is not None and step["trigger_step"] is True:
             agent_workflow_step.step_type = "TRIGGER"
 
         return agent_workflow_step
@@ -302,6 +303,7 @@ def read_yaml_file(file_path):
     try:
         with open(file_path, 'r') as yaml_file:
             yaml_content = yaml.load(yaml_file, Loader=yaml.FullLoader)
+        print("type of content returned:", type(yaml_content))
         return yaml_content
     except FileNotFoundError:
         raise Exception(f"File not found: {file_path}")
@@ -314,7 +316,7 @@ import yaml
 
 if __name__ == "__main__":
     test_yaml = read_yaml_file(
-        "/Users/abhijeetsinha/abhijeet/Code/SuperAGI/SuperAGI/superagi/agent/agent_workflow.yaml")
+        "/Users/jagtarsaggu/Desktop/Dev Projects/SuperAGI/superagi/agent/agent_workflow.yaml")
     print("YAML :")
     print(test_yaml)
     for data in test_yaml["steps"]:

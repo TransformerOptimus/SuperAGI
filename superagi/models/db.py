@@ -45,7 +45,7 @@ def connect_db():
                            pool_recycle=1800,  # Recycle connections after this number of seconds (optional)
                            pool_pre_ping=False,  # Enable connection health checks (optional)
                            )
-    # db_url = "postgresql://superagi:password@localhost:5432/super_agi_main"
+    db_url = "postgresql://superagi:password@localhost:5432/super_agi_main"
     # print(db_url)
     engine = create_engine(db_url)
     print('engine created')
