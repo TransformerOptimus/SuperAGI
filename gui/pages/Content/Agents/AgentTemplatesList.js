@@ -52,7 +52,7 @@ export default function AgentTemplatesList({
   }
 
   function handleTemplateClick(item) {
-    getUserClick('Agent Creating Using Template', {})
+    getUserClick('Agent Creating Using Template', {'Template Name': item.name})
     setSendTemplate(item);
     setLocalStorageValue("agent_create_click_" + String(internalId), true, setCreateAgentClicked);
   }

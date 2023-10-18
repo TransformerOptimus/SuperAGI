@@ -1,7 +1,7 @@
 from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 
-class ErrorHandling:
+class ErrorHandler:
 
     def handle_openai_errors(session, agent_id, agent_execution_id, error_message):
         execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()

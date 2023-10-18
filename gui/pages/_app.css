@@ -1100,6 +1100,7 @@ p {
 
 .flex_dir_col{flex-direction: column}
 .flex_dir_row{flex-direction: row}
+.flex_none{flex: none}
 
 .justify_center{justify-content: center}
 .justify_end{justify-content: flex-end}
@@ -1835,6 +1836,13 @@ tr{
     border-left: 4px solid rgba(255, 255, 255, 0.60);
     background: rgba(255, 255, 255, 0.08);
     padding: 12px;
+}
+
+.success_box{
+    border-radius: 8px;
+    padding: 12px;
+    border-left: 4px solid rgba(255, 255, 255, 0.60);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .horizontal_line {

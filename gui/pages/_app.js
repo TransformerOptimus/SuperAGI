@@ -22,11 +22,11 @@ import {
 } from "@/pages/api/DashboardService";
 import {useRouter} from 'next/router';
 import querystring from 'querystring';
-import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick} from "@/utils/utils";
+import {refreshUrl, loadingTextEffect, getUTMParametersFromURL, setLocalStorageValue, getUserClick, sendGAEvent} from "@/utils/utils";
 import MarketplacePublic from "./Content/Marketplace/MarketplacePublic"
 import {toast} from "react-toastify";
 import mixpanel from 'mixpanel-browser';
-
+import Cookies from 'js-cookie';
 
 export default function App() {
   const [selectedView, setSelectedView] = useState('');
@@ -110,6 +110,7 @@ export default function App() {
       .then((response) => {
         const env = response.data.env;
         setEnv(env);
+        const mixpanelInitialized = Cookies.get('mixpanel_initialized') === 'true'
 
         if (typeof window !== 'undefined') {
           if(response.data.env === 'PROD' && mixpanelId())
@@ -122,31 +123,41 @@ export default function App() {
           const queryParams = router.asPath.split('?')[1];
           const parsedParams = querystring.parse(queryParams);
           let access_token = parsedParams.access_token || null;
-          let first_login = parsedParams.first_time_login || false
+          let first_login = parsedParams.first_time_login || ''
 
           const utmParams = getUTMParametersFromURL();
-          if (utmParams)
+          if (utmParams) {
             sessionStorage.setItem('utm_source', utmParams.utm_source);
+            sessionStorage.setItem('utm_medium', utmParams.utm_medium);
+            sessionStorage.setItem('campaign', utmParams.utm_campaign);
+          }
           const signupSource = sessionStorage.getItem('utm_source');
+          const signupMedium = sessionStorage.getItem('utm_medium');
+          const singupCampaign = sessionStorage.getItem('campaign');
 
           if (typeof window !== 'undefined' && access_token) {
             localStorage.setItem('accessToken', access_token);
+            Cookies.set('accessToken', access_token, { domain: '.superagi.com', path: '/' });
             refreshUrl();
           }
           validateAccessToken()
             .then((response) => {
               setUserName(response.data.name || '');
+              sendGAEvent(response.data.email, 'Signed Up Successfully', {'utm_source': signupSource || '', 'utm_medium': signupMedium || '', 'campaign': singupCampaign || ''})
               if(mixpanelId())
                 mixpanel.identify(response.data.email)
-              if(first_login)
+              if(first_login === 'True')
                 getUserClick('New Sign Up', {})
-              else
-                getUserClick('User Logged In', {})
+              else {
+                if (first_login === 'False')
+                  getUserClick('User Logged In', {})
+              }
 
               if(signupSource) {
                 handleSignUpSource(signupSource)
               }
               fetchOrganisation(response.data.id);
+              Cookies.set('mixpanel_initialized', 'true', {domain: '.superagi.com', path: '/'});
             })
             .catch((error) => {
               console.error('Error validating access token:', error);
@@ -158,6 +169,7 @@ export default function App() {
       .catch((error) => {
         console.error('Error fetching project:', error);
       });
+
   }, []);
 
   useEffect(() => {
@@ -174,7 +186,11 @@ export default function App() {
 
   useEffect(() => {
     if (selectedProject !== null) {
-      setApplicationState("AUTHENTICATED");
+      const source = Cookies.get('Source')
+      if (source === 'models.superagi')
+        window.open('https://models.superagi.com/', '_self');
+      else
+        setApplicationState("AUTHENTICATED");
     }
   }, [selectedProject]);
 
@@ -217,7 +233,6 @@ export default function App() {
   const handleSignUpSource = (signup) => {
     getFirstSignup(signup)
         .then((response) => {
-          sessionStorage.removeItem('utm_source');
         })
         .catch((error) => {
           console.error('Error validating source:', error);

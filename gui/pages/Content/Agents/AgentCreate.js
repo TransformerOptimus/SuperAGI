@@ -548,6 +548,8 @@ export default function AgentCreate({
               const name = response.data.name;
               const executionId = response.data.execution_id;
               fetchAgents();
+              getUserClick('Agent Created Successfully', {'templateName': template?.id ? template.name : ''})
+              getUserClick('Agent Run created successfully', {})
               uploadResources(agentId, name, executionId)
             })
             .catch((error) => {
@@ -1392,7 +1394,7 @@ export default function AgentCreate({
               <div className="primary_button"
                    style={{backgroundColor: 'white', marginBottom: '4px', paddingLeft: '0', paddingRight: '5px'}}>
                 <button disabled={!createClickable} className="primary_button" style={{paddingRight: '5px'}}
-                        onClick={() => {handleAddAgent(); getUserClick('Agent Created Succesfully', {})}}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
+                        onClick={() => {handleAddAgent();}}>{createClickable ? 'Create and Run' : 'Creating Agent...'}</button>
                 <button onClick={() => setCreateDropdown(!createDropdown)}
                         style={{border: 'none', backgroundColor: 'white'}}>
                   <Image width={20} height={21}

@@ -3,7 +3,7 @@ from typing import Tuple, List
 from sqlalchemy import asc
 
 from superagi.config.config import get_config
-from superagi.helper.error_handling import ErrorHandling
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.models.agent_execution import AgentExecution
@@ -100,8 +100,11 @@ class AgentLlmMessageBuilder:
             - TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm_model)) > 0:
             last_agent_feed_ltm_summary_id = AgentExecutionConfiguration.fetch_value(self.session,
                                                        self.agent_execution_id, "last_agent_feed_ltm_summary_id")
-            last_agent_feed_ltm_summary_id = int(last_agent_feed_ltm_summary_id.value)
-
+            last_agent_feed_ltm_summary_id = (
+                int(last_agent_feed_ltm_summary_id.value)
+                if last_agent_feed_ltm_summary_id is not None and last_agent_feed_ltm_summary_id.value is not None
+                else 0
+            )
             past_messages = self.session.query(AgentExecutionFeed.role, AgentExecutionFeed.feed,
                                                AgentExecutionFeed.id) \
                 .filter(AgentExecutionFeed.agent_execution_id == self.agent_execution_id,
@@ -121,7 +124,7 @@ class AgentLlmMessageBuilder:
         ltm_summary = self.llm.chat_completion(msgs)
 
         if 'error' in ltm_summary and ltm_summary['message'] is not None:
-            ErrorHandling.handle_openai_errors(self.session, self.agent_id, self.agent_execution_id, ltm_summary['message'])
+            ErrorHandler.handle_openai_errors(self.session, self.agent_id, self.agent_execution_id, ltm_summary['message'])
 
         execution = AgentExecution(id=self.agent_execution_id)
         agent_execution_configs = {"ltm_summary": ltm_summary["content"]}

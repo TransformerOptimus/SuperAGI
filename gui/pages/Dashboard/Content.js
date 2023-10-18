@@ -58,7 +58,6 @@ export default function Content({env, selectedView, selectedProjectId, organisat
       const apmTab = tabs.find(tab => tab.contentType === 'APM');
       setIsApmOpened(!!apmTab);
       setPrevView(selectedView);
-      getUserClick('APM Closed',{})
     }
   }, [selectedView, tabs, prevView]);
 
@@ -196,6 +195,9 @@ export default function Content({env, selectedView, selectedProjectId, organisat
 
       updatedTabs.splice(index, 1);
     }
+
+    if(contentType === "APM")
+      getUserClick('APM Closed',{})
 
     resetLocalStorage(contentType, internalId);
     setTabs(updatedTabs);
@@ -502,7 +504,7 @@ export default function Content({env, selectedView, selectedProjectId, organisat
                                      organisationId={organisationId} sendKnowledgeData={addTab}
                                      sendAgentData={addTab} selectedProjectId={selectedProjectId} editAgentId={tab.id}
                                      fetchAgents={getAgentList} toolkits={toolkits} template={null} edit={true} agents={agents}/>}
-                    {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab}/>}
+                    {tab.contentType === 'Add_Model' && <AddModel internalId={tab.internalId} getModels={getModels} sendModelData={addTab} env={env}/>}
                     {tab.contentType === 'Model' && <ModelDetails modelId={tab.id} modelName={tab.name} />}
                     {tab.contentType === 'Agent_Workflow' && <AgentWorkflowWorkspace workflowId={tab.id} tools={toolkits} internalId={tab.internalId || index} />}
 
