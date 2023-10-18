@@ -4,13 +4,17 @@ import 'ace-builds/src-noconflict/mode-yaml';
 import 'ace-builds/src-noconflict/theme-twilight';
 import {EventBus} from "@/utils/eventBus";
 import {updateAgentWorkflow} from "@/pages/api/DashboardService";
+import {setLocalStorageValue} from "@/utils/utils";
+import {toast, ToastContainer} from "react-toastify";
 
-const YamlEditor = ({ getCode, code, workflowId }) => {
+const YamlEditor = ({internalId, getCode, code, workflowId, getWorkflowDetails, setButtonDisabled }) => {
     const [yamlContent, setYamlContent] = useState('');
 
 
     const handleYamlChange = (newContent) => {
         setYamlContent(newContent);
+        setLocalStorageValue("agent_workflow_code_" + String(internalId), newContent, setYamlContent);
+        setButtonDisabled(false)
     };
     useEffect(() => {
         const sendData = () => {
@@ -18,10 +22,10 @@ const YamlEditor = ({ getCode, code, workflowId }) => {
             console.log('agennefndfsd')
             updateAgentWorkflow(workflowId,  {name:"", description: "", code_yaml: yamlContent})
                 .then((response) => {
-                    EventBus.emit('setCode',{})
+                    getWorkflowDetails();
                 })
                 .catch((error) => {
-                    console.error('Error fetching workflow details:', error);
+                    toast.error('Enter Valid .yaml code', {autoClose: 1800});
                 });
         }
         EventBus.on('sendCodeContent', sendData);
@@ -31,19 +35,15 @@ const YamlEditor = ({ getCode, code, workflowId }) => {
     });
     useEffect(() => {
        if(code){
-           setYamlContent(code);
+           setLocalStorageValue("agent_workflow_code_" + String(internalId), code, setYamlContent);
        }
     },[code]);
 
-    // const handleYamlParse = () => {
-    //     try {
-    //         const parsedYaml = jsYaml.load(yamlContent);
-    //         onYamlChange(parsedYaml); // Callback with parsed data
-    //         alert('YAML parsed successfully.');
-    //     } catch (error) {
-    //         alert('Error parsing YAML: ' + error.message);
-    //     }
-    // };
+    useEffect(() => {
+        if(localStorage.getItem("agent_workflow_code_" + String(internalId))){
+            setYamlContent(localStorage.getItem("agent_workflow_code_" + String(internalId)))
+        }
+    },[]);
 
     return (
         <div>
@@ -67,7 +67,7 @@ const YamlEditor = ({ getCode, code, workflowId }) => {
                 }}
 
             />
-
+            <ToastContainer/>
         </div>
     );
 };

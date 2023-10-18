@@ -1,6 +1,13 @@
 import React, {useState, useEffect, useRef} from 'react';
 import styles1 from '@/pages/Content/Knowledge/Knowledge.module.css'
-import {removeTab, setLocalStorageValue, setLocalStorageArray, createInternalId, getUserClick} from "@/utils/utils";
+import {
+  removeTab,
+  setLocalStorageValue,
+  setLocalStorageArray,
+  createInternalId,
+  getUserClick,
+  warningContainer
+} from "@/utils/utils";
 import styles from "@/pages/Content/Agents/Agents.module.css";
 import Image from "next/image";
 import {ToastContainer, toast} from "react-toastify";
@@ -163,16 +170,7 @@ export default function KnowledgeForm({
     <div>
       <div className={styles.page_title}>{isEditing ? 'Edit knowledge' : 'Add a new knowledge'}</div>
     </div>
-    <div style={{marginTop: '10px'}}>
-      <div className={styles1.knowledge_alert}>
-        <div style={{marginRight: '5px', marginLeft: '-5px'}}>
-          <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
-        </div>
-        <div>
-          Currently we support Open AI “text-embedding-ada-002” model knowledge only. Please make sure you add the same.
-        </div>
-      </div>
-    </div>
+    <div className="mt_10">{warningContainer("Currently we support Open AI “text-embedding-ada-002” model knowledge only. Please make sure you add the same.")}</div>
     <div style={{marginTop: '10px'}}>
       <div>
         <label className={styles.form_label}>Knowledge name</label>

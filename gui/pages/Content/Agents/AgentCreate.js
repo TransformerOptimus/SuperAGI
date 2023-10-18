@@ -68,7 +68,7 @@ export default function AgentCreate({
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const [agentWorkflows, setAgentWorkflows] = useState('');
+  const [agentWorkflows, setAgentWorkflows] = useState([]);
   const [agentWorkflow, setAgentWorkflow] = useState(agentWorkflows[0]);
 
   const agentRef = useRef(null);
@@ -358,6 +358,10 @@ export default function AgentCreate({
   };
 
   const handleAgentTypeSelect = (index) => {
+    if(agentTypes[index] === "Goal Based Agent"){
+      setAgentWorkflow('Goal Based Workflow')
+      setAgentWorkflows(['Goal Based Workflow', 'Fixed Task Queue', 'Dynamic Task Queue']);
+    }
     setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
     setAgentTypeDropdown(false);
   };
@@ -931,7 +935,7 @@ export default function AgentCreate({
           <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Agent Type</label><br/>
             <div className="dropdown_container_search" style={{width: '100%'}}>
-              <div className={`${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentTypeDropdown(!edit ? !agentTypeDropdown : false)}}
+              <div className={`${agentType ? '' : 'justify_end' } ${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentTypeDropdown(!edit ? !agentTypeDropdown : false)}}
                    style={{width: '100%'}}>
                 {agentType}<Image width={20} height={21}
                                   src={!agentTypeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
@@ -1198,7 +1202,7 @@ export default function AgentCreate({
             </div>
           </div>}
           {agentType && <div>
-              <div style={{marginTop: '15px'}}>
+            <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className={`${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentDropdown(!edit ? !agentDropdown : false)}}
@@ -1337,7 +1341,7 @@ export default function AgentCreate({
               {/*    </div>*/}
               {/*  </div>*/}
               {/*</div>}*/}
-              <div style={{marginTop: '15px'}}>
+            {agentType === 'Goal Based Agent' && <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Permission Type</label>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)}
@@ -1356,7 +1360,7 @@ export default function AgentCreate({
                       </div>}
                   </div>
                 </div>
-              </div>
+              </div>}
             </div>}
 
 

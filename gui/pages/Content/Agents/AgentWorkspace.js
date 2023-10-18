@@ -19,7 +19,7 @@ import {
   saveAgentAsTemplate,
   stopSchedule,
   getDateTime,
-  deleteAgent, publishToMarketplace
+  deleteAgent, publishToMarketplace, fetchAgentWorkflowDetails
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
@@ -243,7 +243,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   useEffect(() => {
     fetchAgentDetails(agentId, selectedRun?.id);
     fetchExecutions(agentId);
-    fetchAgentScheduleComponent()
+    fetchAgentScheduleComponent();
   }, [agentId])
 
   useEffect(() => {
@@ -274,6 +274,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       .then((response) => {
         const data = response.data
         setAgentDetails(data);
+        if(response.data.agent_workflow_id){
+          getWorkflowDetails(response.data.agent_workflow_id);
+        }
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -303,6 +306,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
       });
+  }
+
+  function getWorkflowDetails(workflowId) {
+    fetchAgentWorkflowDetails(workflowId)
+        .then((response) => {
+          setYamlContent(response.data.agent_workflow_code)
+        })
+        .catch((error) => {
+          console.error('Error fetching workflow details:', error);
+        });
   }
 
   // function fetchExecutionDetails(executionId) {
@@ -515,7 +528,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 <Image width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
               </button>
             </div>
-            <div>
+            {yamlContent && <div>
               <button onClick={() => setRightPanel('workflow')} className={styles.tab_button}
                       style={rightPanel === 'workflow' ? {
                         background: '#454254',
@@ -523,7 +536,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                       } : {background: 'transparent', paddingRight: '15px'}}>
                 <Image width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Workflow
               </button>
-            </div>
+            </div>}
             {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Logs*/}
@@ -547,20 +560,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             <div className={styles.detail_content}><ResourceManager agentId={agentId} runs={agentExecutions}/></div>}
           {rightPanel === 'workflow' &&
               <div className={styles.detail_content}>
-                <div style={{display: 'flex', gap:'4px', paddingBottom:'10px'}}>
-                  <button onClick={() => setActiveTab('Preview')} className={activeTab === 'Preview' ? 'tab_button_selected' : 'tab_button'}>
-                    &nbsp;Preview
-                  </button>
-                  <button onClick={() => setActiveTab('Code')} className={activeTab === 'Code' ? 'tab_button_selected' : 'tab_button'}>
-                   &nbsp;Code
-                  </button>
-                </div>
-                {activeTab === 'Preview' && <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
+                <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
                  <WorkflowDiagram yamlContent={yamlContent} />
-              </div>}
-                {activeTab === 'Code' && <div style={{height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
-                  <CodeEditor code={`${yamlContent}\n`} />
-                </div>}
+              </div>
               </div>}
         </div>
       </div>

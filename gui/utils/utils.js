@@ -5,6 +5,9 @@ import {EventBus} from "@/utils/eventBus";
 import JSZip from "jszip";
 import moment from 'moment';
 import mixpanel from 'mixpanel-browser'
+import styles1 from "@/pages/Content/Knowledge/Knowledge.module.css";
+import Image from "next/image";
+import React from "react";
 
 const toolkitData = {
   'Jira Toolkit': '/images/jira_icon.svg',
@@ -567,4 +570,17 @@ export const getUserClick = (event, props) => {
   if(env === 'PROD' && mixpanelId()){
     mixpanel.track(event, props)
   }
+}
+
+export const warningContainer = (text) =>{
+  return(
+      <div>
+        <div className={styles1.knowledge_alert}>
+          <div style={{marginRight: '5px', marginLeft: '-5px'}}>
+            <Image width={20} height={20} src='/images/info.svg' alt="info-icon"/>
+          </div>
+          <div>{text}</div>
+        </div>
+      </div>
+  )
 }

@@ -3,8 +3,6 @@ import yaml from 'js-yaml';
 import mermaid from 'mermaid';
 
 export default function WorkflowDiagram({yamlContent}) {
-    console.log('kdnsdkdsd')
-
     const mermaidContent = convertYamlToMermaid(yamlContent);
     const mermaidContainerRef = useRef(null);
 
@@ -14,11 +12,11 @@ export default function WorkflowDiagram({yamlContent}) {
             startOnLoad: false,
             theme: 'base',
             themeVariables: {'primaryColor': '#2E294B',
-            'primaryTextColor': '#fff',
-            'primaryBorderColor': '#595181',
-            'lineColor': '#2E294B',
-            'secondaryColor': '#006100',
-            'tertiaryColor': '#fff'},
+                'primaryTextColor': '#fff',
+                'primaryBorderColor': '#595181',
+                'lineColor': '#2E294B',
+                'secondaryColor': '#006100',
+                'tertiaryColor': '#fff'},
             flowchart: {
                 htmlLabels: true // This allows the use of HTML in the label.
             }
@@ -44,10 +42,10 @@ export default function WorkflowDiagram({yamlContent}) {
         }
     }, [yamlContent]);
 
-    function convertYamlToMermaid(yamlContent1) {
-        if (yamlContent1 && yamlContent1 !== '') {
-            const parsedData = yaml.load(yamlContent1);
-            console.log(parsedData)
+    function convertYamlToMermaid(yamlContent) {
+        if (yamlContent && yamlContent !== '') {
+            const parsedData = yaml.load(yamlContent);
+            // console.log(parsedData)
             const steps = parsedData.steps;
 
             let mermaidString = 'graph TD\n';
@@ -93,6 +91,7 @@ export default function WorkflowDiagram({yamlContent}) {
                     }
                 }
             });
+
             mermaidString += 'linkStyle default stroke-width: 4px;\n';
             return mermaidString;
         }
@@ -100,13 +99,15 @@ export default function WorkflowDiagram({yamlContent}) {
 
     return (
         <div >
-                <div ref={mermaidContainerRef}>
-                    <div className="mermaid padding_20">
-                        {mermaidContent}
-                    </div>
+            <div ref={mermaidContainerRef}>
+                <div className="mermaid"  style={{
+                    padding: '20px',}}>
+                    {mermaidContent}
                 </div>
+            </div>
         </div>
     );
 }
+
 
 
