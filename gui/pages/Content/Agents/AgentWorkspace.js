@@ -551,7 +551,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                              pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
             </div>
           )}
-          {rightPanel === 'details' && agentDetails && true &&
+          {rightPanel === 'details' && agentDetails && agentDetails !== null &&
             <div className={styles.detail_content}><Details agentDetails1={agentDetails}
                                                             runCount={agentExecutions?.length || 0}
                                                             agentScheduleDetails={agentScheduleDetails} agent={agent}/>

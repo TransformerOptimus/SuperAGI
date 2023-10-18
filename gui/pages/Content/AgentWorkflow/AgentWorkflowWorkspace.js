@@ -12,10 +12,6 @@ export default function AgentWorkflowWorkspace({tools, workflowId, internalId}){
     const [isLoading, setIsLoading] = useState(true)
     const [loadingText, setLoadingText] = useState("Loading Workflows");
     const [yamlContent, setYamlContent] = useState(``);
-    const toolkitRef = useRef(null);
-    const [toolDropdown, setToolDropdown] = useState(false);
-    const codeEditorRef = useRef(null);
-    const [selectedTools, setSelectedTools] = useState([]);
     const [workflowDetails, setWorkflowDetails] = useState(null);
     const [buttonDisabled, setButtonDisabled] = useState(true);
 
@@ -23,40 +19,12 @@ export default function AgentWorkflowWorkspace({tools, workflowId, internalId}){
     const [toolkitList, setToolkitList] = useState(tools)
 
     const parseYamlContent  = () => {
-        console.log(yamlContent)
         EventBus.emit('sendCodeContent',{})
-        // updateAgentWorkflow(workflowId,  {name:"", description: "", code_yaml: yamlContent})
-        //     .then((response) => {
-        //         EventBus.emit('sendCodeContent',{});
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error fetching workflow details:', error);
-        //     });
     }
 
     const getCode = (code) =>{
-        console.log(code)
         setYamlContent(code)
     }
-    const toggleToolkit = (e, id) => {
-        e.stopPropagation();
-        const toolkitToUpdate = toolkitList.find(toolkit => toolkit.id === id);
-        if (toolkitToUpdate) {
-            const newOpenValue = !toolkitToUpdate.isOpen;
-            setToolkitOpen(id, newOpenValue);
-        }
-    };
-
-    const setToolkitOpen = (id, isOpen) => {
-        const updatedToolkits = toolkitList.map(toolkit =>
-            toolkit.id === id ? {...toolkit, isOpen: isOpen} : {...toolkit, isOpen: false}
-        );
-        setToolkitList(updatedToolkits);
-    };
-
-    const handleToolClick = (toolName) => {
-
-    };
 
     useEffect(() => {
         loadingTextEffect('Loading Workflows', setLoadingText, 500);

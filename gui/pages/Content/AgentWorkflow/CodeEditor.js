@@ -19,7 +19,6 @@ const YamlEditor = ({internalId, getCode, code, workflowId, getWorkflowDetails, 
     useEffect(() => {
         const sendData = () => {
             // getCode(yamlContent)
-            console.log('agennefndfsd')
             updateAgentWorkflow(workflowId,  {name:"", description: "", code_yaml: yamlContent})
                 .then((response) => {
                     getWorkflowDetails();

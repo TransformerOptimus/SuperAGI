@@ -582,6 +582,7 @@ export default function AgentCreate({
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
       "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
+      "agent_type": agentType
     };
 
     return agentData

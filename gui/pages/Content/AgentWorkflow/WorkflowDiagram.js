@@ -45,7 +45,6 @@ export default function WorkflowDiagram({yamlContent}) {
     function convertYamlToMermaid(yamlContent) {
         if (yamlContent && yamlContent !== '') {
             const parsedData = yaml.load(yamlContent);
-            // console.log(parsedData)
             const steps = parsedData.steps;
 
             let mermaidString = 'graph TD\n';
