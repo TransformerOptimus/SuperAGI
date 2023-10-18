@@ -101,8 +101,7 @@ export default function WorkflowDiagram({yamlContent}) {
     return (
         <div >
                 <div ref={mermaidContainerRef}>
-                    <div className="mermaid"  style={{
-                        padding: '20px',}}>
+                    <div className="mermaid padding_20">
                         {mermaidContent}
                     </div>
                 </div>

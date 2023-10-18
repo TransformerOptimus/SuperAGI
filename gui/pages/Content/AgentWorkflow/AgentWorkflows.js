@@ -11,7 +11,6 @@ export default function AgentWorkflows({sendWorkflowData, workflows}) {
     const [createWorkflow, setCreateWorflow] = useState(false);
     const [workflowDescription, setWorkflowDescription] = useState('');
     const [workflowName, setWorkflowName] = useState('');
-    const agents = [{name: 'Naman'}, {name: 'Naman2'}]
     const handleAddAgentWorkflow = () => {
         createAgentWorkflow({name: workflowName, description: workflowDescription, code_yaml: ""})
             .then((response) => {
@@ -75,8 +74,8 @@ export default function AgentWorkflows({sendWorkflowData, workflows}) {
                         <label className={styles.form_label}>Description</label>
                         <textarea className="textarea_medium" rows={3} value={workflowDescription} onChange={handleWorkflowDescriptionChange}/>
                     </div>
-                    <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                        <button className="secondary_button" style={{marginRight: '10px'}} onClick={() => setCreateWorflow(false)}>
+                    <div className="display_flex_container justify_end">
+                        <button className="secondary_button mr_10" onClick={() => setCreateWorflow(false)}>
                             Cancel
                         </button>
                         <button className="primary_button" onClick={() => handleAddAgentWorkflow()}>

@@ -129,13 +129,13 @@ export default function AgentWorkflowWorkspace({tools, workflowId}){
                           </div>
                       </div>
                   </div>
-                  <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh'}}>
+                  <div className={styles.code_section}>
                       <CodeEditor getCode={getCode} code={workflowDetails?.agent_workflow_code} workflowId={workflowId} />
                   </div>
               </div>
               <div className={styles.diagram_content}>
                   <div className={styles.code_block_topbar}>Preview</div>
-                  <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px',overflowX:'scroll', padding:'16px'}}>
+                  <div className={styles.daigram_section}>
                       {yamlContent &&<WorkflowDiagram yamlContent={yamlContent} />}
                   </div>
               </div>

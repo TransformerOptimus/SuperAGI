@@ -20,3 +20,17 @@
     height:76vh;
     width:50%
 }
+
+.code_section{
+    background-image: url('/images/workflow_background.svg');
+    height:71.5vh
+}
+
+.daigram_section{
+    background-image: url('/images/workflow_background.svg');
+    height: 71.5vh;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow-x: scroll;
+    padding: 16px;
+}
