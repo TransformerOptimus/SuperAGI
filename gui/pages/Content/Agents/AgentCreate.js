@@ -11,7 +11,7 @@ import {
   updateExecution,
   uploadFile,
   getAgentDetails, addAgentRun, fetchModels,
-  getAgentWorkflows, publishTemplateToMarketplace
+  getAgentWorkflows, publishTemplateToMarketplace, getWorkflowList
 } from "@/pages/api/DashboardService";
 import {formatBytes, openNewTab, removeTab, setLocalStorageValue, setLocalStorageArray, returnResourceIcon, getUserTimezone, createInternalId, preventDefault, excludedToolkits, getUserClick} from "@/utils/utils";
 import {EventBus} from "@/utils/eventBus";
@@ -169,7 +169,7 @@ export default function AgentCreate({
         console.error('Error fetching models:', error);
       });
 
-    getAgentWorkflows()
+    getWorkflowList()
       .then((response) => {
         const agentWorkflows = response.data || [];
         const selectedAgentWorkflow = localStorage.getItem("agent_workflow_" + String(internalId)) || '';
