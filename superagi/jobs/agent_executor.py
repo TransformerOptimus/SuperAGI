@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import sessionmaker
+from superagi.llms.local_llm import LocalLLM
 
 import superagi.worker
 from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandler
@@ -135,6 +136,8 @@ class AgentExecutor:
             return HuggingFace(api_key=model_api_key)
         if "Replicate" in model_source:
             return Replicate(api_key=model_api_key)
+        if "Custom" in model_source:
+            return LocalLLM()
         return None
 
     def _check_for_max_iterations(self, session, organisation_id, agent_config, agent_execution_id):
