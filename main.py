@@ -50,6 +50,7 @@ from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
 from superagi.models.agent_template import AgentTemplate
+from superagi.models.models_config import ModelsConfig
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest
@@ -215,6 +216,13 @@ async def startup_event():
             Organisation.id == marketplace_organisation_id).first()
         if marketplace_organisation is not None:
             register_marketplace_toolkits(session, marketplace_organisation)
+    
+    def local_llm_model_config():
+        existing_models_config = session.query(ModelsConfig).filter(ModelsConfig.org_id == default_user.organisation_id, ModelsConfig.provider == 'Local LLM').first()
+        if existing_models_config is None:
+            models_config = ModelsConfig(org_id=default_user.organisation_id, provider='Local LLM', api_key="EMPTY")
+            session.add(models_config)
+            session.commit()
 
     IterationWorkflowSeed.build_single_step_agent(session)
     IterationWorkflowSeed.build_task_based_agents(session)
@@ -238,7 +246,8 @@ async def startup_event():
     # AgentWorkflowSeed.doc_search_and_code(session)
     # AgentWorkflowSeed.build_research_email_workflow(session)
     replace_old_iteration_workflows(session)
-
+    local_llm_model_config()
+    
     if env != "PROD":
         register_toolkit_for_all_organisation()
     else:

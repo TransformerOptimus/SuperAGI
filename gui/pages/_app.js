@@ -61,6 +61,7 @@ export default function App() {
       });
   }
 
+
   const installFromMarketplace = () => {
     const toolkitName = localStorage.getItem('toolkit_to_install') || null;
     const agentTemplateId = localStorage.getItem('agent_to_install') || null;
