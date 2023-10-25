@@ -71,6 +71,7 @@ class AppendFileTool(BaseTool):
                 file.write(content)
             return "File written to successfully."
         except Exception as err:
+            return f"Error: {err}"
     
     def get_previous_content(self, final_path):
         if final_path.split('/')[-1].lower().endswith('.txt'):
