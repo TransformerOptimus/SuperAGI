@@ -6,7 +6,8 @@ import Market from './Market';
 export default function MarketplacePublic({env}) {
   const handleSignupClick = () => {
     if (env === 'PROD') {
-      window.open(`https://app.superagi.com/`, '_self');
+      const url = localStorage.getItem('marketplace_tab') === 'market_models' ? 'https://models.superagi.com/' : 'https://app.superagi.com/';
+      window.open(url, '_self');
     } else {
       window.location.href = '/';
     }

@@ -3,7 +3,7 @@ FROM python:3.10-slim-bullseye AS compile-image
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y wget libpq-dev gcc g++ python3-dev && \
+    apt-get install --no-install-recommends -y wget libpq-dev gcc g++ && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

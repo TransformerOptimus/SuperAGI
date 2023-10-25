@@ -52,22 +52,26 @@ class CallLogHelper:
 
             runs = self.session.query(CallLogs).filter(CallLogs.model == model,
                                                        CallLogs.org_id == self.organisation_id).all()
+
+            run_agent_ids = [run.agent_id for run in runs]
+            agents = self.session.query(Agent).filter(Agent.id.in_(run_agent_ids)).all()
+            agent_id_name_map = {agent.id: agent.name for agent in agents}
+            tools_used = [run.tool_used for run in runs]
+            toolkit_ids_allowed = self.session.query(Toolkit.id).filter(Toolkit.organisation_id == self.organisation_id).all()
+            toolkit_ids_allowed = [toolkit_id[0] for toolkit_id in toolkit_ids_allowed]
+            tools = self.session.query(Tool).filter(Tool.name.in_(tools_used), Tool.toolkit_id.in_(toolkit_ids_allowed))\
+                .all()
+            tools_name_toolkit_id_map = {tool.name: tool.toolkit_id for tool in tools}
+
             for run in runs:
-                agent = self.session.query(Agent).filter(Agent.id == run.agent_id).first()
-
-                toolkit = None
-                tool = self.session.query(Tool).filter(Tool.name == run.tool_used).first()
-                if tool:
-                    toolkit = self.session.query(Toolkit).filter(Toolkit.id == tool.toolkit_id).first()
-
                 model_data['runs'].append({
                     'id': run.id,
                     'agent_execution_name': run.agent_execution_name,
                     'agent_id': run.agent_id,
-                    'agent_name': agent.name if agent is not None else None,
+                    'agent_name': agent_id_name_map[run.agent_id] if run.agent_id in agent_id_name_map else None,
                     'tokens_consumed': run.tokens_consumed,
                     'tool_used': run.tool_used,
-                    'toolkit_name': toolkit.name if toolkit is not None else None,
+                    'toolkit_name': tools_name_toolkit_id_map[run.tool_used] if run.tool_used in tools_name_toolkit_id_map else None,
                     'org_id': run.org_id,
                     'created_at': run.created_at,
                     'updated_at': run.updated_at,

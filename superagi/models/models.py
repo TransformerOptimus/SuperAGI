@@ -1,4 +1,3 @@
-import yaml
 from sqlalchemy import Column, Integer, String, and_
 from sqlalchemy.sql import func
 from typing import List, Dict, Union
@@ -6,7 +5,6 @@ from superagi.models.base_model import DBBaseModel
 from superagi.controllers.types.models_types import ModelsTypes
 from superagi.helper.encyption_helper import decrypt_data
 import requests, logging
-from superagi.lib.logger import logger
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
@@ -41,7 +39,6 @@ class Models(DBBaseModel):
     version = Column(String, nullable=False)
     org_id = Column(Integer, nullable=False)
     model_features = Column(String, nullable=False)
-    context_length = Column(Integer, nullable=True)
 
     def __repr__(self):
         """
@@ -106,7 +103,7 @@ class Models(DBBaseModel):
             return {"error": "Unexpected Error Occured"}
 
     @classmethod
-    def store_model_details(cls, session, organisation_id, model_name, description, end_point, model_provider_id, token_limit, type, version, context_length):
+    def store_model_details(cls, session, organisation_id, model_name, description, end_point, model_provider_id, token_limit, type, version):
         from superagi.models.models_config import ModelsConfig
         if not model_name:
             return {"error": "Model Name is empty or undefined"}
@@ -132,11 +129,8 @@ class Models(DBBaseModel):
             return model  # Return error message if model not found
 
         # Check the 'provider' from ModelsConfig table
-        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate','Local LLM']:
+        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate']:
             return {"error": "End Point is empty or undefined"}
-
-        if context_length is None: 
-            context_length = 0
 
         try:
             model = Models(
@@ -148,8 +142,7 @@ class Models(DBBaseModel):
                 type=type,
                 version=version,
                 org_id=organisation_id,
-                model_features='',
-                context_length=context_length
+                model_features=''
             )
             session.add(model)
             session.commit()
@@ -236,4 +229,3 @@ class Models(DBBaseModel):
         except Exception as e:
             logging.error(f"Unexpected Error Occured: {e}")
             return {"error": "Unexpected Error Occured"}
-

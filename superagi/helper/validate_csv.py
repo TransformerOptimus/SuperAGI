@@ -19,7 +19,7 @@ def correct_csv_encoding(file_path):
                     logger.error(f"An error occurred while processing the file: {e}")
                     continue
 
-        df = pd.DataFrame(data[1:], columns=data[0])
+        df = pd.DataFrame(data)
         df.to_csv(file_path, encoding='utf-8', index=False)
         logger.info("File is converted to utf-8 encoding.")
     else:

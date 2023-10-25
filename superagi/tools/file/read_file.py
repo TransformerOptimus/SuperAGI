@@ -1,4 +1,3 @@
-
 import os
 from typing import Type, Optional
 import ebooklib
@@ -100,5 +99,3 @@ class ReadFileTool(BaseTool):
             os.remove(temporary_file_path)
    
         return content
-    
-

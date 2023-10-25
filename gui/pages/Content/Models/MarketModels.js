@@ -12,59 +12,82 @@ export default function MarketModels(){
     const [loadingText, setLoadingText] = useState("Loading Models");
     const [modelTemplates, setModelTemplates] = useState([]);
 
-    useEffect(() => {
-        loadingTextEffect('Loading Models', setLoadingText, 500);
+    // useEffect(() => {
+    //     loadingTextEffect('Loading Models', setLoadingText, 500);
+    //     setIsLoading(true)
+    //     if (window.location.href.toLowerCase().includes('marketplace')) {
+    //         axios.get('https://app.superagi.com/api/models_controller/get/models_details')
+    //             .then((response) => {
+    //                 setModelTemplates(response.data)
+    //             })
+    //     }
+    //     else {
+    //         fetchMarketPlaceModel().then((response) => {
+    //             setModelTemplates(response.data)
+    //         })
+    //     }
+    // },[])
 
-        if (window.location.href.toLowerCase().includes('marketplace')) {
-            axios.get('https://app.superagi.com/api/models_controller/get/models_details')
-                .then((response) => {
-                    setModelTemplates(response.data)
-                })
-        }
-        else {
-            fetchMarketPlaceModel().then((response) => {
-                setModelTemplates(response.data)
-            })
-        }
-    },[])
-
-    useEffect(() => {
-        if(modelTemplates.length > 0)
-            setIsLoading(true)
-        else
-            setIsLoading(false)
-    }, [modelTemplates])
+    // useEffect(() => {
+    //     if(modelTemplates.length > 0)
+    //         setIsLoading(true)
+    //     else
+    //         setIsLoading(false)
+    // }, [modelTemplates])
 
     function handleTemplateClick(item) {
         const contentType = 'model_template';
         EventBus.emit('openTemplateDetails', {item, contentType});
     }
 
+    useEffect(() => {
+        loadingTextEffect('Loading Models', setLoadingText, 500);
+        setIsLoading(true)
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 2500);
+    }, []);
+
     return(
-        <div id="market_models" className={showMarketplace ? 'ml_8' : 'ml_3'}>
-            <div className="w_100 overflowY_auto mxh_78vh">
-                {isLoading ? <div>
-                    {modelTemplates.length > 0 ? <div className="marketplaceGrid">{modelTemplates.map((item) => (
-                        <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
-                            <div>{item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[1] : item.model_name}</div>
-                            <div className="horizontal_container color_gray">
-                                <span>by { item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[0] : item.provider }</span>
-                                <Image className="mr_8 ml_4" width={14} height={14} src="/images/is_verified.svg" alt="is_verified" />·
-                                <Image className="ml_8 mr_4" width={16} height={16} src={modelIcon(item.provider)} alt="source-icon" />
-                                <span className="mr_8">{item.provider}</span>·
-                                <Image className="ml_8 mr_4" width={15} height={15} src="/images/upload_icon.svg" alt="download-icon" />
-                                <span>{item.installs}</span>
-                            </div>
-                            <div className="text_ellipsis mt_14 color_gray">{item.description}</div>
-                        </div>
-                    ))}</div> : <div className="center_container mt_40">
-                        <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
-                        <span className="feed_title mt_8">No Models found!</span>
-                    </div>}
-                </div> : <div className="horizontal_container_center h_75vh">
-                    <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
-                </div>}
+        <div>
+            <div className={`${"h_calc_sub_60"} ${"w_99vw"} ${isLoading ? 'display_none' : 'display_block'}`}>
+                <iframe
+                    id="marketplace_models"
+                    src="https://models.superagi.com/marketplace"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allowFullScreen
+                ></iframe>
             </div>
+            {isLoading && <div className="horizontal_container_center h_75vh">
+                <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
+            </div>}
         </div>
+        // <div id="market_models" className={showMarketplace ? 'ml_8' : 'ml_3'}>
+        //     <div className="w_100 overflowY_auto mxh_78vh">
+        //         {isLoading ? <div>
+        //             {modelTemplates.length > 0 ? <div className="marketplaceGrid">{modelTemplates.map((item) => (
+        //                 <div className="market_containers cursor_pointer" key={item.id} onClick={() => handleTemplateClick(item)}>
+        //                     <div>{item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[1] : item.model_name}</div>
+        //                     <div className="horizontal_container color_gray">
+        //                         <span>by { item.model_name && item.model_name.includes('/') ? item.model_name.split('/')[0] : item.provider }</span>
+        //                         <Image className="mr_8 ml_4" width={14} height={14} src="/images/is_verified.svg" alt="is_verified" />·
+        //                         <Image className="ml_8 mr_4" width={16} height={16} src={modelIcon(item.provider)} alt="source-icon" />
+        //                         <span className="mr_8">{item.provider}</span>·
+        //                         <Image className="ml_8 mr_4" width={15} height={15} src="/images/upload_icon.svg" alt="download-icon" />
+        //                         <span>{item.installs}</span>
+        //                     </div>
+        //                     <div className="text_ellipsis mt_14 color_gray">{item.description}</div>
+        //                 </div>
+        //             ))}</div> : <div className="center_container mt_40">
+        //                 <Image width={150} height={60} src="/images/no_permissions.svg" alt="no-permissions"/>
+        //                 <span className="feed_title mt_8">No Models found!</span>
+        //             </div>}
+        //         </div> : <div className="horizontal_container_center h_75vh">
+        //             <div className="signInInfo text_16 ff_sourceCode">{loadingText}</div>
+        //         </div>}
+        //     </div>
+        // </div>
     )
 }
