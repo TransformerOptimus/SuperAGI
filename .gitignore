@@ -21,3 +21,4 @@ superagi/tools/marketplace_tools/
 superagi/tools/external_tools/
 tests/unit_tests/resource_manager/test_path
 /tools.json
+.aider*
