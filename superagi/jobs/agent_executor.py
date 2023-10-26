@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import sessionmaker
+from superagi.llms.local_llm import LocalLLM
 
 import superagi.worker
 from superagi.agent.agent_iteration_step_handler import AgentIterationStepHandler

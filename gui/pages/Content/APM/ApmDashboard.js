@@ -76,7 +76,7 @@ export default function ApmDashboard() {
     const fetchData = async () => {
       try {
         const [metricsResponse, agentsResponse, activeRunsResponse, toolsUsageResponse] = await Promise.all([getMetrics(), getAllAgents(), getActiveRuns(), getToolsUsage()]);
-        const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001'];
+        const models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k', 'google-palm-bison-001', 'replicate-llama13b-v2-chat'];
 
         assignDefaultDataPerModel(metricsResponse.data.agent_details.model_metrics, models);
         assignDefaultDataPerModel(metricsResponse.data.tokens_details.model_metrics, models);

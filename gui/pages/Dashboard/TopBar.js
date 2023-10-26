@@ -24,6 +24,7 @@ export default function TopBar({selectedProject, userName, env}) {
     // localStorage.removeItem('accessToken');
     Cookies.set('accessToken', '', { expires: new Date(0),domain: '.superagi.com', path: '/'});
     Cookies.set('Source', 'app.superagi', {domain: '.superagi.com', path: '/'});
+    Cookies.set('mixpanel_initialized', 'false', {domain: '.superagi.com', path: '/'});
     refreshUrl();
     router.reload();
   };

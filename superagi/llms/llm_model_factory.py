@@ -1,4 +1,5 @@
 from superagi.llms.google_palm import GooglePalm
+from superagi.llms.local_llm import LocalLLM
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
