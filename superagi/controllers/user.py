@@ -14,6 +14,8 @@ from fastapi import APIRouter
 from superagi.helper.auth import check_auth, get_current_user
 from superagi.lib.logger import logger
 
+from superagi.models.models_config import ModelsConfig
+
 # from superagi.types.db import UserBase, UserIn, UserOut
 
 router = APIRouter()
@@ -73,6 +75,10 @@ def create_user(user: UserIn,
     organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
     logger.info("User created", db_user)
+
+    #adding local llm configuration
+    ModelsConfig.add_llm_config(db.session, organisation.id)
+    
     return db_user
 
 
