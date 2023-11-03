@@ -136,7 +136,7 @@ export default function ModelForm({internalId, getModels, sendModelData, env}){
 
             <span className="mt_24">Model Provider</span>
             <div className="dropdown_container_search mt_8 w_100">
-                <div className="custom_select_container w_100" onClick={() => setModelDropdown(!modelDropdown)}>
+                <div className="custom_select_container w_100" onClick={() => {setModelDropdown(!modelDropdown); setModelStatus(null);}}>
                     {selectedModel}
                     <Image width={20} height={21} src={!modelDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'} alt="expand-icon"/>
                 </div>
@@ -186,14 +186,14 @@ export default function ModelForm({internalId, getModels, sendModelData, env}){
                        onChange={(event) => setModelTokenLimit(parseInt(event.target.value, 10))}/>
             </div>
 
-            {modelStatus===false && <div className="horizontal_container align_start error_box mt_24 gap_6">
+            {selectedModel === 'Local LLM' && modelStatus===false && <div className="horizontal_container align_start error_box mt_24 gap_6">
                 <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
                 <div className="vertical_containers">
                     <span className="text_12 color_white lh_16">Test model failed</span>
                 </div>
             </div>}
 
-            {modelStatus===true && <div className="horizontal_container align_start success_box mt_24 gap_6">
+            {selectedModel === 'Local LLM' && modelStatus===true && <div className="horizontal_container align_start success_box mt_24 gap_6">
                 <Image width={16} height={16} src="/images/icon_info.svg"/>
                 <div className="vertical_containers">
                     <span className="text_12 color_white lh_16">Test model successful</span>
