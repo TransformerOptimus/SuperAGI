@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, and_, distinct
+from superagi.lib.logger import logger
 from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
@@ -69,6 +70,9 @@ class ModelsConfig(DBBaseModel):
         if not config:
             return None
 
+        if config.provider == 'Local LLM':
+            return {"provider": config.provider, "api_key": config.api_key} if config else None
+
         return {"provider": config.provider, "api_key": decrypt_data(config.api_key)} if config else None
 
     @classmethod
@@ -123,8 +127,13 @@ class ModelsConfig(DBBaseModel):
         api_key_data = session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
             and_(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == model_provider)).first()
 
+        logger.info(api_key_data)
         if api_key_data is None:
             return []
+        elif api_key_data.provider == 'Local LLM':
+            api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
+                        'api_key': api_key_data.api_key}]
+            return api_key
         else:
             api_key = [{'id': api_key_data.id, 'provider': api_key_data.provider,
                         'api_key': decrypt_data(api_key_data.api_key)}]
@@ -148,7 +157,7 @@ class ModelsConfig(DBBaseModel):
             return {"provider": model.provider}
     
     @classmethod
-    def add_llm_config(cls, session, organisation_id):
+    def local_llm_model_config(cls, session, organisation_id):
         existing_models_config = session.query(ModelsConfig).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == 'Local LLM').first()
         if existing_models_config is None:
             models_config = ModelsConfig(org_id=organisation_id, provider='Local LLM', api_key="EMPTY")

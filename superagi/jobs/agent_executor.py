@@ -13,7 +13,6 @@ from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.hugging_face import HuggingFace
-from superagi.llms.replicate import Replicate
 from superagi.llms.llm_model_factory import get_model
 from superagi.llms.replicate import Replicate
 from superagi.models.agent import Agent
@@ -28,8 +27,6 @@ from superagi.vector_store.vector_factory import VectorFactory
 from superagi.worker import execute_agent
 from superagi.agent.types.agent_workflow_step_action_types import AgentWorkflowStepAction
 from superagi.agent.types.agent_execution_status import AgentExecutionStatus
-from superagi.vector_store.redis import Redis
-from superagi.config.config import get_config
 
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
@@ -139,6 +136,8 @@ class AgentExecutor:
             return HuggingFace(api_key=model_api_key)
         if "Replicate" in model_source:
             return Replicate(api_key=model_api_key)
+        if "Custom" in model_source:
+            return LocalLLM()
         return None
 
     def _check_for_max_iterations(self, session, organisation_id, agent_config, agent_execution_id):
