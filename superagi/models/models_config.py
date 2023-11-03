@@ -157,7 +157,7 @@ class ModelsConfig(DBBaseModel):
             return {"provider": model.provider}
     
     @classmethod
-    def local_llm_model_config(cls, session, organisation_id):
+    def add_model_config(cls, session, organisation_id):
         existing_models_config = session.query(ModelsConfig).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == 'Local LLM').first()
         if existing_models_config is None:
             models_config = ModelsConfig(org_id=organisation_id, provider='Local LLM', api_key="EMPTY")
