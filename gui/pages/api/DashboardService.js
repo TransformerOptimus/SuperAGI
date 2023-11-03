@@ -358,8 +358,12 @@ export const verifyEndPoint = (model_api_key, end_point, model_provider) => {
   });
 }
 
-export const storeModel = (model_name, description, end_point, model_provider_id, token_limit, type, version) => {
-  return api.post(`/models_controller/store_model`,{model_name, description, end_point, model_provider_id, token_limit, type, version});
+export const storeModel = (model_name, description, end_point, model_provider_id, token_limit, type, version, context_length) => {
+  return api.post(`/models_controller/store_model`,{model_name, description, end_point, model_provider_id, token_limit, type, version, context_length});
+}
+
+export const testModel = () => {
+  return api.get(`/models_controller/test_local_llm`);
 }
 
 export const fetchModels = () => {
@@ -389,7 +393,6 @@ export const getToolLogs = (toolName) => {
 export const publishTemplateToMarketplace = (agentData) => {
   return api.post(`/agent_templates/publish_template`, agentData);
 };
-
 export const getKnowledgeMetrics = (knowledgeName) => {
   return api.get(`analytics/knowledge/${knowledgeName}/usage`)
 }

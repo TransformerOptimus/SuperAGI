@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
 from superagi.apm.call_log_helper import CallLogHelper
+from superagi.lib.logger import logger
 from superagi.models.models import Models
 from superagi.models.models_config import ModelsConfig
 from superagi.config.config import get_config
@@ -9,6 +10,7 @@ from superagi.controllers.types.models_types import ModelsTypes
 from fastapi_sqlalchemy import db
 import logging
 from pydantic import BaseModel
+from superagi.helper.llm_loader import LLMLoader
 
 router = APIRouter()
 
@@ -26,6 +28,7 @@ class StoreModelRequest(BaseModel):
     token_limit: int
     type: str
     version: str
+    context_length: int
 
 class ModelName (BaseModel):
     model: str
@@ -69,7 +72,9 @@ async def verify_end_point(model_api_key: str = None, end_point: str = None, mod
 @router.post("/store_model", status_code=200)
 async def store_model(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
     try:
-        return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version)
+        #context_length = 4096
+        logger.info(request)
+        return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version, request.context_length)
     except Exception as e:
         logging.error(f"Error storing the Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -165,3 +170,31 @@ def get_models_details(page: int = 0):
     marketplace_models_with_install = Models.get_model_install_details(db.session, marketplace_models, organisation_id,
                                                                        ModelsTypes.MARKETPLACE.value)
     return marketplace_models_with_install
+
+@router.get("/test_local_llm", status_code=200)
+def test_local_llm():
+    try:
+        llm_loader = LLMLoader(context_length=4096)
+        llm_model = llm_loader.model
+        llm_grammar = llm_loader.grammar
+        if llm_model is None:
+            logger.error("Model not found.")
+            raise HTTPException(status_code=404, detail="Error while loading the model. Please check your model path and try again.")
+        if llm_grammar is None:
+            logger.error("Grammar not found.")
+            raise HTTPException(status_code=404, detail="Grammar not found.")
+
+        messages = [
+            {"role":"system",
+             "content":"You are an AI assistant. Give response in a proper JSON format"},
+             {"role":"user",
+             "content":"Hi!"}
+        ]
+        response = llm_model.create_chat_completion(messages=messages, grammar=llm_grammar)
+        content = response["choices"][0]["message"]["content"]
+        logger.info(content)
+        return "Model loaded successfully."
+        
+    except Exception as e:
+        logger.info("Error: ",e)
+        raise HTTPException(status_code=404, detail="Error while loading the model. Please check your model path and try again.")

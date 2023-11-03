@@ -34,6 +34,9 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
     elif provider_name == 'Hugging Face':
         print("Provider is Hugging Face")
         return HuggingFace(model=model_instance.model_name, end_point=model_instance.end_point, api_key=api_key, **kwargs)
+    elif provider_name == 'Local LLM':
+        print("Provider is Local LLM")
+        return LocalLLM(model=model_instance.model_name, context_length=model_instance.context_length)
     else:
         print('Unknown provider.')
 
@@ -46,5 +49,7 @@ def build_model_with_api_key(provider_name, api_key):
         return GooglePalm(api_key=api_key)
     elif provider_name.lower() == 'hugging face':
         return HuggingFace(api_key=api_key)
+    elif provider_name.lower() == 'local llm':
+        return LocalLLM(api_key=api_key)
     else:
         print('Unknown provider.')
