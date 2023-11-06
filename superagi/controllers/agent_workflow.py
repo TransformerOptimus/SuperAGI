@@ -3,7 +3,7 @@ from fastapi import Depends
 from fastapi_sqlalchemy import db
 
 from superagi.helper.auth import get_user_organisation
-from superagi.models.agent_workflow import AgentWorkflow
+from superagi.models.workflows.agent_workflow import AgentWorkflow
 
 router = APIRouter()
 

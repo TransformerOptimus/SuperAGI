@@ -12,7 +12,7 @@ from superagi.tools.base_tool import BaseTool
 class SendEmailInput(BaseModel):
     to: str = Field(..., description="Email Address of the Receiver, default email address is 'example@example.com'")
     subject: str = Field(..., description="Subject of the Email to be sent")
-    body: str = Field(..., description="Email Body to be sent")
+    body: str = Field(..., description="Email Body to be sent. Escape special characters in the body. Do not add senders details and end it with Warm Regards without entering any name.")
 
 
 class SendEmailTool(BaseTool):
@@ -42,9 +42,9 @@ class SendEmailTool(BaseTool):
         """
         email_sender = self.get_tool_config('EMAIL_ADDRESS')
         email_password = self.get_tool_config('EMAIL_PASSWORD')
-        if email_sender == "" or email_sender.isspace():
+        if email_sender is None or email_sender == "" or email_sender.isspace():
             return "Error: Email Not Sent. Enter a valid Email Address."
-        if email_password == "" or email_password.isspace():
+        if email_password is None or email_password == "" or email_password.isspace():
             return "Error: Email Not Sent. Enter a valid Email Password."
         message = EmailMessage()
         message["Subject"] = subject
@@ -53,15 +53,14 @@ class SendEmailTool(BaseTool):
         signature = self.get_tool_config('EMAIL_SIGNATURE')
         if signature:
             body += f"\n{signature}"
-        message.set_content(body)
-
+        message.set_content(body.replace('\\n', '\n'))
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
         if send_to_draft.upper() == "TRUE":
             send_to_draft = True
         else:
             send_to_draft = False
 
-        if message["To"] == "example@example.com" or send_to_draft:
+        if send_to_draft:
             draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER') or "Drafts"
             imap_server = self.get_tool_config('EMAIL_IMAP_SERVER')
             conn = ImapEmail().imap_open(draft_folder, email_sender, email_password, imap_server)
@@ -72,6 +71,10 @@ class SendEmailTool(BaseTool):
                 str(message).encode("UTF-8")
             )
             return f"Email went to {draft_folder}"
+        
+        if message["To"] == "example@example.com":
+            return "Error: Email Not Sent. Enter an Email Address."
+        
         else:
             smtp_host = self.get_tool_config('EMAIL_SMTP_HOST')
             smtp_port = self.get_tool_config('EMAIL_SMTP_PORT')

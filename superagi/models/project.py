@@ -55,3 +55,13 @@ class Project(DBBaseModel):
         else:
             default_project = project
         return default_project
+
+    @classmethod
+    def find_by_org_id(cls, session, org_id: int):
+        project = session.query(Project).filter(Project.organisation_id == org_id).first()
+        return project
+    
+    @classmethod
+    def find_by_id(cls, session, project_id: int):
+        project = session.query(Project).filter(Project.id == project_id).first()
+        return project

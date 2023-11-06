@@ -35,7 +35,9 @@ def get_time_difference(timestamp1, timestamp2):
 
 def parse_interval_to_seconds(interval: str) -> int:
     units = {"Minutes": 60, "Hours": 3600, "Days": 86400, "Weeks": 604800, "Months": 2592000}
+    interval = ' '.join(interval.split())
     value, unit = interval.split(" ")
+
     return int(value) * units[unit]
 
 

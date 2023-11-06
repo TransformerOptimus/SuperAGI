@@ -9,6 +9,7 @@ import http.client as http_client
 from sqlalchemy.orm import Session
 from superagi.models.toolkit import Toolkit
 from superagi.models.oauth_tokens import OauthTokens
+from superagi.config.config import get_config
 
 class Creds:
 
@@ -29,8 +30,13 @@ class TwitterTokens:
         http_method = 'POST'
         base_url = 'https://api.twitter.com/oauth/request_token'
 
+        env = get_config("ENV", "DEV")
+        if env == "DEV":
+            oauth_callback = "http://localhost:3000/api/twitter/oauth-tokens"
+        else:
+            oauth_callback = "https://app.superagi.com/api/twitter/oauth-tokens"
         params = {
-            'oauth_callback': 'http://localhost:3000/api/twitter/oauth-tokens',
+            'oauth_callback': oauth_callback,
             'oauth_consumer_key': api_key,
             'oauth_nonce': self.gen_nonce(),
             'oauth_signature_method': 'HMAC-SHA1',

@@ -1,19 +1,21 @@
 from __future__ import annotations
+import ast
 
 import json
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import or_
 
-import superagi.models
+from superagi.lib.logger import logger
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
-from superagi.models.agent_workflow import AgentWorkflow
 # from superagi.models import AgentConfiguration
 from superagi.models.base_model import DBBaseModel
-from superagi.lib.logger import logger
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
+from superagi.models.workflows.agent_workflow import AgentWorkflow
+
 
 class Agent(DBBaseModel):
     """
@@ -25,6 +27,7 @@ class Agent(DBBaseModel):
         project_id (int): The identifier of the associated project.
         description (str): The description of the agent.
         agent_workflow_id (int): The identifier of the associated agent workflow.
+        is_deleted (bool): The flag associated for agent deletion
     """
 
     __tablename__ = 'agents'
@@ -34,6 +37,7 @@ class Agent(DBBaseModel):
     project_id = Column(Integer)
     description = Column(String)
     agent_workflow_id = Column(Integer)
+    is_deleted = Column(Boolean, default=False)
 
     def __repr__(self):
         """
@@ -44,7 +48,8 @@ class Agent(DBBaseModel):
 
         """
         return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
-               f"description='{self.description}', agent_workflow_id={self.agent_workflow_id})"
+               f"description='{self.description}', agent_workflow_id={self.agent_workflow_id}," \
+               f"is_deleted='{self.is_deleted}')"
 
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
@@ -61,7 +66,7 @@ class Agent(DBBaseModel):
         """
 
         agent = session.query(Agent).filter_by(id=agent_id).first()
-        agent_configurations = session.query(superagi.models.agent_config.AgentConfiguration).filter_by(
+        agent_configurations = session.query(AgentConfiguration).filter_by(
             agent_id=agent_id).all()
         parsed_config = {
             "agent_id": agent.id,
@@ -70,7 +75,6 @@ class Agent(DBBaseModel):
             "description": agent.description,
             "goal": [],
             "instruction": [],
-            "agent_type": None,
             "constraints": [],
             "tools": [],
             "exit": None,
@@ -79,7 +83,9 @@ class Agent(DBBaseModel):
             "permission_type": None,
             "LTM_DB": None,
             "memory_window": None,
-            "max_iterations": None
+            "max_iterations": None,
+            "is_deleted": agent.is_deleted,
+            "knowledge": None
         }
         if not agent_configurations:
             return parsed_config
@@ -101,14 +107,15 @@ class Agent(DBBaseModel):
 
         """
 
-        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB", "resource_summary"]:
+        if key in ["name", "description", "agent_type", "exit", "model", "permission_type", "LTM_DB",
+                   "resource_summary", "knowledge"]:
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
-        elif key == "goal" or key == "constraints" or key == "instruction":
+        elif key in ["goal", "constraints", "instruction", "is_deleted"]:
             return eval(value)
         elif key == "tools":
-            return [int(x) for x in json.loads(value)]
+            return list(ast.literal_eval(value))
 
     @classmethod
     def create_agent_with_config(cls, db, agent_with_config):
@@ -123,26 +130,28 @@ class Agent(DBBaseModel):
             Agent: The created agent.
 
         """
-
         db_agent = Agent(name=agent_with_config.name, description=agent_with_config.description,
                          project_id=agent_with_config.project_id)
         db.session.add(db_agent)
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        if agent_with_config.agent_type == "Don't Maintain Task Queue":
-            agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
-            logger.info(agent_workflow)
-            db_agent.agent_workflow_id = agent_workflow.id
-        elif agent_with_config.agent_type == "Maintain Task Queue":
-            agent_workflow = db.session.query(AgentWorkflow).filter(
-                AgentWorkflow.name == "Task Queue Agent With Seed").first()
-            db_agent.agent_workflow_id = agent_workflow.id
-        elif agent_with_config.agent_type == "Fixed Task Queue":
-            agent_workflow = db.session.query(AgentWorkflow).filter(
-                AgentWorkflow.name == "Fixed Task Queue").first()
-            db_agent.agent_workflow_id = agent_workflow.id
-
+        agent_workflow = AgentWorkflow.find_by_name(session=db.session, name=agent_with_config.agent_workflow)
+        logger.info("Agent workflow:", str(agent_workflow))
+        db_agent.agent_workflow_id = agent_workflow.id
+        #
+        # if agent_with_config.agent_type == "Don't Maintain Task Queue":
+        #     agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.name == "Goal Based Agent").first()
+        #     logger.info(agent_workflow)
+        #     db_agent.agent_workflow_id = agent_workflow.id
+        # elif agent_with_config.agent_type == "Maintain Task Queue":
+        #     agent_workflow = db.session.query(AgentWorkflow).filter(
+        #         AgentWorkflow.name == "Task Queue Agent With Seed").first()
+        #     db_agent.agent_workflow_id = agent_workflow.id
+        # elif agent_with_config.agent_type == "Fixed Task Queue":
+        #     agent_workflow = db.session.query(AgentWorkflow).filter(
+        #         AgentWorkflow.name == "Fixed Task Queue").first()
+        #     db_agent.agent_workflow_id = agent_workflow.id
 
         db.session.commit()
 
@@ -150,7 +159,6 @@ class Agent(DBBaseModel):
         agent_config_values = {
             "goal": agent_with_config.goal,
             "instruction": agent_with_config.instruction,
-            "agent_type": agent_with_config.agent_type,
             "constraints": agent_with_config.constraints,
             "tools": agent_with_config.tools,
             "exit": agent_with_config.exit,
@@ -159,7 +167,8 @@ class Agent(DBBaseModel):
             "permission_type": agent_with_config.permission_type,
             "LTM_DB": agent_with_config.LTM_DB,
             "max_iterations": agent_with_config.max_iterations,
-            "user_timezone": agent_with_config.user_timezone
+            "user_timezone": agent_with_config.user_timezone,
+            "knowledge": agent_with_config.knowledge,
         }
 
         agent_configurations = [
@@ -197,9 +206,12 @@ class Agent(DBBaseModel):
         configs = db.session.query(AgentTemplateConfig).filter(
             AgentTemplateConfig.agent_template_id == agent_template.id).all()
 
-        agent_configurations = []
-        for config in configs:
-            agent_configurations.append(AgentConfiguration(agent_id=db_agent.id, key=config.key, value=config.value))
+        agent_configurations = [
+            AgentConfiguration(
+                agent_id=db_agent.id, key=config.key, value=config.value
+            )
+            for config in configs
+        ]
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()
@@ -229,9 +241,10 @@ class Agent(DBBaseModel):
         db.session.flush()  # Flush pending changes to generate the agent's ID
         db.session.commit()
 
-        agent_configurations = []
-        for key, value in agent_template["configs"].items():
-            agent_configurations.append(AgentConfiguration(agent_id=db_agent.id, key=key, value=value["value"]))
+        agent_configurations = [
+            AgentConfiguration(agent_id=db_agent.id, key=key, value=value["value"])
+            for key, value in agent_template["configs"].items()
+        ]
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()
@@ -264,3 +277,26 @@ class Agent(DBBaseModel):
                 Agent: Agent object is returned.
         """
         return session.query(Agent).filter(Agent.id == agent_id).first()
+
+    @classmethod
+    def find_org_by_agent_id(cls, session: object, agent_id: int):
+        """
+        Finds the organization for the given agent.
+
+        Args:
+            session: The database session.
+            agent_id: The agent id.
+
+        Returns:
+            Organisation: The found organization.
+        """
+        assert session, "Session cannot be None"
+        agent = session.query(Agent).filter_by(id=agent_id).first()
+        project = session.query(Project).filter(Project.id == agent.project_id).first()
+        return session.query(Organisation).filter(Organisation.id == project.organisation_id).first()
+
+    @classmethod
+    def get_active_agent_by_id(cls, session, agent_id: int):
+        db_agent = session.query(Agent).filter(Agent.id == agent_id,
+                                               or_(Agent.is_deleted == False, Agent.is_deleted is None)).first()
+        return db_agent

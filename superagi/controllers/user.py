@@ -11,11 +11,15 @@ from superagi.models.project import Project
 from superagi.models.user import User
 from fastapi import APIRouter
 
-from superagi.helper.auth import check_auth
+from superagi.helper.auth import check_auth, get_current_user
 from superagi.lib.logger import logger
+
+from superagi.models.models_config import ModelsConfig
+
 # from superagi.types.db import UserBase, UserIn, UserOut
 
 router = APIRouter()
+
 
 class UserBase(BaseModel):
     name: str
@@ -41,6 +45,7 @@ class UserIn(UserBase):
 
     class Config:
         orm_mode = True
+
 
 # CRUD Operations
 @router.post("/add", response_model=UserOut, status_code=201)
@@ -70,6 +75,10 @@ def create_user(user: UserIn,
     organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
     logger.info("User created", db_user)
+
+    #adding local llm configuration
+    ModelsConfig.add_llm_config(db.session, organisation.id)
+    
     return db_user
 
 
@@ -126,3 +135,16 @@ def update_user(user_id: int,
 
     db.session.commit()
     return db_user
+
+
+@router.post("/first_login_source/{source}")
+def update_first_login_source(source: str, Authorize: AuthJWT = Depends(check_auth)):
+    """ Update first login source of the user """
+    user = get_current_user(Authorize)
+    # valid_sources = ['google', 'github', 'email']
+    if user.first_login_source is None or user.first_login_source == '':
+        user.first_login_source = source
+    db.session.commit()
+    db.session.flush()
+    logger.info("User : ",user)
+    return user

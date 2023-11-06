@@ -4,14 +4,17 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.tool_response_query_manager import ToolResponseQueryManager
-
+from superagi.models.agent import Agent
 
 class CodingSchema(BaseModel):
     code_description: str = Field(
@@ -34,13 +37,14 @@ class CodingTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     agent_id: int = None
+    agent_execution_id: int = None
     name = "CodingTool"
     description = (
         "You will get instructions for code to write. You will write a very long answer. "
         "Make sure that every detail of the architecture is, in the end, implemented as code. "
         "Think step by step and reason yourself to the right decisions to make sure we get it right. "
         "You will first lay out the names of the core classes, functions, methods that will be necessary, "
-        "as well as a quick comment on their purpose. Then you will output the content of each file including ALL code."
+        "as well as a quick comment on their purpose. Then you will output the content of each file including each function and class and ALL code."
     )
     args_schema: Type[CodingSchema] = CodingSchema
     goals: List[str] = []
@@ -70,9 +74,14 @@ class CodingTool(BaseTool):
         logger.info(prompt)
         messages = [{"role": "system", "content": prompt}]
 
+        organisation = Agent.find_org_by_agent_id(session=self.toolkit_config.session, agent_id=self.agent_id)
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
+
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        
+        if 'error' in result and result['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
 
         # Get all filenames and corresponding code blocks
         regex = r"(\S+?)\n```\S*\n(.+?)```"
@@ -84,6 +93,8 @@ class CodingTool(BaseTool):
         for match in matches:
             # Get the filename
             file_name = re.sub(r'[<>"|?*]', "", match.group(1))
+            if not file_name[0].isalnum():
+                file_name = file_name[1:-1]
 
             # Get the code
             code = match.group(2)
@@ -99,7 +110,7 @@ class CodingTool(BaseTool):
 
         # Get README contents and save
         split_result = result["content"].split("```")
-        if len(split_result) > 0:
+        if split_result:
             readme = split_result[0]
             save_readme_result = self.resource_manager.write_file("README.md", readme)
             if save_readme_result.startswith("Error"):

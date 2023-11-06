@@ -15,13 +15,14 @@ class TestAgentExecutionConfiguration(unittest.TestCase):
 
     def test_fetch_configuration(self):
         test_db_response = [MagicMock(key="goal", value="['test_goal']"),
-                            MagicMock(key="instruction", value="['test_instruction']")]
+                            MagicMock(key="instruction", value="['test_instruction']"),
+                            MagicMock(key="tools", value="[1]")]
 
         self.session.query.return_value.filter_by.return_value.all.return_value = test_db_response
 
         result = AgentExecutionConfiguration.fetch_configuration(self.session, self.execution)
 
-        expected_result = {"goal": ["test_goal"], "instruction": ["test_instruction"]}
+        expected_result = {"goal": ["test_goal"], "instruction": ["test_instruction"], "tools":[1]}
         self.assertDictEqual(result, expected_result)
 
     def test_eval_agent_config(self):

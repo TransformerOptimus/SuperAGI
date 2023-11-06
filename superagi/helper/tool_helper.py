@@ -13,7 +13,7 @@ from superagi.lib.logger import logger
 from superagi.models.tool import Tool
 from superagi.models.tool_config import ToolConfig
 from superagi.models.toolkit import Toolkit
-from superagi.tools.base_tool import BaseTool
+from superagi.tools.base_tool import BaseTool, ToolConfiguration
 from superagi.tools.base_tool import BaseToolkit
 
 
@@ -118,13 +118,17 @@ def load_module_from_file(file_path):
     return module
 
 
-def init_tools(folder_path, session, tool_name_to_toolkit):
+def init_tools(folder_paths, session, tool_name_to_toolkit):
     # Iterate over all subfolders
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
-        # Iterate over all files in the subfolder
-        if os.path.isdir(folder_dir):
-            # sys.path.append(os.path.abspath('superagi/tools/email'))
+    for folder_path in folder_paths:
+        if not os.path.exists(folder_path):
+            continue
+        for folder_name in os.listdir(folder_path):
+            folder_dir = os.path.join(folder_path, folder_name)
+            # Iterate over all files in the subfolder
+            if not os.path.isdir(folder_dir):
+                continue
+                # sys.path.append(os.path.abspath('superagi/tools/email'))
             sys.path.append(folder_dir)
             for file_name in os.listdir(folder_dir):
                 file_path = os.path.join(folder_dir, file_name)
@@ -147,15 +151,19 @@ def update_base_tool_class_info(classes, file_name, folder_name, session, tool_n
                                               description=tool_description)
 
 
-def init_toolkits(code_link, existing_toolkits, folder_path, organisation, session):
+def init_toolkits(code_link, existing_toolkits, folder_paths, organisation, session):
     tool_name_to_toolkit = {}
     new_toolkits = []
     # Iterate over all subfolders
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
+    for folder_path in folder_paths:
+        if not os.path.exists(folder_path):
+            continue
+        for folder_name in os.listdir(folder_path):
+            folder_dir = os.path.join(folder_path, folder_name)
 
-        if os.path.isdir(folder_dir):
-            # sys.path.append(os.path.abspath('superagi/tools/email'))
+            if not os.path.isdir(folder_dir):
+                continue
+                # sys.path.append(os.path.abspath('superagi/tools/email'))
             sys.path.append(folder_dir)
             # Iterate over all files in the subfolder
             for file_name in os.listdir(folder_dir):
@@ -209,19 +217,28 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
 
             # Store the tools config in the database
             for tool_config_key in tool_config_keys:
-                new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
-                                                      key=tool_config_key)
+                if isinstance(tool_config_key, ToolConfiguration):
+                    new_config = ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                      key=tool_config_key.key,
+                                                      key_type=tool_config_key.key_type,
+                                                      is_required=tool_config_key.is_required,
+                                                      is_secret=tool_config_key.is_secret)
+                else:
+                    ToolConfig.add_or_update(session, toolkit_id=new_toolkit.id,
+                                                          key = tool_config_key)
     return tool_name_to_toolkit
 
 
-def process_files(folder_path, session, organisation, code_link=None):
+def process_files(folder_paths, session, organisation, code_link=None):
     existing_toolkits = session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
 
-    tool_name_to_toolkit = init_toolkits(code_link, existing_toolkits, folder_path, organisation, session)
-    init_tools(folder_path, session, tool_name_to_toolkit)
+    tool_name_to_toolkit = init_toolkits(code_link, existing_toolkits, folder_paths, organisation, session)
+    init_tools(folder_paths, session, tool_name_to_toolkit)
 
 
 def get_readme_content_from_code_link(tool_code_link):
+    if tool_code_link is None:
+        return None
     parsed_url = urlparse(tool_code_link)
     path_parts = parsed_url.path.split("/")
 
@@ -240,13 +257,18 @@ def get_readme_content_from_code_link(tool_code_link):
 
 
 def register_toolkits(session, organisation):
-    folder_path = get_config("TOOLS_DIR")
-    if folder_path is None:
-        folder_path = "superagi/tools"
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools"]
+    # if get_config("ENV", "DEV") == "PROD":
+    #     tool_paths.append("superagi/tools/marketplace_tools")
     if organisation is not None:
-        process_files(folder_path, session, organisation)
-    logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
+        process_files(tool_paths, session, organisation)
+        logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
+def register_marketplace_toolkits(session, organisation):
+    tool_paths = ["superagi/tools", "superagi/tools/external_tools","superagi/tools/marketplace_tools"]
+    if organisation is not None:
+        process_files(tool_paths, session, organisation)
+        logger.info(f"Marketplace Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
 def extract_repo_name(repo_link):
     # Extract the repository name from the link
@@ -273,10 +295,47 @@ def add_tool_to_json(repo_link):
 
 
 def handle_tools_import():
-    folder_path = get_config("TOOLS_DIR")
-    if folder_path is None:
-        folder_path = "superagi/tools"
-    for folder_name in os.listdir(folder_path):
-        folder_dir = os.path.join(folder_path, folder_name)
-        if os.path.isdir(folder_dir):
-            sys.path.append(folder_dir)
+    print("Handling tools import")
+    tool_paths = ["superagi/tools", "superagi/tools/marketplace_tools", "superagi/tools/external_tools"]
+    for tool_path in tool_paths:
+        if not os.path.exists(tool_path):
+            continue
+        for folder_name in os.listdir(tool_path):
+            folder_dir = os.path.join(tool_path, folder_name)
+            if os.path.isdir(folder_dir):
+                sys.path.append(folder_dir)
+
+def compare_tools(tool1, tool2):
+    fields = ["name", "description"]
+    return any(tool1.get(field) != tool2.get(field) for field in fields)
+
+
+def compare_configs(config1, config2):
+    fields = ["key"]
+    return any(config1.get(field) != config2.get(field) for field in fields)
+
+
+def compare_toolkit(toolkit1, toolkit2):
+    main_toolkit_fields = ["description", "show_toolkit", "name", "tool_code_link"]
+    toolkit_diff = any(toolkit1.get(field) != toolkit2.get(field) for field in main_toolkit_fields)
+
+    tools1 = sorted(toolkit1.get("tools", []), key=lambda tool: tool.get("name", ""))
+    tools2 = sorted(toolkit2.get("tools", []), key=lambda tool: tool.get("name", ""))
+
+    if len(tools1) != len(tools2):
+        tools_diff = True
+    else:
+        tools_diff = any(compare_tools(tool1, tool2) for tool1, tool2 in zip(tools1, tools2))
+
+    tool_configs1 = sorted(toolkit1.get("configs", []), key=lambda config: config.get("key", ""))
+    tool_configs2 = sorted(toolkit2.get("configs", []), key=lambda config: config.get("key", ""))
+    if len(tool_configs1) != len(tool_configs2):
+        tool_configs_diff = True
+    else:
+        tool_configs_diff = any(compare_configs(config1, config2) for config1, config2 in zip(tool_configs1,
+                                                                                              tool_configs2))
+
+    print("toolkit_diff : ", toolkit_diff)
+    print("tools_diff : ", tools_diff)
+    print("tool_configs_diff : ", tool_configs_diff)
+    return toolkit_diff or tools_diff or tool_configs_diff

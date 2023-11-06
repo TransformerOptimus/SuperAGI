@@ -58,6 +58,11 @@ class Resource(DBBaseModel):
 
         if storage_type not in valid_types:
             raise InvalidResourceType("Invalid resource type")
-
+    
+    @classmethod
+    def find_by_run_ids(cls, session, run_ids: list):
+        db_resources_arr=session.query(Resource).filter(Resource.agent_execution_id.in_(run_ids)).all()
+        return db_resources_arr
+    
 class InvalidResourceType(Exception):
     """Custom exception for invalid resource type"""

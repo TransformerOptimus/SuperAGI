@@ -1,6 +1,9 @@
 from typing import Type, Optional
 from pydantic import BaseModel, Field
+from superagi.helper.error_handler import ErrorHandler
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.tools.base_tool import BaseTool
 from superagi.tools.searx.search_scraper import search_results
 
@@ -22,6 +25,8 @@ class SearxSearchTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     name = "SearxSearch"
+    agent_id:int =None
+    agent_execution_id:int =None
     description = (
         "A tool for performing a Searx search and extracting snippets and webpages."
         "Input should be a search query."
@@ -67,4 +72,7 @@ class SearxSearchTool(BaseTool):
 
         messages = [{"role": "system", "content": summarize_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+        
+        if 'error' in result and result['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
         return result["content"]

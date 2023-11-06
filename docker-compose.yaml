@@ -9,22 +9,23 @@ services:
       - super__postgres
     networks:
       - super_network
+    command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
   celery:
     volumes:
       - "./:/app"
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
-    build:
-      context: .
-      dockerfile: DockerfileCelery
+    build: .
     depends_on:
       - super__redis
       - super__postgres
     networks:
       - super_network
+    command: ["/app/entrypoint_celery.sh"]
   gui:
-    build: ./gui
-    environment:
-      - NEXT_PUBLIC_API_BASE_URL=/api
+    build:
+      context: ./gui
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "/api"
     networks:
       - super_network
 #    volumes:
@@ -42,7 +43,7 @@ services:
       - redis_data:/data
 
   super__postgres:
-    image: "docker.io/library/postgres:latest"
+    image: "docker.io/library/postgres:15"
     environment:
       - POSTGRES_USER=superagi
       - POSTGRES_PASSWORD=password
@@ -54,7 +55,7 @@ services:
 #    uncomment to expose postgres port to host
 #    ports:
 #      - "5432:5432"
-  
+
   proxy:
     image: nginx:stable-alpine
     ports:

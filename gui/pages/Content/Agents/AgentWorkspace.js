@@ -9,6 +9,7 @@ import RunHistory from "./RunHistory";
 import ActionConsole from "./ActionConsole";
 import Details from "./Details";
 import ResourceManager from "./ResourceManager";
+import {createInternalId, getUserClick, preventDefault} from "@/utils/utils";
 import {
   getAgentDetails,
   getAgentExecutions,
@@ -17,18 +18,20 @@ import {
   getExecutionDetails,
   saveAgentAsTemplate,
   stopSchedule,
-  getDateTime
+  getDateTime,
+  deleteAgent, publishToMarketplace
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
 
-export default function AgentWorkspace({agentId, selectedView, agents, internalId}) {
+export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId, sendAgentData}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
-  const [rightPanel, setRightPanel] = useState('')
+  const [rightPanel, setRightPanel] = useState('details')
   const [history, setHistory] = useState(true)
   const [selectedRun, setSelectedRun] = useState(null)
   const [runModal, setRunModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
   const [goals, setGoals] = useState(null)
   const [currentGoals, setCurrentGoals] = useState(null)
   const [runName, setRunName] = useState("New Run")
@@ -38,7 +41,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   const [fetchedData, setFetchedData] = useState(null);
   const [instructions, setInstructions] = useState(['']);
   const [currentInstructions, setCurrentInstructions] = useState(['']);
-  const [pendingPermission, setPendingPermissions] = useState(0)
+  const [pendingPermission, setPendingPermissions] = useState(0);
 
   const agent = agents.find(agent => agent.id === agentId);
 
@@ -46,6 +49,9 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   const [createEditModal, setCreateEditModal] = useState(false);
   const [createStopModal, setCreateStopModal] = useState(false);
   const [agentScheduleDetails, setAgentScheduleDetails] = useState(null)
+
+  const [publishModal, setPublishModal] = useState(false);
+  const [publishModalState, setPublishModalState] = useState(false);
 
   const closeCreateModal = () => {
     setCreateModal(false);
@@ -55,11 +61,31 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
 
   const handleEditScheduleClick = () => {
     setCreateEditModal(true);
+    setDropdown(false);
+  };
+
+  const handlePublishToMarketplace =() => {
+    if(agent?.is_scheduled && agentExecutions?.length < 1){
+      setDropdown(false)
+      setPublishModalState(true)
+      setPublishModal(true)
+      return;
+    }
+    publishToMarketplace(selectedRun?.id)
+      .then((response) => {
+        setDropdown(false)
+        setPublishModalState(false)
+        setPublishModal(true)
+    })
+      .catch((error) => {
+        console.error('Error publishing to marketplace:', error);
+      });
   };
 
   const handleStopScheduleClick = () => {
     setCreateStopModal(true);
     setCreateModal(false);
+    setDropdown(false);
   };
 
   function fetchStopSchedule() {//Stop Schedule
@@ -69,6 +95,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
           toast.success('Schedule stopped successfully!', {autoClose: 1800});
           setCreateStopModal(false);
           EventBus.emit('reFetchAgents', {});
+          setAgentScheduleDetails(null)
         }
       })
       .catch((error) => {
@@ -122,6 +149,8 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
+    setGoals(goals.length< 0 ? agentDetails.goal : goals)
+    setInstructions(instructions.length < 0 ? agentDetails.instruction : instructions)
 
     if (goals.length <= 0) {
       toast.error("Agent needs to have goals", {autoClose: 1800});
@@ -139,9 +168,10 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       .then((response) => {
         setRunModal(false);
         fetchExecutions(agentId, response.data);
-        fetchAgentDetails(agentId);
+        fetchAgentDetails(agentId, selectedRun?.id);
         EventBus.emit('reFetchAgents', {});
         toast.success("New run created", {autoClose: 1800});
+        getUserClick('Agent New Run Created Successfully',{'IsReRun' : true})
       })
       .catch((error) => {
         console.error('Error creating execution:', error);
@@ -149,10 +179,39 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       });
   };
 
+  const handleDeleteAgent = () => {
+    deleteAgent(agentId)
+      .then((response) => {
+        setDeleteModal(false);
+        if (response.status === 200) {
+          EventBus.emit('reFetchAgents', {});
+          EventBus.emit('removeTab', {
+            element: {
+              id: agentId,
+              name: agentName,
+              contentType: "Agents",
+              internalId: internalId
+            }
+          })
+          toast.success("Agent Deleted Successfully", {autoClose: 1800});
+        } else {
+          toast.error("Agent Could not be Deleted", {autoClose: 1800});
+        }
+      })
+      .catch((error) => {
+        setDeleteModal(false);
+        toast.error("Agent Could not be Deleted", {autoClose: 1800});
+        console.error("Agent could not be deleted: ", error);
+      });
+  }
   const closeRunModal = () => {
     setRunName("New Run");
     setRunModal(false);
   };
+
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+  }
 
   const updateRunStatus = (status) => {
     const executionData = {"status": status};
@@ -174,30 +233,40 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
     setDropdown(false);
   };
 
-  const preventDefault = (e) => {
-    e.stopPropagation();
-  };
-
   useEffect(() => {
-    fetchAgentDetails(agentId);
+    fetchAgentDetails(agentId, selectedRun?.id);
     fetchExecutions(agentId);
     fetchAgentScheduleComponent()
   }, [agentId])
 
   useEffect(() => {
-    fetchExecutionDetails(selectedRun?.id);
+    // fetchExecutionDetails(selectedRun?.id);
+    fetchAgentDetails(agentId, selectedRun?.id);
   }, [selectedRun?.id])
 
   useEffect(() => {
     if (agentDetails) {
-      setRightPanel(agentDetails.permission_type.includes('RESTRICTED') ? 'action_console' : 'details');
+      setRightPanel(agentDetails.permission_type === 'RESTRICTED' ? 'action_console' : 'details');
     }
   }, [agentDetails])
 
-  function fetchAgentDetails(agentId) {
-    getAgentDetails(agentId)
+  function setNewRunDetails() {
+    getAgentDetails(agentId,  -1)
       .then((response) => {
-        setAgentDetails(response.data);
+        setGoals(response.data.goal)
+        setInstructions(response.data.instruction)
+        setRunModal(true);
+      })
+      .catch((error) => {
+        console.error('Error fetching agent details:', error);
+      });
+  }
+
+  function fetchAgentDetails(agentId, runId) {
+    getAgentDetails(agentId, runId ? runId : -1)
+      .then((response) => {
+        const data = response.data
+        setAgentDetails(data);
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -205,7 +274,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
   }
 
   function fetchAgentScheduleComponent() {
-    if (agent.is_scheduled) {
+    if (agent?.is_scheduled) {
       getDateTime(agentId)
         .then((response) => {
           setAgentScheduleDetails(response.data)
@@ -214,7 +283,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
           console.error('Error fetching agent data:', error);
         });
     }
-  };
+  }
 
   function fetchExecutions(agentId, currentRun = null) {
     getAgentExecutions(agentId)
@@ -229,27 +298,29 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
       });
   }
 
-  function fetchExecutionDetails(executionId) {
-    getExecutionDetails(executionId || -1, agentId)
-      .then((response) => {
-        setGoals(response.data.goal);
-        setCurrentGoals(response.data.goal);
-        setInstructions(response.data.instruction);
-        setCurrentInstructions(response.data.instruction);
-      })
-      .catch((error) => {
-        console.error('Error fetching agent execution details:', error);
-      });
-  }
+  // function fetchExecutionDetails(executionId) {
+  //   getExecutionDetails(executionId || -1, agentId)
+  //     .then((response) => {
+  //       setGoals(response.data.goal);
+  //       setCurrentGoals(response.data.goal);
+  //       setInstructions(response.data.instruction);
+  //       setCurrentInstructions(response.data.instruction);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching agent execution details:', error);
+  //     });
+  // }
 
   function saveAgentTemplate() {
-    saveAgentAsTemplate(agentId)
+    saveAgentAsTemplate(agentId, selectedRun?.id ? selectedRun?.id : -1)
       .then((response) => {
         toast.success("Agent saved as template successfully", {autoClose: 1800});
       })
       .catch((error) => {
         console.error('Error saving agent as template:', error);
       });
+
+    setDropdown(false);
   }
 
   useEffect(() => {
@@ -305,54 +376,74 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
                 Feed
               </button>
             </div>
-            {agentDetails && (agentDetails.agent_type === 'Maintain Task Queue' || agentDetails.agent_type === "Fixed Task Queue") &&
+            {agentDetails && (agentDetails.agent_workflow === 'Dynamic Task Workflow' || agentDetails.agent_workflow === "Fixed Task Workflow") &&
               <div style={{marginLeft: '7px'}}>
-                <button onClick={() => setLeftPanel('agent_type')} className={styles.tab_button}
-                        style={leftPanel === 'agent_type' ? {background: '#454254'} : {background: 'transparent'}}>Task
+                <button onClick={() => setLeftPanel('agent_workflow')} className={styles.tab_button}
+                        style={leftPanel === 'agent_workflow' ? {background: '#454254'} : {background: 'transparent'}}>Task
                   Queue
                 </button>
               </div>}
           </div>
           <div style={{display: 'flex'}}>
             <div>
-              <button className={styles.run_button} onClick={() => setRunModal(true)}>
+              <button className={styles.run_button} onClick={setNewRunDetails}>
                 <Image width={14} height={14} src="/images/run_icon.svg" alt="run-icon"/>&nbsp;New Run
               </button>
             </div>
-            {<button className="secondary_button" style={{padding: '8px', height: '31px'}}
-                     onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
+            <button className="secondary_button" style={{padding: '8px', height: '31px'}}
+                    onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)} >
               <Image width={14} height={14} src="/images/three_dots.svg" alt="run-icon"/>
-            </button>}
+            </button>
             {dropdown && <div onMouseEnter={() => setDropdown(true)} onMouseLeave={() => setDropdown(false)}>
-              <ul className="dropdown_container" style={{marginTop: '31px', marginLeft: '-32px'}}>
-                <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
+              <ul className="dropdown_container w_180p" style={{marginTop: '31px', marginLeft: '-32px'}}>
                 {selectedRun && selectedRun.status === 'RUNNING' && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("PAUSED")
                 }}>Pause</li>}
-                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED') &&
+                {selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'ERROR_PAUSED') &&
                   <li className="dropdown_item" onClick={() => {
                     updateRunStatus("RUNNING")
                   }}>Resume</li>}
                 {agentExecutions && agentExecutions.length > 1 && <li className="dropdown_item" onClick={() => {
                   updateRunStatus("TERMINATED")
-                }}>Delete</li>}
-
-                {agent && agent.is_scheduled ? (<div>
+                }}>Delete Run</li>}
+                {agentExecutions && selectedRun && (selectedRun.status === 'CREATED' || selectedRun.status === 'PAUSED' || selectedRun.status === 'RUNNING' || agentExecutions.length > 1 || selectedRun.status === 'ERROR_PAUSED') && <div className={styles.dropdown_separator}/>}
+                <li className="dropdown_item" onClick={() => saveAgentTemplate()}>Save as Template</li>
+                {agent && env === 'PROD' &&
+                  <li className="dropdown_item" onClick={() => {
+                    handlePublishToMarketplace()
+                  }}>Publish to marketplace</li>}
+                <div className={styles.dropdown_separator} />
+                <li className="dropdown_item" onClick={() => sendAgentData({
+                  id: agentId,
+                  name: "Edit Agent",
+                  contentType: "Edit_Agent",
+                  internalId: createInternalId()
+                })}>Edit Agent</li>
+                <li className="dropdown_item" onClick={() => {
+                  setDropdown(false);
+                  setDeleteModal(true)
+                }}>Delete Agent
+                </li>
+                <div className={styles.dropdown_separator} />
+                {agent?.is_scheduled ? (<div>
                   <li className="dropdown_item" onClick={handleEditScheduleClick}>Edit Schedule</li>
                   <li className="dropdown_item" onClick={handleStopScheduleClick}>Stop Schedule</li>
                 </div>) : (<div>
-                  {agent && !agent.is_running && !agent.is_scheduled &&
-                    <li className="dropdown_item" onClick={() => setCreateModal(true)}>Schedule Run</li>}
+                  {agent && !agent?.is_running && !agent?.is_scheduled &&
+                    <li className="dropdown_item" onClick={() => {
+                      setDropdown(false);
+                      setCreateModal(true)
+                    }}>Schedule Run</li>}
                 </div>)}
-
               </ul>
             </div>}
 
             {createModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal} type="schedule_agent"
                              agentId={agentId} setCreateModal={() => setCreateModal(false)}/>}
             {createEditModal &&
-              <AgentSchedule internalId={internalId} closeCreateModal={closeCreateModal} type="edit_schedule_agent"
+              <AgentSchedule env={env} internalId={internalId} closeCreateModal={closeCreateModal}
+                             type="edit_schedule_agent"
                              agentId={agentId} setCreateEditModal={() => setCreateEditModal(false)}/>}
             {createStopModal && (
               <div className="modal" onClick={closeCreateModal}>
@@ -376,17 +467,17 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
         </div>
         <div className={styles.detail_body}>
           {leftPanel === 'activity_feed' && <div className={styles.detail_content}>
-            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || 0}
-                          setFetchedData={setFetchedData} agent={agent}/>
+            <ActivityFeed selectedView={selectedView} selectedRunId={selectedRun?.id || null}
+                          setFetchedData={setFetchedData} agent={agent} selectedRunStatus={selectedRun?.status || null}/>
           </div>}
-          {leftPanel === 'agent_type' &&
+          {leftPanel === 'agent_workflow' &&
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
       <div style={{width: '40%'}}>
         <div className={styles.detail_top}>
           <div style={{display: 'flex', overflowX: 'scroll'}}>
-            {agentDetails && agentDetails.permission_type.includes('RESTRICTED') && <div>
+            {agentDetails && ((fetchedData && fetchedData.length > 0) || agentDetails.permission_type === 'RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
                 <Image style={{marginTop: '-1px'}} width={14} height={14} src="/images/action_console.svg"
@@ -425,15 +516,14 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
           </div>
         </div>
         <div className={styles.detail_body} style={{paddingRight: '0'}}>
-          {rightPanel === 'action_console' && agentDetails && agentDetails?.permission_type !== 'God Mode' && (
+          {rightPanel === 'action_console' && agentDetails && (
             <div className={styles.detail_content}>
               <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData}
                              pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
             </div>
           )}
-          {rightPanel === 'details' &&
-            <div className={styles.detail_content}><Details agentDetails={agentDetails} goals={currentGoals}
-                                                            instructions={currentInstructions}
+          {rightPanel === 'details' && agentDetails && agentDetails !== null &&
+            <div className={styles.detail_content}><Details agentDetails1={agentDetails}
                                                             runCount={agentExecutions?.length || 0}
                                                             agentScheduleDetails={agentScheduleDetails} agent={agent}/>
             </div>}
@@ -462,7 +552,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
               {goals.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleGoalDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -485,7 +575,7 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
               {instructions.length > 1 && <div>
                 <button className="secondary_button" style={{marginLeft: '4px', padding: '5px'}}
                         onClick={() => handleInstructionDelete(index)}>
-                  <Image width={20} height={21} src="/images/close_light.svg" alt="close-icon"/>
+                  <Image width={20} height={21} src="/images/close.svg" alt="close-icon"/>
                 </button>
               </div>}
             </div>))}
@@ -504,6 +594,44 @@ export default function AgentWorkspace({agentId, selectedView, agents, internalI
           </div>
         </div>
       </div>)}
+
+      {deleteModal && (<div className="modal" onClick={closeDeleteModal}>
+        <div className="modal-content" style={{width: '502px', padding: '16px', gap: '24px'}} onClick={preventDefault}>
+          <div>
+            <label className={styles.delete_agent_modal_label}>Delete Agent</label>
+          </div>
+          <div>
+            <label className={styles.delete_modal_text}>All the runs and details of this agent will be deleted. Are you
+              sure you want to proceed?</label>
+          </div>
+          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+            <button className="secondary_button" style={{marginRight: '10px'}} onClick={closeDeleteModal}>
+              Cancel
+            </button>
+            <button className="primary_button" onClick={() => handleDeleteAgent()}>
+              Delete Agent
+            </button>
+          </div>
+        </div>
+      </div>)}
+
+      {publishModal && (<div className="modal" onClick={() => {setPublishModal(false)}}>
+        <div className="modal-content w_35" onClick={preventDefault}>
+          {publishModalState ? <div className={styles.detail_name}>Run the agent at least once to publish!</div> : <div className={styles.detail_name}>Template submitted successfully!</div>}
+          <div>
+            {!publishModalState ? <label className={styles.form_label}>Your template is under review. Please check the marketplace in 2-3 days. If your template is not visible on the marketplace, reach out to us on Discord&nbsp;
+              <a href="https://discord.com/channels/1107593006032355359/1143813784683692093" target="_blank" rel="noopener noreferrer">
+                #agent-templates-submission
+              </a> channel.</label> : <label className={styles.form_label}>Before publishing your agent to the marketplace, you need to run it at least once. To do this, click the New Run button (on the agent screen). Once the agent has run successfully, you can proceed to try publishing your template.</label>}
+          </div>
+          <div className={styles.modal_buttons}>
+            <button className="primary_button" onClick={() => {setPublishModal(false)}}>
+              Okay
+            </button>
+          </div>
+        </div>
+      </div>)}
+
     </div>
     <ToastContainer/>
   </>);

@@ -1,37 +1,82 @@
-from unittest.mock import MagicMock, patch
+import pytest
+from unittest.mock import Mock
 
-from superagi.llms.llm_model_factory import ModelFactory, factory, get_model
-
-
-def test_model_factory():
-    # Arrange
-    mock_factory = ModelFactory()
-    mock_factory._creators = {
-        "gpt-4": MagicMock(side_effect=lambda **kwargs: "OpenAI GPT-4 mock"),
-        "gpt-3.5-turbo": MagicMock(side_effect=lambda **kwargs: "OpenAI GPT-3.5-turbo mock"),
-        "google-palm-bison-001": MagicMock(side_effect=lambda **kwargs: "Google Palm Bison mock")
-    }
-
-    # Act
-    gpt_4_model = mock_factory.get_model("gpt-4", api_key="test_key")
-    gpt_3_5_turbo_model = mock_factory.get_model("gpt-3.5-turbo", api_key="test_key")
-    google_palm_model = mock_factory.get_model("google-palm-bison-001", api_key="test_key")
-
-    # Assert
-    assert gpt_4_model == "OpenAI GPT-4 mock"
-    assert gpt_3_5_turbo_model == "OpenAI GPT-3.5-turbo mock"
-    assert google_palm_model == "Google Palm Bison mock"
+from superagi.llms.google_palm import GooglePalm
+from superagi.llms.hugging_face import HuggingFace
+from superagi.llms.llm_model_factory import get_model, build_model_with_api_key
+from superagi.llms.openai import OpenAi
+from superagi.llms.replicate import Replicate
 
 
-def test_get_model():
-    # Arrange
-    api_key = "test_key"
-    model = "gpt-3.5-turbo"
+# Fixtures for the mock objects
+@pytest.fixture
+def mock_openai():
+    return Mock(spec=OpenAi)
 
-    with patch.object(factory, 'get_model', return_value="OpenAI GPT-3.5-turbo mock") as mock_method:
-        # Act
-        result = get_model(api_key, model)
+@pytest.fixture
+def mock_replicate():
+    return Mock(spec=Replicate)
 
-        # Assert
-        assert result == "OpenAI GPT-3.5-turbo mock"
-        mock_method.assert_called_once_with(model, api_key=api_key)
+@pytest.fixture
+def mock_google_palm():
+    return Mock(spec=GooglePalm)
+
+@pytest.fixture
+def mock_hugging_face():
+    return Mock(spec=HuggingFace)
+
+@pytest.fixture
+def mock_replicate():
+    return Mock(spec=Replicate)
+
+@pytest.fixture
+def mock_google_palm():
+    return Mock(spec=GooglePalm)
+
+@pytest.fixture
+def mock_hugging_face():
+    return Mock(spec=HuggingFace)
+
+# Test build_model_with_api_key function
+def test_build_model_with_openai(mock_openai, monkeypatch):
+    monkeypatch.setattr('superagi.llms.llm_model_factory.OpenAi', mock_openai)
+    model = build_model_with_api_key('OpenAi', 'fake_key')
+    mock_openai.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+def test_build_model_with_replicate(mock_replicate, monkeypatch):
+    monkeypatch.setattr('superagi.llms.llm_model_factory.Replicate', mock_replicate)
+    model = build_model_with_api_key('Replicate', 'fake_key')
+    mock_replicate.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+
+def test_build_model_with_openai(mock_openai, monkeypatch):
+    monkeypatch.setattr('superagi.llms.llm_model_factory.OpenAi', mock_openai)  # Replace 'your_module' with the actual module name
+    model = build_model_with_api_key('OpenAi', 'fake_key')
+    mock_openai.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+def test_build_model_with_replicate(mock_replicate, monkeypatch):
+    monkeypatch.setattr('superagi.llms.llm_model_factory.Replicate', mock_replicate)  # Replace 'your_module' with the actual module name
+    model = build_model_with_api_key('Replicate', 'fake_key')
+    mock_replicate.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+def test_build_model_with_google_palm(mock_google_palm, monkeypatch):
+    monkeypatch.setattr('superagi.llms.llm_model_factory.GooglePalm', mock_google_palm)  # Replace 'your_module' with the actual module name
+    model = build_model_with_api_key('Google Palm', 'fake_key')
+    mock_google_palm.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+def test_build_model_with_hugging_face(mock_hugging_face, monkeypatch):
+    monkeypatch.setattr('superagi.llms.llm_model_factory.HuggingFace', mock_hugging_face)  # Replace 'your_module' with the actual module name
+    model = build_model_with_api_key('Hugging Face', 'fake_key')
+    mock_hugging_face.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+def test_build_model_with_unknown_provider(capsys):  # capsys is a built-in pytest fixture for capturing print output
+    model = build_model_with_api_key('Unknown', 'fake_key')
+    assert model is None
+    captured = capsys.readouterr()
+    assert "Unknown provider." in captured.out

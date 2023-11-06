@@ -290,7 +290,7 @@
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 0.3vw;
+    gap: 6px;
 }
 
 .agent_resources {
@@ -378,6 +378,7 @@
     width: 33% !important;
     background-color: rgb(39, 35, 53);
     border-radius: 8px;
+    flex-direction: column;
 }
 
 .tool_description {
@@ -503,12 +504,49 @@
 .markdown_style{
     color:white;
 }
+
 .markdown_style img {
     max-width: 100%;
     height: auto;
 }
+
 .markdown_container{
     height:68vh;
     overflow-y:scroll;
     overflow-x:hidden;
+}
+
+.settings_tab_button_clicked{
+    background: #454254;
+    padding-right: 15px
+}
+
+.settings_tab_button{
+    background: transparent;
+    padding-right: 15px
+}
+
+.settings_tab_img{
+    margin-top: -1px;
+}
+
+.checkboxGroup {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    height: 15vh;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    width: 15vw;
+    cursor:pointer
+}
+
+.checkboxText {
+    font-weight: 400;
+    font-size: 12px;
+    color: #FFF;
+    margin-left:5px;
 }

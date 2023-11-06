@@ -7,7 +7,8 @@ from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.types.vector_store_types import VectorStoreType
 from superagi.vector_store import qdrant
-
+from superagi.vector_store.redis import Redis
+from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.qdrant import Qdrant
 
 
@@ -72,5 +73,38 @@ class VectorFactory:
 
             Qdrant.create_collection(client, index_name, len(sample_embedding))
             return qdrant.Qdrant(client, embedding_model, index_name)
+        
+        if vector_store == VectorStoreType.REDIS:
+            index_name = "super-agent-index1"
+            redis = Redis(index_name, embedding_model)
+            redis.create_index()
+            return redis
 
         raise ValueError(f"Vector store {vector_store} not supported")
+    
+    @classmethod
+    def build_vector_storage(cls, vector_store: VectorStoreType, index_name, embedding_model = None, **creds):
+        if isinstance(vector_store, str):
+            vector_store = VectorStoreType.get_vector_store_type(vector_store)
+        
+        if vector_store == VectorStoreType.PINECONE:
+            try:
+                pinecone.init(api_key = creds["api_key"], environment = creds["environment"])
+                index = pinecone.Index(index_name)
+                return Pinecone(index, embedding_model)
+            except UnauthorizedException:
+                raise ValueError("PineCone API key not found")
+        
+        if vector_store == VectorStoreType.QDRANT:
+            try:
+                client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
+                return qdrant.Qdrant(client, embedding_model, index_name)
+            except:
+                raise ValueError("Qdrant API key not found")
+
+        if vector_store == VectorStoreType.WEAVIATE:
+            try:
+                client = weaviate.create_weaviate_client(creds["url"], creds["api_key"])
+                return weaviate.Weaviate(client, embedding_model, index_name)
+            except:
+                raise ValueError("Weaviate API key not found")

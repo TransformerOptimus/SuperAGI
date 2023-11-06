@@ -2,12 +2,15 @@ import json
 import requests
 from typing import Type, Optional,Union
 import time
+from superagi.helper.error_handler import ErrorHandler
 from superagi.lib.logger import logger
 from pydantic import BaseModel, Field
 from duckduckgo_search import DDGS
 from itertools import islice
 from superagi.helper.token_counter import TokenCounter
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.tools.base_tool import BaseTool
 from superagi.helper.webpage_extractor import WebpageExtractor
 
@@ -33,6 +36,8 @@ class DuckDuckGoSearchTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     name = "DuckDuckGoSearch"
+    agent_id: int = None
+    agent_execution_id: int = None
     description = (
         "A tool for performing a DuckDuckGo search and extracting snippets and webpages."
         "Input should be a search query."
@@ -112,7 +117,7 @@ class DuckDuckGoSearchTool(BaseTool):
                 time.sleep(3)
                 content = WebpageExtractor().extract_with_bs4(links[i])                     #takes in the link and returns content extracted from Webpage extractor
                 max_length = len(' '.join(content.split(" ")[:500]))    
-                content = content[:max_length]                                              #formating the content
+                content = content[:max_length]                                              #formatting the content
                 attempts = 0
                 while content == "" and attempts < WEBPAGE_EXTRACTOR_MAX_ATTEMPTS:
                     attempts += 1
@@ -169,4 +174,7 @@ class DuckDuckGoSearchTool(BaseTool):
 
         messages = [{"role": "system", "content": summarize_prompt}]
         result = self.llm.chat_completion(messages, max_tokens=self.max_token_limit)
+        
+        if 'error' in result and result['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
         return result["content"]

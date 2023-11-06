@@ -6,6 +6,7 @@ from fastapi import HTTPException, Depends, Body
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 
+from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 from superagi.worker import execute_agent
 from fastapi import APIRouter

@@ -3,13 +3,16 @@ from typing import Type, Optional, List
 from pydantic import BaseModel, Field
 
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
 from superagi.helper.token_counter import TokenCounter
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+from superagi.models.agent_execution import AgentExecution
+from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.resource_manager.file_manager import FileManager
 from superagi.tools.base_tool import BaseTool
-
+from superagi.models.agent import Agent
 
 class WriteSpecSchema(BaseModel):
     task_description: str = Field(
@@ -37,6 +40,7 @@ class WriteSpecTool(BaseTool):
     """
     llm: Optional[BaseLlm] = None
     agent_id: int = None
+    agent_execution_id: int = None
     name = "WriteSpecTool"
     description = (
         "A tool to write the spec of a program."
@@ -64,9 +68,14 @@ class WriteSpecTool(BaseTool):
         prompt = prompt.replace("{task}", task_description)
         messages = [{"role": "system", "content": prompt}]
 
+        organisation = Agent.find_org_by_agent_id(self.toolkit_config.session, agent_id=self.agent_id)
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
-        token_limit = TokenCounter.token_limit(self.llm.get_model())
+        token_limit = TokenCounter(session=self.toolkit_config.session, organisation_id=organisation.id).token_limit(self.llm.get_model())
+
         result = self.llm.chat_completion(messages, max_tokens=(token_limit - total_tokens - 100))
+        
+        if 'error' in result and result['message'] is not None:
+            ErrorHandler.handle_openai_errors(self.toolkit_config.session, self.agent_id, self.agent_execution_id, result['message'])
 
         # Save the specification to a file
         write_result = self.resource_manager.write_file(spec_file_name, result["content"])

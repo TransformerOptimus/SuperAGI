@@ -46,3 +46,26 @@ class AgentSchedule(DBBaseModel):
                f"expiry_runs={self.expiry_runs}), " \
                f"current_runs={self.expiry_runs}), " \
                f"status={self.status}), " 
+    
+    @classmethod
+    def save_schedule_from_config(cls, session, db_agent, schedule_config: AgentScheduleInput):
+        agent_schedule = AgentSchedule(
+            agent_id=db_agent.id,
+            start_time=schedule_config.start_time,
+            next_scheduled_time=schedule_config.start_time,
+            recurrence_interval=schedule_config.recurrence_interval,
+            expiry_date=schedule_config.expiry_date,
+            expiry_runs=schedule_config.expiry_runs,
+            current_runs=0,
+            status="SCHEDULED"
+        )
+
+        agent_schedule.agent_id = db_agent.id
+        session.add(agent_schedule)
+        session.commit()
+        return agent_schedule
+    
+    @classmethod
+    def find_by_agent_id(cls, session, agent_id: int):
+        db_schedule=session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_id).first()
+        return db_schedule

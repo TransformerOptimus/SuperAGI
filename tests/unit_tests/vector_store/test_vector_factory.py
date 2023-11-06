@@ -47,7 +47,7 @@ class TestVectorFactory(unittest.TestCase):
         mock_weaviate.Weaviate = MockWeaviate
 
         # Test Weaviate
-        vector_store = VectorFactory.get_vector_storage('Weaviate', 'test_index', mock_embedding_model)
+        vector_store = VectorFactory.get_vector_storage(VectorStoreType.WEAVIATE, 'test_index', mock_embedding_model)
         self.assertIsInstance(vector_store, Weaviate)
 
         # Test Qdrant
@@ -60,7 +60,8 @@ class TestVectorFactory(unittest.TestCase):
 
         # Test unsupported vector store
         with self.assertRaises(ValueError):
-            VectorFactory.get_vector_storage('Unsupported', 'test_index', mock_embedding_model)
+            VectorFactory.get_vector_storage(VectorStoreType.get_vector_store_type('Unsupported'), 'test_index',
+                                             mock_embedding_model)
 
 
 if __name__ == '__main__':

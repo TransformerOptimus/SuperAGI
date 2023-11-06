@@ -1,2 +1,18 @@
-venv/
-gui/
+# Ignore everything
+**
+
+# Allow files and directories
+!/migrations
+!/nginx
+!/superagi
+!/tgwui
+!/tools
+!/workspace
+!/main.py
+!/requirements.txt
+!/entrypoint.sh
+!/entrypoint_celery.sh
+!/wait-for-it.sh
+!/tools.json
+!/install_tool_dependencies.sh
+!/alembic.ini

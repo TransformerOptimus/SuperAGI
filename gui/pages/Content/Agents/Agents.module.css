@@ -1,7 +1,7 @@
 .container {
     height: 100%;
     width: 100%;
-    padding: 0 8px;
+    padding: 0 0 0 8px;
 }
 
 .title_box {
@@ -26,45 +26,11 @@
     width: 100%;
 }
 
-.agent_box {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 10px 8px;
-    gap: 6px;
-    border-radius: 8px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-    cursor: pointer;
-}
-
-.agent_box:hover {
-    background-color: #494856;
-}
-
 .agent_active {
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: 0;
-}
-
-.agent_text {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 15px;
-    align-items: center;
-    color: white;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .text_block {
@@ -382,6 +348,43 @@
     line-height: 12px;
     color: #FFFFFF;
 }
+.delete_agent_modal_label
+{
+    color: #FFF;
+    font-size: 16px;
+    font-family: "Public Sans", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.delete_button
+{
+    display: flex;
+    padding: 0px 12px;
+    align-items: flex-start;
+    gap: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #FFF;
+    color: #000;
+    font-size: 12px;
+    font-family: "Public Sans", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+
+}
+
+.delete_modal_text
+{
+    color: #888;
+    font-size: 12px;
+    font-family: "Roboto Flex", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
   
 .rdtPicker input {
     display: flex !important;
@@ -420,4 +423,66 @@
     transition: 0.2s;
     color: white;
     outline: none;
+}
+
+.permission_changes {
+    color: #888888 !important;
+    text-decoration: line-through;
+    pointerEvents: none !important;
+}
+
+.modal_buttons{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px
+}
+
+.modal_info_class{
+    margin-left: -5px;
+    margin-right: 5px;
+}
+
+.table_contents{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+    width: 100%
+}
+
+.create_settings_button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px
+}
+
+.button_margin{
+    margin-top: -10px;
+}
+
+.dropdown_separator{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-left:-5px;
+    width: 180px
+}
+
+.dropdown_container_agent{
+    bottom: 40px;
+    z-index: 9999;
+    padding: 0px;
+    width: fit-content;
+    height: fit-content;
+    margin-right: 40px;
+    background: #3B3B49;
+    border-radius: 8px;
+    position: absolute;
+    box-shadow: 0 2px 7px rgba(0,0,0,.4), 0 0 2px rgba(0,0,0,.22);
+}
+
+.dropdown_item_agent{
+    height:30px;
+    paddingTop: 2px;
+    paddingBottom: 2px;
 }

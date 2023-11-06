@@ -1,10 +1,10 @@
 import openai
 
 from superagi.config.config import get_config
-from superagi.llms.base_llm import BaseLlm
+from superagi.image_llms.base_image_llm import BaseImageLlm
 
 
-class OpenAiDalle(BaseLlm):
+class OpenAiDalle(BaseImageLlm):
     def __init__(self, api_key, image_model=None, number_of_results=1):
         """
         Args:

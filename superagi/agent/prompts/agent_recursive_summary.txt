@@ -1,0 +1,11 @@
+AI, you are provided with a previous summary of interactions between the system, user, and assistant, as well as additional conversations that were not included in the original summary.
+If the previous summary is empty, your task is to create a summary based solely on the new interactions.
+
+Previous Summary: {previous_ltm_summary}
+
+{past_messages}
+
+If the previous summary is not empty, your final summary should integrate the new interactions into the existing summary to create a comprehensive recap of all interactions.
+If the previous summary is empty, your summary should encapsulate the main points of the new conversations.
+In both cases, highlight the key issues discussed, decisions made, and any actions assigned.
+Please ensure that the final summary does not exceed {char_limit} characters.

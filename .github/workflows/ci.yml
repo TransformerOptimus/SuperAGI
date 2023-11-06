@@ -29,6 +29,15 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.9"
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -42,8 +51,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
  
   test:
-    # eliminate duplicate runs
-    if: github.event_name == 'push' || (github.event.pull_request.head.repo.fork == (github.event_name == 'pull_request_target'))
 
     permissions:
       # Gives the action the necessary permissions for publishing new
@@ -53,6 +60,7 @@ jobs:
       # python-coverage-comment-action branch, and for editing existing
       # comments (to avoid publishing multiple comments in the same PR)
       contents: write
+
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -77,6 +85,15 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: "3.9"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+            path: ~/.cache/pip
+            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+            restore-keys: |
+              ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -93,25 +110,47 @@ jobs:
           PLAIN_OUTPUT: True
           REDIS_URL: "localhost:6379"
 
-          - name: Cache
-  uses: actions/cache@v3.3.2
-  with:
-    # A list of files, directories, and wildcard patterns to cache and restore
-    path: 
-    # An explicit key for restoring and saving the cache
-    key: 
-    # An ordered list of keys to use for restoring stale cache if no cache hit occurred for key. Note `cache-hit` returns false in this case.
-    restore-keys: # optional
-    # The chunk size used to split up large files during upload, in bytes
-    upload-chunk-size: # optional
-    # An optional boolean when enabled, allows windows runners to save or restore caches that can be restored or saved respectively on other platforms
-    enableCrossOsArchive: # optional, default is false
-    # Fail the workflow if cache entry is not found
-    fail-on-cache-miss: # optional, default is false
-    # Check if a cache entry exists for the given input(s) (key, restore-keys) without downloading the cache
-    lookup-only: # optional, default is false
+
+          
+
           
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
 
-        
+        - name: Cache
+
+  uses: actions/cache@v3.3.2
+
+  with:
+
+    # A list of files, directories, and wildcard patterns to cache and restore
+
+    path: 
+
+    # An explicit key for restoring and saving the cache
+
+    key: 
+
+    # An ordered list of keys to use for restoring stale cache if no cache hit occurred for key. Note `cache-hit` returns false in this case.
+
+    restore-keys: # optional
+
+    # The chunk size used to split up large files during upload, in bytes
+
+    upload-chunk-size: # optional
+
+    # An optional boolean when enabled, allows windows runners to save or restore caches that can be restored or saved respectively on other platforms
+
+    enableCrossOsArchive: # optional, default is false
+
+    # Fail the workflow if cache entry is not found
+
+    fail-on-cache-miss: # optional, default is false
+
+    # Check if a cache entry exists for the given input(s) (key, restore-keys) without downloading the cache
+
+    lookup-only: # optional, default is false
+
+=======
+
+          IS_TESTING: True
