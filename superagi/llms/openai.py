@@ -1,6 +1,6 @@
 import openai
 from openai import APIError, InvalidRequestError
-from openai.error import RateLimitError, AuthenticationError
+from openai.error import RateLimitError, AuthenticationError, Timeout
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random_exponential
 
 from superagi.config.config import get_config
@@ -56,7 +56,10 @@ class OpenAi(BaseLlm):
         return self.model
 
     @retry(
-        retry=retry_if_exception_type(RateLimitError),
+        retry=(
+            retry_if_exception_type(RateLimitError) |
+            retry_if_exception_type(Timeout)
+        ),
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS), # Maximum number of retry attempts
         wait=wait_random_exponential(min=MIN_WAIT, max=MAX_WAIT),
         before_sleep=lambda retry_state: logger.info(f"{retry_state.outcome.exception()} (attempt {retry_state.attempt_number})"),
@@ -89,6 +92,9 @@ class OpenAi(BaseLlm):
         except RateLimitError as api_error:
             logger.info("OpenAi RateLimitError:", api_error)
             raise RateLimitError(str(api_error))
+        except Timeout as timeout_error:
+            logger.info("OpenAi Timeout:", timeout_error)
+            raise Timeout(str(timeout_error))
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)
             return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys: "+str(auth_error)}
