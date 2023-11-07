@@ -11,6 +11,10 @@ MAX_RETRY_ATTEMPTS = 5
 MIN_WAIT = 30 # Seconds
 MAX_WAIT = 120 # Seconds  
 
+def custom_retry_error_callback(retry_state):
+    logger.info("OpenAi Exception:", retry_state.outcome.exception())
+    return {"error": "ERROR_OPENAI", "message": "Open ai exception: "+str(retry_state.outcome.exception())}
+
 
 class OpenAi(BaseLlm):
     def __init__(self, api_key, model="gpt-4", temperature=0.6, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT"), top_p=1,
@@ -64,6 +68,7 @@ class OpenAi(BaseLlm):
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS), # Maximum number of retry attempts
         wait=wait_random_exponential(min=MIN_WAIT, max=MAX_WAIT),
         before_sleep=lambda retry_state: logger.info(f"{retry_state.outcome.exception()} (attempt {retry_state.attempt_number})"),
+        retry_error_callback=custom_retry_error_callback
     )
     def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         """

@@ -53,10 +53,10 @@ def test_chat_completion_retry_rate_limit_error(mock_openai, mock_wait_random_ex
     mock_wait_random_exponential.return_value = 0.1
 
     # Act
-    with pytest.raises(tenacity.RetryError):
-        result = openai_instance.chat_completion(messages, max_tokens)
+    result = openai_instance.chat_completion(messages, max_tokens)
 
     # Assert
+    assert result == {"error": "ERROR_OPENAI", "message": "Open ai exception: Rate limit exceeded"}
     assert mock_openai.ChatCompletion.create.call_count == MAX_RETRY_ATTEMPTS
 
 
@@ -77,10 +77,10 @@ def test_chat_completion_retry_timeout_error(mock_openai, mock_wait_random_expon
     mock_wait_random_exponential.return_value = 0.1
 
     # Act
-    with pytest.raises(tenacity.RetryError):
-        result = openai_instance.chat_completion(messages, max_tokens)
+    result = openai_instance.chat_completion(messages, max_tokens)
 
     # Assert
+    assert result == {"error": "ERROR_OPENAI", "message": "Open ai exception: Timeout occured"}
     assert mock_openai.ChatCompletion.create.call_count == MAX_RETRY_ATTEMPTS
 
 
@@ -101,10 +101,10 @@ def test_chat_completion_retry_try_again_error(mock_openai, mock_wait_random_exp
     mock_wait_random_exponential.return_value = 0.1
 
     # Act
-    with pytest.raises(tenacity.RetryError):
-        result = openai_instance.chat_completion(messages, max_tokens)
+    result = openai_instance.chat_completion(messages, max_tokens)
 
     # Assert
+    assert result == {"error": "ERROR_OPENAI", "message": "Open ai exception: Try Again"}
     assert mock_openai.ChatCompletion.create.call_count == MAX_RETRY_ATTEMPTS
 
 
