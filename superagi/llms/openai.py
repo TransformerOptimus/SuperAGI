@@ -1,10 +1,15 @@
 import openai
 from openai import APIError, InvalidRequestError
 from openai.error import RateLimitError, AuthenticationError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random_exponential
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+
+MAX_RETRY_ATTEMPTS = 5
+MIN_WAIT = 30 # Seconds
+MAX_WAIT = 120 # Seconds  
 
 
 class OpenAi(BaseLlm):
@@ -50,6 +55,12 @@ class OpenAi(BaseLlm):
         """
         return self.model
 
+    @retry(
+        retry=retry_if_exception_type(RateLimitError),
+        stop=stop_after_attempt(MAX_RETRY_ATTEMPTS), # Maximum number of retry attempts
+        wait=wait_random_exponential(min=MIN_WAIT, max=MAX_WAIT),
+        before_sleep=lambda retry_state: logger.info(f"{retry_state.outcome.exception()} (attempt {retry_state.attempt_number})"),
+    )
     def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         """
         Call the OpenAI chat completion API.
@@ -75,12 +86,12 @@ class OpenAi(BaseLlm):
             )
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
+        except RateLimitError as api_error:
+            logger.info("OpenAi RateLimitError:", api_error)
+            raise RateLimitError(str(api_error))
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)
             return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys: "+str(auth_error)}
-        except RateLimitError as api_error:
-            logger.info("OpenAi RateLimitError:", api_error)
-            return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded: "+str(api_error)}
         except InvalidRequestError as invalid_request_error:
             logger.info("OpenAi InvalidRequestError:", invalid_request_error)
             return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error: "+str(invalid_request_error)}
