@@ -9,7 +9,7 @@ from superagi.llms.base_llm import BaseLlm
 
 MAX_RETRY_ATTEMPTS = 5
 MIN_WAIT = 30 # Seconds
-MAX_WAIT = 120 # Seconds  
+MAX_WAIT = 300 # Seconds
 
 def custom_retry_error_callback(retry_state):
     logger.info("OpenAi Exception:", retry_state.outcome.exception())
