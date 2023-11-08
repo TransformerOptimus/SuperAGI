@@ -106,7 +106,7 @@ class ModelsConfig(DBBaseModel):
         for model in models:
             if model not in installed_models and model in default_models:
                 result = Models.store_model_details(session, organisation_id, model, model, '',
-                                                 model_provider_id, default_models[model], 'Custom', '')
+                                                 model_provider_id, default_models[model], 'Custom', '', 0)
 
     @classmethod
     def fetch_api_keys(cls, session, organisation_id):
