@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.helper.models_helper import ModelsHelper
@@ -28,7 +29,7 @@ class StoreModelRequest(BaseModel):
     token_limit: int
     type: str
     version: str
-    context_length: int
+    context_length: Optional[int]
 
 class ModelName (BaseModel):
     model: str
@@ -74,7 +75,10 @@ async def store_model(request: StoreModelRequest, organisation=Depends(get_user_
     try:
         #context_length = 4096
         logger.info(request)
-        return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version, request.context_length)
+        if 'context_length' in request.dict():
+            return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version, request.context_length)
+        else:
+            return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version, 0)
     except Exception as e:
         logging.error(f"Error storing the Model Details: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
