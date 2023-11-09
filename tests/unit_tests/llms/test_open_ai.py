@@ -2,7 +2,6 @@ import openai
 import pytest
 from unittest.mock import MagicMock, patch
 
-import tenacity
 from superagi.llms.openai import OpenAi, MAX_RETRY_ATTEMPTS
 
 
