@@ -52,6 +52,7 @@ from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
 from superagi.models.agent_template import AgentTemplate
+from superagi.models.models_config import ModelsConfig
 from superagi.models.organisation import Organisation
 from superagi.models.types.login_request import LoginRequest
 from superagi.models.types.validate_llm_api_key_request import ValidateAPIKeyRequest

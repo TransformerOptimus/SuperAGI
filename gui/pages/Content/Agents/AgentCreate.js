@@ -530,7 +530,7 @@ export default function AgentCreate({
               const name = response.data.name;
               const executionId = response.data.execution_id;
               fetchAgents();
-              getUserClick('Agent Created Successfully', {})
+              getUserClick('Agent Created Successfully', {'templateName': template?.id ? template.name : ''})
               getUserClick('Agent Run created successfully', {})
               uploadResources(agentId, name, executionId)
             })

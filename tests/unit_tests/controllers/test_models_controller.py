@@ -2,6 +2,11 @@ from unittest.mock import patch, MagicMock
 import pytest
 from fastapi.testclient import TestClient
 from main import app
+from llama_cpp import Llama
+from llama_cpp import LlamaGrammar
+import llama_cpp
+
+from superagi.helper.llm_loader import LLMLoader 
 
 client = TestClient(app)
 
@@ -50,7 +55,8 @@ def test_store_model_success(mock_get_db):
         "model_provider_id": 1,
         "token_limit": 10,
         "type": "mock_type",
-        "version": "mock_version"
+        "version": "mock_version",
+        "context_length":4096
     }
     with patch('superagi.helper.auth.get_user_organisation') as mock_get_user_org, \
         patch('superagi.helper.auth.db') as mock_auth_db:
@@ -100,3 +106,13 @@ def test_get_marketplace_models_list_success(mock_get_db):
         patch('superagi.helper.auth.db') as mock_auth_db:
         response = client.get("/models_controller/marketplace/list/0")
         assert response.status_code == 200
+
+def test_get_local_llm():
+    with(patch.object(LLMLoader, 'model', new_callable=MagicMock)) as mock_model:
+        with(patch.object(LLMLoader, 'grammar', new_callable=MagicMock)) as mock_grammar:
+
+            mock_model.create_chat_completion.return_value = {"choices": [{"message": {"content": "Hello!"}}]}
+
+            response = client.get("/models_controller/test_local_llm")
+
+            assert response.status_code == 200

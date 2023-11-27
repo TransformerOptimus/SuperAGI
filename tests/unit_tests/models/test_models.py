@@ -133,6 +133,7 @@ def test_store_model_details_when_model_exists(mock_session):
         token_limit=500,
         type="type",
         version="v1.0",
+        context_length=4096
     )
 
     # Assert
@@ -161,6 +162,7 @@ def test_store_model_details_when_model_not_exists(mock_session, monkeypatch):
         token_limit=500,
         type="type",
         version="v1.0",
+        context_length=4096
     )
 
     # Assert
@@ -187,6 +189,7 @@ def test_store_model_details_when_unexpected_error_occurs(mock_session, monkeypa
         token_limit=500,
         type="type",
         version="v1.0",
+        context_length=4096
     )
 
     # Assert
@@ -230,5 +233,3 @@ def test_fetch_model_details(mock_models_config, mock_session):
         "type": "type1",
         "model_provider": "example_provider"
     }
-
-

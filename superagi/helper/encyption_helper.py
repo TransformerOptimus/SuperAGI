@@ -1,9 +1,14 @@
 from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
-
+from superagi.config.config import get_config
 # Generate a key
 # key = Fernet.generate_key()
-key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
 
+key = get_config("ENCRYPTION_KEY")
+if key is None:
+    raise Exception("Encryption key not found in config file.")
+key = key.encode(
+    "utf-8"
+)
 cipher_suite = Fernet(key)
 
 

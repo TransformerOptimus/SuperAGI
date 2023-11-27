@@ -1,12 +1,12 @@
 import React, {useEffect, useRef, useState} from "react";
 import {removeTab, openNewTab, createInternalId, getUserClick} from "@/utils/utils";
 import Image from "next/image";
-import {fetchApiKey, storeModel, verifyEndPoint} from "@/pages/api/DashboardService";
+import {fetchApiKey, storeModel, testModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
 import {ToastContainer, toast} from 'react-toastify';
 
-export default function ModelForm({internalId, getModels, sendModelData}){
-    const models = ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm'];
+export default function ModelForm({internalId, getModels, sendModelData, env}){
+    const models = env === 'DEV' ? ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm', 'Local LLM'] : ['OpenAI', 'Replicate', 'Hugging Face', 'Google Palm'];
     const [selectedModel, setSelectedModel] = useState('Select a Model');
     const [modelName, setModelName] = useState('');
     const [modelDescription, setModelDescription] = useState('');
@@ -14,9 +14,12 @@ export default function ModelForm({internalId, getModels, sendModelData}){
     const [modelEndpoint, setModelEndpoint] = useState('');
     const [modelDropdown, setModelDropdown] = useState(false);
     const [modelVersion, setModelVersion] = useState('');
+    const [modelContextLength, setContextLength] = useState(4096);
     const [tokenError, setTokenError] = useState(false);
     const [lockAddition, setLockAddition] = useState(true);
     const [isLoading, setIsLoading] = useState(false)
+    const [modelStatus, setModelStatus] = useState(null);
+    const [createClickable, setCreateClickable] = useState(true);
     const modelRef = useRef(null);
 
     useEffect(() => {
@@ -79,13 +82,31 @@ export default function ModelForm({internalId, getModels, sendModelData}){
         })
     }
 
+    const handleModelStatus = async () => {
+        try {
+            setCreateClickable(false);
+            const response = await testModel();
+            if(response.status === 200) {
+                setModelStatus(true);
+                setCreateClickable(true);
+            } else {
+                setModelStatus(false);
+                setCreateClickable(true);
+            }
+        } catch(error) {
+            console.log("Error Message:: " + error);
+            setModelStatus(false);
+            setCreateClickable(true);
+        }
+    }
+
     const handleModelSuccess = (model) => {
         model.contentType = 'Model'
         sendModelData(model)
     }
 
     const storeModelDetails = (modelProviderId) => {
-        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom", modelVersion).then((response) =>{
+        storeModel(modelName,modelDescription, modelEndpoint, modelProviderId, modelTokenLimit, "Custom", modelVersion, modelContextLength).then((response) =>{
             setIsLoading(false)
             let data = response.data
             if (data.error) {
@@ -122,7 +143,7 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                 <div>
                     {modelDropdown && <div className="custom_select_options w_100" ref={modelRef}>
                         {models.map((model, index) => (
-                            <div key={index} className="custom_select_option" onClick={() => handleModelSelect(index)} style={{padding: '12px 14px', maxWidth: '100%'}}>
+                            <div key={index} className="custom_select_option" onClick={() => {setModelStatus(null); handleModelSelect(index)}} style={{padding: '12px 14px', maxWidth: '100%'}}>
                                 {model}
                             </div>))}
                     </div>}
@@ -153,18 +174,42 @@ export default function ModelForm({internalId, getModels, sendModelData}){
                        onChange={(event) => setModelVersion(event.target.value)}/>
             </div>}
 
+            {(selectedModel === 'Local LLM') && <div className="mt_24">
+                <span>Model Context Length</span>
+                <input className="input_medium mt_8" type="number" placeholder="Enter Model Context Length" value={modelContextLength}
+                       onChange={(event) => setContextLength(event.target.value)}/>
+            </div>}
+
             <div className="mt_24">
                 <span>Token Limit</span>
                 <input className="input_medium mt_8" type="number" placeholder="Enter Model Token Limit" value={modelTokenLimit}
                        onChange={(event) => setModelTokenLimit(parseInt(event.target.value, 10))}/>
             </div>
 
-            <div className="horizontal_container justify_end mt_24">
-                <button className="secondary_button mr_7"
-                        onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
-                <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading}>
-                    {isLoading ? <><span>Adding Model &nbsp;</span><ClipLoader size={16} color={"#000000"} /></> : 'Add Model'}
-                </button>
+            {selectedModel === 'Local LLM' && modelStatus===false && <div className="horizontal_container align_start error_box mt_24 gap_6">
+                <Image width={16} height={16} src="/images/icon_error.svg" alt="error-icon" />
+                <div className="vertical_containers">
+                    <span className="text_12 color_white lh_16">Test model failed</span>
+                </div>
+            </div>}
+
+            {selectedModel === 'Local LLM' && modelStatus===true && <div className="horizontal_container align_start success_box mt_24 gap_6">
+                <Image width={16} height={16} src="/images/icon_info.svg"/>
+                <div className="vertical_containers">
+                    <span className="text_12 color_white lh_16">Test model successful</span>
+                </div>
+            </div>}
+
+            <div className="horizontal_container justify_space_between w_100 mt_24">
+                {selectedModel==='Local LLM' && <button className="secondary_button flex_none" disabled={!createClickable} 
+                onClick={() => {handleModelStatus();}}>{createClickable ? 'Test Model' : 'Testing model...'}</button>}
+                <div className="horizontal_container justify_end">
+                    <button className="secondary_button mr_7"
+                            onClick={() => removeTab(-5, "new model", "Add_Model", internalId)}>Cancel</button>
+                    <button className='primary_button' onClick={handleAddModel} disabled={lockAddition || isLoading || (selectedModel==='Local LLM' && !modelStatus)}>
+                        {isLoading ? <><span>Adding Model &nbsp;</span><ClipLoader size={16} color={"#000000"} /></> : 'Add Model'}
+                    </button>
+                </div>
             </div>
             <ToastContainer className="text_16"/>
         </div>
