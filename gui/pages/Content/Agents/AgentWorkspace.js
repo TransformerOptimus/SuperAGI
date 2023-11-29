@@ -19,11 +19,13 @@ import {
   saveAgentAsTemplate,
   stopSchedule,
   getDateTime,
-  deleteAgent, publishToMarketplace
+  deleteAgent, publishToMarketplace, fetchAgentWorkflowDetails
 } from "@/pages/api/DashboardService";
 import {EventBus} from "@/utils/eventBus";
 import 'moment-timezone';
 import AgentSchedule from "@/pages/Content/Agents/AgentSchedule";
+import WorkflowDiagram from "@/pages/Content/AgentWorkflow/WorkflowDiagram";
+import CodeEditor from "@/pages/Content/AgentWorkflow/CodeEditor";
 
 export default function AgentWorkspace({env, agentId, agentName, selectedView, agents, internalId, sendAgentData}) {
   const [leftPanel, setLeftPanel] = useState('activity_feed')
@@ -52,6 +54,11 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
   const [publishModal, setPublishModal] = useState(false);
   const [publishModalState, setPublishModalState] = useState(false);
+
+  const [yamlContent, setYamlContent] = useState('');
+  const [yamlCode, setYamlCode] = useState('');
+  const [activeTab, setActiveTab] = useState('Preview');
+
 
   const closeCreateModal = () => {
     setCreateModal(false);
@@ -236,7 +243,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   useEffect(() => {
     fetchAgentDetails(agentId, selectedRun?.id);
     fetchExecutions(agentId);
-    fetchAgentScheduleComponent()
+    fetchAgentScheduleComponent();
   }, [agentId])
 
   useEffect(() => {
@@ -267,6 +274,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       .then((response) => {
         const data = response.data
         setAgentDetails(data);
+        if(response.data.agent_workflow_id){
+          getWorkflowDetails(response.data.agent_workflow_id);
+        }
       })
       .catch((error) => {
         console.error('Error fetching agent details:', error);
@@ -296,6 +306,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       .catch((error) => {
         console.error('Error fetching agent executions:', error);
       });
+  }
+
+  function getWorkflowDetails(workflowId) {
+    fetchAgentWorkflowDetails(workflowId)
+        .then((response) => {
+          setYamlContent(response.data.agent_workflow_code)
+        })
+        .catch((error) => {
+          console.error('Error fetching workflow details:', error);
+        });
   }
 
   // function fetchExecutionDetails(executionId) {
@@ -508,6 +528,15 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
                 <Image width={14} height={14} src="/images/home_storage.svg" alt="manager-icon"/>&nbsp;Resource Manager
               </button>
             </div>
+            {yamlContent && <div>
+              <button onClick={() => setRightPanel('workflow')} className={styles.tab_button}
+                      style={rightPanel === 'workflow' ? {
+                        background: '#454254',
+                        paddingRight: '15px'
+                      } : {background: 'transparent', paddingRight: '15px'}}>
+                <Image width={14} height={14} src="/images/info.svg" alt="details-icon"/>&nbsp;Workflow
+              </button>
+            </div>}
             {/*<div>*/}
             {/*  <button onClick={() => setRightPanel('logs')} className={styles.tab_button} style={rightPanel === 'logs' ? {background:'#454254'} : {background:'transparent'}}>*/}
             {/*    Logs*/}
@@ -529,6 +558,12 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             </div>}
           {rightPanel === 'resource_manager' &&
             <div className={styles.detail_content}><ResourceManager agentId={agentId} runs={agentExecutions}/></div>}
+          {rightPanel === 'workflow' &&
+              <div className={styles.detail_content}>
+                <div style={{backgroundImage :"url('/images/workflow_background.svg')",height:'71.5vh', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px'}}>
+                 <WorkflowDiagram yamlContent={yamlContent} />
+              </div>
+              </div>}
         </div>
       </div>
 

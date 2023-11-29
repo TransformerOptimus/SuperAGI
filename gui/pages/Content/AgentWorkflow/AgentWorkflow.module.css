@@ -1,0 +1,36 @@
+.dropdown_placement{
+    z-index: 9999;
+    position :relative;
+    top: 4vh
+}
+
+.code_block_topbar{
+    background: #2E294B;
+    color: white;
+    font-size: 14px;
+    padding:8px;
+    height:4.5vh;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.diagram_content{
+    padding-left:0;
+    padding-right:0;
+    height:76vh;
+    width:50%
+}
+
+.code_section{
+    background-image: url('/images/workflow_background.svg');
+    height:71.5vh
+}
+
+.daigram_section{
+    background-image: url('/images/workflow_background.svg');
+    height: 71.5vh;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow-x: scroll;
+    padding: 16px;
+}

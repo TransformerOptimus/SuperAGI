@@ -68,7 +68,7 @@ export default function AgentCreate({
   const modelRef = useRef(null);
   const [modelDropdown, setModelDropdown] = useState(false);
 
-  const [agentWorkflows, setAgentWorkflows] = useState('');
+  const [agentWorkflows, setAgentWorkflows] = useState([]);
   const [agentWorkflow, setAgentWorkflow] = useState(agentWorkflows[0]);
 
   const agentRef = useRef(null);
@@ -115,6 +115,11 @@ export default function AgentCreate({
 
   const [dropdown, setDropdown] = useState(false);
   const [publishModal, setPublishModal] = useState(false);
+
+  const [agentTypes, setAgentTypes] = useState(['Goal Based Agent', 'Workflow Based Agent']);
+  const [agentType, setAgentType] = useState('');
+  const agentTypeRef = useRef(null);
+  const [agentTypeDropdown, setAgentTypeDropdown] = useState(false);
 
 
   useEffect(() => {
@@ -185,6 +190,7 @@ export default function AgentCreate({
     if (template !== null) {
       fillDetails(template)
       setLocalStorageValue("agent_template_id_" + String(internalId), template.id, setAgentTemplateId);
+      setLocalStorageValue("agent_type_" + String(internalId), "Goal Based Agent", setAgentType);
 
       fetchAgentTemplateConfigLocal(template.id)
         .then((response) => {
@@ -232,6 +238,10 @@ export default function AgentCreate({
 
       if (toolkitRef.current && !toolkitRef.current.contains(event.target)) {
         setToolkitDropdown(false)
+      }
+
+      if (agentTypeRef.current && !agentTypeRef.current.contains(event.target)) {
+        setAgentTypeDropdown(false)
       }
     }
 
@@ -345,6 +355,15 @@ export default function AgentCreate({
   const handleAgentSelect = (index) => {
     setLocalStorageValue("agent_workflow_" + String(internalId), agentWorkflows[index], setAgentWorkflow);
     setAgentDropdown(false);
+  };
+
+  const handleAgentTypeSelect = (index) => {
+    if(agentTypes[index] === "Goal Based Agent"){
+      setAgentWorkflow('Goal Based Workflow')
+      setAgentWorkflows(['Goal Based Workflow', 'Fixed Task Queue', 'Dynamic Task Queue']);
+    }
+    setLocalStorageValue("agent_type_" + String(internalId), agentTypes[index], setAgentType);
+    setAgentTypeDropdown(false);
   };
 
   const handleModelSelect = (index) => {
@@ -563,6 +582,7 @@ export default function AgentCreate({
       "LTM_DB": longTermMemory ? database : null,
       "user_timezone": getUserTimezone(),
       "knowledge": toolNames.includes('Knowledge Search') ? selectedKnowledgeId : null,
+      "agent_type": agentType
     };
 
     return agentData
@@ -825,6 +845,11 @@ export default function AgentCreate({
         setAgentWorkflow(agent_workflow);
       }
 
+      const agent_type = localStorage.getItem("agent_type_" + String(internalId));
+      if (agent_type) {
+        setAgentType(agent_type);
+      }
+
       const agent_database = localStorage.getItem("agent_database_" + String(internalId));
       if (agent_database) {
         setDatabase(agent_database);
@@ -909,7 +934,28 @@ export default function AgentCreate({
             <label className={styles.form_label}>Description</label>
             <textarea className="textarea_medium" rows={3} value={agentDescription} disabled={edit} onChange={handleDescriptionChange}/>
           </div>
+
           <div style={{marginTop: '15px'}}>
+            <label className={styles.form_label}>Agent Type</label><br/>
+            <div className="dropdown_container_search" style={{width: '100%'}}>
+              <div className={`${agentType ? '' : 'justify_end' } ${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentTypeDropdown(!edit ? !agentTypeDropdown : false)}}
+                   style={{width: '100%'}}>
+                {agentType}<Image width={20} height={21}
+                                  src={!agentTypeDropdown ? '/images/dropdown_down.svg' : '/images/dropdown_up.svg'}
+                                  alt="expand-icon"/>
+              </div>
+              <div>
+                {agentTypeDropdown && <div className="custom_select_options" ref={agentTypeRef} style={{width: '100%'}}>
+                  {agentTypes.map((agent, index) => (
+                      <div key={index} className="custom_select_option" onClick={() => handleAgentTypeSelect(index)}
+                           style={{padding: '12px 14px', maxWidth: '100%'}}>
+                        {agent}
+                      </div>))}
+                </div>}
+              </div>
+            </div>
+          </div>
+          {agentType === 'Goal Based Agent' && <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Goals</label></div>
             {goals?.map((goal, index) => (<div key={index} style={{
               marginBottom: '10px',
@@ -929,9 +975,9 @@ export default function AgentCreate({
             <div>
               <button className="secondary_button" onClick={addGoal}>+ Add</button>
             </div>
-          </div>
+          </div>}
 
-          <div style={{marginTop: '15px'}}>
+          {agentType === 'Goal Based Agent' && <div style={{marginTop: '15px'}}>
             <div><label className={styles.form_label}>Instructions<span
               style={{fontSize: '9px'}}>&nbsp;(optional)</span></label></div>
             {instructions?.map((goal, index) => (<div key={index} style={{
@@ -953,9 +999,9 @@ export default function AgentCreate({
             <div>
               <button className="secondary_button" onClick={addInstruction}>+ Add</button>
             </div>
-          </div>
+          </div>}
 
-          <div style={{marginTop: '15px'}}>
+          {agentType && <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Model</label><br/>
             <div className="dropdown_container_search" style={{width: '100%'}}>
               <div className="custom_select_container" onClick={() => setModelDropdown(!modelDropdown)}
@@ -989,8 +1035,8 @@ export default function AgentCreate({
                 )}
               </div>
             </div>
-          </div>
-          <div style={{marginTop: '15px'}}>
+          </div>}
+          {agentType === 'Goal Based Agent' && <div style={{marginTop: '15px'}}>
             <label className={styles.form_label}>Tools</label>
             <div className="dropdown_container_search" style={{width: '100%'}}>
               <div className="custom_select_container" onClick={() => setToolkitDropdown(!toolkitDropdown)}
@@ -1066,7 +1112,7 @@ export default function AgentCreate({
                 </div>}
               </div>
             </div>
-          </div>
+          </div>}
           {toolNames.includes("Knowledge Search") && <div style={{marginTop: '5px'}}>
             <label className={styles.form_label}>Add knowledge</label>
             <div className="dropdown_container_search" style={{width: '100%'}}>
@@ -1158,20 +1204,8 @@ export default function AgentCreate({
               </div>
             </div>
           </div>}
-          <div style={{marginTop: '15px'}}>
-            <button className="medium_toggle"
-                    onClick={() => setLocalStorageValue("advanced_options_" + String(internalId), !advancedOptions, setAdvancedOptions)}
-                    style={advancedOptions ? {background: '#494856'} : {}}>
-              {advancedOptions ? 'Hide Advanced Options' : 'Show Advanced Options'}{advancedOptions ?
-              <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_up.svg"
-                     alt="expand-icon"/> :
-              <Image style={{marginLeft: '10px'}} width={20} height={21} src="/images/dropdown_down.svg"
-                     alt="expand-icon"/>}
-            </button>
-          </div>
-          {advancedOptions &&
-            <div>
-              <div style={{marginTop: '15px'}}>
+          {agentType && <div>
+            <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Agent Workflow</label><br/>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className={`${"custom_select_container"} ${edit ? 'cursor_not_allowed' : ''}`} onClick={() => {setAgentDropdown(!edit ? !agentDropdown : false)}}
@@ -1237,7 +1271,7 @@ export default function AgentCreate({
                   </div>
                 </div>}
               </div>
-              <div style={{marginTop: '15px'}}>
+              {agentType === 'Goal Based Agent' && <div style={{marginTop: '15px'}}>
                 <div><label className={styles.form_label}>Constraints</label></div>
                 {constraints?.map((constraint, index) => (<div key={index} style={{
                   marginBottom: '10px',
@@ -1258,16 +1292,16 @@ export default function AgentCreate({
                 <div>
                   <button className="secondary_button" onClick={addConstraint}>+ Add</button>
                 </div>
-              </div>
-              <div style={{marginTop: '15px'}}>
-                <label className={styles.form_label}>Max iterations</label>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <input style={{width: '90%'}} type="range" min={5} max={100} value={maxIterations}
-                         onChange={handleIterationChange}/>
-                  <input style={{width: '9%', order: '1', textAlign: 'center', paddingLeft: '0', paddingRight: '0'}}
-                         disabled={true} className="input_medium" type="text" value={maxIterations}/>
-                </div>
-              </div>
+              </div>}
+              {/*<div style={{marginTop: '15px'}}>*/}
+              {/*  <label className={styles.form_label}>Max iterations</label>*/}
+              {/*  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>*/}
+              {/*    <input style={{width: '90%'}} type="range" min={5} max={100} value={maxIterations}*/}
+              {/*           onChange={handleIterationChange}/>*/}
+              {/*    <input style={{width: '9%', order: '1', textAlign: 'center', paddingLeft: '0', paddingRight: '0'}}*/}
+              {/*           disabled={true} className="input_medium" type="text" value={maxIterations}/>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
               {/*<div style={{marginTop: '15px'}}>*/}
               {/*  <label className={styles.form_label}>Exit criterion</label>*/}
               {/*  <div className="dropdown_container_search" style={{width:'100%'}}>*/}
@@ -1310,7 +1344,7 @@ export default function AgentCreate({
               {/*    </div>*/}
               {/*  </div>*/}
               {/*</div>}*/}
-              <div style={{marginTop: '15px'}}>
+            {agentType === 'Goal Based Agent' && <div style={{marginTop: '15px'}}>
                 <label className={styles.form_label}>Permission Type</label>
                 <div className="dropdown_container_search" style={{width: '100%'}}>
                   <div className="custom_select_container" onClick={() => setPermissionDropdown(!permissionDropdown)}
@@ -1329,9 +1363,9 @@ export default function AgentCreate({
                       </div>}
                   </div>
                 </div>
-              </div>
-            </div>
-          }
+              </div>}
+            </div>}
+
 
           <div style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
             <div className="display_flex_container position_relative mr_7">
