@@ -55,8 +55,8 @@ GITHUB_CLIENT_ID:
 GITHUB_CLIENT_SECRET:
 FRONTEND_URL: "http://localhost:3000"
 
-#ENCRPYTION KEY
-ENCRYPTION_KEY: secret
+#ENCRPYTION KEY, Replace this with your own key for production
+ENCRYPTION_KEY: abcdefghijklmnopqrstuvwxyz123456
 
 #WEAVIATE
 
