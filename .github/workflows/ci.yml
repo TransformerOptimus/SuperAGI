@@ -110,6 +110,7 @@ jobs:
           PLAIN_OUTPUT: True
           REDIS_URL: "localhost:6379"
           IS_TESTING: True
-          
+          ENCRYPTION_KEY: "abcdefghijklmnopqrstuvwxyz123456"
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
