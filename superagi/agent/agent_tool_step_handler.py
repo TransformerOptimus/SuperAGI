@@ -42,7 +42,7 @@ class AgentToolStepHandler:
         step_tool = AgentWorkflowStepTool.find_by_id(self.session, workflow_step.action_reference_id)
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         agent_execution_config = AgentExecutionConfiguration.fetch_configuration(self.session, self.agent_execution_id)
-        # print(agent_execution_config)
+        # #print(agent_execution_config)
 
         if not self._handle_wait_for_permission(execution, workflow_step):
             return
@@ -103,7 +103,7 @@ class AgentToolStepHandler:
         messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)
-        # print(messages)
+        # #print(messages)
         current_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=self.organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 

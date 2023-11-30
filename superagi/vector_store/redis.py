@@ -98,7 +98,7 @@ class Redis(VectorStore):
                 .tobytes()
             }
 
-            # print(self.index)
+            # #print(self.index)
             results = self.redis_client.ft(self.index).search(query,params_dict)
             
                 # Prepare document results

@@ -125,7 +125,7 @@ class ApolloSearchTool(BaseTool):
             data["person_locations"] = [person_location]
 
         response = requests.post(url, headers=headers, data=json.dumps(data))
-        print(response)
+        #print(response)
         if response.status_code == 200:
             return response.json()
         else:

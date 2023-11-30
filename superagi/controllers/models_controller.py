@@ -145,14 +145,14 @@ def get_marketplace_models_list(page: int = 0):
 
     models_list = []
     try:
-        print("///////////////////1")
-        print(models)
+        #print("///////////////////1")
+        #print(models)
         for model in models:
             model_dict = model.__dict__
-            print(model_dict)
-            print("///////////////////2")
-            print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first())
-            print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider)
+            #print(model_dict)
+            #print("///////////////////2")
+            #print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first())
+            #print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider)
             model_dict["provider"] = db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider
             models_list.append(model_dict)
     except Exception as e:

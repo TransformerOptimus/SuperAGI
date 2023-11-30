@@ -119,7 +119,7 @@ class AgentExecutor:
                                                                              organisation_id=organisation.id)
                                                                , agent_id=agent.id,
                                                                agent_execution_id=agent_execution_id, memory=memory)
-            print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
+            #print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
             iteration_step_handler.execute_step()
         elif agent_workflow_step.action_type == AgentWorkflowStepAction.WAIT_STEP.value:
             (AgentWaitStepHandler(session=session, agent_id=agent.id,

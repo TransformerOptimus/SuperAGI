@@ -85,7 +85,7 @@ def run_migrations_online() -> None:
         "DB_HOST": os.getenv("DB_HOST", ""),
         "DB_NAME": os.getenv("DB_NAME", "")
     }
-    print("HERE ARE THE VARIABLES", url_tokens)
+    #print("HERE ARE THE VARIABLES", url_tokens)
     config.set_main_option('sqlalchemy.url', f"postgresql://{url_tokens['DB_USER']}:{url_tokens['DB_PASS']}@{url_tokens['DB_HOST']}:5432/{url_tokens['DB_NAME']}")
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),

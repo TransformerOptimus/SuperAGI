@@ -71,7 +71,7 @@ class GooglePalm(BaseLlm):
                 prompt=prompt,
                 max_output_tokens=int(max_tokens),
             )
-            # print(completion.result)
+            # #print(completion.result)
             return {"response": completion, "content": completion.result}
         except Exception as exception:
             logger.info("Google palm Exception:", exception)

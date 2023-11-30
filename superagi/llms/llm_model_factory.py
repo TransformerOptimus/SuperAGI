@@ -10,7 +10,7 @@ from superagi.models.db import connect_db
 
 
 def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
-    print("Fetching model details from database...")
+    #print("Fetching model details from database...")
     engine = connect_db()
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -23,19 +23,19 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
     session.close()
 
     if provider_name == 'OpenAI':
-        print("Provider is OpenAI")
+        #print("Provider is OpenAI")
         return OpenAi(model=model_instance.model_name, api_key=api_key, **kwargs)
     elif provider_name == 'Replicate':
-        print("Provider is Replicate")
+        #print("Provider is Replicate")
         return Replicate(model=model_instance.model_name, version=model_instance.version, api_key=api_key, **kwargs)
     elif provider_name == 'Google Palm':
-        print("Provider is Google Palm")
+        #print("Provider is Google Palm")
         return GooglePalm(model=model_instance.model_name, api_key=api_key, **kwargs)
     elif provider_name == 'Hugging Face':
-        print("Provider is Hugging Face")
+        #print("Provider is Hugging Face")
         return HuggingFace(model=model_instance.model_name, end_point=model_instance.end_point, api_key=api_key, **kwargs)
     elif provider_name == 'Local LLM':
-        print("Provider is Local LLM")
+        #print("Provider is Local LLM")
         return LocalLLM(model=model_instance.model_name, context_length=model_instance.context_length)
     else:
         print('Unknown provider.')

@@ -295,7 +295,7 @@ def add_tool_to_json(repo_link):
 
 
 def handle_tools_import():
-    print("Handling tools import")
+    #print("Handling tools import")
     tool_paths = ["superagi/tools", "superagi/tools/marketplace_tools", "superagi/tools/external_tools"]
     for tool_path in tool_paths:
         if not os.path.exists(tool_path):
@@ -335,7 +335,7 @@ def compare_toolkit(toolkit1, toolkit2):
         tool_configs_diff = any(compare_configs(config1, config2) for config1, config2 in zip(tool_configs1,
                                                                                               tool_configs2))
 
-    print("toolkit_diff : ", toolkit_diff)
-    print("tools_diff : ", tools_diff)
-    print("tool_configs_diff : ", tool_configs_diff)
+    #print("toolkit_diff : ", toolkit_diff)
+    #print("tools_diff : ", tools_diff)
+    #print("tool_configs_diff : ", tool_configs_diff)
     return toolkit_diff or tools_diff or tool_configs_diff

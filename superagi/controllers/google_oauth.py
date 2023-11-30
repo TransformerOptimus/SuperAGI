@@ -55,8 +55,8 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
     if response.status_code != 200:
         raise HTTPException(status_code=400, detail="Invalid Client Secret")
     response = response.json()
-    print("----------------------------------------------------------------")
-    print(response)
+    #print("----------------------------------------------------------------")
+    #print(response)
     expire_time = datetime.utcnow() + timedelta(seconds=response['expires_in'])
     expire_time = expire_time - timedelta(minutes=5)
     response['expiry'] = expire_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -74,7 +74,7 @@ def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize:
     user_id = current_user.id
     toolkit = db.session.query(Toolkit).filter(Toolkit.id == toolkit_id).first()
     google_creds = json.dumps(google_creds)
-    print(google_creds)
+    #print(google_creds)
     tokens = OauthTokens().add_or_update(session, toolkit_id, user_id, toolkit.organisation_id, "GOOGLE_CALENDAR_OAUTH_TOKENS", google_creds)
     if tokens:
         success = True
