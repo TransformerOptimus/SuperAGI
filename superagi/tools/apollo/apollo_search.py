@@ -71,7 +71,7 @@ class ApolloSearchTool(BaseTool):
         """
         people_data = self.apollo_search_results(page, per_page, person_titles,
                                                  num_of_employees, person_location, organization_domains)
-        logger.info(people_data)
+        #logger.info(people_data)
         people_list = []
         if people_data and 'people' in people_data and len(people_data['people']) > 0:
             for person in people_data['people']:
@@ -125,7 +125,7 @@ class ApolloSearchTool(BaseTool):
             data["person_locations"] = [person_location]
 
         response = requests.post(url, headers=headers, data=json.dumps(data))
-        print(response)
+        #print(response)
         if response.status_code == 200:
             return response.json()
         else:

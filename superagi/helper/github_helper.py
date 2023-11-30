@@ -63,7 +63,7 @@ class GithubHelper:
             repository_data = response.json()
             return repository_data['private']
         else:
-            logger.info(f"Failed to fetch repository information: {response.status_code} - {response.text}")
+            #logger.info(f"Failed to fetch repository information: {response.status_code} - {response.text}")
             return None
 
     def search_repo(self, repository_owner, repository_name, file_name, folder_path=None):
@@ -137,7 +137,7 @@ class GithubHelper:
         fork_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/forks'
         fork_response = requests.post(fork_url, headers=headers)
         if fork_response.status_code == 202:
-            logger.info('Fork created successfully.')
+            #logger.info('Fork created successfully.')
             self.sync_branch(repository_owner, repository_name, base_branch, base_branch, headers)
         else:
             logger.info('Failed to create the fork:', fork_response.json()['message'])
@@ -362,7 +362,7 @@ class GithubHelper:
         response = requests.get(pull_request_url, headers=headers)
 
         if response.status_code == 200:
-            logger.info('Successfully fetched pull request content.')
+            #logger.info('Successfully fetched pull request content.')
             return response.text
         elif response.status_code == 404:
             logger.warning('Pull request not found.')
@@ -426,7 +426,7 @@ class GithubHelper:
         }
         response = requests.post(comments_url, headers=headers, json=data)
         if response.status_code == 201:
-            logger.info('Successfully added line comment to pull request.')
+            #logger.info('Successfully added line comment to pull request.')
             return response.json()
         else:
             logger.warning(f'Failed to add line comment: {response.json()["message"]}')

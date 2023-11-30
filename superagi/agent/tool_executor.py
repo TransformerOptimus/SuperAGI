@@ -26,7 +26,7 @@ class ToolExecutor:
         tools = {t.name.lower().replace(" ", ""): t for t in self.tools}
         tool_name = tool_name.lower().replace(" ", "")
         if tool_name == ToolExecutor.FINISH or tool_name == "":
-            logger.info("\nTask Finished :) \n")
+            #logger.info("\nTask Finished :) \n")
             return ToolExecutorResponse(status="COMPLETE", result="")
         if tool_name in tools.keys():
             status = "SUCCESS"
@@ -61,7 +61,7 @@ class ToolExecutor:
             )
             output = ToolExecutorResponse(status="ERROR", result=result, retry=True)
 
-        logger.info("Tool Response : " + str(output) + "\n")
+        #logger.info("Tool Response : " + str(output) + "\n")
         return output
 
     def clean_tool_args(self, args):

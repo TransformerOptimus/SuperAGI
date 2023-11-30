@@ -74,7 +74,7 @@ async def verify_end_point(model_api_key: str = None, end_point: str = None, mod
 async def store_model(request: StoreModelRequest, organisation=Depends(get_user_organisation)):
     try:
         #context_length = 4096
-        logger.info(request)
+        #logger.info(request)
         if 'context_length' in request.dict():
             return Models.store_model_details(db.session, organisation.id, request.model_name, request.description, request.end_point, request.model_provider_id, request.token_limit, request.type, request.version, request.context_length)
         else:
@@ -144,10 +144,19 @@ def get_marketplace_models_list(page: int = 0):
         models = query.offset(page * page_size).limit(page_size).all()
 
     models_list = []
-    for model in models:
-        model_dict = model.__dict__
-        model_dict["provider"] = db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider
-        models_list.append(model_dict)
+    try:
+        #print("///////////////////1")
+        #print(models)
+        for model in models:
+            model_dict = model.__dict__
+            #print(model_dict)
+            #print("///////////////////2")
+            #print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first())
+            #print(db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider)
+            model_dict["provider"] = db.session.query(ModelsConfig).filter(ModelsConfig.id == model.model_provider_id).first().provider
+            models_list.append(model_dict)
+    except Exception as e:
+        print(f"Exception at 'marketplace/list/page': {e}")
 
     return models_list
 
@@ -196,9 +205,9 @@ def test_local_llm():
         ]
         response = llm_model.create_chat_completion(messages=messages, grammar=llm_grammar)
         content = response["choices"][0]["message"]["content"]
-        logger.info(content)
+        #logger.info(content)
         return "Model loaded successfully."
         
     except Exception as e:
-        logger.info("Error: ",e)
+        #logger.info("Error: ",e)
         raise HTTPException(status_code=404, detail="Error while loading the model. Please check your model path and try again.")

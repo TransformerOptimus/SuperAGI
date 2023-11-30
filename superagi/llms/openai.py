@@ -76,16 +76,16 @@ class OpenAi(BaseLlm):
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
         except AuthenticationError as auth_error:
-            logger.info("OpenAi AuthenticationError:", auth_error)
+            #logger.info("OpenAi AuthenticationError:", auth_error)
             return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys: "+str(auth_error)}
         except RateLimitError as api_error:
-            logger.info("OpenAi RateLimitError:", api_error)
+            #logger.info("OpenAi RateLimitError:", api_error)
             return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded: "+str(api_error)}
         except InvalidRequestError as invalid_request_error:
-            logger.info("OpenAi InvalidRequestError:", invalid_request_error)
+            #logger.info("OpenAi InvalidRequestError:", invalid_request_error)
             return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error: "+str(invalid_request_error)}
         except Exception as exception:
-            logger.info("OpenAi Exception:", exception)
+            #logger.info("OpenAi Exception:", exception)
             return {"error": "ERROR_OPENAI", "message": "Open ai exception: "+str(exception)}
 
     def verify_access_key(self):
@@ -99,7 +99,7 @@ class OpenAi(BaseLlm):
             models = openai.Model.list()
             return True
         except Exception as exception:
-            logger.info("OpenAi Exception:", exception)
+            #logger.info("OpenAi Exception:", exception)
             return False
 
     def get_models(self):
@@ -116,5 +116,5 @@ class OpenAi(BaseLlm):
             models = [model for model in models if model in models_supported]
             return models
         except Exception as exception:
-            logger.info("OpenAi Exception:", exception)
+            #logger.info("OpenAi Exception:", exception)
             return []

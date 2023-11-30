@@ -29,7 +29,7 @@ class AgentPromptBuilder:
             add_finish (bool): Whether to add finish tool or not.
         """
         final_string = ""
-        print(tools)
+        #print(tools)
         for i, item in enumerate(tools):
             final_string += f"{i + 1}. {cls._generate_tool_string(item)}\n"
         finish_description = (
@@ -53,7 +53,7 @@ class AgentPromptBuilder:
     @classmethod
     def _generate_tool_string(cls, tool: BaseTool) -> str:
         output = f"\"{tool.name}\": {tool.description}"
-        # print(tool.args)
+        # #print(tool.args)
         output += f", args json schema: {json.dumps(tool.args)}"
         return output
     
@@ -87,7 +87,7 @@ class AgentPromptBuilder:
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
 
 
-        # logger.info(tools)
+        # #logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt

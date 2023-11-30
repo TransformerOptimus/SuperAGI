@@ -7,7 +7,7 @@ from superagi.lib.logger import logger
 
 def check_command(command, message):
     if not shutil.which(command):
-        logger.info(message)
+        #logger.info(message)
         sys.exit(1)
 
 def run_npm_commands():
@@ -27,10 +27,10 @@ def run_server():
     return api_process, ui_process
 
 def cleanup(api_process, ui_process):
-    logger.info("Shutting down processes...")
+    #logger.info("Shutting down processes...")
     api_process.terminate()
     ui_process.terminate()
-    logger.info("Processes terminated. Exiting.")
+    #logger.info("Processes terminated. Exiting.")
     sys.exit(1)
 
 if __name__ == "__main__":

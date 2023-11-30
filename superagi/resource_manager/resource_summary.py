@@ -78,7 +78,7 @@ class ResourceSummarizer:
         self.session.commit()
 
     def fetch_or_create_agent_resource_summary(self, default_summary: str):
-        print(self.__get_model_source())
+        #print(self.__get_model_source())
         if ModelSourceType.GooglePalm.value in self.__get_model_source():
             return
         self.generate_agent_summary(generate_all=True)

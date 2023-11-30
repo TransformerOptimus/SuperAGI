@@ -2,7 +2,7 @@ from unittest.mock import patch, call
 
 import pytest
 from fastapi.testclient import TestClient
-
+from superagi.types.key_type import ToolConfigKeyType
 from main import app
 from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool

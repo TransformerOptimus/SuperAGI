@@ -14,7 +14,7 @@ class TaskQueue:
 
     def add_task(self, task: str):
         self.db.lpush(self.queue_name, task)
-        # print("Added task. New tasks:", str(self.get_tasks()))
+        # #print("Added task. New tasks:", str(self.get_tasks()))
 
     def complete_task(self, response):
         if len(self.get_tasks()) <= 0:

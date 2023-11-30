@@ -2,6 +2,7 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
+import os
 from alembic import context
 from urllib.parse import urlparse
 
@@ -78,23 +79,14 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-
-    db_host = get_config('DB_HOST', 'super__postgres')
-    db_username = get_config('DB_USERNAME')
-    db_password = get_config('DB_PASSWORD')
-    db_name = get_config('DB_NAME')
-    db_url = get_config('DB_URL', None)
-
-    if db_url is None:
-        if db_username is None:
-            db_url = f'postgresql://{db_host}/{db_name}'
-        else:
-            db_url = f'postgresql://{db_username}:{db_password}@{db_host}/{db_name}'
-    else:
-        db_url = urlparse(db_url)
-        db_url = db_url.scheme + "://" + db_url.netloc + db_url.path
-        
-    config.set_main_option('sqlalchemy.url', db_url)
+    url_tokens = {
+        "DB_USER": os.getenv("DB_USERNAME", ""),
+        "DB_PASS": os.getenv("DB_PASSWORD", ""),
+        "DB_HOST": os.getenv("DB_HOST", ""),
+        "DB_NAME": os.getenv("DB_NAME", "")
+    }
+    #print("HERE ARE THE VARIABLES", url_tokens)
+    config.set_main_option('sqlalchemy.url', f"postgresql://{url_tokens['DB_USER']}:{url_tokens['DB_PASS']}@{url_tokens['DB_HOST']}:5432/{url_tokens['DB_NAME']}")
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

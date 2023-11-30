@@ -10,7 +10,7 @@ from superagi.lib.logger import logger
 
 def check_command(command, message):
     if not shutil.which(command):
-        logger.info(message)
+        #logger.info(message)
         sys.exit(1)
 
 
@@ -37,11 +37,11 @@ def run_server(shell=False,a_name=None,a_description=None,goals=None):
 
 
 def cleanup(api_process, ui_process, celery_process):
-    logger.info("Shutting down processes...")
+    #logger.info("Shutting down processes...")
     api_process.terminate()
     ui_process.terminate()
     celery_process.terminate()
-    logger.info("Processes terminated. Exiting.")
+    #logger.info("Processes terminated. Exiting.")
     sys.exit(1)
 
 

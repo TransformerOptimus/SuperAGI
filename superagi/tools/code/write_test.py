@@ -83,7 +83,7 @@ class WriteTestTool(BaseTool):
                                         "Please generate unit tests based on the following specification description:\n" + spec_response)
 
         messages = [{"role": "system", "content": prompt}]
-        logger.info(prompt)
+        #logger.info(prompt)
 
         organisation = Agent.find_org_by_agent_id(self.toolkit_config.session, agent_id=self.agent_id)
         total_tokens = TokenCounter.count_message_tokens(messages, self.llm.get_model())

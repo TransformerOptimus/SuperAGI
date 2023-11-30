@@ -35,7 +35,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
 
         # OpenAI returns `str(content_dict)`, literal_eval reverses this
         try:
-            logger.debug("AgentSchemaOutputParser: ", response)
+            #logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
             args = response_obj['tool']['args'] if 'args' in response_obj['tool'] else {}
             return AgentGPTAction(
@@ -43,7 +43,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
                 args=args,
             )
         except BaseException as e:
-            logger.info(f"AgentSchemaOutputParser: Error parsing JSON response {e}")
+            #logger.info(f"AgentSchemaOutputParser: Error parsing JSON response {e}")
             raise e
 
 
@@ -58,7 +58,7 @@ class AgentSchemaToolOutputParser(BaseOutputParser):
 
         # OpenAI returns `str(content_dict)`, literal_eval reverses this
         try:
-            logger.debug("AgentSchemaOutputParser: ", response)
+            #logger.debug("AgentSchemaOutputParser: ", response)
             response_obj = ast.literal_eval(response)
             args = response_obj['args'] if 'args' in response_obj else {}
             return AgentGPTAction(
@@ -66,5 +66,5 @@ class AgentSchemaToolOutputParser(BaseOutputParser):
                 args=args,
             )
         except BaseException as e:
-            logger.info(f"AgentSchemaToolOutputParser: Error parsing JSON response {e}")
+            #logger.info(f"AgentSchemaToolOutputParser: Error parsing JSON response {e}")
             raise e

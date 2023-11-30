@@ -42,7 +42,7 @@ def search(query):
         searx_url + "/search", params={"q": query}, headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/114.0"}
     )
     if res.status_code != 200:
-        logger.info(res.status_code, searx_url)
+        #logger.info(res.status_code, searx_url)
         raise Exception(f"Searx returned {res.status_code} status code")
 
     return res.text

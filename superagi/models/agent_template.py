@@ -163,7 +163,7 @@ class AgentTemplate(DBBaseModel):
         agent_workflow = db.session.query(AgentWorkflow).filter(
             AgentWorkflow.name == agent_template["agent_workflow_name"]).first()
         # keeping it backward compatible
-        logger.info("agent_workflow:" + str(agent_template["agent_workflow_name"]))
+        #logger.info("agent_workflow:" + str(agent_template["agent_workflow_name"]))
         if not agent_workflow:
             workflow_id = AgentTemplate.fetch_iteration_agent_template_mapping(db.session, agent_template["agent_workflow_name"])
             agent_workflow = db.session.query(AgentWorkflow).filter(AgentWorkflow.id == workflow_id).first()

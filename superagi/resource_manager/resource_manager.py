@@ -80,7 +80,7 @@ class ResourceManager:
         """
         from llama_index import VectorStoreIndex, StorageContext
         if ModelSourceType.GooglePalm.value in model_source or ModelSourceType.Replicate.value in model_source:
-            logger.info("Resource embedding not supported for Google Palm..")
+            #logger.info("Resource embedding not supported for Google Palm..")
             return
         import openai
         openai.api_key = get_config("OPENAI_API_KEY") or mode_api_key

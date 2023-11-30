@@ -28,7 +28,7 @@ class FileManager:
                 img.write(data)
                 img.close()
             self.write_to_s3(file_name, final_path)
-            logger.info(f"Binary {file_name} saved successfully")
+            #logger.info(f"Binary {file_name} saved successfully")
             return f"Binary {file_name} saved successfully"
         except Exception as err:
             return f"Error write_binary_file: {err}"
@@ -60,7 +60,7 @@ class FileManager:
                 file.write(content)
                 file.close()
             self.write_to_s3(file_name, final_path)
-            logger.info(f"{file_name} - File written successfully")
+            #logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
         except Exception as err:
             return f"Error write_file: {err}"
@@ -79,7 +79,7 @@ class FileManager:
                 writer = csv.writer(file, lineterminator="\n")
                 writer.writerows(csv_data)
             self.write_to_s3(file_name, final_path)
-            logger.info(f"{file_name} - File written successfully")
+            #logger.info(f"{file_name} - File written successfully")
             return f"{file_name} - File written successfully"
         except Exception as err:
             return f"Error write_csv_file: {err}"
@@ -100,7 +100,7 @@ class FileManager:
         try:
             with open(final_path, mode="r") as file:
                 content = file.read()
-            logger.info(f"{file_name} - File read successfully")
+            #logger.info(f"{file_name} - File read successfully")
             return content
         except Exception as err:
             return f"Error while reading file {file_name}: {err}"

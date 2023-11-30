@@ -1,9 +1,6 @@
-#!/bin/bash
-
-# Downloads the tools
+#!/usr/bin/env bash
 python superagi/tool_manager.py
 
 # Install dependencies
 ./install_tool_dependencies.sh
-
-exec celery -A superagi.worker worker --beat --loglevel=info
+celery -A superagi.worker worker --beat -l info --concurrency 20 -E

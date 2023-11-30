@@ -44,7 +44,7 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     session.add(organization)
     session.flush()  # Flush pending changes to generate the agent's ID
     session.commit()
-    logger.info(organization)
+    #logger.info(organization)
 
     # Create default project associated with the organization
     project = Project(name='Default Project', description='Default project description',
@@ -52,7 +52,7 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     session.add(project)
     session.flush()  # Flush pending changes to generate the agent's ID
     session.commit()
-    logger.info(project)
+    #logger.info(project)
 
     # Agent
     if agent_name is None:
@@ -63,7 +63,7 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
     session.add(agent)
     session.flush()
     session.commit()
-    logger.info(agent)
+    #logger.info(agent)
 
     # Agent Config
     # Create Agent Configuration
@@ -92,16 +92,16 @@ def run_superagi_cli(agent_name=None, agent_description=None, agent_goals=None):
 
     session.add_all(agent_configurations)
     session.commit()
-    logger.info("Agent Config : ")
-    logger.info(agent_configurations)
+    #logger.info("Agent Config : ")
+    #logger.info(agent_configurations)
 
     # Create agent execution in RUNNING state associated with the agent
     execution = AgentExecution(status='RUNNING', agent_id=agent.id, last_execution_time=datetime.utcnow())
     session.add(execution)
     session.commit()
 
-    logger.info("Final Execution")
-    logger.info(execution)
+    #logger.info("Final Execution")
+    #logger.info(execution)
 
     execute_agent.delay(execution.id, datetime.now())
 

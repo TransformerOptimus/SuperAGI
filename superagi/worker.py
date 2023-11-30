@@ -8,6 +8,7 @@ from superagi.lib.logger import logger
 
 from datetime import timedelta
 from celery import Celery
+from honeybadger.contrib import CeleryHoneybadger
 
 from superagi.config.config import get_config
 from superagi.helper.agent_schedule_helper import AgentScheduleHelper
@@ -28,6 +29,12 @@ app.conf.result_backend = "redis://" + redis_url + "/0"
 app.conf.worker_concurrency = 10
 app.conf.accept_content = ['application/x-python-serialize', 'application/json']
 
+if get_config("ENV") == "PROD":
+    app.conf.update(
+      HONEYBADGER_API_KEY=get_config("HONEYBADGER_API_KEY"),
+      HONEYBADGER_ENVIRONMENT='production'
+    )
+    CeleryHoneybadger(app, report_exceptions=True)
 
 beat_schedule = {
     'initialize-schedule-agent': {
@@ -51,7 +58,7 @@ def execute_waiting_workflows():
     """Check if wait time of wait workflow step is over and can be resumed."""
 
     from superagi.jobs.agent_executor import AgentExecutor
-    logger.info("Executing waiting workflows job")
+    #logger.info("Executing waiting workflows job")
     AgentExecutor().execute_waiting_workflows()
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
@@ -68,7 +75,7 @@ def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
     from superagi.jobs.agent_executor import AgentExecutor
     handle_tools_import()
-    logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
+    #logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
     AgentExecutor().execute_next_step(agent_execution_id=agent_execution_id)
 
 
@@ -97,7 +104,7 @@ def summarize_resource(agent_id: int, resource_id: int):
     else:
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
-    logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
+    #logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id, model=agent_config["model"])
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)

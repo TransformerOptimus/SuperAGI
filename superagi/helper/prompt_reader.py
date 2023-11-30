@@ -10,7 +10,7 @@ class PromptReader:
             file_content = f.read()
             f.close()
         except FileNotFoundError as e:
-            print(e.__str__())
+            #print(e.__str__())
             raise e
         return file_content
 
@@ -22,6 +22,6 @@ class PromptReader:
             file_content = f.read()
             f.close()
         except FileNotFoundError as e:
-            print(e.__str__())
+            #print(e.__str__())
             raise e
         return file_content

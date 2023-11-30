@@ -7,16 +7,6 @@ export default function Toolkits({sendToolkitData, toolkits, env}) {
     <>
       <div className="container">
         <p className="text_14 mt_8 mb_12 ml_8">Toolkits</p>
-        {env !== 'PROD' && <div className="w_100 mb_10">
-          <button className="secondary_button w_100" onClick={() => sendToolkitData({
-            id: -2,
-            name: "new tool",
-            contentType: "Add_Toolkit",
-            internalId: createInternalId()
-          })}>
-            + Add Tool
-          </button>
-        </div>}
         {toolkits && toolkits.length > 0 ? (
           <div className={`${env === "PROD" ? 'h_calc_add40' : 'h_80vh'} ${"overflowY_scroll"}`}>
           {toolkits.map((tool, index) =>

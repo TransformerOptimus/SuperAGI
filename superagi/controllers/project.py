@@ -49,7 +49,7 @@ def create_project(project: ProjectIn,
 
     """
 
-    logger.info("Organisation_id : ", project.organisation_id)
+    #logger.info("Organisation_id : ", project.organisation_id)
     organisation = db.session.query(Organisation).get(project.organisation_id)
 
     if not organisation:
