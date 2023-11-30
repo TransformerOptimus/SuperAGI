@@ -127,7 +127,7 @@ class ModelsConfig(DBBaseModel):
         api_key_data = session.query(ModelsConfig.id, ModelsConfig.provider, ModelsConfig.api_key).filter(
             and_(ModelsConfig.org_id == organisation_id, ModelsConfig.provider == model_provider)).first()
 
-        logger.info(api_key_data)
+        #logger.info(api_key_data)
         if api_key_data is None:
             return []
         elif api_key_data.provider == 'Local LLM':

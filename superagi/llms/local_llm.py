@@ -51,11 +51,11 @@ class LocalLLM(BaseLlm):
                 response = self.llm_model.create_chat_completion(messages=messages, functions=None, function_call=None, temperature=self.temperature, top_p=self.top_p,
                                                                  max_tokens=int(max_tokens), presence_penalty=self.presence_penalty, frequency_penalty=self.frequency_penalty, grammar=self.llm_grammar)
                 content = response["choices"][0]["message"]["content"]
-                logger.info(content)
+                #logger.info(content)
                 return {"response": response, "content": content}
 
         except Exception as exception:
-            logger.info("Exception:", exception)
+            #logger.info("Exception:", exception)
             return {"error": "ERROR", "message": "Error: "+str(exception)}
 
     def get_source(self):

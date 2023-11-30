@@ -58,7 +58,7 @@ class GoogleSearchWrap:
                             all_snippets.append(item["snippet"])
                             links.append(item["link"])
                     else:
-                        logger.info("No items found in the response.")
+                        #logger.info("No items found in the response.")
                 except ValueError as e:
                     logger.error(f"Error while parsing JSON data: {e}")
             else:
@@ -82,7 +82,7 @@ class GoogleSearchWrap:
         attempts = 0
         while snippets == [] and attempts < 2:
             attempts += 1
-            logger.info("Google blocked the request. Trying again...")
+            #logger.info("Google blocked the request. Trying again...")
             time.sleep(3)
             snippets, links, error_code = self.search_run(query)
 

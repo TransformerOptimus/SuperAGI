@@ -98,7 +98,7 @@ class AgentToolStepHandler:
     def _process_input_instruction(self, agent_config, agent_execution_config, step_tool, workflow_step):
         tool_obj = self._build_tool_obj(agent_config, agent_execution_config, step_tool.tool_name)
         prompt = self._build_tool_input_prompt(step_tool, tool_obj, agent_execution_config)
-        logger.info("Prompt: ", prompt)
+        #logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
         messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,

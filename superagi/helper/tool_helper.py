@@ -37,7 +37,7 @@ def download_tool(tool_url, target_folder):
     with open(tool_zip_file_path, 'wb') as f:
         f.write(response.content)
 
-    logger.info("Reading Zip")
+    #logger.info("Reading Zip")
     with zipfile.ZipFile(tool_zip_file_path, 'r') as z:
         members = [m for m in z.namelist() if m.startswith(f"{owner}-{repo}") and f"{path}" in m]
 
@@ -64,7 +64,7 @@ def download_tool(tool_url, target_folder):
             else:
                 with open(target_path, 'wb') as outfile, z.open(member) as infile:
                     outfile.write(infile.read())
-    logger.info("Donwload Success!")
+    #logger.info("Donwload Success!")
     os.remove(tool_zip_file_path)
 
 
@@ -262,13 +262,13 @@ def register_toolkits(session, organisation):
     #     tool_paths.append("superagi/tools/marketplace_tools")
     if organisation is not None:
         process_files(tool_paths, session, organisation)
-        logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
+        #logger.info(f"Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
 def register_marketplace_toolkits(session, organisation):
     tool_paths = ["superagi/tools", "superagi/tools/external_tools","superagi/tools/marketplace_tools"]
     if organisation is not None:
         process_files(tool_paths, session, organisation)
-        logger.info(f"Marketplace Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
+        #logger.info(f"Marketplace Toolkits Registered Successfully for Organisation ID : {organisation.id}!")
 
 def extract_repo_name(repo_link):
     # Extract the repository name from the link

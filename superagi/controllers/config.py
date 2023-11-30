@@ -77,10 +77,10 @@ def create_config(config: ConfigurationIn, organisation_id: int,
         db.session.flush()
         return existing_config
 
-    logger.info("NEW CONFIG")
+    #logger.info("NEW CONFIG")
     new_config = Configuration(organisation_id=organisation_id, key=config.key, value=config.value)
-    logger.info(new_config)
-    logger.info("ORGANISATION ID : ", organisation_id)
+    #logger.info(new_config)
+    #logger.info("ORGANISATION ID : ", organisation_id)
     db.session.add(new_config)
     db.session.commit()
     db.session.flush()

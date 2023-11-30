@@ -80,7 +80,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
         file_path = 'resources' + file_path
         try:
             s3.upload_fileobj(file.file, bucket_name, file_path)
-            logger.info("File uploaded successfully!")
+            #logger.info("File uploaded successfully!")
         except NoCredentialsError:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
@@ -92,7 +92,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     db.session.flush()
 
     summarize_resource.delay(agent_id, resource.id)
-    logger.info(resource)
+    #logger.info(resource)
 
     return resource
 

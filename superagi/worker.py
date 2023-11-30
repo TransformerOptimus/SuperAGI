@@ -58,7 +58,7 @@ def execute_waiting_workflows():
     """Check if wait time of wait workflow step is over and can be resumed."""
 
     from superagi.jobs.agent_executor import AgentExecutor
-    logger.info("Executing waiting workflows job")
+    #logger.info("Executing waiting workflows job")
     AgentExecutor().execute_waiting_workflows()
 
 @app.task(name="initialize-schedule-agent", autoretry_for=(Exception,), retry_backoff=2, max_retries=5)
@@ -75,7 +75,7 @@ def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
     from superagi.jobs.agent_executor import AgentExecutor
     handle_tools_import()
-    logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
+    #logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
     AgentExecutor().execute_next_step(agent_execution_id=agent_execution_id)
 
 
@@ -104,7 +104,7 @@ def summarize_resource(agent_id: int, resource_id: int):
     else:
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
-    logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
+    #logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
     resource_summarizer = ResourceSummarizer(session=session, agent_id=agent_id, model=agent_config["model"])
     resource_summarizer.add_to_vector_store_and_create_summary(resource_id=resource_id,
                                                                documents=documents)

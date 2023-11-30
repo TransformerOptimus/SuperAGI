@@ -74,7 +74,7 @@ class GooglePalm(BaseLlm):
             # #print(completion.result)
             return {"response": completion, "content": completion.result}
         except Exception as exception:
-            logger.info("Google palm Exception:", exception)
+            #logger.info("Google palm Exception:", exception)
             return {"error": "ERROR_GOOGLE_PALM", "message": "Google palm exception"}
 
     def verify_access_key(self):
@@ -88,7 +88,7 @@ class GooglePalm(BaseLlm):
             models = palm.list_models()
             return True
         except Exception as exception:
-            logger.info("Google palm Exception:", exception)
+            #logger.info("Google palm Exception:", exception)
             return False
 
     def get_models(self):
@@ -102,5 +102,5 @@ class GooglePalm(BaseLlm):
             models_supported = ["chat-bison-001"]
             return models_supported
         except Exception as exception:
-            logger.info("Google palm Exception:", exception)
+            #logger.info("Google palm Exception:", exception)
             return []

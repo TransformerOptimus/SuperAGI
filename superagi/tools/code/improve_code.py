@@ -54,7 +54,7 @@ class ImproveCodeTool(BaseTool):
         """
         # Get all file names that the CodingTool has written
         file_names = self.resource_manager.get_files()
-        logger.info(file_names)
+        #logger.info(file_names)
         # Loop through each file
         for file_name in file_names:
             if '.txt' not in file_name and '.sh' not in file_name and '.json' not in file_name:
@@ -82,12 +82,12 @@ class ImproveCodeTool(BaseTool):
                 # Extract the response first
                 response = result.get('response')
                 if not response: 
-                    logger.info("RESPONSE NOT AVAILABLE")
+                    #logger.info("RESPONSE NOT AVAILABLE")
 
                 # Now extract the choices from response
                 choices = response.get('choices')
                 if not choices: 
-                    logger.info("CHOICES NOT AVAILABLE")
+                    #logger.info("CHOICES NOT AVAILABLE")
 
                 # Now you can safely extract the message content
                 improved_content = choices[0]["message"]["content"]

@@ -154,7 +154,7 @@ class AgentWorkflowStep(DBBaseModel):
     def find_or_create_wait_workflow_step(cls, session, agent_workflow_id: int, unique_id: str,
                                           wait_description: str, delay: int, step_type="NORMAL"):
         """ Find or create a wait workflow step"""
-        logger.info("Finding or creating wait step")
+        #logger.info("Finding or creating wait step")
         workflow_step = session.query(AgentWorkflowStep).filter(
             AgentWorkflowStep.agent_workflow_id == agent_workflow_id, AgentWorkflowStep.unique_id == unique_id).first()
 
@@ -267,7 +267,7 @@ class AgentWorkflowStep(DBBaseModel):
                 return "COMPLETE"
             return AgentWorkflowStep.find_by_unique_id(session, matching_steps[0]["step_id"])
 
-        logger.info(f"Could not find next step for step_id: {current_agent_step_id} and step_response: {step_response}")
+        #logger.info(f"Could not find next step for step_id: {current_agent_step_id} and step_response: {step_response}")
         default_steps = [step for step in next_steps if str(step["step_response"]).lower() == "default"]
 
         if default_steps:

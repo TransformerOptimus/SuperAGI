@@ -71,7 +71,7 @@ class CodingTool(BaseTool):
         spec_response = self.tool_response_manager.get_last_response("WriteSpecTool")
         if spec_response != "":
             prompt = prompt.replace("{spec}", "Use this specs for generating the code:\n" + spec_response)
-        logger.info(prompt)
+        #logger.info(prompt)
         messages = [{"role": "system", "content": prompt}]
 
         organisation = Agent.find_org_by_agent_id(session=self.toolkit_config.session, agent_id=self.agent_id)

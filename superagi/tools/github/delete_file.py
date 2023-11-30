@@ -76,7 +76,7 @@ class GithubDeleteFileTool(BaseTool):
             if repository_owner != github_username:
                 fork_response = github_helper.make_fork(repository_owner, repository_name, base_branch, headers)
             branch_response = github_helper.create_branch(repository_name, base_branch, head_branch, headers)
-            logger.info("branch_response", branch_response)
+            #logger.info("branch_response", branch_response)
             if branch_response == 201 or branch_response == 422:
                 github_helper.sync_branch(github_username, repository_name, base_branch, head_branch, headers)
 

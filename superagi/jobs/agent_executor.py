@@ -66,7 +66,7 @@ class AgentExecutor:
                 model_api_key = model_config['api_key']
                 model_llm_source = model_config['provider']
             except Exception as e:
-                logger.info(f"Unable to get model config...{e}")
+                #logger.info(f"Unable to get model config...{e}")
                 return
 
             try:
@@ -77,7 +77,7 @@ class AgentExecutor:
                                                               AgentExecutor.get_embedding(model_llm_source,
                                                                                           model_api_key))
             except Exception as e:
-                logger.info(f"Unable to setup the connection...{e}")
+                #logger.info(f"Unable to setup the connection...{e}")
                 memory = None
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
@@ -87,13 +87,13 @@ class AgentExecutor:
                                              model_api_key, organisation, session)
 
             except Exception as e:
-                logger.info("Exception in executing the step: {}".format(e))
+                #logger.info("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
-                logger.info("Agent Execution is completed or waiting for permission")
+                #logger.info("Agent Execution is completed or waiting for permission")
                 session.close()
                 return
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)
@@ -104,7 +104,7 @@ class AgentExecutor:
 
     def __execute_workflow_step(self, agent, agent_config, agent_execution_id, agent_workflow_step, memory,
                                 model_api_key, organisation, session):
-        logger.info("Executing Workflow step : ", agent_workflow_step.action_type)
+        #logger.info("Executing Workflow step : ", agent_workflow_step.action_type)
         if agent_workflow_step.action_type == AgentWorkflowStepAction.TOOL.value:
             tool_step_handler = AgentToolStepHandler(session,
                                                      llm=get_model(model=agent_config["model"], api_key=model_api_key,
@@ -152,7 +152,7 @@ class AgentExecutor:
                                                         "calls": db_agent_execution.num_of_calls},
                                                        db_agent_execution.agent_id, organisation_id)
             session.commit()
-            logger.info("ITERATION_LIMIT_CROSSED")
+            #logger.info("ITERATION_LIMIT_CROSSED")
             return True
         return False
 
@@ -169,11 +169,11 @@ class AgentExecutor:
             step_wait = AgentWorkflowStepWait.find_by_id(session, workflow_step.action_reference_id)
             if step_wait is not None:
                 wait_time = step_wait.delay if not None else 0
-                logger.info(f"Agent Execution ID: {agent_execution.id}")
-                logger.info(f"Wait time: {wait_time}")
-                logger.info(f"Wait begin time: {step_wait.wait_begin_time}")
-                logger.info(f"Current time: {datetime.now()}")
-                logger.info(f"Wait Difference : {(datetime.now() - step_wait.wait_begin_time).total_seconds()}")
+                #logger.info(f"Agent Execution ID: {agent_execution.id}")
+                #logger.info(f"Wait time: {wait_time}")
+                #logger.info(f"Wait begin time: {step_wait.wait_begin_time}")
+                #logger.info(f"Current time: {datetime.now()}")
+                #logger.info(f"Wait Difference : {(datetime.now() - step_wait.wait_begin_time).total_seconds()}")
                 if ((datetime.now() - step_wait.wait_begin_time).total_seconds() > wait_time
                         and step_wait.status == AgentWorkflowStepWaitStatus.WAITING.value):
                     agent_execution.status = AgentExecutionStatus.RUNNING.value

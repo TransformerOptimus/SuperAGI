@@ -129,8 +129,8 @@ class Redis(VectorStore):
         try:
             # check to see if index exists
             temp = self.redis_client.ft(self.index).info()
-            logger.info(temp)
-            logger.info("Index already exists!")
+            #logger.info(temp)
+            #logger.info("Index already exists!")
         except:
             vector_dimensions = self.embedding_model.get_embedding("sample")
             # schema

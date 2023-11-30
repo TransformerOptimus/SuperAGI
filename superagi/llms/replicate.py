@@ -88,7 +88,7 @@ class Replicate(BaseLlm):
                 return {"error": "Replicate model didn't return any output."}
             #print(final_output)
             #print(temp_output)
-            logger.info("Replicate response:", final_output)
+            #logger.info("Replicate response:", final_output)
 
             return {"response": temp_output, "content": final_output}
         except Exception as exception:

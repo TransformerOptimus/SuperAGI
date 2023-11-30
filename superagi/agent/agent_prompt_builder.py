@@ -87,7 +87,7 @@ class AgentPromptBuilder:
                                                     AgentPromptBuilder.add_list_items_to_string(constraints))
 
 
-        # logger.info(tools)
+        # #logger.info(tools)
         tools_string = AgentPromptBuilder.add_tools_to_prompt(tools, add_finish_tool)
         super_agi_prompt = super_agi_prompt.replace("{tools}", tools_string)
         return super_agi_prompt

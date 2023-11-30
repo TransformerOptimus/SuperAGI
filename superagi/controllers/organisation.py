@@ -70,7 +70,7 @@ def create_organisation(organisation: OrganisationIn,
     db.session.commit()
     db.session.flush()
     register_toolkits(session=db.session, organisation=new_organisation)
-    logger.info(new_organisation)
+    #logger.info(new_organisation)
 
     return new_organisation
 

@@ -70,7 +70,7 @@ class AgentIterationStepHandler:
             .build_agent_messages(prompt, agent_feeds, history_enabled=iteration_workflow_step.history_enabled,
                                   completion_prompt=iteration_workflow_step.completion_prompt)
 
-        logger.debug("Prompt messages:", messages)
+        # logger.debug("Prompt messages:", messages)
         current_tokens = TokenCounter.count_message_tokens(messages = messages, model = self.llm.get_model())
         response = self.llm.chat_completion(messages, TokenCounter(session=self.session, organisation_id=organisation.id).token_limit(self.llm.get_model()) - current_tokens)
 
@@ -116,7 +116,7 @@ class AgentIterationStepHandler:
         else:
             # moving to next step of iteration or workflow
             self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
-            logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
+            #logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
 

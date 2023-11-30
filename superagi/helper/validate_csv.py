@@ -21,6 +21,6 @@ def correct_csv_encoding(file_path):
 
         df = pd.DataFrame(data)
         df.to_csv(file_path, encoding='utf-8', index=False)
-        logger.info("File is converted to utf-8 encoding.")
+        #logger.info("File is converted to utf-8 encoding.")
     else:
-        logger.info("File is already in utf-8 encoding.")
+        #logger.info("File is already in utf-8 encoding.")

@@ -74,7 +74,7 @@ def create_user(user: UserIn,
     db.session.flush()
     organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
-    logger.info("User created", db_user)
+    #logger.info("User created", db_user)
 
     #adding local llm configuration
     ModelsConfig.add_llm_config(db.session, organisation.id)
@@ -146,5 +146,5 @@ def update_first_login_source(source: str, Authorize: AuthJWT = Depends(check_au
         user.first_login_source = source
     db.session.commit()
     db.session.flush()
-    logger.info("User : ",user)
+    #logger.info("User : ",user)
     return user

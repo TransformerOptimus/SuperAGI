@@ -56,9 +56,9 @@ class Logger(metaclass=SingletonMeta):
             self.logger.debug(*args)
 
     def info(self, message, *args):
-        self.logger.info(message)
+        self.#logger.info(message)
         if args:
-            self.logger.info(*args)
+            self.#logger.info(*args)
 
     def warning(self, message, *args):
         self.logger.warning(message)

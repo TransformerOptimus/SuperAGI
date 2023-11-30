@@ -93,7 +93,7 @@ class HuggingFace(BaseLlm):
             }
             response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload))
             completion = json.loads(response.content.decode("utf-8"))
-            logger.info(f"{completion=}")
+            #logger.info(f"{completion=}")
             if self.task == Tasks.TEXT_GENERATION:
                 content = completion[0]["generated_text"]
             else:
