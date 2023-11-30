@@ -58,7 +58,7 @@ class GoogleSearchWrap:
                             all_snippets.append(item["snippet"])
                             links.append(item["link"])
                     else:
-                        #logger.info("No items found in the response.")
+                        logger.info("No items found in the response.")
                 except ValueError as e:
                     logger.error(f"Error while parsing JSON data: {e}")
             else:
