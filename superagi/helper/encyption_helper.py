@@ -18,7 +18,7 @@ key = key.encode(
 )
 
 # base64 encode the key
-key = base64.urlsafe_b64encode(key)
+# key = base64.urlsafe_b64encode(key)
 
 # Create a cipher suite
 cipher_suite = Fernet(key)
