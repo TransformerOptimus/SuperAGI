@@ -9,8 +9,8 @@ key = get_config("ENCRYPTION_KEY")
 if key is None:
     raise Exception("Encryption key not found in config file.")
 
-if len(key) != 32:
-    raise ValueError("Encryption key must be 32 bytes long.")
+# if len(key) != 32:
+#     raise ValueError("Encryption key must be 32 bytes long.")
 
 # Encode the key to UTF-8
 key = key.encode(
