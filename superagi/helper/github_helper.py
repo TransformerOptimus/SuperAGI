@@ -116,10 +116,10 @@ class GithubHelper:
         }
         response = requests.patch(head_branch_url, json=data, headers=headers)
         if response.status_code == 200:
-            #logger.info(
+            logger.info(
                 f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
         else:
-            #logger.info('Failed to sync the branch. Check your inputs and permissions.')
+            logger.info('Failed to sync the branch. Check your inputs and permissions.')
 
     def make_fork(self, repository_owner, repository_name, base_branch, headers):
         """
@@ -140,7 +140,7 @@ class GithubHelper:
             #logger.info('Fork created successfully.')
             self.sync_branch(repository_owner, repository_name, base_branch, base_branch, headers)
         else:
-            #logger.info('Failed to create the fork:', fork_response.json()['message'])
+            logger.info('Failed to create the fork:', fork_response.json()['message'])
 
         return fork_response.status_code
 
@@ -166,11 +166,11 @@ class GithubHelper:
         }
         branch_response = requests.post(branch_url, json=branch_params, headers=headers)
         if branch_response.status_code == 201:
-            #logger.info('Branch created successfully.')
+            logger.info('Branch created successfully.')
         elif branch_response.status_code == 422:
-            #logger.info('Branch new-file already exists, making commits to new-file branch')
+            logger.info('Branch new-file already exists, making commits to new-file branch')
         else:
-            #logger.info('Failed to create branch:', branch_response.json()['message'])
+            logger.info('Failed to create branch:', branch_response.json()['message'])
 
         return branch_response.status_code
 
@@ -198,9 +198,9 @@ class GithubHelper:
         }
         file_response = requests.delete(file_url, json=file_params, headers=headers)
         if file_response.status_code == 200:
-            #logger.info('File or folder delete successfully.')
+            logger.info('File or folder delete successfully.')
         else:
-            #logger.info('Failed to Delete file or folder:', file_response.json())
+            logger.info('Failed to Delete file or folder:', file_response.json())
 
         return file_response.status_code
 
@@ -232,11 +232,11 @@ class GithubHelper:
         }
         file_response = requests.put(file_url, json=file_params, headers=headers)
         if file_response.status_code == 201:
-            #logger.info('File content uploaded successfully.')
+            logger.info('File content uploaded successfully.')
         elif file_response.status_code == 422:
-            #logger.info('File already exists')
+            logger.info('File already exists')
         else:
-            #logger.info('Failed to upload file content:', file_response.json()['message'])
+            logger.info('Failed to upload file content:', file_response.json()['message'])
         return file_response.status_code
 
 
@@ -265,11 +265,11 @@ class GithubHelper:
         pr_response = requests.post(pull_request_url, json=pull_request_params, headers=headers)
 
         if pr_response.status_code == 201:
-            #logger.info('Pull request created successfully.')
+            logger.info('Pull request created successfully.')
         elif pr_response.status_code == 422:
-            #logger.info('Added changes to already existing pull request')
+            logger.info('Added changes to already existing pull request')
         else:
-            #logger.info('Failed to create pull request:', pr_response.json()['message'])
+            logger.info('Failed to create pull request:', pr_response.json()['message'])
 
         return pr_response.status_code
 
