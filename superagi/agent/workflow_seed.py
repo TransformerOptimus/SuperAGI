@@ -112,7 +112,7 @@ class AgentWorkflowSeed:
         step1 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step1",
                                                                     ListFileTool().name,
-                                                                    "Read files from the resource manager",
+                                                                    "List the files from the resource manager",
                                                                     step_type="TRIGGER")
 
         # task queue ends when the elements gets over
@@ -125,28 +125,27 @@ class AgentWorkflowSeed:
         step3 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step3",
                                                                     ReadFileTool().name,
-                                                                    "Read the resume from above input")
+                                                                    "Read the resume from above input",
+                                                                    "Check if the resume matches High-Level GOAL")
 
         step4 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step4",
-                                                                    ReadFileTool().name,
-                                                                    "Read the job description from file mentioned in High-Level GOAL",
-                                                                    "Check if the resume matches the job description in goal")
+                                                                    SendEmailTool().name,
+                                                                    "Write a custom acceptance Email to the candidates")
 
         step5 = AgentWorkflowStep.find_or_create_tool_workflow_step(session, agent_workflow.id,
                                                                     str(agent_workflow.id) + "_step5",
                                                                     SendEmailTool().name,
-                                                                    "Write a custom Email the candidates for job profile based on their experience")
+                                                                    "Write a custom Reject Email to the candidates")
 
         AgentWorkflowStep.add_next_workflow_step(session, step1.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, step3.id)
         AgentWorkflowStep.add_next_workflow_step(session, step2.id, -1, "COMPLETE")
-        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id)
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step5.id, "YES")
-        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step4.id, "YES")
+        AgentWorkflowStep.add_next_workflow_step(session, step3.id, step5.id, "NO")
+        AgentWorkflowStep.add_next_workflow_step(session, step4.id, step2.id)
         AgentWorkflowStep.add_next_workflow_step(session, step5.id, step2.id)
         session.commit()
-
 
     @classmethod
     def build_coding_workflow(cls, session):
