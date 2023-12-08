@@ -28,6 +28,7 @@ from superagi.worker import execute_agent
 from superagi.agent.types.agent_workflow_step_action_types import AgentWorkflowStepAction
 from superagi.agent.types.agent_execution_status import AgentExecutionStatus
 
+
 # from superagi.helper.tool_helper import get_tool_config_by_key
 
 engine = connect_db()
@@ -37,6 +38,7 @@ Session = sessionmaker(bind=engine)
 class AgentExecutor:
 
     def execute_next_step(self, agent_execution_id):
+        from superagi.jobs.Trajectory_finetuning import TrajectoryFinetuning
         global engine
         # try:
         engine.dispose()
@@ -90,10 +92,16 @@ class AgentExecutor:
                 logger.info("Exception in executing the step: {}".format(e))
                 superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
                 return
-
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":
-                logger.info("Agent Execution is completed or waiting for permission")
+                ans=TrajectoryFinetuning(session=session,
+                                     llm=get_model(model=agent_config["model"], api_key=model_api_key,organisation_id=organisation.id),
+                                     agent_execution_id=agent_execution_id,
+                                     organisation_id=organisation.id,
+                                     memory=memory
+                                     ).Trajectory_finetuning()
+                logger.info(f"1.___________________response{ans}")
+                logger.info("Agent Execution is completed or waiting for permission")   
                 session.close()
                 return
             superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=2)

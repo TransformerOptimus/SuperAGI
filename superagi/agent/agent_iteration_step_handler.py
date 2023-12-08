@@ -136,9 +136,14 @@ class AgentIterationStepHandler:
                             agent_execution_config: dict,
                             prompt: str, agent_tools: list):
         max_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 600))
+        session = self.session 
+        agent_config = Agent.fetch_configuration(session, self.agent_id)
+        model_config = AgentConfiguration.get_model_api_key(session, self.agent_id,
+                                                                    agent_config["model"])
+        model_api_key = model_config['api_key']
         prompt = AgentPromptBuilder.replace_main_variables(prompt, agent_execution_config["goal"],
                                                            agent_execution_config["instruction"],
-                                                           agent_config["constraints"], agent_tools,
+                                                           agent_config["constraints"], agent_tools,self.session,self.organisation,agent_config,model_api_key,self.memory,self.agent_execution_id,
                                                            (not iteration_workflow.has_task_queue))
         if iteration_workflow.has_task_queue:
             response = self.task_queue.get_last_task_details()

@@ -25,13 +25,13 @@ class AgentPromptTemplate:
     def get_super_agi_single_prompt(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "superagi.txt")
 
-        return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "constraints", "tools"]}
+        return {"prompt": super_agi_prompt, "variables": ["goals", "instructions", "constraints", "tools","ft_response"]}
 
     @classmethod
     def start_task_based(cls):
         super_agi_prompt = PromptReader.read_agent_prompt(__file__, "initialize_tasks.txt")
 
-        return {"prompt": AgentPromptTemplate.clean_prompt(super_agi_prompt), "variables": ["goals", "instructions"]}
+        return {"prompt": AgentPromptTemplate.clean_prompt(super_agi_prompt), "variables": ["goals", "instructions","ft_response"]}
         # super_agi_prompt = super_agi_prompt.replace("{goals}", AgentPromptBuilder.add_list_items_to_string(goals))
 
     @classmethod

@@ -1,7 +1,7 @@
 import time
 from typing import Tuple, List
 from sqlalchemy import asc
-
+import json,ast
 from superagi.config.config import get_config
 from superagi.helper.error_handler import ErrorHandler
 from superagi.helper.prompt_reader import PromptReader
@@ -159,3 +159,25 @@ class AgentLlmMessageBuilder:
         ltm_summary_prompt = ltm_summary_prompt.replace("{char_limit}", str(token_limit*4))
 
         return ltm_summary_prompt
+    def _build_prompt_for_trajectory_finetuning(self):
+        finetune_prompt = PromptReader.read_agent_prompt(__file__, "trajectory_finetune.txt")
+        agent_configs = AgentExecutionConfiguration.fetch_configuration(session=self.session, execution_id=self.agent_execution_id)
+        goals = agent_configs.get("goal")
+        instructions = agent_configs.get("instruction")
+        agent_feeds= AgentExecutionFeed.fetch_agent_execution_feeds(session=self.session, agent_execution_id=self.agent_execution_id)
+        thoughts = []
+        tools = []
+        for item in agent_feeds:
+              if item[0] == 'assistant':
+                  dictionary = ast.literal_eval(str(item[1]))
+                  thoughts.append(dictionary.get('thoughts', None))
+                  tools.append(dictionary.get('tool', None))
+        thought_str = [d['text'] for d in thoughts]
+        tool_str = [d['name'] for d in tools]
+        text_string1 = " ".join(thought_str)  # Join all the texts into a single string, separated by space
+        text_string2 = " ".join(tool_str)
+        finetune_prompt = finetune_prompt.replace("{text_string1}", str(text_string1))
+        finetune_prompt = finetune_prompt.replace("{text_string2}", str(text_string2))
+        finetune_prompt = finetune_prompt.replace("{goals}", str(goals))
+        finetune_prompt = finetune_prompt.replace("{instructions}", str(instructions))
+        return finetune_prompt
