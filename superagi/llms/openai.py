@@ -1,10 +1,19 @@
 import openai
 from openai import APIError, InvalidRequestError
-from openai.error import RateLimitError, AuthenticationError
+from openai.error import RateLimitError, AuthenticationError, Timeout, TryAgain
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random_exponential
 
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
+
+MAX_RETRY_ATTEMPTS = 5
+MIN_WAIT = 30 # Seconds
+MAX_WAIT = 300 # Seconds
+
+def custom_retry_error_callback(retry_state):
+    logger.info("OpenAi Exception:", retry_state.outcome.exception())
+    return {"error": "ERROR_OPENAI", "message": "Open ai exception: "+str(retry_state.outcome.exception())}
 
 
 class OpenAi(BaseLlm):
@@ -50,6 +59,17 @@ class OpenAi(BaseLlm):
         """
         return self.model
 
+    @retry(
+        retry=(
+            retry_if_exception_type(RateLimitError) |
+            retry_if_exception_type(Timeout) |
+            retry_if_exception_type(TryAgain)
+        ),
+        stop=stop_after_attempt(MAX_RETRY_ATTEMPTS), # Maximum number of retry attempts
+        wait=wait_random_exponential(min=MIN_WAIT, max=MAX_WAIT),
+        before_sleep=lambda retry_state: logger.info(f"{retry_state.outcome.exception()} (attempt {retry_state.attempt_number})"),
+        retry_error_callback=custom_retry_error_callback
+    )
     def chat_completion(self, messages, max_tokens=get_config("MAX_MODEL_TOKEN_LIMIT")):
         """
         Call the OpenAI chat completion API.
@@ -75,12 +95,18 @@ class OpenAi(BaseLlm):
             )
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
+        except RateLimitError as api_error:
+            logger.info("OpenAi RateLimitError:", api_error)
+            raise RateLimitError(str(api_error))
+        except Timeout as timeout_error:
+            logger.info("OpenAi Timeout:", timeout_error)
+            raise Timeout(str(timeout_error))
+        except TryAgain as try_again_error:
+            logger.info("OpenAi TryAgain:", try_again_error)
+            raise TryAgain(str(try_again_error))
         except AuthenticationError as auth_error:
             logger.info("OpenAi AuthenticationError:", auth_error)
             return {"error": "ERROR_AUTHENTICATION", "message": "Authentication error please check the api keys: "+str(auth_error)}
-        except RateLimitError as api_error:
-            logger.info("OpenAi RateLimitError:", api_error)
-            return {"error": "ERROR_RATE_LIMIT", "message": "Openai rate limit exceeded: "+str(api_error)}
         except InvalidRequestError as invalid_request_error:
             logger.info("OpenAi InvalidRequestError:", invalid_request_error)
             return {"error": "ERROR_INVALID_REQUEST", "message": "Openai invalid request error: "+str(invalid_request_error)}
