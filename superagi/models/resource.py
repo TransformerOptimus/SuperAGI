@@ -63,6 +63,14 @@ class Resource(DBBaseModel):
     def find_by_run_ids(cls, session, run_ids: list):
         db_resources_arr=session.query(Resource).filter(Resource.agent_execution_id.in_(run_ids)).all()
         return db_resources_arr
+
+    @classmethod
+    def delete_resource(cls, session, file_name, agent_id, agent_execution_id):
+        deleted = session.query(Resource).filter(Resource.name == file_name, Resource.agent_id == agent_id,
+                                                 Resource.agent_execution_id == agent_execution_id).delete()
+        session.commit()
+
+        return deleted
     
 class InvalidResourceType(Exception):
     """Custom exception for invalid resource type"""

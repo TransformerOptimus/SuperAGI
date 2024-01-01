@@ -10,6 +10,7 @@ from superagi.tools.base_tool import BaseTool
 from superagi.types.storage_types import StorageType
 from superagi.config.config import get_config
 from superagi.helper.s3_helper import S3Helper
+from superagi.models.resource import Resource
 
 
 class DeleteFileInput(BaseModel):
@@ -29,7 +30,7 @@ class DeleteFileTool(BaseTool):
     """
     name: str = "Delete File"
     agent_id: int = None
-    agent_execution_id:int = None
+    agent_execution_id: int = None
     args_schema: Type[BaseModel] = DeleteFileInput
     description: str = "Delete a file"
 
@@ -53,12 +54,14 @@ class DeleteFileTool(BaseTool):
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
             try:
                 S3Helper().delete_file(final_path)
+                Resource.delete_resource(self.toolkit_config.session, file_name, self.agent_id, self.agent_execution_id)
                 return "File deleted successfully."
             except Exception as err:
                 return f"Error: {err}"
         else:
             try:
                 os.remove(final_path)
+                Resource.delete_resource(self.toolkit_config.session, file_name, self.agent_id, self.agent_execution_id)
                 return "File deleted successfully."
             except Exception as err:
                 return f"Error: {err}"
