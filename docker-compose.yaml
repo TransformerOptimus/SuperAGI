@@ -5,7 +5,7 @@ services:
       - "./:/app"
     build:
       context: .
-      dockerfile: Dockerfile  # Correct nested structure under build key
+      dockerfile: Dockerfile  
     depends_on:
       - super__redis
       - super__postgres
@@ -19,7 +19,7 @@ services:
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
     build:
       context: .
-      dockerfile: Dockerfile  # Correct nested structure under build key
+      dockerfile: Dockerfile 
     depends_on:
       - super__redis
       - super__postgres
