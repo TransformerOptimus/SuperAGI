@@ -126,10 +126,18 @@ cd SuperAGI
 
 4. Ensure that Docker is installed on your system. You can download and install it from [here](https://docs.docker.com/get-docker/).
 
-5. Once you have Docker Desktop running, run the following command in the in the SuperAGI directory :
-```
-docker-compose up --build
-```
+5. Once you have Docker Desktop running, run the following command in the SuperAGI directory:
+
+   a. For regular usage:
+      ```
+      docker compose -f docker-compose.yaml up --build
+      ```
+
+   b. If you want to use SuperAGI with Local LLMs and have GPU, run the following command:
+      ```
+      docker compose -f docker-compose-gpu.yml up --build
+      ```
+
 
 6. Open your web browser and navigate to http://localhost:3000 to access SuperAGI.
 

@@ -1,3 +1,5 @@
+import unittest
+from unittest.mock import patch
 import pytest
 from superagi.tools.duck_duck_go.duck_duck_go_search import DuckDuckGoSearchTool
 
@@ -11,9 +13,13 @@ class TestDuckDuckGoSearchTool:
         result = self.your_obj.get_raw_duckduckgo_results(query)
         assert result == expected_result
 
-    def test_get_raw_duckduckgo_results_valid_query(self):
+    @patch('superagi.tools.duck_duck_go.duck_duck_go_search.DuckDuckGoSearchTool.get_raw_duckduckgo_results')
+    def test_get_raw_duckduckgo_results_valid_query(self, mock_get_raw_duckduckgo_results):
         query = "python"
         expected_result_length = 10
+        mock_results = ['result1', 'result2', 'result3', 'result4', 'result5',
+                        'result6', 'result7', 'result8', 'result9', 'result10']
+        mock_get_raw_duckduckgo_results.return_value = mock_results
         result = self.your_obj.get_raw_duckduckgo_results(query)
         assert len(result) == expected_result_length
 
