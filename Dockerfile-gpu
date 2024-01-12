@@ -32,7 +32,7 @@ COPY . .
 ENV CUDA_DOCKER_ARCH=all
 ENV LLAMA_CUBLAS=1
 
-RUN CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
+RUN CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.2.7 --force-reinstall --upgrade --no-cache-dir
 
 # Make necessary scripts executable
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh ./install_tool_dependencies.sh ./entrypoint_celery.sh
