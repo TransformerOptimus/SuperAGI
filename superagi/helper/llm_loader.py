@@ -22,7 +22,7 @@ class LLMLoader:
         if self._model is None:
             try:
                 self._model = Llama(
-                    model_path="/app/local_model_path", n_ctx=self.context_length)
+                    model_path="/app/local_model_path", n_ctx=self.context_length, n_gpu_layers=get_config('GPU_LAYERS'))
             except Exception as e:
                 logger.error(e)
         return self._model
