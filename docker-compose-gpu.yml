@@ -3,7 +3,6 @@ services:
   backend:
     volumes:
       - "./:/app"
-      - "/home/ubuntu/models/vicuna-7B-v1.5-GGUF/vicuna-7b-v1.5.Q5_K_M.gguf:/app/local_model_path"
     build:
       context: .
       dockerfile: Dockerfile-gpu 
@@ -25,7 +24,6 @@ services:
     volumes:
       - "./:/app"
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
-      - "/home/ubuntu/models/vicuna-7B-v1.5-GGUF/vicuna-7b-v1.5.Q5_K_M.gguf:/app/local_model_path"
     build:
       context: .
       dockerfile: Dockerfile-gpu 
